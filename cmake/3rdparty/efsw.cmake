@@ -1,0 +1,10 @@
+set(VERBOSE OFF CACHE BOOL "" FORCE)
+set(BUILD_TEST_APP OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(EFSW_INSTALL OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/efsw)
+set_target_properties(efsw PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(efsw PROPERTIES FOLDER 3rdparty)
+set(EFSW_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/3rdparty/efsw/include)
+set(EFSW_LIBRARIES efsw)

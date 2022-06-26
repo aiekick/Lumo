@@ -1,0 +1,345 @@
+/*
+MIT License
+
+Copyright (c) 2022-2022 Stephane Cuillerdier (aka aiekick)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#include "LightGroupModule.h"
+#include <ImWidgets/ImWidgets.h>
+#include <Graph/Base/BaseNode.h>
+#include <Systems/CommonSystem.h>
+#include <vkFramework/VulkanCore.h>
+#include <vkFramework/VulkanShader.h>
+#include <Systems/GizmoSystem.h>
+
+//////////////////////////////////////////////////////////////
+//// STATIC //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+LightGroupModulePtr LightGroupModule::Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode)
+{
+	auto res = std::make_shared<LightGroupModule>(vVulkanCore);
+	res->m_This = res;
+	res->SetParentNode(vParentNode);
+	if (!res->Init())
+	{
+		res.reset();
+	}
+	return res;
+}
+
+//////////////////////////////////////////////////////////////
+//// CTOR / DTOR /////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+LightGroupModule::LightGroupModule(vkApi::VulkanCore* vVulkanCore)
+	: m_VulkanCore(vVulkanCore)
+{
+	
+}
+
+LightGroupModule::~LightGroupModule()
+{
+	Unit();
+}
+
+//////////////////////////////////////////////////////////////
+//// INIT / UNIT /////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+bool LightGroupModule::Init()
+{
+	m_SceneLightGroupPtr = SceneLightGroup::Create();
+
+	return true;
+}
+
+void LightGroupModule::Unit()
+{
+	m_SceneLightGroupPtr.reset();
+}
+
+bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+{
+	if (m_SceneLightGroupPtr)
+	{
+		if (ImGui::ContrastedButton("Add Light"))
+		{
+			m_SceneLightGroupPtr->Add(SceneLight::Create());
+		}
+
+		uint32_t idx = 0U;
+		for (auto lightPtr : *m_SceneLightGroupPtr)
+		{
+			if (lightPtr)
+			{
+				if (ImGui::CollapsingHeader(ct::toStr("Light %u : %s", idx++, lightPtr->name.c_str()).c_str()))
+				{
+					bool change = false;
+
+					ImGui::Header("Light");
+
+					auto lightTypeIndex = (int32_t)lightPtr->lightDatas.lightType;
+					if (ImGui::ContrastedComboVectorDefault(0.0f, "Type", &lightTypeIndex, { "NONE","POINT", "DIRECTIONNAL", "SPOT", "AREA" }, (int32_t)LightTypeEnum::POINT))
+					{
+						lightPtr->lightDatas.lightType = lightTypeIndex;
+						change = true;
+					}
+					change |= ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightColor.x);
+					change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f);
+
+					if (lightTypeIndex == 2U) // orthographic
+					{
+						ImGui::Header("Orthographic");
+
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Width/Height", &lightPtr->lightDatas.orthoSideSize, 0.0f, 1000.0f, 30.0f);
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rear", &lightPtr->lightDatas.orthoRearSize, 0.0f, 1000.0f, 1000.0f);
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
+					}
+					else if (lightTypeIndex == 3U) // perspective
+					{
+						ImGui::Header("Perpective");
+
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Perspective Angle", &lightPtr->lightDatas.perspectiveAngle, 0.0f, 180.0f, 45.0f);
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
+					}
+					
+					ImGui::Header("Gizmo");
+
+
+					change |= ImGui::CheckBoxBoolDefault("Show Icon", &lightPtr->showIcon, true);
+					change |= ImGui::CheckBoxBoolDefault("Show Text", &lightPtr->showText, true);
+
+					change |= GizmoSystem::Instance()->DrawGizmoTransformDialog(lightPtr);
+
+					ImGui::Header("Gizmo Matrix");
+
+					float* floatArr = lightPtr->GetGizmoFloatPtr();
+					ImGui::Text("0 : %.2f %.2f %.2f %.2f\n1 : %.2f %.2f %.2f %.2f\n2 : %.2f %.2f %.2f %.2f\n3 : %.2f %.2f %.2f %.2f",
+						floatArr[0], floatArr[1], floatArr[2], floatArr[3], floatArr[4], floatArr[5], floatArr[6], floatArr[7],
+						floatArr[8], floatArr[9], floatArr[10], floatArr[11], floatArr[12], floatArr[13], floatArr[14], floatArr[15]);
+
+					if (change)
+					{
+						lightPtr->wasChanged = true;
+
+						auto parentNodePtr = GetParentNode().getValidShared();
+						if (parentNodePtr)
+						{
+							parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+void LightGroupModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+{
+	if (m_SceneLightGroupPtr)
+	{
+		for (auto lightPtr : *m_SceneLightGroupPtr)
+		{
+			if (GizmoSystem::Instance()->DrawTooltips(lightPtr, vRect))
+			{
+				auto parentNodePtr = GetParentNode().getValidShared();
+				if (parentNodePtr)
+				{
+					parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+				}
+			}
+		}
+	}
+}
+
+void LightGroupModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& /*vMaxSize*/, ImGuiContext* vContext)
+{
+
+}
+
+SceneLightGroupWeak LightGroupModule::GetLightGroup()
+{
+	return m_SceneLightGroupPtr;
+}
+
+///////////////////////////////////////////////////////
+//// BUFFER OBJECTS ///////////////////////////////////
+///////////////////////////////////////////////////////
+
+/*
+	a utilsier plus tard..
+*/
+void LightGroupModule::UploadBufferObjectIfDirty(vkApi::VulkanCore* vVulkanCore)
+{
+	ZoneScoped;
+
+	if (m_BufferObjectIsDirty && m_SceneLightGroupPtr)
+	{
+		vkApi::VulkanRessource::upload(vVulkanCore, *m_BufferObject, &m_DescriptorBufferInfo.buffer, sizeof(SceneLight::lightDatas));
+
+		m_BufferObjectIsDirty = false;
+	}
+}
+
+bool LightGroupModule::CreateBufferObject(vkApi::VulkanCore* vVulkanCore)
+{
+	ZoneScoped;
+
+	vVulkanCore->getDevice().waitIdle();
+
+	m_BufferObject = vkApi::VulkanRessource::createStorageBufferObject(vVulkanCore, sizeof(SceneLight::lightDatas), VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
+	m_DescriptorBufferInfo.buffer = m_BufferObject->buffer;
+	m_DescriptorBufferInfo.range = sizeof(SceneLight::lightDatas);
+	m_DescriptorBufferInfo.offset = 0;
+	m_BufferObjectIsDirty = true;
+
+	return true;
+}
+
+void LightGroupModule::DestroyBufferObject()
+{
+	ZoneScoped;
+
+	m_BufferObject.reset();
+	m_DescriptorBufferInfo = vk::DescriptorBufferInfo();
+}
+
+std::string LightGroupModule::GetBufferObjectStructureHeader(const uint32_t& vBinding)
+{
+	return ct::toStr(u8R"(
+
+struct LightDatas
+{
+	mat4 lightGizmo;
+	mat4 lightView;
+	vec4 lightColor;
+	float lightIntensity;
+	int lightType;
+	float orthoSideSize;
+	float orthoRearSize;
+	float orthoDeepSize;
+	float perspectiveAngle;
+};
+
+layout(std140, binding = %u) buffer SBO_Lights
+{
+	LightDatas lightDatas[];
+};
+)", vBinding);
+}
+
+vk::DescriptorBufferInfo* LightGroupModule::GetBufferInfo()
+{
+	return &m_DescriptorBufferInfo;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string LightGroupModule::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+{
+	std::string str;
+	str += vOffset + "<light_group>\n";
+
+	if (m_SceneLightGroupPtr)
+	{
+		std::vector<float> matrix; matrix.resize(16);
+		
+		for (auto lightPtr : *m_SceneLightGroupPtr)
+		{
+			memcpy(matrix.data(), lightPtr->GetGizmoFloatPtr(), matrix.size() * sizeof(float));
+
+			str += vOffset + "\t<light>\n";
+			str += vOffset + "\t\t<transform>" + ct::fvariant(matrix).GetS() + "</transform>\n";
+			str += vOffset + "\t\t<color>" + lightPtr->lightDatas.lightColor.string() + "</color>\n";
+			str += vOffset + "\t\t<perspective_angle>" + ct::toStr(lightPtr->lightDatas.perspectiveAngle) + "</perspective_angle>\n";
+			str += vOffset + "\t\t<intensity>" + ct::toStr(lightPtr->lightDatas.lightIntensity) + "</intensity>\n";
+			str += vOffset + "\t\t<type>" + GetStringFromLightTypeEnum((LightTypeEnum)lightPtr->lightDatas.lightType) + "</type>\n";
+			str += vOffset + "\t\t<name>" + lightPtr->name + "</name>\n";
+			str += vOffset + "\t\t<show_icon>" + (lightPtr->showIcon ? "true" : "false") + "</show_icon>\n";
+			str += vOffset + "\t\t<show_text>" + (lightPtr->showText ? "true" : "false") + "</show_text>\n";
+			str += vOffset + "\t</light>\n";
+		}
+	}
+	
+	str += vOffset + "</light_group>\n";
+	return str;
+}
+
+bool LightGroupModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+{
+	std::string strName;
+	std::string strValue;
+	std::string strParentName;
+
+	strName = vElem->Value();
+	if (vElem->GetText())
+		strValue = vElem->GetText();
+	if (vParent != nullptr)
+		strParentName = vParent->Value();
+
+	if (strParentName == "light_group")
+	{
+		if (strName == "light")
+		{
+			m_SceneLightGroupPtr->Add(SceneLight::Create());
+		}
+	}
+
+	if (strParentName == "light")
+	{
+		if (!m_SceneLightGroupPtr->empty())
+		{
+			auto lastPtr = m_SceneLightGroupPtr->Get(m_SceneLightGroupPtr->size() - 1U).getValidShared();
+			if (lastPtr)
+			{
+				if (strName == "transform")
+				{
+					std::vector<float> matrix = ct::fvariant(strValue).GetVectorFloat();
+					if (matrix.size() <= 16U)
+					{
+						memcpy(lastPtr->GetGizmoFloatPtr(), matrix.data(), matrix.size() * sizeof(float));
+					}
+				}
+				else if (strName == "color")
+					lastPtr->lightDatas.lightColor = ct::fvariant(strValue).GetV4();
+				else if (strName == "perspective_angle")
+					lastPtr->lightDatas.perspectiveAngle = ct::fvariant(strValue).GetF();
+				else if (strName == "intensity")
+					lastPtr->lightDatas.lightIntensity = ct::fvariant(strValue).GetF();
+				else if (strName == "type")
+					lastPtr->lightDatas.lightType = (int)GetLightTypeEnumFromString(strValue);
+				else if (strName == "name")
+					lastPtr->name = strValue;
+				else if (strName == "show_icon")
+					lastPtr->showIcon = ct::ivariant(strValue).GetB();
+				else if (strName == "show_text")
+					lastPtr->showText = ct::ivariant(strValue).GetB();
+			}
+		}
+	}
+
+	return true;
+}

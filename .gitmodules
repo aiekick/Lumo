@@ -1,0 +1,136 @@
+[submodule "3rdparty/glslang"]
+	path = 3rdparty/glslang
+	url = https://github.com/KhronosGroup/glslang.git
+	branch = master
+[submodule "3rdparty/glfw"]
+	path = 3rdparty/glfw
+	url = https://github.com/glfw/glfw.git
+	branch = master
+[submodule "3rdparty/tinyxml2"]
+	path = 3rdparty/tinyxml2
+	url = https://github.com/leethomason/tinyxml2.git
+	branch = master
+[submodule "3rdparty/efsw"]
+	path = 3rdparty/efsw
+	url = https://github.com/aiekick/efsw.git
+	branch = master
+[submodule "3rdparty/glm"]
+	path = 3rdparty/glm
+	url = https://github.com/g-truc/glm.git
+	branch = master
+[submodule "3rdparty/stb"]
+	path = 3rdparty/stb
+	url = https://github.com/nothings/stb.git
+	branch = master
+[submodule "3rdparty/tracy"]
+	path = 3rdparty/tracy
+	url = https://github.com/wolfpld/tracy.git
+	branch = master
+[submodule "3rdparty/glad"]
+	path = 3rdparty/glad
+	url = https://github.com/Dav1dde/glad.git
+	branch = c
+[submodule "3rdparty/ctools"]
+	path = 3rdparty/ctools
+	url = https://github.com/aiekick/cTools.git
+	branch = master
+[submodule "3rdparty/ImGuiFileDialog"]
+	path = 3rdparty/ImGuiFileDialog
+	url = https://github.com/aiekick/ImGuiFileDialog.git
+	branch = Lib_Only
+[submodule "3rdparty/ImGuiColorTextEdit"]
+	path = 3rdparty/ImGuiColorTextEdit
+	url = https://github.com/aiekick/ImGuiColorTextEdit.git
+	branch = master
+[submodule "3rdparty/freetype2"]
+	path = 3rdparty/freetype2
+	url = https://github.com/freetype/freetype2.git
+	branch = master
+[submodule "3rdparty/lodepng"]
+	path = 3rdparty/lodepng
+	url = https://github.com/lvandeve/lodepng.git
+	branch = master
+[submodule "3rdparty/VulkanHPP"]
+	path = 3rdparty/VulkanHPP
+	url = https://github.com/KhronosGroup/Vulkan-Hpp.git
+	branch = master
+[submodule "3rdparty/ImGuiMarkDown"]
+	path = 3rdparty/ImGuiMarkDown
+	url = https://github.com/aiekick/imgui_markdown.git
+	branch = master
+[submodule "3rdparty/alphanum"]
+	path = 3rdparty/alphanum
+	url = https://github.com/aiekick/alphanum.git
+	branch = main
+[submodule "3rdparty/cpp_ipc"]
+	path = 3rdparty/cpp_ipc
+	url = https://github.com/aiekick/cpp-ipc.git
+	branch = master
+[submodule "SoLibs/FontIcons"]
+	path = SoLibs/FontIcons
+	url = https://gitlab.funparadigm.com/soglsl/mesher.git
+	branch = master
+[submodule "SoLibs/UniformWidgets"]
+	path = SoLibs/UniformWidgets
+	url = https://gitlab.funparadigm.com/soglsl/uniformwidgets.git
+	branch = master
+[submodule "SoLibs/InterfaceBlock"]
+	path = SoLibs/InterfaceBlock
+	url = https://gitlab.funparadigm.com/soglsl/interfaceblock.git
+	branch = master
+[submodule "SoLibs/uTypes"]
+	path = SoLibs/uTypes
+	url = https://gitlab.funparadigm.com/soglsl/utypes.git
+	branch = master
+[submodule "SoLibs/ImWidgets"]
+	path = SoLibs/ImWidgets
+	url = https://gitlab.funparadigm.com/soglsl/imwidgets.git
+	branch = master
+[submodule "SoLibs/vkprofiler"]
+	path = SoLibs/vkprofiler
+	url = https://gitlab.funparadigm.com/soglsl/vkprofiler.git
+	branch = master
+[submodule "SoLibs/vkrenderer"]
+	path = SoLibs/vkrenderer
+	url = https://gitlab.funparadigm.com/soglsl/vkrenderer.git
+	branch = master
+[submodule "3rdparty/BuildInc"]
+	path = 3rdparty/BuildInc
+	url = https://gitlab.funparadigm.com/vfxsoftwares/buildinc.git
+	branch = master
+[submodule "3rdparty/imgui_node_editor"]
+	path = 3rdparty/imgui_node_editor
+	url = https://github.com/aiekick/imgui-node-editor.git
+	branch = master
+[submodule "3rdparty/zlib"]
+	path = 3rdparty/zlib
+	url = https://github.com/madler/zlib.git
+	branch = master
+[submodule "3rdparty/mGuizmo"]
+	path = 3rdparty/mGuizmo
+	url = https://github.com/aiekick/ImGuizmo
+	branch = master
+[submodule "3rdparty/ImGuizmo"]
+	path = 3rdparty/ImGuizmo
+	url = https://github.com/aiekick/ImGuizmo
+	branch = master
+[submodule "3rdparty/assimp"]
+	path = 3rdparty/assimp
+	url = https://github.com/assimp/assimp
+	branch = master
+[submodule "3rdparty/taskflow"]
+	path = 3rdparty/taskflow
+	url = https://github.com/taskflow/taskflow
+	branch = master
+[submodule "Plugins/MeshSim"]
+	path = Plugins/MeshSim
+	url = https://gitlab.funparadigm.com/vfxsoftwares/vulkan/lumo_plugins/meshsim.git
+	branch = master
+[submodule "Plugins/MorphoGenesis"]
+	path = Plugins/MorphoGenesis
+	url = https://gitlab.funparadigm.com/vfxsoftwares/vulkan/lumo_plugins/morphogenesis.git
+	branch = master
+[submodule "Plugins/SdfMesher"]
+	path = Plugins/SdfMesher
+	url = https://gitlab.funparadigm.com/vfxsoftwares/vulkan/lumo_plugins/sdfmesher.git
+	branch = master
