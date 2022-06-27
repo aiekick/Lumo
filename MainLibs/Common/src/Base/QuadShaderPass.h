@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <Generic/MeshShaderPass.h>
+#include <Base/MeshShaderPass.h>
 
 class QuadShaderPass : public MeshShaderPass<VertexStruct::P2_T2>
 {

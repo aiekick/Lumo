@@ -41,15 +41,15 @@ SOFTWARE.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 
-#include <Generic/ShaderPass.h>
+#include <Base/ShaderPass.h>
 
-// le GenericRenderer est le digne successeur de GenericRenderer en Opengl
+// le BaseRenderer est le digne successeur de BaseRenderer en Opengl
 // il va supporter les vertex/fragment en mode, point, quad et opengl
 // et spêcifiquement les compute
 // il pourra etre derivé et certaine focntionnalité dependant en temps normal du shader
 // pouront etre bloqué en code pour specialisation
 
-class GenericRenderer : 
+class BaseRenderer : 
 	public conf::ConfigAbstract
 {
 private:
@@ -84,7 +84,7 @@ protected:
 	uint32_t m_Frame = 0U;					// frame count
 	uint32_t m_CountBuffers = 0U;			// FRAGMENT count framebuffer color attachment from 0 to 7
 
-	ct::cWeak<GenericRenderer> m_This;				// pointer to this for affected in other op
+	ct::cWeak<BaseRenderer> m_This;				// pointer to this for affected in other op
 
 	// vulkan creation
 	vkApi::VulkanCore* m_VulkanCore = nullptr;	// vulkan core
@@ -110,9 +110,9 @@ protected:
 	std::vector<ShaderPassPtr> m_ShaderPass;
 
 public: // contructor
-	GenericRenderer(vkApi::VulkanCore* vVulkanCore);
-	GenericRenderer(vkApi::VulkanCore* vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
-	virtual ~GenericRenderer();
+	BaseRenderer(vkApi::VulkanCore* vVulkanCore);
+	BaseRenderer(vkApi::VulkanCore* vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+	virtual ~BaseRenderer();
 
 	// Generic Renderer Pass
 	bool AddGenericPass(ShaderPassPtr vPass);

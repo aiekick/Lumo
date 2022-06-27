@@ -27,7 +27,7 @@ SOFTWARE.
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <ctools/ConfigAbstract.h>
-#include <Generic/GenericRenderer.h>
+#include <Base/BaseRenderer.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanDevice.h>
 #include <Interfaces/TaskInterface.h>
@@ -38,7 +38,7 @@ SOFTWARE.
 namespace vkApi { class VulkanCore; }
 class GridModule_Pass;
 class GridModule :
-	public GenericRenderer,
+	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
 	public ResizerInterface,

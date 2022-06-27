@@ -36,7 +36,7 @@ SOFTWARE.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Generic/QuadShaderPass.h>
+#include <Base/QuadShaderPass.h>
 
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>

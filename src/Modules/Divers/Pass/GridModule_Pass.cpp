@@ -28,7 +28,7 @@ SOFTWARE.
 #include <Systems/CommonSystem.h>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
-#include <Generic/FrameBuffer.h>
+#include <Base/FrameBuffer.h>
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////

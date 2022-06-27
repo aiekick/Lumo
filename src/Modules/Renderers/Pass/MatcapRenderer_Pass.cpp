@@ -33,7 +33,7 @@ SOFTWARE.
 #include <Profiler/vkProfiler.hpp>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
-#include <Generic/FrameBuffer.h>
+#include <Base/FrameBuffer.h>
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////

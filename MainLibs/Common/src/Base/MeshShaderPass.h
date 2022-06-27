@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <Generic/ShaderPass.h>
+#include <Base/ShaderPass.h>
 #include <SceneGraph/SceneMesh.h>
 
 enum class MeshShaderPassType : uint8_t

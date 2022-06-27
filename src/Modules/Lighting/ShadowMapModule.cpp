@@ -36,7 +36,7 @@ SOFTWARE.
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Generic/FrameBuffer.h>
+#include <Base/FrameBuffer.h>
 
 #include <Modules/Lighting/Pass/ShadowMapModule_Pass.h>
 
@@ -64,7 +64,7 @@ std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(vkApi::VulkanCore* vVul
 //////////////////////////////////////////////////////////////
 
 ShadowMapModule::ShadowMapModule(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -86,7 +86,7 @@ bool ShadowMapModule::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_ShadowMapModule_Pass_Ptr = std::make_shared<ShadowMapModule_Pass>(m_VulkanCore);
 		if (m_ShadowMapModule_Pass_Ptr)
@@ -114,7 +114,7 @@ bool ShadowMapModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("Shadow Map Module");
+		BaseRenderer::Render("Shadow Map Module");
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -164,7 +164,7 @@ void ShadowMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 
 void ShadowMapModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 void ShadowMapModule::SetModel(SceneModelWeak vSceneModel)

@@ -25,7 +25,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GenericRenderer.h"
+#include "BaseRenderer.h"
 
 #include <utility>
 #include <functional>
@@ -36,10 +36,10 @@ SOFTWARE.
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
 #include <vkFramework/VulkanSubmitter.h>
-#include <Generic/FrameBuffer.h>
+#include <Base/FrameBuffer.h>
 
 #include <FontIcons/CustomFont.h>
-#include <Generic/Generic.h>
+#include <Base/Base.h>
 
 #define TRACE_MEMORY
 #include <vkProfiler/Profiler.h>
@@ -55,7 +55,7 @@ using namespace vkApi;
 //// PUBLIC / CONSTRUCTOR //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-GenericRenderer::GenericRenderer(vkApi::VulkanCore* vVulkanCore)
+BaseRenderer::BaseRenderer(vkApi::VulkanCore* vVulkanCore)
 {
 	ZoneScoped;
 
@@ -63,7 +63,7 @@ GenericRenderer::GenericRenderer(vkApi::VulkanCore* vVulkanCore)
 	m_Device = m_VulkanCore->getDevice();
 }
 
-GenericRenderer::GenericRenderer(vkApi::VulkanCore* vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
+BaseRenderer::BaseRenderer(vkApi::VulkanCore* vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
 {
 	ZoneScoped;
 
@@ -73,7 +73,7 @@ GenericRenderer::GenericRenderer(vkApi::VulkanCore* vVulkanCore, vk::CommandPool
 	m_DescriptorPool = *vDescriptorPool;
 }
 
-GenericRenderer::~GenericRenderer()
+BaseRenderer::~BaseRenderer()
 {
 	ZoneScoped;
 
@@ -84,7 +84,7 @@ GenericRenderer::~GenericRenderer()
 //// PUBLIC / PASS /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GenericRenderer::AddGenericPass(ShaderPassPtr vPass)
+bool BaseRenderer::AddGenericPass(ShaderPassPtr vPass)
 {
 	if (vPass)
 	{
@@ -95,7 +95,7 @@ bool GenericRenderer::AddGenericPass(ShaderPassPtr vPass)
 	return false;
 }
 
-ShaderPassWeak GenericRenderer::GetGenericPass(const uint32_t& vIdx)
+ShaderPassWeak BaseRenderer::GetGenericPass(const uint32_t& vIdx)
 {
 	if (m_ShaderPass.size() > vIdx)
 	{
@@ -109,17 +109,17 @@ ShaderPassWeak GenericRenderer::GetGenericPass(const uint32_t& vIdx)
 //// PUBLIC / DURING INIT //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GenericRenderer::ActionBeforeInit()
+void BaseRenderer::ActionBeforeInit()
 {
 
 }
 
-void GenericRenderer::ActionAfterInitSucceed()
+void BaseRenderer::ActionAfterInitSucceed()
 {
 
 }
 
-void GenericRenderer::ActionAfterInitFail()
+void BaseRenderer::ActionAfterInitFail()
 {
 
 }
@@ -128,7 +128,7 @@ void GenericRenderer::ActionAfterInitFail()
 //// PUBLIC / INIT/UNIT ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GenericRenderer::InitPixel(const ct::uvec2& vSize)
+bool BaseRenderer::InitPixel(const ct::uvec2& vSize)
 {
 	ZoneScoped;
 
@@ -174,7 +174,7 @@ bool GenericRenderer::InitPixel(const ct::uvec2& vSize)
 	return m_Loaded;
 }
 
-bool GenericRenderer::InitCompute(const ct::uvec2& vSize)
+bool BaseRenderer::InitCompute(const ct::uvec2& vSize)
 {
 	ZoneScoped;
 
@@ -222,7 +222,7 @@ bool GenericRenderer::InitCompute(const ct::uvec2& vSize)
 	return m_Loaded;
 }
 
-void GenericRenderer::Unit()
+void BaseRenderer::Unit()
 {
 	ZoneScoped;
 
@@ -245,7 +245,7 @@ void GenericRenderer::Unit()
 //// PUBLIC / RESIZE ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GenericRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void BaseRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
 	for (auto passPtr : m_ShaderPass)
 	{
@@ -256,7 +256,7 @@ void GenericRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColo
 	}
 }
 
-void GenericRenderer::NeedResize(ct::ivec2* vNewSize)
+void BaseRenderer::NeedResize(ct::ivec2* vNewSize)
 {
 	for (auto passPtr : m_ShaderPass)
 	{
@@ -271,7 +271,7 @@ void GenericRenderer::NeedResize(ct::ivec2* vNewSize)
 //// PUBLIC / RENDER ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GenericRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* vCmdBuffer)
+void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* vCmdBuffer)
 {
 	ZoneScoped;
 
@@ -298,7 +298,7 @@ void GenericRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* vCmdB
 	}
 }
 
-void GenericRenderer::UpdateDescriptorsBeforeCommandBuffer()
+void BaseRenderer::UpdateDescriptorsBeforeCommandBuffer()
 {
 	for (auto passPtr : m_ShaderPass)
 	{
@@ -309,7 +309,7 @@ void GenericRenderer::UpdateDescriptorsBeforeCommandBuffer()
 	}
 }
 
-bool GenericRenderer::ResizeIfNeeded()
+bool BaseRenderer::ResizeIfNeeded()
 {
 	bool resized = false;
 	
@@ -348,7 +348,7 @@ bool GenericRenderer::ResizeIfNeeded()
 	return resized;
 }
 
-bool GenericRenderer::BeginRender(const char* vSectionLabel)
+bool BaseRenderer::BeginRender(const char* vSectionLabel)
 {
 	ZoneScoped;
 
@@ -361,7 +361,7 @@ bool GenericRenderer::BeginRender(const char* vSectionLabel)
 		auto cmd = GetCommandBuffer();
 		if (cmd)
 		{
-			BeginTracyFrame("GenericRenderer");
+			BeginTracyFrame("BaseRenderer");
 
 			UpdateDescriptorsBeforeCommandBuffer();
 
@@ -375,7 +375,7 @@ bool GenericRenderer::BeginRender(const char* vSectionLabel)
 	return false;
 }
 
-void GenericRenderer::EndRender()
+void BaseRenderer::EndRender()
 {
 	ZoneScoped;
 
@@ -392,7 +392,7 @@ void GenericRenderer::EndRender()
 //// PUBLIC / RENDER ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GenericRenderer::ResetFence()
+bool BaseRenderer::ResetFence()
 {
 	ZoneScoped;
 
@@ -401,7 +401,7 @@ bool GenericRenderer::ResetFence()
 	return m_Device.resetFences(1, &m_WaitFences[m_CurrentFrame]) == vk::Result::eSuccess;
 }
 
-bool GenericRenderer::WaitFence()
+bool BaseRenderer::WaitFence()
 {
 	ZoneScoped;
 
@@ -410,23 +410,23 @@ bool GenericRenderer::WaitFence()
 	return m_Device.waitForFences(1, &m_WaitFences[m_CurrentFrame], VK_TRUE, UINT64_MAX) == vk::Result::eSuccess;
 }
 
-vk::CommandBuffer* GenericRenderer::GetCommandBuffer()
+vk::CommandBuffer* BaseRenderer::GetCommandBuffer()
 {
 	return &m_CommandBuffers[m_CurrentFrame];
 }
 
-void GenericRenderer::BeginTracyFrame(const char* vFrameName)
+void BaseRenderer::BeginTracyFrame(const char* vFrameName)
 {
 	FrameMarkNamed(vFrameName);
 }
 
-void GenericRenderer::ResetCommandBuffer()
+void BaseRenderer::ResetCommandBuffer()
 {
 	auto cmd = GetCommandBuffer();
 	cmd->reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 }
 
-void GenericRenderer::BeginPixelCommandBuffer(const char* vSectionLabel)
+void BaseRenderer::BeginPixelCommandBuffer(const char* vSectionLabel)
 {
 	auto cmd = GetCommandBuffer();
 	cmd->begin(vk::CommandBufferBeginInfo());
@@ -442,7 +442,7 @@ void GenericRenderer::BeginPixelCommandBuffer(const char* vSectionLabel)
 	}
 }
 
-void GenericRenderer::BeginComputeCommandBuffer(const char* vSectionLabel)
+void BaseRenderer::BeginComputeCommandBuffer(const char* vSectionLabel)
 {
 	auto cmd = GetCommandBuffer();
 	cmd->begin(vk::CommandBufferBeginInfo());
@@ -458,7 +458,7 @@ void GenericRenderer::BeginComputeCommandBuffer(const char* vSectionLabel)
 	}
 }
 
-void GenericRenderer::EndCommandBuffer()
+void BaseRenderer::EndCommandBuffer()
 {
 	auto cmd = GetCommandBuffer();
 	if (cmd)
@@ -478,7 +478,7 @@ void GenericRenderer::EndCommandBuffer()
 	}
 }
 
-void GenericRenderer::SubmitPixel()
+void BaseRenderer::SubmitPixel()
 {
 	ZoneScoped;
 
@@ -510,7 +510,7 @@ void GenericRenderer::SubmitPixel()
 	VulkanSubmitter::Submit(m_VulkanCore, vk::QueueFlagBits::eGraphics, submitInfo, m_WaitFences[m_CurrentFrame]);
 }
 
-void GenericRenderer::SubmitCompute()
+void BaseRenderer::SubmitCompute()
 {
 	ZoneScoped;
 
@@ -542,7 +542,7 @@ void GenericRenderer::SubmitCompute()
 	VulkanSubmitter::Submit(m_VulkanCore, vk::QueueFlagBits::eCompute, submitInfo, m_WaitFences[m_CurrentFrame]);
 }
 
-void GenericRenderer::Swap()
+void BaseRenderer::Swap()
 {
 	ZoneScoped;
 
@@ -560,7 +560,7 @@ void GenericRenderer::Swap()
 	m_JustReseted = false;
 }
 
-void GenericRenderer::ResetFrame()
+void BaseRenderer::ResetFrame()
 {
 	//ClearAttachments();
 	m_Frame = 0;
@@ -571,26 +571,26 @@ void GenericRenderer::ResetFrame()
 //// PUBLIC / GET //////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::Viewport GenericRenderer::GetViewport() const
+vk::Viewport BaseRenderer::GetViewport() const
 {
 	ZoneScoped;
 
 	return m_Viewport;
 }
 
-vk::Rect2D GenericRenderer::GetRenderArea() const
+vk::Rect2D BaseRenderer::GetRenderArea() const
 {
 	ZoneScoped;
 
 	return m_RenderArea;
 }
 
-ct::fvec2 GenericRenderer::GetOutputSize() const
+ct::fvec2 BaseRenderer::GetOutputSize() const
 {
 	return ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y);
 }
 
-float GenericRenderer::GetOutputRatio() const
+float BaseRenderer::GetOutputRatio() const
 {
 	return m_OutputRatio;
 }
@@ -599,7 +599,7 @@ float GenericRenderer::GetOutputRatio() const
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GenericRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string BaseRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
@@ -609,7 +609,7 @@ std::string GenericRenderer::getXml(const std::string& vOffset, const std::strin
 }
 
 // return true for continue xml parsing of childs in this node or false for interupt the child exploration
-bool GenericRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool BaseRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -631,12 +631,12 @@ bool GenericRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 //// PRIVATE / COMMANDBUFFER ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GenericRenderer::DoBeforeEndCommandBuffer(vk::CommandBuffer* vCmdBuffer)
+void BaseRenderer::DoBeforeEndCommandBuffer(vk::CommandBuffer* vCmdBuffer)
 {
 
 }
 
-bool GenericRenderer::CreateCommanBuffer()
+bool BaseRenderer::CreateCommanBuffer()
 {
 	ZoneScoped;
 
@@ -651,7 +651,7 @@ bool GenericRenderer::CreateCommanBuffer()
 	return true;
 }
 
-void GenericRenderer::DestroyCommanBuffer()
+void BaseRenderer::DestroyCommanBuffer()
 {
 	ZoneScoped;
 
@@ -666,7 +666,7 @@ void GenericRenderer::DestroyCommanBuffer()
 //// PRIVATE / SYNC OBJECTS ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GenericRenderer::CreateSyncObjects()
+bool BaseRenderer::CreateSyncObjects()
 {
 	ZoneScoped;
 
@@ -681,7 +681,7 @@ bool GenericRenderer::CreateSyncObjects()
 	return true;
 }
 
-void GenericRenderer::DestroySyncObjects()
+void BaseRenderer::DestroySyncObjects()
 {
 	ZoneScoped;
 

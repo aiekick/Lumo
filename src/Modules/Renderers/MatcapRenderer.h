@@ -27,7 +27,7 @@ SOFTWARE.
 #include <array>
 #include <memory>
 #include <ctools/ConfigAbstract.h>
-#include <Generic/GenericRenderer.h>
+#include <Base/BaseRenderer.h>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanDevice.h>
@@ -45,7 +45,7 @@ SOFTWARE.
 namespace vkApi { class VulkanCore; }
 class MatcapRenderer_Pass;
 class MatcapRenderer :
-	public GenericRenderer,
+	public BaseRenderer,
 	public NodeInterface,
 	public GuiInterface,
 	public ModelInputInterface,

@@ -34,8 +34,8 @@ SOFTWARE.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Generic/GenericRenderer.h>
-#include <Generic/QuadShaderPass.h>
+#include <Base/BaseRenderer.h>
+#include <Base/QuadShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
@@ -60,7 +60,7 @@ namespace vkApi { class VulkanCore; }
 
 class ShadowMapModule_Pass;
 class ShadowMapModule :
-	public GenericRenderer,
+	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
 	public ModelInputInterface,

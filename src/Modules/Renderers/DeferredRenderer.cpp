@@ -61,7 +61,7 @@ std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(vkApi::VulkanCore* vV
 //////////////////////////////////////////////////////////////
 
 DeferredRenderer::DeferredRenderer(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -83,7 +83,7 @@ bool DeferredRenderer::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_DeferredRenderer_Pass_Ptr = std::make_shared<DeferredRenderer_Pass>(m_VulkanCore);
 		if (m_DeferredRenderer_Pass_Ptr)
@@ -109,7 +109,7 @@ bool DeferredRenderer::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer*
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("Deferred Renderer", vCmd);
+		BaseRenderer::Render("Deferred Renderer", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -151,7 +151,7 @@ void DeferredRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 
 void DeferredRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 void DeferredRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)

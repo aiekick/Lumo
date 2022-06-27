@@ -34,8 +34,8 @@ SOFTWARE.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Generic/GenericRenderer.h>
-#include <Generic/QuadShaderPass.h>
+#include <Base/BaseRenderer.h>
+#include <Base/QuadShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -60,7 +60,7 @@ namespace vkApi { class VulkanCore; }
 
 class ModelShadowModule_Pass;
 class ModelShadowModule :
-	public GenericRenderer,
+	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
 	public TextureInputInterface<0U>, // 0, because no need of items here

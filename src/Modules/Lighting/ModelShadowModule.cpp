@@ -36,7 +36,7 @@ SOFTWARE.
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Generic/FrameBuffer.h>
+#include <Base/FrameBuffer.h>
 
 #include <Modules/Lighting/Pass/ModelShadowModule_Pass.h>
 
@@ -64,7 +64,7 @@ std::shared_ptr<ModelShadowModule> ModelShadowModule::Create(vkApi::VulkanCore* 
 //////////////////////////////////////////////////////////////
 
 ModelShadowModule::ModelShadowModule(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -86,7 +86,7 @@ bool ModelShadowModule::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_ModelShadowModule_Pass_Ptr = std::make_shared<ModelShadowModule_Pass>(m_VulkanCore);
 		if (m_ModelShadowModule_Pass_Ptr)
@@ -117,7 +117,7 @@ bool ModelShadowModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("Model Shadow Module");
+		BaseRenderer::Render("Model Shadow Module");
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -167,7 +167,7 @@ void ModelShadowModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 
 void ModelShadowModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 void ModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
@@ -227,7 +227,7 @@ void ModelShadowModule::UpdateDescriptorsBeforeCommandBuffer()
 			m_ModelShadowModule_Pass_Light_Shadow_Map_Ptr->GetLightViewMatrix());
 	}*/
 
-	GenericRenderer::UpdateDescriptorsBeforeCommandBuffer();
+	BaseRenderer::UpdateDescriptorsBeforeCommandBuffer();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

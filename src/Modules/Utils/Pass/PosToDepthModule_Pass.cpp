@@ -35,7 +35,7 @@ SOFTWARE.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
-#include <Generic/FrameBuffer.h>
+#include <Base/FrameBuffer.h>
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////

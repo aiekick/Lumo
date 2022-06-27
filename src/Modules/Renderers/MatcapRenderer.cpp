@@ -58,7 +58,7 @@ std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(vkApi::VulkanCore* vVulka
 //////////////////////////////////////////////////////////////
 
 MatcapRenderer::MatcapRenderer(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -80,7 +80,7 @@ bool MatcapRenderer::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_MatcapRenderer_Pass_Ptr = std::make_shared<MatcapRenderer_Pass>(m_VulkanCore);
 		if (m_MatcapRenderer_Pass_Ptr)
@@ -107,7 +107,7 @@ bool MatcapRenderer::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* v
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("Matcap Renderer", vCmd);
+		BaseRenderer::Render("Matcap Renderer", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -117,7 +117,7 @@ bool MatcapRenderer::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* v
 
 void MatcapRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

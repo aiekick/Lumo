@@ -35,7 +35,7 @@ SOFTWARE.
 
 static int rule_maxBuildNumber = 1000;
 static int rule_maxMinorNumber = 10;
-static char prefix_buffer[255] = "";
+static char prefix_buffer[MAX_LENGTH + 1] = "";
 
 // return 1 if a prefix was found
 int ParsePrefix(const char* vPrefix)
@@ -43,7 +43,11 @@ int ParsePrefix(const char* vPrefix)
 	if (vPrefix && strlen(vPrefix))
 	{
 		prefix_buffer[0] = '\0';
+#ifdef _MSC_VER
+		int res = sscanf_s(vPrefix, "-prefix=%s", prefix_buffer, MAX_LENGTH);
+#else
 		int res = sscanf(vPrefix, "-prefix=%s", prefix_buffer);
+#endif
 		if (res == 1)
 		{
 			return 1;
@@ -59,7 +63,11 @@ int ParseRule(const char* vRule)
 	if (vRule && strlen(vRule))
 	{
 		int maxBuild, maxMinor;
+#ifdef _MSC_VER
+		int res = sscanf_s(vRule, "%i:%i", &maxBuild, &maxMinor);
+#else
 		int res = sscanf(vRule, "%i:%i", &maxBuild, &maxMinor);
+#endif
 		if (res == 2)
 		{
 			rule_maxBuildNumber = maxBuild;
@@ -87,8 +95,17 @@ void ParseFile(const char* vFile)
 		int idx = 0;
 		char bufLine[MAX_LENGTH + 1];
 
+
+#ifdef _MSC_VER
+		FILE* fp = NULL;
+		const errno_t err = fopen_s(&fp, vFile, "r");
+		if (err == 0 && fp)
+#else
 		FILE* fp = fopen(vFile, "r");
 		if (fp)
+#endif
+		
+		
 		{
 			// read
 			while (!feof(fp) && idx < 3)
@@ -109,14 +126,22 @@ void ParseFile(const char* vFile)
 				{
 					char bufcmp[MAX_LENGTH + 1]; bufcmp[0] = '\0';
 					snprintf(bufcmp, MAX_LENGTH, "#define %s_%%s %%i", prefix_buffer);
+#ifdef _MSC_VER
+					if (sscanf_s(bufLine, bufcmp, bufKey, MAX_LENGTH, &id) == 2)
+#else
 					if (sscanf(bufLine, bufcmp, bufKey, &id) == 2)
+#endif
 					{
 						is_found = 1;
 					}
 				}
 				else
 				{
+#ifdef _MSC_VER
+					if (sscanf_s(bufLine, "#define %s %i", bufKey, MAX_LENGTH, &id) == 2)
+#else
 					if (sscanf(bufLine, "#define %s %i", bufKey, &id) == 2)
+#endif
 					{		
 						is_found = 1;
 					}
@@ -177,8 +202,14 @@ void ParseFile(const char* vFile)
 				prefix_buffer[len + 1] = '\0';
 			}
 
+#ifdef _MSC_VER
+			FILE* fp = NULL;
+			const errno_t err = fopen_s(&fp, vFile, "w");
+			if (err == 0 && fp)
+#else
 			FILE* fp = fopen(vFile, "w");
 			if (fp)
+#endif
 			{
 				fputs("#pragma once\n\n", fp);
 

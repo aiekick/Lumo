@@ -36,7 +36,7 @@ SOFTWARE.
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Generic/FrameBuffer.h>
+#include <Base/FrameBuffer.h>
 
 #include <Modules/PostPro/Pass/SSAOModule_Pass_AO.h>
 #include <Modules/PostPro/Pass/SSAOModule_Pass_Blur.h>
@@ -65,7 +65,7 @@ std::shared_ptr<SSAOModule> SSAOModule::Create(vkApi::VulkanCore* vVulkanCore)
 //////////////////////////////////////////////////////////////
 
 SSAOModule::SSAOModule(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +87,7 @@ bool SSAOModule::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_SSAOModule_Pass_AO_Ptr = std::make_shared<SSAOModule_Pass_AO>(m_VulkanCore);
 		if (m_SSAOModule_Pass_AO_Ptr)
@@ -129,7 +129,7 @@ bool SSAOModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("SSAO", vCmd);
+		BaseRenderer::Render("SSAO", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -179,7 +179,7 @@ void SSAOModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 
 void SSAOModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 void SSAOModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
@@ -230,7 +230,7 @@ void SSAOModule::UpdateDescriptorsBeforeCommandBuffer()
 			m_SSAOModule_Pass_AO_Ptr->GetDescriptorImageInfo(0U));
 	}
 
-	GenericRenderer::UpdateDescriptorsBeforeCommandBuffer();
+	BaseRenderer::UpdateDescriptorsBeforeCommandBuffer();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

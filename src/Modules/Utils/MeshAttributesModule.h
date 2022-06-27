@@ -29,8 +29,8 @@ SOFTWARE.
 
 #include <ctools/ConfigAbstract.h>
 
-#include <Generic/ShaderPass.h>
-#include <Generic/GenericRenderer.h>
+#include <Base/ShaderPass.h>
+#include <Base/BaseRenderer.h>
 
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/ImGuiTexture.h>
@@ -52,7 +52,7 @@ namespace vkApi { class VulkanCore; }
 
 class MeshAttributesModule_Pass;
 class MeshAttributesModule :
-	public GenericRenderer,
+	public BaseRenderer,
 	public NodeInterface,
 	public GuiInterface,
 	public ModelInputInterface,

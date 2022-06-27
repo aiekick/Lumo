@@ -31,7 +31,7 @@ SOFTWARE.
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 
-#include <Generic/FrameBuffer.h>
+#include <Base/FrameBuffer.h>
 
 #include <ImWidgets/ImWidgets.h>
 
@@ -66,7 +66,7 @@ std::shared_ptr<MeshAttributesModule> MeshAttributesModule::Create(vkApi::Vulkan
 //////////////////////////////////////////////////////////////
 
 MeshAttributesModule::MeshAttributesModule(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -88,7 +88,7 @@ bool MeshAttributesModule::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_MeshAttributesModule_Pass_Ptr = std::make_shared<MeshAttributesModule_Pass>(m_VulkanCore);
 		if (m_MeshAttributesModule_Pass_Ptr)
@@ -115,7 +115,7 @@ bool MeshAttributesModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuf
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("Mesh Attributes Module", vCmd);
+		BaseRenderer::Render("Mesh Attributes Module", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -157,7 +157,7 @@ void MeshAttributesModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame
 
 void MeshAttributesModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 void MeshAttributesModule::SetModel(SceneModelWeak vSceneModel)

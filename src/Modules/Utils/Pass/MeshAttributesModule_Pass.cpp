@@ -31,7 +31,7 @@ SOFTWARE.
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 
-#include <Generic/FrameBuffer.h>
+#include <Base/FrameBuffer.h>
 
 #include <ImWidgets/ImWidgets.h>
 

@@ -24,7 +24,7 @@ SOFTWARE.
 
 #pragma once
 
-#include <Generic/ShaderPass.h>
+#include <Base/ShaderPass.h>
 
 class VertexShaderPass : public ShaderPass
 {

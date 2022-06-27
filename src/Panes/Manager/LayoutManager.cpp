@@ -159,11 +159,11 @@ void LayoutManager::ApplyInitialDockingLayout(ImVec2 vSize)
 {
 	auto size = ImVec2((float)vSize.x, (float)vSize.y);
 
-	if (IS_FLOAT_EQUAL(size.x, 0.0) || IS_FLOAT_EQUAL(size.y, 0.0))
+	if (IS_FLOAT_EQUAL(size.x, 0.0f) || IS_FLOAT_EQUAL(size.y, 0.0f))
 	{
 		size = m_LastSize;
 
-		if (IS_FLOAT_EQUAL(m_LastSize.x, 0.0) || IS_FLOAT_EQUAL(m_LastSize.y, 0.0))
+		if (IS_FLOAT_EQUAL(m_LastSize.x, 0.0f) || IS_FLOAT_EQUAL(m_LastSize.y, 0.0f))
 		{
 			return;
 		}

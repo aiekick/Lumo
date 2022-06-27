@@ -27,7 +27,7 @@ SOFTWARE.
 #include <array>
 #include <memory>
 #include <ctools/ConfigAbstract.h>
-#include <Generic/GenericRenderer.h>
+#include <Base/BaseRenderer.h>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanDevice.h>
@@ -43,7 +43,7 @@ SOFTWARE.
 namespace vkApi { class VulkanCore; }
 class HeatmapRenderer_Pass;
 class HeatmapRenderer :
-	public GenericRenderer,
+	public BaseRenderer,
 	public NodeInterface,
 	public GuiInterface,
 	public TaskInterface,

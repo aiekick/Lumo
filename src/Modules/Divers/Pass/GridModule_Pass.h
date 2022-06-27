@@ -27,7 +27,7 @@ SOFTWARE.
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <ctools/ConfigAbstract.h>
-#include <Generic/VertexShaderPass.h>
+#include <Base/VertexShaderPass.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanDevice.h>
 #include <Interfaces/TaskInterface.h>

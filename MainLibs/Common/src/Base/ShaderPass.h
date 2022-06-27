@@ -41,7 +41,7 @@ SOFTWARE.
 
 #include <Utils/Mesh/VertexStruct.h>
 
-#include <Generic/Generic.h>
+#include <Base/Base.h>
 
 enum class GenericType : uint8_t
 {

@@ -51,7 +51,7 @@ std::shared_ptr<GridModule> GridModule::Create(vkApi::VulkanCore* vVulkanCore)
 //////////////////////////////////////////////////////////////
 
 GridModule::GridModule(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	
 }
@@ -73,7 +73,7 @@ bool GridModule::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_GridModule_Pass_Ptr = std::make_shared<GridModule_Pass>(m_VulkanCore);
 		if (m_GridModule_Pass_Ptr)
@@ -100,7 +100,7 @@ bool GridModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("Grid Module", vCmd);
+		BaseRenderer::Render("Grid Module", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -110,7 +110,7 @@ bool GridModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 
 void GridModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

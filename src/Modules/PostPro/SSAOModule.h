@@ -34,8 +34,8 @@ SOFTWARE.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Generic/GenericRenderer.h>
-#include <Generic/QuadShaderPass.h>
+#include <Base/BaseRenderer.h>
+#include <Base/QuadShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
@@ -59,7 +59,7 @@ namespace vkApi { class VulkanCore; }
 class SSAOModule_Pass_AO;
 class SSAOModule_Pass_Blur;
 class SSAOModule :
-	public GenericRenderer,
+	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
 	public TextureInputInterface<0U>,

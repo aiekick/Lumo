@@ -56,7 +56,7 @@ std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(vkApi::VulkanCore* vVul
 //////////////////////////////////////////////////////////////
 
 HeatmapRenderer::HeatmapRenderer(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -78,7 +78,7 @@ bool HeatmapRenderer::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_HeatmapRenderer_Pass_Ptr = std::make_shared<HeatmapRenderer_Pass>(m_VulkanCore);
 		if (m_HeatmapRenderer_Pass_Ptr)
@@ -105,7 +105,7 @@ bool HeatmapRenderer::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("Heatmap Renderer", vCmd);
+		BaseRenderer::Render("Heatmap Renderer", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -115,7 +115,7 @@ bool HeatmapRenderer::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 
 void HeatmapRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

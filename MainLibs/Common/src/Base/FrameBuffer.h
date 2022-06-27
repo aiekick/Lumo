@@ -42,7 +42,7 @@ SOFTWARE.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 
-#include <Generic/Generic.h>
+#include <Base/Base.h>
 
 class FrameBuffer
 {

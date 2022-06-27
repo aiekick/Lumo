@@ -27,7 +27,7 @@ SOFTWARE.
 #include <array>
 #include <memory>
 #include <ctools/ConfigAbstract.h>
-#include <Generic/ShaderPass.h>
+#include <Base/ShaderPass.h>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanDevice.h>

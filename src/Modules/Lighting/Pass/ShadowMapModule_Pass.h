@@ -34,7 +34,7 @@ SOFTWARE.
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/vk_mem_alloc.h>
 #include <ctools/cTools.h>
-#include <Generic/ShaderPass.h>
+#include <Base/ShaderPass.h>
 #include <ctools/ConfigAbstract.h>
 
 #include <vkFramework/Texture2D.h>

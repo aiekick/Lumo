@@ -33,7 +33,7 @@ SOFTWARE.
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/vk_mem_alloc.h>
 #include <ctools/cTools.h>
-#include <Generic/QuadShaderPass.h>
+#include <Base/QuadShaderPass.h>
 #include <ctools/ConfigAbstract.h>
 #include <Interfaces/ShaderInterface.h>
 #include <Interfaces/SerializationInterface.h>

@@ -58,7 +58,7 @@ std::shared_ptr<ChannelRenderer> ChannelRenderer::Create(vkApi::VulkanCore* vVul
 //////////////////////////////////////////////////////////////
 
 ChannelRenderer::ChannelRenderer(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -80,7 +80,7 @@ bool ChannelRenderer::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_ChannelRenderer_Pass_Ptr = std::make_shared<ChannelRenderer_Pass>(m_VulkanCore);
 		if (m_ChannelRenderer_Pass_Ptr)
@@ -106,7 +106,7 @@ bool ChannelRenderer::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("Channel Renderer", vCmd);
+		BaseRenderer::Render("Channel Renderer", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -116,7 +116,7 @@ bool ChannelRenderer::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *
 
 void ChannelRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 bool ChannelRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

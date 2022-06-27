@@ -59,7 +59,7 @@ std::shared_ptr<DepthToPosModule> DepthToPosModule::Create(vkApi::VulkanCore* vV
 //////////////////////////////////////////////////////////////
 
 DepthToPosModule::DepthToPosModule(vkApi::VulkanCore* vVulkanCore)
-	: GenericRenderer(vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -81,7 +81,7 @@ bool DepthToPosModule::Init()
 
 	m_Loaded = true;
 
-	if (GenericRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_DepthToPosModule_Pass_Ptr = std::make_shared<DepthToPosModule_Pass>(m_VulkanCore);
 		if (m_DepthToPosModule_Pass_Ptr)
@@ -108,7 +108,7 @@ bool DepthToPosModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer*
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		GenericRenderer::Render("Depth To Pos Module", vCmd);
+		BaseRenderer::Render("Depth To Pos Module", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -150,7 +150,7 @@ void DepthToPosModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 
 void DepthToPosModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	GenericRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
 void DepthToPosModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)

@@ -36,7 +36,7 @@ SOFTWARE.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Generic/GenericRenderer.h>
+#include <Base/BaseRenderer.h>
 
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -61,7 +61,7 @@ SOFTWARE.
 namespace vkApi { class VulkanCore; }
 class DeferredRenderer_Pass;
 class DeferredRenderer : 
-	public GenericRenderer,
+	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
 	public TextureInputInterface<0U>,
