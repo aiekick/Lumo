@@ -366,7 +366,7 @@ bool LaplacianModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 	if (strParentName == "laplacian_module")
 	{
 		if (strName == "lap_corner")
-			m_UBOFrag.u_lap_corner = ct::ivariant(strValue).GetI();
+			m_UBOFrag.u_lap_corner = ct::fvariant(strValue).GetF();
 		else if (strName == "lap_offset")
 			m_UBOFrag.u_lap_offset = ct::fvariant(strValue).GetF();
 		else if (strName == "discard_zeros")

@@ -50,6 +50,8 @@ SOFTWARE.
 #include <Graph/Nodes/Utils/DepthToPosNode.h>
 #include <Graph/Nodes/Utils/PosToDepthNode.h>
 
+#include <Graph/Nodes/Variables/BooleanNode.h>
+
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType)
 {
 	return CreateNode(vNodeGraph, Graph::GetNodeTypeEnumFromString(vNodeType));
@@ -96,6 +98,9 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const NodeTypeEnum&
 		case NodeTypeEnum::DEPTH_TO_POS:				return DepthToPosNode::Create(vulkanCore);
 		case NodeTypeEnum::MESH_ATTRIBUTES:				return MeshAttributesNode::Create(vulkanCore);
 		case NodeTypeEnum::POS_TO_DEPTH:				return PosToDepthNode::Create(vulkanCore);
+
+		// Variables
+		case NodeTypeEnum::TYPE_BOOLEAN:				return BooleanNode::Create(vulkanCore);
 		
 		default:
 			break;

@@ -51,7 +51,7 @@ ImVec4 NodeSlot::GetSlotColorAccordingToType(const NodeSlotTypeEnum& vNodeSlotTy
 		res = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
 		break;
 	case NodeSlotTypeEnum::MESH:
-		res = ImVec4(0.1f, 0.1f, 0.9f, 1.0f);
+		res = ImVec4(0.5f, 0.5f, 0.9f, 1.0f);
 		break;
 	case NodeSlotTypeEnum::MESH_GROUP:
 		res = ImVec4(0.1f, 0.1f, 0.8f, 1.0f);
@@ -70,6 +70,9 @@ ImVec4 NodeSlot::GetSlotColorAccordingToType(const NodeSlotTypeEnum& vNodeSlotTy
 		break;
 	case NodeSlotTypeEnum::MIXED:
 		res = ImVec4(0.3f, 0.5f, 0.1f, 1.0f);
+		break;
+	case NodeSlotTypeEnum::TYPE_BOOLEAN:
+		res = ImVec4(0.8f, 0.6f, 0.3f, 1.0f);
 		break;
 	default:
 		break;

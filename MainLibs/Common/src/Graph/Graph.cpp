@@ -53,7 +53,8 @@ std::string Graph::GetStringFromNodeTypeEnum(const NodeTypeEnum& vNodeTypeEnum)
 		"DEFERRED_RENDERER",
 		"POST_PRO_RENDERER",
 		"POS_TO_DEPTH",
-		"DEPTH_TO_POS"
+		"DEPTH_TO_POS",
+		"TYPE_BOOLEAN",
 	};
 	if (vNodeTypeEnum != NodeTypeEnum::Count)
 		return NodeTypeString[(int)vNodeTypeEnum];
@@ -89,6 +90,7 @@ NodeTypeEnum Graph::GetNodeTypeEnumFromString(const std::string& vNodeTypeString
 	else if (vNodeTypeString == "POST_PRO_RENDERER") return NodeTypeEnum::POST_PRO_RENDERER;
 	else if (vNodeTypeString == "POS_TO_DEPTH") return NodeTypeEnum::POS_TO_DEPTH;
 	else if (vNodeTypeString == "DEPTH_TO_POS") return NodeTypeEnum::DEPTH_TO_POS;
+	else if (vNodeTypeString == "TYPE_BOOLEAN") return NodeTypeEnum::TYPE_BOOLEAN;
 
 	return NodeTypeEnum::NONE;
 }

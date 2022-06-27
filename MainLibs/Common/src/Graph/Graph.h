@@ -64,6 +64,7 @@ enum class NodeTypeEnum : uint8_t
 	POST_PRO_RENDERER,
 	POS_TO_DEPTH,
 	DEPTH_TO_POS,
+	TYPE_BOOLEAN,
 	Count,
 };
 

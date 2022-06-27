@@ -87,6 +87,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Core/Utils", "Depth to Pos", "DEPTH_TO_POS");
 	m_RootLibraryCategory.AddCustom("Core/Utils", "Pos to Depth", "POS_TO_DEPTH");
 
+	m_RootLibraryCategory.AddCustom("Core/Variables", "Boolean", "TYPE_BOOLEAN");
+
 	// les plugins
 	auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();
 	for (auto entry : pluginEntrys)
@@ -114,6 +116,8 @@ BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeS
 	if (vNodeGraph.expired()) return BaseNodeWeak();
 	
 	BaseNodeWeak createdNode;
+
+	ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
 
 	if (ImGui::BeginPopup("CreateNewNode"))
 	{

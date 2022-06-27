@@ -43,4 +43,6 @@ public:
 	{
 		return m_ParentNode;
 	}
+
+	virtual bool DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) { return false; }
 };

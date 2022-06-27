@@ -159,6 +159,8 @@ LibraryEntry LibraryCategory::ShowMenu(BaseNodeWeak vNodeGraph, BaseNodeStateStr
 {
 	LibraryEntry entry;
 
+	ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
+
 	if (ImGui::BeginMenu(m_CategoryName.c_str()))
 	{
 		auto ent = ShowContent(vNodeGraph, vCanvasState, vLevel + 1);
@@ -181,6 +183,8 @@ LibraryEntry LibraryCategory::ShowContent(BaseNodeWeak vNodeGraph, BaseNodeState
 	{
 		if (!vCanvasState->linkFromSlot.expired())
 		{
+			ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
+
 			if (ImGui::MenuItem("extract"))
 			{
 				auto slotPtr = vCanvasState->linkFromSlot.lock();
@@ -212,6 +216,8 @@ LibraryEntry LibraryCategory::ShowContent(BaseNodeWeak vNodeGraph, BaseNodeState
 	{
 		ImGui::Separator();
 	}
+
+	ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
 
 	for (auto &item : m_LibraryItems)
 	{
