@@ -26,8 +26,6 @@ SOFTWARE.
 
 #include <SceneGraph/SceneLightGroup.h>
 
-//todo : split the interface in one input interface and one output interface
-// can clarify some code who jsut need output and not input 
 class LightOutputInterface
 {
 public:

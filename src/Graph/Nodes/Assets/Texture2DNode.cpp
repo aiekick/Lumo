@@ -88,7 +88,7 @@ void Texture2DNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlot
 	// one output only
 	if (m_Texture2DModule)
 	{
-		m_Texture2DModule->DrawTexture2D(100);
+		m_Texture2DModule->DrawTexture(50);
 	}
 }
 

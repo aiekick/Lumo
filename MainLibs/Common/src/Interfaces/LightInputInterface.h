@@ -26,12 +26,11 @@ SOFTWARE.
 
 #include <SceneGraph/SceneLightGroup.h>
 
-//todo : split the interface in one input interface and one output interface
-// can clarify some code who jsut need output and not input 
 class LightInputInterface
 {
 protected:
 	bool m_NeedLightGroupUpdate = false;
+	SceneLightGroupWeak m_SceneLightGroup;
 
 public:
 	virtual void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) = 0;

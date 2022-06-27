@@ -26,12 +26,11 @@ SOFTWARE.
 
 #include <SceneGraph/SceneModel.h>
 
-//todo : split the interface in one input interface and one output interface
-// can clarify some code who jsut need output and not input 
 class ModelInputInterface
 {
 protected:
 	bool m_NeedModelUpdate = false;
+	SceneModelWeak m_SceneModel;
 
 public:
 	// set a model composed of many mesh

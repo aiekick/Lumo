@@ -56,7 +56,7 @@ class MeshAttributesModule :
 	public NodeInterface,
 	public GuiInterface,
 	public ModelInputInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public TaskInterface,
 	public ResizerInterface,

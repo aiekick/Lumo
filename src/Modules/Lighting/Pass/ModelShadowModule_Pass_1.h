@@ -57,7 +57,7 @@ namespace vkApi { class VulkanCore; }
 class ModelShadowModule_Pass_1 :
 	public QuadShaderPass,
 	public GuiInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<2U>,
 	public TextureOutputInterface,
 	public LightInputInterface,
 	public ShaderUpdateInterface
@@ -73,12 +73,6 @@ protected: // vulkan creation
 		alignas(4) float use_sampler_pos = 0.0f;
 		alignas(4) float use_sampler_shadow_map = 0.0f;
 	} m_UBOFrag;
-
-	Texture2DPtr m_EmptyTexturePtr = nullptr;
-	std::array<vk::DescriptorImageInfo, 2U>  m_SamplesImageInfos;
-	std::array<ImGuiTexture, 2U> m_ImGuiTexture;
-
-	SceneLightGroupWeak m_SceneLightGroup;
 
 public:
 	ModelShadowModule_Pass_1(vkApi::VulkanCore* vVulkanCore);
@@ -107,6 +101,4 @@ private:
 
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
-
-	void DrawTexture(const char* vLabel, const uint32_t& vIdx);
 };

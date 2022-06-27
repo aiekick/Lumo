@@ -36,7 +36,7 @@ class MeshAttributesModule;
 class MeshAttributesNode : 
 	public BaseNode, 
 	public ModelInputInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {

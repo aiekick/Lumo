@@ -66,8 +66,6 @@ private:
 	VulkanBufferObjectPtr m_SBO_Colors = nullptr;
 	VulkanBufferObjectPtr m_SBO_Empty_Colors = nullptr;
 
-	SceneModelWeak m_SceneModel;
-
 public:
 	HeatmapRenderer_Pass_1(vkApi::VulkanCore* vVulkanCore);
 	~HeatmapRenderer_Pass_1() override;
@@ -104,6 +102,4 @@ private:
 
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
-
-	void DrawTexture(const char* vLabel, const uint32_t& vIdx);
 };

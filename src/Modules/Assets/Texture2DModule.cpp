@@ -110,7 +110,7 @@ bool Texture2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 		ImGui::Text("File name : %s", m_FileName.c_str());
 		ImGui::TextWrapped("File path name: %s", m_FilePathName.c_str());
 
-		DrawTexture2D((int)ImGui::GetContentRegionAvail().x);
+		DrawTexture((int)ImGui::GetContentRegionAvail().x);
 	}
 
 	return false;
@@ -141,7 +141,7 @@ void Texture2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	}
 }
 
-void Texture2DModule::DrawTexture2D(ct::ivec2 vMaxSize)
+void Texture2DModule::DrawTexture(ct::ivec2 vMaxSize)
 {
 	if (m_ImGuiTexture.canDisplayPreview)
 	{

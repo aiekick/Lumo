@@ -64,7 +64,7 @@ class DeferredRenderer :
 	public GenericRenderer,
 	public GuiInterface,
 	public TaskInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public ResizerInterface,
 	public ShaderUpdateInterface

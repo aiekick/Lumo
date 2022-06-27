@@ -38,7 +38,7 @@ class MatcapRenderer;
 class MatcapRendererNode :
 	public BaseNode,
 	public ModelInputInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface
 {
 public:

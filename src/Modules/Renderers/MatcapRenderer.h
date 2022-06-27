@@ -49,7 +49,7 @@ class MatcapRenderer :
 	public NodeInterface,
 	public GuiInterface,
 	public ModelInputInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public TaskInterface,
 	public ResizerInterface
@@ -77,7 +77,4 @@ public:
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-
-private:
-	void DrawTexture(const char* vLabel, const uint32_t& vIdx);
 };

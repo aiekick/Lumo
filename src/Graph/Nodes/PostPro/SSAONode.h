@@ -31,7 +31,7 @@ SOFTWARE.
 class SSAOModule;
 class SSAONode :
 	public BaseNode,
-	public TextureInputInterface,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {

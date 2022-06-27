@@ -36,7 +36,7 @@ SOFTWARE.
 class DeferredRenderer;
 class DeferredRendererNode : 
 	public BaseNode, 
-	public TextureInputInterface,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {

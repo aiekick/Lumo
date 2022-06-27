@@ -44,7 +44,7 @@ endif ()
 find_package(Vulkan REQUIRED)
 add_definitions(-DVULKAN)
 
-add_library(vkFramework STATIC ${PROJECT_SRC_RECURSE})
+add_library(vkFramework STATIC ${PROJECT_SRC_RECURSE} vkFramework.h)
 
 target_link_libraries(vkFramework PRIVATE 
 	${Vulkan_LIBRARIES}

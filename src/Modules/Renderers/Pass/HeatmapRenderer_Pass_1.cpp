@@ -440,29 +440,3 @@ bool HeatmapRenderer_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 
 	return true;
 }
-
-void HeatmapRenderer_Pass_1::DrawTexture(const char* vLabel, const uint32_t& vIdx)
-{
-	/*if (vLabel && vIdx >= 0U && vIdx <= m_SamplesImageInfos.size())
-	{
-		auto imguiRendererPtr = m_VulkanCore->GetVulkanImGuiRenderer().getValidShared();
-		if (imguiRendererPtr)
-		{
-			if (ImGui::CollapsingHeader(vLabel, ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				m_ImGuiTexture[vIdx].SetDescriptor(imguiRendererPtr.get(),
-					&m_SamplesImageInfos[vIdx],
-					ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>());
-
-				if (m_ImGuiTexture[vIdx].canDisplayPreview)
-				{
-					int w = (int)ImGui::GetContentRegionAvail().x;
-					auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture[vIdx].ratio, ct::ivec2(w, w), false);
-					const ImVec2 pos = ImVec2((float)rect.x, (float)rect.y);
-					const ImVec2 siz = ImVec2((float)rect.w, (float)rect.h);
-					ImGui::ImageRect((ImTextureID)&m_ImGuiTexture[vIdx].descriptor, pos, siz);
-				}
-			}
-		}
-	}*/
-}

@@ -105,7 +105,7 @@ bool MatcapRenderer_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 		NeedNewUBOUpload();
 	}
 
-	DrawTexture("Input Matcap", 0U);
+	DrawInputTexture(m_VulkanCore, "Input Matcap", 0U, m_OutputRatio);
 
 	return change;
 }
@@ -139,11 +139,11 @@ void MatcapRenderer_Pass_1::SetTexture(const uint32_t& vBinding, vk::DescriptorI
 		{
 			if (vImageInfo)
 			{
-				m_SamplesImageInfos[vBinding - 0U] = *vImageInfo;
+				m_SamplerImageInfos[vBinding - 0U] = *vImageInfo;
 			}
-			else
+			else if (m_EmptyTexturePtr)
 			{
-				m_SamplesImageInfos[vBinding - 0U] = m_EmptyTexture->m_DescriptorImageInfo;
+				m_SamplerImageInfos[vBinding - 0U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 			}
 
 			m_NeedSamplerUpdate = true;
@@ -195,12 +195,12 @@ bool MatcapRenderer_Pass_1::CreateUBO()
 		m_DescriptorBufferInfo_Frag.offset = 0;
 	}
 
-	m_EmptyTexture = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(100, 100), vk::Format::eR8G8B8A8Unorm);
-	if (m_EmptyTexture)
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	if (m_EmptyTexturePtr)
 	{
-		for (auto& a : m_SamplesImageInfos)
+		for (auto& a : m_SamplerImageInfos)
 		{
-			a = m_EmptyTexture->m_DescriptorImageInfo;
+			a = m_EmptyTexturePtr->m_DescriptorImageInfo;
 		}
 	}
 
@@ -246,7 +246,7 @@ bool MatcapRenderer_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Vert);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[0], nullptr); // matcap
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // matcap
 
 	return true;
 }
@@ -409,29 +409,4 @@ bool MatcapRenderer_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XM
 	}
 
 	return true;
-}
-
-void MatcapRenderer_Pass_1::DrawTexture(const char* vLabel, const uint32_t& vIdx)
-{
-	if (vLabel && vIdx >= 0U && vIdx <= m_SamplesImageInfos.size())
-	{
-		auto imguiRendererPtr = m_VulkanCore->GetVulkanImGuiRenderer().getValidShared();
-		if (imguiRendererPtr)
-		{
-			if (ImGui::CollapsingHeader(vLabel, ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				m_ImGuiTexture[vIdx].SetDescriptor(imguiRendererPtr.get(),
-					&m_SamplesImageInfos[vIdx], m_OutputRatio);
-
-				if (m_ImGuiTexture[vIdx].canDisplayPreview)
-				{
-					int w = (int)ImGui::GetContentRegionAvail().x;
-					auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture[vIdx].ratio, ct::ivec2(w, w), false);
-					const ImVec2 pos = ImVec2((float)rect.x, (float)rect.y);
-					const ImVec2 siz = ImVec2((float)rect.w, (float)rect.h);
-					ImGui::ImageRect((ImTextureID)&m_ImGuiTexture[vIdx].descriptor, pos, siz);
-				}
-			}
-		}
-	}
 }

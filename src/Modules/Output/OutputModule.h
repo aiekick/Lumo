@@ -47,7 +47,7 @@ class OutputModule :
 	public GuiInterface,
 	public TaskInterface,
 	public NodeInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<0U>, // 0, because no need of items here
 	public TextureOutputInterface, // le output n'est pas dans le graph, mais appelé par la vue, ce node conlue le graph, il est unique
 	public ResizerInterface
 {
@@ -56,7 +56,6 @@ public:
 
 private:
 	OutputModuleWeak m_This;
-	ImGuiTexture m_ImGuiTexture;
 
 	vkApi::VulkanCore* m_VulkanCore = nullptr;
 
@@ -74,7 +73,6 @@ public:
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 
-	/*ct::fvec2 GetOutputSize() override;*/
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd);
 

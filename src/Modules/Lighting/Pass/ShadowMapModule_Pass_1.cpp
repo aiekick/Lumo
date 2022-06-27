@@ -196,8 +196,6 @@ bool ShadowMapModule_Pass_1::CreateUBO()
 	m_DescriptorBufferInfo_Vert.range = sizeof(UBOVert);
 	m_DescriptorBufferInfo_Vert.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(100, 100), vk::Format::eR8G8B8A8Unorm);
-
 	NeedNewUBOUpload();
 
 	return true;
@@ -225,7 +223,6 @@ void ShadowMapModule_Pass_1::DestroyUBO()
 	ZoneScoped;
 
 	m_UBO_Vert.reset();
-	m_EmptyTexturePtr.reset();
 }
 
 bool ShadowMapModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()

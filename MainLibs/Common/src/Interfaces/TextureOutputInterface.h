@@ -24,14 +24,20 @@ SOFTWARE.
 
 #pragma once
 
-#include <vulkan/vulkan.hpp>
-#include <Graph/Graph.h>
 #include <map>
+#include <Graph/Graph.h>
+#include <vulkan/vulkan.hpp>
+#include <vkFramework/ImGuiTexture.h>
+#include <vkFramework/vkFramework.h>
 
 //todo : split the interface in one input interface and one output interface
 // can clarify some code who jsut need output and not input 
 class TextureOutputInterface
 {
+protected:
+	//Texture2DPtr m_EmptyTexturePtr = nullptr;
+	ImGuiTexture m_ImGuiTexture;
+
 public:
 	virtual vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) = 0;
 };

@@ -62,15 +62,11 @@ namespace vkApi { class VulkanCore; }
 class DeferredRenderer_Pass_1 :
 	public QuadShaderPass,
 	public GuiInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<9U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {
 private:
-	Texture2DPtr m_EmptyTexturePtr = nullptr;
-	std::array<vk::DescriptorImageInfo, 9U>  m_SamplesImageInfos;
-	std::array<ImGuiTexture, 9U> m_ImGuiTexture;
-
 	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
@@ -112,6 +108,4 @@ private:
 
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
-
-	void DrawTexture(const char* vLabel, const uint32_t& vIdx);
 };

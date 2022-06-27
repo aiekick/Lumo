@@ -50,10 +50,6 @@
 	path = 3rdparty/lodepng
 	url = https://github.com/lvandeve/lodepng.git
 	branch = master
-[submodule "3rdparty/VulkanHPP"]
-	path = 3rdparty/VulkanHPP
-	url = https://github.com/KhronosGroup/Vulkan-Hpp.git
-	branch = master
 [submodule "3rdparty/ImGuiMarkDown"]
 	path = 3rdparty/ImGuiMarkDown
 	url = https://github.com/aiekick/imgui_markdown.git
@@ -78,26 +74,6 @@
 	path = SoLibs/InterfaceBlock
 	url = https://gitlab.funparadigm.com/soglsl/interfaceblock.git
 	branch = master
-[submodule "SoLibs/uTypes"]
-	path = SoLibs/uTypes
-	url = https://gitlab.funparadigm.com/soglsl/utypes.git
-	branch = master
-[submodule "SoLibs/ImWidgets"]
-	path = SoLibs/ImWidgets
-	url = https://gitlab.funparadigm.com/soglsl/imwidgets.git
-	branch = master
-[submodule "SoLibs/vkprofiler"]
-	path = SoLibs/vkprofiler
-	url = https://gitlab.funparadigm.com/soglsl/vkprofiler.git
-	branch = master
-[submodule "SoLibs/vkrenderer"]
-	path = SoLibs/vkrenderer
-	url = https://gitlab.funparadigm.com/soglsl/vkrenderer.git
-	branch = master
-[submodule "3rdparty/BuildInc"]
-	path = 3rdparty/BuildInc
-	url = https://gitlab.funparadigm.com/vfxsoftwares/buildinc.git
-	branch = master
 [submodule "3rdparty/imgui_node_editor"]
 	path = 3rdparty/imgui_node_editor
 	url = https://github.com/aiekick/imgui-node-editor.git
@@ -121,16 +97,4 @@
 [submodule "3rdparty/taskflow"]
 	path = 3rdparty/taskflow
 	url = https://github.com/taskflow/taskflow
-	branch = master
-[submodule "Plugins/MeshSim"]
-	path = Plugins/MeshSim
-	url = https://gitlab.funparadigm.com/vfxsoftwares/vulkan/lumo_plugins/meshsim.git
-	branch = master
-[submodule "Plugins/MorphoGenesis"]
-	path = Plugins/MorphoGenesis
-	url = https://gitlab.funparadigm.com/vfxsoftwares/vulkan/lumo_plugins/morphogenesis.git
-	branch = master
-[submodule "Plugins/SdfMesher"]
-	path = Plugins/SdfMesher
-	url = https://gitlab.funparadigm.com/vfxsoftwares/vulkan/lumo_plugins/sdfmesher.git
 	branch = master

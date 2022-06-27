@@ -62,8 +62,6 @@ private:
 	bool m_NeedModelUpdate = false;
 	std::vector<std::string> m_Layers;
 
-	SceneModelWeak m_SceneModel;
-
 public:
 	ChannelRenderer_Pass_1(vkApi::VulkanCore* vVulkanCore);
 	~ChannelRenderer_Pass_1() override;
@@ -92,6 +90,4 @@ protected:
 
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
-
-	void DrawTexture(const char* vLabel, const uint32_t& vIdx);
 };

@@ -47,7 +47,7 @@ class MatcapRenderer_Pass_1 :
 	public ShaderPass,
 	public GuiInterface,
 	public ModelInputInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<2U>,
 	public TextureOutputInterface
 {
 private:
@@ -64,11 +64,6 @@ private:
 	struct UBOFrag {
 		alignas(4) float show_face_normal = 0.0f;
 	} m_UBOFrag;
-
-	SceneModelWeak m_SceneModel;
-	Texture2DPtr m_EmptyTexture = nullptr;
-	std::array<vk::DescriptorImageInfo, 2U>  m_SamplesImageInfos;
-	std::array<ImGuiTexture, 2U> m_ImGuiTexture;
 
 public:
 	MatcapRenderer_Pass_1(vkApi::VulkanCore* vVulkanCore);
@@ -98,6 +93,4 @@ private:
 
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
-
-	void DrawTexture(const char* vLabel, const uint32_t& vIdx);
 };

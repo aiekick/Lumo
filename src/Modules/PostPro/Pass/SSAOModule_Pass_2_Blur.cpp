@@ -77,8 +77,8 @@ bool SSAOModule_Pass_2_Blur::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 			}
 		}
 
-		DrawTexture("Input SSAO", 0U);
-		//DrawTexture("Output Blur", 0U);
+		DrawInputTexture(m_VulkanCore, "Input SSAO", 0U, m_OutputRatio);
+		//DrawInputTexture(m_VulkanCore, "Output Blur", 0U, m_OutputRatio);
 
 		return change;
 	}
@@ -106,13 +106,13 @@ void SSAOModule_Pass_2_Blur::SetTexture(const uint32_t& vBinding, vk::Descriptor
 		{
 			if (vImageInfo)
 			{
-				m_SamplesImageInfos[vBinding - 2U] = *vImageInfo;
+				m_SamplerImageInfos[vBinding - 2U] = *vImageInfo;
 			}
 			else
 			{
 				if (m_EmptyTexturePtr)
 				{
-					m_SamplesImageInfos[vBinding - 2U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+					m_SamplerImageInfos[vBinding - 2U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 				}
 				else
 				{
@@ -147,9 +147,9 @@ bool SSAOModule_Pass_2_Blur::CreateUBO()
 	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(100, 100), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
-	for (auto& a : m_SamplesImageInfos)
+	for (auto& a : m_SamplerImageInfos)
 	{
 		a = m_EmptyTexturePtr->m_DescriptorImageInfo;
 	}
@@ -191,7 +191,7 @@ bool SSAOModule_Pass_2_Blur::UpdateBufferInfoInRessourceDescriptor()
 
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[0], nullptr); // ssao
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // ssao
 
 	return true;
 }
@@ -327,31 +327,6 @@ void SSAOModule_Pass_2_Blur::UpdateShaders(const std::set<std::string>& vFiles)
 	if (needReCompil)
 	{
 		ReCompil();
-	}
-}
-
-void SSAOModule_Pass_2_Blur::DrawTexture(const char* vLabel, const uint32_t& vIdx)
-{
-	if (vLabel && vIdx >= 0U && vIdx <= m_SamplesImageInfos.size())
-	{
-		auto imguiRendererPtr = m_VulkanCore->GetVulkanImGuiRenderer().getValidShared();
-		if (imguiRendererPtr)
-		{
-			if (ImGui::CollapsingHeader(vLabel, ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				m_ImGuiTexture[vIdx].SetDescriptor(imguiRendererPtr.get(),
-					&m_SamplesImageInfos[vIdx], m_OutputRatio);
-
-				if (m_ImGuiTexture[vIdx].canDisplayPreview)
-				{
-					int w = (int)ImGui::GetContentRegionAvail().x;
-					auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture[vIdx].ratio, ct::ivec2(w, w), false);
-					const ImVec2 pos = ImVec2((float)rect.x, (float)rect.y);
-					const ImVec2 siz = ImVec2((float)rect.w, (float)rect.h);
-					ImGui::ImageRect((ImTextureID)&m_ImGuiTexture[vIdx].descriptor, pos, siz);
-				}
-			}
-		}
 	}
 }
 

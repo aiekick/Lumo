@@ -23,14 +23,18 @@ SOFTWARE.
 */
 
 #include "TextureInputInterface.h"
+
+#include <memory>
+#include <ctools/cTools.h>
+#include <ImWidgets/ImWidgets.h>
 #include <Graph/Base/BaseNode.h>
 #include <Graph/Base/NodeSlot.h>
+#include <vkFramework/VulkanCore.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <memory>
 
-void TextureInputInterface::UpdateInputDescriptorImageInfos(std::map<uint32_t, NodeSlotPtr>& vInputs)
+void TextureInputFunctions::UpdateInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs)
 {
-	for (auto input : vInputs) {
+	for (const auto& input : vInputs) {
 		if (input.second) {
 			for (auto slot : input.second->linkedSlots) {
 				auto otherSLotPtr = slot.getValidShared();
@@ -39,11 +43,8 @@ void TextureInputInterface::UpdateInputDescriptorImageInfos(std::map<uint32_t, N
 					if (otherParentPtr) {
 						auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(otherParentPtr);
 						if (otherNodePtr) {
-							SetTexture(input.second->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(otherSLotPtr->descriptorBinding));
-						}
-					}
-				}
-			}
-		}
-	}
+							SetTexture(input.second->descriptorBinding, 
+								otherNodePtr->GetDescriptorImageInfo(
+									otherSLotPtr->descriptorBinding)); 
+						}}}}}}
 }

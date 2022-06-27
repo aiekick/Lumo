@@ -45,3 +45,7 @@
 /bin/plugins/MeshSim_Windows_Debug_x64.dll
 /bin/plugins/MorphoGenesis_Windows_Debug_x64.dll
 /bin/plugins/SdfMesher_Windows_Debug_x64.dll
+/Plugins/MeshSim
+/Plugins/MorphoGenesis
+/Plugins/SdfMesher
+/.idea

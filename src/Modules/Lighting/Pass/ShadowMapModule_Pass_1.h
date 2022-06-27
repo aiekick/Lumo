@@ -71,12 +71,6 @@ protected: // vulkan creation
 		alignas(16) glm::mat4x4 light_cam = glm::mat4x4(1.0f);
 	} m_UBOVert;
 
-	Texture2DPtr m_EmptyTexturePtr = nullptr;
-	ImGuiTexture m_ImGuiTexture;
-
-	SceneModelWeak m_SceneModel;
-	SceneLightGroupWeak m_SceneLightGroup;
-
 public:
 	ShadowMapModule_Pass_1(vkApi::VulkanCore* vVulkanCore);
 	~ShadowMapModule_Pass_1();

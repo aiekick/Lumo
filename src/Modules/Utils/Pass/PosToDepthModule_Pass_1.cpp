@@ -59,7 +59,7 @@ PosToDepthModule_Pass_1::~PosToDepthModule_Pass_1()
 
 bool PosToDepthModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	DrawTexture("Position", 0U);
+	DrawInputTexture(m_VulkanCore, "Position", 0U, m_OutputRatio);
 
 	return false;
 }
@@ -84,7 +84,7 @@ void PosToDepthModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descripto
 		{
 			if (vImageInfo)
 			{
-				m_SamplesImageInfos[vBinding - 2U] = *vImageInfo;
+				m_SamplerImageInfos[vBinding - 2U] = *vImageInfo;
 
 				if ((&m_UBOFrag.use_sampler_pos)[vBinding - 2U] < 1.0f)
 				{
@@ -102,7 +102,7 @@ void PosToDepthModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descripto
 
 				if (m_EmptyTexturePtr)
 				{
-					m_SamplesImageInfos[vBinding - 2U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+					m_SamplerImageInfos[vBinding - 2U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 				}
 				else
 				{
@@ -198,9 +198,9 @@ bool PosToDepthModule_Pass_1::CreateUBO()
 	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(100, 100), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
-	for (auto& a : m_SamplesImageInfos)
+	for (auto& a : m_SamplerImageInfos)
 	{
 		a = m_EmptyTexturePtr->m_DescriptorImageInfo;
 	}
@@ -244,7 +244,7 @@ bool PosToDepthModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[0], nullptr); // position
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // position
 
 	return true;
 }
@@ -341,30 +341,4 @@ void main()
 	}
 
 	return m_FragmentShaderCode;
-}
-
-void PosToDepthModule_Pass_1::DrawTexture(const char* vLabel, const uint32_t& vIdx)
-{
-	if (vLabel && vIdx >= 0U && vIdx <= m_SamplesImageInfos.size())
-	{
-		auto imguiRendererPtr = m_VulkanCore->GetVulkanImGuiRenderer().getValidShared();
-		if (imguiRendererPtr)
-		{
-			if (ImGui::CollapsingHeader(vLabel, ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				m_ImGuiTexture[vIdx].SetDescriptor(imguiRendererPtr.get(),
-					&m_SamplesImageInfos[vIdx],
-					ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>());
-
-				if (m_ImGuiTexture[vIdx].canDisplayPreview)
-				{
-					int w = (int)ImGui::GetContentRegionAvail().x;
-					auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture[vIdx].ratio, ct::ivec2(w, w), false);
-					const ImVec2 pos = ImVec2((float)rect.x, (float)rect.y);
-					const ImVec2 siz = ImVec2((float)rect.w, (float)rect.h);
-					ImGui::ImageRect((ImTextureID)&m_ImGuiTexture[vIdx].descriptor, pos, siz);
-				}
-			}
-		}
-	}
 }

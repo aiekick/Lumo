@@ -32,7 +32,7 @@ SOFTWARE.
 class OutputModule;
 class OutputNode : 
 	public BaseNode,
-	public TextureInputInterface,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface // le output n'est pas dans le graph, mais appelé par la vue, ce node conlue le graph, il est unique
 {
 public:

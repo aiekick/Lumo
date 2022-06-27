@@ -496,7 +496,7 @@ void MainFrame::Action_Menu_OpenProject()
 		{
 			CloseUnSavedDialog();
 			ImGuiFileDialog::Instance()->OpenDialog(
-				"OpenProjectDlg", "Open Project File", ".lum", "");
+				"OpenProjectDlg", "Open Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
 			return true;
 		});
 	m_ActionSystem.Add([this]()

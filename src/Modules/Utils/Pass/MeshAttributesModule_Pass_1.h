@@ -53,15 +53,11 @@ class MeshAttributesModule_Pass_1 :
 	public ShaderPass,
 	public GuiInterface,
 	public ModelInputInterface,
-	public TextureInputInterface,
+	public TextureInputInterface<1U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {
 private:
-	Texture2DPtr m_EmptyTexturePtr = nullptr;
-	std::array<vk::DescriptorImageInfo, 1U>  m_SamplesImageInfos;
-	std::array<ImGuiTexture, 1U> m_ImGuiTexture;
-
 	VulkanBufferObjectPtr m_UBO_Vert = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
 
@@ -75,8 +71,6 @@ private:
 	struct UBOFrag {
 		alignas(4) float use_sampler_mask = 0.0f;
 	} m_UBOFrag;
-
-	SceneModelWeak m_SceneModel;
 
 public:
 	MeshAttributesModule_Pass_1(vkApi::VulkanCore* vVulkanCore);
@@ -105,6 +99,4 @@ private:
 
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
-
-	void DrawTexture(const char* vLabel, const uint32_t& vIdx);
 };

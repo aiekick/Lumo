@@ -61,15 +61,15 @@ DeferredRenderer_Pass_1::~DeferredRenderer_Pass_1()
 
 bool DeferredRenderer_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	DrawTexture("Position", 0U);
-	DrawTexture("Normal", 1U);
-	DrawTexture("Albedo", 2U);
-	DrawTexture("Diffuse", 3U);
-	DrawTexture("Specular", 4U);
-	DrawTexture("Attenuation", 5U);
-	DrawTexture("Mask", 6U);
-	DrawTexture("Ao", 7U);
-	DrawTexture("shadow", 8U);
+	DrawInputTexture(m_VulkanCore, "Position", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Normal", 1U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Albedo", 2U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Diffuse", 3U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Specular", 4U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Attenuation", 5U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Mask", 6U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Ao", 7U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "shadow", 8U, m_OutputRatio);
 
 	return false;
 }
@@ -94,7 +94,7 @@ void DeferredRenderer_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descripto
 		{
 			if (vImageInfo)
 			{
-				m_SamplesImageInfos[vBinding - 2U] = *vImageInfo;
+				m_SamplerImageInfos[vBinding - 2U] = *vImageInfo;
 
 				if ((&m_UBOFrag.use_sampler_position)[vBinding - 2U] < 1.0f)
 				{
@@ -112,7 +112,7 @@ void DeferredRenderer_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descripto
 
 				if (m_EmptyTexturePtr)
 				{
-					m_SamplesImageInfos[vBinding - 2U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+					m_SamplerImageInfos[vBinding - 2U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 				}
 				else
 				{
@@ -206,9 +206,9 @@ bool DeferredRenderer_Pass_1::CreateUBO()
 	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(100, 100), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
-	for (auto& a : m_SamplesImageInfos)
+	for (auto& a : m_SamplerImageInfos)
 	{
 		a = m_EmptyTexturePtr->m_DescriptorImageInfo;
 	}
@@ -260,15 +260,15 @@ bool DeferredRenderer_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[0], nullptr); // position
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[1], nullptr); // normal
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[2], nullptr); // albedo
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[3], nullptr); // diffuse
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 6U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[4], nullptr); // specular
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 7U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[5], nullptr); // attenuation
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 8U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[6], nullptr); // mask
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 9U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[7], nullptr); // ao
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 10U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplesImageInfos[8], nullptr); // shadow
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // position
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[1], nullptr); // normal
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[2], nullptr); // albedo
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[3], nullptr); // diffuse
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 6U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[4], nullptr); // specular
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 7U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[5], nullptr); // attenuation
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 8U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[6], nullptr); // mask
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 9U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[7], nullptr); // ao
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 10U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[8], nullptr); // shadow
 
 	return true;
 }
@@ -408,29 +408,4 @@ void main()
 	}
 
 	return m_FragmentShaderCode;
-}
-
-void DeferredRenderer_Pass_1::DrawTexture(const char* vLabel, const uint32_t& vIdx)
-{
-	if (vLabel && vIdx >= 0U && vIdx <= m_SamplesImageInfos.size())
-	{
-		auto imguiRendererPtr = m_VulkanCore->GetVulkanImGuiRenderer().getValidShared();
-		if (imguiRendererPtr)
-		{
-			if (ImGui::CollapsingHeader(vLabel, ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				m_ImGuiTexture[vIdx].SetDescriptor(imguiRendererPtr.get(),
-					&m_SamplesImageInfos[vIdx], m_OutputRatio);
-
-				if (m_ImGuiTexture[vIdx].canDisplayPreview)
-				{
-					int w = (int)ImGui::GetContentRegionAvail().x;
-					auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture[vIdx].ratio, ct::ivec2(w, w), false);
-					const ImVec2 pos = ImVec2((float)rect.x, (float)rect.y);
-					const ImVec2 siz = ImVec2((float)rect.w, (float)rect.h);
-					ImGui::ImageRect((ImTextureID)&m_ImGuiTexture[vIdx].descriptor, pos, siz);
-				}
-			}
-		}
-	}
 }

@@ -24,15 +24,12 @@ SOFTWARE.
 
 #pragma once
 
+#include <string>
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanRessource.h>
-#include <string>
-
-class Texture2D;
-typedef std::shared_ptr<Texture2D> Texture2DPtr;
-typedef ct::cWeak<Texture2D> Texture2DWeak;
+#include <vkFramework/vkFramework.h>
 
 namespace vkApi { class VulkanCore; }
 class Texture2D
