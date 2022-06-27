@@ -54,7 +54,7 @@ bool PosToDepthNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Pos";
-	slot.descriptorBinding = 2U;
+	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;

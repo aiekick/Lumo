@@ -58,47 +58,47 @@ bool DeferredRendererNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Position";
-	slot.descriptorBinding = 2U;
+	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Normal";
-	slot.descriptorBinding = 3U;
+	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Albedo";
-	slot.descriptorBinding = 4U;
+	slot.descriptorBinding = 2U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Diffuse";
-	slot.descriptorBinding = 5U;
+	slot.descriptorBinding = 3U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Specular";
-	slot.descriptorBinding = 6U;
+	slot.descriptorBinding = 4U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Attenuation";
-	slot.descriptorBinding = 7U;
+	slot.descriptorBinding = 5U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Mask";
-	slot.descriptorBinding = 8U;
+	slot.descriptorBinding = 6U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "AO";
-	slot.descriptorBinding = 9U;
+	slot.descriptorBinding = 7U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Shadow";
-	slot.descriptorBinding = 10U;
+	slot.descriptorBinding = 8U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;

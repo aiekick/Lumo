@@ -226,7 +226,7 @@ void SSAOModule::UpdateDescriptorsBeforeCommandBuffer()
 		m_SSAOModule_Pass_2_Blur_Ptr)
 	{
 		// on va mettre le front de "AO" dans l'input de "BLUR"
-		m_SSAOModule_Pass_2_Blur_Ptr->SetTexture(2U, 
+		m_SSAOModule_Pass_2_Blur_Ptr->SetTexture(0U, 
 			m_SSAOModule_Pass_1_AO_Ptr->GetDescriptorImageInfo(0U));
 	}
 
