@@ -50,7 +50,7 @@ SOFTWARE.
 
 namespace vkApi { class VulkanCore; }
 
-class MeshAttributesModule_Pass_1;
+class MeshAttributesModule_Pass;
 class MeshAttributesModule :
 	public GenericRenderer,
 	public NodeInterface,
@@ -66,7 +66,7 @@ public:
 	static std::shared_ptr<MeshAttributesModule> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	std::shared_ptr<MeshAttributesModule_Pass_1> m_MeshAttributesModule_Pass_1_Ptr = nullptr;
+	std::shared_ptr<MeshAttributesModule_Pass> m_MeshAttributesModule_Pass_Ptr = nullptr;
 
 public:
 	MeshAttributesModule(vkApi::VulkanCore* vVulkanCore);

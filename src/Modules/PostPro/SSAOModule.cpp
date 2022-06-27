@@ -38,8 +38,8 @@ SOFTWARE.
 #include <cinttypes>
 #include <Generic/FrameBuffer.h>
 
-#include <Modules/PostPro/Pass/SSAOModule_Pass_1_AO.h>
-#include <Modules/PostPro/Pass/SSAOModule_Pass_2_Blur.h>
+#include <Modules/PostPro/Pass/SSAOModule_Pass_AO.h>
+#include <Modules/PostPro/Pass/SSAOModule_Pass_Blur.h>
 
 using namespace vkApi;
 
@@ -89,28 +89,28 @@ bool SSAOModule::Init()
 
 	if (GenericRenderer::InitPixel(map_size))
 	{
-		m_SSAOModule_Pass_1_AO_Ptr = std::make_shared<SSAOModule_Pass_1_AO>(m_VulkanCore);
-		if (m_SSAOModule_Pass_1_AO_Ptr)
+		m_SSAOModule_Pass_AO_Ptr = std::make_shared<SSAOModule_Pass_AO>(m_VulkanCore);
+		if (m_SSAOModule_Pass_AO_Ptr)
 		{
-			if (m_SSAOModule_Pass_1_AO_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_SSAOModule_Pass_AO_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				vk::Format::eR8Unorm, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_SSAOModule_Pass_1_AO_Ptr);
+				AddGenericPass(m_SSAOModule_Pass_AO_Ptr);
 				m_Loaded = true;
 			}
 		}
 
-		m_SSAOModule_Pass_2_Blur_Ptr = std::make_shared<SSAOModule_Pass_2_Blur>(m_VulkanCore);
-		if (m_SSAOModule_Pass_2_Blur_Ptr)
+		m_SSAOModule_Pass_Blur_Ptr = std::make_shared<SSAOModule_Pass_Blur>(m_VulkanCore);
+		if (m_SSAOModule_Pass_Blur_Ptr)
 		{
 			// eR8G8B8A8Unorm is used for have nice white and black display
 			// unfortunatly not for perf, but the main purpose is for nice widget display
 			// or maybe there is a way in glsl to know the component count of a texture
 			// so i could modify in this way the shader of imgui
-			if (m_SSAOModule_Pass_2_Blur_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_SSAOModule_Pass_Blur_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				vk::Format::eR8G8B8A8Unorm, vk::SampleCountFlagBits::e1)) 
 			{
-				AddGenericPass(m_SSAOModule_Pass_2_Blur_Ptr);
+				AddGenericPass(m_SSAOModule_Pass_Blur_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -188,9 +188,9 @@ void SSAOModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* v
 
 	if (m_Loaded)
 	{
-		if (m_SSAOModule_Pass_1_AO_Ptr)
+		if (m_SSAOModule_Pass_AO_Ptr)
 		{
-			m_SSAOModule_Pass_1_AO_Ptr->SetTexture(vBinding, vImageInfo);
+			m_SSAOModule_Pass_AO_Ptr->SetTexture(vBinding, vImageInfo);
 		}
 	}
 }
@@ -199,9 +199,9 @@ vk::DescriptorImageInfo* SSAOModule::GetDescriptorImageInfo(const uint32_t& vBin
 {
 	ZoneScoped;
 
-	if (m_SSAOModule_Pass_2_Blur_Ptr)
+	if (m_SSAOModule_Pass_Blur_Ptr)
 	{
-		return m_SSAOModule_Pass_2_Blur_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_SSAOModule_Pass_Blur_Ptr->GetDescriptorImageInfo(vBindingPoint);
 	}
 
 	return nullptr;
@@ -222,12 +222,12 @@ void SSAOModule::UpdateShaders(const std::set<std::string>& vFiles)
 void SSAOModule::UpdateDescriptorsBeforeCommandBuffer()
 {
 	// on va lier les pass's entre elles
-	if (m_SSAOModule_Pass_1_AO_Ptr && 
-		m_SSAOModule_Pass_2_Blur_Ptr)
+	if (m_SSAOModule_Pass_AO_Ptr && 
+		m_SSAOModule_Pass_Blur_Ptr)
 	{
 		// on va mettre le front de "AO" dans l'input de "BLUR"
-		m_SSAOModule_Pass_2_Blur_Ptr->SetTexture(0U, 
-			m_SSAOModule_Pass_1_AO_Ptr->GetDescriptorImageInfo(0U));
+		m_SSAOModule_Pass_Blur_Ptr->SetTexture(0U, 
+			m_SSAOModule_Pass_AO_Ptr->GetDescriptorImageInfo(0U));
 	}
 
 	GenericRenderer::UpdateDescriptorsBeforeCommandBuffer();

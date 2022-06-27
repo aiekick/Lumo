@@ -36,7 +36,7 @@ SOFTWARE.
 #include <Interfaces/TextureOutputInterface.h>
 
 namespace vkApi { class VulkanCore; }
-class GridModule_Pass_1;
+class GridModule_Pass;
 class GridModule :
 	public GenericRenderer,
 	public GuiInterface,
@@ -48,7 +48,7 @@ public:
 	static std::shared_ptr<GridModule> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	std::shared_ptr<GridModule_Pass_1> m_GridModule_Pass_1_Ptr = nullptr;
+	std::shared_ptr<GridModule_Pass> m_GridModule_Pass_Ptr = nullptr;
 
 private:
 	VulkanBufferObjectPtr m_UBO_Vert = nullptr;

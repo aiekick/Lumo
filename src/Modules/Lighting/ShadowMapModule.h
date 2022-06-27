@@ -58,8 +58,7 @@ SOFTWARE.
 
 namespace vkApi { class VulkanCore; }
 
-class ShadowMapModule_Pass_1;
-class ShadowMapModule_Pass_2_Model_Shadow;
+class ShadowMapModule_Pass;
 class ShadowMapModule :
 	public GenericRenderer,
 	public GuiInterface,
@@ -77,8 +76,7 @@ public:
 private:
 	ct::cWeak<ShadowMapModule> m_This;
 
-	std::shared_ptr<ShadowMapModule_Pass_1> m_ShadowMapModule_Pass_1_Ptr = nullptr;
-	std::shared_ptr<ShadowMapModule_Pass_2_Model_Shadow> m_ShadowMapModule_Pass_2_Model_Shadow_Ptr = nullptr;
+	std::shared_ptr<ShadowMapModule_Pass> m_ShadowMapModule_Pass_Ptr = nullptr;
 
 public:
 	ShadowMapModule(vkApi::VulkanCore* vVulkanCore);

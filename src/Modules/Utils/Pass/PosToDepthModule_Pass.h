@@ -59,7 +59,7 @@ SOFTWARE.
 #include <Interfaces/SerializationInterface.h>
 
 namespace vkApi { class VulkanCore; }
-class PosToDepthModule_Pass_1 :
+class PosToDepthModule_Pass :
 	public QuadShaderPass,
 	public GuiInterface,
 	public TextureInputInterface<1U>,
@@ -78,8 +78,8 @@ private:
 	std::string m_FragmentShaderCode;
 
 public:
-	PosToDepthModule_Pass_1(vkApi::VulkanCore* vVulkanCore);
-	~PosToDepthModule_Pass_1();
+	PosToDepthModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	~PosToDepthModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

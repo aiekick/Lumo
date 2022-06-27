@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "DeferredRenderer_Pass_1.h"
+#include "DeferredRenderer_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -44,13 +44,13 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DeferredRenderer_Pass_1::DeferredRenderer_Pass_1(vkApi::VulkanCore* vVulkanCore)
+DeferredRenderer_Pass::DeferredRenderer_Pass(vkApi::VulkanCore* vVulkanCore)
 	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Deferred", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
 
-DeferredRenderer_Pass_1::~DeferredRenderer_Pass_1()
+DeferredRenderer_Pass::~DeferredRenderer_Pass()
 {
 	Unit();
 }
@@ -59,7 +59,7 @@ DeferredRenderer_Pass_1::~DeferredRenderer_Pass_1()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DeferredRenderer_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool DeferredRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	DrawInputTexture(m_VulkanCore, "Position", 0U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCore, "Normal", 1U, m_OutputRatio);
@@ -74,17 +74,17 @@ bool DeferredRenderer_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 	return false;
 }
 
-void DeferredRenderer_Pass_1::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void DeferredRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 
 }
 
-void DeferredRenderer_Pass_1::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void DeferredRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 
 }
 
-void DeferredRenderer_Pass_1::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DeferredRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
@@ -125,7 +125,7 @@ void DeferredRenderer_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descripto
 	}
 }
 
-vk::DescriptorImageInfo* DeferredRenderer_Pass_1::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* DeferredRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	if (m_FrameBufferPtr)
 	{
@@ -139,14 +139,14 @@ vk::DescriptorImageInfo* DeferredRenderer_Pass_1::GetDescriptorImageInfo(const u
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string DeferredRenderer_Pass_1::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string DeferredRenderer_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
 	return str;
 }
 
-bool DeferredRenderer_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool DeferredRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -162,13 +162,13 @@ bool DeferredRenderer_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 	return true;
 }
 
-void DeferredRenderer_Pass_1::UpdateShaders(const std::set<std::string>& vFiles)
+void DeferredRenderer_Pass::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
 
-	if (vFiles.find("shaders/DeferredRenderer_Pass_1.vert") != vFiles.end())
+	if (vFiles.find("shaders/DeferredRenderer_Pass.vert") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass_1.vert";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass.vert";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_VertexShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -176,9 +176,9 @@ void DeferredRenderer_Pass_1::UpdateShaders(const std::set<std::string>& vFiles)
 		}
 
 	}
-	else if (vFiles.find("shaders/DeferredRenderer_Pass_1.frag") != vFiles.end())
+	else if (vFiles.find("shaders/DeferredRenderer_Pass.frag") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass_1.frag";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass.frag";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -196,7 +196,7 @@ void DeferredRenderer_Pass_1::UpdateShaders(const std::set<std::string>& vFiles)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool DeferredRenderer_Pass_1::CreateUBO()
+bool DeferredRenderer_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -218,14 +218,14 @@ bool DeferredRenderer_Pass_1::CreateUBO()
 	return true;
 }
 
-void DeferredRenderer_Pass_1::UploadUBO()
+void DeferredRenderer_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void DeferredRenderer_Pass_1::DestroyUBO()
+void DeferredRenderer_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -233,7 +233,7 @@ void DeferredRenderer_Pass_1::DestroyUBO()
 	m_EmptyTexturePtr.reset();
 }
 
-bool DeferredRenderer_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
+bool DeferredRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -253,7 +253,7 @@ bool DeferredRenderer_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool DeferredRenderer_Pass_1::UpdateBufferInfoInRessourceDescriptor()
+bool DeferredRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -273,11 +273,11 @@ bool DeferredRenderer_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	return true;
 }
 
-std::string DeferredRenderer_Pass_1::GetVertexShaderCode(std::string& vOutShaderName)
+std::string DeferredRenderer_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "DeferredRenderer_Pass_1_Vertex";
+	vOutShaderName = "DeferredRenderer_Pass_Vertex";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass_1.vert";
+	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass.vert";
 
 	if (FileHelper::Instance()->IsFileExist(shader_path))
 	{
@@ -304,11 +304,11 @@ void main()
 	return m_VertexShaderCode;
 }
 
-std::string DeferredRenderer_Pass_1::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string DeferredRenderer_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "DeferredRenderer_Pass_1_Fragment";
+	vOutShaderName = "DeferredRenderer_Pass_Fragment";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass_1.frag";
+	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass.frag";
 
 	if (FileHelper::Instance()->IsFileExist(shader_path))
 	{

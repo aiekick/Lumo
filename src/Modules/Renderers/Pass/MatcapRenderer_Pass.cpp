@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "HeatmapRenderer_Pass_1.h"
+#include "MatcapRenderer_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -40,37 +40,22 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-HeatmapRenderer_Pass_1::HeatmapRenderer_Pass_1(vkApi::VulkanCore* vVulkanCore)
+MatcapRenderer_Pass::MatcapRenderer_Pass(vkApi::VulkanCore* vVulkanCore)
 	: ShaderPass(vVulkanCore)
 {
-	SetRenderDocDebugName("Mesh Pass 1 : Heatmap", MESH_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Mesh Pass 1 : Matcap", MESH_SHADER_PASS_DEBUG_COLOR);
 }
 
-HeatmapRenderer_Pass_1::~HeatmapRenderer_Pass_1()
+MatcapRenderer_Pass::~MatcapRenderer_Pass()
 {
 	Unit();
-}
-
-//////////////////////////////////////////////////////////////
-//// INIT ////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-void HeatmapRenderer_Pass_1::ActionBeforeInit()
-{
-	ClearColorBuffer();
-	AddColorToBuffer(ct::fvec4(0.32f, 0.00f, 0.32f, 1.00f));
-	AddColorToBuffer(ct::fvec4(0.00f, 0.00f, 1.00f, 1.00f));
-	AddColorToBuffer(ct::fvec4(0.00f, 1.00f, 0.00f, 1.00f));
-	AddColorToBuffer(ct::fvec4(1.00f, 1.00f, 0.00f, 1.00f));
-	AddColorToBuffer(ct::fvec4(1.00f, 0.60f, 0.00f, 1.00f));
-	AddColorToBuffer(ct::fvec4(1.00f, 0.00f, 0.00f, 1.00f));
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void HeatmapRenderer_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void MatcapRenderer_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	ZoneScoped;
 
@@ -83,7 +68,7 @@ void HeatmapRenderer_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const int&
 
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
 		{
-			VKFPScoped(*vCmdBuffer, "HeatmapRenderer", "DrawModel");
+			VKFPScoped(*vCmdBuffer, "MatcapRenderer_Pass", "DrawModel");
 
 			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 
@@ -109,47 +94,33 @@ void HeatmapRenderer_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const int&
 	}
 }
 
-bool HeatmapRenderer_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MatcapRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	bool change = false;
 
-	ImGui::Text("Component : ");
-	ImGui::SameLine();
-	if (ImGui::RadioButtonLabeled(0.0f, "R", m_UBOFrag.channel_idx == 0, false)) { change = true; m_UBOFrag.channel_idx = 0; }
-	ImGui::SameLine();
-	if (ImGui::RadioButtonLabeled(0.0f, "G", m_UBOFrag.channel_idx == 1, false)) { change = true; m_UBOFrag.channel_idx = 1; }
-	ImGui::SameLine();
-	if (ImGui::RadioButtonLabeled(0.0f, "B", m_UBOFrag.channel_idx == 2, false)) { change = true; m_UBOFrag.channel_idx = 2; }
-	ImGui::SameLine();
-	if (ImGui::RadioButtonLabeled(0.0f, "A", m_UBOFrag.channel_idx == 3, false)) { change = true; m_UBOFrag.channel_idx = 3; }
-
-	uint32_t idx = 0;
-	for (uint32_t i = 0; i < m_UBOFrag.count_colors; ++i)
-	{
-		ImGui::PushID(ImGui::IncPUSHID());
-		change |= ImGui::ColorEdit4Default(0.0f, ct::toStr("Color %u", i).c_str(), &m_Colors[i].x, &m_DefaultColors[i].x);
-		ImGui::PopID();
-	}
+	change |= ImGui::CheckBoxFloatDefault("Show Face Normal", &m_UBOFrag.show_face_normal, false);
 
 	if (change)
 	{
-		NeedNewSBOUpload();
+		NeedNewUBOUpload();
 	}
+
+	DrawInputTexture(m_VulkanCore, "Input Matcap", 0U, m_OutputRatio);
 
 	return change;
 }
 
-void HeatmapRenderer_Pass_1::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void MatcapRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 
 }
 
-void HeatmapRenderer_Pass_1::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void MatcapRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 
 }
 
-void HeatmapRenderer_Pass_1::SetModel(SceneModelWeak vSceneModel)
+void MatcapRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
@@ -158,7 +129,33 @@ void HeatmapRenderer_Pass_1::SetModel(SceneModelWeak vSceneModel)
 	m_NeedModelUpdate = true;
 }
 
-vk::DescriptorImageInfo* HeatmapRenderer_Pass_1::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+void MatcapRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+{
+	ZoneScoped;
+
+	if (m_Loaded)
+	{
+		if (vBinding < m_SamplerImageInfos.size())
+		{
+			if (vImageInfo)
+			{
+				m_SamplerImageInfos[vBinding] = *vImageInfo;
+			}
+			else if (m_EmptyTexturePtr)
+			{
+				m_SamplerImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+			}
+			else
+			{
+				CTOOL_DEBUG_BREAK;
+			}
+
+			m_NeedSamplerUpdate = true;
+		}
+	}
+}
+
+vk::DescriptorImageInfo* MatcapRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	if (m_FrameBufferPtr)
 	{
@@ -172,20 +169,7 @@ vk::DescriptorImageInfo* HeatmapRenderer_Pass_1::GetDescriptorImageInfo(const ui
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HeatmapRenderer_Pass_1::ClearColorBuffer()
-{
-	m_Colors.clear();
-	m_DefaultColors.clear();
-}
-
-void HeatmapRenderer_Pass_1::AddColorToBuffer(const ct::fvec4& vColor)
-{
-	m_Colors.push_back(vColor);
-	m_DefaultColors.push_back(vColor);
-	m_UBOFrag.count_colors = (int32_t)m_Colors.size();
-}
-
-void HeatmapRenderer_Pass_1::DestroyModel(const bool& vReleaseDatas)
+void MatcapRenderer_Pass::DestroyModel(const bool& vReleaseDatas)
 {
 	ZoneScoped;
 
@@ -195,41 +179,7 @@ void HeatmapRenderer_Pass_1::DestroyModel(const bool& vReleaseDatas)
 	}
 }
 
-bool HeatmapRenderer_Pass_1::CreateSBO()
-{
-	ZoneScoped;
-
-	m_SBO_Colors.reset();
-
-	const auto sizeInBytes = sizeof(ct::fvec4) * m_Colors.size();
-	m_SBO_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCore, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
-	
-	const auto color_buffer_size = sizeof(ct::fvec4);
-	m_SBO_Empty_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCore, color_buffer_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
-
-	NeedNewSBOUpload();
-
-	return true;
-}
-
-void HeatmapRenderer_Pass_1::UploadSBO()
-{
-	if (m_SBO_Colors)
-	{
-		const auto sizeInBytes = sizeof(ct::fvec4) * m_Colors.size();
-		VulkanRessource::upload(m_VulkanCore, *m_SBO_Colors, m_Colors.data(), sizeInBytes);
-	}
-}
-
-void HeatmapRenderer_Pass_1::DestroySBO()
-{
-	ZoneScoped;
-
-	m_SBO_Colors.reset();
-	m_SBO_Empty_Colors.reset();
-}
-
-bool HeatmapRenderer_Pass_1::CreateUBO()
+bool MatcapRenderer_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -249,12 +199,21 @@ bool HeatmapRenderer_Pass_1::CreateUBO()
 		m_DescriptorBufferInfo_Frag.offset = 0;
 	}
 
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	if (m_EmptyTexturePtr)
+	{
+		for (auto& a : m_SamplerImageInfos)
+		{
+			a = m_EmptyTexturePtr->m_DescriptorImageInfo;
+		}
+	}
+
 	NeedNewUBOUpload();
 
 	return true;
 }
 
-void HeatmapRenderer_Pass_1::UploadUBO()
+void MatcapRenderer_Pass::UploadUBO()
 {
 	ZoneScoped;
 
@@ -262,7 +221,7 @@ void HeatmapRenderer_Pass_1::UploadUBO()
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void HeatmapRenderer_Pass_1::DestroyUBO()
+void MatcapRenderer_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -270,7 +229,7 @@ void HeatmapRenderer_Pass_1::DestroyUBO()
 	m_UBO_Frag.reset();
 }
 
-bool HeatmapRenderer_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
+bool MatcapRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -278,12 +237,12 @@ bool HeatmapRenderer_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
 
-bool HeatmapRenderer_Pass_1::UpdateBufferInfoInRessourceDescriptor()
+bool MatcapRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -291,26 +250,19 @@ bool HeatmapRenderer_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Vert);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	if (m_Colors.empty())
-	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_Empty_Colors->bufferInfo);
-	}
-	else
-	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_Colors->bufferInfo);
-	}
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // matcap
 
 	return true;
 }
 
-void HeatmapRenderer_Pass_1::SetInputStateBeforePipelineCreation()
+void MatcapRenderer_Pass::SetInputStateBeforePipelineCreation()
 {
 	VertexStruct::P3_N3_TA3_BTA3_T2_C4::GetInputState(m_InputState);
 }
 
-std::string HeatmapRenderer_Pass_1::GetVertexShaderCode(std::string& vOutShaderName)
+std::string MatcapRenderer_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "HeatmapRenderer_Pass_1_Vertex";
+	vOutShaderName = "MatcapRenderer_Pass_Vertex";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -322,7 +274,9 @@ layout(location = 3) in vec3 aBiTangent;
 layout(location = 4) in vec2 aUv;
 layout(location = 5) in vec4 aColor;
 
-layout(location = 0) out vec4 vertColor;
+layout(location = 0) out vec3 vertPosition;
+layout(location = 1) out vec3 vertNormal;
+layout(location = 2) out vec2 matcapNormal2D;
 )"
 + CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
 u8R"(
@@ -331,53 +285,89 @@ layout (std140, binding = 1) uniform UBO_Vert
 	mat4 transform;
 };
 
+vec2 getMatCap(vec3 pos, vec3 nor)
+{
+	mat4 modelViewMatrix = view * model;
+	mat4 normalMatrix = transpose(inverse(modelViewMatrix));
+	vec4 pp = modelViewMatrix * vec4(pos, 1. );
+	vec4 nn = normalMatrix * vec4(nor, 1.);
+	vec3 rd = normalize( pp.xyz );
+	vec3 n = normalize( nn.xyz );
+	vec3 r = reflect(rd, n);
+	r.y *= -1.0;
+	float m = 2. * sqrt(
+		pow( r.x, 2. ) +
+		pow( r.y, 2. ) +
+		pow( r.z + 1., 2. )
+	);
+	return r.xy / m + .5;
+}
+
 void main() 
 {
-	vertColor = aColor;
-	gl_Position = cam * transform * vec4(aPosition, 1.0);
+	vertPosition = aPosition;
+	vertNormal = aNormal;
+	matcapNormal2D = getMatCap(vertPosition, aNormal);
+	
+	gl_Position = cam * transform * vec4(vertPosition, 1.0);
 }
 )";
 }
 
-std::string HeatmapRenderer_Pass_1::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string MatcapRenderer_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "HeatmapRenderer_Pass_1_Fragment";
+	vOutShaderName = "MatcapRenderer_Pass_Fragment";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
 
-layout(location = 0) in vec4 vertColor;
+layout(location = 0) in vec3 vertPosition;
+layout(location = 1) in vec3 vertNormal;
+layout(location = 2) in vec2 matcapNormal2D;
 )"
 + CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout(std140, binding = 2) uniform UBO_Frag 
 { 
-	uint channel_idx;	// 0..3
-	uint color_count;	// 0..N
+	float show_face_normal;
 };
 
-layout(std140, binding = 3) readonly buffer SBO_Frag 
-{ 
-	vec4 colors[];		// N Colors
-};
+layout(binding = 3) uniform sampler2D sampler_matcap;
 
-vec4 HeatMapColor(float value, float minValue, float maxValue)
+vec2 getMatCap(vec3 pos, vec3 nor)
 {
-    float ratio = (color_count-1.0) * clamp((value-minValue) / (maxValue-minValue), 0.0, 1.0);
-    uint indexMin = uint(floor(ratio));
-    uint indexMax = min(indexMin+1,color_count-1);
-    return mix(colors[indexMin], colors[indexMax], ratio-indexMin);
+	mat4 modelViewMatrix = view * model;
+	mat4 normalMatrix = transpose(inverse(modelViewMatrix));
+	vec4 pp = modelViewMatrix * vec4(pos, 1. );
+	vec4 nn = normalMatrix * vec4(nor, 0.);
+	vec3 rd = normalize( pp.xyz );
+	vec3 n = normalize( nn.xyz );
+	vec3 r = reflect(rd, n);
+	float m = 2. * sqrt(
+		pow( r.x, 2. ) +
+		pow( r.y, 2. ) +
+		pow( r.z + 1., 2. )
+	);
+	return r.xy / m + .5;
 }
 
 void main() 
 {
 	fragColor = vec4(0);
 
-	if (vertColor[channel_idx] > 0.0)
+	if (dot(vertPosition, vertPosition) > 0.0)
 	{
-		fragColor = HeatMapColor(vertColor[channel_idx], 0.0, 1.0);
+		vec3 vertice_normal = vertNormal;
+		if (show_face_normal > 0.5)
+		{
+			vertice_normal = normalize(-cross(dFdx(vertPosition), dFdy(vertPosition)));
+		}
+
+		vec2 tn = matcapNormal2D;
+		tn = getMatCap(vertPosition, vertice_normal);
+		fragColor = texture(sampler_matcap, tn);
 		fragColor.a = 1.0;
 	}
 	else
@@ -392,22 +382,16 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string HeatmapRenderer_Pass_1::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string MatcapRenderer_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
-	str += vOffset + ct::toStr("<component>%u</component>\n", m_UBOFrag.channel_idx);
-	str += vOffset + "<color_levels>\n";
-	for (auto color : m_Colors)
-	{
-		str += vOffset + ct::toStr("\t<color>%s</color>\n", color.string().c_str());
-	}
-	str += vOffset + "</color_levels>\n";
+	str += vOffset + "<show_face_normal>" + (m_UBOFrag.show_face_normal > 0.5f ? "true" : "false") + "</show_face_normal>\n";
 
 	return str;
 }
 
-bool HeatmapRenderer_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool MatcapRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -420,22 +404,12 @@ bool HeatmapRenderer_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "heatmap_renderer")
+	if (strParentName == "matcap_renderer")
 	{
-		if (strName == "color_levels")
-			m_Colors.clear();
-		else if (strName == "component")
-			m_UBOFrag.channel_idx = ct::ivariant(strValue).GetI();
+		if (strName == "show_face_normal")
+			m_UBOFrag.show_face_normal = ct::ivariant(strValue).GetB() ? 1.0f : 0.0f;
 
 		NeedNewUBOUpload();
-	}
-
-	if (strParentName == "color_levels")
-	{
-		if (strName == "color")
-			m_Colors.push_back(ct::fvariant(strValue).GetV4());
-
-		NeedNewSBOUpload();
 	}
 
 	return true;

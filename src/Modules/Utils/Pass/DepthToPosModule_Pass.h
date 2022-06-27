@@ -31,13 +31,13 @@ SOFTWARE.
 
 #include <Headers/Globals.h>
 
+#include <vulkan/vulkan.hpp>
+
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Generic/GenericRenderer.h>
 #include <Generic/QuadShaderPass.h>
 
-#include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanDevice.h>
@@ -47,17 +47,22 @@ SOFTWARE.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 
+#include <SceneGraph/SceneMesh.h>
+
 #include <Interfaces/GuiInterface.h>
+#include <Interfaces/TaskInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/ShaderInterface.h>
+#include <Interfaces/ResizerInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
+#include <Interfaces/SerializationInterface.h>
 
 namespace vkApi { class VulkanCore; }
-
-class SSAOModule_Pass_1_AO : 
+class DepthToPosModule_Pass :
 	public QuadShaderPass,
 	public GuiInterface,
-	public TextureInputInterface<3U>,
+	public TextureInputInterface<1U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {
@@ -66,30 +71,26 @@ private:
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
 	struct UBOFrag {
-		alignas(4) float use_sampler_pos = 0.0f;
-		alignas(4) float use_sampler_nor = 0.0f;
-		alignas(4) float use_sampler_noise = 0.0f;
-		alignas(4) float u_noise_scale = 1.0f;
-		alignas(4) float u_ao_radius = 0.01f;
-		alignas(4) float u_ao_scale = 1.0f;
-		alignas(4) float u_ao_bias = 0.01f;
-		alignas(4) float u_ao_intensity = 2.0f;
+		alignas(4) float use_sampler_dep = 0.0f;
 	} m_UBOFrag;
 
+	std::string m_VertexShaderCode;
+	std::string m_FragmentShaderCode;
+
 public:
-	SSAOModule_Pass_1_AO(vkApi::VulkanCore* vVulkanCore);
-	virtual ~SSAOModule_Pass_1_AO();
+	DepthToPosModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	~DepthToPosModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas)  override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)  override;
 
-protected:
+private:
 	bool CreateUBO() override;
 	void UploadUBO() override;
 	void DestroyUBO() override;

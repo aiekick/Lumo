@@ -38,7 +38,7 @@ SOFTWARE.
 #include <cinttypes>
 #include <Generic/FrameBuffer.h>
 
-#include <Modules/Lighting/Pass/ShadowMapModule_Pass_1.h>
+#include <Modules/Lighting/Pass/ShadowMapModule_Pass.h>
 
 using namespace vkApi;
 
@@ -88,14 +88,14 @@ bool ShadowMapModule::Init()
 
 	if (GenericRenderer::InitPixel(map_size))
 	{
-		m_ShadowMapModule_Pass_1_Ptr = std::make_shared<ShadowMapModule_Pass_1>(m_VulkanCore);
-		if (m_ShadowMapModule_Pass_1_Ptr)
+		m_ShadowMapModule_Pass_Ptr = std::make_shared<ShadowMapModule_Pass>(m_VulkanCore);
+		if (m_ShadowMapModule_Pass_Ptr)
 		{
-			if (m_ShadowMapModule_Pass_1_Ptr->InitPixel(1024U, 1U, true, true, 0.0f,
+			if (m_ShadowMapModule_Pass_Ptr->InitPixel(1024U, 1U, true, true, 0.0f,
 				vk::Format::eR32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				m_ShadowMapModule_Pass_1_Ptr->AllowResize(false); // 1024 is fixed
-				AddGenericPass(m_ShadowMapModule_Pass_1_Ptr);
+				m_ShadowMapModule_Pass_Ptr->AllowResize(false); // 1024 is fixed
+				AddGenericPass(m_ShadowMapModule_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -171,9 +171,9 @@ void ShadowMapModule::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
-	if (m_ShadowMapModule_Pass_1_Ptr)
+	if (m_ShadowMapModule_Pass_Ptr)
 	{
-		m_ShadowMapModule_Pass_1_Ptr->SetModel(vSceneModel);
+		m_ShadowMapModule_Pass_Ptr->SetModel(vSceneModel);
 	}
 }
 
@@ -181,9 +181,9 @@ void ShadowMapModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	ZoneScoped;
 
-	if (m_ShadowMapModule_Pass_1_Ptr)
+	if (m_ShadowMapModule_Pass_Ptr)
 	{
-		m_ShadowMapModule_Pass_1_Ptr->SetLightGroup(vSceneLightGroup);
+		m_ShadowMapModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -191,9 +191,9 @@ SceneLightGroupWeak ShadowMapModule::GetLightGroup()
 {
 	ZoneScoped;
 
-	if (m_ShadowMapModule_Pass_1_Ptr)
+	if (m_ShadowMapModule_Pass_Ptr)
 	{
-		return m_ShadowMapModule_Pass_1_Ptr->GetLightGroup();
+		return m_ShadowMapModule_Pass_Ptr->GetLightGroup();
 	}
 
 	return SceneLightGroupWeak();
@@ -203,9 +203,9 @@ vk::DescriptorImageInfo* ShadowMapModule::GetDescriptorImageInfo(const uint32_t&
 {
 	ZoneScoped;
 
-	if (m_ShadowMapModule_Pass_1_Ptr)
+	if (m_ShadowMapModule_Pass_Ptr)
 	{
-		return m_ShadowMapModule_Pass_1_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_ShadowMapModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
 	}
 
 	return nullptr;

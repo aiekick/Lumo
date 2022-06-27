@@ -24,75 +24,69 @@ SOFTWARE.
 
 #pragma once
 
-#include <set>
 #include <array>
-#include <string>
 #include <memory>
-
-#include <Headers/Globals.h>
-
-#include <ctools/cTools.h>
-#include <ctools/ConfigAbstract.h>
-
-#include <Generic/GenericRenderer.h>
-#include <Generic/QuadShaderPass.h>
-
-#include <vulkan/vulkan.hpp>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
+#include <Generic/ShaderPass.h>
 #include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
-
+#include <vkFramework/VulkanDevice.h>
+#include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/GuiInterface.h>
-#include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 
 namespace vkApi { class VulkanCore; }
 
-class SSAOModule_Pass_2_Blur :
-	public QuadShaderPass,
+class ChannelRenderer_Pass :
+	public ShaderPass,
 	public GuiInterface,
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface,
-	public ShaderUpdateInterface
+	public ModelInputInterface,
+	public TextureOutputInterface
 {
 private:
+	bool m_ShowMesh = false;
+
+private:
+	VulkanBufferObjectPtr m_UBO_Vert = nullptr;
+	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
+
+	struct UBOVert {
+		alignas(16) glm::mat4x4 transform = glm::mat4x4(1.0f);
+	} m_UBOVert;
+
 	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
 	struct UBOFrag {
-		alignas(4) int32_t u_blur_radius = 4;
-		alignas(4) float u_blur_offset = 1.0;
-		alignas(4) float u_blur_smooth_inf = 0.0;
-		alignas(4) float u_blur_smooth_sup = 1.0;
-		alignas(4) float u_blur_power = 1.0;
+		alignas(4) int32_t show_layer = 0;
 	} m_UBOFrag;
 
-public:
-	SSAOModule_Pass_2_Blur(vkApi::VulkanCore* vVulkanCore);
-	virtual ~SSAOModule_Pass_2_Blur();
+	bool m_NeedModelUpdate = false;
+	std::vector<std::string> m_Layers;
 
+public:
+	ChannelRenderer_Pass(vkApi::VulkanCore* vVulkanCore);
+	~ChannelRenderer_Pass() override;
+
+	void ActionBeforeInit() override;
+	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
+	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas)  override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)  override;
 
 protected:
+	void DestroyModel(const bool& vReleaseDatas = false) override;
+
 	bool CreateUBO() override;
 	void UploadUBO() override;
 	void DestroyUBO() override;
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
+
+	void SetInputStateBeforePipelineCreation() override;
 
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ShadowMapModule_Pass_1.h"
+#include "ShadowMapModule_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -43,13 +43,13 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ShadowMapModule_Pass_1::ShadowMapModule_Pass_1(vkApi::VulkanCore* vVulkanCore)
+ShadowMapModule_Pass::ShadowMapModule_Pass(vkApi::VulkanCore* vVulkanCore)
 	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Light Shadow Map", MESH_SHADER_PASS_DEBUG_COLOR);
 }
 
-ShadowMapModule_Pass_1::~ShadowMapModule_Pass_1()
+ShadowMapModule_Pass::~ShadowMapModule_Pass()
 {
 	Unit();
 }
@@ -58,7 +58,7 @@ ShadowMapModule_Pass_1::~ShadowMapModule_Pass_1()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void ShadowMapModule_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void ShadowMapModule_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	ZoneScoped;
 
@@ -71,7 +71,7 @@ void ShadowMapModule_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const int&
 
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
 		{
-			VKFPScoped(*vCmdBuffer, "ShadowMapModule_Pass_1", "DrawMesh");
+			VKFPScoped(*vCmdBuffer, "ShadowMapModule_Pass", "DrawMesh");
 
 			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 
@@ -97,7 +97,7 @@ void ShadowMapModule_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const int&
 	}
 }
 
-bool ShadowMapModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ShadowMapModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	bool change = false;
 
@@ -109,17 +109,17 @@ bool ShadowMapModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 	return change;
 }
 
-void ShadowMapModule_Pass_1::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void ShadowMapModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 
 }
 
-void ShadowMapModule_Pass_1::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ShadowMapModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 
 }
 
-void ShadowMapModule_Pass_1::SetModel(SceneModelWeak vSceneModel)
+void ShadowMapModule_Pass::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
@@ -128,7 +128,7 @@ void ShadowMapModule_Pass_1::SetModel(SceneModelWeak vSceneModel)
 	m_NeedModelUpdate = true;
 }
 
-void ShadowMapModule_Pass_1::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void ShadowMapModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	ZoneScoped;
 
@@ -137,14 +137,14 @@ void ShadowMapModule_Pass_1::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	m_NeedLightGroupUpdate = true;
 }
 
-SceneLightGroupWeak ShadowMapModule_Pass_1::GetLightGroup()
+SceneLightGroupWeak ShadowMapModule_Pass::GetLightGroup()
 {
 	ZoneScoped;
 
 	return m_SceneLightGroup;
 }
 
-vk::DescriptorImageInfo* ShadowMapModule_Pass_1::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* ShadowMapModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	ZoneScoped;
 
@@ -160,14 +160,14 @@ vk::DescriptorImageInfo* ShadowMapModule_Pass_1::GetDescriptorImageInfo(const ui
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ShadowMapModule_Pass_1::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string ShadowMapModule_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
 	return str;
 }
 
-bool ShadowMapModule_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool ShadowMapModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -187,7 +187,7 @@ bool ShadowMapModule_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ShadowMapModule_Pass_1::CreateUBO()
+bool ShadowMapModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -201,7 +201,7 @@ bool ShadowMapModule_Pass_1::CreateUBO()
 	return true;
 }
 
-void ShadowMapModule_Pass_1::DestroyModel(const bool& vReleaseDatas)
+void ShadowMapModule_Pass::DestroyModel(const bool& vReleaseDatas)
 {
 	ZoneScoped;
 
@@ -211,21 +211,21 @@ void ShadowMapModule_Pass_1::DestroyModel(const bool& vReleaseDatas)
 	}
 }
 
-void ShadowMapModule_Pass_1::UploadUBO()
+void ShadowMapModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
 }
 
-void ShadowMapModule_Pass_1::DestroyUBO()
+void ShadowMapModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
 	m_UBO_Vert.reset();
 }
 
-bool ShadowMapModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
+bool ShadowMapModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -236,7 +236,7 @@ bool ShadowMapModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool ShadowMapModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
+bool ShadowMapModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -247,7 +247,7 @@ bool ShadowMapModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	return true;
 }
 
-void ShadowMapModule_Pass_1::UpdateRessourceDescriptor()
+void ShadowMapModule_Pass::UpdateRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -278,14 +278,14 @@ void ShadowMapModule_Pass_1::UpdateRessourceDescriptor()
 	ShaderPass::UpdateRessourceDescriptor();
 }
 
-void ShadowMapModule_Pass_1::SetInputStateBeforePipelineCreation()
+void ShadowMapModule_Pass::SetInputStateBeforePipelineCreation()
 {
 	VertexStruct::P3_N3_TA3_BTA3_T2_C4::GetInputState(m_InputState);
 }
 
-std::string ShadowMapModule_Pass_1::GetVertexShaderCode(std::string& vOutShaderName)
+std::string ShadowMapModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ShadowMapModule_Pass_1_Vertex";
+	vOutShaderName = "ShadowMapModule_Pass_Vertex";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -309,9 +309,9 @@ void main()
 )";
 }
 
-std::string ShadowMapModule_Pass_1::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string ShadowMapModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ShadowMapModule_Pass_1_Fragment";
+	vOutShaderName = "ShadowMapModule_Pass_Fragment";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable

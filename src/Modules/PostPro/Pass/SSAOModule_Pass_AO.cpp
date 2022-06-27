@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "SSAOModule_Pass_2_Blur.h"
+#include "SSAOModule_Pass_AO.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -43,33 +43,33 @@ using namespace vkApi;
 #define COUNT_BUFFERS 2
 
 //////////////////////////////////////////////////////////////
-//// SSAO SECOND PASS : BLUR /////////////////////////////////
+//// SSAO FIRST PASS : AO ////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSAOModule_Pass_2_Blur::SSAOModule_Pass_2_Blur(vkApi::VulkanCore* vVulkanCore)
+SSAOModule_Pass_AO::SSAOModule_Pass_AO(vkApi::VulkanCore* vVulkanCore) 
 	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Quad Pass 2 : Blur", QUAD_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Quad Pass 1 : AO", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
 
-SSAOModule_Pass_2_Blur::~SSAOModule_Pass_2_Blur()
+SSAOModule_Pass_AO::~SSAOModule_Pass_AO()
 {
 	Unit();
 }
 
-bool SSAOModule_Pass_2_Blur::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SSAOModule_Pass_AO::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	if (ImGui::CollapsingHeader("Pass 2 : Blur"))
+	if (ImGui::CollapsingHeader("Pass 1 : AO"))
 	{
 		bool change = false;
 
 		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			change |= ImGui::SliderIntDefaultCompact(0.0f, "Radius", &m_UBOFrag.u_blur_radius, 1, 10, 4);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Offset", &m_UBOFrag.u_blur_offset, 0.0f, 10.0f, 1.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Inf Threshold", &m_UBOFrag.u_blur_smooth_inf, 0.0f, 1.0f, 0.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Sup Threshold", &m_UBOFrag.u_blur_smooth_sup, 0.0f, 1.0f, 1.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Power", &m_UBOFrag.u_blur_power, 0.0f, 2.0f, 1.0f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_noise_scale, 0.0f, 2.0f, 1.0f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Radius", &m_UBOFrag.u_ao_radius, 0.0f, 0.25f, 0.01f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Scale", &m_UBOFrag.u_ao_scale, 0.0f, 1.0f, 1.0f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Bias", &m_UBOFrag.u_ao_bias, 0.0f, 0.1f, 0.001f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Intensity", &m_UBOFrag.u_ao_intensity, 0.0f, 5.0f, 2.0f);
 
 			if (change)
 			{
@@ -77,8 +77,9 @@ bool SSAOModule_Pass_2_Blur::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 			}
 		}
 
-		DrawInputTexture(m_VulkanCore, "Input SSAO", 0U, m_OutputRatio);
-		//DrawInputTexture(m_VulkanCore, "Output Blur", 0U, m_OutputRatio);
+		DrawInputTexture(m_VulkanCore, "Input Position", 0U, m_OutputRatio);
+		DrawInputTexture(m_VulkanCore, "Input Normal", 1U, m_OutputRatio);
+		DrawInputTexture(m_VulkanCore, "Input Blue Noise", 2U, m_OutputRatio);
 
 		return change;
 	}
@@ -86,17 +87,17 @@ bool SSAOModule_Pass_2_Blur::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 	return false;
 }
 
-void SSAOModule_Pass_2_Blur::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void SSAOModule_Pass_AO::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-
+	
 }
 
-void SSAOModule_Pass_2_Blur::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void SSAOModule_Pass_AO::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-
+	
 }
 
-void SSAOModule_Pass_2_Blur::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void SSAOModule_Pass_AO::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
@@ -107,9 +108,21 @@ void SSAOModule_Pass_2_Blur::SetTexture(const uint32_t& vBinding, vk::Descriptor
 			if (vImageInfo)
 			{
 				m_SamplerImageInfos[vBinding] = *vImageInfo;
+
+				if ((&m_UBOFrag.use_sampler_pos)[vBinding] < 1.0f)
+				{
+					(&m_UBOFrag.use_sampler_pos)[vBinding] = 1.0f;
+					NeedNewUBOUpload();
+				}
 			}
 			else
 			{
+				if ((&m_UBOFrag.use_sampler_pos)[vBinding] > 0.0f)
+				{
+					(&m_UBOFrag.use_sampler_pos)[vBinding] = 0.0f;
+					NeedNewUBOUpload();
+				}
+
 				if (m_EmptyTexturePtr)
 				{
 					m_SamplerImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
@@ -125,19 +138,17 @@ void SSAOModule_Pass_2_Blur::SetTexture(const uint32_t& vBinding, vk::Descriptor
 	}
 }
 
-vk::DescriptorImageInfo* SSAOModule_Pass_2_Blur::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* SSAOModule_Pass_AO::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	if (m_FrameBufferPtr)
 	{
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 
-	CTOOL_DEBUG_BREAK;
-
 	return nullptr;
 }
 
-bool SSAOModule_Pass_2_Blur::CreateUBO()
+bool SSAOModule_Pass_AO::CreateUBO()
 {
 	ZoneScoped;
 
@@ -159,14 +170,14 @@ bool SSAOModule_Pass_2_Blur::CreateUBO()
 	return true;
 }
 
-void SSAOModule_Pass_2_Blur::UploadUBO()
+void SSAOModule_Pass_AO::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void SSAOModule_Pass_2_Blur::DestroyUBO()
+void SSAOModule_Pass_AO::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -174,29 +185,33 @@ void SSAOModule_Pass_2_Blur::DestroyUBO()
 	m_EmptyTexturePtr.reset();
 }
 
-bool SSAOModule_Pass_2_Blur::UpdateLayoutBindingInRessourceDescriptor()
+bool SSAOModule_Pass_AO::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
 
-bool SSAOModule_Pass_2_Blur::UpdateBufferInfoInRessourceDescriptor()
+bool SSAOModule_Pass_AO::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // ssao
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // depth
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[1], nullptr); // normal
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[2], nullptr); // RGB noise
 
 	return true;
 }
 
-std::string SSAOModule_Pass_2_Blur::GetVertexShaderCode(std::string& vOutShaderName)
+std::string SSAOModule_Pass_AO::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "SSAOModule_Vertex";
 
@@ -227,9 +242,9 @@ void main()
 	return m_VertexShaderCode;
 }
 
-std::string SSAOModule_Pass_2_Blur::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string SSAOModule_Pass_AO::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "SSAOModule_Pass_2_Blur";
+	vOutShaderName = "SSAOModule_Pass_AO";
 
 	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/" + vOutShaderName + ".frag";
 
@@ -242,51 +257,84 @@ std::string SSAOModule_Pass_2_Blur::GetFragmentShaderCode(std::string& vOutShade
 		m_FragmentShaderCode = u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) out vec4 fragColor;
+layout(location = 0) out float fragColor;
 layout(location = 0) in vec2 v_uv;
 
 layout (std140, binding = 1) uniform UBO_Frag
 {
-	uint u_blur_radius; // default is 4
-	float u_blur_offset; // default is 1.0
-	float u_blur_smooth_inf; // default is 0.0
-	float u_blur_smooth_sup; // default is 1.0
-	float u_blur_power; // default is 1.0
+	float use_sampler_pos;
+	float use_sampler_nor;
+	float use_sampler_noise;
+	float u_noise_scale;
+	float u_ao_radius;
+	float u_ao_scale;
+	float u_ao_bias;
+	float u_ao_intensity;
 };
-layout(binding = 2) uniform sampler2D ssao_map_sampler;
+layout(binding = 2) uniform sampler2D pos_map_sampler;
+layout(binding = 3) uniform sampler2D nor_map_sampler;
+layout(binding = 4) uniform sampler2D noise_map_sampler;
+
+// https://www.gamedev.net/tutorials/programming/graphics/a-simple-and-practical-approach-to-ssao-r2753/
+
+vec3 getPos(vec2 uv)
+{
+	return texture(pos_map_sampler, uv).xyz;
+}
+
+vec3 getNor(vec2 uv)
+{
+	return texture(nor_map_sampler, uv).xyz * 2.0 - 1.0;
+}
+
+vec2 getNoi(vec2 uv) 
+{
+	return normalize(texture(noise_map_sampler, uv * u_noise_scale).xy * 2.0 - 1.0); 
+}
+	
+float getAO(vec2 uv, vec2 off, vec3 p, vec3 n) 
+{
+	vec3 diff = getPos(uv + off) - p; 
+	vec3 v = normalize(diff); 
+	float d = length(diff) * u_ao_scale; 
+	return max(0.0, dot(n, v) - u_ao_bias) * (1.0 / (1.0 + d)) * u_ao_intensity;
+}
 
 void main() 
 {
-	fragColor = vec4(0.0);
-	
-	if (texture(ssao_map_sampler, v_uv).r > 0.0)
+	fragColor = 0.0;
+
+	if (use_sampler_pos > 0.5 && use_sampler_nor > 0.5)
 	{
-		const uint blur_radius = max(u_blur_radius, 1);
-		const uint blur_radius_radius = blur_radius * blur_radius;
+		vec3 pos = getPos(v_uv);
+		if (dot(pos, pos) > 0.0)
+		{	
+			const vec2 vec[4] = { vec2(1, 0), vec2(-1, 0), vec2(0, 1), vec2(0, -1) };
+			vec3 p = getPos(v_uv); 
+			vec3 n = getNor(v_uv); 
+			vec2 rand = getNoi(v_uv); 
 
-		const float blur_radius_f = float(blur_radius);
-		const float blur_radius_radius_f = float(blur_radius_radius);
-		
-		vec2 pix = u_blur_offset / textureSize(ssao_map_sampler, 0) / blur_radius_f;
-
-		float ao = 0.0;
-		
-		for (uint i = 0 ; i < blur_radius_radius; ++i)
-		{
-			float x = floor(i / blur_radius_f);
-			float y = mod(float(i), blur_radius_f);
-			vec2 p = vec2(x, y) * 2.0 - 1.0;
-			vec2 uv_off = v_uv + p * pix;
-			ao += texture(ssao_map_sampler, uv_off).r;
+			float occ = 0.0; 
+			
+			const int iterations = 4; 
+			for (int j = 0; j < iterations; ++j) 
+			{	
+				vec2 c1 = reflect(vec[j], rand) * u_ao_radius; 
+				vec2 c2 = vec2(c1.x - c1.y, c1.x + c1.y) * 0.707; 
+				occ += getAO(v_uv, c1 * 0.25, p, n); 
+				occ += getAO(v_uv, c2 * 0.50, p, n); 
+				occ += getAO(v_uv, c1 * 0.75, p, n); 
+				occ += getAO(v_uv, c2 * 1.00, p, n); 
+			}
+		  
+			occ /= float(iterations) * 4.0; 
+					
+			fragColor = 1.0 - occ;
 		}
-
-		ao /= blur_radius_radius_f;
-		
-		// post pro for remove facets
-		ao = smoothstep(u_blur_smooth_inf, u_blur_smooth_sup, ao);
-		ao = pow(ao, u_blur_power);
-		
-		fragColor = vec4(ao, ao, ao, 1.0);
+		else
+		{
+			//discard;
+		}
 	}
 	else
 	{
@@ -300,7 +348,7 @@ void main()
 	return m_FragmentShaderCode;
 }
 
-void SSAOModule_Pass_2_Blur::UpdateShaders(const std::set<std::string>& vFiles)
+void SSAOModule_Pass_AO::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
 
@@ -314,9 +362,9 @@ void SSAOModule_Pass_2_Blur::UpdateShaders(const std::set<std::string>& vFiles)
 		}
 
 	}
-	else if (vFiles.find("shaders/SSAOModule_Pass_2_Blur.frag") != vFiles.end())
+	else if (vFiles.find("shaders/SSAOModule_Pass_AO.frag") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule_Pass_2_Blur.frag";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule_Pass_AO.frag";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -334,20 +382,20 @@ void SSAOModule_Pass_2_Blur::UpdateShaders(const std::set<std::string>& vFiles)
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSAOModule_Pass_2_Blur::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string SSAOModule_Pass_AO::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
-	str += vOffset + "<blur_radius>" + ct::toStr(m_UBOFrag.u_blur_radius) + "</blur_radius>\n";
-	str += vOffset + "<blur_offset>" + ct::toStr(m_UBOFrag.u_blur_offset) + "</blur_offset>\n";
-	str += vOffset + "<blur_smooth_inf>" + ct::toStr(m_UBOFrag.u_blur_smooth_inf) + "</blur_smooth_inf>\n";
-	str += vOffset + "<blur_smooth_sup>" + ct::toStr(m_UBOFrag.u_blur_smooth_sup) + "</blur_smooth_sup>\n";
-	str += vOffset + "<blur_power>" + ct::toStr(m_UBOFrag.u_blur_power) + "</blur_power>\n";
+	str += vOffset + "<noise_scale>" + ct::toStr(m_UBOFrag.u_noise_scale) + "</noise_scale>\n";
+	str += vOffset + "<ao_radius>" + ct::toStr(m_UBOFrag.u_ao_radius) + "</ao_radius>\n";
+	str += vOffset + "<ao_scale>" + ct::toStr(m_UBOFrag.u_ao_scale) + "</ao_scale>\n";
+	str += vOffset + "<ao_bias>" + ct::toStr(m_UBOFrag.u_ao_bias) + "</ao_bias>\n";
+	str += vOffset + "<ao_intensity>" + ct::toStr(m_UBOFrag.u_ao_intensity) + "</ao_intensity>\n";
 
 	return str;
 }
 
-bool SSAOModule_Pass_2_Blur::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool SSAOModule_Pass_AO::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -362,16 +410,16 @@ bool SSAOModule_Pass_2_Blur::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 
 	if (strParentName == "ssao_module")
 	{
-		if (strName == "blur_radius")
-			m_UBOFrag.u_blur_radius = ct::ivariant(strValue).GetI();
-		else if (strName == "blur_offset")
-			m_UBOFrag.u_blur_offset = ct::fvariant(strValue).GetF();
-		else if (strName == "blur_smooth_inf")
-			m_UBOFrag.u_blur_smooth_inf = ct::fvariant(strValue).GetF();
-		else if (strName == "blur_smooth_sup")
-			m_UBOFrag.u_blur_smooth_sup = ct::fvariant(strValue).GetF();
-		else if (strName == "blur_power")
-			m_UBOFrag.u_blur_power = ct::fvariant(strValue).GetF();
+		if (strName == "noise_scale")
+			m_UBOFrag.u_noise_scale = ct::fvariant(strValue).GetF();
+		else if (strName == "ao_radius")
+			m_UBOFrag.u_ao_radius = ct::fvariant(strValue).GetF();
+		else if (strName == "ao_scale")
+			m_UBOFrag.u_ao_scale = ct::fvariant(strValue).GetF();
+		else if (strName == "ao_bias")
+			m_UBOFrag.u_ao_bias = ct::fvariant(strValue).GetF();
+		else if (strName == "ao_intensity")
+			m_UBOFrag.u_ao_intensity = ct::fvariant(strValue).GetF();
 
 		NeedNewUBOUpload();
 	}

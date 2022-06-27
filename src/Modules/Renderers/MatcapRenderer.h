@@ -43,7 +43,7 @@ SOFTWARE.
 #include <vkFramework/ImGuiTexture.h>
 
 namespace vkApi { class VulkanCore; }
-class MatcapRenderer_Pass_1;
+class MatcapRenderer_Pass;
 class MatcapRenderer :
 	public GenericRenderer,
 	public NodeInterface,
@@ -58,7 +58,7 @@ public:
 	static std::shared_ptr<MatcapRenderer> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	std::shared_ptr<MatcapRenderer_Pass_1> m_MatcapRenderer_Pass_1_Ptr = nullptr;
+	std::shared_ptr<MatcapRenderer_Pass> m_MatcapRenderer_Pass_Ptr = nullptr;
 
 public:
 	MatcapRenderer(vkApi::VulkanCore* vVulkanCore);

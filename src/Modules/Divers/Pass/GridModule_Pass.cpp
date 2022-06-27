@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GridModule_Pass_1.h"
+#include "GridModule_Pass.h"
 
 #include <ImWidgets/ImWidgets.h>
 #include <Systems/CommonSystem.h>
@@ -35,13 +35,13 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GridModule_Pass_1::GridModule_Pass_1(vkApi::VulkanCore* vVulkanCore)
+GridModule_Pass::GridModule_Pass(vkApi::VulkanCore* vVulkanCore)
 	: VertexShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Vertex Pass 1 : Grid", VERTEX_SHADER_PASS_DEBUG_COLOR);
 }
 
-GridModule_Pass_1::~GridModule_Pass_1()
+GridModule_Pass::~GridModule_Pass()
 {
 	Unit();
 }
@@ -50,7 +50,7 @@ GridModule_Pass_1::~GridModule_Pass_1()
 //// PUBLIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void GridModule_Pass_1::ActionBeforeInit()
+void GridModule_Pass::ActionBeforeInit()
 {
 	m_PrimitiveTopology = vk::PrimitiveTopology::eLineList;
 	m_LineWidth.x = 0.5f;	// min value
@@ -58,7 +58,7 @@ void GridModule_Pass_1::ActionBeforeInit()
 	m_LineWidth.z = 2.0f;	// default value
 }
 
-bool GridModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool GridModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -87,17 +87,17 @@ bool GridModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	return change;
 }
 
-void GridModule_Pass_1::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void GridModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 
 }
 
-void GridModule_Pass_1::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void GridModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 
 }
 
-vk::DescriptorImageInfo* GridModule_Pass_1::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* GridModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	ZoneScoped;
 
@@ -113,7 +113,7 @@ vk::DescriptorImageInfo* GridModule_Pass_1::GetDescriptorImageInfo(const uint32_
 //// PRIVATE /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool GridModule_Pass_1::CreateUBO()
+bool GridModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -130,7 +130,7 @@ bool GridModule_Pass_1::CreateUBO()
 	return true;
 }
 
-void GridModule_Pass_1::UploadUBO()
+void GridModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
@@ -141,14 +141,14 @@ void GridModule_Pass_1::UploadUBO()
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
 }
 
-void GridModule_Pass_1::DestroyUBO()
+void GridModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
 	m_UBO_Vert.reset();
 }
 
-bool GridModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
+bool GridModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -159,7 +159,7 @@ bool GridModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool GridModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
+bool GridModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -172,9 +172,9 @@ bool GridModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	return res;
 }
 
-std::string GridModule_Pass_1::GetVertexShaderCode(std::string& vOutShaderName)
+std::string GridModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "GridModule_Pass_1_Vertex";
+	vOutShaderName = "GridModule_Pass_Vertex";
 
 	return u8R"(
 #version 450
@@ -235,9 +235,9 @@ void main()
 )";
 }
 
-std::string GridModule_Pass_1::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string GridModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "GridModule_Pass_1_Fragment";
+	vOutShaderName = "GridModule_Pass_Fragment";
 
 	return u8R"(
 #version 450
@@ -257,7 +257,7 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GridModule_Pass_1::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string GridModule_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
@@ -272,7 +272,7 @@ std::string GridModule_Pass_1::getXml(const std::string& vOffset, const std::str
 	return str;
 }
 
-bool GridModule_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool GridModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;

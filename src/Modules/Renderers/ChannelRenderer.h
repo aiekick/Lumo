@@ -43,7 +43,7 @@ SOFTWARE.
 
 namespace vkApi { class VulkanCore; }
 
-class ChannelRenderer_Pass_1;
+class ChannelRenderer_Pass;
 class ChannelRenderer :
 	public GenericRenderer,
 	public NodeInterface,
@@ -57,7 +57,7 @@ public:
 	static std::shared_ptr<ChannelRenderer> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	std::shared_ptr<ChannelRenderer_Pass_1> m_ChannelRenderer_Pass_1_Ptr = nullptr;
+	std::shared_ptr<ChannelRenderer_Pass> m_ChannelRenderer_Pass_Ptr = nullptr;
 
 public:
 	ChannelRenderer(vkApi::VulkanCore* vVulkanCore);

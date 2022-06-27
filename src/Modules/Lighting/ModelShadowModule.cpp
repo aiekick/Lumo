@@ -38,7 +38,7 @@ SOFTWARE.
 #include <cinttypes>
 #include <Generic/FrameBuffer.h>
 
-#include <Modules/Lighting/Pass/ModelShadowModule_Pass_1.h>
+#include <Modules/Lighting/Pass/ModelShadowModule_Pass.h>
 
 using namespace vkApi;
 
@@ -88,17 +88,17 @@ bool ModelShadowModule::Init()
 
 	if (GenericRenderer::InitPixel(map_size))
 	{
-		m_ModelShadowModule_Pass_1_Ptr = std::make_shared<ModelShadowModule_Pass_1>(m_VulkanCore);
-		if (m_ModelShadowModule_Pass_1_Ptr)
+		m_ModelShadowModule_Pass_Ptr = std::make_shared<ModelShadowModule_Pass>(m_VulkanCore);
+		if (m_ModelShadowModule_Pass_Ptr)
 		{
 			// eR8G8B8A8Unorm is used for have nice white and black display
 			// unfortunatly not for perf, but the main purpose is for nice widget display
 			// or maybe there is a way in glsl to know the component count of a texture
 			// so i could modify in this way the shader of imgui
-			if (m_ModelShadowModule_Pass_1_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_ModelShadowModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				vk::Format::eR8G8B8A8Unorm, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_ModelShadowModule_Pass_1_Ptr);
+				AddGenericPass(m_ModelShadowModule_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -174,9 +174,9 @@ void ModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	ZoneScoped;
 
-	if (m_ModelShadowModule_Pass_1_Ptr)
+	if (m_ModelShadowModule_Pass_Ptr)
 	{
-		m_ModelShadowModule_Pass_1_Ptr->SetLightGroup(vSceneLightGroup);
+		m_ModelShadowModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -184,9 +184,9 @@ void ModelShadowModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImage
 {
 	ZoneScoped;
 
-	if (m_ModelShadowModule_Pass_1_Ptr)
+	if (m_ModelShadowModule_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_1_Ptr->SetTexture(vBinding, vImageInfo);
+		return m_ModelShadowModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
 	}
 }
 
@@ -194,9 +194,9 @@ vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_
 {
 	ZoneScoped;
 
-	if (m_ModelShadowModule_Pass_1_Ptr)
+	if (m_ModelShadowModule_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_1_Ptr->GetDescriptorImageInfo(0U);
+		return m_ModelShadowModule_Pass_Ptr->GetDescriptorImageInfo(0U);
 	}
 
 	return nullptr;
@@ -216,15 +216,15 @@ void ModelShadowModule::UpdateShaders(const std::set<std::string>& vFiles)
 
 void ModelShadowModule::UpdateDescriptorsBeforeCommandBuffer()
 {
-	/*if (m_ModelShadowModule_Pass_1_Light_Shadow_Map_Ptr && 
-		m_ModelShadowModule_Pass_1_Ptr)
+	/*if (m_ModelShadowModule_Pass_Light_Shadow_Map_Ptr && 
+		m_ModelShadowModule_Pass_Ptr)
 	{
 		// ligh shadow map in model shadow pass
-		m_ModelShadowModule_Pass_1_Ptr->SetTexture(3U,
-			m_ModelShadowModule_Pass_1_Light_Shadow_Map_Ptr->GetDescriptorImageInfo(0U));
+		m_ModelShadowModule_Pass_Ptr->SetTexture(3U,
+			m_ModelShadowModule_Pass_Light_Shadow_Map_Ptr->GetDescriptorImageInfo(0U));
 
-		m_ModelShadowModule_Pass_1_Ptr->SetLighViewMatrix(
-			m_ModelShadowModule_Pass_1_Light_Shadow_Map_Ptr->GetLightViewMatrix());
+		m_ModelShadowModule_Pass_Ptr->SetLighViewMatrix(
+			m_ModelShadowModule_Pass_Light_Shadow_Map_Ptr->GetLightViewMatrix());
 	}*/
 
 	GenericRenderer::UpdateDescriptorsBeforeCommandBuffer();
@@ -242,9 +242,9 @@ std::string ModelShadowModule::getXml(const std::string& vOffset, const std::str
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_ModelShadowModule_Pass_1_Ptr)
+	if (m_ModelShadowModule_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_1_Ptr->getXml(vOffset + "\t", vUserDatas);
+		return m_ModelShadowModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</model_shadow_module>\n";
@@ -271,9 +271,9 @@ bool ModelShadowModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_ModelShadowModule_Pass_1_Ptr)
+	if (m_ModelShadowModule_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_1_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		return m_ModelShadowModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "MeshAttributesModule_Pass_1.h"
+#include "MeshAttributesModule_Pass.h"
 
 #include <functional>
 
@@ -48,18 +48,18 @@ using namespace vkApi;
 //// FIRST PASS //////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshAttributesModule_Pass_1::MeshAttributesModule_Pass_1(vkApi::VulkanCore* vVulkanCore)
+MeshAttributesModule_Pass::MeshAttributesModule_Pass(vkApi::VulkanCore* vVulkanCore)
 	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Mesh Attributes", MESH_SHADER_PASS_DEBUG_COLOR);
 }
 
-MeshAttributesModule_Pass_1::~MeshAttributesModule_Pass_1()
+MeshAttributesModule_Pass::~MeshAttributesModule_Pass()
 {
 	Unit();
 }
 
-bool MeshAttributesModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MeshAttributesModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	if (ImGui::CollapsingHeader("Attributes"))
 	{
@@ -73,17 +73,17 @@ bool MeshAttributesModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 	return false;
 }
 
-void MeshAttributesModule_Pass_1::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void MeshAttributesModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 
 }
 
-void MeshAttributesModule_Pass_1::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void MeshAttributesModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 
 }
 
-void MeshAttributesModule_Pass_1::SetModel(SceneModelWeak vSceneModel)
+void MeshAttributesModule_Pass::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
@@ -92,7 +92,7 @@ void MeshAttributesModule_Pass_1::SetModel(SceneModelWeak vSceneModel)
 	m_NeedModelUpdate = true;
 }
 
-void MeshAttributesModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void MeshAttributesModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
@@ -133,7 +133,7 @@ void MeshAttributesModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descr
 	}
 }
 
-vk::DescriptorImageInfo* MeshAttributesModule_Pass_1::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MeshAttributesModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	if (m_FrameBufferPtr)
 	{
@@ -143,7 +143,7 @@ vk::DescriptorImageInfo* MeshAttributesModule_Pass_1::GetDescriptorImageInfo(con
 	return nullptr;
 }
 
-void MeshAttributesModule_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void MeshAttributesModule_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	ZoneScoped;
 
@@ -156,7 +156,7 @@ void MeshAttributesModule_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const
 
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
 		{
-			VKFPScoped(*vCmdBuffer, "MeshAttributesModule_Pass_1", "DrawModel");
+			VKFPScoped(*vCmdBuffer, "MeshAttributesModule_Pass", "DrawModel");
 
 			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 
@@ -182,7 +182,7 @@ void MeshAttributesModule_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const
 	}
 }
 
-void MeshAttributesModule_Pass_1::DestroyModel(const bool& vReleaseDatas)
+void MeshAttributesModule_Pass::DestroyModel(const bool& vReleaseDatas)
 {
 	ZoneScoped;
 
@@ -192,7 +192,7 @@ void MeshAttributesModule_Pass_1::DestroyModel(const bool& vReleaseDatas)
 	}
 }
 
-bool MeshAttributesModule_Pass_1::CreateUBO()
+bool MeshAttributesModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -224,7 +224,7 @@ bool MeshAttributesModule_Pass_1::CreateUBO()
 	return true;
 }
 
-void MeshAttributesModule_Pass_1::UploadUBO()
+void MeshAttributesModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
@@ -232,7 +232,7 @@ void MeshAttributesModule_Pass_1::UploadUBO()
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void MeshAttributesModule_Pass_1::DestroyUBO()
+void MeshAttributesModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -241,7 +241,7 @@ void MeshAttributesModule_Pass_1::DestroyUBO()
 	m_EmptyTexturePtr.reset();
 }
 
-bool MeshAttributesModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
+bool MeshAttributesModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -253,7 +253,7 @@ bool MeshAttributesModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool MeshAttributesModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
+bool MeshAttributesModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -265,14 +265,14 @@ bool MeshAttributesModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	return true;
 }
 
-void MeshAttributesModule_Pass_1::SetInputStateBeforePipelineCreation()
+void MeshAttributesModule_Pass::SetInputStateBeforePipelineCreation()
 {
 	VertexStruct::P3_N3_TA3_BTA3_T2_C4::GetInputState(m_InputState);
 }
 
-std::string MeshAttributesModule_Pass_1::GetVertexShaderCode(std::string& vOutShaderName)
+std::string MeshAttributesModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "MeshAttributesModule_Pass_1";
+	vOutShaderName = "MeshAttributesModule_Pass";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -306,9 +306,9 @@ void main()
 )";
 }
 
-std::string MeshAttributesModule_Pass_1::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string MeshAttributesModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "MeshAttributesModule_Pass_1";
+	vOutShaderName = "MeshAttributesModule_Pass";
 
 	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/" + vOutShaderName + ".frag";
 
@@ -375,7 +375,7 @@ void main()
 	return m_FragmentShaderCode;
 }
 
-void MeshAttributesModule_Pass_1::UpdateShaders(const std::set<std::string>& vFiles)
+void MeshAttributesModule_Pass::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
 
@@ -389,9 +389,9 @@ void MeshAttributesModule_Pass_1::UpdateShaders(const std::set<std::string>& vFi
 		}
 
 	}
-	else if (vFiles.find("shaders/MeshAttributesModule_Pass_1.frag") != vFiles.end())
+	else if (vFiles.find("shaders/MeshAttributesModule_Pass.frag") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/MeshAttributesModule_Pass_1.frag";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/MeshAttributesModule_Pass.frag";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);

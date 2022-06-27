@@ -59,7 +59,7 @@ SOFTWARE.
 #include <Interfaces/SerializationInterface.h>
 
 namespace vkApi { class VulkanCore; }
-class DeferredRenderer_Pass_1;
+class DeferredRenderer_Pass;
 class DeferredRenderer : 
 	public GenericRenderer,
 	public GuiInterface,
@@ -73,7 +73,7 @@ public:
 	static std::shared_ptr<DeferredRenderer> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	std::shared_ptr<DeferredRenderer_Pass_1> m_DeferredRenderer_Pass_1_Ptr = nullptr;
+	std::shared_ptr<DeferredRenderer_Pass> m_DeferredRenderer_Pass_Ptr = nullptr;
 
 public:
 	DeferredRenderer(vkApi::VulkanCore* vVulkanCore);

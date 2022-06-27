@@ -56,8 +56,8 @@ SOFTWARE.
 
 namespace vkApi { class VulkanCore; }
 
-class SSAOModule_Pass_1_AO;
-class SSAOModule_Pass_2_Blur;
+class SSAOModule_Pass_AO;
+class SSAOModule_Pass_Blur;
 class SSAOModule :
 	public GenericRenderer,
 	public GuiInterface,
@@ -73,8 +73,8 @@ public:
 private:
 	ct::cWeak<SSAOModule> m_This;
 
-	std::shared_ptr<SSAOModule_Pass_1_AO> m_SSAOModule_Pass_1_AO_Ptr = nullptr;
-	std::shared_ptr<SSAOModule_Pass_2_Blur> m_SSAOModule_Pass_2_Blur_Ptr = nullptr;
+	std::shared_ptr<SSAOModule_Pass_AO> m_SSAOModule_Pass_AO_Ptr = nullptr;
+	std::shared_ptr<SSAOModule_Pass_Blur> m_SSAOModule_Pass_Blur_Ptr = nullptr;
 
 public:
 	SSAOModule(vkApi::VulkanCore* vVulkanCore);

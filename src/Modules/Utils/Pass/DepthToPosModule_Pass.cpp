@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "PosToDepthModule_Pass_1.h"
+#include "DepthToPosModule_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -36,19 +36,20 @@ SOFTWARE.
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
 #include <Generic/FrameBuffer.h>
+
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PosToDepthModule_Pass_1::PosToDepthModule_Pass_1(vkApi::VulkanCore* vVulkanCore)
+DepthToPosModule_Pass::DepthToPosModule_Pass(vkApi::VulkanCore* vVulkanCore)
 	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Quad Pass 1 : Pos To Depth", QUAD_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Quad Pass 1 : Depth To Pos", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
 
-PosToDepthModule_Pass_1::~PosToDepthModule_Pass_1()
+DepthToPosModule_Pass::~DepthToPosModule_Pass()
 {
 	Unit();
 }
@@ -57,24 +58,24 @@ PosToDepthModule_Pass_1::~PosToDepthModule_Pass_1()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool PosToDepthModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool DepthToPosModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	DrawInputTexture(m_VulkanCore, "Position", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Input Depth", 0U, m_OutputRatio);
 
 	return false;
 }
 
-void PosToDepthModule_Pass_1::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void DepthToPosModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 
 }
 
-void PosToDepthModule_Pass_1::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void DepthToPosModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 
 }
 
-void PosToDepthModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DepthToPosModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
@@ -86,17 +87,17 @@ void PosToDepthModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descripto
 			{
 				m_SamplerImageInfos[vBinding] = *vImageInfo;
 
-				if ((&m_UBOFrag.use_sampler_pos)[vBinding] < 1.0f)
+				if ((&m_UBOFrag.use_sampler_dep)[vBinding] < 1.0f)
 				{
-					(&m_UBOFrag.use_sampler_pos)[vBinding] = 1.0f;
+					(&m_UBOFrag.use_sampler_dep)[vBinding] = 1.0f;
 					NeedNewUBOUpload();
 				}
 			}
 			else
 			{
-				if ((&m_UBOFrag.use_sampler_pos)[vBinding] > 0.0f)
+				if ((&m_UBOFrag.use_sampler_dep)[vBinding] > 0.0f)
 				{
-					(&m_UBOFrag.use_sampler_pos)[vBinding] = 0.0f;
+					(&m_UBOFrag.use_sampler_dep)[vBinding] = 0.0f;
 					NeedNewUBOUpload();
 				}
 
@@ -115,7 +116,7 @@ void PosToDepthModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descripto
 	}
 }
 
-vk::DescriptorImageInfo* PosToDepthModule_Pass_1::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* DepthToPosModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	ZoneScoped;
 
@@ -131,14 +132,14 @@ vk::DescriptorImageInfo* PosToDepthModule_Pass_1::GetDescriptorImageInfo(const u
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string PosToDepthModule_Pass_1::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string DepthToPosModule_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
 	return str;
 }
 
-bool PosToDepthModule_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool DepthToPosModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -154,13 +155,13 @@ bool PosToDepthModule_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 	return true;
 }
 
-void PosToDepthModule_Pass_1::UpdateShaders(const std::set<std::string>& vFiles)
+void DepthToPosModule_Pass::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
 
-	if (vFiles.find("shaders/PosToDepthModule_Pass_1.vert") != vFiles.end())
+	if (vFiles.find("shaders/DepthToPosModule_Pass.vert") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/PosToDepthModule_Pass_1.vert";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DepthToPosModule_Pass.vert";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_VertexShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -168,9 +169,9 @@ void PosToDepthModule_Pass_1::UpdateShaders(const std::set<std::string>& vFiles)
 		}
 
 	}
-	else if (vFiles.find("shaders/PosToDepthModule_Pass_1.frag") != vFiles.end())
+	else if (vFiles.find("shaders/DepthToPosModule_Pass.frag") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/PosToDepthModule_Pass_1.frag";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DepthToPosModule_Pass.frag";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -188,7 +189,7 @@ void PosToDepthModule_Pass_1::UpdateShaders(const std::set<std::string>& vFiles)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PosToDepthModule_Pass_1::CreateUBO()
+bool DepthToPosModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -210,14 +211,14 @@ bool PosToDepthModule_Pass_1::CreateUBO()
 	return true;
 }
 
-void PosToDepthModule_Pass_1::UploadUBO()
+void DepthToPosModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void PosToDepthModule_Pass_1::DestroyUBO()
+void DepthToPosModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -225,7 +226,7 @@ void PosToDepthModule_Pass_1::DestroyUBO()
 	m_EmptyTexturePtr.reset();
 }
 
-bool PosToDepthModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
+bool DepthToPosModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -237,23 +238,23 @@ bool PosToDepthModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool PosToDepthModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
+bool DepthToPosModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // position
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // depth
 
 	return true;
 }
 
-std::string PosToDepthModule_Pass_1::GetVertexShaderCode(std::string& vOutShaderName)
+std::string DepthToPosModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "PosToDepthModule_Pass_1_Vertex";
+	vOutShaderName = "DepthToPosModule_Pass_Vertex";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/PosToDepthModule_Pass_1.vert";
+	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DepthToPosModule_Pass.vert";
 
 	if (FileHelper::Instance()->IsFileExist(shader_path))
 	{
@@ -280,11 +281,11 @@ void main()
 	return m_VertexShaderCode;
 }
 
-std::string PosToDepthModule_Pass_1::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string DepthToPosModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "PosToDepthModule_Pass_1_Fragment";
+	vOutShaderName = "DepthToPosModule_Pass_Fragment";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/PosToDepthModule_Pass_1.frag";
+	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DepthToPosModule_Pass.frag";
 
 	if (FileHelper::Instance()->IsFileExist(shader_path))
 	{
@@ -302,9 +303,9 @@ layout(location = 0) in vec2 v_uv;
 u8R"(
 layout (std140, binding = 1) uniform UBO_Vert 
 { 
-	float use_sampler_pos;
+	float use_sampler_dep;
 };
-layout(binding = 2) uniform sampler2D pos_map_sampler;
+layout(binding = 2) uniform sampler2D dep_map_sampler;
 
 vec3 getRayOrigin()
 {
@@ -313,17 +314,27 @@ vec3 getRayOrigin()
 	return -ro;
 }
 
+vec3 getRayDirection(vec2 uv)
+{
+	uv = uv * 2.0 - 1.0;
+	vec4 ray_clip = vec4(uv.x, uv.y, -1.0, 0.0);
+	vec4 ray_eye = inverse(proj) * ray_clip;
+	vec3 rd = normalize(vec3(ray_eye.x, ray_eye.y, -1.0));
+	rd *= mat3(view * model);
+	return rd;
+}
+
 void main() 
 {
-	vec3 pos = texture(pos_map_sampler, v_uv).xyz;
-	
-	if (use_sampler_pos > 0.5)
+	if (use_sampler_dep > 0.5)
 	{
-		if (dot(pos, pos) > 0.0)
+		float dep = texture(dep_map_sampler, v_uv).r;
+		if (dep > 0.0)
 		{
 			vec3 ro = getRayOrigin();
-			float dep = length(ro - pos) / cam_far;
-			fragColor = vec4(dep, dep, dep, 1.0);
+			vec3 rd = getRayDirection(v_uv);
+			vec3 pos = ro + rd * dep * cam_far;
+			fragColor = vec4(pos, 1.0);
 		}
 		else
 		{

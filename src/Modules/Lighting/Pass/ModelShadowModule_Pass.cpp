@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ModelShadowModule_Pass_1.h"
+#include "ModelShadowModule_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -43,13 +43,13 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelShadowModule_Pass_1::ModelShadowModule_Pass_1(vkApi::VulkanCore* vVulkanCore)
+ModelShadowModule_Pass::ModelShadowModule_Pass(vkApi::VulkanCore* vVulkanCore)
 	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Model Shadow", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
 
-ModelShadowModule_Pass_1::~ModelShadowModule_Pass_1()
+ModelShadowModule_Pass::~ModelShadowModule_Pass()
 {
 	Unit();
 }
@@ -58,7 +58,7 @@ ModelShadowModule_Pass_1::~ModelShadowModule_Pass_1()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ModelShadowModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ModelShadowModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	bool change = false;
 
@@ -79,17 +79,17 @@ bool ModelShadowModule_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 	return change;
 }
 
-void ModelShadowModule_Pass_1::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void ModelShadowModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 
 }
 
-void ModelShadowModule_Pass_1::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ModelShadowModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 
 }
 
-void ModelShadowModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void ModelShadowModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
@@ -130,7 +130,7 @@ void ModelShadowModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descript
 	}
 }
 
-vk::DescriptorImageInfo* ModelShadowModule_Pass_1::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* ModelShadowModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	ZoneScoped;
 
@@ -142,7 +142,7 @@ vk::DescriptorImageInfo* ModelShadowModule_Pass_1::GetDescriptorImageInfo(const 
 	return nullptr;
 }
 
-void ModelShadowModule_Pass_1::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void ModelShadowModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	ZoneScoped;
 
@@ -151,14 +151,14 @@ void ModelShadowModule_Pass_1::SetLightGroup(SceneLightGroupWeak vSceneLightGrou
 	m_NeedLightGroupUpdate = true;
 }
 
-void ModelShadowModule_Pass_1::SetLighViewMatrix(const glm::mat4& vLightViewMatrix)
+void ModelShadowModule_Pass::SetLighViewMatrix(const glm::mat4& vLightViewMatrix)
 {
 	m_UBOFrag.u_light_cam = vLightViewMatrix;
 
 	NeedNewUBOUpload();
 }
 
-void ModelShadowModule_Pass_1::UpdateShaders(const std::set<std::string>& vFiles)
+void ModelShadowModule_Pass::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
 
@@ -172,9 +172,9 @@ void ModelShadowModule_Pass_1::UpdateShaders(const std::set<std::string>& vFiles
 		}
 
 	}
-	else if (vFiles.find("shaders/SSAOModule_Pass_2_Blur.frag") != vFiles.end())
+	else if (vFiles.find("shaders/SSAOModule_Pass_Blur.frag") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule_Pass_2_Blur.frag";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule_Pass_Blur.frag";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -192,7 +192,7 @@ void ModelShadowModule_Pass_1::UpdateShaders(const std::set<std::string>& vFiles
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ModelShadowModule_Pass_1::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string ModelShadowModule_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
@@ -202,7 +202,7 @@ std::string ModelShadowModule_Pass_1::getXml(const std::string& vOffset, const s
 	return str;
 }
 
-bool ModelShadowModule_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool ModelShadowModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -232,7 +232,7 @@ bool ModelShadowModule_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelShadowModule_Pass_1::CreateUBO()
+bool ModelShadowModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -253,14 +253,14 @@ bool ModelShadowModule_Pass_1::CreateUBO()
 	return true;
 }
 
-void ModelShadowModule_Pass_1::UploadUBO()
+void ModelShadowModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void ModelShadowModule_Pass_1::DestroyUBO()
+void ModelShadowModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -268,7 +268,7 @@ void ModelShadowModule_Pass_1::DestroyUBO()
 	m_EmptyTexturePtr.reset();
 }
 
-bool ModelShadowModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
+bool ModelShadowModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -281,7 +281,7 @@ bool ModelShadowModule_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool ModelShadowModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
+bool ModelShadowModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -294,7 +294,7 @@ bool ModelShadowModule_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	return true;
 }
 
-void ModelShadowModule_Pass_1::UpdateRessourceDescriptor()
+void ModelShadowModule_Pass::UpdateRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -325,9 +325,9 @@ void ModelShadowModule_Pass_1::UpdateRessourceDescriptor()
 	ShaderPass::UpdateRessourceDescriptor();
 }
 
-std::string ModelShadowModule_Pass_1::GetVertexShaderCode(std::string& vOutShaderName)
+std::string ModelShadowModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ModelShadowModule_Pass_1_Vertex";
+	vOutShaderName = "ModelShadowModule_Pass_Vertex";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -344,9 +344,9 @@ void main()
 )";
 }
 
-std::string ModelShadowModule_Pass_1::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string ModelShadowModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ModelShadowModule_Pass_1";
+	vOutShaderName = "ModelShadowModule_Pass";
 
 	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/" + vOutShaderName + ".frag";
 

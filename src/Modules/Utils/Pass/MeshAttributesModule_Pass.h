@@ -49,7 +49,7 @@ SOFTWARE.
 
 namespace vkApi { class VulkanCore; }
 
-class MeshAttributesModule_Pass_1 :
+class MeshAttributesModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
 	public ModelInputInterface,
@@ -73,8 +73,8 @@ private:
 	} m_UBOFrag;
 
 public:
-	MeshAttributesModule_Pass_1(vkApi::VulkanCore* vVulkanCore);
-	~MeshAttributesModule_Pass_1() override;
+	MeshAttributesModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	~MeshAttributesModule_Pass() override;
 
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

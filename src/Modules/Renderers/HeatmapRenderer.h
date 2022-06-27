@@ -41,7 +41,7 @@ SOFTWARE.
 #include <Interfaces/MergedInterface.h>
 
 namespace vkApi { class VulkanCore; }
-class HeatmapRenderer_Pass_1;
+class HeatmapRenderer_Pass;
 class HeatmapRenderer :
 	public GenericRenderer,
 	public NodeInterface,
@@ -55,7 +55,7 @@ public:
 	static std::shared_ptr<HeatmapRenderer> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	std::shared_ptr<HeatmapRenderer_Pass_1> m_HeatmapRenderer_Pass_1_Ptr = nullptr;
+	std::shared_ptr<HeatmapRenderer_Pass> m_HeatmapRenderer_Pass_Ptr = nullptr;
 
 public:
 	HeatmapRenderer(vkApi::VulkanCore* vVulkanCore);

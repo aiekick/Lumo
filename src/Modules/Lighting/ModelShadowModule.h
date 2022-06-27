@@ -58,7 +58,7 @@ SOFTWARE.
 
 namespace vkApi { class VulkanCore; }
 
-class ModelShadowModule_Pass_1;
+class ModelShadowModule_Pass;
 class ModelShadowModule :
 	public GenericRenderer,
 	public GuiInterface,
@@ -75,7 +75,7 @@ public:
 private:
 	ct::cWeak<ModelShadowModule> m_This;
 
-	std::shared_ptr<ModelShadowModule_Pass_1> m_ModelShadowModule_Pass_1_Ptr = nullptr;
+	std::shared_ptr<ModelShadowModule_Pass> m_ModelShadowModule_Pass_Ptr = nullptr;
 
 public:
 	ModelShadowModule(vkApi::VulkanCore* vVulkanCore);

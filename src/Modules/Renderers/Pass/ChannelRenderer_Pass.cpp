@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ChannelRenderer_Pass_1.h"
+#include "ChannelRenderer_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -41,18 +41,18 @@ using namespace vkApi;
 //// CHANNEL RENDERER PASS ///////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ChannelRenderer_Pass_1::ChannelRenderer_Pass_1(vkApi::VulkanCore* vVulkanCore)
+ChannelRenderer_Pass::ChannelRenderer_Pass(vkApi::VulkanCore* vVulkanCore)
 	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Channel", MESH_SHADER_PASS_DEBUG_COLOR);
 }
 
-ChannelRenderer_Pass_1::~ChannelRenderer_Pass_1()
+ChannelRenderer_Pass::~ChannelRenderer_Pass()
 {
 	Unit();
 }
 
-void ChannelRenderer_Pass_1::ActionBeforeInit()
+void ChannelRenderer_Pass::ActionBeforeInit()
 {
 	m_Layers.clear();
 	m_Layers.push_back("Position");
@@ -68,7 +68,7 @@ void ChannelRenderer_Pass_1::ActionBeforeInit()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void ChannelRenderer_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void ChannelRenderer_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	ZoneScoped;
 
@@ -107,7 +107,7 @@ void ChannelRenderer_Pass_1::DrawModel(vk::CommandBuffer* vCmdBuffer, const int&
 	}
 }
 
-bool ChannelRenderer_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ChannelRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	bool change = false;
 
@@ -121,17 +121,17 @@ bool ChannelRenderer_Pass_1::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 	return change;
 }
 
-void ChannelRenderer_Pass_1::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void ChannelRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	
 }
 
-void ChannelRenderer_Pass_1::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ChannelRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	
 }
 
-void ChannelRenderer_Pass_1::SetModel(SceneModelWeak vSceneModel)
+void ChannelRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
@@ -140,7 +140,7 @@ void ChannelRenderer_Pass_1::SetModel(SceneModelWeak vSceneModel)
 	m_NeedModelUpdate = true;
 }
 
-vk::DescriptorImageInfo* ChannelRenderer_Pass_1::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* ChannelRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	if (m_FrameBufferPtr)
 	{
@@ -154,7 +154,7 @@ vk::DescriptorImageInfo* ChannelRenderer_Pass_1::GetDescriptorImageInfo(const ui
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ChannelRenderer_Pass_1::DestroyModel(const bool& vReleaseDatas)
+void ChannelRenderer_Pass::DestroyModel(const bool& vReleaseDatas)
 {
 	ZoneScoped;
 
@@ -164,7 +164,7 @@ void ChannelRenderer_Pass_1::DestroyModel(const bool& vReleaseDatas)
 	}
 }
 
-bool ChannelRenderer_Pass_1::CreateUBO()
+bool ChannelRenderer_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -189,7 +189,7 @@ bool ChannelRenderer_Pass_1::CreateUBO()
 	return true;
 }
 
-void ChannelRenderer_Pass_1::UploadUBO()
+void ChannelRenderer_Pass::UploadUBO()
 {
 	ZoneScoped;
 
@@ -197,7 +197,7 @@ void ChannelRenderer_Pass_1::UploadUBO()
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void ChannelRenderer_Pass_1::DestroyUBO()
+void ChannelRenderer_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -205,7 +205,7 @@ void ChannelRenderer_Pass_1::DestroyUBO()
 	m_UBO_Frag.reset();
 }
 
-bool ChannelRenderer_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
+bool ChannelRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -217,7 +217,7 @@ bool ChannelRenderer_Pass_1::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool ChannelRenderer_Pass_1::UpdateBufferInfoInRessourceDescriptor()
+bool ChannelRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -229,14 +229,14 @@ bool ChannelRenderer_Pass_1::UpdateBufferInfoInRessourceDescriptor()
 	return true;
 }
 
-void ChannelRenderer_Pass_1::SetInputStateBeforePipelineCreation()
+void ChannelRenderer_Pass::SetInputStateBeforePipelineCreation()
 {
 	VertexStruct::P3_N3_TA3_BTA3_T2_C4::GetInputState(m_InputState);
 }
 
-std::string ChannelRenderer_Pass_1::GetVertexShaderCode(std::string& vOutShaderName)
+std::string ChannelRenderer_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ChannelRenderer_Pass_1_Vertex";
+	vOutShaderName = "ChannelRenderer_Pass_Vertex";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -277,9 +277,9 @@ void main()
 )";
 }
 
-std::string ChannelRenderer_Pass_1::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string ChannelRenderer_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ChannelRenderer_Pass_1_Fragment";
+	vOutShaderName = "ChannelRenderer_Pass_Fragment";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -348,7 +348,7 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ChannelRenderer_Pass_1::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string ChannelRenderer_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
@@ -357,7 +357,7 @@ std::string ChannelRenderer_Pass_1::getXml(const std::string& vOffset, const std
 	return str;
 }
 
-bool ChannelRenderer_Pass_1::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool ChannelRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;

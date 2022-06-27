@@ -59,7 +59,7 @@ SOFTWARE.
 #include <Interfaces/SerializationInterface.h>
 
 namespace vkApi { class VulkanCore; }
-class PosToDepthModule_Pass_1;
+class PosToDepthModule_Pass;
 class PosToDepthModule :
 	public GenericRenderer,
 	public GuiInterface,
@@ -73,7 +73,7 @@ public:
 	static std::shared_ptr<PosToDepthModule> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	std::shared_ptr<PosToDepthModule_Pass_1> m_PosToDepthModule_Pass_1_Ptr = nullptr;
+	std::shared_ptr<PosToDepthModule_Pass> m_PosToDepthModule_Pass_Ptr = nullptr;
 
 public:
 	PosToDepthModule(vkApi::VulkanCore* vVulkanCore);
