@@ -95,7 +95,7 @@ void ModelShadowModule_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descript
 
 	if (m_Loaded)
 	{
-		if (vBinding >= 0U && vBinding <= 1U)
+		if (vBinding < m_SamplerImageInfos.size())
 		{
 			if (vImageInfo)
 			{

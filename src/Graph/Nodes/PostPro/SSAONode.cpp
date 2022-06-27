@@ -54,17 +54,17 @@ bool SSAONode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Position";
-	slot.descriptorBinding = 2U;
+	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Normal";
-	slot.descriptorBinding = 3U;
+	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Blue Noise";
-	slot.descriptorBinding = 4U;
+	slot.descriptorBinding = 2U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;

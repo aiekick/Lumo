@@ -90,29 +90,29 @@ void DeferredRenderer_Pass_1::SetTexture(const uint32_t& vBinding, vk::Descripto
 
 	if (m_Loaded)
 	{
-		if (vBinding >= 2U && vBinding <= 10U)
+		if (vBinding < m_SamplerImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_SamplerImageInfos[vBinding - 2U] = *vImageInfo;
+				m_SamplerImageInfos[vBinding] = *vImageInfo;
 
-				if ((&m_UBOFrag.use_sampler_position)[vBinding - 2U] < 1.0f)
+				if ((&m_UBOFrag.use_sampler_position)[vBinding] < 1.0f)
 				{
-					(&m_UBOFrag.use_sampler_position)[vBinding - 2U] = 1.0f;
+					(&m_UBOFrag.use_sampler_position)[vBinding] = 1.0f;
 					NeedNewUBOUpload();
 				}
 			}
 			else
 			{
-				if ((&m_UBOFrag.use_sampler_position)[vBinding - 2U] > 0.0f)
+				if ((&m_UBOFrag.use_sampler_position)[vBinding] > 0.0f)
 				{
-					(&m_UBOFrag.use_sampler_position)[vBinding - 2U] = 0.0f;
+					(&m_UBOFrag.use_sampler_position)[vBinding] = 0.0f;
 					NeedNewUBOUpload();
 				}
 
 				if (m_EmptyTexturePtr)
 				{
-					m_SamplerImageInfos[vBinding - 2U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+					m_SamplerImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 				}
 				else
 				{

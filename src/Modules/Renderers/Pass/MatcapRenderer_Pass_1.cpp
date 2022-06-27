@@ -135,15 +135,19 @@ void MatcapRenderer_Pass_1::SetTexture(const uint32_t& vBinding, vk::DescriptorI
 
 	if (m_Loaded)
 	{
-		if (vBinding >= 0U && vBinding <= 1U)
+		if (vBinding < m_SamplerImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_SamplerImageInfos[vBinding - 0U] = *vImageInfo;
+				m_SamplerImageInfos[vBinding] = *vImageInfo;
 			}
 			else if (m_EmptyTexturePtr)
 			{
-				m_SamplerImageInfos[vBinding - 0U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+				m_SamplerImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+			}
+			else
+			{
+				CTOOL_DEBUG_BREAK;
 			}
 
 			m_NeedSamplerUpdate = true;

@@ -102,17 +102,17 @@ void SSAOModule_Pass_2_Blur::SetTexture(const uint32_t& vBinding, vk::Descriptor
 
 	if (m_Loaded)
 	{
-		if (vBinding >= 2U && vBinding <= 2U)
+		if (vBinding < m_SamplerImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_SamplerImageInfos[vBinding - 2U] = *vImageInfo;
+				m_SamplerImageInfos[vBinding] = *vImageInfo;
 			}
 			else
 			{
 				if (m_EmptyTexturePtr)
 				{
-					m_SamplerImageInfos[vBinding - 2U] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+					m_SamplerImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 				}
 				else
 				{
