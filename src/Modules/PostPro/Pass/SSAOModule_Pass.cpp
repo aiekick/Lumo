@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "SSAOModule_Pass_AO.h"
+#include "SSAOModule_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -46,30 +46,30 @@ using namespace vkApi;
 //// SSAO FIRST PASS : AO ////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSAOModule_Pass_AO::SSAOModule_Pass_AO(vkApi::VulkanCore* vVulkanCore) 
+SSAOModule_Pass::SSAOModule_Pass(vkApi::VulkanCore* vVulkanCore) 
 	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Quad Pass 1 : AO", QUAD_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Quad Pass : SSAO", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
 
-SSAOModule_Pass_AO::~SSAOModule_Pass_AO()
+SSAOModule_Pass::~SSAOModule_Pass()
 {
 	Unit();
 }
 
-bool SSAOModule_Pass_AO::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SSAOModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	if (ImGui::CollapsingHeader("Pass 1 : AO"))
+	if (ImGui::CollapsingHeader("SSAO", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		bool change = false;
 
 		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_noise_scale, 0.0f, 2.0f, 1.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Radius", &m_UBOFrag.u_ao_radius, 0.0f, 0.25f, 0.01f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Scale", &m_UBOFrag.u_ao_scale, 0.0f, 1.0f, 1.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Bias", &m_UBOFrag.u_ao_bias, 0.0f, 0.1f, 0.001f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Intensity", &m_UBOFrag.u_ao_intensity, 0.0f, 5.0f, 2.0f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Radius", &m_UBOFrag.u_ao_radius, 0.0f, 0.25f, 0.01f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Scale", &m_UBOFrag.u_ao_scale, 0.0f, 1.0f, 1.0f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOFrag.u_ao_bias, 0.0f, 0.1f, 0.001f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &m_UBOFrag.u_ao_intensity, 0.0f, 5.0f, 2.0f);
 
 			if (change)
 			{
@@ -87,17 +87,17 @@ bool SSAOModule_Pass_AO::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 	return false;
 }
 
-void SSAOModule_Pass_AO::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void SSAOModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	
 }
 
-void SSAOModule_Pass_AO::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void SSAOModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	
 }
 
-void SSAOModule_Pass_AO::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void SSAOModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
@@ -138,7 +138,7 @@ void SSAOModule_Pass_AO::SetTexture(const uint32_t& vBinding, vk::DescriptorImag
 	}
 }
 
-vk::DescriptorImageInfo* SSAOModule_Pass_AO::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* SSAOModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	if (m_FrameBufferPtr)
 	{
@@ -148,7 +148,7 @@ vk::DescriptorImageInfo* SSAOModule_Pass_AO::GetDescriptorImageInfo(const uint32
 	return nullptr;
 }
 
-bool SSAOModule_Pass_AO::CreateUBO()
+bool SSAOModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -170,14 +170,14 @@ bool SSAOModule_Pass_AO::CreateUBO()
 	return true;
 }
 
-void SSAOModule_Pass_AO::UploadUBO()
+void SSAOModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void SSAOModule_Pass_AO::DestroyUBO()
+void SSAOModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -185,7 +185,7 @@ void SSAOModule_Pass_AO::DestroyUBO()
 	m_EmptyTexturePtr.reset();
 }
 
-bool SSAOModule_Pass_AO::UpdateLayoutBindingInRessourceDescriptor()
+bool SSAOModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -198,7 +198,7 @@ bool SSAOModule_Pass_AO::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool SSAOModule_Pass_AO::UpdateBufferInfoInRessourceDescriptor()
+bool SSAOModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -211,7 +211,7 @@ bool SSAOModule_Pass_AO::UpdateBufferInfoInRessourceDescriptor()
 	return true;
 }
 
-std::string SSAOModule_Pass_AO::GetVertexShaderCode(std::string& vOutShaderName)
+std::string SSAOModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "SSAOModule_Vertex";
 
@@ -242,9 +242,9 @@ void main()
 	return m_VertexShaderCode;
 }
 
-std::string SSAOModule_Pass_AO::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string SSAOModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "SSAOModule_Pass_AO";
+	vOutShaderName = "SSAOModule_Pass";
 
 	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/" + vOutShaderName + ".frag";
 
@@ -257,7 +257,7 @@ std::string SSAOModule_Pass_AO::GetFragmentShaderCode(std::string& vOutShaderNam
 		m_FragmentShaderCode = u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) out float fragColor;
+layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec2 v_uv;
 
 layout (std140, binding = 1) uniform UBO_Frag
@@ -302,7 +302,7 @@ float getAO(vec2 uv, vec2 off, vec3 p, vec3 n)
 
 void main() 
 {
-	fragColor = 0.0;
+	fragColor = vec4(0.0);
 
 	if (use_sampler_pos > 0.5 && use_sampler_nor > 0.5)
 	{
@@ -329,7 +329,7 @@ void main()
 		  
 			occ /= float(iterations) * 4.0; 
 					
-			fragColor = 1.0 - occ;
+			fragColor = vec4(1.0 - occ);
 		}
 		else
 		{
@@ -348,7 +348,7 @@ void main()
 	return m_FragmentShaderCode;
 }
 
-void SSAOModule_Pass_AO::UpdateShaders(const std::set<std::string>& vFiles)
+void SSAOModule_Pass::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
 
@@ -362,9 +362,9 @@ void SSAOModule_Pass_AO::UpdateShaders(const std::set<std::string>& vFiles)
 		}
 
 	}
-	else if (vFiles.find("shaders/SSAOModule_Pass_AO.frag") != vFiles.end())
+	else if (vFiles.find("shaders/SSAOModule_Pass.frag") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule_Pass_AO.frag";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule_Pass.frag";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -382,7 +382,7 @@ void SSAOModule_Pass_AO::UpdateShaders(const std::set<std::string>& vFiles)
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSAOModule_Pass_AO::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string SSAOModule_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
@@ -395,7 +395,7 @@ std::string SSAOModule_Pass_AO::getXml(const std::string& vOffset, const std::st
 	return str;
 }
 
-bool SSAOModule_Pass_AO::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool SSAOModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;

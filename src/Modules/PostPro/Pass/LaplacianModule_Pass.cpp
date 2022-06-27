@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "SSAOModule_Pass_Blur.h"
+#include "LaplacianModule_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -43,33 +43,31 @@ using namespace vkApi;
 #define COUNT_BUFFERS 2
 
 //////////////////////////////////////////////////////////////
-//// SSAO SECOND PASS : BLUR /////////////////////////////////
+//// Laplacian SECOND PASS : BLUR ////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSAOModule_Pass_Blur::SSAOModule_Pass_Blur(vkApi::VulkanCore* vVulkanCore)
+LaplacianModule_Pass::LaplacianModule_Pass(vkApi::VulkanCore* vVulkanCore)
 	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Quad Pass 2 : Blur", QUAD_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Quad Pass : Laplacian", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
 
-SSAOModule_Pass_Blur::~SSAOModule_Pass_Blur()
+LaplacianModule_Pass::~LaplacianModule_Pass()
 {
 	Unit();
 }
 
-bool SSAOModule_Pass_Blur::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool LaplacianModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	if (ImGui::CollapsingHeader("Pass 2 : Blur"))
+	if (ImGui::CollapsingHeader("Laplacian", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		bool change = false;
 
 		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			change |= ImGui::SliderIntDefaultCompact(0.0f, "Radius", &m_UBOFrag.u_blur_radius, 1, 10, 4);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Offset", &m_UBOFrag.u_blur_offset, 0.0f, 10.0f, 1.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Inf Threshold", &m_UBOFrag.u_blur_smooth_inf, 0.0f, 1.0f, 0.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Sup Threshold", &m_UBOFrag.u_blur_smooth_sup, 0.0f, 1.0f, 1.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Power", &m_UBOFrag.u_blur_power, 0.0f, 2.0f, 1.0f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Corner", &m_UBOFrag.u_lap_corner, 0.0f, 1.0f, 0.2f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Offset", &m_UBOFrag.u_lap_offset, 0.0f, 10.0f, 1.0f);
+			change |= ImGui::CheckBoxFloatDefault("Discard Zero values", &m_UBOFrag.u_discard_zero, false);
 
 			if (change)
 			{
@@ -77,7 +75,7 @@ bool SSAOModule_Pass_Blur::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 			}
 		}
 
-		DrawInputTexture(m_VulkanCore, "Input SSAO", 0U, m_OutputRatio);
+		DrawInputTexture(m_VulkanCore, "Input", 0U, m_OutputRatio);
 		//DrawInputTexture(m_VulkanCore, "Output Blur", 0U, m_OutputRatio);
 
 		return change;
@@ -86,17 +84,17 @@ bool SSAOModule_Pass_Blur::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	return false;
 }
 
-void SSAOModule_Pass_Blur::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void LaplacianModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 
 }
 
-void SSAOModule_Pass_Blur::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void LaplacianModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 
 }
 
-void SSAOModule_Pass_Blur::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void LaplacianModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
@@ -125,7 +123,7 @@ void SSAOModule_Pass_Blur::SetTexture(const uint32_t& vBinding, vk::DescriptorIm
 	}
 }
 
-vk::DescriptorImageInfo* SSAOModule_Pass_Blur::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* LaplacianModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	if (m_FrameBufferPtr)
 	{
@@ -137,7 +135,7 @@ vk::DescriptorImageInfo* SSAOModule_Pass_Blur::GetDescriptorImageInfo(const uint
 	return nullptr;
 }
 
-bool SSAOModule_Pass_Blur::CreateUBO()
+bool LaplacianModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -159,14 +157,14 @@ bool SSAOModule_Pass_Blur::CreateUBO()
 	return true;
 }
 
-void SSAOModule_Pass_Blur::UploadUBO()
+void LaplacianModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void SSAOModule_Pass_Blur::DestroyUBO()
+void LaplacianModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -174,7 +172,7 @@ void SSAOModule_Pass_Blur::DestroyUBO()
 	m_EmptyTexturePtr.reset();
 }
 
-bool SSAOModule_Pass_Blur::UpdateLayoutBindingInRessourceDescriptor()
+bool LaplacianModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -185,7 +183,7 @@ bool SSAOModule_Pass_Blur::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool SSAOModule_Pass_Blur::UpdateBufferInfoInRessourceDescriptor()
+bool LaplacianModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -196,11 +194,11 @@ bool SSAOModule_Pass_Blur::UpdateBufferInfoInRessourceDescriptor()
 	return true;
 }
 
-std::string SSAOModule_Pass_Blur::GetVertexShaderCode(std::string& vOutShaderName)
+std::string LaplacianModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "SSAOModule_Vertex";
+	vOutShaderName = "LaplacianModule_Vertex";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule.vert";
+	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/LaplacianModule.vert";
 
 	if (FileHelper::Instance()->IsFileExist(shader_path))
 	{
@@ -227,9 +225,9 @@ void main()
 	return m_VertexShaderCode;
 }
 
-std::string SSAOModule_Pass_Blur::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string LaplacianModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "SSAOModule_Pass_Blur";
+	vOutShaderName = "LaplacianModule_Pass";
 
 	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/" + vOutShaderName + ".frag";
 
@@ -247,51 +245,58 @@ layout(location = 0) in vec2 v_uv;
 
 layout (std140, binding = 1) uniform UBO_Frag
 {
-	uint u_blur_radius; // default is 4
-	float u_blur_offset; // default is 1.0
-	float u_blur_smooth_inf; // default is 0.0
-	float u_blur_smooth_sup; // default is 1.0
-	float u_blur_power; // default is 1.0
+	float u_lap_offset; // default is 1.0
+	float u_lap_corner; // default is 0.2
+	float u_discard_zero; // default is 0.0 (false)
 };
-layout(binding = 2) uniform sampler2D ssao_map_sampler;
+layout(binding = 2) uniform sampler2D input_map_sampler;
+
+vec4 getSam(float x, float y)
+{
+	return texture(input_map_sampler, v_uv + vec2(x,y));
+}
+
+vec4 getLap()
+{
+	vec2 p = u_lap_offset / textureSize(input_map_sampler, 0);
+
+	vec4 l  = 	getSam(-p.x,  0.0);
+	vec4 lt = 	getSam(-p.x,  p.y);
+	vec4 t  = 	getSam(0.0,  p.y);
+	vec4 rt = 	getSam(p.x,  p.y);
+	vec4 r  = 	getSam(p.x,  0.0);
+	vec4 rb = 	getSam(p.x, -p.y);
+	vec4 b  = 	getSam(0.0, -p.y);
+	vec4 lb = 	getSam(-p.x, -p.y);
+	
+	float lap_corner = clamp(u_lap_corner, 0.0, 1.0);
+	float lap_side = 1.0 - lap_corner;
+	return (l + t + r + b) * 0.25 * lap_side + (lt + rt + rb + lb) * 0.25 * lap_corner; // - c; done in external
+}
 
 void main() 
 {
 	fragColor = vec4(0.0);
 	
-	if (texture(ssao_map_sampler, v_uv).r > 0.0)
+	vec4 c = texture(input_map_sampler, v_uv);
+	
+	if (u_discard_zero > 0.5)
 	{
-		const uint blur_radius = max(u_blur_radius, 1);
-		const uint blur_radius_radius = blur_radius * blur_radius;
-
-		const float blur_radius_f = float(blur_radius);
-		const float blur_radius_radius_f = float(blur_radius_radius);
-		
-		vec2 pix = u_blur_offset / textureSize(ssao_map_sampler, 0) / blur_radius_f;
-
-		float ao = 0.0;
-		
-		for (uint i = 0 ; i < blur_radius_radius; ++i)
+		if (dot(c, c) > 0.0)
 		{
-			float x = floor(i / blur_radius_f);
-			float y = mod(float(i), blur_radius_f);
-			vec2 p = vec2(x, y) * 2.0 - 1.0;
-			vec2 uv_off = v_uv + p * pix;
-			ao += texture(ssao_map_sampler, uv_off).r;
+			fragColor = getLap() - c;
 		}
-
-		ao /= blur_radius_radius_f;
-		
-		// post pro for remove facets
-		ao = smoothstep(u_blur_smooth_inf, u_blur_smooth_sup, ao);
-		ao = pow(ao, u_blur_power);
-		
-		fragColor = vec4(ao, ao, ao, 1.0);
+		else
+		{
+			discard;
+		}
 	}
 	else
 	{
-		//discard;
+		fragColor = getLap() - c;
 	}
+	
+	fragColor.a = c.a;
 }
 )";
 		FileHelper::Instance()->SaveStringToFile(m_FragmentShaderCode, shader_path);
@@ -300,13 +305,13 @@ void main()
 	return m_FragmentShaderCode;
 }
 
-void SSAOModule_Pass_Blur::UpdateShaders(const std::set<std::string>& vFiles)
+void LaplacianModule_Pass::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
 
-	if (vFiles.find("shaders/SSAOModule.vert") != vFiles.end())
+	if (vFiles.find("shaders/LaplacianModule.vert") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule.vert";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/LaplacianModule.vert";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_VertexShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -314,9 +319,9 @@ void SSAOModule_Pass_Blur::UpdateShaders(const std::set<std::string>& vFiles)
 		}
 
 	}
-	else if (vFiles.find("shaders/SSAOModule_Pass_Blur.frag") != vFiles.end())
+	else if (vFiles.find("shaders/LaplacianModule_Pass.frag") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule_Pass_Blur.frag";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/LaplacianModule_Pass.frag";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -334,20 +339,18 @@ void SSAOModule_Pass_Blur::UpdateShaders(const std::set<std::string>& vFiles)
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSAOModule_Pass_Blur::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string LaplacianModule_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
-	str += vOffset + "<blur_radius>" + ct::toStr(m_UBOFrag.u_blur_radius) + "</blur_radius>\n";
-	str += vOffset + "<blur_offset>" + ct::toStr(m_UBOFrag.u_blur_offset) + "</blur_offset>\n";
-	str += vOffset + "<blur_smooth_inf>" + ct::toStr(m_UBOFrag.u_blur_smooth_inf) + "</blur_smooth_inf>\n";
-	str += vOffset + "<blur_smooth_sup>" + ct::toStr(m_UBOFrag.u_blur_smooth_sup) + "</blur_smooth_sup>\n";
-	str += vOffset + "<blur_power>" + ct::toStr(m_UBOFrag.u_blur_power) + "</blur_power>\n";
+	str += vOffset + "<lap_corner>" + ct::toStr(m_UBOFrag.u_lap_corner) + "</lap_corner>\n";
+	str += vOffset + "<lap_offset>" + ct::toStr(m_UBOFrag.u_lap_offset) + "</lap_offset>\n";
+	str += vOffset + "<discard_zeros>" + ct::toStr(m_UBOFrag.u_discard_zero) + "</discard_zeros>\n";
 
 	return str;
 }
 
-bool SSAOModule_Pass_Blur::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool LaplacianModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -360,18 +363,14 @@ bool SSAOModule_Pass_Blur::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "ssao_module")
+	if (strParentName == "laplacian_module")
 	{
-		if (strName == "blur_radius")
-			m_UBOFrag.u_blur_radius = ct::ivariant(strValue).GetI();
-		else if (strName == "blur_offset")
-			m_UBOFrag.u_blur_offset = ct::fvariant(strValue).GetF();
-		else if (strName == "blur_smooth_inf")
-			m_UBOFrag.u_blur_smooth_inf = ct::fvariant(strValue).GetF();
-		else if (strName == "blur_smooth_sup")
-			m_UBOFrag.u_blur_smooth_sup = ct::fvariant(strValue).GetF();
-		else if (strName == "blur_power")
-			m_UBOFrag.u_blur_power = ct::fvariant(strValue).GetF();
+		if (strName == "lap_corner")
+			m_UBOFrag.u_lap_corner = ct::ivariant(strValue).GetI();
+		else if (strName == "lap_offset")
+			m_UBOFrag.u_lap_offset = ct::fvariant(strValue).GetF();
+		else if (strName == "discard_zeros")
+			m_UBOFrag.u_discard_zero = ct::ivariant(strValue).GetB();
 
 		NeedNewUBOUpload();
 	}

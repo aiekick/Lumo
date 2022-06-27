@@ -48,47 +48,50 @@ SOFTWARE.
 #include <vkFramework/VulkanFrameBuffer.h>
 
 #include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ResizerInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
 namespace vkApi { class VulkanCore; }
 
-class SSAOModule_Pass;
-class BlurModule_Pass;
-class SSAOModule :
-	public BaseRenderer,
+class LaplacianModule_Pass :
+	public QuadShaderPass,
 	public GuiInterface,
-	public TaskInterface,
-	public TextureInputInterface<0U>,
+	public TextureInputInterface<1U>,
 	public TextureOutputInterface,
-	public ResizerInterface,
 	public ShaderUpdateInterface
 {
-public:
-	static std::shared_ptr<SSAOModule> Create(vkApi::VulkanCore* vVulkanCore);
-
 private:
-	ct::cWeak<SSAOModule> m_This;
+	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
+	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
-	std::shared_ptr<SSAOModule_Pass> m_SSAOModule_Pass_Ptr = nullptr;
+	struct UBOFrag {
+		alignas(4) float u_lap_offset = 1.0f;
+		alignas(4) float u_lap_corner = 0.2f;
+		alignas(4) float u_discard_zero = 0.0f;
+	} m_UBOFrag;
 
 public:
-	SSAOModule(vkApi::VulkanCore* vVulkanCore);
-	~SSAOModule();
+	LaplacianModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	virtual ~LaplacianModule_Pass();
 
-	bool Init();
-
-	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas)  override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)  override;
+
+protected:
+	bool CreateUBO() override;
+	void UploadUBO() override;
+	void DestroyUBO() override;
+
+	bool UpdateLayoutBindingInRessourceDescriptor() override;
+	bool UpdateBufferInfoInRessourceDescriptor() override;
+
+	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 };

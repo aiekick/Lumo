@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "SSAOModule.h"
+#include "BlurModule.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -38,7 +38,8 @@ SOFTWARE.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/PostPro/Pass/SSAOModule_Pass.h>
+#include <Modules/PostPro/Pass/BlurModule_Pass.h>
+#include <Modules/PostPro/Pass/BlurModule_Pass.h>
 
 using namespace vkApi;
 
@@ -48,9 +49,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSAOModule> SSAOModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<BlurModule> BlurModule::Create(vkApi::VulkanCore* vVulkanCore)
 {
-	auto res = std::make_shared<SSAOModule>(vVulkanCore);
+	auto res = std::make_shared<BlurModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -63,13 +64,13 @@ std::shared_ptr<SSAOModule> SSAOModule::Create(vkApi::VulkanCore* vVulkanCore)
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSAOModule::SSAOModule(vkApi::VulkanCore* vVulkanCore)
+BlurModule::BlurModule(vkApi::VulkanCore* vVulkanCore)
 	: BaseRenderer(vVulkanCore)
 {
 
 }
 
-SSAOModule::~SSAOModule()
+BlurModule::~BlurModule()
 {
 	Unit();
 }
@@ -78,7 +79,7 @@ SSAOModule::~SSAOModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SSAOModule::Init()
+bool BlurModule::Init()
 {
 	ZoneScoped;
 
@@ -88,13 +89,17 @@ bool SSAOModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_SSAOModule_Pass_Ptr = std::make_shared<SSAOModule_Pass>(m_VulkanCore);
-		if (m_SSAOModule_Pass_Ptr)
+		m_BlurModule_Pass_Ptr = std::make_shared<BlurModule_Pass>(m_VulkanCore);
+		if (m_BlurModule_Pass_Ptr)
 		{
-			if (m_SSAOModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			// eR8G8B8A8Unorm is used for have nice white and black display
+			// unfortunatly not for perf, but the main purpose is for nice widget display
+			// or maybe there is a way in glsl to know the component count of a texture
+			// so i could modify in this way the shader of imgui
+			if (m_BlurModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_SSAOModule_Pass_Ptr);
+				AddGenericPass(m_BlurModule_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -107,13 +112,13 @@ bool SSAOModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SSAOModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool BlurModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		BaseRenderer::Render("SSAO", vCmd);
+		BaseRenderer::Render("Blur", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -121,11 +126,11 @@ bool SSAOModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 	return true;
 }
 
-bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool BlurModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("SSAO", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("Blur", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 
@@ -145,7 +150,7 @@ bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 	return false;
 }
 
-void SSAOModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void BlurModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -153,7 +158,7 @@ void SSAOModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vR
 	}
 }
 
-void SSAOModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void BlurModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -161,37 +166,34 @@ void SSAOModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 	}
 }
 
-void SSAOModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void BlurModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
-void SSAOModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void BlurModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
-	if (m_Loaded)
+	if (m_BlurModule_Pass_Ptr)
 	{
-		if (m_SSAOModule_Pass_Ptr)
-		{
-			m_SSAOModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
-		}
+		m_BlurModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
 	}
 }
 
-vk::DescriptorImageInfo* SSAOModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* BlurModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	ZoneScoped;
 
-	if (m_SSAOModule_Pass_Ptr)
+	if (m_BlurModule_Pass_Ptr)
 	{
-		return m_SSAOModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_BlurModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
 	}
 
 	return nullptr;
 }
 
-void SSAOModule::UpdateShaders(const std::set<std::string>& vFiles)
+void BlurModule::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	for (auto passPtr : m_ShaderPass)
 	{
@@ -207,11 +209,11 @@ void SSAOModule::UpdateShaders(const std::set<std::string>& vFiles)
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSAOModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string BlurModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
-	str += vOffset + "<ssao_module>\n";
+	str += vOffset + "<blur_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
@@ -223,12 +225,12 @@ std::string SSAOModule::getXml(const std::string& vOffset, const std::string& vU
 		}
 	}
 
-	str += vOffset + "</ssao_module>\n";
+	str += vOffset + "</blur_module>\n";
 
 	return str;
 }
 
-bool SSAOModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool BlurModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -241,7 +243,7 @@ bool SSAOModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "ssao_module")
+	if (strParentName == "blur_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();

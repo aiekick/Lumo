@@ -44,6 +44,8 @@ std::string Graph::GetStringFromNodeTypeEnum(const NodeTypeEnum& vNodeTypeEnum)
 		"MODEL_SHADOW",
 		"SHADOW_MAPPING_OMNI",
 		"SSAO",
+		"BLUR",
+		"LAPLACIAN",
 		"ENVIRONMENT",
 		"GRID_AXIS",
 		"OUTPUT",
@@ -77,6 +79,8 @@ NodeTypeEnum Graph::GetNodeTypeEnumFromString(const std::string& vNodeTypeString
 	else if (vNodeTypeString == "MODEL_SHADOW") return NodeTypeEnum::MODEL_SHADOW;
 	else if (vNodeTypeString == "SHADOW_MAPPING_OMNI") return NodeTypeEnum::SHADOW_MAPPING_OMNI;
 	else if (vNodeTypeString == "SSAO") return NodeTypeEnum::SSAO;
+	else if (vNodeTypeString == "BLUR") return NodeTypeEnum::BLUR;
+	else if (vNodeTypeString == "LAPLACIAN") return NodeTypeEnum::LAPLACIAN;
 	else if (vNodeTypeString == "ENVIRONMENT") return NodeTypeEnum::ENVIRONMENT;
 	else if (vNodeTypeString == "GRID_AXIS") return NodeTypeEnum::GRID_AXIS;
 	else if (vNodeTypeString == "OUTPUT") return NodeTypeEnum::OUTPUT;

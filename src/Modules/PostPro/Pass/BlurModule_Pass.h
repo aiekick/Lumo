@@ -54,10 +54,10 @@ SOFTWARE.
 
 namespace vkApi { class VulkanCore; }
 
-class SSAOModule_Pass_AO : 
+class BlurModule_Pass :
 	public QuadShaderPass,
 	public GuiInterface,
-	public TextureInputInterface<3U>,
+	public TextureInputInterface<1U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {
@@ -66,19 +66,16 @@ private:
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
 	struct UBOFrag {
-		alignas(4) float use_sampler_pos = 0.0f;
-		alignas(4) float use_sampler_nor = 0.0f;
-		alignas(4) float use_sampler_noise = 0.0f;
-		alignas(4) float u_noise_scale = 1.0f;
-		alignas(4) float u_ao_radius = 0.01f;
-		alignas(4) float u_ao_scale = 1.0f;
-		alignas(4) float u_ao_bias = 0.01f;
-		alignas(4) float u_ao_intensity = 2.0f;
+		alignas(4) int32_t u_blur_radius = 4;
+		alignas(4) float u_blur_offset = 1.0;
+		alignas(4) float u_blur_smooth_inf = 0.0;
+		alignas(4) float u_blur_smooth_sup = 1.0;
+		alignas(4) float u_blur_power = 1.0;
 	} m_UBOFrag;
 
 public:
-	SSAOModule_Pass_AO(vkApi::VulkanCore* vVulkanCore);
-	virtual ~SSAOModule_Pass_AO();
+	BlurModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	virtual ~BlurModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

@@ -172,9 +172,9 @@ void ModelShadowModule_Pass::UpdateShaders(const std::set<std::string>& vFiles)
 		}
 
 	}
-	else if (vFiles.find("shaders/SSAOModule_Pass_Blur.frag") != vFiles.end())
+	else if (vFiles.find("shaders/BlurModule_Pass.frag") != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule_Pass_Blur.frag";
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/BlurModule_Pass.frag";
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);

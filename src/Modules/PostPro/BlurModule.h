@@ -56,9 +56,8 @@ SOFTWARE.
 
 namespace vkApi { class VulkanCore; }
 
-class SSAOModule_Pass;
 class BlurModule_Pass;
-class SSAOModule :
+class BlurModule :
 	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
@@ -68,16 +67,16 @@ class SSAOModule :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<SSAOModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<BlurModule> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	ct::cWeak<SSAOModule> m_This;
+	ct::cWeak<BlurModule> m_This;
 
-	std::shared_ptr<SSAOModule_Pass> m_SSAOModule_Pass_Ptr = nullptr;
+	std::shared_ptr<BlurModule_Pass> m_BlurModule_Pass_Ptr = nullptr;
 
 public:
-	SSAOModule(vkApi::VulkanCore* vVulkanCore);
-	~SSAOModule();
+	BlurModule(vkApi::VulkanCore* vVulkanCore);
+	~BlurModule();
 
 	bool Init();
 

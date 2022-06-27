@@ -22,73 +22,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include <set>
-#include <array>
-#include <string>
-#include <memory>
-
-#include <Headers/Globals.h>
-
-#include <ctools/cTools.h>
-#include <ctools/ConfigAbstract.h>
-
-#include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
-
-#include <vulkan/vulkan.hpp>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
-
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
+#include <Graph/Graph.h>
+#include <Graph/Base/BaseNode.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ResizerInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
-namespace vkApi { class VulkanCore; }
-
-class SSAOModule_Pass;
-class BlurModule_Pass;
-class SSAOModule :
-	public BaseRenderer,
-	public GuiInterface,
-	public TaskInterface,
+class LaplacianModule;
+class LaplacianNode :
+	public BaseNode,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
-	public ResizerInterface,
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<SSAOModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<LaplacianNode> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	ct::cWeak<SSAOModule> m_This;
-
-	std::shared_ptr<SSAOModule_Pass> m_SSAOModule_Pass_Ptr = nullptr;
+	std::shared_ptr<LaplacianModule> m_LaplacianModulePtr = nullptr;
 
 public:
-	SSAOModule(vkApi::VulkanCore* vVulkanCore);
-	~SSAOModule();
-
-	bool Init();
-
+	LaplacianNode();
+	~LaplacianNode() override;
+	bool Init(vkApi::VulkanCore* vVulkanCore) override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	void DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState) override;
+	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
+	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
+	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
 };

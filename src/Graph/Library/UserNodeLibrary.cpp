@@ -75,6 +75,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Core/Output", "Output", "OUTPUT");
 
 	m_RootLibraryCategory.AddCustom("Core/PostPro", "SSAO", "SSAO");
+	m_RootLibraryCategory.AddCustom("Core/PostPro", "Blur", "BLUR");
+	m_RootLibraryCategory.AddCustom("Core/PostPro", "Laplacian", "LAPLACIAN");
 
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Channels", "CHANNEL_RENDERER");
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Deferred", "DEFERRED_RENDERER");

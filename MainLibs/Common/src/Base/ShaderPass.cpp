@@ -146,17 +146,21 @@ bool ShaderPass::InitPixel(
 	m_DescriptorPool = m_VulkanCore->getDescriptorPool();
 	m_CommandPool = m_Queue.cmdPools;
 
+	// ca peut ne pas compiler, masi c'est plus bloquant
+	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
+	CompilPixel();
+
 	m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCore);
 	if (m_FrameBufferPtr->Init(vSize, vCountColorBuffer, vUseDepth, vNeedToClear, vClearColor, vFormat, vSampleCount)) {
-		if (CompilPixel()) {
-			if (BuildModel()) {
-				if (CreateSBO()) {
-					if (CreateUBO()) {
-						if (CreateRessourceDescriptor()) {
-							if (CreatePixelPipeline()) {
-								m_Loaded = true;
-							}
-						}
+		if (BuildModel()) {
+			if (CreateSBO()) {
+				if (CreateUBO()) {
+					if (CreateRessourceDescriptor()) {
+						// si ca compile pas
+						// c'est pas bon mais on renvoi true car on va afficher 
+						// l'erreur dans le node et on pourra le corriger en editant le shader
+						CreatePixelPipeline();
+						m_Loaded = true;
 					}
 				}
 			}
@@ -250,16 +254,19 @@ void ShaderPass::Resize(const ct::uvec2& vNewSize)
 
 void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer)
 {
-	m_VulkanCore->getFrameworkDevice()->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
-
-	if (m_FrameBufferPtr->Begin(vCmdBuffer))
+	if (m_IsShaderCompiled)
 	{
-		DrawModel(vCmdBuffer, 1U);
+		m_VulkanCore->getFrameworkDevice()->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
 
-		m_FrameBufferPtr->End(vCmdBuffer);
+		if (m_FrameBufferPtr->Begin(vCmdBuffer))
+		{
+			DrawModel(vCmdBuffer, 1U);
+
+			m_FrameBufferPtr->End(vCmdBuffer);
+		}
+
+		m_VulkanCore->getFrameworkDevice()->EndDebugLabel(vCmdBuffer);
 	}
-
-	m_VulkanCore->getFrameworkDevice()->EndDebugLabel(vCmdBuffer);
 }
 
 void ShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
@@ -269,6 +276,7 @@ void ShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationN
 	ZoneScoped;
 
 	if (!m_Loaded) return;
+	if (!m_IsShaderCompiled) return;
 
 	if (vCmdBuffer)
 	{
@@ -406,6 +414,8 @@ bool ShaderPass::CompilPixel()
 			m_SPIRV_Vert = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(vertCode, "vert", vertex_name);
 			m_SPIRV_Frag = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(fragCode, "frag", fragment_name);
 
+			m_IsShaderCompiled = !m_SPIRV_Vert.empty() && !m_SPIRV_Frag.empty();
+
 			if (!m_Loaded)
 			{
 				res = true;
@@ -453,11 +463,13 @@ bool ShaderPass::CompilCompute()
 			m_UsedUniforms.clear();
 			m_SPIRV_Comp = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(compCode, "comp", compute_name);
 
+			m_IsShaderCompiled = !m_SPIRV_Comp.empty();
+
 			if (!m_Loaded)
 			{
 				res = true;
 			}
-			else if (!m_SPIRV_Frag.empty() && !m_SPIRV_Vert.empty())
+			else if (!m_SPIRV_Comp.empty())
 			{
 				m_Device.waitIdle();
 				DestroyPipeline();
@@ -754,11 +766,11 @@ bool ShaderPass::CreatePixelPipeline()
 {
 	ZoneScoped;
 
-	if (m_SPIRV_Vert.empty()) return false;
-	if (m_SPIRV_Frag.empty()) return false;
 	if (!m_FrameBufferPtr) return false;
 	if (!m_FrameBufferPtr->GetRenderPass()) return false;
-
+	if (m_SPIRV_Vert.empty()) return false;
+	if (m_SPIRV_Frag.empty()) return false;
+	
 	m_PipelineLayout =
 		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
 			vk::PipelineLayoutCreateFlags(),

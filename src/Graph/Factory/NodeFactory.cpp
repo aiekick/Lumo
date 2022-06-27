@@ -38,6 +38,8 @@ SOFTWARE.
 #include <Graph/Nodes/Output/OutputNode.h>
 
 #include <Graph/Nodes/PostPro/SSAONode.h>
+#include <Graph/Nodes/PostPro/BlurNode.h>
+#include <Graph/Nodes/PostPro/LaplacianNode.h>
 
 #include <Graph/Nodes/Renderers/ChannelRendererNode.h>
 #include <Graph/Nodes/Renderers/DeferredRendererNode.h>
@@ -81,6 +83,8 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const NodeTypeEnum&
 
 		// Post Processing
 		case NodeTypeEnum::SSAO:						return SSAONode::Create(vulkanCore);
+		case NodeTypeEnum::BLUR:						return BlurNode::Create(vulkanCore);
+		case NodeTypeEnum::LAPLACIAN:					return LaplacianNode::Create(vulkanCore);
 
 		// renderers
 		case NodeTypeEnum::CHANNEL_RENDERER:			return ChannelRendererNode::Create(vulkanCore);

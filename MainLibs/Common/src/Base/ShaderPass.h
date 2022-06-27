@@ -104,6 +104,7 @@ protected:
 	std::string m_VertexShaderCode;									// Vertex Shader Code
 	std::string m_FragmentShaderCode;								// Fragment Shader Code
 	std::string m_ComputeShaderCode;								// Compute Shader Code
+	bool m_IsShaderCompiled = false;
 
 	// ressources
 	std::vector<vk::DescriptorSetLayoutBinding> m_LayoutBindings;
