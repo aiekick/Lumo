@@ -41,7 +41,9 @@ std::string Graph::GetStringFromNodeTypeEnum(const NodeTypeEnum& vNodeTypeEnum)
 		"MATCAP_RENDERER",
 		"LIGHT",
 		"SHADOW_MAPPING",
+		"SSS_MAPPING",
 		"MODEL_SHADOW",
+		"MODEL_SSS",
 		"SHADOW_MAPPING_OMNI",
 		"SSAO",
 		"BLUR",
@@ -80,7 +82,9 @@ NodeTypeEnum Graph::GetNodeTypeEnumFromString(const std::string& vNodeTypeString
 	else if (vNodeTypeString == "MATCAP_RENDERER") return NodeTypeEnum::MATCAP_RENDERER;
 	else if (vNodeTypeString == "LIGHT") return NodeTypeEnum::LIGHT;
 	else if (vNodeTypeString == "SHADOW_MAPPING") return NodeTypeEnum::SHADOW_MAPPING;
+	else if (vNodeTypeString == "SSS_MAPPING") return NodeTypeEnum::SSS_MAPPING;
 	else if (vNodeTypeString == "MODEL_SHADOW") return NodeTypeEnum::MODEL_SHADOW;
+	else if (vNodeTypeString == "MODEL_SSS") return NodeTypeEnum::MODEL_SSS;
 	else if (vNodeTypeString == "SHADOW_MAPPING_OMNI") return NodeTypeEnum::SHADOW_MAPPING_OMNI;
 	else if (vNodeTypeString == "SSAO") return NodeTypeEnum::SSAO;
 	else if (vNodeTypeString == "BLUR") return NodeTypeEnum::BLUR;

@@ -68,7 +68,9 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Light", "LIGHT");
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Shadow Mapping", "SHADOW_MAPPING");
+	m_RootLibraryCategory.AddCustom("Core/Lighting", "SSS Mapping", "SSS_MAPPING");
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Model Shadow", "MODEL_SHADOW");
+	m_RootLibraryCategory.AddCustom("Core/Lighting", "Model SSS", "MODEL_SSS");
 
 	m_RootLibraryCategory.AddCustom("Core/Modifiers", "Smooth Normals", "COMPUTE_SMOOTH_MESH_NORMAL");
 

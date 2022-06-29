@@ -31,7 +31,9 @@ SOFTWARE.
 
 #include <Graph/Nodes/Lighting/LightNode.h>
 #include <Graph/Nodes/Lighting/ShadowMapNode.h>
+#include <Graph/Nodes/Lighting/SSSMapNode.h>
 #include <Graph/Nodes/Lighting/ModelShadowNode.h>
+#include <Graph/Nodes/Lighting/ModelSSSNode.h>
 
 #include <Graph/Nodes/Modifiers/ComputeSmoothMeshNormalNode.h>
 
@@ -75,7 +77,9 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const NodeTypeEnum&
 		// Lighting
 		case NodeTypeEnum::LIGHT:						return LightNode::Create(vulkanCore);
 		case NodeTypeEnum::SHADOW_MAPPING:				return ShadowMapNode::Create(vulkanCore);
+		case NodeTypeEnum::SSS_MAPPING:					return SSSMapNode::Create(vulkanCore);
 		case NodeTypeEnum::MODEL_SHADOW:				return ModelShadowNode::Create(vulkanCore);
+		case NodeTypeEnum::MODEL_SSS:					return ModelSSSNode::Create(vulkanCore);
 
 		// Modifiers
 		case NodeTypeEnum::COMPUTE_SMOOTH_MESH_NORMAL:	return ComputeSmoothMeshNormalNode::Create(vulkanCore);
