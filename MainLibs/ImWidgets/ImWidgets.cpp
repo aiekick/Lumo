@@ -45,6 +45,14 @@ SOFTWARE.
 /////////////////////////////////////
 /////////////////////////////////////
 
+void ImGui::CustomSameLine(float offset_from_start_x, float spacing_w)
+{
+	if (ImGuiInternal::GetCurrentLayoutType(ImGui::GetCurrentWindow()->ID) == ImGuiLayoutType_Vertical)
+	{
+		ImGui::SameLine(offset_from_start_x, spacing_w);
+	}
+}
+
 void ImGui::SetContrastRatio(float vRatio)
 {
 	CustomStyle::Instance()->puContrastRatio = vRatio;
@@ -547,16 +555,11 @@ bool ImGui::CheckBoxBoolDefault(const char* vName, bool* vVar, bool vDefault, co
 {
 	bool change = false;
 
-	//float padding = ImGui::GetStyle().FramePadding.x;
-
 	change = ImGui::ContrastedButton(ICON_NDP_RESET, "Reset", vLabelFont);
 	if (change)
 		*vVar = vDefault;
 
-	if (ImGuiInternal::GetCurrentLayoutType(ImGui::GetCurrentWindow()->ID) == ImGuiLayoutType_Vertical)
-	{
-		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
-	}
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 	ImGui::PushID(++CustomStyle::Instance()->pushId);
 
@@ -597,7 +600,7 @@ bool ImGui::CheckBoxIntDefault(const char* vName, int* vVar, int vDefault, const
 	if (change)
 		*vVar = vDefault;
 
-	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 	ImGui::PushID(++CustomStyle::Instance()->pushId);
 
@@ -636,7 +639,7 @@ bool ImGui::CheckBoxFloatDefault(const char* vName, float* vVar, float vDefault,
 	if (change)
 		*vVar = vDefault;
 
-	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 	change |= CheckBoxFloat(vName, vVar);
 
@@ -659,12 +662,12 @@ bool ImGui::RadioFloatDefault(const char* vName, float* vVar, int vCount, float*
 		if (change)
 			*vVar = *vDefault;
 
-		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+		ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 		int radioSelectedId = 0;
 		for (int i = 0; i < vCount; ++i)
 		{
-			if (i > 0) ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+			if (i > 0) ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 			ImGui::PushID(ImGui::IncPUSHID());
 			bool v = (vVar[i] > 0.5f);
 			if (ImGui::Checkbox("##radio", &v))
@@ -675,7 +678,7 @@ bool ImGui::RadioFloatDefault(const char* vName, float* vVar, int vCount, float*
 			ImGui::PopID();
 		}
 
-		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+		ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 		ImGui::Text(vName);
 
@@ -1142,7 +1145,7 @@ bool ImGui::ColorEdit3Default(float vWidth, const char* vName, float* vCol, floa
 		vCol[2] = vDefault[2];
 	}
 
-	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 	ImGui::PushID(ImGui::IncPUSHID());
 	ImGui::PushItemWidth(w);
@@ -1175,7 +1178,7 @@ bool ImGui::ColorEdit4Default(float vWidth, const char* vName, float* vCol, floa
 		vCol[3] = vDefault[3];
 	}
 
-	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 	ImGui::PushID(ImGui::IncPUSHID());
 	ImGui::PushItemWidth(w);
@@ -1342,7 +1345,7 @@ bool ImGui::ColorEdit4ForNode(const char* label, float col[4], ImGuiColorEditFla
 		for (int n = 0; n < components; n++)
 		{
 			//if (n > 0)
-			//	ImGui::SameLine(0, style.ItemInnerSpacing.x);
+			//	ImGui::CustomSameLine(0, style.ItemInnerSpacing.x);
 
 			SetNextItemWidth((n + 1 < components) ? w_item_one : w_item_last);
 
@@ -1649,7 +1652,7 @@ bool ImGui::Selectable_FramedText_Selected(const bool& vSelected, const char* fm
 	//frame
 	ImRect total_bb = check_bb;
 	if (label_size.x > 0)
-		ImGui::SameLine(0, style.ItemInnerSpacing.x);
+		ImGui::CustomSameLine(0, style.ItemInnerSpacing.x);
 	const ImRect text_bb(window->DC.CursorPos + ImVec2(0, style.FramePadding.y), window->DC.CursorPos + ImVec2(0, style.FramePadding.y) + label_size);
 	if (label_size.x > 0)
 	{
@@ -1711,7 +1714,7 @@ bool ImGui::Selectable_FramedText(const char* fmt, ...)
 	//frame
 	ImRect total_bb = check_bb;
 	if (label_size.x > 0)
-		ImGui::SameLine(0, style.ItemInnerSpacing.x);
+		ImGui::CustomSameLine(0, style.ItemInnerSpacing.x);
 	const ImRect text_bb(window->DC.CursorPos + ImVec2(0, style.FramePadding.y), window->DC.CursorPos + ImVec2(0, style.FramePadding.y) + label_size);
 	if (label_size.x > 0)
 	{
@@ -2752,7 +2755,7 @@ bool ImGui::SliderScalarDefaultCompact(float width, const char* label, ImGuiData
 	}
 	ImGui::PopID();
 
-	ImGui::SameLine();
+	ImGui::CustomSameLine();
 
 	if (width > 0.0f)
 	{
@@ -2914,7 +2917,7 @@ bool ImGui::SliderScalarDefault(float width, const char* label, ImGuiDataType da
 	}
 	ImGui::PopID();
 
-	ImGui::SameLine();
+	ImGui::CustomSameLine();
 
 	if (width > 0.0f)
 	{
@@ -3203,7 +3206,7 @@ bool ImGui::ContrastedComboVectorDefault(float vWidth, const char* label, int* c
 		if (change)
 			*current_item = vDefault;
 
-		ImGui::SameLine();
+		ImGui::CustomSameLine();
 
 		change |= ContrastedCombo(vWidth, label, current_item, [](void* data, int idx, const char** out_text)
 			{
@@ -3242,7 +3245,7 @@ IMGUI_API bool ImGui::InputFloatDefault(float vWidth, const char* vName, float* 
 			*vVar = vDefault;
 	}
 
-	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 	ImGui::PushID(++CustomStyle::Instance()->pushId);
 	ImGui::PushItemWidth(w);
@@ -3272,7 +3275,7 @@ bool ImGui::InputFloatDefaultStepper(float vWidth, const char* vName, float* vVa
 			*vVar = vDefault;
 	}
 
-	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 	ImGui::PushID(++CustomStyle::Instance()->pushId);
 	ImGui::PushItemWidth(w);
@@ -3282,18 +3285,18 @@ bool ImGui::InputFloatDefaultStepper(float vWidth, const char* vName, float* vVa
 
 	if (vStep > 0.0f)
 	{
-		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+		ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 		ImGuiButtonFlags button_flags = ImGuiButtonFlags_Repeat | ImGuiButtonFlags_DontClosePopups;
 		if (ImGui::ContrastedButton(ICON_NDP_ADD, nullptr, nullptr, 0.0f, ImVec2(0.0f, 0.0f), button_flags))
 		{
 			*vVar += ImGui::GetIO().KeyCtrl ? vStepFast : vStep;
 		}
-		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+		ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 		if (ImGui::ContrastedButton(ICON_NDP_REMOVE, nullptr, nullptr, 0.0f, ImVec2(0.0f, 0.0f), button_flags))
 		{
 			*vVar -= ImGui::GetIO().KeyCtrl ? vStepFast : vStep;
 		}
-		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+		ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 		ImGui::Text("%s", vName);
 	}
 	else
@@ -3323,7 +3326,7 @@ IMGUI_API bool ImGui::InputIntDefault(float vWidth, const char* vName, int* vVar
 	if (change)
 		*vVar = vDefault;
 
-	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
 
 	ImGui::PushID(++CustomStyle::Instance()->pushId);
 	ImGui::PushItemWidth(w);

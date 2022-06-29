@@ -66,6 +66,8 @@ namespace ImGui
 		ImVec4 BadColor = ImVec4(0.8f, 0.2f, 0.2f, 0.8f);
 	};
 
+	IMGUI_API void CustomSameLine(float offset_from_start_x = 0.0f, float spacing = -1.0f);
+
 	IMGUI_API int IncPUSHID();
 	IMGUI_API int GetPUSHID();
 	IMGUI_API void SetPUSHID(int vID);
