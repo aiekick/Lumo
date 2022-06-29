@@ -22,38 +22,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include <Graph/Base/NodeSlot.h>
-
-enum class NotifyEvent
-{
-	// need to update the model
-	ModelUpdateDone = 0,
-	// need to update the texture
-	TextureUpdateDone,
-	// need to update the light
-	LightUpdateDone,
-	// need to update the variable
-	VariableUpdateDone,
-	// the node link is breked
-	NodeLinkIsBreaked,
-	// some task was updated
-	SomeTasksWasUpdated,
-	// graph loaded (so after all is finalized)
-	GraphIsLoaded,
-	// a new frame is available
-	NewFrameAvailable,
-	// count of notification message
-	CountEvents
-};
-
-class NotifyInterface
-{
-public:
-	virtual void Notify(
-		const NotifyEvent& vEvent, 
-		const NodeSlotWeak& vEmmiterSlot, 
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) = 0;
-};
-	
+#include <SceneGraph/SceneVariable.h>

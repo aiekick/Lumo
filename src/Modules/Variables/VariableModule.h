@@ -38,24 +38,26 @@ SOFTWARE.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/NodeInterface.h>
+#include <Interfaces/VariableOutputInterface.h>
 
 namespace vkApi { class VulkanCore; }
-class BooleanModule_Pass;
-class BooleanModule :
+class VariableModule_Pass;
+class VariableModule :
 	public conf::ConfigAbstract,
 	public GuiInterface,
 	public TaskInterface,
-	public NodeInterface
+	public NodeInterface,
+	public VariableOutputInterface
 {
 public:
-	static std::shared_ptr<BooleanModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<VariableModule> Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	bool m_BooleanValue = false;
+	SceneVariablePtr m_VariablePtr = nullptr;
 
 public:
-	BooleanModule(vkApi::VulkanCore* vVulkanCore);
-	~BooleanModule();
+	VariableModule(vkApi::VulkanCore* vVulkanCore);
+	~VariableModule();
 
 	bool Init();
 	void Unit();
@@ -67,4 +69,5 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	bool DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
+	SceneVariableWeak GetVariable() override;
 };

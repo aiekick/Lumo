@@ -24,32 +24,30 @@ SOFTWARE.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
+#include <Interfaces/VariableOutputInterface.h>
 
-
-class BooleanModule;
-class BooleanNode : public BaseNode
+class VariableModule;
+class VariableNode : 
+	public BaseNode,
+	public VariableOutputInterface
 {
 public:
-	static std::shared_ptr<BooleanNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<VariableNode> Create(vkApi::VulkanCore* vVulkanCore, const NodeTypeEnum& vNodeType);
 
 private:
-	std::shared_ptr<BooleanModule> m_BooleanModulePtr = nullptr;
+	std::shared_ptr<VariableModule> m_VariableModulePtr = nullptr;
 
 public:
-	BooleanNode();
-	~BooleanNode() override;
+	VariableNode(const NodeTypeEnum& vNodeType);
+	~VariableNode() override;
 	bool Init(vkApi::VulkanCore* vVulkanCore) override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState) override;
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
-	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
-	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 	void DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot) override;
+	SceneVariableWeak GetVariable() override;
 };

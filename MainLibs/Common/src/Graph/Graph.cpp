@@ -55,6 +55,9 @@ std::string Graph::GetStringFromNodeTypeEnum(const NodeTypeEnum& vNodeTypeEnum)
 		"POS_TO_DEPTH",
 		"DEPTH_TO_POS",
 		"TYPE_BOOLEAN",
+		"TYPE_UINT",
+		"TYPE_INT",
+		"TYPE_FLOAT",
 	};
 	if (vNodeTypeEnum != NodeTypeEnum::Count)
 		return NodeTypeString[(int)vNodeTypeEnum];
@@ -91,6 +94,9 @@ NodeTypeEnum Graph::GetNodeTypeEnumFromString(const std::string& vNodeTypeString
 	else if (vNodeTypeString == "POS_TO_DEPTH") return NodeTypeEnum::POS_TO_DEPTH;
 	else if (vNodeTypeString == "DEPTH_TO_POS") return NodeTypeEnum::DEPTH_TO_POS;
 	else if (vNodeTypeString == "TYPE_BOOLEAN") return NodeTypeEnum::TYPE_BOOLEAN;
+	else if (vNodeTypeString == "TYPE_UINT") return NodeTypeEnum::TYPE_UINT;
+	else if (vNodeTypeString == "TYPE_INT") return NodeTypeEnum::TYPE_INT;
+	else if (vNodeTypeString == "TYPE_FLOAT") return NodeTypeEnum::TYPE_FLOAT;
 
 	return NodeTypeEnum::NONE;
 }

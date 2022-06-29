@@ -65,6 +65,9 @@ enum class NodeTypeEnum : uint8_t
 	POS_TO_DEPTH,
 	DEPTH_TO_POS,
 	TYPE_BOOLEAN,
+	TYPE_UINT,
+	TYPE_INT,
+	TYPE_FLOAT,
 	Count,
 };
 

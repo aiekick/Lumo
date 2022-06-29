@@ -24,36 +24,15 @@ SOFTWARE.
 
 #pragma once
 
-#include <Graph/Base/NodeSlot.h>
+#include <SceneGraph/SceneVariable.h>
 
-enum class NotifyEvent
+class VariableInputInterface
 {
-	// need to update the model
-	ModelUpdateDone = 0,
-	// need to update the texture
-	TextureUpdateDone,
-	// need to update the light
-	LightUpdateDone,
-	// need to update the variable
-	VariableUpdateDone,
-	// the node link is breked
-	NodeLinkIsBreaked,
-	// some task was updated
-	SomeTasksWasUpdated,
-	// graph loaded (so after all is finalized)
-	GraphIsLoaded,
-	// a new frame is available
-	NewFrameAvailable,
-	// count of notification message
-	CountEvents
-};
+protected:
+	bool m_NeedVariableUpdate = false;
+	SceneVariableWeak m_SceneVariable;
 
-class NotifyInterface
-{
 public:
-	virtual void Notify(
-		const NotifyEvent& vEvent, 
-		const NodeSlotWeak& vEmmiterSlot, 
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) = 0;
+	// set a variable
+	virtual void SetVariable(SceneVariableWeak vSceneVariable = SceneVariableWeak()) = 0;
 };
-	

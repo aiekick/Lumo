@@ -553,7 +553,10 @@ bool ImGui::CheckBoxBoolDefault(const char* vName, bool* vVar, bool vDefault, co
 	if (change)
 		*vVar = vDefault;
 
-	ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	if (ImGuiInternal::GetCurrentLayoutType(ImGui::GetCurrentWindow()->ID) == ImGuiLayoutType_Vertical)
+	{
+		ImGui::SameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+	}
 
 	ImGui::PushID(++CustomStyle::Instance()->pushId);
 
@@ -1339,7 +1342,7 @@ bool ImGui::ColorEdit4ForNode(const char* label, float col[4], ImGuiColorEditFla
 		for (int n = 0; n < components; n++)
 		{
 			//if (n > 0)
-			//	SameLine(0, style.ItemInnerSpacing.x);
+			//	ImGui::SameLine(0, style.ItemInnerSpacing.x);
 
 			SetNextItemWidth((n + 1 < components) ? w_item_one : w_item_last);
 
@@ -1646,7 +1649,7 @@ bool ImGui::Selectable_FramedText_Selected(const bool& vSelected, const char* fm
 	//frame
 	ImRect total_bb = check_bb;
 	if (label_size.x > 0)
-		SameLine(0, style.ItemInnerSpacing.x);
+		ImGui::SameLine(0, style.ItemInnerSpacing.x);
 	const ImRect text_bb(window->DC.CursorPos + ImVec2(0, style.FramePadding.y), window->DC.CursorPos + ImVec2(0, style.FramePadding.y) + label_size);
 	if (label_size.x > 0)
 	{
@@ -1708,7 +1711,7 @@ bool ImGui::Selectable_FramedText(const char* fmt, ...)
 	//frame
 	ImRect total_bb = check_bb;
 	if (label_size.x > 0)
-		SameLine(0, style.ItemInnerSpacing.x);
+		ImGui::SameLine(0, style.ItemInnerSpacing.x);
 	const ImRect text_bb(window->DC.CursorPos + ImVec2(0, style.FramePadding.y), window->DC.CursorPos + ImVec2(0, style.FramePadding.y) + label_size);
 	if (label_size.x > 0)
 	{

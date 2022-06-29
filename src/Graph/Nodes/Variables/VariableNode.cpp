@@ -22,12 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "BooleanNode.h"
-#include <Modules/Variables/BooleanModule.h>
+#include "VariableNode.h"
+#include <Modules/Variables/VariableModule.h>
 
-std::shared_ptr<BooleanNode> BooleanNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<VariableNode> VariableNode::Create(vkApi::VulkanCore* vVulkanCore, const NodeTypeEnum& vNodeType)
 {
-	auto res = std::make_shared<BooleanNode>();
+	auto res = std::make_shared<VariableNode>(vNodeType);
 	res->m_This = res;
 	if (!res->Init(vVulkanCore))
 	{
@@ -36,17 +36,17 @@ std::shared_ptr<BooleanNode> BooleanNode::Create(vkApi::VulkanCore* vVulkanCore)
 	return res;
 }
 
-BooleanNode::BooleanNode() : BaseNode()
+VariableNode::VariableNode(const NodeTypeEnum& vNodeType) : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::TYPE_BOOLEAN;
+	m_NodeType = vNodeType;
 }
 
-BooleanNode::~BooleanNode()
+VariableNode::~VariableNode()
 {
 	Unit();
 }
 
-bool BooleanNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool VariableNode::Init(vkApi::VulkanCore* vVulkanCore)
 {
 	name = "Boolean";
 
@@ -58,8 +58,8 @@ bool BooleanNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_BooleanModulePtr = BooleanModule::Create(vVulkanCore);
-	if (m_BooleanModulePtr)
+	m_VariableModulePtr = VariableModule::Create(vVulkanCore, m_This);
+	if (m_VariableModulePtr)
 	{
 		res = true;
 	}
@@ -67,37 +67,37 @@ bool BooleanNode::Init(vkApi::VulkanCore* vVulkanCore)
 	return res;
 }
 
-bool BooleanNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool VariableNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
-	if (m_BooleanModulePtr)
+	if (m_VariableModulePtr)
 	{
-		return m_BooleanModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_VariableModulePtr->Execute(vCurrentFrame, vCmd);
 	}
 
 	return false;
 }
 
-bool BooleanNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool VariableNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	if (m_BooleanModulePtr)
+	if (m_VariableModulePtr)
 	{
-		return m_BooleanModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_VariableModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void BooleanNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void VariableNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	if (m_BooleanModulePtr)
+	if (m_VariableModulePtr)
 	{
-		m_BooleanModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_VariableModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void BooleanNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void VariableNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
 {
 	if (vCanvasState && vCanvasState->debug_mode)
 	{
@@ -114,56 +114,19 @@ void BooleanNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
 	}
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void BooleanNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_BooleanModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
-			{
-				
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void BooleanNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_BooleanModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
-			{
-				
-			}
-		}
-	}
-}
-
-void BooleanNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void VariableNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
-	case NotifyEvent::TextureUpdateDone:
+	case NotifyEvent::VariableUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
-		if (emiterSlotPtr)
+		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::TYPE_BOOLEAN);
+		for (const auto& slot : slots)
 		{
-			if (emiterSlotPtr->IsAnOutput())
+			auto slotPtr = slot.getValidShared();
+			if (slotPtr)
 			{
-				/*auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					
-				}*/
+				slotPtr->Notify(NotifyEvent::VariableUpdateDone, slot);
 			}
 		}
 		break;
@@ -177,7 +140,7 @@ void BooleanNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiter
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string BooleanNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string VariableNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -203,9 +166,9 @@ std::string BooleanNode::getXml(const std::string& vOffset, const std::string& v
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_BooleanModulePtr)
+		if (m_VariableModulePtr)
 		{
-			res += m_BooleanModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_VariableModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -214,7 +177,7 @@ std::string BooleanNode::getXml(const std::string& vOffset, const std::string& v
 	return res;
 }
 
-bool BooleanNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool VariableNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -229,25 +192,35 @@ bool BooleanNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_BooleanModulePtr)
+	if (m_VariableModulePtr)
 	{
-		m_BooleanModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_VariableModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
 }
 
-void BooleanNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
+void VariableNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
 {
 	if (vCanvasState)
 	{
 		auto slotPtr = vSlot.getValidShared();
 		if (slotPtr && slotPtr->slotType == NodeSlotTypeEnum::TYPE_BOOLEAN)
 		{
-			if (m_BooleanModulePtr)
+			if (m_VariableModulePtr)
 			{
-				m_BooleanModulePtr->DrawNodeWidget(0U);
+				m_VariableModulePtr->DrawNodeWidget(0U);
 			}
 		}
 	}
+}
+
+SceneVariableWeak VariableNode::GetVariable()
+{
+	if (m_VariableModulePtr)
+	{
+		return m_VariableModulePtr->GetVariable();
+	}
+
+	return SceneVariableWeak();
 }

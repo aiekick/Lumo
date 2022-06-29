@@ -139,6 +139,7 @@ struct BaseNodeStateStruct
 {
 	ImGuiContext* m_Context = nullptr;
 	nd::EditorContext* m_NodeGraphContext = nullptr;
+	uint32_t m_CurrentFrame = 0U;
 
 	GraphStyleStruct graphStyle;
 

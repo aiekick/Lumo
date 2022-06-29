@@ -24,36 +24,31 @@ SOFTWARE.
 
 #pragma once
 
-#include <Graph/Base/NodeSlot.h>
+#include <cstdint>
+#include <memory>
+#include <ctools/cTools.h>
+#include <graph/graph.h>
 
-enum class NotifyEvent
-{
-	// need to update the model
-	ModelUpdateDone = 0,
-	// need to update the texture
-	TextureUpdateDone,
-	// need to update the light
-	LightUpdateDone,
-	// need to update the variable
-	VariableUpdateDone,
-	// the node link is breked
-	NodeLinkIsBreaked,
-	// some task was updated
-	SomeTasksWasUpdated,
-	// graph loaded (so after all is finalized)
-	GraphIsLoaded,
-	// a new frame is available
-	NewFrameAvailable,
-	// count of notification message
-	CountEvents
-};
+class SceneVariable;
+typedef std::shared_ptr<SceneVariable> SceneVariablePtr;
+typedef ct::cWeak<SceneVariable> SceneVariableWeak;
 
-class NotifyInterface
+class SceneVariable
 {
+private:
+	union VariableUnion
+	{
+		bool m_Boolean;
+		uint32_t m_Uint32;
+		int32_t m_Int32;
+		float m_Float;
+	} datas;
+	NodeTypeEnum type = NodeTypeEnum::TYPE_BOOLEAN;
+
 public:
-	virtual void Notify(
-		const NotifyEvent& vEvent, 
-		const NodeSlotWeak& vEmmiterSlot, 
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) = 0;
+	NodeTypeEnum GetType() { return type; }
+	VariableUnion& GetDatas() { return datas; }
 };
+
 	
+
