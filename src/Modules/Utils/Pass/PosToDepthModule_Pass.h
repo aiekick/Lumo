@@ -55,7 +55,6 @@ SOFTWARE.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderInterface.h>
 #include <Interfaces/ResizerInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/SerializationInterface.h>
 
 namespace vkApi { class VulkanCore; }
@@ -63,8 +62,7 @@ class PosToDepthModule_Pass :
 	public QuadShaderPass,
 	public GuiInterface,
 	public TextureInputInterface<1U>,
-	public TextureOutputInterface,
-	public ShaderUpdateInterface
+	public TextureOutputInterface
 {
 private:
 	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
@@ -88,7 +86,6 @@ public:
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 
 private:
 	bool CreateUBO() override;

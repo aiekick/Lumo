@@ -72,7 +72,13 @@ ImVec4 NodeSlot::GetSlotColorAccordingToType(const NodeSlotTypeEnum& vNodeSlotTy
 		res = ImVec4(0.3f, 0.5f, 0.1f, 1.0f);
 		break;
 	case NodeSlotTypeEnum::TYPE_BOOLEAN:
-		res = ImVec4(0.8f, 0.6f, 0.3f, 1.0f);
+	case NodeSlotTypeEnum::TYPE_UINT:
+	case NodeSlotTypeEnum::TYPE_INT:
+	case NodeSlotTypeEnum::TYPE_FLOAT:
+		res = ImVec4(0.8f, 0.7f, 0.6f, 1.0f);
+		break;
+	case NodeSlotTypeEnum::DEPTH:
+		res = ImVec4(0.2f, 0.7f, 0.6f, 1.0f);
 		break;
 	default:
 		break;

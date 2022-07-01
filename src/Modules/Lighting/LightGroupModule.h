@@ -53,6 +53,7 @@ class LightGroupModule :
 {
 public:
 	static LightGroupModulePtr Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode);
+	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding);
 
 private:
 	LightGroupModuleWeak m_This;
@@ -82,7 +83,6 @@ public:
 	void UploadBufferObjectIfDirty(vkApi::VulkanCore* vVulkanCore) override;
 	bool CreateBufferObject(vkApi::VulkanCore* vVulkanCore) override;
 	void DestroyBufferObject() override;
-	std::string GetBufferObjectStructureHeader(const uint32_t& vBinding)  override;
 	vk::DescriptorBufferInfo* GetBufferInfo() override;
 
 public:

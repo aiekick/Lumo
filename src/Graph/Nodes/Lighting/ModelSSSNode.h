@@ -29,13 +29,15 @@ SOFTWARE.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightInputInterface.h>
+#include <Interfaces/ShaderUpdateInterface.h>
 
 class ModelSSSModule;
 class ModelSSSNode : 
 	public BaseNode,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
-	public LightInputInterface
+	public LightInputInterface,
+	public ShaderUpdateInterface
 {
 public:
 	static std::shared_ptr<ModelSSSNode> Create(vkApi::VulkanCore* vVulkanCore);
@@ -58,6 +60,7 @@ public:
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
 	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
+	void UpdateShaders(const std::set<std::string>& vFiles) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

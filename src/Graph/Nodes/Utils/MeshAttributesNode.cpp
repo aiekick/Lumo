@@ -92,7 +92,7 @@ bool MeshAttributesNode::Init(vkApi::VulkanCore* vVulkanCore)
 	slot.descriptorBinding = 5U;
 	AddOutput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = NodeSlotTypeEnum::DEPTH;
 	slot.name = "Depth";
 	slot.descriptorBinding = 6U;
 	AddOutput(slot, true, false);

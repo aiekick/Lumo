@@ -1,6 +1,6 @@
 #pragma once
 
-#define Lumo_BuildNumber 314
+#define Lumo_BuildNumber 344
 #define Lumo_MinorNumber 2
 #define Lumo_MajorNumber 0
-#define Lumo_BuildId "0.2.314"
+#define Lumo_BuildId "0.2.344"

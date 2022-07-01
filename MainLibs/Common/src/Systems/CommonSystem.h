@@ -82,6 +82,9 @@ class COMMON_API CommonSystem :
 	public CameraInterface,
 	public BufferObjectInterface
 {
+public:
+	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding);
+
 public: // params to be serialized
 	glm::vec2 camSize;
 	//glm::vec2 nearFarPlanes = glm::vec2(0.01f, 10000.0f);
@@ -230,7 +233,6 @@ public:
 	void UploadBufferObjectIfDirty(vkApi::VulkanCore* vVulkanCore) override;
 	bool CreateBufferObject(vkApi::VulkanCore* vVulkanCore) override;
 	void DestroyBufferObject() override;
-	std::string GetBufferObjectStructureHeader(const uint32_t& vBinding)  override;
 	vk::DescriptorBufferInfo* GetBufferInfo() override;
 
 private:

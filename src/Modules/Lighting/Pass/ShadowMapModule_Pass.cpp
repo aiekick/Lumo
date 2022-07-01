@@ -318,7 +318,7 @@ std::string ShadowMapModule_Pass::GetFragmentShaderCode(std::string& vOutShaderN
 
 layout(location = 0) out float fragDepth;
 )"
-+ CommonSystem::Instance()->GetBufferObjectStructureHeader(1U) +
++ CommonSystem::GetBufferObjectStructureHeader(1U) +
 u8R"(
 void main() 
 {

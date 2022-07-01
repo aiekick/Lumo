@@ -324,7 +324,7 @@ layout(location = 5) in vec4 aColor;
 
 layout(location = 0) out vec4 vertColor;
 )"
-+ CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout (std140, binding = 1) uniform UBO_Vert 
 { 
@@ -350,7 +350,7 @@ layout(location = 0) out vec4 fragColor;
 
 layout(location = 0) in vec4 vertColor;
 )"
-+ CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout(std140, binding = 2) uniform UBO_Frag 
 { 

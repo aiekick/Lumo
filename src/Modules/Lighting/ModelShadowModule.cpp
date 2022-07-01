@@ -202,18 +202,6 @@ vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_
 	return nullptr;
 }
 
-void ModelShadowModule::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	for (auto passPtr : m_ShaderPass)
-	{
-		auto passShaUpdPtr = dynamic_pointer_cast<ShaderUpdateInterface>(passPtr);
-		if (passShaUpdPtr)
-		{
-			passShaUpdPtr->UpdateShaders(vFiles);
-		}
-	}
-}
-
 void ModelShadowModule::UpdateDescriptorsBeforeCommandBuffer()
 {
 	/*if (m_ModelShadowModule_Pass_Light_Shadow_Map_Ptr && 

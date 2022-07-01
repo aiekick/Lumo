@@ -49,7 +49,6 @@ SOFTWARE.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightInputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 #include <set>
 #include <string>
 
@@ -59,8 +58,7 @@ class ModelShadowModule_Pass :
 	public GuiInterface,
 	public TextureInputInterface<2U>,
 	public TextureOutputInterface,
-	public LightInputInterface,
-	public ShaderUpdateInterface
+	public LightInputInterface
 {
 protected: // vulkan creation
 	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
@@ -84,7 +82,6 @@ public:
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 

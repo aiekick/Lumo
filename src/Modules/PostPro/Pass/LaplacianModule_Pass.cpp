@@ -198,15 +198,7 @@ std::string LaplacianModule_Pass::GetVertexShaderCode(std::string& vOutShaderNam
 {
 	vOutShaderName = "LaplacianModule_Vertex";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/LaplacianModule.vert";
-
-	if (FileHelper::Instance()->IsFileExist(shader_path))
-	{
-		m_VertexShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-	}
-	else
-	{
-		m_VertexShaderCode = u8R"(#version 450
+	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec2 vertPosition;
@@ -219,25 +211,13 @@ void main()
 	gl_Position = vec4(vertPosition, 0.0, 1.0);
 }
 )";
-		FileHelper::Instance()->SaveStringToFile(m_VertexShaderCode, shader_path);
-	}
-
-	return m_VertexShaderCode;
 }
 
 std::string LaplacianModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "LaplacianModule_Pass";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/" + vOutShaderName + ".frag";
-
-	if (FileHelper::Instance()->IsFileExist(shader_path))
-	{
-		m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-	}
-	else
-	{
-		m_FragmentShaderCode = u8R"(#version 450
+	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
@@ -299,40 +279,6 @@ void main()
 	fragColor.a = c.a;
 }
 )";
-		FileHelper::Instance()->SaveStringToFile(m_FragmentShaderCode, shader_path);
-	}
-
-	return m_FragmentShaderCode;
-}
-
-void LaplacianModule_Pass::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	bool needReCompil = false;
-
-	if (vFiles.find("shaders/LaplacianModule.vert") != vFiles.end())
-	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/LaplacianModule.vert";
-		if (FileHelper::Instance()->IsFileExist(shader_path))
-		{
-			m_VertexShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-			needReCompil = true;
-		}
-
-	}
-	else if (vFiles.find("shaders/LaplacianModule_Pass.frag") != vFiles.end())
-	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/LaplacianModule_Pass.frag";
-		if (FileHelper::Instance()->IsFileExist(shader_path))
-		{
-			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-			needReCompil = true;
-		}
-	}
-
-	if (needReCompil)
-	{
-		ReCompil();
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

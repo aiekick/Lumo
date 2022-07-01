@@ -259,9 +259,29 @@ void SSSMapModule_Pass::UpdateRessourceDescriptor()
 		auto lightPtr = lightGroupPtr->Get(0).getValidShared();
 		if (lightPtr)
 		{
-			if (m_NeedLightGroupUpdate)
+			glm::vec3 cam_point = CommonSystem::Instance()->uModel[3]; // viewer origin point
+
+			if (m_NeedLightGroupUpdate ||
+				m_CurrentCamPoint != cam_point)
 			{
-				lightPtr->NeedUpdateCamera();
+				m_CurrentCamPoint = cam_point;
+				// the light point is the mid point between cam_point and light_cam_point
+				// light_point = (m_CurrentCamPoint + light_cam_point) * 0.5;
+				// so light_cam_point is light_point * 2.0 - m_CurrentCamPoint
+
+				glm::vec3 light_point = lightPtr->lightDatas.lightGizmo[3]; // gizmo light point
+				glm::vec3 light_cam_point = light_point * 2.0f - m_CurrentCamPoint; // point origin transform
+
+				glm::mat4 proj = glm::ortho<float>(
+					-lightPtr->lightDatas.orthoSideSize, lightPtr->lightDatas.orthoSideSize,
+					-lightPtr->lightDatas.orthoSideSize, lightPtr->lightDatas.orthoSideSize,
+					-lightPtr->lightDatas.orthoRearSize, lightPtr->lightDatas.orthoDeepSize);
+				proj[1][1] *= -1.0f;
+				glm::mat4 view = glm::lookAt(
+					light_cam_point,
+					light_point,
+					glm::vec3(0.0f, 0.0f, 1.0f));
+				lightPtr->lightDatas.lightView = proj * view;
 
 				m_UBOVert.light_cam = lightPtr->lightDatas.lightView;
 
@@ -318,7 +338,7 @@ std::string SSSMapModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName
 
 layout(location = 0) out float fragDepth;
 )"
-+ CommonSystem::Instance()->GetBufferObjectStructureHeader(1U) +
++ CommonSystem::GetBufferObjectStructureHeader(1U) +
 u8R"(
 void main() 
 {

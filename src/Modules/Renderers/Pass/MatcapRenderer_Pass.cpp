@@ -278,7 +278,7 @@ layout(location = 0) out vec3 vertPosition;
 layout(location = 1) out vec3 vertNormal;
 layout(location = 2) out vec2 matcapNormal2D;
 )"
-+ CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout (std140, binding = 1) uniform UBO_Vert 
 { 
@@ -327,7 +327,7 @@ layout(location = 0) in vec3 vertPosition;
 layout(location = 1) in vec3 vertNormal;
 layout(location = 2) in vec2 matcapNormal2D;
 )"
-+ CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout(std140, binding = 2) uniform UBO_Frag 
 { 

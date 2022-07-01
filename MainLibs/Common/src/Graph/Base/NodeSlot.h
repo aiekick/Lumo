@@ -51,6 +51,10 @@ enum class NodeSlotTypeEnum : uint8_t
 	TEXTURE_2D,
 	MIXED,
 	TYPE_BOOLEAN,
+	TYPE_UINT,
+	TYPE_INT,
+	TYPE_FLOAT,
+	DEPTH,
 	Count
 };
 
@@ -66,6 +70,10 @@ inline static std::string GetStringFromNodeSlotTypeEnum(const NodeSlotTypeEnum& 
 		"TEXTURE_2D",
 		"MIXED",
 		"TYPE_BOOLEAN",
+		"TYPE_UINT",
+		"TYPE_INT",
+		"TYPE_FLOAT",
+		"DEPTH",
 	};
 	if (vNodeSlotTypeEnum != NodeSlotTypeEnum::Count)
 		return NodeSlotTypeString[(int)vNodeSlotTypeEnum];
@@ -84,6 +92,10 @@ inline static NodeSlotTypeEnum GetNodeSlotTypeEnumFromString(const std::string& 
 	else if (vNodeSlotTypeString == "TEXTURE_2D") return NodeSlotTypeEnum::TEXTURE_2D;
 	else if (vNodeSlotTypeString == "MIXED") return NodeSlotTypeEnum::MIXED;
 	else if (vNodeSlotTypeString == "TYPE_BOOLEAN") return NodeSlotTypeEnum::TYPE_BOOLEAN;
+	else if (vNodeSlotTypeString == "TYPE_UINT") return NodeSlotTypeEnum::TYPE_UINT;
+	else if (vNodeSlotTypeString == "TYPE_INT") return NodeSlotTypeEnum::TYPE_INT;
+	else if (vNodeSlotTypeString == "TYPE_FLOAT") return NodeSlotTypeEnum::TYPE_FLOAT;
+	else if (vNodeSlotTypeString == "DEPTH") return NodeSlotTypeEnum::DEPTH;
 	return NodeSlotTypeEnum::NONE;
 }
 

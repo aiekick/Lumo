@@ -65,7 +65,7 @@ bool ShadowMapNode::Init(vkApi::VulkanCore* vVulkanCore)
 	slot.name = "Light";
 	AddOutput(slot, true, true);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = NodeSlotTypeEnum::DEPTH;
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);

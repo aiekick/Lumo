@@ -31,6 +31,7 @@ SOFTWARE.
 #include <ctools/ConfigAbstract.h>
 
 #include <vulkan/vulkan.hpp>
+
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanDevice.h>
@@ -38,6 +39,8 @@ SOFTWARE.
 #include <vkFramework/vk_mem_alloc.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
+
+#include <Interfaces/ShaderUpdateInterface.h>
 
 #include <Utils/Mesh/VertexStruct.h>
 
@@ -52,7 +55,8 @@ enum class GenericType : uint8_t
 };
 
 class ShaderPass :
-	public conf::ConfigAbstract
+	public conf::ConfigAbstract,
+	public ShaderUpdateInterface
 {
 #ifdef VULKAN_DEBUG
 public:
@@ -60,17 +64,13 @@ public:
 	ct::fvec4 m_RenderDocDebugColor = 0.0f;
 #endif
 
-public:
-	void SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor)
+protected: // internal struct
+	struct ShaderCode
 	{
-#ifdef VULKAN_DEBUG
-		m_RenderDocDebugName = vLabel;
-		m_RenderDocDebugColor = vColor;
-#else
-		UNUSED(vLabel);
-		UNUSED(vColor);
-#endif
-	}
+		std::vector<unsigned int> m_SPIRV;	// SPIRV Bytes
+		std::string m_Code;					// Shader Code (in clear)
+		std::string m_FilePathName;			// file path name on disk drive
+	};
 
 protected:
 	bool m_Loaded = false;
@@ -98,12 +98,10 @@ protected:
 	ct::fvec2 m_OutputSize;
 	float m_OutputRatio = 1.0f;
 
-	std::vector<unsigned int> m_SPIRV_Vert;							// SPIRV Vertex Code
-	std::vector<unsigned int> m_SPIRV_Frag;							// SPIRV Fragment Code
-	std::vector<unsigned int> m_SPIRV_Comp;							// SPIRV Compute Code
-	std::string m_VertexShaderCode;									// Vertex Shader Code
-	std::string m_FragmentShaderCode;								// Fragment Shader Code
-	std::string m_ComputeShaderCode;								// Compute Shader Code
+	ShaderCode m_VertexShaderCode;		// Vertex Shader Code
+	ShaderCode m_FragmentShaderCode;	// Fragment Shader Code
+	ShaderCode m_ComputeShaderCode;		// Compute Shader Code
+	
 	bool m_IsShaderCompiled = false;
 
 	// ressources
@@ -158,6 +156,8 @@ public:
 		const ct::uvec3& vDispatchSize);
 	virtual void Unit();
 
+	void SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor);
+
 	void AllowResize(const bool& vResizing); // allow or block the resize
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer); // to call at any moment
 	void NeedResize(ct::ivec2* vNewSize); // to call at any moment
@@ -188,6 +188,9 @@ public:
 	virtual void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 
 	virtual void UpdateRessourceDescriptor();
+
+	// shader update from file
+	void UpdateShaders(const std::set<std::string>& vFiles) override;
 
 protected:
 	virtual void ActionBeforeCompilation();

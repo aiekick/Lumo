@@ -30,20 +30,22 @@ SOFTWARE.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightInputInterface.h>
 #include <Interfaces/LightOutputInterface.h>
+#include <Interfaces/ShaderUpdateInterface.h>
 
-class ShadowMapModule;
+class SSSMapModule;
 class SSSMapNode : 
 	public BaseNode,
 	public ModelInputInterface,
 	public TextureOutputInterface,
 	public LightInputInterface,
-	public LightOutputInterface
+	public LightOutputInterface,
+	public ShaderUpdateInterface
 {
 public:
 	static std::shared_ptr<SSSMapNode> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	std::shared_ptr<ShadowMapModule> m_ShadowMapModulePtr = nullptr;
+	std::shared_ptr<SSSMapModule> m_SSSMapModulePtr = nullptr;
 
 public:
 	SSSMapNode();
@@ -61,6 +63,7 @@ public:
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
 	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
+	void UpdateShaders(const std::set<std::string>& vFiles) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

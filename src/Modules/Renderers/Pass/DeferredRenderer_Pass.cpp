@@ -162,36 +162,6 @@ bool DeferredRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XM
 	return true;
 }
 
-void DeferredRenderer_Pass::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	bool needReCompil = false;
-
-	if (vFiles.find("shaders/DeferredRenderer_Pass.vert") != vFiles.end())
-	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass.vert";
-		if (FileHelper::Instance()->IsFileExist(shader_path))
-		{
-			m_VertexShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-			needReCompil = true;
-		}
-
-	}
-	else if (vFiles.find("shaders/DeferredRenderer_Pass.frag") != vFiles.end())
-	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass.frag";
-		if (FileHelper::Instance()->IsFileExist(shader_path))
-		{
-			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-			needReCompil = true;
-		}
-	}
-
-	if (needReCompil)
-	{
-		ReCompil();
-	}
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -277,15 +247,7 @@ std::string DeferredRenderer_Pass::GetVertexShaderCode(std::string& vOutShaderNa
 {
 	vOutShaderName = "DeferredRenderer_Pass_Vertex";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass.vert";
-
-	if (FileHelper::Instance()->IsFileExist(shader_path))
-	{
-		m_VertexShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-	}
-	else
-	{
-		m_VertexShaderCode = u8R"(#version 450
+	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec2 vertPosition;
@@ -298,31 +260,19 @@ void main()
 	gl_Position = vec4(vertPosition, 0.0, 1.0);
 }
 )";
-		FileHelper::Instance()->SaveStringToFile(m_VertexShaderCode, shader_path);
-	}
-
-	return m_VertexShaderCode;
 }
 
 std::string DeferredRenderer_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "DeferredRenderer_Pass_Fragment";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/DeferredRenderer_Pass.frag";
-
-	if (FileHelper::Instance()->IsFileExist(shader_path))
-	{
-		m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-	}
-	else
-	{
-		m_FragmentShaderCode = u8R"(#version 450
+	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec2 v_uv;
 )"
-+ CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout (std140, binding = 1) uniform UBO_Frag 
 { 
@@ -404,8 +354,4 @@ void main()
 	*/
 }
 )";
-		FileHelper::Instance()->SaveStringToFile(m_FragmentShaderCode, shader_path);
-	}
-
-	return m_FragmentShaderCode;
 }

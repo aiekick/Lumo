@@ -182,7 +182,7 @@ std::string GridModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 
 layout(location = 0) out vec4 vertColor;
 )"
-+ CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout(std140, binding = 1) uniform UBOStruct {
 	float showGrid;

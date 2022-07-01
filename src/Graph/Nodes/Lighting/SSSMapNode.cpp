@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include "SSSMapNode.h"
-#include <Modules/Lighting/ShadowMapModule.h>
+#include <Modules/Lighting/SSSMapModule.h>
 #include <Interfaces/ModelOutputInterface.h>
 
 std::shared_ptr<SSSMapNode> SSSMapNode::Create(vkApi::VulkanCore* vVulkanCore)
@@ -39,7 +39,7 @@ std::shared_ptr<SSSMapNode> SSSMapNode::Create(vkApi::VulkanCore* vVulkanCore)
 
 SSSMapNode::SSSMapNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::SHADOW_MAPPING;
+	m_NodeType = NodeTypeEnum::SSS_MAPPING;
 }
 
 SSSMapNode::~SSSMapNode()
@@ -49,7 +49,7 @@ SSSMapNode::~SSSMapNode()
 
 bool SSSMapNode::Init(vkApi::VulkanCore* vVulkanCore)
 {
-	name = "Shadow Map";
+	name = "SSS Map";
 
 	NodeSlot slot;
 
@@ -65,14 +65,14 @@ bool SSSMapNode::Init(vkApi::VulkanCore* vVulkanCore)
 	slot.name = "Light";
 	AddOutput(slot, true, true);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = NodeSlotTypeEnum::DEPTH;
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
 
 	bool res = false;
-	m_ShadowMapModulePtr = ShadowMapModule::Create(vVulkanCore);
-	if (m_ShadowMapModulePtr)
+	m_SSSMapModulePtr = SSSMapModule::Create(vVulkanCore);
+	if (m_SSSMapModulePtr)
 	{
 		res = true;
 	}
@@ -82,25 +82,25 @@ bool SSSMapNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 void SSSMapNode::Unit()
 {
-	m_ShadowMapModulePtr.reset();
+	m_SSSMapModulePtr.reset();
 }
 
 bool SSSMapNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
-	if (m_ShadowMapModulePtr)
+	if (m_SSSMapModulePtr)
 	{
-		return m_ShadowMapModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_SSSMapModulePtr->Execute(vCurrentFrame, vCmd);
 	}
 	return false;
 }
 
 bool SSSMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	if (m_ShadowMapModulePtr)
+	if (m_SSSMapModulePtr)
 	{
-		return m_ShadowMapModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_SSSMapModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
@@ -108,33 +108,33 @@ bool SSSMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 
 void SSSMapNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	if (m_ShadowMapModulePtr)
+	if (m_SSSMapModulePtr)
 	{
-		m_ShadowMapModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext);
+		m_SSSMapModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext);
 	}
 }
 
 void SSSMapNode::SetModel(SceneModelWeak vSceneModel)
 {
-	if (m_ShadowMapModulePtr)
+	if (m_SSSMapModulePtr)
 	{
-		m_ShadowMapModulePtr->SetModel(vSceneModel);
+		m_SSSMapModulePtr->SetModel(vSceneModel);
 	}
 }
 
 void SSSMapNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	if (m_ShadowMapModulePtr)
+	if (m_SSSMapModulePtr)
 	{
-		m_ShadowMapModulePtr->SetLightGroup(vSceneLightGroup);
+		m_SSSMapModulePtr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
 SceneLightGroupWeak SSSMapNode::GetLightGroup()
 {
-	if (m_ShadowMapModulePtr)
+	if (m_SSSMapModulePtr)
 	{
-		return m_ShadowMapModulePtr->GetLightGroup();
+		return m_SSSMapModulePtr->GetLightGroup();
 	}
 
 	return SceneLightGroupWeak();
@@ -142,9 +142,9 @@ SceneLightGroupWeak SSSMapNode::GetLightGroup()
 
 vk::DescriptorImageInfo* SSSMapNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
-	if (m_ShadowMapModulePtr)
+	if (m_SSSMapModulePtr)
 	{
-		return m_ShadowMapModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_SSSMapModulePtr->GetDescriptorImageInfo(vBindingPoint);
 	}
 
 	return nullptr;
@@ -155,7 +155,7 @@ void SSSMapNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEnd
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ShadowMapModulePtr)
+	if (startSlotPtr && endSlotPtr && m_SSSMapModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
@@ -184,7 +184,7 @@ void SSSMapNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak v
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ShadowMapModulePtr)
+	if (startSlotPtr && endSlotPtr && m_SSSMapModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
@@ -197,6 +197,14 @@ void SSSMapNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak v
 				SetLightGroup();
 			}
 		}
+	}
+}
+
+void SSSMapNode::UpdateShaders(const std::set<std::string>& vFiles)
+{
+	if (m_SSSMapModulePtr)
+	{
+		return m_SSSMapModulePtr->UpdateShaders(vFiles);
 	}
 }
 
@@ -256,9 +264,9 @@ void SSSMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterS
 
 void SSSMapNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	if (m_ShadowMapModulePtr)
+	if (m_SSSMapModulePtr)
 	{
-		m_ShadowMapModulePtr->NeedResize(vNewSize, vCountColorBuffer);
+		m_SSSMapModulePtr->NeedResize(vNewSize, vCountColorBuffer);
 	}
 
 	// on fait ca apres
@@ -295,9 +303,9 @@ std::string SSSMapNode::getXml(const std::string& vOffset, const std::string& vU
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_ShadowMapModulePtr)
+		if (m_SSSMapModulePtr)
 		{
-			res += m_ShadowMapModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_SSSMapModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -321,9 +329,9 @@ bool SSSMapNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_ShadowMapModulePtr)
+	if (m_SSSMapModulePtr)
 	{
-		m_ShadowMapModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_SSSMapModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

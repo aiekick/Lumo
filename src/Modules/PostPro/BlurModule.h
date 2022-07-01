@@ -52,7 +52,6 @@ SOFTWARE.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 
 namespace vkApi { class VulkanCore; }
 
@@ -63,8 +62,7 @@ class BlurModule :
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
-	public ResizerInterface,
-	public ShaderUpdateInterface
+	public ResizerInterface
 {
 public:
 	static std::shared_ptr<BlurModule> Create(vkApi::VulkanCore* vVulkanCore);
@@ -89,5 +87,4 @@ public:
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 };

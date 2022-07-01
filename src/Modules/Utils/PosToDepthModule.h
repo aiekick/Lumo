@@ -55,7 +55,6 @@ SOFTWARE.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderInterface.h>
 #include <Interfaces/ResizerInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/SerializationInterface.h>
 
 namespace vkApi { class VulkanCore; }
@@ -66,8 +65,7 @@ class PosToDepthModule :
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
-	public ResizerInterface,
-	public ShaderUpdateInterface
+	public ResizerInterface
 {
 public:
 	static std::shared_ptr<PosToDepthModule> Create(vkApi::VulkanCore* vVulkanCore);
@@ -90,5 +88,4 @@ public:
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 };

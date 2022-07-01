@@ -46,7 +46,6 @@ SOFTWARE.
 #include <Interfaces/CameraInterface.h>
 #include <Interfaces/MergedInterface.h>
 #include <Interfaces/ResizerInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 
 namespace vkApi { class VulkanCore; }
 
@@ -59,8 +58,7 @@ class MeshAttributesModule :
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public TaskInterface,
-	public ResizerInterface,
-	public ShaderUpdateInterface
+	public ResizerInterface
 {
 public:
 	static std::shared_ptr<MeshAttributesModule> Create(vkApi::VulkanCore* vVulkanCore);
@@ -82,7 +80,6 @@ public:
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

@@ -45,7 +45,6 @@ SOFTWARE.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 
 namespace vkApi { class VulkanCore; }
 
@@ -54,8 +53,7 @@ class MeshAttributesModule_Pass :
 	public GuiInterface,
 	public ModelInputInterface,
 	public TextureInputInterface<1U>,
-	public TextureOutputInterface,
-	public ShaderUpdateInterface
+	public TextureOutputInterface
 {
 private:
 	VulkanBufferObjectPtr m_UBO_Vert = nullptr;
@@ -83,7 +81,6 @@ public:
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 
 private:
 	void DestroyModel(const bool& vReleaseDatas = false) override;

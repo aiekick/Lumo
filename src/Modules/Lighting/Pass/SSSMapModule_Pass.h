@@ -71,6 +71,8 @@ protected: // vulkan creation
 		alignas(16) glm::mat4x4 light_cam = glm::mat4x4(1.0f);
 	} m_UBOVert;
 
+	glm::vec3 m_CurrentCamPoint;
+
 public:
 	SSSMapModule_Pass(vkApi::VulkanCore* vVulkanCore);
 	~SSSMapModule_Pass();
@@ -85,7 +87,7 @@ public:
 	SceneLightGroupWeak GetLightGroup()  override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-
+	
 	glm::mat4 GetLightViewMatrix() { return m_UBOVert.light_cam; }
 
 private:

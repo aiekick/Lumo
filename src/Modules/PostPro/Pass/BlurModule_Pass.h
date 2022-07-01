@@ -50,7 +50,6 @@ SOFTWARE.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 
 namespace vkApi { class VulkanCore; }
 
@@ -58,8 +57,7 @@ class BlurModule_Pass :
 	public QuadShaderPass,
 	public GuiInterface,
 	public TextureInputInterface<1U>,
-	public TextureOutputInterface,
-	public ShaderUpdateInterface
+	public TextureOutputInterface
 {
 private:
 	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
@@ -82,7 +80,6 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas)  override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)  override;
 

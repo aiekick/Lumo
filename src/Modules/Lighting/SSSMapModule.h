@@ -54,7 +54,6 @@ SOFTWARE.
 #include <Interfaces/LightInputInterface.h>
 #include <Interfaces/LightOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
 
 namespace vkApi { class VulkanCore; }
 
@@ -67,8 +66,7 @@ class SSSMapModule :
 	public TextureOutputInterface,
 	public LightInputInterface,
 	public LightOutputInterface,
-	public ResizerInterface,
-	public ShaderUpdateInterface
+	public ResizerInterface
 {
 public:
 	static std::shared_ptr<SSSMapModule> Create(vkApi::VulkanCore* vVulkanCore);
@@ -95,5 +93,4 @@ public:
 	SceneLightGroupWeak GetLightGroup()  override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 };

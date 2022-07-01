@@ -39,7 +39,7 @@ std::shared_ptr<ModelSSSNode> ModelSSSNode::Create(vkApi::VulkanCore* vVulkanCor
 
 ModelSSSNode::ModelSSSNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::MODEL_SHADOW;
+	m_NodeType = NodeTypeEnum::MODEL_SSS;
 }
 
 ModelSSSNode::~ModelSSSNode()
@@ -62,7 +62,7 @@ bool ModelSSSNode::Init(vkApi::VulkanCore* vVulkanCore)
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = NodeSlotTypeEnum::DEPTH;
 	slot.name = "SSS Map";
 	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
@@ -251,6 +251,14 @@ void ModelSSSNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBu
 
 	// on fait ca apres
 	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+}
+
+void ModelSSSNode::UpdateShaders(const std::set<std::string>& vFiles)
+{
+	if (m_ModelSSSModulePtr)
+	{
+		return m_ModelSSSModulePtr->UpdateShaders(vFiles);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

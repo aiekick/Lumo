@@ -201,15 +201,3 @@ bool PosToDepthModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 
 	return true;
 }
-
-void PosToDepthModule::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	for (auto passPtr : m_ShaderPass)
-	{
-		auto passShaUpdPtr = dynamic_pointer_cast<ShaderUpdateInterface>(passPtr);
-		if (passShaUpdPtr)
-		{
-			passShaUpdPtr->UpdateShaders(vFiles);
-		}
-	}
-}

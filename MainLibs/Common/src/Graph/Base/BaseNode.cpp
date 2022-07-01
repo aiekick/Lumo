@@ -2318,93 +2318,29 @@ bool BaseNode::DisConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 
 bool BaseNode::CanWeConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 {
-	bool res = false;
-
 	if (!vFrom.expired() &&
 		!vTo.expired())
 	{
-		auto fromPtr = vFrom.lock();
-		auto toPtr = vTo.lock();
+		auto fromPtr = vFrom.getValidShared();
+		auto toPtr = vTo.getValidShared();
 
 		if (fromPtr && toPtr)
 		{
-			if (fromPtr && toPtr)
+			auto fromParentPtr = fromPtr->parentNode.getValidShared();
+			auto toParentPtr = toPtr->parentNode.getValidShared();
+
+			if (fromParentPtr && toParentPtr && 
+				fromParentPtr != toParentPtr) // not same node
 			{
-				if (fromPtr->stamp.typeStamp == toPtr->stamp.typeStamp) res = true;
-
-				// cest pas rationnel pour celui la, mais bon on fait confiance au graph
-				// todo: idealemment quand on connect un vec3 a un type, le type devrait ce transformer en vec3
-				// mais pas sur que le link des nodes ce fasse dans le bon ordre en fait, donc en attendant 
-				// si le node from est type on dit que c'est ok
-				if (fromPtr->stamp.typeStamp == "type") res = true;
-				// c'est le meme pincipe pour le node to meme si ca doit plus souvent matcher
-				// le truc c'est qu'on ne verifie pas le node from, on fait confiance au graph pour le moment
-				if (toPtr->stamp.typeStamp == "type") res = true;
-
-				// pareil pour vec pour le moment
-				if (fromPtr->stamp.typeStamp == "vec") res = true;
-				if (toPtr->stamp.typeStamp == "vec") res = true;
-
-				// pareil pour mat pour le moment
-				if (fromPtr->stamp.typeStamp == "mat") res = true;
-				if (toPtr->stamp.typeStamp == "mat") res = true;
-
-				if (fromPtr->stamp.typeStamp == "float")
+				if (fromPtr->slotType == toPtr->slotType) // same slot type
 				{
-					if (toPtr->stamp.typeStamp == "vec") res = true;
-					else if (toPtr->stamp.typeStamp == "vec2") res = true;
-					else if (toPtr->stamp.typeStamp == "vec3") res = true;
-					else if (toPtr->stamp.typeStamp == "vec4") res = true;
-					else if (toPtr->stamp.typeStamp == "mat") res = true;
-					else if (toPtr->stamp.typeStamp == "mat2") res = true;
-					else if (toPtr->stamp.typeStamp == "mat3") res = true;
-					else if (toPtr->stamp.typeStamp == "mat4") res = true;
-				}
-
-				if (toPtr->stamp.typeStamp == "vec")
-				{
-					if (fromPtr->stamp.typeStamp == "float") res = true;
-					else if (fromPtr->stamp.typeStamp == "vec2") res = true;
-					else if (fromPtr->stamp.typeStamp == "vec3") res = true;
-					else if (fromPtr->stamp.typeStamp == "vec4") res = true;
-				}
-
-				// flow
-				if (!res)
-				{
-					if (!fromPtr->parentNode.expired() && !toPtr->parentNode.expired())
-					{
-						auto fp = fromPtr->parentNode.lock();
-						auto tp = toPtr->parentNode.lock();
-						if (fp && tp)
-						{
-							if (fp != tp) // pas droit de connecter un flow input a un flow output du meme node
-							{
-								if (fromPtr->type == uType::uTypeEnum::U_FLOW && toPtr->type == uType::uTypeEnum::U_FLOW)
-								{
-									res = true;
-								}
-							}
-						}
-					}
-				}
-
-				// Renderer Effects
-				if (!res)
-				{
-					//assert(0);
-					//res = UniformWidgetBase::CanTypesBeConnectedBoth(fromPtr->type, toPtr->type);
-				}
-
-				if (!res)
-				{
-					LogVarDebug("slot stamp %s seems not linkables with %s", fromPtr->stamp.typeStamp.c_str(), toPtr->stamp.typeStamp.c_str());
+					return true;
 				}
 			}
 		}
 	}
 
-	return res;
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

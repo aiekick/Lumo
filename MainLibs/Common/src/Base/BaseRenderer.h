@@ -41,6 +41,8 @@ SOFTWARE.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 
+#include <Interfaces/ShaderUpdateInterface.h>
+
 #include <Base/ShaderPass.h>
 
 // le BaseRenderer est le digne successeur de BaseRenderer en Opengl
@@ -50,7 +52,8 @@ SOFTWARE.
 // pouront etre bloqué en code pour specialisation
 
 class BaseRenderer : 
-	public conf::ConfigAbstract
+	public conf::ConfigAbstract,
+	public ShaderUpdateInterface
 {
 private:
 	bool m_NeedNewUBOUpload = true;			// true for first render
@@ -163,10 +166,12 @@ public: // contructor
 
 	virtual void ResetFrame();
 
+	void UpdateShaders(const std::set<std::string>& vFiles);
+
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas);
 	// return true for continue xml parsing of childs in this node or false for interupt the child exploration
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas);
-	
+
 protected:
 	virtual void DoBeforeEndCommandBuffer(vk::CommandBuffer* vCmdBuffer);
 

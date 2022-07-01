@@ -202,6 +202,22 @@ void ShaderPass::Unit()
 	DestroyModel(true);
 	m_FrameBufferPtr.reset();
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PUBLIC ////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShaderPass::SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor)
+{
+#ifdef VULKAN_DEBUG
+	m_RenderDocDebugName = vLabel;
+	m_RenderDocDebugColor = vColor;
+#else
+	UNUSED(vLabel);
+	UNUSED(vColor);
+#endif
+}
+
 void ShaderPass::AllowResize(const bool& vResizing)
 {
 	m_ResizingIsAllowed = vResizing;
@@ -356,19 +372,19 @@ void ShaderPass::SetLineWidth(const float& vLineWidth)
 std::string ShaderPass::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Compute";
-	return m_ComputeShaderCode;
+	return m_ComputeShaderCode.m_Code;
 }
 
 std::string ShaderPass::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Vertex";
-	return m_FragmentShaderCode;
+	return m_VertexShaderCode.m_Code;
 }
 
 std::string ShaderPass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Fragment";
-	return m_FragmentShaderCode;
+	return m_FragmentShaderCode.m_Code;
 }
 
 bool ShaderPass::IsPixelRenderer()
@@ -393,34 +409,56 @@ bool ShaderPass::CompilPixel()
 
 	ActionBeforeCompilation();
 
+	// VERTEX CODE
+
 	std::string vertex_name;
-	auto vertCode = GetVertexShaderCode(vertex_name);
-	if (vertex_name.empty())
-		vertex_name = "ShaderPass_Vertex";
+	m_VertexShaderCode.m_Code = GetVertexShaderCode(vertex_name);
+	assert(!vertex_name.empty());
+	m_VertexShaderCode.m_FilePathName = "shaders/" + vertex_name + ".vert";
+	auto vert_path = FileHelper::Instance()->GetAppPath() + "/" +  m_FragmentShaderCode.m_FilePathName;
+	if (FileHelper::Instance()->IsFileExist(vert_path))
+	{
+		m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(vert_path);
+	}
+	else
+	{
+		FileHelper::Instance()->SaveStringToFile(m_VertexShaderCode.m_Code, vert_path);
+	}
+
+	// FRAGMENT CODE
 
 	std::string fragment_name;
-	auto fragCode = GetFragmentShaderCode(fragment_name);
-	if (fragment_name.empty())
-		fragment_name = "ShaderPass_Fragment";
+	m_FragmentShaderCode.m_Code = GetFragmentShaderCode(fragment_name);
+	assert(!fragment_name.empty());
+	m_FragmentShaderCode.m_FilePathName = "shaders/" + fragment_name + ".frag";
+	auto frag_path = FileHelper::Instance()->GetAppPath() + "/" + m_FragmentShaderCode.m_FilePathName;
+	if (FileHelper::Instance()->IsFileExist(frag_path))
+	{
+		m_FragmentShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(frag_path);
+	}
+	else
+	{
+		FileHelper::Instance()->SaveStringToFile(m_FragmentShaderCode.m_Code, frag_path);
+	}
 
-	FileHelper::Instance()->SaveStringToFile(vertCode, "debug/" + vertex_name + ".glsl");
-	FileHelper::Instance()->SaveStringToFile(fragCode, "debug/" + fragment_name + ".glsl");
+	// COMPILATION
 
-	if (!vertCode.empty() && !fragCode.empty())
+	if (!m_VertexShaderCode.m_Code.empty() && 
+		!m_FragmentShaderCode.m_Code.empty())
 	{
 		if (vkApi::VulkanCore::sVulkanShader)
 		{
 			m_UsedUniforms.clear();
-			m_SPIRV_Vert = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(vertCode, "vert", vertex_name);
-			m_SPIRV_Frag = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(fragCode, "frag", fragment_name);
+			m_VertexShaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(m_VertexShaderCode.m_Code, "vert", vertex_name);
+			m_FragmentShaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(m_FragmentShaderCode.m_Code, "frag", fragment_name);
 
-			m_IsShaderCompiled = !m_SPIRV_Vert.empty() && !m_SPIRV_Frag.empty();
+			m_IsShaderCompiled = !m_VertexShaderCode.m_SPIRV.empty() && !m_FragmentShaderCode.m_SPIRV.empty();
 
 			if (!m_Loaded)
 			{
 				res = true;
 			}
-			else if (!m_SPIRV_Frag.empty() && !m_SPIRV_Vert.empty())
+			else if (!m_FragmentShaderCode.m_SPIRV.empty() && !m_VertexShaderCode.m_SPIRV.empty())
 			{
 				m_Device.waitIdle();
 				DestroyPipeline();
@@ -449,27 +487,38 @@ bool ShaderPass::CompilCompute()
 
 	ActionBeforeCompilation();
 
+	// COMPUTE CODE
+
 	std::string compute_name;
-	auto compCode = GetComputeShaderCode(compute_name);
-	if (compute_name.empty())
-		compute_name = "ShaderPass_Compute";
+	m_ComputeShaderCode.m_Code = GetComputeShaderCode(compute_name);
+	assert(!compute_name.empty());
+	m_ComputeShaderCode.m_FilePathName = "shaders/" + compute_name + ".comp";
+	auto comp_path = FileHelper::Instance()->GetAppPath() + "/" + m_ComputeShaderCode.m_FilePathName;
+	if (FileHelper::Instance()->IsFileExist(comp_path))
+	{
+		m_ComputeShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(comp_path);
+	}
+	else
+	{
+		FileHelper::Instance()->SaveStringToFile(m_ComputeShaderCode.m_Code, comp_path);
+	}
 
-	FileHelper::Instance()->SaveStringToFile(compCode, "debug/" + compute_name + ".glsl");
+	// COMPILATION
 
-	if (!compCode.empty())
+	if (!m_ComputeShaderCode.m_Code.empty())
 	{
 		if (vkApi::VulkanCore::sVulkanShader)
 		{
 			m_UsedUniforms.clear();
-			m_SPIRV_Comp = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(compCode, "comp", compute_name);
+			m_ComputeShaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(m_ComputeShaderCode.m_Code, "comp", compute_name);
 
-			m_IsShaderCompiled = !m_SPIRV_Comp.empty();
+			m_IsShaderCompiled = !m_ComputeShaderCode.m_SPIRV.empty();
 
 			if (!m_Loaded)
 			{
 				res = true;
 			}
-			else if (!m_SPIRV_Comp.empty())
+			else if (!m_ComputeShaderCode.m_SPIRV.empty())
 			{
 				m_Device.waitIdle();
 				DestroyPipeline();
@@ -713,6 +762,45 @@ void ShaderPass::DestroyRessourceDescriptor()
 	m_DescriptorSetLayout = vk::DescriptorSetLayout{};
 }
 
+void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
+{
+	bool needReCompil = false;
+
+	if (vFiles.find(m_VertexShaderCode.m_FilePathName) != vFiles.end())
+	{
+		auto shader_path = FileHelper::Instance()->GetAppPath() + m_VertexShaderCode.m_FilePathName;
+		if (FileHelper::Instance()->IsFileExist(shader_path))
+		{
+			m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path);
+			needReCompil = true;
+		}
+
+	}
+	else if (vFiles.find(m_FragmentShaderCode.m_FilePathName) != vFiles.end())
+	{
+		auto shader_path = FileHelper::Instance()->GetAppPath() + m_FragmentShaderCode.m_FilePathName;
+		if (FileHelper::Instance()->IsFileExist(shader_path))
+		{
+			m_FragmentShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path);
+			needReCompil = true;
+		}
+	}
+	else if (vFiles.find(m_ComputeShaderCode.m_FilePathName) != vFiles.end())
+	{
+		auto shader_path = FileHelper::Instance()->GetAppPath() + m_ComputeShaderCode.m_FilePathName;
+		if (FileHelper::Instance()->IsFileExist(shader_path))
+		{
+			m_ComputeShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path);
+			needReCompil = true;
+		}
+	}
+
+	if (needReCompil)
+	{
+		ReCompil();
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE / PIPELINE ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -721,7 +809,7 @@ bool ShaderPass::CreateComputePipeline()
 {
 	ZoneScoped;
 
-	if (m_SPIRV_Comp.empty()) return false;
+	if (m_ComputeShaderCode.m_SPIRV.empty()) return false;
 
 	m_PipelineLayout =
 		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
@@ -730,7 +818,7 @@ bool ShaderPass::CreateComputePipeline()
 			0, nullptr
 		));
 
-	auto cs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_SPIRV_Comp);
+	auto cs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ComputeShaderCode.m_SPIRV);
 
 	m_ShaderCreateInfos.clear();
 	m_ShaderCreateInfos.resize(1);
@@ -768,8 +856,8 @@ bool ShaderPass::CreatePixelPipeline()
 
 	if (!m_FrameBufferPtr) return false;
 	if (!m_FrameBufferPtr->GetRenderPass()) return false;
-	if (m_SPIRV_Vert.empty()) return false;
-	if (m_SPIRV_Frag.empty()) return false;
+	if (m_VertexShaderCode.m_SPIRV.empty()) return false;
+	if (m_FragmentShaderCode.m_SPIRV.empty()) return false;
 	
 	m_PipelineLayout =
 		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
@@ -778,8 +866,8 @@ bool ShaderPass::CreatePixelPipeline()
 			0, nullptr
 		));
 
-	auto vs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_SPIRV_Vert);
-	auto fs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_SPIRV_Frag);
+	auto vs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_VertexShaderCode.m_SPIRV);
+	auto fs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_FragmentShaderCode.m_SPIRV);
 
 	m_ShaderCreateInfos = {
 		vk::PipelineShaderStageCreateInfo(

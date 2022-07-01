@@ -158,35 +158,6 @@ void ModelSSSModule_Pass::SetLighViewMatrix(const glm::mat4& vLightViewMatrix)
 	NeedNewUBOUpload();
 }
 
-void ModelSSSModule_Pass::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	bool needReCompil = false;
-
-	if (vFiles.find("shaders/SSAOModule.vert") != vFiles.end())
-	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/SSAOModule.vert";
-		if (FileHelper::Instance()->IsFileExist(shader_path))
-		{
-			m_VertexShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-			needReCompil = true;
-		}
-
-	}
-	else if (vFiles.find("shaders/BlurModule_Pass.frag") != vFiles.end())
-	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/BlurModule_Pass.frag";
-		if (FileHelper::Instance()->IsFileExist(shader_path))
-		{
-			m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-			needReCompil = true;
-		}
-	}
-
-	if (needReCompil)
-	{
-		ReCompil();
-	}
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
@@ -306,9 +277,29 @@ void ModelSSSModule_Pass::UpdateRessourceDescriptor()
 		auto lightPtr = lightGroupPtr->Get(0).getValidShared();
 		if (lightPtr)
 		{
-			if (m_NeedLightGroupUpdate)
+			glm::vec3 cam_point = CommonSystem::Instance()->uModel[3]; // viewer origin point
+
+			if (m_NeedLightGroupUpdate ||
+				m_CurrentCamPoint != cam_point)
 			{
-				lightPtr->NeedUpdateCamera();
+				m_CurrentCamPoint = cam_point;
+				// the light point is the mid point between cam_point and light_cam_point
+				// light_point = (m_CurrentCamPoint + light_cam_point) * 0.5;
+				// so light_cam_point is light_point * 2.0 - m_CurrentCamPoint
+
+				glm::vec3 light_point = lightPtr->lightDatas.lightGizmo[3]; // gizmo light point
+				glm::vec3 light_cam_point = light_point * 2.0f - m_CurrentCamPoint; // point origin transform
+
+				glm::mat4 proj = glm::ortho<float>(
+					-lightPtr->lightDatas.orthoSideSize, lightPtr->lightDatas.orthoSideSize,
+					-lightPtr->lightDatas.orthoSideSize, lightPtr->lightDatas.orthoSideSize,
+					-lightPtr->lightDatas.orthoRearSize, lightPtr->lightDatas.orthoDeepSize);
+				proj[1][1] *= -1.0f;
+				glm::mat4 view = glm::lookAt(
+					light_cam_point,
+					light_point,
+					glm::vec3(0.0f, 0.0f, 1.0f));
+				lightPtr->lightDatas.lightView = proj * view;
 
 				m_UBOFrag.u_light_cam = lightPtr->lightDatas.lightView;
 
@@ -348,21 +339,13 @@ std::string ModelSSSModule_Pass::GetFragmentShaderCode(std::string& vOutShaderNa
 {
 	vOutShaderName = "ModelSSSModule_Pass";
 
-	auto shader_path = FileHelper::Instance()->GetAppPath() + "/shaders/" + vOutShaderName + ".frag";
-
-	if (FileHelper::Instance()->IsFileExist(shader_path))
-	{
-		m_FragmentShaderCode = FileHelper::Instance()->LoadFileToString(shader_path);
-	}
-	else
-	{
-		m_FragmentShaderCode = u8R"(#version 450
+	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragSSS;
 layout(location = 0) in vec2 v_uv;
 )"
-+ CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout (std140, binding = 1) uniform UBO_Frag 
 { 
@@ -424,7 +407,7 @@ void main()
 			for (int i=0;i<8;i++)
 			{
 				int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-				float sha = texture(light_shadow_map_sampler, shadowCoord.xy + poissonDisk[index] / poisson_scale).r;
+				float sha = textureProj(light_shadow_map_sampler, shadowCoord.xy + poissonDisk[index] / poisson_scale).r;
 				if (sha * cam_far < (shadowCoord.z - bias)/shadowCoord.w)
 				{
 					sha_vis -= sha_step * (1.0 - sha);
@@ -444,8 +427,4 @@ void main()
 	}
 }
 )";
-		FileHelper::Instance()->SaveStringToFile(m_FragmentShaderCode, shader_path);
-	}
-
-	return m_FragmentShaderCode;
 }

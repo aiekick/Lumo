@@ -54,7 +54,6 @@ SOFTWARE.
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightInputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 
 namespace vkApi { class VulkanCore; }
 
@@ -66,8 +65,7 @@ class ModelShadowModule :
 	public TextureInputInterface<0U>, // 0, because no need of items here
 	public TextureOutputInterface,
 	public LightInputInterface,
-	public ResizerInterface,
-	public ShaderUpdateInterface
+	public ResizerInterface
 {
 public:
 	static std::shared_ptr<ModelShadowModule> Create(vkApi::VulkanCore* vVulkanCore);
@@ -93,6 +91,5 @@ public:
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
 	void UpdateDescriptorsBeforeCommandBuffer() override;
 };

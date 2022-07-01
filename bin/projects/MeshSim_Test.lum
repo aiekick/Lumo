@@ -7,10 +7,10 @@
 				<TransXY>0;0</TransXY>
 				<TransXYLock>1;1</TransXYLock>
 				<TransFactor>5</TransFactor>
-				<RotXYZ>-0.48705;0.316442;0</RotXYZ>
+				<RotXYZ>-0.782198;0.23833;0</RotXYZ>
 				<RotXYZLock>0;0;1</RotXYZLock>
 				<RotXYZFactor>1</RotXYZFactor>
-				<Zoom>41.8202</Zoom>
+				<Zoom>44.9282</Zoom>
 				<ZoomLock>0</ZoomLock>
 				<ZoomFactor>5</ZoomFactor>
 				<PerspectiveAngle>45</PerspectiveAngle>
@@ -19,7 +19,7 @@
 			</CommonSystem>
 			<graph>
 				<canvas>
-					<offset>845.88;317.645</offset>
+					<offset>0;0</offset>
 					<scale>1</scale>
 				</canvas>
 				<nodes>
@@ -35,14 +35,6 @@
 						<slot name="Shadow" type="TEXTURE_2D" place="INPUT" id="108343"/>
 						<slot name="Output" type="TEXTURE_2D" place="OUTPUT" id="108344"/>
 					</node>
-					<node name="Model Shadow" type="MODEL_SHADOW" pos="-374;-133" id="19139">
-						<slot name="Light" type="LIGHT" place="INPUT" id="119141"/>
-						<slot name="Position" type="TEXTURE_2D" place="INPUT" id="119142"/>
-						<slot name="Shadow Map" type="TEXTURE_2D" place="INPUT" id="119143"/>
-						<slot name="Output" type="TEXTURE_2D" place="OUTPUT" id="119144"/>
-							<bias>0.01</bias>
-							<noise_scale>5000</noise_scale>
-					</node>
 					<node name="SSAO" type="SSAO" pos="-251;152" id="24653">
 						<slot name="Position" type="TEXTURE_2D" place="INPUT" id="124655"/>
 						<slot name="Normal" type="TEXTURE_2D" place="INPUT" id="124656"/>
@@ -53,7 +45,7 @@
 							<noise_scale>1</noise_scale>
 							<ao_radius>0.01</ao_radius>
 							<ao_scale>1</ao_scale>
-							<ao_bias>0.01</ao_bias>
+							<ao_bias>0.001</ao_bias>
 							<ao_intensity>5</ao_intensity>
 						</ssao_module>
 					</node>
@@ -66,6 +58,21 @@
 							<file_path_name>C:\gamedev\gitlab\Lumo\bin\meshs\lion.gltf</file_path_name>
 							<file_path>C:\gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
+					</node>
+					<node name="Light" type="LIGHT" pos="-707;-119" id="15107">
+						<slot name="Output" type="LIGHT" place="OUTPUT" id="115109"/>
+						<light_group>
+							<light>
+								<transform>1;0;0;0;0;1;0;0;0;0;1;0;4.25803;15.7127;9.1727;1</transform>
+								<color>1;1;1;1</color>
+								<perspective_angle>45</perspective_angle>
+								<intensity>1</intensity>
+								<type>DIRECTIONNAL</type>
+								<name>Light</name>
+								<show_icon>true</show_icon>
+								<show_text>true</show_text>
+							</light>
+						</light_group>
 					</node>
 					<node name="Boolean" type="TYPE_BOOLEAN" pos="-801;-55" id="643006">
 						<slot name="" type="TYPE_BOOLEAN" place="OUTPUT" id="743008"/>
@@ -85,31 +92,16 @@
 							<simulation_config>1</simulation_config>
 						</compute_mesh_sim>
 					</node>
-					<node name="Light" type="LIGHT" pos="-707;-119" id="15107">
-						<slot name="Output" type="LIGHT" place="OUTPUT" id="115109"/>
-						<light_group>
-							<light>
-								<transform>1;0;0;0;0;1;0;0;0;0;1;0;1.57261;14.741;5.13922;1</transform>
-								<color>1;1;1;1</color>
-								<perspective_angle>45</perspective_angle>
-								<intensity>1</intensity>
-								<type>DIRECTIONNAL</type>
-								<name>Light</name>
-								<show_icon>true</show_icon>
-								<show_text>true</show_text>
-							</light>
-						</light_group>
-					</node>
 					<node name="Blur" type="BLUR" pos="-203;-119" id="332560">
 						<slot name="Input" type="TEXTURE_2D" place="INPUT" id="432562"/>
 						<slot name="Output" type="TEXTURE_2D" place="OUTPUT" id="432563"/>
 						<blur_module>
 							<can_we_render>true</can_we_render>
 							<blur_radius>4</blur_radius>
-							<blur_offset>10</blur_offset>
-							<blur_smooth_inf>0.189</blur_smooth_inf>
-							<blur_smooth_sup>0.767</blur_smooth_sup>
-							<blur_power>1.333</blur_power>
+							<blur_offset>0</blur_offset>
+							<blur_smooth_inf>0.241</blur_smooth_inf>
+							<blur_smooth_sup>0.698</blur_smooth_sup>
+							<blur_power>1.477</blur_power>
 						</blur_module>
 					</node>
 					<node name="Texture 2D" type="TEXTURE_2D" pos="-746;216" id="538050">
@@ -131,6 +123,7 @@
 						<slot name="Substance X" type="TEXTURE_2D" place="INPUT" id="304619"/>
 						<slot name="Substance Y" type="TEXTURE_2D" place="INPUT" id="304620"/>
 						<slot name="Discard" type="TYPE_BOOLEAN" place="INPUT" id="304621"/>
+						<slot name="Depth" type="TYPE_FLOAT" place="OUTPUT" id="204595"/>
 						<slot name="Position" type="TEXTURE_2D" place="OUTPUT" id="304622"/>
 						<slot name="Normal" type="TEXTURE_2D" place="OUTPUT" id="304623"/>
 						<slot name="Color" type="TEXTURE_2D" place="OUTPUT" id="304624"/>
@@ -143,7 +136,7 @@
 							<show_layer>0</show_layer>
 							<substance_strength>1.5</substance_strength>
 							<show_face_normal>false</show_face_normal>
-							<use_discard>true</use_discard>
+							<use_discard>false</use_discard>
 						</mesh_sim_renderer>
 					</node>
 					<node name="Mesh Sim Shadow Map" type="MESH_SIM_SHADOW_MAP" pos="-587;-126" id="204627">
@@ -152,33 +145,45 @@
 						<slot name="Discard" type="TYPE_BOOLEAN" place="INPUT" id="304631"/>
 						<slot name="Light" type="LIGHT" place="OUTPUT" id="304632"/>
 						<slot name="Output" type="TEXTURE_2D" place="OUTPUT" id="304633"/>
+						<slot name="Output" type="TYPE_FLOAT" place="OUTPUT" id="404634"/>
+						<slot name="Output" type="TYPE_FLOAT" place="OUTPUT" id="404635"/>
 						<shadow_map_module>
 							<can_we_render>true</can_we_render>
 						</shadow_map_module>
 					</node>
+					<node name="Model Shadow" type="MODEL_SHADOW" pos="-390;-133" id="745450">
+						<slot name="Shadow Map" type="TYPE_FLOAT" place="INPUT" id="843059"/>
+						<slot name="Shadow Map" type="DEPTH" place="INPUT" id="843067"/>
+						<slot name="Light" type="LIGHT" place="INPUT" id="845452"/>
+						<slot name="Position" type="TEXTURE_2D" place="INPUT" id="845453"/>
+						<slot name="Shadow Map" type="TYPE_FLOAT" place="INPUT" id="845454"/>
+						<slot name="Output" type="TEXTURE_2D" place="OUTPUT" id="845455"/>
+							<bias>0.01</bias>
+							<noise_scale>5000</noise_scale>
+					</node>
 				</nodes>
 				<links>
 					<link in="24653:124658" out="8333:108342"/>
-					<link in="19139:119144" out="332560:432562"/>
 					<link in="332560:432563" out="8333:108343"/>
 					<link in="4581:104584" out="204627:304630"/>
 					<link in="8333:108344" out="9644:109646"/>
 					<link in="204616:304623" out="8333:108336"/>
 					<link in="204616:304622" out="8333:108335"/>
 					<link in="643006:743008" out="204627:304631"/>
-					<link in="204616:304622" out="19139:119142"/>
 					<link in="204616:304624" out="8333:108337"/>
 					<link in="204616:304622" out="24653:124655"/>
 					<link in="204616:304623" out="24653:124656"/>
 					<link in="204616:304626" out="8333:108341"/>
 					<link in="10730:110732" out="4581:104583"/>
 					<link in="15107:115109" out="204627:304629"/>
-					<link in="204627:304633" out="19139:119143"/>
-					<link in="204627:304632" out="19139:119141"/>
 					<link in="4581:104584" out="204616:304618"/>
 					<link in="643006:743008" out="204616:304621"/>
+					<link in="204627:304632" out="745450:845452"/>
 					<link in="538050:638052" out="204616:304620"/>
 					<link in="204616:304619" out="539281:639283"/>
+					<link in="204627:304633" out="745450:845453"/>
+					<link in="745450:845455" out="332560:432562"/>
+					<link in="204627:404634" out="745450:845454"/>
 				</links>
 			</graph>
 		</scene>
