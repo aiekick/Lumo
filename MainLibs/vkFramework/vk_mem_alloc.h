@@ -6406,14 +6406,15 @@ void VmaBlockMetadata::DebugLogAllocation(VkDeviceSize offset, VkDeviceSize size
         VmaAllocation allocation = reinterpret_cast<VmaAllocation>(userData);
 
         userData = allocation->GetUserData();
-        const char* name = allocation->GetName();
 
 #if VMA_STATS_STRING_ENABLED
+        const char* name = allocation->GetName();
         VMA_DEBUG_LOG("UNFREED ALLOCATION; Offset: %llu; Size: %llu; UserData: %p; Name: %s; Type: %s; Usage: %u",
             offset, size, userData, name ? name : "vma_empty",
             VMA_SUBALLOCATION_TYPE_NAMES[allocation->GetSuballocationType()],
             allocation->GetBufferImageUsage());
 #else
+        const char* name = allocation->GetName();
         VMA_DEBUG_LOG("UNFREED ALLOCATION; Offset: %llu; Size: %llu; UserData: %p; Name: %s; Type: %u",
             offset, size, userData, name ? name : "vma_empty",
             (uint32_t)allocation->GetSuballocationType());

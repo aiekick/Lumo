@@ -40,18 +40,13 @@ SOFTWARE.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/vk_mem_alloc.h>
 #include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
 
 #include <Base/Base.h>
 
-class FrameBuffer
+class ComputeBuffer
 {
 public:
-	static FrameBufferPtr Create(vkApi::VulkanCore* vVulkanCore);
-
-private:
-	bool m_NeedNewUBOUpload = true;			// true for first render
-	bool m_NeedNewSBOUpload = true;			// true for first render
+	static ComputeBufferPtr Create(vkApi::VulkanCore* vVulkanCore);
 
 protected:
 	uint32_t m_BufferIdToResize = 0U;								// buffer id to resize (mostly used in compute, because in pixel, all attachments must have same size)
@@ -62,14 +57,10 @@ protected:
 	bool m_JustReseted = false;				// when shader was reseted
 	bool m_FirstRender = true;				// 1er rendu
 
-	uint32_t m_CountBuffers = 0U;			// FRAGMENT count framebuffer color attachment from 0 to 7
+	uint32_t m_CountBuffers = 0U;			// count buffers
 
 	ct::ivec2 m_TemporarySize;				// temporary size before resize can be used by imgui
 	int32_t m_TemporaryCountBuffer = 0;		// temporary count before resize can be used by imgui
-
-	bool m_UseDepth = false;				// if depth needed for creation
-	bool m_NeedToClear = false;				// if color can be cleared for attachment
-	ct::fvec4 m_ClearColor = 0.0f;			// color to clear
 
 	uint32_t m_CurrentFrame = 0U;
 
@@ -78,9 +69,9 @@ protected:
 	vkApi::VulkanQueue m_Queue;					// queue
 	vk::Device m_Device;						// device copy
 
-	// FrameBuffer
-	std::vector<vkApi::VulkanFrameBuffer> m_FrameBuffers;
-	vk::Format m_SurfaceColorFormat = vk::Format::eR32G32B32A32Sfloat;
+	// ComputeBuffer
+	std::array<std::vector<Texture2DPtr>, 2U> m_ComputeBuffers;
+	vk::Format m_Format = vk::Format::eR32G32B32A32Sfloat;
 
 	// Submition
 	std::vector<vk::Semaphore> m_RenderCompleteSemaphores;
@@ -88,36 +79,20 @@ protected:
 	std::vector<vk::CommandBuffer> m_CommandBuffers;
 
 	// dynamic state
-	vk::Rect2D m_RenderArea = {};
-	vk::Viewport m_Viewport = {};
+	//vk::Rect2D m_RenderArea = {};
+	//vk::Viewport m_Viewport = {};
 	ct::uvec3 m_OutputSize;							// output size for compute stage
 	float m_OutputRatio = 1.0f;
 
-	// Renderpass
-	vk::RenderPass m_RenderPass = {};
-
-	// pixel format
-	vk::Format m_PixelFormat = vk::Format::eR32G32B32A32Sfloat;
-
-	// Multi Sampling
-	vk::SampleCountFlagBits m_SampleCount = vk::SampleCountFlagBits::e1; // sampling for primitives
-
-	// clear Color
-	std::vector<vk::ClearValue> m_ClearColorValues;
-
 public: // contructor
-	FrameBuffer(vkApi::VulkanCore* vVulkanCore);
-	virtual ~FrameBuffer();
+	ComputeBuffer(vkApi::VulkanCore* vVulkanCore);
+	virtual ~ComputeBuffer();
 
 	// init/unit
 	bool Init(
 		const ct::uvec2& vSize, 
-		const uint32_t& vCountColorBuffer, 
-		const bool& vUseDepth, 
-		const bool& vNeedToClear, 
-		const ct::fvec4& vClearColor,
-		const vk::Format& vFormat,
-		const vk::SampleCountFlagBits& vSampleCount);
+		const uint32_t& vCountBuffers,
+		const vk::Format& vFormat);
 	void Unit();
 
 	// resize
@@ -133,40 +108,19 @@ public: // contructor
 	void End(vk::CommandBuffer* vCmdBuffer);
 
 	// get sampler / image / buffer
-	vkApi::VulkanFrameBuffer* GetBackFbo();
-	std::vector<vkApi::VulkanFrameBufferAttachment>* GetBackBufferAttachments(uint32_t* vMaxBuffers);
-	vk::DescriptorImageInfo* FrameBuffer::GetBackDescriptorImageInfo(const uint32_t& vBindingPoint);
+	vk::DescriptorImageInfo* ComputeBuffer::GetBackDescriptorImageInfo(const uint32_t& vBindingPoint);
+	vk::DescriptorImageInfo* ComputeBuffer::GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint);
 	
-	vkApi::VulkanFrameBuffer* GetFrontFbo();
-	std::vector<vkApi::VulkanFrameBufferAttachment>* GetFrontBufferAttachments(uint32_t* vMaxBuffers);
-	vk::DescriptorImageInfo* FrameBuffer::GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint);
-	
-	// Get
-	vk::Viewport GetViewport() const;
-	vk::Rect2D GetRenderArea() const;
 	float GetOutputRatio() const;
-	vk::RenderPass* GetRenderPass();
-	vk::SampleCountFlagBits GetSampleCount() const;
 	ct::fvec2 GetOutputSize() const;
-	
-	void BeginRenderPass(vk::CommandBuffer* vCmdBuffer);
-	void ClearAttachmentsIfNeeded(vk::CommandBuffer* vCmdBuffer); // clear if clear is needed internally (set by ClearAttachments)
-	void EndRenderPass(vk::CommandBuffer* vCmdBuffer);
-
-	void ClearAttachments(); // set clear flag for clearing at next render
-	void SetClearColorValue(const ct::fvec4& vColor);
 	
 	void Swap();
 
 protected:
 	// Framebuffer
-	bool CreateFrameBuffers(
+	bool CreateComputeBuffers(
 		const ct::uvec2& vSize,
-		const uint32_t& vCountColorBuffer,
-		const bool& vUseDepth,
-		const bool& vNeedToClear,
-		const ct::fvec4& vClearColor,
-		const vk::Format& vFormat,
-		const vk::SampleCountFlagBits& vSampleCount);
-	void DestroyFrameBuffers();
+		const uint32_t& vCountBuffers,
+		const vk::Format& vFormat);
+	void DestroyComputeBuffers();
 };

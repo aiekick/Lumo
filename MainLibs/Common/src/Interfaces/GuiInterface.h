@@ -35,7 +35,12 @@ public:
 	ImVec4 badColor = ImVec4(0.8f, 0.2f, 0.2f, 0.8f);
 
 public:
-	ImVec4 GetUniformLocColor(bool vUsed);
+	ImVec4 GetUniformLocColor(bool vUsed)
+	{
+		if (vUsed)
+			return goodColor;
+		return badColor;
+	}
 
 public:
 	virtual bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext *vContext = nullptr) = 0;

@@ -56,7 +56,7 @@ public:
 
 private:
 	OutputModuleWeak m_This;
-
+	ImGuiTexture m_ImGuiTexture;
 	vkApi::VulkanCore* m_VulkanCore = nullptr;
 
 public:

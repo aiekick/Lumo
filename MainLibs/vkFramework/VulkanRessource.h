@@ -50,12 +50,12 @@ namespace vkApi {
 class VulkanRessource
 {
 public: // image
-	static void copy(VulkanCore* vVulkanCore, vk::Image  dst, vk::Buffer src, const vk::BufferImageCopy& region, vk::ImageLayout layout = vk::ImageLayout::eTransferDstOptimal);
-	static void copy(VulkanCore* vVulkanCore, vk::Image  dst, vk::Buffer src, const std::vector<vk::BufferImageCopy>& regions, vk::ImageLayout layout = vk::ImageLayout::eTransferDstOptimal);
+	static void copy(VulkanCore* vVulkanCore, vk::Image dst, vk::Buffer src, const vk::BufferImageCopy& region, vk::ImageLayout layout = vk::ImageLayout::eTransferDstOptimal);
+	static void copy(VulkanCore* vVulkanCore, vk::Image dst, vk::Buffer src, const std::vector<vk::BufferImageCopy>& regions, vk::ImageLayout layout = vk::ImageLayout::eTransferDstOptimal);
 	static void copy(VulkanCore* vVulkanCore, vk::Buffer dst, vk::Image  src, const vk::BufferImageCopy& region, vk::ImageLayout layout = vk::ImageLayout::eTransferSrcOptimal);
 	static void copy(VulkanCore* vVulkanCore, vk::Buffer dst, vk::Image  src, const std::vector<vk::BufferImageCopy>& regions, vk::ImageLayout layout = vk::ImageLayout::eTransferSrcOptimal);
 
-	static  VulkanRessourceObjectPtr createSharedImageObject(VulkanCore* vVulkanCore, const vk::ImageCreateInfo& image_info, const VmaAllocationCreateInfo& alloc_info);
+	static VulkanRessourceObjectPtr createSharedImageObject(VulkanCore* vVulkanCore, const vk::ImageCreateInfo& image_info, const VmaAllocationCreateInfo& alloc_info);
 	static VulkanRessourceObjectPtr createTextureImage2D(VulkanCore* vVulkanCore, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, void* hostdata_ptr);
 	static VulkanRessourceObjectPtr createColorAttachment2D(VulkanCore* vVulkanCore, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount);
 	static VulkanRessourceObjectPtr createComputeTarget2D(VulkanCore* vVulkanCore, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount);

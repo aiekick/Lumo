@@ -31,10 +31,15 @@ class FrameBuffer;
 typedef std::shared_ptr<FrameBuffer> FrameBufferPtr;
 typedef ct::cWeak<FrameBuffer> FrameBufferWeak;
 
+class ComputeBuffer;
+typedef std::shared_ptr<ComputeBuffer> ComputeBufferPtr;
+typedef ct::cWeak<ComputeBuffer> ComputeBufferWeak;
+
 class ShaderPass;
 typedef std::shared_ptr<ShaderPass> ShaderPassPtr;
 typedef ct::cWeak<ShaderPass> ShaderPassWeak;
 
+// colors for RenderDoc
 #define QUAD_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.6f, 0.8f, 0.9f, 0.5f)
 #define MESH_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.7f, 0.9f, 0.6f, 0.5f)
 #define VERTEX_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.7f, 0.4f, 0.6f, 0.5f)

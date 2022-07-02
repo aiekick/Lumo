@@ -1,3 +1,6 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 /*
 MIT License
 
@@ -25,13 +28,9 @@ SOFTWARE.
 #include "LayoutManager.h"
 
 #include <ctools/FileHelper.h>
-
-#ifndef IMGUI_DEFINE_MATH_OPERATORS
-
-#endif // IMGUI_DEFINE_MATH_OPERATORS
-#include <imgui/imgui_internal.h>
-
 #include <ctools/Logger.h>
+
+#include <imgui/imgui_internal.h>
 
 LayoutManager::LayoutManager() = default;
 LayoutManager::~LayoutManager() = default;
@@ -50,12 +49,7 @@ void LayoutManager::AddPane(
 	assert(m_PanesByName.find(vName) == m_PanesByName.end()); // pane name not already exist
 	assert(m_PanesByFlag.find(vFlag) == m_PanesByFlag.end()); // pane flag not already exist
 	
-#ifdef _MSC_VER
-	strncpy_s(vPane->m_PaneName, vName, ct::mini((size_t)PANE_NAME_BUFFER_SIZE, strlen(vName)));
-#else
-	strncpy(vPane->m_PaneName, vName, ct::mini((size_t)PANE_NAME_BUFFER_SIZE, strlen(vName)));
-#endif
-
+	vPane->m_PaneName = vName;
 	vPane->m_PaneFlag = vFlag;
 	vPane->m_PaneDisposal = vPaneDisposal;
 	vPane->m_OpenedDefault = vIsOpenedDefault;
@@ -67,6 +61,16 @@ void LayoutManager::AddPane(
 	m_PanesByDisposal[vPane->m_PaneDisposal] = vPane;
 	m_PanesByName[vPane->m_PaneName] = vPane;
 	m_PanesByFlag[vPane->m_PaneFlag] = vPane;
+	m_PanesInDisplayOrder.push_back(vPane);
+}
+
+void LayoutManager::SetPaneDisposalSize(const PaneDisposal& vPaneDisposal, float vSize)
+{
+	if (vPaneDisposal == PaneDisposal::CENTRAL ||
+		vPaneDisposal == PaneDisposal::Count)
+		return;
+
+	m_PaneDisposalSizes[(int)vPaneDisposal] = vSize;
 }
 
 void LayoutManager::Init(const char* vMenuLabel, const char* vDefautlMenuLabel)
@@ -74,7 +78,7 @@ void LayoutManager::Init(const char* vMenuLabel, const char* vDefautlMenuLabel)
 	assert(vMenuLabel);
 	assert(vDefautlMenuLabel);
 
-#ifdef _MSC_VER
+#ifdef MSVC
 	strncpy_s(m_MenuLabel, vMenuLabel, ct::mini((size_t)PANE_NAME_BUFFER_SIZE, strlen(vMenuLabel)));
 	strncpy_s(m_DefaultMenuLabel, vDefautlMenuLabel, ct::mini((size_t)PANE_NAME_BUFFER_SIZE, strlen(vDefautlMenuLabel)));
 #else
@@ -85,7 +89,7 @@ void LayoutManager::Init(const char* vMenuLabel, const char* vDefautlMenuLabel)
 	if (!FileHelper::Instance()->IsFileExist("imgui.ini"))
 	{
 		m_FirstLayout = true; // need default layout
-		LogVarInfo("We will apply default layout :)");
+		LogVarDebug("We will apply default layout :)");
 	}
 }
 
@@ -108,7 +112,7 @@ void LayoutManager::InitAfterFirstDisplay(ImVec2 vSize)
 	if (m_FirstStart)
 	{
 		// focus after start of panes
-		SetFocusedPanes(m_Pane_Focused);
+		Internal_SetFocusedPanes(m_Pane_Focused);
 		m_FirstStart = false;
 	}
 }
@@ -157,11 +161,9 @@ bool LayoutManager::IsDockSpaceHoleHovered()
 
 void LayoutManager::ApplyInitialDockingLayout(ImVec2 vSize)
 {
-	auto size = ImVec2((float)vSize.x, (float)vSize.y);
-
-	if (IS_FLOAT_EQUAL(size.x, 0.0f) || IS_FLOAT_EQUAL(size.y, 0.0f))
+	if (IS_FLOAT_EQUAL(vSize.x, 0.0f) || IS_FLOAT_EQUAL(vSize.y, 0.0f))
 	{
-		size = m_LastSize;
+		vSize = m_LastSize;
 
 		if (IS_FLOAT_EQUAL(m_LastSize.x, 0.0f) || IS_FLOAT_EQUAL(m_LastSize.y, 0.0f))
 		{
@@ -173,16 +175,17 @@ void LayoutManager::ApplyInitialDockingLayout(ImVec2 vSize)
 	ImGui::DockBuilderAddNode(m_DockSpaceID, ImGuiDockNodeFlags_DockSpace); // Add empty node
 	ImGui::DockBuilderSetNodeSize(m_DockSpaceID, vSize);
 
-	const auto leftPaneDefaultWidth = 300.0f;
-	const auto rightPaneDefaultWidth = 600.0f;
-	const auto bottomPaneDefaultWidth = 200.0f;
-	const auto topPaneDefaultWidth = 200.0f;
+	// just for readability
+	const auto& left_size = m_PaneDisposalSizes[1];
+	const auto& right_size = m_PaneDisposalSizes[2];
+	const auto& bottom_size = m_PaneDisposalSizes[3];
+	const auto& top_size = m_PaneDisposalSizes[4];
 
 	auto dockMainID = m_DockSpaceID; // This variable will track the document node, however we are not using it here as we aren't docking anything into it.
-	const auto dockLeftID = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Left, leftPaneDefaultWidth / vSize.x, nullptr, &dockMainID);
-	const auto dockRightID = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Right, rightPaneDefaultWidth / vSize.x, nullptr, &dockMainID);
-	const auto dockBottomID = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Down, bottomPaneDefaultWidth / vSize.y, nullptr, &dockMainID);
-	const auto dockTopID = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Up, topPaneDefaultWidth / vSize.y, nullptr, &dockMainID);
+	const auto dockLeftID = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Left, left_size / vSize.x, nullptr, &dockMainID);
+	const auto dockRightID = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Right, right_size / (vSize.x - left_size), nullptr, &dockMainID);
+	const auto dockBottomID = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Down, bottom_size / vSize.y, nullptr, &dockMainID);
+	const auto dockTopID = ImGui::DockBuilderSplitNode(dockMainID, ImGuiDir_Up, top_size / (vSize.y - bottom_size), nullptr, &dockMainID);
 
 	for (const auto& pane : m_PanesByName)
 	{
@@ -191,7 +194,7 @@ void LayoutManager::ApplyInitialDockingLayout(ImVec2 vSize)
 			case PaneDisposal::CENTRAL:
 			{
 				ImGui::DockBuilderDockWindow(pane.first, dockMainID);
-			break;
+				break;
 			}
 			case PaneDisposal::LEFT:
 			{
@@ -221,7 +224,7 @@ void LayoutManager::ApplyInitialDockingLayout(ImVec2 vSize)
 	m_Pane_Shown = m_Pane_Opened_Default; // will show when pane will be passed
 	m_Pane_Focused = m_Pane_Focused_Default;
 
-	SetFocusedPanes(m_Pane_Focused);
+	Internal_SetFocusedPanes(m_Pane_Focused);
 }
 
 template<typename T>
@@ -256,10 +259,13 @@ void LayoutManager::DisplayMenu(ImVec2 vSize)
 		ImGui::Separator();
 
 		static char buffer[100 + 1] = "\0";
-		for (const auto& pane : m_PanesByName)
+		for (auto pane : m_PanesInDisplayOrder)
 		{
-			snprintf(buffer, 100, "%s Pane", pane.first);
-			LayoutManager_MenuItem<PaneFlags>(buffer, "", &m_Pane_Shown, pane.second->m_PaneFlag);
+			if (pane->CanWeDisplay())
+			{
+				snprintf(buffer, 100, "%s Pane", pane->m_PaneName);
+				LayoutManager_MenuItem<PaneFlags>(buffer, "", &m_Pane_Shown, pane->m_PaneFlag);
+			}
 		}
 		
 		ImGui::EndMenu();
@@ -270,7 +276,10 @@ int LayoutManager::DisplayPanes(const uint32_t& vCurrentFrame, int vWidgetId, st
 {
 	for (const auto& pane : m_PanesByFlag)
 	{
-		vWidgetId = pane.second->DrawPanes(vCurrentFrame, vWidgetId, vUserDatas);
+		if (pane.second->CanWeDisplay())
+		{
+			vWidgetId = pane.second->DrawPanes(vCurrentFrame, vWidgetId, vUserDatas);
+		}
 	}
 
 	return vWidgetId;
@@ -280,7 +289,10 @@ void LayoutManager::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::str
 {
 	for (const auto& pane : m_PanesByFlag)
 	{
-		pane.second->DrawDialogsAndPopups(vCurrentFrame, vUserDatas);
+		if (pane.second->CanWeDisplay())
+		{
+			pane.second->DrawDialogsAndPopups(vCurrentFrame, vUserDatas);
+		}
 	}
 }
 
@@ -288,7 +300,10 @@ int LayoutManager::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std
 {
 	for (const auto& pane : m_PanesByFlag)
 	{
-		vWidgetId = pane.second->DrawWidgets(vCurrentFrame, vWidgetId, vUserDatas);
+		if (pane.second->CanWeDisplay())
+		{
+			vWidgetId = pane.second->DrawWidgets(vCurrentFrame, vWidgetId, vUserDatas);
+		}
 	}
 
 	return vWidgetId;
@@ -367,10 +382,10 @@ void LayoutManager::FocusSpecificPane(const char *vlabel)
 }
 
 ///////////////////////////////////////////////////////
-//// CONFIGURATION PRVIATE ////////////////////////////
+//// CONFIGURATION PRIVATE ////////////////////////////
 ///////////////////////////////////////////////////////
 
-PaneFlags LayoutManager::GetFocusedPanes()
+PaneFlags LayoutManager::Internal_GetFocusedPanes()
 {
 	PaneFlags flag = 0;
 
@@ -383,7 +398,7 @@ PaneFlags LayoutManager::GetFocusedPanes()
 	return flag;
 }
 
-void LayoutManager::SetFocusedPanes(PaneFlags vActivePanes)
+void LayoutManager::Internal_SetFocusedPanes(PaneFlags vActivePanes)
 {
 	for (const auto& pane : m_PanesByFlag)
 	{
@@ -403,7 +418,7 @@ std::string LayoutManager::getXml(const std::string& vOffset, const std::string&
 	if (vUserDatas == "app")
 	{
 		str += vOffset + "<layout>\n";
-		m_Pane_Focused = GetFocusedPanes();
+		m_Pane_Focused = Internal_GetFocusedPanes();
 		str += vOffset + "\t<panes opened=\"" + ct::ivariant((int32_t)m_Pane_Shown).GetS() + "\" active=\"" + ct::ivariant((int32_t)m_Pane_Focused).GetS() + "\"/>\n";
 		str += vOffset + "</layout>\n";
 	}

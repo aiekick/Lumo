@@ -179,15 +179,106 @@ bool ShaderPass::InitPixel(
 	return m_Loaded;
 }
 
-bool ShaderPass::InitCompute(const ct::uvec3& vDispatchSize)
+bool ShaderPass::InitCompute2D(
+	const ct::uvec2& vDispatchSize,
+	const uint32_t& vCountBuffers,
+	const vk::Format& vFormat)
 {
 	m_RendererType = GenericType::COMPUTE;
 
+	Resize(vDispatchSize); // will update m_RenderArea and m_Viewport
+
+	ActionBeforeInit();
+
+	m_Loaded = false;
+
+	m_Device = m_VulkanCore->getDevice();
+	m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+	m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+	m_CommandPool = m_Queue.cmdPools;
+
+	m_DispatchSize = ct::uvec3(vDispatchSize.x, vDispatchSize.y, 1);
+
+	// ca peut ne pas compiler, masi c'est plus bloquant
+	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
+	CompilCompute();
+
+	m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCore);
+	if (m_ComputeBufferPtr->Init(vDispatchSize, vCountBuffers, vFormat)) {
+		if (BuildModel()) {
+			if (CreateSBO()) {
+				if (CreateUBO()) {
+					if (CreateRessourceDescriptor()) {
+						// si ca compile pas
+						// c'est pas bon mais on renvoi true car on va afficher 
+						// l'erreur dans le node et on pourra le corriger en editant le shader
+						CreateComputePipeline();
+						m_Loaded = true;
+					}
+				}
+			}
+		}
+	}
+
+	if (m_Loaded)
+	{
+		ActionAfterInitSucceed();
+	}
+	else
+	{
+		ActionAfterInitFail();
+	}
+
+	return m_Loaded;
+}
+
+bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize)
+{
+	/*m_RendererType = GenericType::COMPUTE;
+
+	Resize(vDispatchSize.xy()); // will update m_RenderArea and m_Viewport
+
+	ActionBeforeInit();
+
+	m_Loaded = false;
+
+	m_Device = m_VulkanCore->getDevice();
+	m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+	m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+	m_CommandPool = m_Queue.cmdPools;
+
 	m_DispatchSize = vDispatchSize;
+
+	// ca peut ne pas compiler, masi c'est plus bloquant
+	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
+	CompilCompute();
+
+	if (BuildModel()) {
+		if (CreateSBO()) {
+			if (CreateUBO()) {
+				if (CreateRessourceDescriptor()) {
+					// si ca compile pas
+					// c'est pas bon mais on renvoi true car on va afficher 
+					// l'erreur dans le node et on pourra le corriger en editant le shader
+					CreateComputePipeline();
+					m_Loaded = true;
+				}
+			}
+		}
+	}
+
+	if (m_Loaded)
+	{
+		ActionAfterInitSucceed();
+	}
+	else
+	{
+		ActionAfterInitFail();
+	}*/
 
 	CTOOL_DEBUG_BREAK;
 
-	return true;
+	return m_Loaded;
 }
 
 void ShaderPass::Unit()
@@ -201,6 +292,7 @@ void ShaderPass::Unit()
 	DestroySBO();
 	DestroyModel(true);
 	m_FrameBufferPtr.reset();
+	m_ComputeBufferPtr.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -225,17 +317,31 @@ void ShaderPass::AllowResize(const bool& vResizing)
 
 void ShaderPass::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
-	if (m_FrameBufferPtr && m_ResizingIsAllowed)
+	if (m_ResizingIsAllowed)
 	{
-		m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffer);
+		if (m_FrameBufferPtr)
+		{
+			m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffer);
+		}
+		else if (m_ComputeBufferPtr)
+		{
+			m_ComputeBufferPtr->NeedResize(vNewSize, vCountColorBuffer);
+		}
 	}
 }
 
 void ShaderPass::NeedResize(ct::ivec2* vNewSize)
 {
-	if (m_FrameBufferPtr && m_ResizingIsAllowed)
+	if (m_ResizingIsAllowed)
 	{
-		m_FrameBufferPtr->NeedResize(vNewSize);
+		if (m_FrameBufferPtr)
+		{
+			m_FrameBufferPtr->NeedResize(vNewSize);
+		}
+		else if (m_ComputeBufferPtr)
+		{
+			m_ComputeBufferPtr->NeedResize(vNewSize);
+		}
 	}
 }
 
@@ -243,11 +349,17 @@ bool ShaderPass::ResizeIfNeeded()
 {
 	ZoneScoped;
 
-	if (m_FrameBufferPtr && m_ResizingIsAllowed)
+	if (m_ResizingIsAllowed)
 	{
-		if (m_FrameBufferPtr->ResizeIfNeeded())
+		if (m_FrameBufferPtr && m_FrameBufferPtr->ResizeIfNeeded())
 		{
 			Resize(m_FrameBufferPtr->GetOutputSize());
+			return true;
+		}
+		else if (m_ComputeBufferPtr && m_ComputeBufferPtr->ResizeIfNeeded())
+		{
+			UpdateBufferInfoInRessourceDescriptor();
+			Resize(m_ComputeBufferPtr->GetOutputSize());
 			return true;
 		}
 	}
@@ -261,24 +373,49 @@ void ShaderPass::Resize(const ct::uvec2& vNewSize)
 
 	if (m_ResizingIsAllowed)
 	{
-		m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(vNewSize.x, vNewSize.y));
-		m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(vNewSize.x), static_cast<float>(vNewSize.y), 0, 1.0f);
+		if (m_FrameBufferPtr)
+		{
+			m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(vNewSize.x, vNewSize.y));
+			m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(vNewSize.x), static_cast<float>(vNewSize.y), 0, 1.0f);
+		}
+		else if (m_ComputeBufferPtr)
+		{
+			m_DispatchSize = ct::uvec3(vNewSize, 1U);
+		}
+
 		m_OutputSize = ct::fvec2((float)vNewSize.x, (float)vNewSize.y);
 		m_OutputRatio = m_OutputSize.ratioXY<float>();
 	}
 }
 
-void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer)
+void ShaderPass::SwapOutputDescriptors()
+{
+	
+}
+
+void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (m_IsShaderCompiled)
 	{
 		m_VulkanCore->getFrameworkDevice()->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
 
-		if (m_FrameBufferPtr->Begin(vCmdBuffer))
+		if (IsPixelRenderer())
 		{
-			DrawModel(vCmdBuffer, 1U);
+			if (m_FrameBufferPtr->Begin(vCmdBuffer))
+			{
+				DrawModel(vCmdBuffer, vIterationNumber);
 
-			m_FrameBufferPtr->End(vCmdBuffer);
+				m_FrameBufferPtr->End(vCmdBuffer);
+			}
+		}
+		else if (IsComputeRenderer())
+		{
+			if (m_ComputeBufferPtr->Begin(vCmdBuffer))
+			{
+				Compute(vCmdBuffer, vIterationNumber);
+
+				m_ComputeBufferPtr->End(vCmdBuffer);
+			}
 		}
 
 		m_VulkanCore->getFrameworkDevice()->EndDebugLabel(vCmdBuffer);
@@ -296,14 +433,21 @@ void ShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationN
 
 	if (vCmdBuffer)
 	{
-		// for a vertex
-		//vCmdBuffer->setLineWidth(m_LineWidth.w);
-		//vCmdBuffer->setPrimitiveTopologyEXT(m_PrimitiveTopology);
-		//vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
-		//vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-		//vCmdBuffer->draw(m_CountVertexs.w, m_CountInstances.w, 0, 0);
+		CTOOL_DEBUG_BREAK;
+	}
+}
 
-		// for a mesh
+void ShaderPass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+{
+	UNUSED(vIterationNumber);
+
+	ZoneScoped;
+
+	if (!m_Loaded) return;
+	if (!m_IsShaderCompiled) return;
+
+	if (vCmdBuffer)
+	{
 		CTOOL_DEBUG_BREAK;
 	}
 }
@@ -739,6 +883,8 @@ void ShaderPass::UpdateRessourceDescriptor()
 		m_NeedNewSBOUpload = false;
 	}
 
+	SwapOutputDescriptors();
+
 	// update descriptor
 	m_Device.updateDescriptorSets(writeDescriptorSets, nullptr);
 
@@ -768,7 +914,7 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 
 	if (vFiles.find(m_VertexShaderCode.m_FilePathName) != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + m_VertexShaderCode.m_FilePathName;
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + m_VertexShaderCode.m_FilePathName;
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -778,7 +924,7 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 	}
 	else if (vFiles.find(m_FragmentShaderCode.m_FilePathName) != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + m_FragmentShaderCode.m_FilePathName;
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + m_FragmentShaderCode.m_FilePathName;
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_FragmentShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -787,7 +933,7 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 	}
 	else if (vFiles.find(m_ComputeShaderCode.m_FilePathName) != vFiles.end())
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + m_ComputeShaderCode.m_FilePathName;
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + m_ComputeShaderCode.m_FilePathName;
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
 			m_ComputeShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path);
@@ -809,6 +955,7 @@ bool ShaderPass::CreateComputePipeline()
 {
 	ZoneScoped;
 
+	if (!m_ComputeBufferPtr) return false;
 	if (m_ComputeShaderCode.m_SPIRV.empty()) return false;
 
 	m_PipelineLayout =

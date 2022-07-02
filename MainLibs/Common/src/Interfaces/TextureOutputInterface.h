@@ -34,10 +34,6 @@ SOFTWARE.
 // can clarify some code who jsut need output and not input 
 class TextureOutputInterface
 {
-protected:
-	//Texture2DPtr m_EmptyTexturePtr = nullptr;
-	ImGuiTexture m_ImGuiTexture;
-
 public:
 	virtual vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) = 0;
 };

@@ -58,7 +58,7 @@ public:
 	void DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot) override;
 	ct::fvec2 GetOutputSize() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

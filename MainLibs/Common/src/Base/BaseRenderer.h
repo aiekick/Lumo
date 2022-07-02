@@ -128,7 +128,8 @@ public: // contructor
 
 	// init/unit
 	bool InitPixel(const ct::uvec2& vSize);
-	bool InitCompute(const ct::uvec2& vSize);
+	bool InitCompute2D(const ct::uvec2& vSize);
+	bool InitCompute3D(const ct::uvec3& vSize);
 	void Unit();
 
 	// resize
@@ -156,8 +157,7 @@ public: // contructor
 	vk::CommandBuffer* GetCommandBuffer();
 	void BeginTracyFrame(const char* vFrameName);
 	void ResetCommandBuffer();
-	void BeginPixelCommandBuffer(const char* vSectionLabel);
-	void BeginComputeCommandBuffer(const char* vSectionLabel);
+	void BeginCommandBuffer(const char* vSectionLabel);
 	void EndCommandBuffer();
 	void SubmitPixel();
 	void SubmitCompute();

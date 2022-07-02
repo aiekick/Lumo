@@ -122,16 +122,6 @@ void OutputModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 	}
 }
 
-/*ct::fvec2 OutputModule::GetOutputSize()
-{
-	auto parentNodePtr = dynamic_pointer_cast<ResizerInterface>(GetParentNode().getValidShared());
-	if (parentNodePtr)
-	{
-		return parentNodePtr->GetOutputSize();
-	}
-	return 0.0f;
-}*/
-
 void OutputModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
 	if (vNewSize)

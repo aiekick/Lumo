@@ -215,6 +215,8 @@ void FrameBuffer::End(vk::CommandBuffer* vCmdBuffer)
 	{
 		ClearAttachmentsIfNeeded(vCmdBuffer);
 		EndRenderPass(vCmdBuffer);
+
+		Swap();
 	}
 }
 
@@ -284,6 +286,11 @@ void FrameBuffer::SetClearColorValue(const ct::fvec4& vColor)
 	{
 		m_ClearColorValues[0] = vk::ClearColorValue(std::array<float, 4>{ vColor.x, vColor.y, vColor.z, vColor.w });
 	}
+}
+
+void FrameBuffer::Swap()
+{
+	m_CurrentFrame = 1U - m_CurrentFrame;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

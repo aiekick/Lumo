@@ -47,9 +47,9 @@ using namespace vkApi;
 //////////////////////////////////////////////////////////////
 
 BlurModule_Pass::BlurModule_Pass(vkApi::VulkanCore* vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
+	: ShaderPass(vVulkanCore)
 {
-	SetRenderDocDebugName("Quad Pass : Blur", QUAD_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Comp Pass : Blur", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 }
 
 BlurModule_Pass::~BlurModule_Pass()
@@ -65,14 +65,13 @@ bool BlurModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			change |= ImGui::SliderIntDefaultCompact(0.0f, "Radius", &m_UBOFrag.u_blur_radius, 1, 10, 4);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Offset", &m_UBOFrag.u_blur_offset, 0.0f, 10.0f, 1.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Inf Threshold", &m_UBOFrag.u_blur_smooth_inf, 0.0f, 1.0f, 0.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Sup Threshold", &m_UBOFrag.u_blur_smooth_sup, 0.0f, 1.0f, 1.0f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Power", &m_UBOFrag.u_blur_power, 0.0f, 2.0f, 1.0f);
+			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_UBOComp.u_blur_radius, 1U, 10U, 4U);
+			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Offset", &m_UBOComp.u_blur_offset, 1U, 10U, 1U);
 
 			if (change)
 			{
+				m_UBOComp.u_blur_radius = ct::maxi(m_UBOComp.u_blur_radius, 1U);
+				m_UBOComp.u_blur_offset = ct::maxi(m_UBOComp.u_blur_offset, 1U);
 				NeedNewUBOUpload();
 			}
 		}
@@ -102,17 +101,17 @@ void BlurModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_SamplerImageInfos.size())
+		if (vBinding < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_SamplerImageInfos[vBinding] = *vImageInfo;
+				m_ImageInfos[vBinding] = *vImageInfo;
 			}
 			else
 			{
 				if (m_EmptyTexturePtr)
 				{
-					m_SamplerImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+					m_ImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 				}
 				else
 				{
@@ -127,29 +126,41 @@ void BlurModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 
 vk::DescriptorImageInfo* BlurModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
-	if (m_FrameBufferPtr)
+	if (m_ComputeBufferPtr)
 	{
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 
-	CTOOL_DEBUG_BREAK;
-
 	return nullptr;
+}
+
+void BlurModule_Pass::SwapOutputDescriptors()
+{
+	writeDescriptorSets[0].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // output
+}
+
+void BlurModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+{
+	if (vCmdBuffer)
+	{
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
+		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+		vCmdBuffer->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
+	}
 }
 
 bool BlurModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	auto size_in_bytes = sizeof(UBOFrag);
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes);
-	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
-	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
-	m_DescriptorBufferInfo_Frag.offset = 0;
+	auto size_in_bytes = sizeof(UBOComp);
+	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes);
+	m_DescriptorBufferInfo_Comp.buffer = m_UBO_Comp->buffer;
+	m_DescriptorBufferInfo_Comp.range = size_in_bytes;
+	m_DescriptorBufferInfo_Comp.offset = 0;
 
 	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
-
-	for (auto& a : m_SamplerImageInfos)
+	for (auto& a : m_ImageInfos)
 	{
 		a = m_EmptyTexturePtr->m_DescriptorImageInfo;
 	}
@@ -163,14 +174,14 @@ void BlurModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCore, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
 }
 
 void BlurModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Frag.reset();
+	m_UBO_Comp.reset();
 	m_EmptyTexturePtr.reset();
 }
 
@@ -179,8 +190,9 @@ bool BlurModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
 }
@@ -190,89 +202,61 @@ bool BlurModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // ssao
+
+	assert(m_ComputeBufferPtr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // ssao
 
 	return true;
 }
 
-std::string BlurModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "BlurModule_Vertex";
-
-	return u8R"(#version 450
-#extension GL_ARB_separate_shader_objects : enable
-
-layout(location = 0) in vec2 vertPosition;
-layout(location = 1) in vec2 vertUv;
-layout(location = 0) out vec2 v_uv;
-
-void main() 
-{
-	v_uv = vertUv;
-	gl_Position = vec4(vertPosition, 0.0, 1.0);
-}
-)";
-}
-
-std::string BlurModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string BlurModule_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "BlurModule_Pass";
 
-	return u8R"(#version 450
+	return u8R"(
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) out vec4 fragColor;
-layout(location = 0) in vec2 v_uv;
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
-layout (std140, binding = 1) uniform UBO_Frag
+layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
+
+layout(std140, binding = 1) uniform UBO_Comp
 {
 	uint u_blur_radius; // default is 4
 	float u_blur_offset; // default is 1.0
-	float u_blur_smooth_inf; // default is 0.0
-	float u_blur_smooth_sup; // default is 1.0
-	float u_blur_power; // default is 1.0
 };
+
 layout(binding = 2) uniform sampler2D input_map_sampler;
 
-void main() 
+void main()
 {
-	fragColor = vec4(0.0);
+	vec4 res = vec4(0.0);
 	
-	vec4 tex = texture(input_map_sampler, v_uv);
-	if (dot(tex,tex) > 0.0)
+	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+	vec4 tex = texelFetch(input_map_sampler, coords, 0);
+	if (dot(tex, tex) > 0.0)
 	{
-		const uint blur_radius = max(u_blur_radius, 1);
-		const uint blur_radius_radius = blur_radius * blur_radius;
+		const uint blur_radius = u_blur_radius;
+		const uint blur_radius_radius = u_blur_radius * u_blur_radius;
 
 		const float blur_radius_f = float(blur_radius);
-		const float blur_radius_radius_f = float(blur_radius_radius);
-		
-		vec2 pix = u_blur_offset / textureSize(input_map_sampler, 0) / blur_radius_f;
 
-		vec4 ao = vec4(0.0);
-		
+		vec2 texSize = textureSize(input_map_sampler, 0);
+
 		for (uint i = 0 ; i < blur_radius_radius; ++i)
 		{
-			float x = floor(i / blur_radius_f);
-			float y = mod(float(i), blur_radius_f);
-			vec2 p = vec2(x, y) * 2.0 - 1.0;
-			vec2 uv_off = v_uv + p * pix;
-			ao += texture(input_map_sampler, uv_off);
+			int x = int(floor(i * u_blur_offset / blur_radius_f) / blur_radius_f);
+			int y = int((mod(float(i * u_blur_offset), blur_radius_f)) / blur_radius_f);
+			res += texelFetch(input_map_sampler, coords + ivec2(x,y), 0);
 		}
 
-		ao /= blur_radius_radius_f;
-		
-		// post pro for remove facets
-		ao = smoothstep(vec4(u_blur_smooth_inf), vec4(u_blur_smooth_sup), ao);
-		ao = pow(ao, vec4(u_blur_power));
-		
-		fragColor = ao;
+		res /= float(blur_radius_radius);
 	}
-	else
-	{
-		//discard;
-	}
+
+	imageStore(outColor, coords, res); 
 }
 )";
 }
@@ -285,11 +269,8 @@ std::string BlurModule_Pass::getXml(const std::string& vOffset, const std::strin
 {
 	std::string str;
 
-	str += vOffset + "<blur_radius>" + ct::toStr(m_UBOFrag.u_blur_radius) + "</blur_radius>\n";
-	str += vOffset + "<blur_offset>" + ct::toStr(m_UBOFrag.u_blur_offset) + "</blur_offset>\n";
-	str += vOffset + "<blur_smooth_inf>" + ct::toStr(m_UBOFrag.u_blur_smooth_inf) + "</blur_smooth_inf>\n";
-	str += vOffset + "<blur_smooth_sup>" + ct::toStr(m_UBOFrag.u_blur_smooth_sup) + "</blur_smooth_sup>\n";
-	str += vOffset + "<blur_power>" + ct::toStr(m_UBOFrag.u_blur_power) + "</blur_power>\n";
+	str += vOffset + "<blur_radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</blur_radius>\n";
+	str += vOffset + "<blur_offset>" + ct::toStr(m_UBOComp.u_blur_offset) + "</blur_offset>\n";
 
 	return str;
 }
@@ -310,15 +291,10 @@ bool BlurModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	if (strParentName == "blur_module")
 	{
 		if (strName == "blur_radius")
-			m_UBOFrag.u_blur_radius = ct::ivariant(strValue).GetI();
+			m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
 		else if (strName == "blur_offset")
-			m_UBOFrag.u_blur_offset = ct::fvariant(strValue).GetF();
+			m_UBOComp.u_blur_offset = ct::uvariant(strValue).GetU();
 		else if (strName == "blur_smooth_inf")
-			m_UBOFrag.u_blur_smooth_inf = ct::fvariant(strValue).GetF();
-		else if (strName == "blur_smooth_sup")
-			m_UBOFrag.u_blur_smooth_sup = ct::fvariant(strValue).GetF();
-		else if (strName == "blur_power")
-			m_UBOFrag.u_blur_power = ct::fvariant(strValue).GetF();
 
 		NeedNewUBOUpload();
 	}

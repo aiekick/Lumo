@@ -39,7 +39,6 @@ SOFTWARE.
 #include <Base/FrameBuffer.h>
 
 #include <Modules/PostPro/Pass/BlurModule_Pass.h>
-#include <Modules/PostPro/Pass/BlurModule_Pass.h>
 
 using namespace vkApi;
 
@@ -87,17 +86,12 @@ bool BlurModule::Init()
 
 	m_Loaded = true;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitCompute2D(map_size))
 	{
 		m_BlurModule_Pass_Ptr = std::make_shared<BlurModule_Pass>(m_VulkanCore);
 		if (m_BlurModule_Pass_Ptr)
 		{
-			// eR8G8B8A8Unorm is used for have nice white and black display
-			// unfortunatly not for perf, but the main purpose is for nice widget display
-			// or maybe there is a way in glsl to know the component count of a texture
-			// so i could modify in this way the shader of imgui
-			if (m_BlurModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+			if (m_BlurModule_Pass_Ptr->InitCompute2D(map_size, 1U, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_BlurModule_Pass_Ptr);
 				m_Loaded = true;
@@ -191,18 +185,6 @@ vk::DescriptorImageInfo* BlurModule::GetDescriptorImageInfo(const uint32_t& vBin
 	}
 
 	return nullptr;
-}
-
-void BlurModule::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	for (auto passPtr : m_ShaderPass)
-	{
-		auto passShaUpdPtr = dynamic_pointer_cast<ShaderUpdateInterface>(passPtr);
-		if (passShaUpdPtr)
-		{
-			passShaUpdPtr->UpdateShaders(vFiles);
-		}
-	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

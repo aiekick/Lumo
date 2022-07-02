@@ -135,15 +135,15 @@ void MatcapRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorIma
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_SamplerImageInfos.size())
+		if (vBinding < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_SamplerImageInfos[vBinding] = *vImageInfo;
+				m_ImageInfos[vBinding] = *vImageInfo;
 			}
 			else if (m_EmptyTexturePtr)
 			{
-				m_SamplerImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+				m_ImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 			}
 			else
 			{
@@ -202,7 +202,7 @@ bool MatcapRenderer_Pass::CreateUBO()
 	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 	if (m_EmptyTexturePtr)
 	{
-		for (auto& a : m_SamplerImageInfos)
+		for (auto& a : m_ImageInfos)
 		{
 			a = m_EmptyTexturePtr->m_DescriptorImageInfo;
 		}
@@ -250,7 +250,7 @@ bool MatcapRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Vert);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // matcap
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // matcap
 
 	return true;
 }

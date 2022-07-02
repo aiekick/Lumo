@@ -35,7 +35,7 @@ SOFTWARE.
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
+#include <Base/ShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
@@ -54,22 +54,19 @@ SOFTWARE.
 namespace vkApi { class VulkanCore; }
 
 class BlurModule_Pass :
-	public QuadShaderPass,
+	public ShaderPass,
 	public GuiInterface,
 	public TextureInputInterface<1U>,
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
+	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
+	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
 
-	struct UBOFrag {
-		alignas(4) int32_t u_blur_radius = 4;
-		alignas(4) float u_blur_offset = 1.0;
-		alignas(4) float u_blur_smooth_inf = 0.0;
-		alignas(4) float u_blur_smooth_sup = 1.0;
-		alignas(4) float u_blur_power = 1.0;
-	} m_UBOFrag;
+	struct UBOComp {
+		alignas(4) uint32_t u_blur_radius = 4;
+		alignas(4) uint32_t u_blur_offset = 1;
+	} m_UBOComp;
 
 public:
 	BlurModule_Pass(vkApi::VulkanCore* vVulkanCore);
@@ -79,9 +76,11 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas)  override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)  override;
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	void SwapOutputDescriptors() override;
+	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
 	bool CreateUBO() override;
@@ -91,6 +90,5 @@ protected:
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

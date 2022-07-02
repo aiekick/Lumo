@@ -39,6 +39,7 @@ SOFTWARE.
 #include <vkFramework/vk_mem_alloc.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
+#include <Base/ComputeBuffer.h>
 
 #include <Interfaces/ShaderUpdateInterface.h>
 
@@ -49,8 +50,8 @@ SOFTWARE.
 enum class GenericType : uint8_t
 {
 	NONE = 0,
-	PIXEL,			// vertex + fragment (shader + m_Pipeline + ubo + fbo + renderpass + command buffer)
-	COMPUTE,		// compute (shader + m_Pipeline + ubo + command buffer)
+	PIXEL,			// vertex + fragment (shader + m_Pipeline + ubo + fbo)
+	COMPUTE,		// compute (shader + m_Pipeline + ubo)
 	Count
 };
 
@@ -90,6 +91,7 @@ protected:
 
 	// Framebuffer
 	FrameBufferPtr m_FrameBufferPtr = nullptr;
+	ComputeBufferPtr m_ComputeBufferPtr = nullptr;
 	bool m_ResizingIsAllowed = true;
 
 	// dynamic state
@@ -152,8 +154,11 @@ public:
 		const ct::fvec4& vClearColor,
 		const vk::Format& vFormat = vk::Format::eR32G32B32A32Sfloat,
 		const vk::SampleCountFlagBits& vSampleCount = vk::SampleCountFlagBits::e1);
-	virtual bool InitCompute(
-		const ct::uvec3& vDispatchSize);
+	virtual bool InitCompute2D(
+		const ct::uvec2& vDispatchSize,
+		const uint32_t& vCountBuffers,
+		const vk::Format& vFormat);
+	virtual bool InitCompute3D(const ct::uvec3& vDispatchSize);
 	virtual void Unit();
 
 	void SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor);
@@ -182,10 +187,15 @@ public:
 	// return true for continue xml parsing of childs in this node or false for interupt the child exploration
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
-	void DrawPass(vk::CommandBuffer* vCmdBuffer);
+	// swap and write output descriptors imageinfos, in case of multipass
+	// xecuted jsut before compute()
+	virtual void SwapOutputDescriptors(); 
+
+	void DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber = 1U);
 
 	// draw primitives
 	virtual void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
+	virtual void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 
 	virtual void UpdateRessourceDescriptor();
 

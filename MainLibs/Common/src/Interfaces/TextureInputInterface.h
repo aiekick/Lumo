@@ -51,7 +51,7 @@ class TextureInputInterface : public TextureInputFunctions
 protected:
 	bool m_NeedSamplerUpdate = false; 
 	Texture2DPtr m_EmptyTexturePtr = nullptr;
-	std::array<vk::DescriptorImageInfo, size_of_array>  m_SamplerImageInfos;
+	std::array<vk::DescriptorImageInfo, size_of_array> m_ImageInfos;
 	std::array<ImGuiTexture, size_of_array> m_ImGuiTextures;
 
 protected: // internal use
@@ -66,7 +66,7 @@ void TextureInputInterface<size_of_array>::DrawInputTexture(vkApi::VulkanCore* v
 		if (imguiRendererPtr) {
 			if (ImGui::CollapsingHeader(vLabel)) {
 				m_ImGuiTextures[vIdx].SetDescriptor(imguiRendererPtr.get(),
-					&m_SamplerImageInfos[vIdx], vRatio);
+					&m_ImageInfos[vIdx], vRatio);
 				if (m_ImGuiTextures[vIdx].canDisplayPreview) {
 					int w = (int)ImGui::GetContentRegionAvail().x;
 					auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTextures[vIdx].ratio, ct::ivec2(w, w), false);

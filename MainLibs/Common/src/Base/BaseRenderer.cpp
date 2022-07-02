@@ -33,6 +33,7 @@ SOFTWARE.
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_funcs.hpp>
 #include <ctools/Logger.h>
+#include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
 #include <vkFramework/VulkanSubmitter.h>
@@ -174,7 +175,7 @@ bool BaseRenderer::InitPixel(const ct::uvec2& vSize)
 	return m_Loaded;
 }
 
-bool BaseRenderer::InitCompute(const ct::uvec2& vSize)
+bool BaseRenderer::InitCompute2D(const ct::uvec2& vSize)
 {
 	ZoneScoped;
 
@@ -193,6 +194,54 @@ bool BaseRenderer::InitCompute(const ct::uvec2& vSize)
 		m_CommandPool = m_Queue.cmdPools;
 
 		m_OutputSize = ct::uvec3(size.x, size.y, 1);
+		m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(m_OutputSize.x, m_OutputSize.y));
+		m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(m_OutputSize.x), static_cast<float>(m_OutputSize.y), 0, 1.0f);
+		m_OutputRatio = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>();
+
+		if (CreateCommanBuffer()) {
+			if (CreateSyncObjects()) {
+				m_Loaded = true;
+			}
+		}
+	}
+
+	if (m_Loaded)
+	{
+		m_TracyContext = TracyVkContext(
+			m_VulkanCore->getPhysicalDevice(),
+			m_Device,
+			m_Queue.vkQueue,
+			m_CommandBuffers[0]);
+
+		ActionAfterInitSucceed();
+	}
+	else
+	{
+		ActionAfterInitFail();
+	}
+
+	return m_Loaded;
+}
+
+bool BaseRenderer::InitCompute3D(const ct::uvec3& vSize)
+{
+	ZoneScoped;
+
+	ActionBeforeInit();
+
+	m_Loaded = false;
+
+	m_Device = m_VulkanCore->getDevice();
+	ct::uvec3 size = ct::clamp(vSize, 1u, 8192u);
+	if (!size.emptyOR())
+	{
+		m_UniformSectionToShow = { "COMPUTE" }; // pour afficher les uniforms
+
+		m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+		m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+		m_CommandPool = m_Queue.cmdPools;
+
+		m_OutputSize = size;
 		m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(m_OutputSize.x, m_OutputSize.y));
 		m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(m_OutputSize.x), static_cast<float>(m_OutputSize.y), 0, 1.0f);
 		m_OutputRatio = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>();
@@ -366,7 +415,7 @@ bool BaseRenderer::BeginRender(const char* vSectionLabel)
 			UpdateDescriptorsBeforeCommandBuffer();
 
 			ResetCommandBuffer();
-			BeginPixelCommandBuffer(vSectionLabel);
+			BeginCommandBuffer(vSectionLabel);
 			
 			return true;
 		}
@@ -426,7 +475,7 @@ void BaseRenderer::ResetCommandBuffer()
 	cmd->reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 }
 
-void BaseRenderer::BeginPixelCommandBuffer(const char* vSectionLabel)
+void BaseRenderer::BeginCommandBuffer(const char* vSectionLabel)
 {
 	auto cmd = GetCommandBuffer();
 	cmd->begin(vk::CommandBufferBeginInfo());
@@ -438,25 +487,10 @@ void BaseRenderer::BeginPixelCommandBuffer(const char* vSectionLabel)
 	}
 
 	{
-		TracyVkZone(m_TracyContext, *cmd, "Record Pixel Command buffer");
+		TracyVkZone(m_TracyContext, *cmd, vSectionLabel);
 	}
 }
 
-void BaseRenderer::BeginComputeCommandBuffer(const char* vSectionLabel)
-{
-	auto cmd = GetCommandBuffer();
-	cmd->begin(vk::CommandBufferBeginInfo());
-
-	if (vSectionLabel)
-	{
-		m_VulkanCore->getFrameworkDevice()->BeginDebugLabel(cmd, vSectionLabel, GENERIC_RENDERER_DEBUG_COLOR);
-		m_DebugLabelWasUsed = true;
-	}
-
-	{
-		TracyVkZone(m_TracyContext, *cmd, "Record Compute Command buffer");
-	}
-}
 
 void BaseRenderer::EndCommandBuffer()
 {

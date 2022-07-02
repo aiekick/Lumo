@@ -103,11 +103,11 @@ void SSAOModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_SamplerImageInfos.size())
+		if (vBinding < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_SamplerImageInfos[vBinding] = *vImageInfo;
+				m_ImageInfos[vBinding] = *vImageInfo;
 
 				if ((&m_UBOFrag.use_sampler_pos)[vBinding] < 1.0f)
 				{
@@ -125,7 +125,7 @@ void SSAOModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 
 				if (m_EmptyTexturePtr)
 				{
-					m_SamplerImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+					m_ImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 				}
 				else
 				{
@@ -160,7 +160,7 @@ bool SSAOModule_Pass::CreateUBO()
 
 	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
-	for (auto& a : m_SamplerImageInfos)
+	for (auto& a : m_ImageInfos)
 	{
 		a = m_EmptyTexturePtr->m_DescriptorImageInfo;
 	}
@@ -204,9 +204,9 @@ bool SSAOModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // depth
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[1], nullptr); // normal
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[2], nullptr); // RGB noise
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // depth
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr); // normal
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2], nullptr); // RGB noise
 
 	return true;
 }

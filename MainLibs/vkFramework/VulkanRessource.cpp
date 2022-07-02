@@ -194,7 +194,10 @@ VulkanRessourceObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCore
 	return texture;
 }
 
-void VulkanRessource::getDatasFromTextureImage2D(vkApi::VulkanCore* vVulkanCore, uint32_t width, uint32_t height, vk::Format format, VulkanRessourceObjectPtr vImage, void* vDatas, uint32_t* vSize)
+void VulkanRessource::getDatasFromTextureImage2D(
+	VulkanCore* vVulkanCore, uint32_t width, uint32_t height, 
+	vk::Format format, std::shared_ptr<VulkanRessourceObject> vImage, 
+	void* vDatas, uint32_t* vSize)
 {
 	UNUSED(width);
 	UNUSED(height);
@@ -281,7 +284,13 @@ VulkanRessourceObjectPtr VulkanRessource::createComputeTarget2D(vkApi::VulkanCor
 	VmaAllocationCreateInfo image_alloc_info = {};
 	image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 
-	return VulkanRessource::createSharedImageObject(vVulkanCore, imageInfo, image_alloc_info);
+	auto vkoPtr = VulkanRessource::createSharedImageObject(vVulkanCore, imageInfo, image_alloc_info);
+	if (vkoPtr)
+	{
+		VulkanRessource::transitionImageLayout(vVulkanCore, vkoPtr->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral);
+	}
+
+	return vkoPtr;
 }
 
 VulkanRessourceObjectPtr VulkanRessource::createDepthAttachment(vkApi::VulkanCore* vVulkanCore, uint32_t width, uint32_t height, vk::Format format, vk::SampleCountFlagBits vSampleCount)
@@ -463,46 +472,68 @@ void VulkanRessource::transitionImageLayout(vkApi::VulkanCore* vVulkanCore, vk::
 		barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
 	}
 
-	if (oldLayout == vk::ImageLayout::eUndefined &&
-		(newLayout == vk::ImageLayout::eTransferDstOptimal ||
-			newLayout == vk::ImageLayout::eTransferSrcOptimal))
+	bool wasFound = true;
+	if (oldLayout == vk::ImageLayout::eUndefined)
 	{
-		barrier.srcAccessMask = vk::AccessFlags();
-		barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+		if (newLayout == vk::ImageLayout::eTransferDstOptimal ||
+			newLayout == vk::ImageLayout::eTransferSrcOptimal)
+		{
+			barrier.srcAccessMask = vk::AccessFlags();
+			barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
 
-		sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-		destinationStage = vk::PipelineStageFlagBits::eTransfer;
+			sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+			destinationStage = vk::PipelineStageFlagBits::eTransfer;
+
+			wasFound = true;
+		}
+		else if (newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
+		{
+			barrier.srcAccessMask = vk::AccessFlags();
+			barrier.dstAccessMask =
+				vk::AccessFlagBits::eDepthStencilAttachmentRead |
+				vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+
+			sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+			destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+
+			wasFound = true;
+		}
+		else if (newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+		{
+			barrier.srcAccessMask = vk::AccessFlags();
+			barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+
+			sourceStage = vk::PipelineStageFlagBits::eTransfer;
+			destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+
+			wasFound = true;
+		}
+		else if (newLayout == vk::ImageLayout::eGeneral)
+		{
+			barrier.srcAccessMask = vk::AccessFlags();
+			barrier.dstAccessMask = vk::AccessFlagBits::eShaderWrite;
+
+			sourceStage = vk::PipelineStageFlagBits::eTransfer;
+			destinationStage = vk::PipelineStageFlagBits::eComputeShader;
+
+			wasFound = true;
+		}
 	}
-	else if (oldLayout == vk::ImageLayout::eTransferDstOptimal &&
-		newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+	else if (oldLayout == vk::ImageLayout::eTransferDstOptimal)
 	{
-		barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
-		barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+		if (newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
+		{
+			barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+			barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
-		sourceStage = vk::PipelineStageFlagBits::eTransfer;
-		destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
-	}
-	else if (oldLayout == vk::ImageLayout::eUndefined &&
-		newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
-	{
-		barrier.srcAccessMask = vk::AccessFlags();
-		barrier.dstAccessMask =
-			vk::AccessFlagBits::eDepthStencilAttachmentRead |
-			vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+			sourceStage = vk::PipelineStageFlagBits::eTransfer;
+			destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
 
-		sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-		destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+			wasFound = true;
+		}
 	}
-	else if (oldLayout == vk::ImageLayout::eUndefined &&
-		newLayout == vk::ImageLayout::eShaderReadOnlyOptimal)
-	{
-		barrier.srcAccessMask = vk::AccessFlags();
-		barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 
-		sourceStage = vk::PipelineStageFlagBits::eTransfer;
-		destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
-	}
-	else
+	if (!wasFound)
 	{
 		LogVarDebug("Debug : unsupported layouts: %s, %s",
 			vk::to_string(oldLayout).c_str(),

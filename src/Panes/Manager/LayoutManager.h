@@ -27,6 +27,7 @@ SOFTWARE.
 #include <ctools/ConfigAbstract.h>
 #include <Panes/Abstract/AbstractPane.h>
 #include <imgui/imgui.h>
+#include <array>
 
 class ProjectFile;
 class LayoutManager : public conf::ConfigAbstract
@@ -37,10 +38,18 @@ private:
 	bool m_FirstStart = true;
 	char m_MenuLabel[PANE_NAME_BUFFER_SIZE + 1] = "";
 	char m_DefaultMenuLabel[PANE_NAME_BUFFER_SIZE + 1] = "";
+	std::array<float, (size_t)PaneDisposal::Count> m_PaneDisposalSizes = 
+	{	0.0f, // central size is ignored because depednant of others
+		200.0f, // left size
+		200.0f, // right size
+		200.0f, // bottom size
+		200.0f // top size
+	};
 
 protected:
 	std::map<PaneDisposal, AbstractPane*> m_PanesByDisposal;
 	std::map<const char*, AbstractPane*> m_PanesByName;
+	std::vector<AbstractPane*> m_PanesInDisplayOrder;
 	std::map<PaneFlags, AbstractPane*> m_PanesByFlag;
 	
 public:
@@ -60,6 +69,7 @@ public:
 		PaneDisposal vPaneDisposal, 
 		bool vIsOpenedDefault, 
 		bool vIsFocusedDefault);
+	void SetPaneDisposalSize(const PaneDisposal& vPaneDisposal, float vSize);
 
 public:
 	void Init(const char* vMenuLabel, const char* vDefautlMenuLabel);
@@ -87,8 +97,8 @@ public:
 	void AddSpecificPaneToExisting(const char* vNewPane, const char* vExistingPane);
 
 private: // configuration
-	PaneFlags GetFocusedPanes();
-	void SetFocusedPanes(PaneFlags vActivePanes);
+	PaneFlags Internal_GetFocusedPanes();
+	void Internal_SetFocusedPanes(PaneFlags vActivePanes);
 
 public: // configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "");
@@ -105,6 +115,6 @@ protected:
 	LayoutManager(); // Prevent construction
 	LayoutManager(const LayoutManager&) = delete;
 	LayoutManager& operator =(const LayoutManager&) = delete;
-	~LayoutManager(); // Prevent unwanted destruction
+	virtual ~LayoutManager(); // Prevent unwanted destruction
 };
 

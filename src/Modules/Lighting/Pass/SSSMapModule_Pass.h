@@ -82,9 +82,9 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
-	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup)  override;
-	SceneLightGroupWeak GetLightGroup()  override;
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
+	SceneLightGroupWeak GetLightGroup() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	

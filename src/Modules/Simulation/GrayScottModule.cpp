@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "ShadowMapModule.h"
+#include "GrayScottModule.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -38,7 +38,7 @@ SOFTWARE.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Lighting/Pass/ShadowMapModule_Pass.h>
+#include <Modules/Simulation/Pass/GrayScottModule_Pass.h>
 
 using namespace vkApi;
 
@@ -48,9 +48,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<GrayScottModule> GrayScottModule::Create(vkApi::VulkanCore* vVulkanCore)
 {
-	auto res = std::make_shared<ShadowMapModule>(vVulkanCore);
+	auto res = std::make_shared<GrayScottModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -63,13 +63,13 @@ std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(vkApi::VulkanCore* vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ShadowMapModule::ShadowMapModule(vkApi::VulkanCore* vVulkanCore)
+GrayScottModule::GrayScottModule(vkApi::VulkanCore* vVulkanCore)
 	: BaseRenderer(vVulkanCore)
 {
 
 }
 
-ShadowMapModule::~ShadowMapModule()
+GrayScottModule::~GrayScottModule()
 {
 	Unit();
 }
@@ -78,7 +78,7 @@ ShadowMapModule::~ShadowMapModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ShadowMapModule::Init()
+bool GrayScottModule::Init()
 {
 	ZoneScoped;
 
@@ -88,14 +88,17 @@ bool ShadowMapModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_ShadowMapModule_Pass_Ptr = std::make_shared<ShadowMapModule_Pass>(m_VulkanCore);
-		if (m_ShadowMapModule_Pass_Ptr)
+		m_GrayScottModule_Pass_Ptr = std::make_shared<GrayScottModule_Pass>(m_VulkanCore);
+		if (m_GrayScottModule_Pass_Ptr)
 		{
-			if (m_ShadowMapModule_Pass_Ptr->InitPixel(1024U, 1U, true, true, 0.0f,
-				vk::Format::eR32Sfloat, vk::SampleCountFlagBits::e1))
+			// eR8G8B8A8Unorm is used for have nice white and black display
+			// unfortunatly not for perf, but the main purpose is for nice widget display
+			// or maybe there is a way in glsl to know the component count of a texture
+			// so i could modify in this way the shader of imgui
+			if (m_GrayScottModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+				vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				m_ShadowMapModule_Pass_Ptr->AllowResize(false); // 1024 is fixed
-				AddGenericPass(m_ShadowMapModule_Pass_Ptr);
+				AddGenericPass(m_GrayScottModule_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -108,13 +111,13 @@ bool ShadowMapModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ShadowMapModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool GrayScottModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		BaseRenderer::Render("Shadow Map Module");
+		BaseRenderer::Render("GrayScott", vCmd);
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -122,11 +125,11 @@ bool ShadowMapModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 	return true;
 }
 
-bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool GrayScottModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("Shadow", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("GrayScott", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 
@@ -146,7 +149,7 @@ bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	return false;
 }
 
-void ShadowMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void GrayScottModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -154,7 +157,7 @@ void ShadowMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frec
 	}
 }
 
-void ShadowMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void GrayScottModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -162,50 +165,28 @@ void ShadowMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	}
 }
 
-void ShadowMapModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void GrayScottModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
 }
 
-void ShadowMapModule::SetModel(SceneModelWeak vSceneModel)
+void GrayScottModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
-	if (m_ShadowMapModule_Pass_Ptr)
+	if (m_GrayScottModule_Pass_Ptr)
 	{
-		m_ShadowMapModule_Pass_Ptr->SetModel(vSceneModel);
+		m_GrayScottModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
 	}
 }
 
-void ShadowMapModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+vk::DescriptorImageInfo* GrayScottModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	ZoneScoped;
 
-	if (m_ShadowMapModule_Pass_Ptr)
+	if (m_GrayScottModule_Pass_Ptr)
 	{
-		m_ShadowMapModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
-	}
-}
-
-SceneLightGroupWeak ShadowMapModule::GetLightGroup()
-{
-	ZoneScoped;
-
-	if (m_ShadowMapModule_Pass_Ptr)
-	{
-		return m_ShadowMapModule_Pass_Ptr->GetLightGroup();
-	}
-
-	return SceneLightGroupWeak();
-}
-
-vk::DescriptorImageInfo* ShadowMapModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
-{
-	ZoneScoped;
-
-	if (m_ShadowMapModule_Pass_Ptr)
-	{
-		return m_ShadowMapModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_GrayScottModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
 	}
 
 	return nullptr;
@@ -215,11 +196,11 @@ vk::DescriptorImageInfo* ShadowMapModule::GetDescriptorImageInfo(const uint32_t&
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ShadowMapModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string GrayScottModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
-	str += vOffset + "<shadow_map_module>\n";
+	str += vOffset + "<blur_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
@@ -231,12 +212,12 @@ std::string ShadowMapModule::getXml(const std::string& vOffset, const std::strin
 		}
 	}
 
-	str += vOffset + "</shadow_map_module>\n";
+	str += vOffset + "</blur_module>\n";
 
 	return str;
 }
 
-bool ShadowMapModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool GrayScottModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -249,7 +230,7 @@ bool ShadowMapModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "shadow_map_module")
+	if (strParentName == "blur_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();

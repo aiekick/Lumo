@@ -73,7 +73,7 @@ public:
 
 	void DrawTexture(ct::ivec2 vMaxSize);
 
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint)  override;
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
 
 private:
 	void LoadTexture2D(const std::string& vFilePathName);

@@ -80,11 +80,11 @@ void PosToDepthModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorI
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_SamplerImageInfos.size())
+		if (vBinding < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_SamplerImageInfos[vBinding] = *vImageInfo;
+				m_ImageInfos[vBinding] = *vImageInfo;
 
 				if ((&m_UBOFrag.use_sampler_pos)[vBinding] < 1.0f)
 				{
@@ -102,7 +102,7 @@ void PosToDepthModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorI
 
 				if (m_EmptyTexturePtr)
 				{
-					m_SamplerImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
+					m_ImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
 				}
 				else
 				{
@@ -170,7 +170,7 @@ bool PosToDepthModule_Pass::CreateUBO()
 
 	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
-	for (auto& a : m_SamplerImageInfos)
+	for (auto& a : m_ImageInfos)
 	{
 		a = m_EmptyTexturePtr->m_DescriptorImageInfo;
 	}
@@ -214,7 +214,7 @@ bool PosToDepthModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_SamplerImageInfos[0], nullptr); // position
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // position
 
 	return true;
 }

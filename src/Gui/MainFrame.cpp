@@ -83,12 +83,17 @@ void MainFrame::Init()
 
 	ThemeHelper::Instance()->ApplyStyle();
 	LayoutManager::Instance()->Init("Layouts", "Default Layout");
+
+	LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::LEFT, 300.0f);
+	LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::RIGHT, 200.0f);
+
 	LayoutManager::Instance()->AddPane(DebugPane::Instance(), "Debug", (1 << 1), PaneDisposal::RIGHT, false, false);
-	LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D", (1 << 2), PaneDisposal::CENTRAL, false, false);
-	LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D", (1 << 3), PaneDisposal::CENTRAL, true, true);
-	LayoutManager::Instance()->AddPane(TuningPane::Instance(), "Tuning", (1 << 4), PaneDisposal::LEFT, true, false);
-	LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph", (1 << 5), PaneDisposal::RIGHT, true, false);
+	LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D", (1 << 2), PaneDisposal::LEFT, false, false);
 	LayoutManager::Instance()->AddPane(ScenePane::Instance(), "Scene", (1 << 6), PaneDisposal::RIGHT, false, false);
+
+	LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph", (1 << 5), PaneDisposal::CENTRAL, true, false);
+	LayoutManager::Instance()->AddPane(TuningPane::Instance(), "Tuning", (1 << 4), PaneDisposal::RIGHT, true, false);
+	LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D", (1 << 3), PaneDisposal::LEFT, true, true);
 #ifdef USE_PROFILER
 	LayoutManager::Instance()->AddPane(ProfilerPane::Instance(), "Profiler", (1 << 7), PaneDisposal::BOTTOM, true, false);
 #endif

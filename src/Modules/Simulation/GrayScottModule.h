@@ -24,42 +24,57 @@ SOFTWARE.
 
 #pragma once
 
+#include <set>
 #include <array>
+#include <string>
 #include <memory>
+
+#include <Headers/Globals.h>
+
+#include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
+
 #include <Base/BaseRenderer.h>
+#include <Base/QuadShaderPass.h>
+
+#include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanRessource.h>
+#include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanDevice.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/NodeInterface.h>
+#include <vkFramework/vk_mem_alloc.h>
+#include <vkFramework/VulkanShader.h>
+#include <vkFramework/ImGuiTexture.h>
+#include <vkFramework/VulkanRessource.h>
+#include <vkFramework/VulkanFrameBuffer.h>
+
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
-#include <Interfaces/CameraInterface.h>
+#include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
-#include <Interfaces/MergedInterface.h>
 
 namespace vkApi { class VulkanCore; }
-class HeatmapRenderer_Pass;
-class HeatmapRenderer :
+
+class GrayScottModule_Pass;
+class GrayScottModule :
 	public BaseRenderer,
-	public NodeInterface,
 	public GuiInterface,
 	public TaskInterface,
-	public ResizerInterface,
-	public ModelInputInterface,
-	public TextureOutputInterface
+	public TextureInputInterface<0U>,
+	public TextureOutputInterface,
+	public ResizerInterface
 {
 public:
-	static std::shared_ptr<HeatmapRenderer> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<GrayScottModule> Create(vkApi::VulkanCore* vVulkanCore);
 
 private:
-	std::shared_ptr<HeatmapRenderer_Pass> m_HeatmapRenderer_Pass_Ptr = nullptr;
+	ct::cWeak<GrayScottModule> m_This;
+
+	std::shared_ptr<GrayScottModule_Pass> m_GrayScottModule_Pass_Ptr = nullptr;
 
 public:
-	HeatmapRenderer(vkApi::VulkanCore* vVulkanCore);
-	~HeatmapRenderer() override;
+	GrayScottModule(vkApi::VulkanCore* vVulkanCore);
+	~GrayScottModule();
 
 	bool Init();
 
@@ -67,10 +82,9 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer = nullptr) override;
-	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
+	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
-
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };
