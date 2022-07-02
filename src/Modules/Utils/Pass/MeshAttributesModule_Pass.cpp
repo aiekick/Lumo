@@ -272,7 +272,7 @@ void MeshAttributesModule_Pass::SetInputStateBeforePipelineCreation()
 
 std::string MeshAttributesModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "MeshAttributesModule_Pass";
+	vOutShaderName = "MeshAttributesModule_Vertex_Pass";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -308,7 +308,7 @@ void main()
 
 std::string MeshAttributesModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "MeshAttributesModule_Pass";
+	vOutShaderName = "MeshAttributesModule_Fragment_Pass";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable

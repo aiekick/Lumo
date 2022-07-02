@@ -213,7 +213,7 @@ bool BlurModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 std::string BlurModule_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "BlurModule_Pass";
+	vOutShaderName = "BlurModule_Compute_Pass";
 
 	return u8R"(
 #version 450

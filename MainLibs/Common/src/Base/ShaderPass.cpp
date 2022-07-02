@@ -565,7 +565,7 @@ bool ShaderPass::CompilPixel()
 	m_VertexShaderCode.m_Code = GetVertexShaderCode(vertex_name);
 	assert(!vertex_name.empty());
 	m_VertexShaderCode.m_FilePathName = "shaders/" + vertex_name + ".vert";
-	auto vert_path = FileHelper::Instance()->GetAppPath() + "/" +  m_FragmentShaderCode.m_FilePathName;
+	auto vert_path = FileHelper::Instance()->GetAppPath() + "/" + m_VertexShaderCode.m_FilePathName;
 	if (FileHelper::Instance()->IsFileExist(vert_path))
 	{
 		m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(vert_path);
@@ -923,7 +923,6 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + m_VertexShaderCode.m_FilePathName;
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
-			m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path);
 			needReCompil = true;
 		}
 
@@ -933,7 +932,6 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + m_FragmentShaderCode.m_FilePathName;
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
-			m_FragmentShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path);
 			needReCompil = true;
 		}
 	}
@@ -942,7 +940,6 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + m_ComputeShaderCode.m_FilePathName;
 		if (FileHelper::Instance()->IsFileExist(shader_path))
 		{
-			m_ComputeShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path);
 			needReCompil = true;
 		}
 	}
