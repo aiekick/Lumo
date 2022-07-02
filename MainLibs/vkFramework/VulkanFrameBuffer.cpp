@@ -261,11 +261,14 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		auto logDevice = m_VulkanCore->getDevice();
-
 		attachmentViews.clear();
 		attachments.clear();
-		logDevice.destroyFramebuffer(framebuffer);
+
+		if (m_VulkanCore)
+		{
+			auto logDevice = m_VulkanCore->getDevice();
+			logDevice.destroyFramebuffer(framebuffer);
+		}
 	}
 
 	VulkanFrameBufferAttachment* VulkanFrameBuffer::GetDepthAttachment()

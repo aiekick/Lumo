@@ -152,11 +152,13 @@ public:
 		const bool& vUseDepth,
 		const bool& vNeedToClear,
 		const ct::fvec4& vClearColor,
+		const bool& vMultiPassMode,
 		const vk::Format& vFormat = vk::Format::eR32G32B32A32Sfloat,
 		const vk::SampleCountFlagBits& vSampleCount = vk::SampleCountFlagBits::e1);
 	virtual bool InitCompute2D(
 		const ct::uvec2& vDispatchSize,
 		const uint32_t& vCountBuffers,
+		const bool& vMultiPassMode,
 		const vk::Format& vFormat);
 	virtual bool InitCompute3D(const ct::uvec3& vDispatchSize);
 	virtual void Unit();

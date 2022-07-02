@@ -93,7 +93,7 @@ bool LaplacianModule::Init()
 		if (m_LaplacianModule_Pass_Ptr)
 		{
 			if (m_LaplacianModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_LaplacianModule_Pass_Ptr);
 				m_Loaded = true;

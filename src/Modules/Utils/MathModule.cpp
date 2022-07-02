@@ -91,7 +91,7 @@ bool MathModule::Init()
 		m_MathModule_Pass_Ptr = std::make_shared<MathModule_Pass>(m_VulkanCore);
 		if (m_MathModule_Pass_Ptr)
 		{
-			if (m_MathModule_Pass_Ptr->InitCompute2D(map_size, 1U, vk::Format::eR32G32B32A32Sfloat))
+			if (m_MathModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_MathModule_Pass_Ptr);
 				m_Loaded = true;

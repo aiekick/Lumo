@@ -52,6 +52,8 @@ protected:
 	uint32_t m_BufferIdToResize = 0U;								// buffer id to resize (mostly used in compute, because in pixel, all attachments must have same size)
 	bool m_IsRenderPassExternal = false;							// true if the renderpass is not created here, but come from external (inportant for not destroy him)
 	
+	bool m_MultiPassMode = false;
+
 	bool m_NeedResize = false;				// will be resized if true
 	bool m_Loaded = false;					// if shader operationnel
 	bool m_JustReseted = false;				// when shader was reseted
@@ -70,7 +72,7 @@ protected:
 	vk::Device m_Device;						// device copy
 
 	// ComputeBuffer
-	std::array<std::vector<Texture2DPtr>, 2U> m_ComputeBuffers;
+	std::vector<std::vector<Texture2DPtr>> m_ComputeBuffers;
 	vk::Format m_Format = vk::Format::eR32G32B32A32Sfloat;
 
 	// Submition
@@ -92,6 +94,7 @@ public: // contructor
 	bool Init(
 		const ct::uvec2& vSize, 
 		const uint32_t& vCountBuffers,
+		const bool& vMultiPassMode,
 		const vk::Format& vFormat);
 	void Unit();
 

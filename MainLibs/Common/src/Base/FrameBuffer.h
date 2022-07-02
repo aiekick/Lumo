@@ -57,6 +57,8 @@ protected:
 	uint32_t m_BufferIdToResize = 0U;								// buffer id to resize (mostly used in compute, because in pixel, all attachments must have same size)
 	bool m_IsRenderPassExternal = false;							// true if the renderpass is not created here, but come from external (inportant for not destroy him)
 	
+	bool m_MultiPassMode = false;
+
 	bool m_NeedResize = false;				// will be resized if true
 	bool m_Loaded = false;					// if shader operationnel
 	bool m_JustReseted = false;				// when shader was reseted
@@ -116,6 +118,7 @@ public: // contructor
 		const bool& vUseDepth, 
 		const bool& vNeedToClear, 
 		const ct::fvec4& vClearColor,
+		const bool& vMultiPassMode,
 		const vk::Format& vFormat,
 		const vk::SampleCountFlagBits& vSampleCount);
 	void Unit();

@@ -91,7 +91,7 @@ bool DiffuseModule::Init()
 		m_DiffuseModule_Pass_Ptr = std::make_shared<DiffuseModule_Pass>(m_VulkanCore);
 		if (m_DiffuseModule_Pass_Ptr)
 		{
-			if (m_DiffuseModule_Pass_Ptr->InitCompute2D(map_size, 1U, vk::Format::eR32G32B32A32Sfloat))
+			if (m_DiffuseModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_DiffuseModule_Pass_Ptr);
 				m_Loaded = true;

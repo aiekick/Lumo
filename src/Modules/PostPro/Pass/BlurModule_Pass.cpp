@@ -204,7 +204,7 @@ bool BlurModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 
 	assert(m_ComputeBufferPtr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // ssao
 
@@ -226,7 +226,7 @@ layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
 layout(std140, binding = 1) uniform UBO_Comp
 {
 	uint u_blur_radius; // default is 4
-	float u_blur_offset; // default is 1.0
+	uint u_blur_offset; // default is 1
 };
 
 layout(binding = 2) uniform sampler2D input_map_sampler;

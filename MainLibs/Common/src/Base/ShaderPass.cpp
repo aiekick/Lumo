@@ -127,6 +127,7 @@ bool ShaderPass::InitPixel(
 	const bool& vUseDepth,
 	const bool& vNeedToClear,
 	const ct::fvec4& vClearColor,
+	const bool& vMultiPassMode,
 	const vk::Format& vFormat,
 	const vk::SampleCountFlagBits& vSampleCount)
 {
@@ -151,7 +152,9 @@ bool ShaderPass::InitPixel(
 	CompilPixel();
 
 	m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCore);
-	if (m_FrameBufferPtr->Init(vSize, vCountColorBuffer, vUseDepth, vNeedToClear, vClearColor, vFormat, vSampleCount)) {
+	if (m_FrameBufferPtr->Init(
+		vSize, vCountColorBuffer, vUseDepth, vNeedToClear, 
+		vClearColor, vMultiPassMode, vFormat, vSampleCount)) {
 		if (BuildModel()) {
 			if (CreateSBO()) {
 				if (CreateUBO()) {
@@ -182,6 +185,7 @@ bool ShaderPass::InitPixel(
 bool ShaderPass::InitCompute2D(
 	const ct::uvec2& vDispatchSize,
 	const uint32_t& vCountBuffers,
+	const bool& vMultiPassMode,
 	const vk::Format& vFormat)
 {
 	m_RendererType = GenericType::COMPUTE;
@@ -204,7 +208,9 @@ bool ShaderPass::InitCompute2D(
 	CompilCompute();
 
 	m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCore);
-	if (m_ComputeBufferPtr->Init(vDispatchSize, vCountBuffers, vFormat)) {
+	if (m_ComputeBufferPtr->Init(
+		vDispatchSize, vCountBuffers, 
+		vMultiPassMode, vFormat)) {
 		if (BuildModel()) {
 			if (CreateSBO()) {
 				if (CreateUBO()) {

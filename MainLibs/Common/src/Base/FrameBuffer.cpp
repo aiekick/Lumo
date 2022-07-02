@@ -45,8 +45,6 @@ using namespace vkApi;
 //#define VERBOSE_DEBUG
 //#define BLEND_ENABLED
 
-#define COUNT_INTERNAL_BUFFERS 2
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PUBLIC / STATIC ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,6 +85,7 @@ bool FrameBuffer::Init(
 	const bool& vUseDepth, 
 	const bool& vNeedToClear, 
 	const ct::fvec4& vClearColor,
+	const bool& vMultiPassMode,
 	const vk::Format& vFormat,
 	const vk::SampleCountFlagBits& vSampleCount)
 {
@@ -98,6 +97,8 @@ bool FrameBuffer::Init(
 	ct::uvec2 size = ct::clamp(vSize, 1u, 8192u);
 	if (!size.emptyOR())
 	{
+		m_MultiPassMode = vMultiPassMode;
+
 		m_TemporarySize = ct::ivec2(size.x, size.y);
 		m_TemporaryCountBuffer = vCountColorBuffer;
 
@@ -290,7 +291,10 @@ void FrameBuffer::SetClearColorValue(const ct::fvec4& vColor)
 
 void FrameBuffer::Swap()
 {
-	m_CurrentFrame = 1U - m_CurrentFrame;
+	if (m_MultiPassMode)
+	{
+		m_CurrentFrame = 1U - m_CurrentFrame;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,8 +340,10 @@ ct::fvec2 FrameBuffer::GetOutputSize() const
 vkApi::VulkanFrameBuffer* FrameBuffer::GetBackFbo()
 {
 	ZoneScoped;
-
-	return &m_FrameBuffers[1 - m_CurrentFrame];
+	uint32_t frame = m_CurrentFrame;
+	if (m_MultiPassMode)
+		frame = 1U - frame;
+	return &m_FrameBuffers[frame];
 }
 
 vkApi::VulkanFrameBuffer* FrameBuffer::GetFrontFbo()
@@ -360,8 +366,11 @@ std::vector<vkApi::VulkanFrameBufferAttachment>* FrameBuffer::GetBackBufferAttac
 {
 	if (vMaxBuffers)
 		*vMaxBuffers = m_CountBuffers;
-	if (m_FrameBuffers.size() > (1 - m_CurrentFrame))
-		return &m_FrameBuffers[1 - m_CurrentFrame].attachments;
+	uint32_t frame = m_CurrentFrame;
+	if (m_MultiPassMode)
+		frame = 1U - frame;
+	if (m_FrameBuffers.size() > frame)
+		return &m_FrameBuffers[frame].attachments;
 	return 0;
 }
 
@@ -450,15 +459,19 @@ bool FrameBuffer::CreateFrameBuffers(
 			m_ClearColorValues.clear();
 
 			m_FrameBuffers.clear();
-			m_FrameBuffers.resize(COUNT_INTERNAL_BUFFERS);
 
 			res = true;
-
-			for (int i = 0; i < COUNT_INTERNAL_BUFFERS; ++i)
+			
+			m_FrameBuffers.push_back(vkApi::VulkanFrameBuffer{});
+			res &= m_FrameBuffers[0U].Init(
+				m_VulkanCore, size, m_CountBuffers, m_RenderPass, true,
+				vUseDepth, vNeedToClear, vClearColor, vFormat, vSampleCount);
+			
+			if (m_MultiPassMode)
 			{
-				// on cree la renderpass que pour le 1er fbo, apres on reutilisé la meme
-				res &= m_FrameBuffers[i].Init(
-					m_VulkanCore, size, m_CountBuffers, m_RenderPass, i == 0, 
+				m_FrameBuffers.push_back(vkApi::VulkanFrameBuffer{});
+				res &= m_FrameBuffers[1U].Init(
+					m_VulkanCore, size, m_CountBuffers, m_RenderPass, false,
 					vUseDepth, vNeedToClear, vClearColor, vFormat, vSampleCount);
 			}
 

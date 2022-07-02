@@ -1,0 +1,92 @@
+<config>
+	<project>
+		<scene>
+			<CommonSystem>
+				<TargetXYZ>2.38419e-07;0.251934;0.013261</TargetXYZ>
+				<TargetXYZLock>1;1;1</TargetXYZLock>
+				<TransXY>0;0</TransXY>
+				<TransXYLock>1;1</TransXYLock>
+				<TransFactor>5</TransFactor>
+				<RotXYZ>-0.192727;0.173865;0</RotXYZ>
+				<RotXYZLock>0;0;1</RotXYZLock>
+				<RotXYZFactor>1</RotXYZFactor>
+				<Zoom>43.9268</Zoom>
+				<ZoomLock>0</ZoomLock>
+				<ZoomFactor>5</ZoomFactor>
+				<PerspectiveAngle>45</PerspectiveAngle>
+				<CameraType>0</CameraType>
+				<CameraMode>0</CameraMode>
+			</CommonSystem>
+			<graph>
+				<canvas>
+					<offset>564.1;438</offset>
+					<scale>1</scale>
+				</canvas>
+				<nodes>
+					<node name="SSS Map" type="SSS_MAPPING" pos="-334;-122" id="1069713">
+						<slot name="Light" type="LIGHT" place="INPUT" id="1169715"/>
+						<slot name="Mesh" type="MESH" place="INPUT" id="1169716"/>
+						<slot name="Light" type="LIGHT" place="OUTPUT" id="1169717"/>
+						<slot name="Output" type="TEXTURE_2D" place="OUTPUT" id="1169718"/>
+						<shadow_map_module>
+							<can_we_render>true</can_we_render>
+						</shadow_map_module>
+					</node>
+					<node name="Scene Output" type="OUTPUT" pos="0;-27" id="9644">
+						<slot name="Output" type="TEXTURE_2D" place="INPUT" id="109646"/>
+					</node>
+					<node name="Model" type="MESH" pos="-531;15" id="10730">
+						<slot name="Output" type="MESH" place="OUTPUT" id="110732"/>
+						<mesh_module>
+							<file_path_name>C:\gamedev\gitlab\Lumo\bin\meshs\lion.gltf</file_path_name>
+							<file_path>C:\gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Light" type="LIGHT" pos="-521;-70" id="854685">
+						<slot name="Output" type="LIGHT" place="OUTPUT" id="954687"/>
+						<light_group>
+							<light>
+								<transform>1;0;0;0;0;1;0;0;0;0;1;0;-0.444232;-2.34209;-1.40694;1</transform>
+								<color>1;1;1;1</color>
+								<perspective_angle>45</perspective_angle>
+								<intensity>1</intensity>
+								<type>DIRECTIONNAL</type>
+								<name>Light</name>
+								<show_icon>true</show_icon>
+								<show_text>true</show_text>
+							</light>
+						</light_group>
+					</node>
+					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-404;-22" id="857156">
+						<slot name="Mesh" type="MESH" place="INPUT" id="957158"/>
+						<slot name="Mask" type="TEXTURE_2D" place="INPUT" id="957159"/>
+						<slot name="Position" type="TEXTURE_2D" place="OUTPUT" id="957160"/>
+						<slot name="Normal" type="TEXTURE_2D" place="OUTPUT" id="957161"/>
+						<slot name="Tangeant" type="TEXTURE_2D" place="OUTPUT" id="957162"/>
+						<slot name="BiTangeant" type="TEXTURE_2D" place="OUTPUT" id="957163"/>
+						<slot name="UV" type="TEXTURE_2D" place="OUTPUT" id="957164"/>
+						<slot name="Color" type="TEXTURE_2D" place="OUTPUT" id="957165"/>
+						<slot name="Depth" type="TEXTURE_2D" place="OUTPUT" id="957166"/>
+					</node>
+					<node name="Model SSS" type="MODEL_SSS" pos="-177;-42" id="1068176">
+						<slot name="Light" type="LIGHT" place="INPUT" id="1168178"/>
+						<slot name="Position" type="TEXTURE_2D" place="INPUT" id="1168179"/>
+						<slot name="SSS Map" type="TEXTURE_2D" place="INPUT" id="1168180"/>
+						<slot name="Output" type="TEXTURE_2D" place="OUTPUT" id="1168181"/>
+							<bias>0.01</bias>
+							<noise_scale>4673.9</noise_scale>
+					</node>
+				</nodes>
+				<links>
+					<link in="10730:110732" out="1069713:1169716"/>
+					<link in="10730:110732" out="857156:957158"/>
+					<link in="854685:954687" out="1069713:1169715"/>
+					<link in="1069713:1169717" out="1068176:1168178"/>
+					<link in="1069713:1169718" out="1068176:1168180"/>
+					<link in="857156:957160" out="1068176:1168179"/>
+					<link in="1068176:1168181" out="9644:109646"/>
+				</links>
+			</graph>
+		</scene>
+	</project>
+</config>

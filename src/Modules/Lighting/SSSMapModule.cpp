@@ -92,7 +92,7 @@ bool SSSMapModule::Init()
 		if (m_SSSMapModule_Pass_Ptr)
 		{
 			if (m_SSSMapModule_Pass_Ptr->InitPixel(1024U, 1U, true, true, 0.0f,
-				vk::Format::eR32Sfloat, vk::SampleCountFlagBits::e1))
+				false, vk::Format::eR32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				m_SSSMapModule_Pass_Ptr->AllowResize(false); // 1024 is fixed
 				AddGenericPass(m_SSSMapModule_Pass_Ptr);

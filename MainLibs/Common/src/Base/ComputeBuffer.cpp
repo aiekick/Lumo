@@ -78,6 +78,7 @@ ComputeBuffer::~ComputeBuffer()
 bool ComputeBuffer::Init(
 	const ct::uvec2& vSize,
 	const uint32_t& vCountBuffers,
+	const bool& vMultiPassMode,
 	const vk::Format& vFormat)
 {
 	ZoneScoped;
@@ -88,14 +89,14 @@ bool ComputeBuffer::Init(
 	ct::uvec2 size = ct::clamp(vSize, 1u, 8192u);
 	if (!size.emptyOR())
 	{
+		m_MultiPassMode = vMultiPassMode;
+
 		m_TemporarySize = ct::ivec2(size.x, size.y);
 		m_TemporaryCountBuffer = vCountBuffers;
 
 		m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
 
 		m_OutputSize = ct::uvec3(size.x, size.y, 0);
-		//m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(m_OutputSize.x, m_OutputSize.y));
-		//m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(m_OutputSize.x), static_cast<float>(m_OutputSize.y), 0, 1.0f);
 		m_OutputRatio = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>();
 
 		m_Format = vFormat;
@@ -159,8 +160,6 @@ bool ComputeBuffer::ResizeIfNeeded()
 
 		m_TemporaryCountBuffer = m_CountBuffers;
 		m_TemporarySize = ct::ivec2(m_OutputSize.x, m_OutputSize.y);
-		//m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(m_OutputSize.x, m_OutputSize.y));
-		//m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(m_OutputSize.x), static_cast<float>(m_OutputSize.y), 0, 1.0f);
 		m_OutputRatio = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>();
 
 		m_NeedResize = false;
@@ -179,9 +178,6 @@ bool ComputeBuffer::Begin(vk::CommandBuffer* vCmdBuffer)
 {
 	if (m_Loaded)
 	{
-		//vCmdBuffer->setViewport(0, 1, &m_Viewport);
-		//vCmdBuffer->setScissor(0, 1, &m_RenderArea);
-
 		return true;
 	}
 
@@ -202,7 +198,10 @@ void ComputeBuffer::End(vk::CommandBuffer* vCmdBuffer)
 
 void ComputeBuffer::Swap()
 {
-	m_CurrentFrame = 1U - m_CurrentFrame;
+	if (m_MultiPassMode)
+	{
+		m_CurrentFrame = 1U - m_CurrentFrame;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +237,11 @@ vk::DescriptorImageInfo* ComputeBuffer::GetBackDescriptorImageInfo(const uint32_
 {
 	if (vBindingPoint < m_CountBuffers)
 	{
-		auto& buffers = m_ComputeBuffers[1U - m_CurrentFrame];
+		uint32_t frame = m_CurrentFrame;
+		if (m_MultiPassMode)
+			frame = 1U - frame;
+
+		auto& buffers = m_ComputeBuffers[frame];
 		if (vBindingPoint < buffers.size())
 		{
 			return &buffers[vBindingPoint]->m_DescriptorImageInfo;
@@ -271,18 +274,24 @@ bool ComputeBuffer::CreateComputeBuffers(
 		{
 			m_CountBuffers = countColorBuffers;
 			m_OutputSize = ct::uvec3(size, 0);
-			//m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(m_OutputSize.x, m_OutputSize.y));
-			//m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(m_OutputSize.x), static_cast<float>(m_OutputSize.y), 0, 1.0f);
 			m_OutputRatio = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>();
 
 			res = true;
 
-			for (auto& buffers : m_ComputeBuffers)
+			m_ComputeBuffers.clear();
+			m_ComputeBuffers.push_back(std::vector<Texture2DPtr>{});
+			m_ComputeBuffers[0U].resize(m_CountBuffers);
+			for (auto& bufferPtr : m_ComputeBuffers[0U])
 			{
-				buffers.clear();
-				buffers.resize(m_CountBuffers);
+				bufferPtr = Texture2D::CreateEmptyImage(m_VulkanCore, size, vFormat);
+				res &= (bufferPtr != nullptr);
+			}
 
-				for (auto& bufferPtr : buffers)
+			if (m_MultiPassMode)
+			{
+				m_ComputeBuffers.push_back(std::vector<Texture2DPtr>{});
+				m_ComputeBuffers[1U].resize(m_CountBuffers);
+				for (auto& bufferPtr : m_ComputeBuffers[1U])
 				{
 					bufferPtr = Texture2D::CreateEmptyImage(m_VulkanCore, size, vFormat);
 					res &= (bufferPtr != nullptr);
@@ -306,8 +315,5 @@ void ComputeBuffer::DestroyComputeBuffers()
 {
 	ZoneScoped;
 
-	for (uint32_t i = 0; i < 2U; ++i)
-	{
-		m_ComputeBuffers[i].clear();
-	}
+	m_ComputeBuffers.clear();
 }
