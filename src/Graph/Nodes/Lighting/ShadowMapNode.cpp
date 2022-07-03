@@ -18,11 +18,11 @@ limitations under the License.
 #include <Modules/Lighting/ShadowMapModule.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-std::shared_ptr<ShadowMapNode> ShadowMapNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<ShadowMapNode> ShadowMapNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ShadowMapNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ ShadowMapNode::~ShadowMapNode()
 	Unit();
 }
 
-bool ShadowMapNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool ShadowMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Shadow Map";
 
@@ -63,7 +63,7 @@ bool ShadowMapNode::Init(vkApi::VulkanCore* vVulkanCore)
 	AddOutput(slot, true, true);
 
 	bool res = false;
-	m_ShadowMapModulePtr = ShadowMapModule::Create(vVulkanCore);
+	m_ShadowMapModulePtr = ShadowMapModule::Create(vVulkanCorePtr);
 	if (m_ShadowMapModulePtr)
 	{
 		res = true;

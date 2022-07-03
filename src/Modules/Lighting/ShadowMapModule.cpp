@@ -40,9 +40,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<ShadowMapModule>(vVulkanCore);
+	auto res = std::make_shared<ShadowMapModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -55,8 +55,8 @@ std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(vkApi::VulkanCore* vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ShadowMapModule::ShadowMapModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+ShadowMapModule::ShadowMapModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -80,7 +80,7 @@ bool ShadowMapModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_ShadowMapModule_Pass_Ptr = std::make_shared<ShadowMapModule_Pass>(m_VulkanCore);
+		m_ShadowMapModule_Pass_Ptr = std::make_shared<ShadowMapModule_Pass>(m_VulkanCorePtr);
 		if (m_ShadowMapModule_Pass_Ptr)
 		{
 			if (m_ShadowMapModule_Pass_Ptr->InitPixel(1024U, 1U, true, true, 0.0f,

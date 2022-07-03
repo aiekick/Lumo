@@ -27,24 +27,29 @@ namespace vkApi
 	std::mutex VulkanSubmitter::criticalSectionMutex;
 
 	bool VulkanSubmitter::Submit(
-		vkApi::VulkanCore* vVulkanCore,
+		vkApi::VulkanCorePtr vVulkanCorePtr,
 		vk::QueueFlagBits vQueueType,
 		vk::SubmitInfo vSubmitInfo,
 		vk::Fence vWaitFence)
 	{
 		ZoneScoped;
 
-		std::unique_lock<std::mutex> lck(VulkanSubmitter::criticalSectionMutex, std::defer_lock);
-		lck.lock();
-		auto result = vVulkanCore->getQueue(vQueueType).vkQueue.submit(1, &vSubmitInfo, vWaitFence);
-		if (result == vk::Result::eErrorDeviceLost)
+		if (vVulkanCorePtr)
 		{
-			// driver lost, we'll crash in this case:
-			LogVarError("Driver Lost after submit");
-			return false;
-		}
-		lck.unlock();
+			std::unique_lock<std::mutex> lck(VulkanSubmitter::criticalSectionMutex, std::defer_lock);
+			lck.lock();
+			auto result = vVulkanCorePtr->getQueue(vQueueType).vkQueue.submit(1, &vSubmitInfo, vWaitFence);
+			if (result == vk::Result::eErrorDeviceLost)
+			{
+				// driver lost, we'll crash in this case:
+				LogVarError("Driver Lost after submit");
+				return false;
+			}
+			lck.unlock();
 
-		return true;
+			return true;
+		}
+
+		return false;
 	}
 }

@@ -40,9 +40,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MathModule> MathModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<MathModule> MathModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<MathModule>(vVulkanCore);
+	auto res = std::make_shared<MathModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -55,8 +55,8 @@ std::shared_ptr<MathModule> MathModule::Create(vkApi::VulkanCore* vVulkanCore)
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MathModule::MathModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+MathModule::MathModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -80,7 +80,7 @@ bool MathModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_MathModule_Pass_Ptr = std::make_shared<MathModule_Pass>(m_VulkanCore);
+		m_MathModule_Pass_Ptr = std::make_shared<MathModule_Pass>(m_VulkanCorePtr);
 		if (m_MathModule_Pass_Ptr)
 		{
 			if (m_MathModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))

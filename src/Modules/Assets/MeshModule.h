@@ -35,7 +35,7 @@ class MeshModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<MeshModule> Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode);
+	static std::shared_ptr<MeshModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
 	ct::cWeak<MeshModule> m_This;
@@ -53,12 +53,12 @@ private:
 	bool m_NeedModelUpdate = false;
 
 	SceneModelPtr m_SceneModelPtr = nullptr;
-	vkApi::VulkanCore* m_VulkanCore = nullptr;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 	std::string unique_OpenMeshFileDialog_id;
 
 public:
-	MeshModule(vkApi::VulkanCore* vVulkanCore);
+	MeshModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~MeshModule();
 
 	bool Init();

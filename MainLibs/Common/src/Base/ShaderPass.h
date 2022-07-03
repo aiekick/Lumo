@@ -71,7 +71,7 @@ protected:
 	bool m_NeedNewSBOUpload = false;
 	bool m_DontCreateShaderFilesOnDisk = false;
 
-	vkApi::VulkanCore* m_VulkanCore = nullptr;	// vulkan core
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;	// vulkan core
 	vkApi::VulkanQueue m_Queue;					// queue
 	vk::CommandPool m_CommandPool;				// command pool
 	vk::DescriptorPool m_DescriptorPool;		// descriptor pool
@@ -127,10 +127,10 @@ protected:
 	VertexStruct::PipelineVertexInputState m_InputState;
 
 public:
-	ShaderPass(vkApi::VulkanCore* vVulkanCore);
-	ShaderPass(vkApi::VulkanCore* vVulkanCore, const GenericType& vRendererTypeEnum);
-	ShaderPass(vkApi::VulkanCore* vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
-	ShaderPass(vkApi::VulkanCore* vVulkanCore, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+	ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum);
+	ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+	ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 	virtual ~ShaderPass();
 
 	// during init

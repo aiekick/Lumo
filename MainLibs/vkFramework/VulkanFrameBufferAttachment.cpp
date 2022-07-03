@@ -33,7 +33,7 @@ namespace vkApi
 	}
 
 	bool VulkanFrameBufferAttachment::InitColor2D(
-		vkApi::VulkanCore* vVulkanCore,
+		vkApi::VulkanCorePtr vVulkanCorePtr,
 		ct::uvec2 vSize,
 		vk::Format vFormat,
 		uint32_t vMipLevelCount,
@@ -42,7 +42,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		m_VulkanCore = vVulkanCore;
+		m_VulkanCorePtr = vVulkanCorePtr;
 
 		bool res = false;
 
@@ -56,7 +56,7 @@ namespace vkApi
 			ratio = (float)height / (float)width;
 			sampleCount = vSampleCount;
 
-			attachment = VulkanRessource::createColorAttachment2D(m_VulkanCore, width, height, mipLevelCount, format, sampleCount);
+			attachment = VulkanRessource::createColorAttachment2D(m_VulkanCorePtr, width, height, mipLevelCount, format, sampleCount);
 
 			vk::ImageViewCreateInfo imViewInfo = {};
 			imViewInfo.flags = vk::ImageViewCreateFlags();
@@ -65,7 +65,7 @@ namespace vkApi
 			imViewInfo.format = format;
 			imViewInfo.components = vk::ComponentMapping();
 			imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, mipLevelCount, 0, 1);
-			attachmentView = m_VulkanCore->getDevice().createImageView(imViewInfo);
+			attachmentView = m_VulkanCorePtr->getDevice().createImageView(imViewInfo);
 
 			vk::SamplerCreateInfo samplerInfo = {};
 			samplerInfo.flags = vk::SamplerCreateFlags();
@@ -83,7 +83,7 @@ namespace vkApi
 			//samplerInfo.minLod = 0.0f;
 			//samplerInfo.maxLod = static_cast<float>(m_MipLevelCount);
 			//samplerInfo.unnormalizedCoordinates = false;
-			attachmentSampler = m_VulkanCore->getDevice().createSampler(samplerInfo);
+			attachmentSampler = m_VulkanCorePtr->getDevice().createSampler(samplerInfo);
 
 			attachmentDescriptorInfo.sampler = attachmentSampler;
 			attachmentDescriptorInfo.imageView = attachmentView;
@@ -109,14 +109,14 @@ namespace vkApi
 	}
 
 	bool VulkanFrameBufferAttachment::InitDepth(
-		vkApi::VulkanCore* vVulkanCore, 
+		vkApi::VulkanCorePtr vVulkanCorePtr, 
 		ct::uvec2 vSize, 
 		vk::Format vFormat, 
 		vk::SampleCountFlagBits vSampleCount)
 	{
 		ZoneScoped;
 
-		m_VulkanCore = vVulkanCore;
+		m_VulkanCorePtr = vVulkanCorePtr;
 
 		bool res = false;
 
@@ -130,7 +130,7 @@ namespace vkApi
 			ratio = (float)height / (float)width;
 			sampleCount = vSampleCount;
 
-			attachment = VulkanRessource::createDepthAttachment(m_VulkanCore, width, height, format, sampleCount);
+			attachment = VulkanRessource::createDepthAttachment(m_VulkanCorePtr, width, height, format, sampleCount);
 
 			vk::ImageViewCreateInfo imViewInfo = {};
 			imViewInfo.flags = vk::ImageViewCreateFlags();
@@ -144,7 +144,7 @@ namespace vkApi
 				1,
 				0,
 				1);
-			attachmentView = m_VulkanCore->getDevice().createImageView(imViewInfo);
+			attachmentView = m_VulkanCorePtr->getDevice().createImageView(imViewInfo);
 
 			vk::SamplerCreateInfo samplerInfo = {};
 			samplerInfo.flags = vk::SamplerCreateFlags();
@@ -162,7 +162,7 @@ namespace vkApi
 			//samplerInfo.minLod = 0.0f;
 			//samplerInfo.maxLod = static_cast<float>(m_MipLevelCount);
 			//samplerInfo.unnormalizedCoordinates = false;
-			attachmentSampler = m_VulkanCore->getDevice().createSampler(samplerInfo);
+			attachmentSampler = m_VulkanCorePtr->getDevice().createSampler(samplerInfo);
 
 			attachmentDescriptorInfo.sampler = attachmentSampler;
 			attachmentDescriptorInfo.imageView = attachmentView;
@@ -189,7 +189,7 @@ namespace vkApi
 		ZoneScoped;
 
 		attachment.reset();
-		m_VulkanCore->getDevice().destroyImageView(attachmentView);
-		m_VulkanCore->getDevice().destroySampler(attachmentSampler);
+		m_VulkanCorePtr->getDevice().destroyImageView(attachmentView);
+		m_VulkanCorePtr->getDevice().destroySampler(attachmentSampler);
 	}
 }

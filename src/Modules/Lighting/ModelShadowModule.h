@@ -60,7 +60,7 @@ class ModelShadowModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<ModelShadowModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<ModelShadowModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<ModelShadowModule> m_This;
@@ -68,7 +68,7 @@ private:
 	std::shared_ptr<ModelShadowModule_Pass> m_ModelShadowModule_Pass_Ptr = nullptr;
 
 public:
-	ModelShadowModule(vkApi::VulkanCore* vVulkanCore);
+	ModelShadowModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ModelShadowModule();
 
 	bool Init();

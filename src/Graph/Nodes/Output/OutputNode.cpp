@@ -18,11 +18,11 @@ limitations under the License.
 #include <Modules/Output/OutputModule.h>
 #include <Interfaces/MergedInterface.h>
 
-std::shared_ptr<OutputNode> OutputNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<OutputNode> OutputNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<OutputNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ OutputNode::~OutputNode()
 	Unit();
 }
 
-bool OutputNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool OutputNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Scene Output";
 
@@ -50,7 +50,7 @@ bool OutputNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_OutputModulePtr = OutputModule::Create(vVulkanCore, m_This);
+	m_OutputModulePtr = OutputModule::Create(vVulkanCorePtr, m_This);
 	if (m_OutputModulePtr)
 	{
 		res = true;

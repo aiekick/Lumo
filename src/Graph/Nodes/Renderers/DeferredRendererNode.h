@@ -33,7 +33,7 @@ class DeferredRendererNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<DeferredRendererNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<DeferredRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<DeferredRenderer> m_DeferredRendererPtr = nullptr;
@@ -41,7 +41,7 @@ private:
 public:
 	DeferredRendererNode();
 	~DeferredRendererNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

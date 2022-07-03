@@ -37,11 +37,11 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ComputeSmoothMeshNormal> ComputeSmoothMeshNormal::Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode, ct::uvec3 vDispatchSize)
+std::shared_ptr<ComputeSmoothMeshNormal> ComputeSmoothMeshNormal::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode, ct::uvec3 vDispatchSize)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<ComputeSmoothMeshNormal>(vVulkanCore);
+	auto res = std::make_shared<ComputeSmoothMeshNormal>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init(vDispatchSize))
@@ -55,8 +55,8 @@ std::shared_ptr<ComputeSmoothMeshNormal> ComputeSmoothMeshNormal::Create(vkApi::
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ComputeSmoothMeshNormal::ComputeSmoothMeshNormal(vkApi::VulkanCore* vVulkanCore)
-	: m_VulkanCore(vVulkanCore)
+ComputeSmoothMeshNormal::ComputeSmoothMeshNormal(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 
 }
@@ -79,9 +79,9 @@ bool ComputeSmoothMeshNormal::Init(ct::uvec3 vDispatchSize)
 	ct::uvec3 dispatchSize = ct::maxi<ct::uvec3>(vDispatchSize, 1u);
 	if (!dispatchSize.emptyOR())
 	{
-		m_Device = m_VulkanCore->getDevice();
-		m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-		m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+		m_Device = m_VulkanCorePtr->getDevice();
+		m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+		m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 		m_CommandPool = m_Queue.cmdPools;
 
 		m_DispatchSize = vDispatchSize;
@@ -317,7 +317,7 @@ void ComputeSmoothMeshNormal::SubmitCompute()
 		m_FirstRender = false;
 	}
 
-	VulkanSubmitter::Submit(m_VulkanCore, vk::QueueFlagBits::eCompute, submitInfo, m_WaitFences[m_CurrentFrame]);
+	VulkanSubmitter::Submit(m_VulkanCorePtr, vk::QueueFlagBits::eCompute, submitInfo, m_WaitFences[m_CurrentFrame]);
 }
 
 void ComputeSmoothMeshNormal::Swap()
@@ -483,13 +483,13 @@ bool ComputeSmoothMeshNormal::CreateSBO()
 	ZoneScoped;
 
 	const auto vertice_size = sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
-	m_SBO_Empty_Vertex_Input = VulkanRessource::createStorageBufferObject(m_VulkanCore, vertice_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
+	m_SBO_Empty_Vertex_Input = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, vertice_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
 
 	const auto index_size = sizeof(VertexStruct::I1);
-	m_SBO_Empty_Index_Input = VulkanRessource::createStorageBufferObject(m_VulkanCore, index_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
+	m_SBO_Empty_Index_Input = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, index_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
 
 	const auto normal_size = sizeof(ct::ivec3);
-	m_SBO_Empty_Normals_Compute_Helper = VulkanRessource::createStorageBufferObject(m_VulkanCore, normal_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
+	m_SBO_Empty_Normals_Compute_Helper = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, normal_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
 
 	return 
 		m_SBO_Empty_Vertex_Input != nullptr &&
@@ -545,7 +545,7 @@ bool ComputeSmoothMeshNormal::BuildModel()
 		m_NormalDatas.resize(meshPtr->GetVerticesCount() * 3U);
 		const auto sizeInBytes = sizeof(int) * m_NormalDatas.size();
 		memset(m_NormalDatas.data(), 0U, sizeInBytes);
-		m_SBO_Normals_Compute_Helper = VulkanRessource::createGPUOnlyStorageBufferObject(m_VulkanCore, m_NormalDatas.data(), sizeInBytes);
+		m_SBO_Normals_Compute_Helper = VulkanRessource::createGPUOnlyStorageBufferObject(m_VulkanCorePtr, m_NormalDatas.data(), sizeInBytes);
 	}
 
 	return true;

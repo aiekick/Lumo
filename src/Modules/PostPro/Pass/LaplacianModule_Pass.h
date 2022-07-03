@@ -62,7 +62,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	LaplacianModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	LaplacianModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~LaplacianModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

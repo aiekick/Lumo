@@ -56,7 +56,7 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const NodeTypeEnum&
 	auto graphPtr = vNodeGraph.getValidShared();
 	if (graphPtr)
 	{
-		auto vulkanCore = graphPtr->m_VulkanCore;
+		auto vulkanCore = graphPtr->m_VulkanCorePtr;
 		switch (vNodeType)
 		{
 		// assets

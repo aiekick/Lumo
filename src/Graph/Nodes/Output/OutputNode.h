@@ -28,7 +28,7 @@ class OutputNode :
 	public TextureOutputInterface // le output n'est pas dans le graph, mais appelé par la vue, ce node conlue le graph, il est unique
 {
 public:
-	static std::shared_ptr<OutputNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<OutputNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<OutputModule> m_OutputModulePtr = nullptr;
@@ -38,7 +38,7 @@ private:
 public:
 	OutputNode();
 	~OutputNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;

@@ -61,7 +61,7 @@ private:
 	} m_UBOComp;
 
 public:
-	DiffuseModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	DiffuseModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~DiffuseModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

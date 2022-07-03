@@ -17,11 +17,11 @@ limitations under the License.
 #include "PosToDepthNode.h"
 #include <Modules/Utils/PosToDepthModule.h>
 
-std::shared_ptr<PosToDepthNode> PosToDepthNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<PosToDepthNode> PosToDepthNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<PosToDepthNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ PosToDepthNode::~PosToDepthNode()
 	Unit();
 }
 
-bool PosToDepthNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool PosToDepthNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Pos To Depth";
 
@@ -56,7 +56,7 @@ bool PosToDepthNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_PosToDepthModulePtr = PosToDepthModule::Create(vVulkanCore);
+	m_PosToDepthModulePtr = PosToDepthModule::Create(vVulkanCorePtr);
 	if (m_PosToDepthModulePtr)
 	{
 		res = true;

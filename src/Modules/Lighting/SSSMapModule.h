@@ -62,7 +62,7 @@ class SSSMapModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<SSSMapModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<SSSMapModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<SSSMapModule> m_This;
@@ -70,7 +70,7 @@ private:
 	std::shared_ptr<SSSMapModule_Pass> m_SSSMapModule_Pass_Ptr = nullptr;
 
 public:
-	SSSMapModule(vkApi::VulkanCore* vVulkanCore);
+	SSSMapModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~SSSMapModule();
 
 	bool Init();

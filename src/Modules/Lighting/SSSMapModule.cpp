@@ -40,9 +40,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSSMapModule> SSSMapModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<SSSMapModule> SSSMapModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<SSSMapModule>(vVulkanCore);
+	auto res = std::make_shared<SSSMapModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -55,8 +55,8 @@ std::shared_ptr<SSSMapModule> SSSMapModule::Create(vkApi::VulkanCore* vVulkanCor
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSSMapModule::SSSMapModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+SSSMapModule::SSSMapModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -80,7 +80,7 @@ bool SSSMapModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_SSSMapModule_Pass_Ptr = std::make_shared<SSSMapModule_Pass>(m_VulkanCore);
+		m_SSSMapModule_Pass_Ptr = std::make_shared<SSSMapModule_Pass>(m_VulkanCorePtr);
 		if (m_SSSMapModule_Pass_Ptr)
 		{
 			if (m_SSSMapModule_Pass_Ptr->InitPixel(1024U, 1U, true, true, 0.0f,

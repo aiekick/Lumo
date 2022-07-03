@@ -29,13 +29,13 @@ class Texture2D
 public:
 	static bool loadPNG(const std::string& inFile, std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight);
 	static bool loadImage(const std::string& inFile, std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight, uint32_t& outChannels);
-	static vk::DescriptorImageInfo GetImageInfoFromMemory(vkApi::VulkanCore *vVulkanCore, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels);
+	static vk::DescriptorImageInfo GetImageInfoFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels);
 
 public:
-	static Texture2DPtr CreateFromFile(vkApi::VulkanCore* vVulkanCore, std::string vFilePathName);
-	static Texture2DPtr CreateFromMemory(vkApi::VulkanCore* vVulkanCore, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels);
-	static Texture2DPtr CreateEmptyTexture(vkApi::VulkanCore* vVulkanCore, ct::uvec2 vSize, vk::Format vFormat);
-	static Texture2DPtr CreateEmptyImage(vkApi::VulkanCore* vVulkanCore, ct::uvec2 vSize, vk::Format vFormat);
+	static Texture2DPtr CreateFromFile(vkApi::VulkanCorePtr vVulkanCorePtr, std::string vFilePathName);
+	static Texture2DPtr CreateFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels);
+	static Texture2DPtr CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat);
+	static Texture2DPtr CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat);
 
 public:
 	std::shared_ptr<VulkanRessourceObject> m_Texture2D = nullptr;
@@ -49,10 +49,10 @@ public:
 	bool m_Loaded = false;
 
 private:
-	vkApi::VulkanCore* m_VulkanCore = nullptr;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 public:
-	Texture2D(vkApi::VulkanCore* vVulkanCore);
+	Texture2D(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~Texture2D();
 	bool LoadFile(const std::string& vFilePathName, const vk::Format& vFormat = vk::Format::eR8G8B8A8Unorm, const uint32_t& vMipLevelCount = 1u);
 	bool LoadMemory(uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels, const vk::Format& vFormat = vk::Format::eR8G8B8A8Unorm, const uint32_t& vMipLevelCount = 1u);

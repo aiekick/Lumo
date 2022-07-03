@@ -227,7 +227,7 @@ void View3DPane::SetOrUpdateOutput(ct::cWeak<OutputModule> vOutputModule)
 	}
 }
 
-void View3DPane::SetVulkanImGuiRenderer(VulkanImGuiRenderer* vVulkanImGuiRenderer)
+void View3DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer)
 { 
 	m_VulkanImGuiRenderer = vVulkanImGuiRenderer; 
 }

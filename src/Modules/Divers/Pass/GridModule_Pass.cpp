@@ -27,8 +27,8 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GridModule_Pass::GridModule_Pass(vkApi::VulkanCore* vVulkanCore)
-	: VertexShaderPass(vVulkanCore)
+GridModule_Pass::GridModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: VertexShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Vertex Pass 1 : Grid", VERTEX_SHADER_PASS_DEBUG_COLOR);
 }
@@ -109,7 +109,7 @@ bool GridModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert));
+	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
 	if (m_UBO_Vert)
 	{
 		m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
@@ -130,7 +130,7 @@ void GridModule_Pass::UploadUBO()
 		4 * m_UBOVert.gridCount + 4 // grid
 		+ 6 // axis
 		;
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
 }
 
 void GridModule_Pass::DestroyUBO()

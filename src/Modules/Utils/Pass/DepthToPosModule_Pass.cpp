@@ -35,8 +35,8 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DepthToPosModule_Pass::DepthToPosModule_Pass(vkApi::VulkanCore* vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
+DepthToPosModule_Pass::DepthToPosModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Depth To Pos", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
@@ -52,7 +52,7 @@ DepthToPosModule_Pass::~DepthToPosModule_Pass()
 
 bool DepthToPosModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	DrawInputTexture(m_VulkanCore, "Input Depth", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Input Depth", 0U, m_OutputRatio);
 
 	return false;
 }
@@ -156,12 +156,12 @@ bool DepthToPosModule_Pass::CreateUBO()
 	ZoneScoped;
 
 	auto size_in_bytes = sizeof(UBOFrag);
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes);
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
 	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
 	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
 	for (auto& a : m_ImageInfos)
 	{
@@ -177,7 +177,7 @@ void DepthToPosModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void DepthToPosModule_Pass::DestroyUBO()

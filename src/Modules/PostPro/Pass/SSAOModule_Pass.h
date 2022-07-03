@@ -67,7 +67,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	SSAOModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	SSAOModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~SSAOModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

@@ -37,7 +37,7 @@ class GridModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<GridModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<GridModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<GridModule_Pass> m_GridModule_Pass_Ptr = nullptr;
@@ -56,7 +56,7 @@ private:
 	} m_UBOVert;
 
 public:
-	GridModule(vkApi::VulkanCore* vVulkanCore);
+	GridModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~GridModule() override;
 
 	bool Init();

@@ -18,11 +18,11 @@ limitations under the License.
 #include <Modules/Lighting/SSSMapModule.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-std::shared_ptr<SSSMapNode> SSSMapNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<SSSMapNode> SSSMapNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<SSSMapNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ SSSMapNode::~SSSMapNode()
 	Unit();
 }
 
-bool SSSMapNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool SSSMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "SSS Map";
 
@@ -63,7 +63,7 @@ bool SSSMapNode::Init(vkApi::VulkanCore* vVulkanCore)
 	AddOutput(slot, true, true);
 
 	bool res = false;
-	m_SSSMapModulePtr = SSSMapModule::Create(vVulkanCore);
+	m_SSSMapModulePtr = SSSMapModule::Create(vVulkanCorePtr);
 	if (m_SSSMapModulePtr)
 	{
 		res = true;

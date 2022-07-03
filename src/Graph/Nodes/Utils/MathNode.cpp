@@ -17,11 +17,11 @@ limitations under the License.
 #include "MathNode.h"
 #include <Modules/Utils/MathModule.h>
 
-std::shared_ptr<MathNode> MathNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<MathNode> MathNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<MathNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ MathNode::~MathNode()
 	Unit();
 }
 
-bool MathNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool MathNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Math";
 
@@ -56,7 +56,7 @@ bool MathNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_MathModulePtr = MathModule::Create(vVulkanCore);
+	m_MathModulePtr = MathModule::Create(vVulkanCorePtr);
 	if (m_MathModulePtr)
 	{
 		res = true;

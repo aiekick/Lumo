@@ -26,9 +26,9 @@ limitations under the License.
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-OutputModulePtr OutputModule::Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode)
+OutputModulePtr OutputModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
-	auto res = std::make_shared<OutputModule>(vVulkanCore);
+	auto res = std::make_shared<OutputModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -42,8 +42,8 @@ OutputModulePtr OutputModule::Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWea
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-OutputModule::OutputModule(vkApi::VulkanCore* vVulkanCore)
-	: m_VulkanCore(vVulkanCore)
+OutputModule::OutputModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	ZoneScoped;	
 }
@@ -151,10 +151,10 @@ vk::DescriptorImageInfo* OutputModule::GetDescriptorImageInfo(const uint32_t& vB
 	if (parentNodePtr)
 	{
 		auto desc = parentNodePtr->GetDescriptorImageInfo(vBindingPoint);
-		auto imguiRendererPtr = m_VulkanCore->GetVulkanImGuiRenderer().getValidShared();
+		auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().getValidShared();
 		if (imguiRendererPtr)
 		{
-			m_ImGuiTexture.SetDescriptor(imguiRendererPtr.get(), desc);
+			m_ImGuiTexture.SetDescriptor(imguiRendererPtr, desc);
 			m_ImGuiTexture.ratio = m_fOutputSize.ratioXY<float>();
 		}
 		return desc;

@@ -61,7 +61,7 @@ private:
 	} m_UBOComp;
 
 public:
-	SpecularModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	SpecularModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~SpecularModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

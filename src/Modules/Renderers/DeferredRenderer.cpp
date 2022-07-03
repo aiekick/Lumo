@@ -37,9 +37,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<DeferredRenderer>(vVulkanCore);
+	auto res = std::make_shared<DeferredRenderer>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -52,8 +52,8 @@ std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(vkApi::VulkanCore* vV
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DeferredRenderer::DeferredRenderer(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+DeferredRenderer::DeferredRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -77,7 +77,7 @@ bool DeferredRenderer::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_DeferredRenderer_Pass_Ptr = std::make_shared<DeferredRenderer_Pass>(m_VulkanCore);
+		m_DeferredRenderer_Pass_Ptr = std::make_shared<DeferredRenderer_Pass>(m_VulkanCorePtr);
 		if (m_DeferredRenderer_Pass_Ptr)
 		{
 			if (m_DeferredRenderer_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

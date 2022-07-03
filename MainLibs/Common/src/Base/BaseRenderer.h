@@ -82,7 +82,7 @@ protected:
 	ct::cWeak<BaseRenderer> m_This;				// pointer to this for affected in other op
 
 	// vulkan creation
-	vkApi::VulkanCore* m_VulkanCore = nullptr;	// vulkan core
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;	// vulkan core
 	vkApi::VulkanQueue m_Queue;					// queue
 	vk::CommandPool m_CommandPool;				// command pool
 	vk::DescriptorPool m_DescriptorPool;		// descriptor pool
@@ -105,8 +105,8 @@ protected:
 	std::vector<ShaderPassPtr> m_ShaderPass;
 
 public: // contructor
-	BaseRenderer(vkApi::VulkanCore* vVulkanCore);
-	BaseRenderer(vkApi::VulkanCore* vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+	BaseRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
+	BaseRenderer(vkApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 	virtual ~BaseRenderer();
 
 	// Generic Renderer Pass

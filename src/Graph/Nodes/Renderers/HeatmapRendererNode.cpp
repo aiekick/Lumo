@@ -18,11 +18,11 @@ limitations under the License.
 #include <Modules/Renderers/HeatmapRenderer.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-std::shared_ptr<HeatmapRendererNode> HeatmapRendererNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<HeatmapRendererNode> HeatmapRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<HeatmapRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ HeatmapRendererNode::~HeatmapRendererNode()
 	Unit();
 }
 
-bool HeatmapRendererNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool HeatmapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Heatmap";
 
@@ -55,7 +55,7 @@ bool HeatmapRendererNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_HeatmapRenderer = HeatmapRenderer::Create(vVulkanCore);
+	m_HeatmapRenderer = HeatmapRenderer::Create(vVulkanCorePtr);
 	if (m_HeatmapRenderer)
 	{
 		res = true;

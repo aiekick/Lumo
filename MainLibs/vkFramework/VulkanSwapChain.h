@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <vulkan/vulkan.hpp>
 #include "vk_mem_alloc.h"
+#include <vkFramework/vkFramework.h>
 
 #include <ctools/cTools.h>
 
@@ -62,6 +63,9 @@ namespace vkApi
 			vk::ImageView view;
 		};
 
+	public:
+		static VulkanSwapChainPtr Create(VulkanWindowPtr vVulkanWindow, VulkanCorePtr vVulkanCorePtr, std::function<void()> vResizeFunc);
+
 	private:
 		std::function<void()> m_ResizeFunction = 0;
 
@@ -97,17 +101,17 @@ namespace vkApi
 #endif
 
 	private:
-		VulkanWindow* m_VulkanWindow = nullptr;
-		VulkanCore* m_VulkanCore = nullptr;
+		VulkanWindowPtr m_VulkanWindowPtr = nullptr;
+		VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 	public:
 		VulkanSwapChain() = default;
 		~VulkanSwapChain() = default;
 
 	public:
-		void Init(VulkanWindow* vVulkanWindow, VulkanCore* vVulkanCore, std::function<void()> vResizeFunc);
-		void Load();
-		void Reload();
+		bool Init(VulkanWindowPtr vVulkanWindow, VulkanCorePtr vVulkanCorePtr, std::function<void()> vResizeFunc);
+		bool Load();
+		bool Reload();
 		void Unit();
 
 	public: // get
@@ -126,10 +130,10 @@ namespace vkApi
 		void CheckSurfaceFormat();
 		void Resize();
 
-		void CreateSurface();
-		void CreateSyncObjects();
-		void CreateFrameBuffers();
-		void CreateRenderPass();
+		bool CreateSurface();
+		bool CreateSyncObjects();
+		bool CreateFrameBuffers();
+		bool CreateRenderPass();
 
 		void DestroySurface();
 		void DestroySyncObjects();

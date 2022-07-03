@@ -52,7 +52,7 @@ private:
 	bool m_UINeedRefresh = false;
 	uint32_t m_MaxBuffers = 0;
 
-	VulkanImGuiRenderer* m_VulkanImGuiRenderer = nullptr;
+	VulkanImGuiRendererPtr m_VulkanImGuiRenderer = nullptr;
 
 public:
 	bool Init() override;
@@ -62,7 +62,7 @@ public:
 	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
 
 	void SetOrUpdateOutput(ct::cWeak<OutputModule> vOutputModule);
-	void SetVulkanImGuiRenderer(VulkanImGuiRenderer* vVulkanImGuiRenderer);
+	void SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer);
 
 private:
 	void SetDescriptor(vkApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment);

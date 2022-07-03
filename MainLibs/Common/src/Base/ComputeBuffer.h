@@ -38,7 +38,7 @@ limitations under the License.
 class ComputeBuffer
 {
 public:
-	static ComputeBufferPtr Create(vkApi::VulkanCore* vVulkanCore);
+	static ComputeBufferPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 protected:
 	uint32_t m_BufferIdToResize = 0U;								// buffer id to resize (mostly used in compute, because in pixel, all attachments must have same size)
@@ -59,7 +59,7 @@ protected:
 	uint32_t m_CurrentFrame = 0U;
 
 	// vulkan creation
-	vkApi::VulkanCore* m_VulkanCore = nullptr;	// vulkan core
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;	// vulkan core
 	vkApi::VulkanQueue m_Queue;					// queue
 	vk::Device m_Device;						// device copy
 
@@ -79,7 +79,7 @@ protected:
 	float m_OutputRatio = 1.0f;
 
 public: // contructor
-	ComputeBuffer(vkApi::VulkanCore* vVulkanCore);
+	ComputeBuffer(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~ComputeBuffer();
 
 	// init/unit

@@ -40,8 +40,8 @@ public:
 	bool m_BufferObjectIsDirty = false;
 
 public:
-	virtual void UploadBufferObjectIfDirty(vkApi::VulkanCore* vVulkanCore) = 0;
-	virtual bool CreateBufferObject(vkApi::VulkanCore* vVulkanCore) = 0;
+	virtual void UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr) = 0;
+	virtual bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) = 0;
 	virtual void DestroyBufferObject() = 0;
 	//virtual std::string GetBufferObjectStructureHeader(const uint32_t& vBinding) = 0;
 	virtual vk::DescriptorBufferInfo* GetBufferInfo() = 0;

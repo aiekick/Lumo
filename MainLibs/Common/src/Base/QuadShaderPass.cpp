@@ -19,22 +19,22 @@ limitations under the License.
 #include <vkFramework/VulkanRessource.h>
 
 QuadShaderPass::QuadShaderPass(
-	vkApi::VulkanCore* vVulkanCore,
+	vkApi::VulkanCorePtr vVulkanCorePtr,
 	const MeshShaderPassType& vMeshShaderPassType)
 	: MeshShaderPass<VertexStruct::P2_T2>(
-		vVulkanCore,
+		vVulkanCorePtr,
 		vMeshShaderPassType)
 {
 
 }
 
 QuadShaderPass::QuadShaderPass(
-	vkApi::VulkanCore* vVulkanCore,
+	vkApi::VulkanCorePtr vVulkanCorePtr,
 	const MeshShaderPassType& vMeshShaderPassType,
 	vk::CommandPool* vCommandPool,
 	vk::DescriptorPool* vDescriptorPool)
 	: MeshShaderPass<VertexStruct::P2_T2>(
-		vVulkanCore,
+		vVulkanCorePtr,
 		vMeshShaderPassType,
 		vCommandPool,
 		vDescriptorPool)
@@ -56,13 +56,13 @@ bool QuadShaderPass::BuildModel()
 		0U, 1U, 2U, 0U, 2U, 3U
 	};
 
-	m_Vertices.m_Buffer = vkApi::VulkanRessource::createVertexBufferObject(m_VulkanCore, m_Vertices.m_Array);
+	m_Vertices.m_Buffer = vkApi::VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array);
 	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
 	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
 	m_Vertices.m_BufferInfo.offset = 0;
 
-	m_Indices.m_Buffer = vkApi::VulkanRessource::createIndexBufferObject(m_VulkanCore, m_Indices.m_Array);
+	m_Indices.m_Buffer = vkApi::VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array);
 	m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 	m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
 	m_Indices.m_BufferInfo.range = m_Indices.m_Count * sizeof(uint32_t);
@@ -75,7 +75,7 @@ void QuadShaderPass::DestroyModel(const bool& vReleaseDatas)
 {
 	ZoneScoped;
 
-	m_VulkanCore->getDevice().waitIdle();
+	m_VulkanCorePtr->getDevice().waitIdle();
 
 	m_Vertices.m_Buffer.reset();
 	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo{};

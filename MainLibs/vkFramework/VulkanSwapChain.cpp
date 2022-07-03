@@ -31,6 +31,10 @@ limitations under the License.
 
 namespace vkApi
 {
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//// STATIC ////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	static int g_SwapChainResizeWidth = 1280;
 	static int g_SwapChainResizeHeight = 720;
 	static bool g_SwapChainRebuild = false;
@@ -44,32 +48,47 @@ namespace vkApi
 		g_SwapChainResizeHeight = h;
 	}
 
+	VulkanSwapChainPtr VulkanSwapChain::Create(VulkanWindowPtr vVulkanWindow, VulkanCorePtr vVulkanCorePtr, std::function<void()> vResizeFunc)
+	{
+		auto res = std::make_shared<VulkanSwapChain>();
+		if (!res->Init(vVulkanWindow, vVulkanCorePtr, vResizeFunc))
+		{
+			res.reset();
+		}
+		return res;
+	}
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//// INIT //////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void VulkanSwapChain::Init(VulkanWindow* vVulkanWindow, VulkanCore* vVulkanCore, std::function<void()> vResizeFunc)
+	bool VulkanSwapChain::Init(VulkanWindowPtr vVulkanWindow, VulkanCorePtr vVulkanCorePtr, std::function<void()> vResizeFunc)
 	{
 		ZoneScoped;
 
-		if (!vResizeFunc) return;
+		if (!vResizeFunc) return false;
+
 		m_ResizeFunction = vResizeFunc;
 
-		m_VulkanWindow = vVulkanWindow;
-		m_VulkanCore = vVulkanCore;
+		m_VulkanWindowPtr = vVulkanWindow;
+		m_VulkanCorePtr = vVulkanCorePtr;
 
-		glfwSetFramebufferSizeCallback(vVulkanWindow->WinPtr(), glfw_resize_callback);
+		glfwSetFramebufferSizeCallback(vVulkanWindow->getWindowPtr(), glfw_resize_callback);
 
-		CreateSurface();
+		bool res = true;
 
-		Load();
+		res &= CreateSurface();
 
-		CreateRenderPass();
-		CreateFrameBuffers();
-		CreateSyncObjects();
+		res &= Load();
+
+		res &= CreateRenderPass();
+		res &= CreateFrameBuffers();
+		res &= CreateSyncObjects();
+
+		return res;
 	}
 
-	void VulkanSwapChain::Reload()
+	bool VulkanSwapChain::Reload()
 	{
 		ZoneScoped;
 
@@ -77,22 +96,26 @@ namespace vkApi
 		DestroyFrameBuffers();
 		DestroyRenderPass();
 
-		Load();
+		bool res = true;
 
-		CreateRenderPass();
-		CreateFrameBuffers();
-		CreateSyncObjects();
+		res &= Load();
+
+		res &= CreateRenderPass();
+		res &= CreateFrameBuffers();
+		res &= CreateSyncObjects();
+
+		return res;
 	}
 
-	void VulkanSwapChain::Load()
+	bool VulkanSwapChain::Load()
 	{
 		ZoneScoped;
 
-		auto physDevice = m_VulkanCore->getPhysicalDevice();
-		auto logDevice = m_VulkanCore->getDevice();
-		auto graphicQueue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+		auto physDevice = m_VulkanCorePtr->getPhysicalDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
+		auto graphicQueue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 
-		auto size = m_VulkanWindow->pixelrez();
+		auto size = m_VulkanWindowPtr->getFrameBufferResolution();
 		m_DisplayRect = ct::frect(0, 0, (float)size.x, (float)size.y);
 
 		// Setup viewports, Vsync
@@ -184,14 +207,16 @@ namespace vkApi
 		}
 
 		m_FrameIndex = 0;
+
+		return true; // todo : to add false cases
 	}
 
 	void VulkanSwapChain::CheckSurfaceFormat()
 	{
 		ZoneScoped;
 
-		auto physDevice = m_VulkanCore->getPhysicalDevice();
-		auto logDevice = m_VulkanCore->getDevice();
+		auto physDevice = m_VulkanCorePtr->getPhysicalDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
 
 		std::vector<vk::SurfaceFormatKHR> surfaceFormats = physDevice.getSurfaceFormatsKHR(m_Surface);
 		for (const auto& elem : surfaceFormats)
@@ -214,30 +239,32 @@ namespace vkApi
 		m_SurfaceColorSpace = surfaceFormats[0].colorSpace;
 	}
 
-	void VulkanSwapChain::CreateSurface()
+	bool VulkanSwapChain::CreateSurface()
 	{
 		ZoneScoped;
 
-		auto physDevice = m_VulkanCore->getPhysicalDevice();
-		auto logDevice = m_VulkanCore->getDevice();
-		auto queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+		auto physDevice = m_VulkanCorePtr->getPhysicalDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
+		auto queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 
 		// Surface
-		m_Surface = m_VulkanWindow->createSurface(m_VulkanCore->getInstance());
+		m_Surface = m_VulkanWindowPtr->createSurface(m_VulkanCorePtr->getInstance());
 
 		if (!physDevice.getSurfaceSupportKHR(queue.familyQueueIndex, m_Surface))
 		{
 			// Check if queueFamily supports this surface
 			LogVarError("No surface found for this queueFamily");
-			return;
+			return false;
 		}
+
+		return true; // todo : to add false cases
 	}
 
-	void VulkanSwapChain::CreateSyncObjects()
+	bool VulkanSwapChain::CreateSyncObjects()
 	{
 		ZoneScoped;
 
-		auto logDevice = m_VulkanCore->getDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
 
 		// Semaphore used to ensures that image presentation is complete before starting to submit again
 		m_PresentCompleteSemaphores.resize(SWAPCHAIN_IMAGES_COUNT);
@@ -249,15 +276,17 @@ namespace vkApi
 			m_RenderCompleteSemaphores[i] = logDevice.createSemaphore(vk::SemaphoreCreateInfo());
 			m_WaitFences[i] = logDevice.createFence(vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled));
 		}
+
+		return true; // todo : to add false cases
 	}
 
-	void VulkanSwapChain::CreateFrameBuffers()
+	bool VulkanSwapChain::CreateFrameBuffers()
 	{
 		ZoneScoped;
 
-		auto physDevice = m_VulkanCore->getPhysicalDevice();
-		auto logDevice = m_VulkanCore->getDevice();
-		auto queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+		auto physDevice = m_VulkanCorePtr->getPhysicalDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
+		auto queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 
 		m_SwapchainFrameBuffers.resize(SWAPCHAIN_IMAGES_COUNT);
 
@@ -283,7 +312,7 @@ namespace vkApi
 		VmaAllocation depth_alloction = {};
 		VmaAllocationCreateInfo depth_alloc_info = {};
 		depth_alloc_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-		m_VulkanCore->check_error(vmaCreateImage(vkApi::VulkanCore::sAllocator, (VkImageCreateInfo*)&image_ci,
+		m_VulkanCorePtr->check_error(vmaCreateImage(vkApi::VulkanCore::sAllocator, (VkImageCreateInfo*)&image_ci,
 			&depth_alloc_info, (VkImage*)&depth, &depth_alloction, nullptr));
 
 		m_Depth.image = depth;
@@ -347,15 +376,17 @@ namespace vkApi
 				)
 			);
 		}
+
+		return true; // todo : to add false cases
 	}
 
-	void VulkanSwapChain::CreateRenderPass()
+	bool VulkanSwapChain::CreateRenderPass()
 	{
 		ZoneScoped;
 
-		auto physDevice = m_VulkanCore->getPhysicalDevice();
-		auto logDevice = m_VulkanCore->getDevice();
-		auto queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+		auto physDevice = m_VulkanCorePtr->getPhysicalDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
+		auto queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 
 		std::vector<vk::AttachmentDescription> attachmentDescriptions =
 		{
@@ -452,6 +483,8 @@ namespace vkApi
 #ifdef SWAPCHAIN_USE_DEPTH
 		m_ClearValues[1] = vk::ClearDepthStencilValue(1.0f, 0u);
 #endif
+
+		return true; // todo : to add false cases
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -462,7 +495,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		m_VulkanCore->getDevice().waitIdle();
+		m_VulkanCorePtr->getDevice().waitIdle();
 		g_SwapChainRebuild = false;
 		m_ResizeFunction();
 	}
@@ -475,7 +508,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		auto logDevice = m_VulkanCore->getDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
 
 		DestroyRenderPass();
 		DestroyFrameBuffers();
@@ -490,7 +523,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		auto logDevice = m_VulkanCore->getDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
 
 		for (auto& elem : m_SwapchainFrameBuffers)
 		{
@@ -507,7 +540,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		auto logDevice = m_VulkanCore->getDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
 
 		logDevice.destroyRenderPass(m_RenderPass);
 	}
@@ -516,7 +549,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		auto logDevice = m_VulkanCore->getDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
 
 		for (size_t i = 0; i < SWAPCHAIN_IMAGES_COUNT; ++i)
 		{
@@ -530,7 +563,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		auto instance = m_VulkanCore->getInstance();
+		auto instance = m_VulkanCorePtr->getInstance();
 
 		instance.destroySurfaceKHR(m_Surface);
 	}
@@ -589,7 +622,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		auto logDevice = m_VulkanCore->getDevice();
+		auto logDevice = m_VulkanCorePtr->getDevice();
 		vk::Result result = logDevice.acquireNextImageKHR(m_Swapchain, UINT64_MAX, m_PresentCompleteSemaphores[m_FrameIndex], nullptr, &m_FrameIndex);
 		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR || g_SwapChainRebuild)
 		{
@@ -600,7 +633,7 @@ namespace vkApi
 		if (result == vk::Result::eErrorDeviceLost)
 		{
 			// driver lost, we'll crash in this case:
-			m_VulkanCore->check_error(result);
+			m_VulkanCorePtr->check_error(result);
 			exit(1);
 		}
 
@@ -613,7 +646,7 @@ namespace vkApi
 
 		//std::unique_lock<std::mutex> lck(VulkanSubmitter::criticalSectionMutex, std::defer_lock);
 		//lck.lock();
-		auto queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+		auto queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 		auto result = queue.vkQueue.presentKHR(
 			vk::PresentInfoKHR(
 				1,

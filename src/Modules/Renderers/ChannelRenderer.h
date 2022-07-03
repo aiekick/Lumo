@@ -46,13 +46,13 @@ class ChannelRenderer :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<ChannelRenderer> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<ChannelRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<ChannelRenderer_Pass> m_ChannelRenderer_Pass_Ptr = nullptr;
 
 public:
-	ChannelRenderer(vkApi::VulkanCore* vVulkanCore);
+	ChannelRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ChannelRenderer() override;
 
 	bool Init();

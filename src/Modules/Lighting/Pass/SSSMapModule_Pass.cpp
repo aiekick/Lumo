@@ -35,8 +35,8 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSSMapModule_Pass::SSSMapModule_Pass(vkApi::VulkanCore* vVulkanCore)
-	: ShaderPass(vVulkanCore)
+SSSMapModule_Pass::SSSMapModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Light SSS Map", MESH_SHADER_PASS_DEBUG_COLOR);
 }
@@ -183,7 +183,7 @@ bool SSSMapModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert));
+	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
 	m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
 	m_DescriptorBufferInfo_Vert.range = sizeof(UBOVert);
 	m_DescriptorBufferInfo_Vert.offset = 0;
@@ -207,7 +207,7 @@ void SSSMapModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
 }
 
 void SSSMapModule_Pass::DestroyUBO()

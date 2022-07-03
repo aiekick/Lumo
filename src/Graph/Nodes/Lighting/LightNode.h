@@ -26,7 +26,7 @@ class LightNode :
 	public LightOutputInterface
 {
 public:
-	static std::shared_ptr<LightNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<LightNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<LightGroupModule> m_LightGroupModulePtr = nullptr;
@@ -34,7 +34,7 @@ private:
 public:
 	LightNode();
 	~LightNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	SceneLightGroupWeak GetLightGroup() override;

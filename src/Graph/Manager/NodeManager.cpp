@@ -48,13 +48,13 @@ NodeManager::NodeManager()
 //// INIT / UNIT ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::Init(vkApi::VulkanCore* vVulkanCore)
+bool NodeManager::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	m_RootNodePtr = std::make_shared<BaseNode>();
 	m_RootNodePtr->m_This = m_RootNodePtr;
-	if (!m_RootNodePtr->Init(vVulkanCore))
+	if (!m_RootNodePtr->Init(vVulkanCorePtr))
 	{
 		m_RootNodePtr.reset();
 		return false;

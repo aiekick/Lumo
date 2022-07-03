@@ -17,11 +17,11 @@ limitations under the License.
 #include "ComputeSmoothMeshNormalNode.h"
 #include <Modules/Modifiers/ComputeSmoothMeshNormal.h>
 
-std::shared_ptr<ComputeSmoothMeshNormalNode> ComputeSmoothMeshNormalNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<ComputeSmoothMeshNormalNode> ComputeSmoothMeshNormalNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ComputeSmoothMeshNormalNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ ComputeSmoothMeshNormalNode::~ComputeSmoothMeshNormalNode()
 
 }
 
-bool ComputeSmoothMeshNormalNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool ComputeSmoothMeshNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Smooth Normal";
 
@@ -52,7 +52,7 @@ bool ComputeSmoothMeshNormalNode::Init(vkApi::VulkanCore* vVulkanCore)
 	slot.showWidget = true;
 	AddOutput(slot, true, true);
 
-	m_ComputeSmoothMeshNormalPtr = ComputeSmoothMeshNormal::Create(vVulkanCore, m_This, ct::uvec3(1,0,0));
+	m_ComputeSmoothMeshNormalPtr = ComputeSmoothMeshNormal::Create(vVulkanCorePtr, m_This, ct::uvec3(1,0,0));
 	if (m_ComputeSmoothMeshNormalPtr)
 	{
 		return true;

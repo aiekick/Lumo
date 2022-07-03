@@ -33,8 +33,8 @@ using namespace vkApi;
 //// CHANNEL RENDERER PASS ///////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ChannelRenderer_Pass::ChannelRenderer_Pass(vkApi::VulkanCore* vVulkanCore)
-	: ShaderPass(vVulkanCore)
+ChannelRenderer_Pass::ChannelRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Channel", MESH_SHADER_PASS_DEBUG_COLOR);
 }
@@ -160,7 +160,7 @@ bool ChannelRenderer_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert));
+	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
 	if (m_UBO_Vert)
 	{
 		m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
@@ -168,7 +168,7 @@ bool ChannelRenderer_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Vert.offset = 0;
 	}
 
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag));
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
 	if (m_UBO_Frag)
 	{
 		m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
@@ -185,8 +185,8 @@ void ChannelRenderer_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void ChannelRenderer_Pass::DestroyUBO()

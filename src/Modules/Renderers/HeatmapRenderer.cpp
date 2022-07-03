@@ -32,9 +32,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<HeatmapRenderer>(vVulkanCore);
+	auto res = std::make_shared<HeatmapRenderer>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -47,8 +47,8 @@ std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(vkApi::VulkanCore* vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-HeatmapRenderer::HeatmapRenderer(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+HeatmapRenderer::HeatmapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -72,7 +72,7 @@ bool HeatmapRenderer::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_HeatmapRenderer_Pass_Ptr = std::make_shared<HeatmapRenderer_Pass>(m_VulkanCore);
+		m_HeatmapRenderer_Pass_Ptr = std::make_shared<HeatmapRenderer_Pass>(m_VulkanCorePtr);
 		if (m_HeatmapRenderer_Pass_Ptr)
 		{
 			if (m_HeatmapRenderer_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

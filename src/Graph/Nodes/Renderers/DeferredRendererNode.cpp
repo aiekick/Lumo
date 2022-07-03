@@ -17,11 +17,11 @@ limitations under the License.
 #include "DeferredRendererNode.h"
 #include <Modules/Renderers/DeferredRenderer.h>
 
-std::shared_ptr<DeferredRendererNode> DeferredRendererNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<DeferredRendererNode> DeferredRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<DeferredRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ DeferredRendererNode::~DeferredRendererNode()
 	Unit();
 }
 
-bool DeferredRendererNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Deferred Renderer";
 
@@ -100,7 +100,7 @@ bool DeferredRendererNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_DeferredRendererPtr = DeferredRenderer::Create(vVulkanCore);
+	m_DeferredRendererPtr = DeferredRenderer::Create(vVulkanCorePtr);
 	if (m_DeferredRendererPtr)
 	{
 		res = true;

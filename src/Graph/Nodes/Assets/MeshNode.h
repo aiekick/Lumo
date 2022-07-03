@@ -27,7 +27,7 @@ class MeshNode :
 	public ModelOutputInterface
 {
 public:
-	static std::shared_ptr<MeshNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<MeshNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<MeshModule> m_MeshModule = nullptr; 
@@ -35,7 +35,7 @@ private:
 public:
 	MeshNode();
 	~MeshNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;

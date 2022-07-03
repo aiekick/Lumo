@@ -38,8 +38,8 @@ using namespace vkApi;
 //// Laplacian SECOND PASS : BLUR ////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LaplacianModule_Pass::LaplacianModule_Pass(vkApi::VulkanCore* vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
+LaplacianModule_Pass::LaplacianModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass : Laplacian", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
@@ -67,8 +67,8 @@ bool LaplacianModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 			}
 		}
 
-		DrawInputTexture(m_VulkanCore, "Input", 0U, m_OutputRatio);
-		//DrawInputTexture(m_VulkanCore, "Output Blur", 0U, m_OutputRatio);
+		DrawInputTexture(m_VulkanCorePtr, "Input", 0U, m_OutputRatio);
+		//DrawInputTexture(m_VulkanCorePtr, "Output Blur", 0U, m_OutputRatio);
 
 		return change;
 	}
@@ -132,12 +132,12 @@ bool LaplacianModule_Pass::CreateUBO()
 	ZoneScoped;
 
 	auto size_in_bytes = sizeof(UBOFrag);
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes);
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
 	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
 	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
 	for (auto& a : m_ImageInfos)
 	{
@@ -153,7 +153,7 @@ void LaplacianModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void LaplacianModule_Pass::DestroyUBO()

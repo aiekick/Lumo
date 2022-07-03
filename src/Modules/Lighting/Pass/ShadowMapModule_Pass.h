@@ -64,7 +64,7 @@ protected: // vulkan creation
 	} m_UBOVert;
 
 public:
-	ShadowMapModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	ShadowMapModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ShadowMapModule_Pass();
 
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;

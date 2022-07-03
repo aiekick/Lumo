@@ -19,6 +19,7 @@ limitations under the License.
 #include <vulkan/vulkan.hpp>
 #include <mutex>
 #include <thread>
+#include <vkFramework/vkFramework.h>
 
 namespace vkApi
 {
@@ -26,9 +27,9 @@ namespace vkApi
 	class VulkanCommandBuffer
 	{
 	public:
-		static vk::CommandBuffer beginSingleTimeCommands(vkApi::VulkanCore* vVulkanCore, bool begin, vk::CommandPool* vCommandPool = 0);
-		static void flushSingleTimeCommands(vkApi::VulkanCore* vVulkanCore, vk::CommandBuffer& cmd, bool end, vk::CommandPool* vCommandPool = 0);
-		static VulkanCommandBuffer CreateCommandBuffer(vkApi::VulkanCore* vVulkanCore, vk::QueueFlagBits vQueueType, vk::CommandPool* vCommandPool = 0);
+		static vk::CommandBuffer beginSingleTimeCommands(vkApi::VulkanCorePtr vVulkanCorePtr, bool begin, vk::CommandPool* vCommandPool = 0);
+		static void flushSingleTimeCommands(vkApi::VulkanCorePtr vVulkanCorePtr, vk::CommandBuffer& cmd, bool end, vk::CommandPool* vCommandPool = 0);
+		static VulkanCommandBuffer CreateCommandBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, vk::QueueFlagBits vQueueType, vk::CommandPool* vCommandPool = 0);
 		static std::mutex VulkanCommandBuffer_Mutex;
 
 	public:
@@ -41,7 +42,7 @@ namespace vkApi
 		vk::CommandPool commandpool;
 
 	private:
-		VulkanCore* m_VulkanCore = nullptr;
+		VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 	public:
 		void DestroyCommandBuffer();

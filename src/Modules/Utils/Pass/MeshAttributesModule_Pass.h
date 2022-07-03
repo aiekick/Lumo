@@ -63,7 +63,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	MeshAttributesModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	MeshAttributesModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~MeshAttributesModule_Pass() override;
 
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;

@@ -28,7 +28,7 @@ class ComputeSmoothMeshNormalNode :
 	public ModelOutputInterface
 {
 public:
-	static std::shared_ptr<ComputeSmoothMeshNormalNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<ComputeSmoothMeshNormalNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<ComputeSmoothMeshNormal> m_ComputeSmoothMeshNormalPtr = nullptr;
@@ -36,7 +36,7 @@ private:
 public:
 	ComputeSmoothMeshNormalNode();
 	~ComputeSmoothMeshNormalNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;

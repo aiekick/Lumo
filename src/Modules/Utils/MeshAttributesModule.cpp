@@ -42,9 +42,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MeshAttributesModule> MeshAttributesModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<MeshAttributesModule> MeshAttributesModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<MeshAttributesModule>(vVulkanCore);
+	auto res = std::make_shared<MeshAttributesModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -57,8 +57,8 @@ std::shared_ptr<MeshAttributesModule> MeshAttributesModule::Create(vkApi::Vulkan
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshAttributesModule::MeshAttributesModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+MeshAttributesModule::MeshAttributesModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -82,7 +82,7 @@ bool MeshAttributesModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_MeshAttributesModule_Pass_Ptr = std::make_shared<MeshAttributesModule_Pass>(m_VulkanCore);
+		m_MeshAttributesModule_Pass_Ptr = std::make_shared<MeshAttributesModule_Pass>(m_VulkanCorePtr);
 		if (m_MeshAttributesModule_Pass_Ptr)
 		{
 			if (m_MeshAttributesModule_Pass_Ptr->InitPixel(map_size, 7U, true, true, 0.0f,

@@ -43,42 +43,42 @@ using namespace vkApi;
 //// PUBLIC / CONSTRUCTOR //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ShaderPass::ShaderPass(vkApi::VulkanCore* vVulkanCore)
+ShaderPass::ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	m_RendererType = GenericType::NONE;
-	m_VulkanCore = vVulkanCore;
-	m_Device = m_VulkanCore->getDevice();
+	m_VulkanCorePtr = vVulkanCorePtr;
+	m_Device = m_VulkanCorePtr->getDevice();
 }
 
-ShaderPass::ShaderPass(vkApi::VulkanCore* vVulkanCore, const GenericType& vRendererTypeEnum)
+ShaderPass::ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum)
 {
 	ZoneScoped;
 
 	m_RendererType = vRendererTypeEnum;
-	m_VulkanCore = vVulkanCore;
-	m_Device = m_VulkanCore->getDevice();
+	m_VulkanCorePtr = vVulkanCorePtr;
+	m_Device = m_VulkanCorePtr->getDevice();
 }
 
-ShaderPass::ShaderPass(vkApi::VulkanCore* vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
+ShaderPass::ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
 {
 	ZoneScoped;
 
 	m_RendererType = GenericType::NONE;
-	m_VulkanCore = vVulkanCore;
-	m_Device = m_VulkanCore->getDevice();
+	m_VulkanCorePtr = vVulkanCorePtr;
+	m_Device = m_VulkanCorePtr->getDevice();
 	m_CommandPool = *vCommandPool;
 	m_DescriptorPool = *vDescriptorPool;
 }
 
-ShaderPass::ShaderPass(vkApi::VulkanCore* vVulkanCore, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
+ShaderPass::ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
 {
 	ZoneScoped;
 
 	m_RendererType = vRendererTypeEnum;
-	m_VulkanCore = vVulkanCore;
-	m_Device = m_VulkanCore->getDevice();
+	m_VulkanCorePtr = vVulkanCorePtr;
+	m_Device = m_VulkanCorePtr->getDevice();
 	m_CommandPool = *vCommandPool;
 	m_DescriptorPool = *vDescriptorPool;
 }
@@ -134,16 +134,16 @@ bool ShaderPass::InitPixel(
 
 	m_Loaded = false;
 
-	m_Device = m_VulkanCore->getDevice();
-	m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-	m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+	m_Device = m_VulkanCorePtr->getDevice();
+	m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 	m_CommandPool = m_Queue.cmdPools;
 
 	// ca peut ne pas compiler, masi c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	CompilPixel();
 
-	m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCore);
+	m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
 	if (m_FrameBufferPtr->Init(
 		vSize, vCountColorBuffer, vUseDepth, vNeedToClear, 
 		vClearColor, vMultiPassMode, vFormat, vSampleCount)) {
@@ -188,9 +188,9 @@ bool ShaderPass::InitCompute2D(
 
 	m_Loaded = false;
 
-	m_Device = m_VulkanCore->getDevice();
-	m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-	m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+	m_Device = m_VulkanCorePtr->getDevice();
+	m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 	m_CommandPool = m_Queue.cmdPools;
 
 	m_DispatchSize = ct::uvec3(vDispatchSize.x, vDispatchSize.y, 1);
@@ -199,7 +199,7 @@ bool ShaderPass::InitCompute2D(
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	CompilCompute();
 
-	m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCore);
+	m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
 	if (m_ComputeBufferPtr->Init(
 		vDispatchSize, vCountBuffers, 
 		vMultiPassMode, vFormat)) {
@@ -240,9 +240,9 @@ bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize)
 
 	m_Loaded = false;
 
-	m_Device = m_VulkanCore->getDevice();
-	m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-	m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+	m_Device = m_VulkanCorePtr->getDevice();
+	m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 	m_CommandPool = m_Queue.cmdPools;
 
 	m_DispatchSize = vDispatchSize;
@@ -395,7 +395,12 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 {
 	if (m_IsShaderCompiled)
 	{
-		m_VulkanCore->getFrameworkDevice()->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
+
+		auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+		if (devicePtr)
+		{
+			devicePtr->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
+		}
 
 		if (IsPixelRenderer())
 		{
@@ -416,7 +421,10 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 			}
 		}
 
-		m_VulkanCore->getFrameworkDevice()->EndDebugLabel(vCmdBuffer);
+		if (devicePtr)
+		{
+			devicePtr->EndDebugLabel(vCmdBuffer);
+		}
 	}
 }
 
@@ -558,9 +566,9 @@ bool ShaderPass::CompilPixel()
 	assert(!vertex_name.empty());
 	m_VertexShaderCode.m_FilePathName = "shaders/" + vertex_name + ".vert";
 	auto vert_path = FileHelper::Instance()->GetAppPath() + "/" + m_VertexShaderCode.m_FilePathName;
-	if (FileHelper::Instance()->IsFileExist(vert_path))
+	if (FileHelper::Instance()->IsFileExist(vert_path, true))
 	{
-		m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(vert_path);
+		m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(vert_path, true);
 	}
 	else
 	{
@@ -577,9 +585,9 @@ bool ShaderPass::CompilPixel()
 	assert(!fragment_name.empty());
 	m_FragmentShaderCode.m_FilePathName = "shaders/" + fragment_name + ".frag";
 	auto frag_path = FileHelper::Instance()->GetAppPath() + "/" + m_FragmentShaderCode.m_FilePathName;
-	if (FileHelper::Instance()->IsFileExist(frag_path))
+	if (FileHelper::Instance()->IsFileExist(frag_path, true))
 	{
-		m_FragmentShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(frag_path);
+		m_FragmentShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(frag_path, true);
 	}
 	else
 	{
@@ -642,9 +650,9 @@ bool ShaderPass::CompilCompute()
 	assert(!compute_name.empty());
 	m_ComputeShaderCode.m_FilePathName = "shaders/" + compute_name + ".comp";
 	auto comp_path = FileHelper::Instance()->GetAppPath() + "/" + m_ComputeShaderCode.m_FilePathName;
-	if (FileHelper::Instance()->IsFileExist(comp_path))
+	if (FileHelper::Instance()->IsFileExist(comp_path, true))
 	{
-		m_ComputeShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(comp_path);
+		m_ComputeShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(comp_path, true);
 	}
 	else
 	{

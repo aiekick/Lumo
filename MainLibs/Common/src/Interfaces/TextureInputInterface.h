@@ -47,17 +47,17 @@ protected:
 	std::array<ImGuiTexture, size_of_array> m_ImGuiTextures;
 
 protected: // internal use
-	void DrawInputTexture(vkApi::VulkanCore* vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio);
+	void DrawInputTexture(vkApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio);
 };
 
 template<size_t size_of_array>
-void TextureInputInterface<size_of_array>::DrawInputTexture(vkApi::VulkanCore* vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio)
+void TextureInputInterface<size_of_array>::DrawInputTexture(vkApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio)
 {
 	if (vVKCore && vLabel && vIdx <= size_of_array) {
 		auto imguiRendererPtr = vVKCore->GetVulkanImGuiRenderer().getValidShared();
 		if (imguiRendererPtr) {
 			if (ImGui::CollapsingHeader(vLabel)) {
-				m_ImGuiTextures[vIdx].SetDescriptor(imguiRendererPtr.get(),
+				m_ImGuiTextures[vIdx].SetDescriptor(imguiRendererPtr,
 					&m_ImageInfos[vIdx], vRatio);
 				if (m_ImGuiTextures[vIdx].canDisplayPreview) {
 					int w = (int)ImGui::GetContentRegionAvail().x;

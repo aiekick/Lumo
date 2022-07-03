@@ -24,6 +24,8 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <imgui_node_editor/NodeEditor/Source/imgui_node_editor_internal.h>
 
+#include <utility>
+
 static bool showNodeStyleEditor = false;
 uint32_t BaseNode::freeNodeId = MAGIC_NUMBER;
 
@@ -36,9 +38,9 @@ uint32_t BaseNode::GetNextNodeId()
 	return ++BaseNode::freeNodeId;
 }
 
-BaseNodePtr BaseNode::GetSharedFromWeak(BaseNodeWeak vNode)
+BaseNodePtr BaseNode::GetSharedFromWeak(const BaseNodeWeak& vNode)
 {
-	BaseNodePtr res = 0;
+	BaseNodePtr res = nullptr;
 
 	if (!vNode.expired())
 	{
@@ -49,7 +51,7 @@ BaseNodePtr BaseNode::GetSharedFromWeak(BaseNodeWeak vNode)
 }
 
 std::function<void(BaseNodeWeak)> BaseNode::sOpenGraphCallback;
-void BaseNode::OpenGraph_Callback(BaseNodeWeak vNode)
+void BaseNode::OpenGraph_Callback(const BaseNodeWeak& vNode)
 {
 	if (BaseNode::sOpenGraphCallback)
 	{
@@ -62,7 +64,7 @@ void BaseNode::OpenCode_Callback(std::string vCode)
 {
 	if (BaseNode::sOpenCodeCallback)
 	{
-		BaseNode::sOpenCodeCallback(vCode);
+		BaseNode::sOpenCodeCallback(std::move(vCode));
 	}
 }
 
@@ -71,7 +73,7 @@ void BaseNode::LogErrors_Callback(std::string vErrors)
 {
 	if (BaseNode::sLogErrorsCallback)
 	{
-		BaseNode::sLogErrorsCallback(vErrors);
+		BaseNode::sLogErrorsCallback(std::move(vErrors));
 	}
 }
 
@@ -80,12 +82,12 @@ void BaseNode::LogInfos_Callback(std::string vInfos)
 {
 	if (BaseNode::sLogInfosCallback)
 	{
-		BaseNode::sLogInfosCallback(vInfos);
+		BaseNode::sLogInfosCallback(std::move(vInfos));
 	}
 }
 
 std::function<void(BaseNodeWeak)> BaseNode::sSelectCallback; // select node
-void BaseNode::Select_Callback(BaseNodeWeak vNode)
+void BaseNode::Select_Callback(const BaseNodeWeak& vNode)
 {
 	if (BaseNode::sSelectCallback)
 	{
@@ -94,7 +96,7 @@ void BaseNode::Select_Callback(BaseNodeWeak vNode)
 }
 
 std::function<BaseNodeWeak(BaseNodeWeak vNodeGraph, BaseNodeStateStruct* vCanvasState)> BaseNode::sShowNewNodeMenuCallback; // new node menu
-void BaseNode::ShowNewNodeMenu_Callback(BaseNodeWeak vNodeGraph, BaseNodeStateStruct* vCanvasState)
+void BaseNode::ShowNewNodeMenu_Callback(const BaseNodeWeak& vNodeGraph, BaseNodeStateStruct* vCanvasState)
 {
 	if (BaseNode::sShowNewNodeMenuCallback)
 	{
@@ -104,7 +106,7 @@ void BaseNode::ShowNewNodeMenu_Callback(BaseNodeWeak vNodeGraph, BaseNodeStateSt
 
 std::function<bool(BaseNodeWeak, tinyxml2::XMLElement*, tinyxml2::XMLElement*,
 	const std::string&, const std::string&, const ct::fvec2&, const size_t&)> BaseNode::sLoadNodeFromXMLCallback; // log infos
-bool BaseNode::LoadNodeFromXML_Callback(BaseNodeWeak vBaseNodeWeak, tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent,
+bool BaseNode::LoadNodeFromXML_Callback(const BaseNodeWeak& vBaseNodeWeak, tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent,
 	const std::string& vNodeName, const std::string& vNodeType, const ct::fvec2& vPos, const size_t& vNodeId)
 {
 	if (BaseNode::sLoadNodeFromXMLCallback)
@@ -135,23 +137,23 @@ BaseNode::~BaseNode()
 ////// INIT //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-bool BaseNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool BaseNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	m_VulkanCore = vVulkanCore;
+	m_VulkanCorePtr = vVulkanCorePtr;
 
 	InitGraph(m_Style);
 
 	return true;
 }
 
-bool BaseNode::Init(BaseNodeWeak vThis)
+bool BaseNode::Init(const BaseNodeWeak& vThis)
 {
 	m_This = vThis;
 
 	return true;
 }
 
-bool BaseNode::Init(std::string vCode, BaseNodeWeak vThis)
+bool BaseNode::Init(const std::string& vCode, const BaseNodeWeak& vThis)
 {
 	UNUSED(vCode);
 
@@ -162,7 +164,7 @@ bool BaseNode::Init(std::string vCode, BaseNodeWeak vThis)
 	return true;
 }
 
-void BaseNode::InitGraph(ax::NodeEditor::Style vStyle)
+void BaseNode::InitGraph(const ax::NodeEditor::Style& vStyle)
 {
 	if (!m_BaseNodeState.m_NodeGraphContext)
 	{
@@ -221,7 +223,7 @@ void BaseNode::FinalizeGraphLoading()
 		ConnectSlots(inSlot, outSlot);
 	}
 
-	for (auto child : m_ChildNodes)
+	for (const auto& child : m_ChildNodes)
 	{
 		auto nodePtr = child.second;
 		if (nodePtr)
@@ -628,14 +630,14 @@ void BaseNode::SetCodeDirty(bool vFlag)
 void BaseNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 #ifdef _DEBUG
-	LogVarInfo("BaseNode::JustConnectedBySlots catched, some class not implment it. maybe its wanted");
+	//LogVarInfo("BaseNode::JustConnectedBySlots catched, some class not implment it. maybe its wanted");
 #endif
 }
 
 void BaseNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 #ifdef _DEBUG
-	LogVarInfo("BaseNode::JustDisConnectedBySlots catched, some class not implment it. maybe its wanted");
+	//LogVarInfo("BaseNode::JustDisConnectedBySlots catched, some class not implment it. maybe its wanted");
 #endif
 }
 

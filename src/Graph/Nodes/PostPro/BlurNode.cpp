@@ -17,11 +17,11 @@ limitations under the License.
 #include "BlurNode.h"
 #include <Modules/PostPro/BlurModule.h>
 
-std::shared_ptr<BlurNode> BlurNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<BlurNode> BlurNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<BlurNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ BlurNode::~BlurNode()
 	Unit();
 }
 
-bool BlurNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool BlurNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Blur";
 
@@ -56,7 +56,7 @@ bool BlurNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_BlurModulePtr = BlurModule::Create(vVulkanCore);
+	m_BlurModulePtr = BlurModule::Create(vVulkanCorePtr);
 	if (m_BlurModulePtr)
 	{
 		res = true;

@@ -48,20 +48,20 @@ using namespace vkApi;
 //// PUBLIC / CONSTRUCTOR //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-BaseRenderer::BaseRenderer(vkApi::VulkanCore* vVulkanCore)
+BaseRenderer::BaseRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	m_VulkanCore = vVulkanCore;
-	m_Device = m_VulkanCore->getDevice();
+	m_VulkanCorePtr = vVulkanCorePtr;
+	m_Device = m_VulkanCorePtr->getDevice();
 }
 
-BaseRenderer::BaseRenderer(vkApi::VulkanCore* vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
+BaseRenderer::BaseRenderer(vkApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
 {
 	ZoneScoped;
 
-	m_VulkanCore = vVulkanCore;
-	m_Device = m_VulkanCore->getDevice();
+	m_VulkanCorePtr = vVulkanCorePtr;
+	m_Device = m_VulkanCorePtr->getDevice();
 	m_CommandPool = *vCommandPool;
 	m_DescriptorPool = *vDescriptorPool;
 }
@@ -129,12 +129,12 @@ bool BaseRenderer::InitPixel(const ct::uvec2& vSize)
 
 	m_Loaded = false;
 
-	m_Device = m_VulkanCore->getDevice();
+	m_Device = m_VulkanCorePtr->getDevice();
 	ct::uvec2 size = ct::clamp(vSize, 1u, 8192u);
 	if (!size.emptyOR())
 	{
-		m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-		m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+		m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+		m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 		m_CommandPool = m_Queue.cmdPools;
 
 		m_OutputSize = ct::uvec3(size.x, size.y, 0);
@@ -152,7 +152,7 @@ bool BaseRenderer::InitPixel(const ct::uvec2& vSize)
 	if (m_Loaded)
 	{
 		m_TracyContext = TracyVkContext(
-			m_VulkanCore->getPhysicalDevice(),
+			m_VulkanCorePtr->getPhysicalDevice(),
 			m_Device,
 			m_Queue.vkQueue,
 			m_CommandBuffers[0]);
@@ -175,14 +175,14 @@ bool BaseRenderer::InitCompute2D(const ct::uvec2& vSize)
 
 	m_Loaded = false;
 
-	m_Device = m_VulkanCore->getDevice();
+	m_Device = m_VulkanCorePtr->getDevice();
 	ct::uvec2 size = ct::clamp(vSize, 1u, 8192u);
 	if (!size.emptyOR())
 	{
 		m_UniformSectionToShow = { "COMPUTE" }; // pour afficher les uniforms
 
-		m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-		m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+		m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+		m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 		m_CommandPool = m_Queue.cmdPools;
 
 		m_OutputSize = ct::uvec3(size.x, size.y, 1);
@@ -200,7 +200,7 @@ bool BaseRenderer::InitCompute2D(const ct::uvec2& vSize)
 	if (m_Loaded)
 	{
 		m_TracyContext = TracyVkContext(
-			m_VulkanCore->getPhysicalDevice(),
+			m_VulkanCorePtr->getPhysicalDevice(),
 			m_Device,
 			m_Queue.vkQueue,
 			m_CommandBuffers[0]);
@@ -223,14 +223,14 @@ bool BaseRenderer::InitCompute3D(const ct::uvec3& vSize)
 
 	m_Loaded = false;
 
-	m_Device = m_VulkanCore->getDevice();
+	m_Device = m_VulkanCorePtr->getDevice();
 	ct::uvec3 size = ct::clamp(vSize, 1u, 8192u);
 	if (!size.emptyOR())
 	{
 		m_UniformSectionToShow = { "COMPUTE" }; // pour afficher les uniforms
 
-		m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-		m_DescriptorPool = m_VulkanCore->getDescriptorPool();
+		m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+		m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 		m_CommandPool = m_Queue.cmdPools;
 
 		m_OutputSize = size;
@@ -248,7 +248,7 @@ bool BaseRenderer::InitCompute3D(const ct::uvec3& vSize)
 	if (m_Loaded)
 	{
 		m_TracyContext = TracyVkContext(
-			m_VulkanCore->getPhysicalDevice(),
+			m_VulkanCorePtr->getPhysicalDevice(),
 			m_Device,
 			m_Queue.vkQueue,
 			m_CommandBuffers[0]);
@@ -331,8 +331,12 @@ void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* vCmdBuff
 					}
 				}
 
-				m_VulkanCore->getFrameworkDevice()->EndDebugLabel(cmd);
-				
+				auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+				if (devicePtr)
+				{
+					devicePtr->EndDebugLabel(cmd);
+				}
+
 				EndRender();
 			}
 		}
@@ -474,8 +478,12 @@ void BaseRenderer::BeginCommandBuffer(const char* vSectionLabel)
 
 	if (vSectionLabel)
 	{
-		m_VulkanCore->getFrameworkDevice()->BeginDebugLabel(cmd, vSectionLabel, GENERIC_RENDERER_DEBUG_COLOR);
-		m_DebugLabelWasUsed = true;
+		auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+		if (devicePtr)
+		{
+			devicePtr->BeginDebugLabel(cmd, vSectionLabel, GENERIC_RENDERER_DEBUG_COLOR);
+			m_DebugLabelWasUsed = true;
+		}
 	}
 
 	{
@@ -491,8 +499,12 @@ void BaseRenderer::EndCommandBuffer()
 	{
 		if (m_DebugLabelWasUsed)
 		{
-			m_VulkanCore->getFrameworkDevice()->EndDebugLabel(cmd);
-			m_DebugLabelWasUsed = false;
+			auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+			if (devicePtr)
+			{
+				devicePtr->EndDebugLabel(cmd);
+				m_DebugLabelWasUsed = false;
+			}
 		}
 
 		DoBeforeEndCommandBuffer(cmd);
@@ -533,7 +545,7 @@ void BaseRenderer::SubmitPixel()
 	m_FirstTimeMark = std::chrono::duration_cast<std::chrono::milliseconds>
 		(std::chrono::system_clock::now().time_since_epoch()).count();
 
-	VulkanSubmitter::Submit(m_VulkanCore, vk::QueueFlagBits::eGraphics, submitInfo, m_WaitFences[m_CurrentFrame]);
+	VulkanSubmitter::Submit(m_VulkanCorePtr, vk::QueueFlagBits::eGraphics, submitInfo, m_WaitFences[m_CurrentFrame]);
 }
 
 void BaseRenderer::SubmitCompute()
@@ -565,7 +577,7 @@ void BaseRenderer::SubmitCompute()
 	m_FirstTimeMark = std::chrono::duration_cast<std::chrono::milliseconds>
 		(std::chrono::system_clock::now().time_since_epoch()).count();
 
-	VulkanSubmitter::Submit(m_VulkanCore, vk::QueueFlagBits::eCompute, submitInfo, m_WaitFences[m_CurrentFrame]);
+	VulkanSubmitter::Submit(m_VulkanCorePtr, vk::QueueFlagBits::eCompute, submitInfo, m_WaitFences[m_CurrentFrame]);
 }
 
 void BaseRenderer::Swap()

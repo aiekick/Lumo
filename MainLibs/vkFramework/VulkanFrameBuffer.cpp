@@ -40,7 +40,7 @@ namespace vkApi
 	}
 
 	bool VulkanFrameBuffer::Init(
-		vkApi::VulkanCore* vVulkanCore,
+		vkApi::VulkanCorePtr vVulkanCorePtr,
 		ct::uvec2 vSize,
 		uint32_t vCountColorBuffer,
 		vk::RenderPass& vRenderPass,
@@ -55,7 +55,7 @@ namespace vkApi
 
 		bool res = false;
 
-		m_VulkanCore = vVulkanCore;
+		m_VulkanCorePtr = vVulkanCorePtr;
 		neverToClear = vNeedToClear;
 
 		if (vCountColorBuffer > 0 && vCountColorBuffer <= 8)
@@ -69,7 +69,7 @@ namespace vkApi
 				clearColorValues.clear();
 				rectClears.clear();
 
-				auto logDevice = m_VulkanCore->getDevice();
+				auto logDevice = m_VulkanCorePtr->getDevice();
 
 				vk::RenderPass renderPass;
 
@@ -99,7 +99,7 @@ namespace vkApi
 
 				for (uint32_t j = 0; j < vCountColorBuffer; j++)
 				{
-					if (attachments[attIndex].InitColor2D(m_VulkanCore, size, format, 1U, vNeedToClear, sampleCount))
+					if (attachments[attIndex].InitColor2D(m_VulkanCorePtr, size, format, 1U, vNeedToClear, sampleCount))
 					{
 						attachmentViews.push_back(attachments[attIndex].attachmentView);
 						attachmentDescriptions.push_back(attachments[attIndex].attachmentDescription);
@@ -125,7 +125,7 @@ namespace vkApi
 				{
 					for (uint32_t j = 0; j < vCountColorBuffer; j++)
 					{
-						if (attachments[attIndex].InitColor2D(m_VulkanCore, size, format, 1U, vNeedToClear, vk::SampleCountFlagBits::e1))
+						if (attachments[attIndex].InitColor2D(m_VulkanCorePtr, size, format, 1U, vNeedToClear, vk::SampleCountFlagBits::e1))
 						{
 							attachmentViews.push_back(attachments[attIndex].attachmentView);
 							attachmentDescriptions.push_back(attachments[attIndex].attachmentDescription);
@@ -149,7 +149,7 @@ namespace vkApi
 				if (vUseDepth)
 				{
 					depthAttIndex = attIndex;
-					if (attachments[attIndex].InitDepth(m_VulkanCore, size, vk::Format::eD32SfloatS8Uint, sampleCount))
+					if (attachments[attIndex].InitDepth(m_VulkanCorePtr, size, vk::Format::eD32SfloatS8Uint, sampleCount))
 					{
 						attachmentViews.push_back(attachments[attIndex].attachmentView);
 						attachmentDescriptions.push_back(attachments[attIndex].attachmentDescription);
@@ -256,9 +256,9 @@ namespace vkApi
 		attachmentViews.clear();
 		attachments.clear();
 
-		if (m_VulkanCore)
+		if (m_VulkanCorePtr)
 		{
-			auto logDevice = m_VulkanCore->getDevice();
+			auto logDevice = m_VulkanCorePtr->getDevice();
 			logDevice.destroyFramebuffer(framebuffer);
 		}
 	}

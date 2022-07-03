@@ -809,25 +809,25 @@ void CommonSystem::SetViewportSize(ct::uvec2 vViewportSize)
 	m_BufferObjectIsDirty = true;
 }
 
-void CommonSystem::UploadBufferObjectIfDirty(vkApi::VulkanCore* vVulkanCore)
+void CommonSystem::UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	if (m_BufferObjectIsDirty)
 	{
-		vkApi::VulkanRessource::upload(vVulkanCore, *m_BufferObject, &m_UBOCamera, sizeof(UBOCamera));
+		vkApi::VulkanRessource::upload(vVulkanCorePtr, *m_BufferObject, &m_UBOCamera, sizeof(UBOCamera));
 
 		m_BufferObjectIsDirty = false;
 	}
 }
 
-bool CommonSystem::CreateBufferObject(vkApi::VulkanCore* vVulkanCore)
+bool CommonSystem::CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	vVulkanCore->getDevice().waitIdle();
+	vVulkanCorePtr->getDevice().waitIdle();
 
-	m_BufferObject = vkApi::VulkanRessource::createUniformBufferObject(vVulkanCore, sizeof(UBOCamera));
+	m_BufferObject = vkApi::VulkanRessource::createUniformBufferObject(vVulkanCorePtr, sizeof(UBOCamera));
 	m_DescriptorBufferInfo.buffer = m_BufferObject->buffer;
 	m_DescriptorBufferInfo.range = sizeof(UBOCamera);
 	m_DescriptorBufferInfo.offset = 0;

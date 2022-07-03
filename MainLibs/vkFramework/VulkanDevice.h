@@ -19,6 +19,7 @@ limitations under the License.
 #include <unordered_map>
 #include <vulkan/vulkan.hpp>
 #include <ctools/cTools.h>
+#include <vkFramework/vkFramework.h>
 
 #define VULKAN_DEBUG 1
 #define VULKAN_DEBUG_FEATURES 0
@@ -36,6 +37,13 @@ namespace vkApi
 	class VulkanWindow;
 	class VulkanDevice
 	{
+	public:
+		static VulkanDevicePtr Create(
+			VulkanWindowWeak vVulkanWindow,
+			const std::string& vAppName,
+			const int& vAppVersion,
+			const std::string& vEngineName,
+			const int& vEngineVersion);
 	public:
 		std::unordered_map<vk::QueueFlagBits, VulkanQueue> m_Queues;
 
@@ -60,7 +68,12 @@ namespace vkApi
 		VulkanDevice();
 		~VulkanDevice();
 
-		bool Init(VulkanWindow* vVulkanWindow, const char* vAppName, const int& vAppVersion, const char* vEngineName, const int& vEngineVersion);
+		bool Init(
+			VulkanWindowWeak vVulkanWindow, 
+			const std::string& vAppName, 
+			const int& vAppVersion, 
+			const std::string& vEngineName,
+			const int& vEngineVersion);
 		void Unit();
 
 		void WaitIdle();
@@ -72,13 +85,18 @@ namespace vkApi
 		void EndDebugLabel(vk::CommandBuffer *vCmd);
 
 	private:
-		void CreateVulkanInstance(VulkanWindow* vVulkanWindow, const char* vAppName, const int& vAppVersion, const char* vEngineName, const int& vEngineVersion);
+		bool CreateVulkanInstance(
+			VulkanWindowWeak vVulkanWindow,
+			const std::string& vAppName,
+			const int& vAppVersion,
+			const std::string& vEngineName,
+			const int& vEngineVersion);
 		void DestroyVulkanInstance();
 
-		void CreatePhysicalDevice();
+		bool CreatePhysicalDevice();
 		void DestroyPhysicalDevice();
 
-		void CreateLogicalDevice();
+		bool CreateLogicalDevice();
 		void DestroyLogicalDevice();
 	};
 }

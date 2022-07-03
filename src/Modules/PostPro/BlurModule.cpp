@@ -40,9 +40,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<BlurModule> BlurModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<BlurModule> BlurModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<BlurModule>(vVulkanCore);
+	auto res = std::make_shared<BlurModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -55,8 +55,8 @@ std::shared_ptr<BlurModule> BlurModule::Create(vkApi::VulkanCore* vVulkanCore)
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BlurModule::BlurModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+BlurModule::BlurModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -80,7 +80,7 @@ bool BlurModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_BlurModule_Pass_Ptr = std::make_shared<BlurModule_Pass>(m_VulkanCore);
+		m_BlurModule_Pass_Ptr = std::make_shared<BlurModule_Pass>(m_VulkanCorePtr);
 		if (m_BlurModule_Pass_Ptr)
 		{
 			if (m_BlurModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))

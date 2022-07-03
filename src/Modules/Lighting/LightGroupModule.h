@@ -44,19 +44,19 @@ class LightGroupModule :
 	public BufferObjectInterface
 {
 public:
-	static LightGroupModulePtr Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode);
+	static LightGroupModulePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding);
 
 private:
 	LightGroupModuleWeak m_This;
 	SceneLightGroupPtr m_SceneLightGroupPtr = nullptr;
-	vkApi::VulkanCore* m_VulkanCore = nullptr;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 private: // imgui
 	ct::fvec4 m_DefaultLightColor = 1.0f;
 
 public:
-	LightGroupModule(vkApi::VulkanCore* vVulkanCore);
+	LightGroupModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~LightGroupModule();
 
 	bool Init();
@@ -72,8 +72,8 @@ public:
 	//// BUFFER OBJECTS ///////////////////////////////////
 	///////////////////////////////////////////////////////
 
-	void UploadBufferObjectIfDirty(vkApi::VulkanCore* vVulkanCore) override;
-	bool CreateBufferObject(vkApi::VulkanCore* vVulkanCore) override;
+	void UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void DestroyBufferObject() override;
 	vk::DescriptorBufferInfo* GetBufferInfo() override;
 

@@ -57,7 +57,7 @@ class ComputeSmoothMeshNormal :
 	public TaskInterface
 {
 public:
-	static std::shared_ptr<ComputeSmoothMeshNormal> Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode, ct::uvec3 vDispatchSize);
+	static std::shared_ptr<ComputeSmoothMeshNormal> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode, ct::uvec3 vDispatchSize);
 
 protected:
 	ct::cWeak<ComputeSmoothMeshNormal> m_This;
@@ -110,7 +110,7 @@ protected: // vulkan creation
 
 	std::vector<int> m_NormalDatas; // 3 components
 
-	vkApi::VulkanCore* m_VulkanCore = nullptr;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 protected:
 	struct PushConstants {
@@ -118,7 +118,7 @@ protected:
 	} m_PushConstants;
 
 public:
-	ComputeSmoothMeshNormal(vkApi::VulkanCore* vVulkanCore);
+	ComputeSmoothMeshNormal(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~ComputeSmoothMeshNormal();
 
 	bool Init(ct::uvec3 vDispatchSize = 1U);

@@ -1756,6 +1756,15 @@ bool ImGui_ImplVulkanH_Destroy_UserTexture_Descriptor(VkDescriptorSet* vVkDescri
 }
 
 //////////////////////////////////////////////////////////////////////////////////
+//// STATIC //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+VulkanImGuiRendererPtr VulkanImGuiRenderer::Create()
+{
+    return std::make_shared<VulkanImGuiRenderer>();
+}
+
+//////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -1798,13 +1807,13 @@ void VulkanImGuiRenderer::RenderDrawData(ImDrawData* draw_data, VkCommandBuffer 
     ImGui_ImplVulkan_RenderDrawData(draw_data, command_buffer, pipeline);
 }
 
-bool VulkanImGuiRenderer::CreateFontsTexture(vkApi::VulkanCore *vVulkanCore)
+bool VulkanImGuiRenderer::CreateFontsTexture(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	// Use any command queue
-	auto command_buffer = vkApi::VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCore, true);
+	auto command_buffer = vkApi::VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true);
 	ImGui_ImplVulkan_CreateFontsTexture((VkCommandBuffer)command_buffer);
-	vkApi::VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCore, command_buffer, true);
-    vVulkanCore->getDevice().waitIdle();
+	vkApi::VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, command_buffer, true);
+    vVulkanCorePtr->getDevice().waitIdle();
 	return true;
 }
 

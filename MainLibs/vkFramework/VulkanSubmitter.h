@@ -22,6 +22,7 @@ limitations under the License.
 #include <iostream>       // std::cout
 #include <thread>         // std::thread
 #include <mutex>          // std::mutex, std::unique_lock, std::defer_lock
+#include <vkFramework/vkFramework.h>
 
 namespace vkApi
 {
@@ -36,6 +37,6 @@ namespace vkApi
 		~VulkanSubmitter() = default;
 
 	public:
-		static bool Submit(vkApi::VulkanCore* vVulkanCore, vk::QueueFlagBits vQueueType, vk::SubmitInfo vSubmitInfo, vk::Fence vWaitFence);
+		static bool Submit(vkApi::VulkanCorePtr vVulkanCorePtr, vk::QueueFlagBits vQueueType, vk::SubmitInfo vSubmitInfo, vk::Fence vWaitFence);
 	};
 }

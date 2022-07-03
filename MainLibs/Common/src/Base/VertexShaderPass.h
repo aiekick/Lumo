@@ -21,8 +21,8 @@ limitations under the License.
 class VertexShaderPass : public ShaderPass
 {
 public:
-	VertexShaderPass(vkApi::VulkanCore* vVulkanCore);
-	VertexShaderPass(vkApi::VulkanCore* vVulkanCore,
+	VertexShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	VertexShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;

@@ -44,13 +44,13 @@ class HeatmapRenderer :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<HeatmapRenderer> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<HeatmapRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<HeatmapRenderer_Pass> m_HeatmapRenderer_Pass_Ptr = nullptr;
 
 public:
-	HeatmapRenderer(vkApi::VulkanCore* vVulkanCore);
+	HeatmapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~HeatmapRenderer() override;
 
 	bool Init();

@@ -32,8 +32,8 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MatcapRenderer_Pass::MatcapRenderer_Pass(vkApi::VulkanCore* vVulkanCore)
-	: ShaderPass(vVulkanCore)
+MatcapRenderer_Pass::MatcapRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Matcap", MESH_SHADER_PASS_DEBUG_COLOR);
 }
@@ -97,7 +97,7 @@ bool MatcapRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 		NeedNewUBOUpload();
 	}
 
-	DrawInputTexture(m_VulkanCore, "Input Matcap", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Input Matcap", 0U, m_OutputRatio);
 
 	return change;
 }
@@ -175,7 +175,7 @@ bool MatcapRenderer_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert));
+	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
 	if (m_UBO_Vert)
 	{
 		m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
@@ -183,7 +183,7 @@ bool MatcapRenderer_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Vert.offset = 0;
 	}
 
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag));
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
 	if (m_UBO_Frag)
 	{
 		m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
@@ -191,7 +191,7 @@ bool MatcapRenderer_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Frag.offset = 0;
 	}
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 	if (m_EmptyTexturePtr)
 	{
 		for (auto& a : m_ImageInfos)
@@ -209,8 +209,8 @@ void MatcapRenderer_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void MatcapRenderer_Pass::DestroyUBO()

@@ -40,8 +40,8 @@ using namespace vkApi;
 //// FIRST PASS //////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshAttributesModule_Pass::MeshAttributesModule_Pass(vkApi::VulkanCore* vVulkanCore)
-	: ShaderPass(vVulkanCore)
+MeshAttributesModule_Pass::MeshAttributesModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Mesh Attributes", MESH_SHADER_PASS_DEBUG_COLOR);
 }
@@ -57,7 +57,7 @@ bool MeshAttributesModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 	{
 		bool change = false;
 
-		DrawInputTexture(m_VulkanCore, "Input Mask", 0U, m_OutputRatio);
+		DrawInputTexture(m_VulkanCorePtr, "Input Mask", 0U, m_OutputRatio);
 
 		return change;
 	}
@@ -188,7 +188,7 @@ bool MeshAttributesModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert));
+	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
 	if (m_UBO_Vert)
 	{
 		m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
@@ -196,7 +196,7 @@ bool MeshAttributesModule_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Vert.offset = 0;
 	}
 
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag));
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
 	if (m_UBO_Frag)
 	{
 		m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
@@ -204,7 +204,7 @@ bool MeshAttributesModule_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Frag.offset = 0;
 	}
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
 	for (auto& a : m_ImageInfos)
 	{
@@ -220,8 +220,8 @@ void MeshAttributesModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void MeshAttributesModule_Pass::DestroyUBO()

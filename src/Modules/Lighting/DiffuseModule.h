@@ -57,7 +57,7 @@ class DiffuseModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<DiffuseModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<DiffuseModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<DiffuseModule> m_This;
@@ -65,7 +65,7 @@ private:
 	std::shared_ptr<DiffuseModule_Pass> m_DiffuseModule_Pass_Ptr = nullptr;
 
 public:
-	DiffuseModule(vkApi::VulkanCore* vVulkanCore);
+	DiffuseModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~DiffuseModule();
 
 	bool Init();

@@ -29,7 +29,6 @@ limitations under the License.
 
 #include <Interfaces/PluginInterface.h>
 
-
 class PluginInstance;
 typedef ct::cWeak<PluginInstance> PluginInstanceWeak;
 typedef std::shared_ptr<PluginInstance> PluginInstancePtr;
@@ -45,7 +44,7 @@ public:
 	PluginInstance();
 	~PluginInstance();
 
-	bool Init(vkApi::VulkanCore* vVulkanCore, const std::string& vName, const std::string& vFilePathName);
+	bool Init(vkApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName);
 	void Unit();
 
 	PluginInterfaceWeak Get();
@@ -57,8 +56,8 @@ private:
 	std::map<std::string, PluginInstancePtr> m_Plugins;
 
 public:
-	void LoadPlugins(vkApi::VulkanCore* vVulkanCore);
-	PluginInstanceWeak LoadPlugin(vkApi::VulkanCore* vVulkanCore, const std::string& vPluginName);
+	void LoadPlugins(vkApi::VulkanCoreWeak vVulkanCorePtr);
+	PluginInstanceWeak LoadPlugin(vkApi::VulkanCoreWeak vVulkanCorePtr, const std::string& vPluginName);
 	PluginInstanceWeak Get(const std::string& vPluginName);
 	std::vector<LibraryEntry> GetLibraryEntrys();
 	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName);

@@ -58,7 +58,7 @@ class LaplacianModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<LaplacianModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<LaplacianModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<LaplacianModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<LaplacianModule_Pass> m_LaplacianModule_Pass_Ptr = nullptr;
 
 public:
-	LaplacianModule(vkApi::VulkanCore* vVulkanCore);
+	LaplacianModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~LaplacianModule();
 
 	bool Init();

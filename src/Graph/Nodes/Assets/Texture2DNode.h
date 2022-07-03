@@ -26,7 +26,7 @@ class Texture2DNode :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<Texture2DNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<Texture2DNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<Texture2DModule> m_Texture2DModule = nullptr;
@@ -36,7 +36,7 @@ private:
 public:
 	Texture2DNode();
 	~Texture2DNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;

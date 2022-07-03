@@ -21,15 +21,15 @@ using namespace vkApi;
 //// STATIC ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneMeshPtr SceneMesh::Create(vkApi::VulkanCore* vVulkanCore)
+SceneMeshPtr SceneMesh::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	SceneMeshPtr res = std::make_shared<SceneMesh>(vVulkanCore);
+	SceneMeshPtr res = std::make_shared<SceneMesh>(vVulkanCorePtr);
 	res->m_This = res;
 	return res;
 }
-SceneMeshPtr SceneMesh::Create(vkApi::VulkanCore* vVulkanCore, VerticeArray vVerticeArray, IndiceArray vIndiceArray)
+SceneMeshPtr SceneMesh::Create(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray vVerticeArray, IndiceArray vIndiceArray)
 {
-	SceneMeshPtr res = std::make_shared<SceneMesh>(vVulkanCore, vVerticeArray, vIndiceArray);
+	SceneMeshPtr res = std::make_shared<SceneMesh>(vVulkanCorePtr, vVerticeArray, vIndiceArray);
 	res->m_This = res;
 	if (!res->Init())
 		res.reset();
@@ -52,14 +52,14 @@ SceneMeshPtr SceneMesh::Copy(SceneMeshWeak vSceneMeshToCopy)
 //// CTOR / DTOR ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneMesh::SceneMesh(vkApi::VulkanCore* vVulkanCore) 
-	: m_VulkanCore(vVulkanCore)
+SceneMesh::SceneMesh(vkApi::VulkanCorePtr vVulkanCorePtr) 
+	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 
 }
 
-SceneMesh::SceneMesh(vkApi::VulkanCore* vVulkanCore, VerticeArray vVerticeArray, IndiceArray vIndiceArray)
-	: m_VulkanCore(vVulkanCore)
+SceneMesh::SceneMesh(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray vVerticeArray, IndiceArray vIndiceArray)
+	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	m_Vertices.m_Array = vVerticeArray;
 	m_Indices.m_Array = vIndiceArray;
@@ -226,7 +226,7 @@ bool SceneMesh::BuildVBO(bool vUseSBO)
 {
 	DestroyVBO();
 
-	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCore, m_Vertices.m_Array, vUseSBO);
+	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO);
 	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 
 	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
@@ -238,7 +238,7 @@ bool SceneMesh::BuildVBO(bool vUseSBO)
 
 void SceneMesh::DestroyVBO()
 {
-	m_VulkanCore->getDevice().waitIdle();
+	m_VulkanCorePtr->getDevice().waitIdle();
 
 	m_Vertices.m_Buffer.reset();
 	m_Vertices.m_BufferInfo = vk::DescriptorBufferInfo();
@@ -248,7 +248,7 @@ void SceneMesh::BuildIBO(bool vUseSBO)
 {
 	DestroyIBO();
 
-	m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCore, m_Indices.m_Array, vUseSBO);
+	m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array, vUseSBO);
 	m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 
 	m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
@@ -258,7 +258,7 @@ void SceneMesh::BuildIBO(bool vUseSBO)
 
 void SceneMesh::DestroyIBO()
 {
-	m_VulkanCore->getDevice().waitIdle();
+	m_VulkanCorePtr->getDevice().waitIdle();
 
 	m_Indices.m_Buffer.reset();
 	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo();

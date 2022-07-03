@@ -16,15 +16,15 @@ limitations under the License.
 
 #include "VertexShaderPass.h"
 
-VertexShaderPass::VertexShaderPass(vkApi::VulkanCore* vVulkanCore)
-	: ShaderPass(vVulkanCore, GenericType::PIXEL)
+VertexShaderPass::VertexShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: ShaderPass(vVulkanCorePtr, GenericType::PIXEL)
 {
 
 }
 
-VertexShaderPass::VertexShaderPass(vkApi::VulkanCore* vVulkanCore,	
+VertexShaderPass::VertexShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr,	
 	vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
-	: ShaderPass(vVulkanCore, GenericType::PIXEL, vCommandPool, vDescriptorPool)
+	: ShaderPass(vVulkanCorePtr, GenericType::PIXEL, vCommandPool, vDescriptorPool)
 {
 
 }

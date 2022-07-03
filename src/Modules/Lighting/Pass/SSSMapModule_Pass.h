@@ -66,7 +66,7 @@ protected: // vulkan creation
 	glm::vec3 m_CurrentCamPoint;
 
 public:
-	SSSMapModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	SSSMapModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~SSSMapModule_Pass();
 
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;

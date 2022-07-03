@@ -29,7 +29,7 @@ class HeatmapRendererNode :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<HeatmapRendererNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<HeatmapRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<HeatmapRenderer> m_HeatmapRenderer = nullptr;
@@ -37,7 +37,7 @@ private:
 public:
 	HeatmapRendererNode();
 	~HeatmapRendererNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

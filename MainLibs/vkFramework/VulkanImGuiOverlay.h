@@ -20,6 +20,7 @@ limitations under the License.
 
 #include <vulkan/vulkan.hpp>
 #include <imgui/imgui.h>
+#include <vkFramework/vkFramework.h>
 
 class VulkanImGuiRenderer;
 namespace vkApi
@@ -29,13 +30,20 @@ namespace vkApi
 	class VulkanImGuiOverlay
 	{
 	public:
-		VulkanImGuiOverlay(
-			vkApi::VulkanCore* vVulkanCore, 
-			VulkanImGuiRenderer *vVulkanImGuiRenderer, 
-			vkApi::VulkanWindow *vVulkanWindow);
+		static VulkanImGuiOverlayPtr Create(
+			vkApi::VulkanCoreWeak vVulkanCoreWeak,
+			VulkanImGuiRendererWeak vVulkanImGuiRendererWeak,
+			vkApi::VulkanWindowWeak vVulkanWindowWeak);
+
+	public:
+		VulkanImGuiOverlay();
 		~VulkanImGuiOverlay();
 
-		void Destroy();
+		bool Init(
+			vkApi::VulkanCoreWeak vVulkanCoreWeak,
+			VulkanImGuiRendererWeak vVulkanImGuiRendererWeak,
+			vkApi::VulkanWindowWeak vVulkanWindowWeak);
+		void Unit();
 
 		void begin();
 		void end();
@@ -47,9 +55,9 @@ namespace vkApi
 		ImGuiIO& imgui_io();
 
 	private:
-		vkApi::VulkanCore* m_VulkanCore = nullptr;
-		VulkanImGuiRenderer* m_VulkanImGuiRenderer = nullptr;
-		vkApi::VulkanWindow* m_VulkanWindow = nullptr;
+		vkApi::VulkanCoreWeak m_VulkanCoreWeak;
+		VulkanImGuiRendererWeak m_VulkanImGuiRendererWeak;
+		vkApi::VulkanWindowWeak m_VulkanWindowWeak;
 
 	private:
 		bool m_IsRecording = false;

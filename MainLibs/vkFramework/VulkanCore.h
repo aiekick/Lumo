@@ -22,6 +22,8 @@ limitations under the License.
 
 #include <ctools/cTools.h>
 
+#include <vkFramework/vkFramework.h>
+
 #include "VulkanWindow.h"
 #include "VulkanSwapChain.h"
 #include "VulkanDevice.h"
@@ -45,13 +47,21 @@ namespace vkApi
 	{
 	public:
 		static VmaAllocator sAllocator;
-		static std::shared_ptr<VulkanShader> sVulkanShader;
+		static VulkanShaderPtr sVulkanShader;
+		static VulkanCorePtr Create(
+			VulkanWindowPtr vVulkanWindow,
+			const std::string& vAppName,
+			const int& vAppVersion,
+			const std::string& vEngineName,
+			const int& vEngineVersion,
+			const bool& vCreateSwapChain);
 
 	protected:
-		VulkanSwapChain m_VulkanSwapChain;
-		VulkanDevice m_VulkanDevice;
+		VulkanCoreWeak m_This;
+		VulkanSwapChainPtr m_VulkanSwapChainPtr = nullptr;
+		VulkanDevicePtr m_VulkanDevicePtr = nullptr;
 		TracyVkCtx m_TracyContext = nullptr;
-		ct::cWeak<VulkanImGuiRenderer> m_VulkanImGuiRenderer;
+		VulkanImGuiRendererWeak m_VulkanImGuiRendererWeak;
 
 	protected:
 		std::vector<vk::CommandBuffer> m_CommandBuffers;
@@ -67,21 +77,27 @@ namespace vkApi
 		static void check_error(VkResult result);
 
 	public:
-		void Init(VulkanWindow* vVulkanWindow, const char* vAppName, const int& vAppVersion, const char* vEngineName, const int& vEngineVersion, bool vCreateSwapChain);
+		bool Init(
+			VulkanWindowPtr vVulkanWindow,
+			const std::string& vAppName,
+			const int& vAppVersion,
+			const std::string& vEngineName,
+			const int& vEngineVersion,
+			const bool& vCreateSwapChain);
 		void Unit();
 
 	public: // get
 		vk::Instance getInstance() const;
 		vk::PhysicalDevice getPhysicalDevice() const;
 		vk::Device getDevice() const;
-		VulkanDevice* getFrameworkDevice();
+		VulkanDeviceWeak getFrameworkDevice();
 		vk::DispatchLoaderDynamic GetDynamicLoader() const;
 		vk::DescriptorPool getDescriptorPool() const;
 		vk::RenderPass getMainRenderPass() const;
 		vk::CommandBuffer getGraphicCommandBuffer() const;
 		vk::CommandBuffer getComputeCommandBuffer() const;
 		vk::SurfaceKHR getSurface() const;
-		VulkanSwapChain getSwapchain() const;
+		VulkanSwapChainWeak getSwapchain() const;
 		std::vector<vk::Semaphore> getPresentSemaphores();
 		std::vector<vk::Semaphore> getRenderSemaphores();
 		vk::Viewport getViewport() const;
@@ -90,8 +106,8 @@ namespace vkApi
 		TracyVkCtx getTracyContext();
 		vk::SampleCountFlagBits getSwapchainFrameBufferSampleCount() const;
 
-		void SetVulkanImGuiRenderer(ct::cWeak<VulkanImGuiRenderer> vVulkanShader);
-		ct::cWeak<VulkanImGuiRenderer> GetVulkanImGuiRenderer();
+		void SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanShader);
+		VulkanImGuiRendererWeak GetVulkanImGuiRenderer();
 
 		// from device
 		vk::SampleCountFlagBits GetMaxUsableSampleCount();
@@ -113,14 +129,13 @@ namespace vkApi
 		bool submitComputeCmd(vk::CommandBuffer vCmd);
 
 	public: // KHR
-		bool AcquireNextImage(VulkanWindow* vVulkanWindow);
+		bool AcquireNextImage(VulkanWindowPtr vVulkanWindow);
 		void Present();
 		uint32_t getSwapchainFrameBuffers() const;
 		bool justGainFocus();
 		ct::frect* getDisplayRect();
 
 	protected:
-
 		void setupGraphicCommandsAndSynchronization();
 		void destroyGraphicCommandsAndSynchronization();
 
@@ -130,9 +145,9 @@ namespace vkApi
 		void setupDescriptorPool();
 
 	public:
-		VulkanCore() {} // Prevent construction
-		VulkanCore(const VulkanCore&) {}; // Prevent construction by copying
+		VulkanCore() = default; // Prevent construction
+		VulkanCore(const VulkanCore&) = default; // Prevent construction by copying
 		VulkanCore& operator =(const VulkanCore&) { return *this; }; // Prevent assignment
-		~VulkanCore() {} // Prevent unwanted destruction
+		~VulkanCore() = default; // Prevent unwanted destruction
 	};
 }

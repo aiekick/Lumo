@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <vulkan/vulkan.hpp>
 #include <ctools/cTools.h>
+#include <vkFramework/vkFramework.h>
 
 struct GLFWwindow;
 namespace vkApi
@@ -25,24 +26,28 @@ namespace vkApi
 	class VulkanWindow
 	{
 	public:
-		void Init(int width, int height, const std::string& name, bool offscreen);
+		static VulkanWindowPtr Create(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen);
+
+	private:
+		std::string m_Name;
+		GLFWwindow* m_Window = nullptr;
+		std::vector<const char*> m_VKInstanceExtension;
+
+	public:
+		bool Init(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen);
 		void Unit();
 
-		ct::ivec2 pixelrez() const;
-		ct::ivec2 clentrez() const;
+		ct::ivec2 getFrameBufferResolution() const;
+		ct::ivec2 getWindowResolution() const;
 
 		bool IsMinimized();
 
-		const std::string& name() const;
 		vk::SurfaceKHR createSurface(vk::Instance vkInstance);
-		const std::vector<const char*>& vkInstanceExtensions() const;
+		
+		const std::string& name() const;
+		const std::vector<const char*>& getVKInstanceExtensions() const;
 
-		GLFWwindow* WinPtr() const;
-
-	private:
-		std::string d_name;
-		GLFWwindow* m_Window = nullptr;
-		std::vector<const char*> d_vkInstanceExtension;
+		GLFWwindow* getWindowPtr() const;
 
 	public:
 		VulkanWindow() {} // Prevent construction

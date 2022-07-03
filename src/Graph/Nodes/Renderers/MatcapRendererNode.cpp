@@ -18,11 +18,11 @@ limitations under the License.
 #include <Modules/Renderers/MatcapRenderer.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-std::shared_ptr<MatcapRendererNode> MatcapRendererNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<MatcapRendererNode> MatcapRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<MatcapRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ MatcapRendererNode::~MatcapRendererNode()
 	Unit();
 }
 
-bool MatcapRendererNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool MatcapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Matcap";
 
@@ -61,7 +61,7 @@ bool MatcapRendererNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_MatcapRenderer = MatcapRenderer::Create(vVulkanCore);
+	m_MatcapRenderer = MatcapRenderer::Create(vVulkanCorePtr);
 	if (m_MatcapRenderer)
 	{
 		res = true;

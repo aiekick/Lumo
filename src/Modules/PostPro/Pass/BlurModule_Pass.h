@@ -61,7 +61,7 @@ private:
 	} m_UBOComp;
 
 public:
-	BlurModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	BlurModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~BlurModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

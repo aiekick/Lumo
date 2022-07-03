@@ -65,7 +65,7 @@ protected: // vulkan creation
 	} m_UBOFrag;
 
 public:
-	ModelShadowModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	ModelShadowModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ModelShadowModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

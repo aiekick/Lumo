@@ -68,7 +68,7 @@ private:
 	std::string m_FragmentShaderCode;
 
 public:
-	PosToDepthModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	PosToDepthModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~PosToDepthModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

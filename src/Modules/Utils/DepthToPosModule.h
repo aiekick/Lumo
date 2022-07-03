@@ -60,13 +60,13 @@ class DepthToPosModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<DepthToPosModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<DepthToPosModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<DepthToPosModule_Pass> m_DepthToPosModule_Pass_Ptr = nullptr;
 
 public:
-	DepthToPosModule(vkApi::VulkanCore* vVulkanCore);
+	DepthToPosModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~DepthToPosModule();
 
 	bool Init();

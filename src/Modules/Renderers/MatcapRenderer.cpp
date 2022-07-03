@@ -34,9 +34,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<MatcapRenderer>(vVulkanCore);
+	auto res = std::make_shared<MatcapRenderer>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -49,8 +49,8 @@ std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(vkApi::VulkanCore* vVulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MatcapRenderer::MatcapRenderer(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+MatcapRenderer::MatcapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -74,7 +74,7 @@ bool MatcapRenderer::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_MatcapRenderer_Pass_Ptr = std::make_shared<MatcapRenderer_Pass>(m_VulkanCore);
+		m_MatcapRenderer_Pass_Ptr = std::make_shared<MatcapRenderer_Pass>(m_VulkanCorePtr);
 		if (m_MatcapRenderer_Pass_Ptr)
 		{
 			if (m_MatcapRenderer_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

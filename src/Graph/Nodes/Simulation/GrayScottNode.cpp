@@ -17,11 +17,11 @@ limitations under the License.
 #include "GrayScottNode.h"
 #include <Modules/Simulation/GrayScottModule.h>
 
-std::shared_ptr<GrayScottNode> GrayScottNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<GrayScottNode> GrayScottNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<GrayScottNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ GrayScottNode::~GrayScottNode()
 	Unit();
 }
 
-bool GrayScottNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool GrayScottNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "GrayScott";
 
@@ -56,7 +56,7 @@ bool GrayScottNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_GrayScottModulePtr = GrayScottModule::Create(vVulkanCore);
+	m_GrayScottModulePtr = GrayScottModule::Create(vVulkanCorePtr);
 	if (m_GrayScottModulePtr)
 	{
 		res = true;

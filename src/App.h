@@ -18,9 +18,7 @@ limitations under the License.
 
 #include <glm/glm.hpp>
 
-#include <vkFramework/VulkanImGuiOverlay.h>
-#include <vkFramework/Texture2D.h>
-#include <ctools/cTools.h>
+#include <vkFramework/vkFramework.h>
 
 #include <string>
 #include <functional>
@@ -37,23 +35,16 @@ struct FileDialogAsset
 	vk::DescriptorSet set;
 };
 
-namespace vkApi
-{
-	class VulkanImGuiOverlay;
-	class VulkanWindow;
-	class VulkanCore;
-}
-class VulkanShader;
 const uint32_t WIDTH = 1700;
 const uint32_t HEIGHT = 700;
 struct GLFWwindow;
 class App
 {
 private:
-	std::unique_ptr<vkApi::VulkanImGuiOverlay> m_VulkanImGuiOverlay = nullptr;
-	std::shared_ptr<VulkanImGuiRenderer> m_VulkanImGuiRendererPtr = nullptr;
-	std::shared_ptr<vkApi::VulkanWindow> m_VulkanWindowPtr = nullptr;
-	std::shared_ptr<vkApi::VulkanCore> m_VulkanCorePtr = nullptr;
+	vkApi::VulkanImGuiOverlayPtr m_VulkanImGuiOverlayPtr = nullptr;
+	VulkanImGuiRendererPtr m_VulkanImGuiRendererPtr = nullptr;
+	vkApi::VulkanWindowPtr m_VulkanWindowPtr = nullptr;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 public:
 	std::vector<std::shared_ptr<FileDialogAsset>> m_FileDialogAssets;
@@ -70,7 +61,7 @@ public:
 
 public:
 	int Run(const std::string& vAppPath);
-	std::shared_ptr<vkApi::VulkanWindow> GetWindowPtr();
+	vkApi::VulkanWindowPtr GetWindowPtr();
 	bool Unit(GLFWwindow* vWindow);
 
 private:

@@ -17,11 +17,11 @@ limitations under the License.
 #include "DiffuseNode.h"
 #include <Modules/Lighting/DiffuseModule.h>
 
-std::shared_ptr<DiffuseNode> DiffuseNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<DiffuseNode> DiffuseNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<DiffuseNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ DiffuseNode::~DiffuseNode()
 	Unit();
 }
 
-bool DiffuseNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool DiffuseNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Diffuse";
 
@@ -56,7 +56,7 @@ bool DiffuseNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_DiffuseModulePtr = DiffuseModule::Create(vVulkanCore);
+	m_DiffuseModulePtr = DiffuseModule::Create(vVulkanCorePtr);
 	if (m_DiffuseModulePtr)
 	{
 		res = true;

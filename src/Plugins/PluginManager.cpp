@@ -38,7 +38,7 @@ PluginInstance::~PluginInstance()
 	Unit();
 }
 
-bool PluginInstance::Init(vkApi::VulkanCore* vVulkanCore, const std::string& vName, const std::string& vFilePathName)
+bool PluginInstance::Init(vkApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName)
 {
 	m_Name = vName;
 	m_Loader = dlloader::DLLoader<PluginInterface>(vFilePathName);
@@ -49,7 +49,7 @@ bool PluginInstance::Init(vkApi::VulkanCore* vVulkanCore, const std::string& vNa
 		if (m_PluginInstance)
 		{
 			if (!m_PluginInstance->Init(
-				vVulkanCore,
+				vVulkanCoreWeak,
 				FileHelper::Instance(), 
 				CommonSystem::Instance(),
 				ImGui::GetCurrentContext(),
@@ -100,7 +100,7 @@ void PluginManager::Clear()
 	m_Plugins.clear();
 }
 
-void PluginManager::LoadPlugins(vkApi::VulkanCore* vVulkanCore)
+void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 {
 	auto plugin_directory = std::filesystem::path(FileHelper::Instance()->GetAppPath());
 #ifndef _DEBUG
@@ -120,7 +120,7 @@ void PluginManager::LoadPlugins(vkApi::VulkanCore* vVulkanCore)
 					if (ps.isOk)
 					{
 						auto resPtr = std::make_shared<PluginInstance>();
-						if (!resPtr->Init(vVulkanCore, ps.name, ps.GetFPNE()))
+						if (!resPtr->Init(vVulkanCoreWeak, ps.name, ps.GetFPNE()))
 						{
 							resPtr.reset();
 							//LogVarDebug("Plugin %s fail to load", ps.name.c_str());
@@ -181,7 +181,7 @@ void PluginManager::LoadPlugins(vkApi::VulkanCore* vVulkanCore)
 	printf("-----------\n");
 }
 
-ct::cWeak<PluginInstance> PluginManager::LoadPlugin(vkApi::VulkanCore* vVulkanCore, const std::string& vPluginName)
+ct::cWeak<PluginInstance> PluginManager::LoadPlugin(vkApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vPluginName)
 {
 	ct::cWeak<PluginInstance> res;
 
@@ -193,8 +193,7 @@ ct::cWeak<PluginInstance> PluginManager::LoadPlugin(vkApi::VulkanCore* vVulkanCo
 		if (fs::exists(file_path_name))
 		{
 			auto resPtr = std::make_shared<PluginInstance>();
-
-			if (!resPtr->Init(vVulkanCore, vPluginName, file_path_name))
+			if (!resPtr->Init(vVulkanCoreWeak, vPluginName, file_path_name))
 			{
 				resPtr.reset();
 				LogVarDebug("Plugin %s fail to load",

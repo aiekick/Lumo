@@ -41,9 +41,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<LaplacianModule> LaplacianModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<LaplacianModule> LaplacianModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<LaplacianModule>(vVulkanCore);
+	auto res = std::make_shared<LaplacianModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -56,8 +56,8 @@ std::shared_ptr<LaplacianModule> LaplacianModule::Create(vkApi::VulkanCore* vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LaplacianModule::LaplacianModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+LaplacianModule::LaplacianModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -81,7 +81,7 @@ bool LaplacianModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_LaplacianModule_Pass_Ptr = std::make_shared<LaplacianModule_Pass>(m_VulkanCore);
+		m_LaplacianModule_Pass_Ptr = std::make_shared<LaplacianModule_Pass>(m_VulkanCorePtr);
 		if (m_LaplacianModule_Pass_Ptr)
 		{
 			if (m_LaplacianModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

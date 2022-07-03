@@ -17,11 +17,11 @@ limitations under the License.
 #include "MeshNode.h"
 #include <Modules/Assets/MeshModule.h>
 
-std::shared_ptr<MeshNode> MeshNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<MeshNode> MeshNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<MeshNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ MeshNode::~MeshNode()
 
 }
 
-bool MeshNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool MeshNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Model";
 
@@ -48,7 +48,7 @@ bool MeshNode::Init(vkApi::VulkanCore* vVulkanCore)
 	slot.showWidget = true;
 	AddOutput(slot, true, true);
 
-	m_MeshModule = MeshModule::Create(vVulkanCore, m_This);
+	m_MeshModule = MeshModule::Create(vVulkanCorePtr, m_This);
 	if (m_MeshModule)
 	{
 		return true;

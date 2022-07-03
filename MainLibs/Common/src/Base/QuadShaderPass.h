@@ -21,8 +21,8 @@ limitations under the License.
 class QuadShaderPass : public MeshShaderPass<VertexStruct::P2_T2>
 {
 public:
-	QuadShaderPass(vkApi::VulkanCore* vVulkanCore, const MeshShaderPassType& vMeshShaderPassType);
-	QuadShaderPass(vkApi::VulkanCore* vVulkanCore, const MeshShaderPassType& vMeshShaderPassType,
+	QuadShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType);
+	QuadShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
 	bool BuildModel() override;

@@ -38,6 +38,7 @@
 #include <string>
 
 #include <glslang/glslang/Include/ResourceLimits.h>
+#include <vkFramework/vkFramework.h>
 
 namespace glslang {
 	// These are the default resources for TBuiltInResources, used for both

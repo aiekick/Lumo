@@ -18,11 +18,11 @@ limitations under the License.
 
 #include <Modules/Divers/GridModule.h>
 
-std::shared_ptr<GridNode> GridNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<GridNode> GridNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<GridNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ GridNode::~GridNode()
 
 }
 
-bool GridNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool GridNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Grid / Axis";
 
@@ -48,7 +48,7 @@ bool GridNode::Init(vkApi::VulkanCore* vVulkanCore)
 	slot.name = "Output";
 	AddOutput(slot, true, true);
 
-	m_GridModulePtr = GridModule::Create(vVulkanCore);
+	m_GridModulePtr = GridModule::Create(vVulkanCorePtr);
 	if (m_GridModulePtr)
 	{
 		return true;

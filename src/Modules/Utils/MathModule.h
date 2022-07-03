@@ -57,7 +57,7 @@ class MathModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<MathModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<MathModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<MathModule> m_This;
@@ -65,7 +65,7 @@ private:
 	std::shared_ptr<MathModule_Pass> m_MathModule_Pass_Ptr = nullptr;
 
 public:
-	MathModule(vkApi::VulkanCore* vVulkanCore);
+	MathModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~MathModule();
 
 	bool Init();

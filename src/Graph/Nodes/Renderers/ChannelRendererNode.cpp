@@ -18,11 +18,11 @@ limitations under the License.
 #include <Modules/Renderers/ChannelRenderer.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-std::shared_ptr<ChannelRendererNode> ChannelRendererNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<ChannelRendererNode> ChannelRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ChannelRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ ChannelRendererNode::~ChannelRendererNode()
 	Unit();
 }
 
-bool ChannelRendererNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool ChannelRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Channels";
 
@@ -55,7 +55,7 @@ bool ChannelRendererNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_ChannelRenderer = ChannelRenderer::Create(vVulkanCore);
+	m_ChannelRenderer = ChannelRenderer::Create(vVulkanCorePtr);
 	if (m_ChannelRenderer)
 	{
 		res = true;

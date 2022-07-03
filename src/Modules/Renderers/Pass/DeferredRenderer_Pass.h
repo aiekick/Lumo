@@ -76,7 +76,7 @@ private:
 	std::string m_FragmentShaderCode;
 
 public:
-	DeferredRenderer_Pass(vkApi::VulkanCore* vVulkanCore);
+	DeferredRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~DeferredRenderer_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

@@ -44,15 +44,15 @@ class OutputModule :
 	public ResizerInterface
 {
 public:
-	static OutputModulePtr Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode);
+	static OutputModulePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
 	OutputModuleWeak m_This;
 	ImGuiTexture m_ImGuiTexture;
-	vkApi::VulkanCore* m_VulkanCore = nullptr;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 public:
-	OutputModule(vkApi::VulkanCore* vVulkanCore);
+	OutputModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~OutputModule();
 
 	bool Init();

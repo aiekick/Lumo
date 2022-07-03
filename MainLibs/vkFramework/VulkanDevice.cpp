@@ -129,6 +129,21 @@ namespace vkApi
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	//// STATIC //////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	VulkanDevicePtr VulkanDevice::Create(
+		VulkanWindowWeak vVulkanWindow,
+		const std::string& vAppName,
+		const int& vAppVersion,
+		const std::string& vEngineName,
+		const int& vEngineVersion)
+	{
+		auto res = std::make_shared<VulkanDevice>();
+		if (!res->Init(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion))
+		{
+			res.reset();
+		}
+		return res;
+	}
 
 	void VulkanDevice::findBestExtensions(const std::vector<vk::ExtensionProperties>& installed, const std::vector<const char*>& wanted, std::vector<const char*>& out)
 	{
@@ -203,17 +218,20 @@ namespace vkApi
 	//// INIT / UNIT /////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	bool VulkanDevice::Init(VulkanWindow* vVulkanWindow, const char* vAppName, const int& vAppVersion, const char* vEngineName, const int& vEngineVersion)
+	bool VulkanDevice::Init(
+		VulkanWindowWeak vVulkanWindow,
+		const std::string& vAppName,
+		const int& vAppVersion,
+		const std::string& vEngineName,
+		const int& vEngineVersion)
 	{
 		ZoneScoped;
 
-		bool res = false;
+		bool res = true;
 
-		CreateVulkanInstance(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion);
-		CreatePhysicalDevice();
-		CreateLogicalDevice();
-
-		res = true;
+		res &= CreateVulkanInstance(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion);
+		res &= CreatePhysicalDevice();
+		res &= CreateLogicalDevice();
 
 		return res;
 	}
@@ -387,123 +405,134 @@ namespace vkApi
 	//// PRIVATE /////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	void VulkanDevice::CreateVulkanInstance(VulkanWindow *vVulkanWindow, const char* vAppName, const int& vAppVersion, const char* vEngineName, const int& vEngineVersion)
+	bool VulkanDevice::CreateVulkanInstance(
+		VulkanWindowWeak vVulkanWindow,
+		const std::string& vAppName,
+		const int& vAppVersion,
+		const std::string& vEngineName,
+		const int& vEngineVersion)
 	{
 		ZoneScoped;
 
-		assert(vVulkanWindow);
+		auto vkWindowPtr = vVulkanWindow.getValidShared();
+		if (vkWindowPtr)
+		{
 
 #ifdef _DEBUG
-		CheckValidationLayerSupport();
+			CheckValidationLayerSupport();
 #endif
 
-		auto wantedExtensions = vVulkanWindow->vkInstanceExtensions();
-		auto wantedLayers = std::vector<const char*>();
+			auto wantedExtensions = vkWindowPtr->getVKInstanceExtensions();
+			auto wantedLayers = std::vector<const char*>();
 
 #if VULKAN_DEBUG
-		wantedLayers.emplace_back("VK_LAYER_KHRONOS_validation");
-		wantedLayers.emplace_back("VK_LAYER_LUNARG_core_validation");
-		//wantedLayers.emplace_back("VK_LAYER_LUNARG_monitor");
-		//wantedLayers.emplace_back("VK_LAYER_LUNARG_api_dump");
-		//wantedLayers.emplace_back("VK_LAYER_LUNARG_device_simulation");
-		//wantedLayers.emplace_back("VK_LAYER_LUNARG_screenshot");
+			wantedLayers.emplace_back("VK_LAYER_KHRONOS_validation");
+			wantedLayers.emplace_back("VK_LAYER_LUNARG_core_validation");
+			//wantedLayers.emplace_back("VK_LAYER_LUNARG_monitor");
+			//wantedLayers.emplace_back("VK_LAYER_LUNARG_api_dump");
+			//wantedLayers.emplace_back("VK_LAYER_LUNARG_device_simulation");
+			//wantedLayers.emplace_back("VK_LAYER_LUNARG_screenshot");
 
-		wantedExtensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-		wantedExtensions.emplace_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
+			wantedExtensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+			wantedExtensions.emplace_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 #endif
 
 #if ENABLE_CALIBRATED_CONTEXT
-		wantedExtensions.emplace_back(VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
+			wantedExtensions.emplace_back(VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
 #endif
 
-		// Find the best Instance Extensions
-		auto installedExtensions = vk::enumerateInstanceExtensionProperties();
-		std::vector<const char*> extensions = {};
-		findBestExtensions(installedExtensions, wantedExtensions, extensions);
+			// Find the best Instance Extensions
+			auto installedExtensions = vk::enumerateInstanceExtensionProperties();
+			std::vector<const char*> extensions = {};
+			findBestExtensions(installedExtensions, wantedExtensions, extensions);
 
-		// find best instance Layer
-		auto installedLayers = vk::enumerateInstanceLayerProperties();
-		std::vector<const char*> layers = {};
-		findBestLayers(installedLayers, wantedLayers, layers);
+			// find best instance Layer
+			auto installedLayers = vk::enumerateInstanceLayerProperties();
+			std::vector<const char*> layers = {};
+			findBestLayers(installedLayers, wantedLayers, layers);
 
 
-		uint32_t apiVersion = VK_API_VERSION_1_0;
-		if (vk::enumerateInstanceVersion(&apiVersion) != vk::Result::eSuccess)
-		{
-			apiVersion = VK_API_VERSION_1_0;
-		}
-		else
-		{
-			LogVarLightInfo("Vulkan api version is : %u.%u.%u.%u\n-----------",
-				VK_API_VERSION_VARIANT(apiVersion),
-				VK_API_VERSION_MAJOR(apiVersion),
-				VK_API_VERSION_MINOR(apiVersion),
-				VK_API_VERSION_PATCH(apiVersion));
-		}
-
-		vk::ApplicationInfo appInfo(vAppName, vAppVersion, vEngineName, vEngineVersion);
-
-		m_Debug_Utils_Supported = false;
-		for (auto ext : extensions)
-		{
-			if (strcmp(ext, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0)
+			uint32_t apiVersion = VK_API_VERSION_1_0;
+			if (vk::enumerateInstanceVersion(&apiVersion) != vk::Result::eSuccess)
 			{
-				m_Debug_Utils_Supported = true;
+				apiVersion = VK_API_VERSION_1_0;
 			}
-		}
+			else
+			{
+				LogVarLightInfo("Vulkan api version is : %u.%u.%u.%u\n-----------",
+					VK_API_VERSION_VARIANT(apiVersion),
+					VK_API_VERSION_MAJOR(apiVersion),
+					VK_API_VERSION_MINOR(apiVersion),
+					VK_API_VERSION_PATCH(apiVersion));
+			}
 
-		vk::InstanceCreateInfo instanceCreateInfo(
-			vk::InstanceCreateFlags(),
-			&appInfo,
-			static_cast<uint32_t>(layers.size()),
-			layers.data(),
-			static_cast<uint32_t>(extensions.size()),
-			extensions.data()
-		);
+			vk::ApplicationInfo appInfo(vAppName.c_str(), vAppVersion, vEngineName.c_str(), vEngineVersion);
 
-		std::vector<vk::ValidationFeatureEnableEXT> enabledFeatures;
+			m_Debug_Utils_Supported = false;
+			for (auto ext : extensions)
+			{
+				if (strcmp(ext, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0)
+				{
+					m_Debug_Utils_Supported = true;
+				}
+			}
+
+			vk::InstanceCreateInfo instanceCreateInfo(
+				vk::InstanceCreateFlags(),
+				&appInfo,
+				static_cast<uint32_t>(layers.size()),
+				layers.data(),
+				static_cast<uint32_t>(extensions.size()),
+				extensions.data()
+			);
+
+			std::vector<vk::ValidationFeatureEnableEXT> enabledFeatures;
 #if VULKAN_DEBUG_FEATURES
-		enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eBestPractices);
-		enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eGpuAssisted);
-		enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot);
+			enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eBestPractices);
+			enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eGpuAssisted);
+			enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot);
 #endif
-		vk::ValidationFeaturesEXT validationFeatures{ uint32_t(enabledFeatures.size()), enabledFeatures.data() };
+			vk::ValidationFeaturesEXT validationFeatures{ uint32_t(enabledFeatures.size()), enabledFeatures.data() };
 
-		vk::StructureChain<vk::InstanceCreateInfo, vk::ValidationFeaturesEXT> chain = { instanceCreateInfo, validationFeatures };
+			vk::StructureChain<vk::InstanceCreateInfo, vk::ValidationFeaturesEXT> chain = { instanceCreateInfo, validationFeatures };
 
-		m_Instance = vk::createInstance(chain.get<vk::InstanceCreateInfo>());
+			m_Instance = vk::createInstance(chain.get<vk::InstanceCreateInfo>());
 
 #if VULKAN_DEBUG
-		m_Dldy.init((VkInstance)m_Instance, vkGetInstanceProcAddr);
+			m_Dldy.init((VkInstance)m_Instance, vkGetInstanceProcAddr);
 
-		VkDebugReportCallbackEXT handle_debug_report_callback;
-		
-		// Setup the debug report callback
-		VkDebugReportCallbackCreateInfoEXT debug_report_ci = {};
-		debug_report_ci.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-		debug_report_ci.flags =
-			VK_DEBUG_REPORT_ERROR_BIT_EXT
-			| VK_DEBUG_REPORT_WARNING_BIT_EXT
-			| VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT
-			//| VK_DEBUG_REPORT_DEBUG_BIT_EXT  // affiche les extentions
-			//| VK_DEBUG_REPORT_INFORMATION_BIT_EXT
-			;
-		debug_report_ci.pfnCallback = debug_report;
-		debug_report_ci.pUserData = NULL;
+			VkDebugReportCallbackEXT handle_debug_report_callback;
 
-		auto creat_func = m_Dldy.vkCreateDebugReportCallbackEXT;
-		if (creat_func)
-		{
-			creat_func((VkInstance)m_Instance, &debug_report_ci, nullptr, &handle_debug_report_callback);
-			m_DebugReport = vk::DebugReportCallbackEXT(handle_debug_report_callback);
-		}
-		else
-		{
-			LogVarInfo("Debug : %s library is not there. VkDebug is not enabled",
-				VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-		}
+			// Setup the debug report callback
+			VkDebugReportCallbackCreateInfoEXT debug_report_ci = {};
+			debug_report_ci.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+			debug_report_ci.flags =
+				VK_DEBUG_REPORT_ERROR_BIT_EXT
+				| VK_DEBUG_REPORT_WARNING_BIT_EXT
+				| VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT
+				//| VK_DEBUG_REPORT_DEBUG_BIT_EXT  // affiche les extentions
+				//| VK_DEBUG_REPORT_INFORMATION_BIT_EXT
+				;
+			debug_report_ci.pfnCallback = debug_report;
+			debug_report_ci.pUserData = NULL;
 
+			auto creat_func = m_Dldy.vkCreateDebugReportCallbackEXT;
+			if (creat_func)
+			{
+				creat_func((VkInstance)m_Instance, &debug_report_ci, nullptr, &handle_debug_report_callback);
+				m_DebugReport = vk::DebugReportCallbackEXT(handle_debug_report_callback);
+			}
+			else
+			{
+				LogVarInfo("Debug : %s library is not there. VkDebug is not enabled",
+					VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+			}
 #endif
+
+			return true;
+		}
+
+		return false;
 	}
 
 	void VulkanDevice::DestroyVulkanInstance()
@@ -517,7 +546,7 @@ namespace vkApi
 		m_Instance.destroy();
 	}
 
-	void VulkanDevice::CreatePhysicalDevice()
+	bool VulkanDevice::CreatePhysicalDevice()
 	{
 		ZoneScoped;
 
@@ -539,6 +568,8 @@ namespace vkApi
 
 		//auto limits = m_PhysDevice.getProperties().limits;
 		//limits.maxDescriptorSetUniformBuffers;
+
+		return true;
 	}
 
 	void VulkanDevice::DestroyPhysicalDevice()
@@ -548,7 +579,7 @@ namespace vkApi
 		// nothing here
 	}
 
-	void VulkanDevice::CreateLogicalDevice()
+	bool VulkanDevice::CreateLogicalDevice()
 	{
 		ZoneScoped;
 		
@@ -606,6 +637,8 @@ namespace vkApi
 		m_Queues[vk::QueueFlagBits::eTransfer].vkQueue = m_LogDevice.getQueue(familyQueueIndex, 0);
 		m_Queues[vk::QueueFlagBits::eTransfer].cmdPools = m_LogDevice.createCommandPool(
 			vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer), familyQueueIndex));
+	
+		return true;
 	}
 
 	void VulkanDevice::DestroyLogicalDevice()

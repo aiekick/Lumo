@@ -34,40 +34,40 @@ namespace vkApi {
 //// IMAGE ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-void VulkanRessource::copy(vkApi::VulkanCore* vVulkanCore, vk::Image dst, vk::Buffer src, const vk::BufferImageCopy& region, vk::ImageLayout layout)
+void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Image dst, vk::Buffer src, const vk::BufferImageCopy& region, vk::ImageLayout layout)
 {
 	ZoneScoped;
 
-	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCore, true);
+	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true);
 	cmd.copyBufferToImage(src, dst, layout, region);
-	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCore, cmd, true);
+	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true);
 }
 
-void VulkanRessource::copy(vkApi::VulkanCore* vVulkanCore, vk::Buffer dst, vk::Image src, const vk::BufferImageCopy& region, vk::ImageLayout layout)
+void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Image src, const vk::BufferImageCopy& region, vk::ImageLayout layout)
 {
 	ZoneScoped;
 
-	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCore, true);
+	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true);
 	cmd.copyImageToBuffer(src, layout, dst, region);
-	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCore, cmd, true);
+	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true);
 }
 
-void VulkanRessource::copy(vkApi::VulkanCore* vVulkanCore, vk::Image dst, vk::Buffer src, const std::vector<vk::BufferImageCopy>& regions, vk::ImageLayout layout)
+void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Image dst, vk::Buffer src, const std::vector<vk::BufferImageCopy>& regions, vk::ImageLayout layout)
 {
 	ZoneScoped;
 
-	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCore, true);
+	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true);
 	cmd.copyBufferToImage(src, dst, layout, regions);
-	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCore, cmd, true);
+	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true);
 }
 
-void VulkanRessource::copy(vkApi::VulkanCore* vVulkanCore, vk::Buffer dst, vk::Image src, const std::vector<vk::BufferImageCopy>& regions, vk::ImageLayout layout)
+void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Image src, const std::vector<vk::BufferImageCopy>& regions, vk::ImageLayout layout)
 {
 	ZoneScoped;
 
-	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCore, true);
+	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true);
 	cmd.copyImageToBuffer(src, layout, dst, regions);
-	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCore, cmd, true);
+	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true);
 }
 
 bool VulkanRessource::hasStencilComponent(vk::Format format)
@@ -80,7 +80,7 @@ bool VulkanRessource::hasStencilComponent(vk::Format format)
 		format == vk::Format::eD32SfloatS8Uint;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createSharedImageObject(vkApi::VulkanCore* vVulkanCore, const vk::ImageCreateInfo& image_info, const VmaAllocationCreateInfo& alloc_info)
+VulkanRessourceObjectPtr VulkanRessource::createSharedImageObject(vkApi::VulkanCorePtr vVulkanCorePtr, const vk::ImageCreateInfo& image_info, const VmaAllocationCreateInfo& alloc_info)
 {
 	ZoneScoped;
 
@@ -93,7 +93,7 @@ VulkanRessourceObjectPtr VulkanRessource::createSharedImageObject(vkApi::VulkanC
 	return ret;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCore* vVulkanCore, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, void* hostdata_ptr)
+VulkanRessourceObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, void* hostdata_ptr)
 {
 	ZoneScoped;
 
@@ -144,13 +144,13 @@ VulkanRessourceObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCore
 	stagingBufferInfo.size = width * height * channels * elem_size;
 	stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
 	stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
-	auto stagebuffer = createSharedBufferObject(vVulkanCore, stagingBufferInfo, stagingAllocInfo);
-	upload(vVulkanCore, *stagebuffer, hostdata_ptr, width * height * channels * elem_size);
+	auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+	upload(vVulkanCorePtr, *stagebuffer, hostdata_ptr, width * height * channels * elem_size);
 
 	VmaAllocationCreateInfo image_alloc_info = {};
 	image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
-	auto familyQueueIndex = vVulkanCore->getQueue(vk::QueueFlagBits::eGraphics).familyQueueIndex;
-	auto texture = createSharedImageObject(vVulkanCore, vk::ImageCreateInfo(
+	auto familyQueueIndex = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics).familyQueueIndex;
+	auto texture = createSharedImageObject(vVulkanCorePtr, vk::ImageCreateInfo(
 		vk::ImageCreateFlags(),
 		vk::ImageType::e2D,
 		format,
@@ -172,22 +172,22 @@ VulkanRessourceObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCore
 		vk::Extent3D(width, height, 1));
 
 	// on va copier que le mip level 0, on fera les autre dans GenerateMipmaps juste apres ce block
-	transitionImageLayout(vVulkanCore, texture->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-	copy(vVulkanCore, texture->image, stagebuffer->buffer, copyParams);
+	transitionImageLayout(vVulkanCorePtr, texture->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+	copy(vVulkanCorePtr, texture->image, stagebuffer->buffer, copyParams);
 	if (mipLevelCount > 1)
 	{
-		GenerateMipmaps(vVulkanCore, texture->image, format, width, height, mipLevelCount);
+		GenerateMipmaps(vVulkanCorePtr, texture->image, format, width, height, mipLevelCount);
 	}
 	else
 	{
-		transitionImageLayout(vVulkanCore, texture->image, format, mipLevelCount, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+		transitionImageLayout(vVulkanCorePtr, texture->image, format, mipLevelCount, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 	}
 
 	return texture;
 }
 
 void VulkanRessource::getDatasFromTextureImage2D(
-	VulkanCore* vVulkanCore, uint32_t width, uint32_t height, 
+	VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, 
 	vk::Format format, std::shared_ptr<VulkanRessourceObject> vImage, 
 	void* vDatas, uint32_t* vSize)
 {
@@ -201,14 +201,14 @@ void VulkanRessource::getDatasFromTextureImage2D(
 	ZoneScoped;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createColorAttachment2D(vkApi::VulkanCore* vVulkanCore, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount)
+VulkanRessourceObjectPtr VulkanRessource::createColorAttachment2D(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount)
 {
 	ZoneScoped;
 
 	mipLevelCount = ct::maxi(mipLevelCount, 1u);
 
-	auto graphicQueue = vVulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-	auto computeQueue = vVulkanCore->getQueue(vk::QueueFlagBits::eCompute);
+	auto graphicQueue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+	auto computeQueue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eCompute);
 	std::vector<uint32_t> familyIndices = { graphicQueue.familyQueueIndex };
 	if (computeQueue.familyQueueIndex != graphicQueue.familyQueueIndex)
 		familyIndices.push_back(computeQueue.familyQueueIndex);
@@ -234,23 +234,23 @@ VulkanRessourceObjectPtr VulkanRessource::createColorAttachment2D(vkApi::VulkanC
 	VmaAllocationCreateInfo image_alloc_info = {};
 	image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 
-	auto vkoPtr = VulkanRessource::createSharedImageObject(vVulkanCore, imageInfo, image_alloc_info);
+	auto vkoPtr = VulkanRessource::createSharedImageObject(vVulkanCorePtr, imageInfo, image_alloc_info);
 	if (vkoPtr)
 	{
-		VulkanRessource::transitionImageLayout(vVulkanCore, vkoPtr->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal);
+		VulkanRessource::transitionImageLayout(vVulkanCorePtr, vkoPtr->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal);
 	}
 
 	return vkoPtr;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createComputeTarget2D(vkApi::VulkanCore* vVulkanCore, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount)
+VulkanRessourceObjectPtr VulkanRessource::createComputeTarget2D(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount)
 {
 	ZoneScoped;
 
 	mipLevelCount = ct::maxi(mipLevelCount, 1u);
 
-	auto graphicQueue = vVulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-	auto computeQueue = vVulkanCore->getQueue(vk::QueueFlagBits::eCompute);
+	auto graphicQueue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+	auto computeQueue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eCompute);
 	std::vector<uint32_t> familyIndices = { graphicQueue.familyQueueIndex };
 	if (computeQueue.familyQueueIndex != graphicQueue.familyQueueIndex)
 		familyIndices.push_back(computeQueue.familyQueueIndex);
@@ -276,21 +276,21 @@ VulkanRessourceObjectPtr VulkanRessource::createComputeTarget2D(vkApi::VulkanCor
 	VmaAllocationCreateInfo image_alloc_info = {};
 	image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 
-	auto vkoPtr = VulkanRessource::createSharedImageObject(vVulkanCore, imageInfo, image_alloc_info);
+	auto vkoPtr = VulkanRessource::createSharedImageObject(vVulkanCorePtr, imageInfo, image_alloc_info);
 	if (vkoPtr)
 	{
-		VulkanRessource::transitionImageLayout(vVulkanCore, vkoPtr->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral);
+		VulkanRessource::transitionImageLayout(vVulkanCorePtr, vkoPtr->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eGeneral);
 	}
 
 	return vkoPtr;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createDepthAttachment(vkApi::VulkanCore* vVulkanCore, uint32_t width, uint32_t height, vk::Format format, vk::SampleCountFlagBits vSampleCount)
+VulkanRessourceObjectPtr VulkanRessource::createDepthAttachment(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, vk::Format format, vk::SampleCountFlagBits vSampleCount)
 {
 	ZoneScoped;
 
-	auto graphicQueue = vVulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
-	auto computeQueue = vVulkanCore->getQueue(vk::QueueFlagBits::eCompute);
+	auto graphicQueue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+	auto computeQueue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eCompute);
 	std::vector<uint32_t> familyIndices = { graphicQueue.familyQueueIndex };
 	if (computeQueue.familyQueueIndex != graphicQueue.familyQueueIndex)
 		familyIndices.push_back(computeQueue.familyQueueIndex);
@@ -313,16 +313,16 @@ VulkanRessourceObjectPtr VulkanRessource::createDepthAttachment(vkApi::VulkanCor
 	VmaAllocationCreateInfo image_alloc_info = {};
 	image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 
-	return VulkanRessource::createSharedImageObject(vVulkanCore, imageInfo, image_alloc_info);
+	return VulkanRessource::createSharedImageObject(vVulkanCorePtr, imageInfo, image_alloc_info);
 }
 
-void VulkanRessource::GenerateMipmaps(vkApi::VulkanCore* vVulkanCore, vk::Image image, vk::Format imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
+void VulkanRessource::GenerateMipmaps(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Image image, vk::Format imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels)
 {
 	ZoneScoped;
 
 	if (mipLevels > 1)
 	{
-		auto physDevice = vVulkanCore->getPhysicalDevice();
+		auto physDevice = vVulkanCorePtr->getPhysicalDevice();
 
 		// Check if image format supports linear blitting
 		vk::FormatProperties formatProperties = physDevice.getFormatProperties(imageFormat);
@@ -332,7 +332,7 @@ void VulkanRessource::GenerateMipmaps(vkApi::VulkanCore* vVulkanCore, vk::Image 
 			throw std::runtime_error("texture image format does not support linear blitting!");
 		}
 
-		vk::CommandBuffer commandBuffer = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCore, true);
+		vk::CommandBuffer commandBuffer = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true);
 
 		vk::ImageMemoryBarrier barrier;
 		barrier.image = image;
@@ -413,11 +413,11 @@ void VulkanRessource::GenerateMipmaps(vkApi::VulkanCore* vVulkanCore, vk::Image 
 			{},
 			barrier);
 
-		VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCore, commandBuffer, true);
+		VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, commandBuffer, true);
 	}
 }
 
-void VulkanRessource::transitionImageLayout(vkApi::VulkanCore* vVulkanCore, vk::Image image, vk::Format format, uint32_t mipLevel, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+void VulkanRessource::transitionImageLayout(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Image image, vk::Format format, uint32_t mipLevel, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
 {
 	ZoneScoped;
 
@@ -428,14 +428,14 @@ void VulkanRessource::transitionImageLayout(vkApi::VulkanCore* vVulkanCore, vk::
 	subresourceRange.baseArrayLayer = 0;
 	subresourceRange.layerCount = 1;
 
-	VulkanRessource::transitionImageLayout(vVulkanCore, image, format, oldLayout, newLayout, subresourceRange);
+	VulkanRessource::transitionImageLayout(vVulkanCorePtr, image, format, oldLayout, newLayout, subresourceRange);
 }
 
-void VulkanRessource::transitionImageLayout(vkApi::VulkanCore* vVulkanCore, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageSubresourceRange subresourceRange)
+void VulkanRessource::transitionImageLayout(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageSubresourceRange subresourceRange)
 {
 	ZoneScoped;
 
-	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCore, true);
+	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true);
 	vk::ImageMemoryBarrier barrier = {};
 	barrier.oldLayout = oldLayout;
 	barrier.newLayout = newLayout;
@@ -539,23 +539,23 @@ void VulkanRessource::transitionImageLayout(vkApi::VulkanCore* vVulkanCore, vk::
 		{},
 		barrier);
 
-	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCore, cmd, true);
+	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 //// BUFFER //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-void VulkanRessource::copy(vkApi::VulkanCore* vVulkanCore, vk::Buffer dst, vk::Buffer src, const vk::BufferCopy& region, vk::CommandPool* vCommandPool)
+void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const vk::BufferCopy& region, vk::CommandPool* vCommandPool)
 {
 	ZoneScoped;
 
-	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCore, true, vCommandPool);
+	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true, vCommandPool);
 	cmd.copyBuffer(src, dst, region);
-	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCore, cmd, true, vCommandPool);
+	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true, vCommandPool);
 }
 
-void VulkanRessource::upload(vkApi::VulkanCore* vVulkanCore, VulkanBufferObject& dst_hostVisable, void* src_host, size_t size_bytes, size_t dst_offset)
+void VulkanRessource::upload(vkApi::VulkanCorePtr vVulkanCorePtr, VulkanBufferObject& dst_hostVisable, void* src_host, size_t size_bytes, size_t dst_offset)
 {
 	ZoneScoped;
 
@@ -570,16 +570,16 @@ void VulkanRessource::upload(vkApi::VulkanCore* vVulkanCore, VulkanBufferObject&
 	vmaUnmapMemory(vkApi::VulkanCore::sAllocator, dst_hostVisable.alloc_meta);
 }
 
-void VulkanRessource::copy(vkApi::VulkanCore* vVulkanCore, vk::Buffer dst, vk::Buffer src, const std::vector<vk::BufferCopy>& regions, vk::CommandPool* vCommandPool)
+void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const std::vector<vk::BufferCopy>& regions, vk::CommandPool* vCommandPool)
 {
 	ZoneScoped;
 
-	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCore, true, vCommandPool);
+	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true, vCommandPool);
 	cmd.copyBuffer(src, dst, regions);
-	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCore, cmd, true, vCommandPool);
+	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true, vCommandPool);
 }
 
-VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCore* vVulkanCore, const vk::BufferCreateInfo& bufferinfo, const VmaAllocationCreateInfo& alloc_info)
+VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, const vk::BufferCreateInfo& bufferinfo, const VmaAllocationCreateInfo& alloc_info)
 {
 	ZoneScoped;
 
@@ -602,7 +602,7 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 	return dataPtr;
 }
 
-VulkanBufferObjectPtr VulkanRessource::createUniformBufferObject(vkApi::VulkanCore* vVulkanCore, uint64_t vSize)
+VulkanBufferObjectPtr VulkanRessource::createUniformBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, uint64_t vSize)
 {
 	ZoneScoped;
 
@@ -612,10 +612,10 @@ VulkanBufferObjectPtr VulkanRessource::createUniformBufferObject(vkApi::VulkanCo
 	sbo_create_info.usage = vk::BufferUsageFlagBits::eUniformBuffer;
 	sbo_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
 
-	return createSharedBufferObject(vVulkanCore, sbo_create_info, sbo_alloc_info);
+	return createSharedBufferObject(vVulkanCorePtr, sbo_create_info, sbo_alloc_info);
 }
 
-VulkanBufferObjectPtr VulkanRessource::createStagingBufferObject(vkApi::VulkanCore* vVulkanCore, uint64_t vSize)
+VulkanBufferObjectPtr VulkanRessource::createStagingBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, uint64_t vSize)
 {
 	ZoneScoped;
 
@@ -625,10 +625,10 @@ VulkanBufferObjectPtr VulkanRessource::createStagingBufferObject(vkApi::VulkanCo
 	stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
 	stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
 
-	return createSharedBufferObject(vVulkanCore, stagingBufferInfo, stagingAllocInfo);
+	return createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
 }
 
-VulkanBufferObjectPtr VulkanRessource::createStorageBufferObject(vkApi::VulkanCore* vVulkanCore, uint64_t vSize, VmaMemoryUsage vMemoryUsage)
+VulkanBufferObjectPtr VulkanRessource::createStorageBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage)
 {
 	ZoneScoped;
 
@@ -641,23 +641,23 @@ VulkanBufferObjectPtr VulkanRessource::createStorageBufferObject(vkApi::VulkanCo
 	if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU)
 	{
 		storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst;
-		return createSharedBufferObject(vVulkanCore, storageBufferInfo, storageAllocInfo);
+		return createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, storageAllocInfo);
 	}
 	else if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU)
 	{
 		storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc;
-		return createSharedBufferObject(vVulkanCore, storageBufferInfo, storageAllocInfo);
+		return createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, storageAllocInfo);
 	}
 	else if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY)
 	{
 		storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageBuffer;
-		return createSharedBufferObject(vVulkanCore, storageBufferInfo, storageAllocInfo);
+		return createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, storageAllocInfo);
 	}
 
 	return nullptr;
 }
 
-VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::VulkanCore* vVulkanCore, void* vData, uint64_t vSize)
+VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize)
 {
 	if (vData && vSize)
 	{
@@ -666,8 +666,8 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 		stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
 		VmaAllocationCreateInfo stagingAllocInfo = {};
 		stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
-		auto stagebuffer = createSharedBufferObject(vVulkanCore, stagingBufferInfo, stagingAllocInfo);
-		upload(vVulkanCore, *stagebuffer, vData, vSize);
+		auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+		upload(vVulkanCorePtr, *stagebuffer, vData, vSize);
 
 		vk::BufferCreateInfo storageBufferInfo = {};
 		storageBufferInfo.size = vSize;
@@ -675,11 +675,11 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 		storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
 		VmaAllocationCreateInfo vboAllocInfo = {};
 		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
-		auto vboPtr = createSharedBufferObject(vVulkanCore, storageBufferInfo, vboAllocInfo);
+		auto vboPtr = createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, vboAllocInfo);
 
 		vk::BufferCopy region = {};
 		region.size = vSize;
-		copy(vVulkanCore, vboPtr->buffer, stagebuffer->buffer, region);
+		copy(vVulkanCorePtr, vboPtr->buffer, stagebuffer->buffer, region);
 
 		return vboPtr;
 	}

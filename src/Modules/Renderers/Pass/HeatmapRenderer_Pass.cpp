@@ -32,8 +32,8 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-HeatmapRenderer_Pass::HeatmapRenderer_Pass(vkApi::VulkanCore* vVulkanCore)
-	: ShaderPass(vVulkanCore)
+HeatmapRenderer_Pass::HeatmapRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Heatmap", MESH_SHADER_PASS_DEBUG_COLOR);
 }
@@ -194,10 +194,10 @@ bool HeatmapRenderer_Pass::CreateSBO()
 	m_SBO_Colors.reset();
 
 	const auto sizeInBytes = sizeof(ct::fvec4) * m_Colors.size();
-	m_SBO_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCore, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
+	m_SBO_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
 	
 	const auto color_buffer_size = sizeof(ct::fvec4);
-	m_SBO_Empty_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCore, color_buffer_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
+	m_SBO_Empty_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, color_buffer_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
 
 	NeedNewSBOUpload();
 
@@ -209,7 +209,7 @@ void HeatmapRenderer_Pass::UploadSBO()
 	if (m_SBO_Colors)
 	{
 		const auto sizeInBytes = sizeof(ct::fvec4) * m_Colors.size();
-		VulkanRessource::upload(m_VulkanCore, *m_SBO_Colors, m_Colors.data(), sizeInBytes);
+		VulkanRessource::upload(m_VulkanCorePtr, *m_SBO_Colors, m_Colors.data(), sizeInBytes);
 	}
 }
 
@@ -225,7 +225,7 @@ bool HeatmapRenderer_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert));
+	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
 	if (m_UBO_Vert)
 	{
 		m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
@@ -233,7 +233,7 @@ bool HeatmapRenderer_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Vert.offset = 0;
 	}
 
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag));
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
 	if (m_UBO_Frag)
 	{
 		m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
@@ -250,8 +250,8 @@ void HeatmapRenderer_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void HeatmapRenderer_Pass::DestroyUBO()

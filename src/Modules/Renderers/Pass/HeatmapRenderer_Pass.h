@@ -59,7 +59,7 @@ private:
 	VulkanBufferObjectPtr m_SBO_Empty_Colors = nullptr;
 
 public:
-	HeatmapRenderer_Pass(vkApi::VulkanCore* vVulkanCore);
+	HeatmapRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~HeatmapRenderer_Pass() override;
 
 	void ActionBeforeInit() override;

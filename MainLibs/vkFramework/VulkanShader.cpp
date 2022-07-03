@@ -49,6 +49,16 @@ limitations under the License.
 
 VulkanShader::ShaderMessagingFunction s_ShaderMessagingFunction = 0;
 
+VulkanShaderPtr VulkanShader::Create()
+{
+	auto res = std::make_shared<VulkanShader>();
+	if (!res->Init())
+	{
+		res.reset();
+	}
+	return res;
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -61,13 +71,15 @@ VulkanShader::VulkanShader()
 VulkanShader::~VulkanShader()
 {
 	ZoneScoped;
+
+	Unit();
 }
 
-void VulkanShader::Init()
+bool VulkanShader::Init()
 {
 	ZoneScoped;
 
-	glslang::InitializeProcess();
+	return glslang::InitializeProcess();
 }
 
 void VulkanShader::Unit()

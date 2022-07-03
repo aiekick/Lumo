@@ -222,8 +222,8 @@ public:
 	//// BUFFER OBJECTS ///////////////////////////////////
 	///////////////////////////////////////////////////////
 
-	void UploadBufferObjectIfDirty(vkApi::VulkanCore* vVulkanCore) override;
-	bool CreateBufferObject(vkApi::VulkanCore* vVulkanCore) override;
+	void UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void DestroyBufferObject() override;
 	vk::DescriptorBufferInfo* GetBufferInfo() override;
 

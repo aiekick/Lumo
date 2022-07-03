@@ -35,7 +35,7 @@ public:
 
 public:
 	// init / unit
-	bool Init(vkApi::VulkanCore* vVulkanCore);
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr);
 	void Unit();
 	
 	void Clear();

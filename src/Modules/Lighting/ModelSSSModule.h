@@ -60,7 +60,7 @@ class ModelSSSModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<ModelSSSModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<ModelSSSModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<ModelSSSModule> m_This;
@@ -68,7 +68,7 @@ private:
 	std::shared_ptr<ModelSSSModule_Pass> m_ModelSSSModule_Pass_Ptr = nullptr;
 
 public:
-	ModelSSSModule(vkApi::VulkanCore* vVulkanCore);
+	ModelSSSModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ModelSSSModule();
 
 	bool Init();

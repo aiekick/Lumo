@@ -51,30 +51,44 @@ static std::vector<const char*> getRequiredExtensions()
 }
 namespace vkApi
 {
-	void VulkanWindow::Init(int width, int height, const std::string& name, bool offscreen)
+
+	VulkanWindowPtr VulkanWindow::Create(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen)
+	{
+		auto res = std::make_shared<VulkanWindow>();
+		if (!res->Init(vWidth, vHeight, vName, vOffScreen))
+		{
+			res.reset();
+		}
+		return res;
+	}
+
+	bool VulkanWindow::Init(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen)
 	{
 		ZoneScoped;
 
-		d_name = name;
+		m_Name = vName;
 
 		glfwSetErrorCallback(glfw_error_callback);
 		if (!glfwInit())
 		{
-			exit(EXIT_FAILURE);
+			return false;
 		}
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-		if (offscreen)
+		if (vOffScreen)
 		{
 			glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 		}
-		m_Window = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+
+		m_Window = glfwCreateWindow(vWidth, vHeight, vName.c_str(), NULL, NULL);
 		if (!m_Window)
 		{
-			exit(EXIT_FAILURE);
+			return false;
 		}
 
-		d_vkInstanceExtension = getRequiredExtensions();
+		m_VKInstanceExtension = getRequiredExtensions();
+
+		return true;
 	}
 
 	void VulkanWindow::Unit()
@@ -98,21 +112,21 @@ namespace vkApi
 		return surface;
 	}
 
-	const std::vector<const char*>& VulkanWindow::vkInstanceExtensions() const
+	const std::vector<const char*>& VulkanWindow::getVKInstanceExtensions() const
 	{
 		ZoneScoped;
 
-		return d_vkInstanceExtension;
+		return m_VKInstanceExtension;
 	}
 
-	GLFWwindow* VulkanWindow::WinPtr() const
+	GLFWwindow* VulkanWindow::getWindowPtr() const
 	{
 		ZoneScoped;
 
 		return m_Window;
 	}
 
-	ct::ivec2 VulkanWindow::pixelrez() const
+	ct::ivec2 VulkanWindow::getFrameBufferResolution() const
 	{
 		ZoneScoped;
 
@@ -121,12 +135,13 @@ namespace vkApi
 		return res;
 	}
 
-	ct::ivec2 VulkanWindow::clentrez() const
+	ct::ivec2 VulkanWindow::getWindowResolution() const
 	{
 		ZoneScoped;
 
 		ct::ivec2 res;
 		glfwGetWindowSize(m_Window, &res.x, &res.y);
+
 		return res;
 	}
 
@@ -135,7 +150,7 @@ namespace vkApi
 		ZoneScoped;
 
 		// pause if minimized
-		auto size = pixelrez();
+		auto size = getFrameBufferResolution();
 		if (size.x == 0 || size.y == 0)
 			return true;
 		return false;
@@ -145,6 +160,6 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		return d_name;
+		return m_Name;
 	}
 }

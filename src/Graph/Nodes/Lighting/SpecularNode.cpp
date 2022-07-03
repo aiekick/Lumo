@@ -17,11 +17,11 @@ limitations under the License.
 #include "SpecularNode.h"
 #include <Modules/Lighting/SpecularModule.h>
 
-std::shared_ptr<SpecularNode> SpecularNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<SpecularNode> SpecularNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<SpecularNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ SpecularNode::~SpecularNode()
 	Unit();
 }
 
-bool SpecularNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool SpecularNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Specular";
 
@@ -56,7 +56,7 @@ bool SpecularNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_SpecularModulePtr = SpecularModule::Create(vVulkanCore);
+	m_SpecularModulePtr = SpecularModule::Create(vVulkanCorePtr);
 	if (m_SpecularModulePtr)
 	{
 		res = true;

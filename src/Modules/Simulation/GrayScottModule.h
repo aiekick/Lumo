@@ -57,7 +57,7 @@ class GrayScottModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<GrayScottModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<GrayScottModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<GrayScottModule> m_This;
@@ -65,7 +65,7 @@ private:
 	std::shared_ptr<GrayScottModule_Pass> m_GrayScottModule_Pass_Ptr = nullptr;
 
 public:
-	GrayScottModule(vkApi::VulkanCore* vVulkanCore);
+	GrayScottModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~GrayScottModule();
 
 	bool Init();

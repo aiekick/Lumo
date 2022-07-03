@@ -35,8 +35,8 @@ protected:
 	MeshInfo<VertexStruct::I1> m_Indices;
 
 public:
-	MeshShaderPass(vkApi::VulkanCore* vVulkanCore, const MeshShaderPassType& vMeshShaderPassType);
-	MeshShaderPass(vkApi::VulkanCore* vVulkanCore, const MeshShaderPassType& vMeshShaderPassType,
+	MeshShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType);
+	MeshShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
@@ -49,10 +49,10 @@ public:
 
 template<typename T_VertexType>
 MeshShaderPass<T_VertexType>::MeshShaderPass(
-	vkApi::VulkanCore* vVulkanCore,
+	vkApi::VulkanCorePtr vVulkanCorePtr,
 	const MeshShaderPassType& vMeshShaderPassType)
 	: ShaderPass(
-		vVulkanCore,
+		vVulkanCorePtr,
 		(GenericType)vMeshShaderPassType)
 {
 	
@@ -60,12 +60,12 @@ MeshShaderPass<T_VertexType>::MeshShaderPass(
 
 template<typename T_VertexType>
 MeshShaderPass<T_VertexType>::MeshShaderPass(
-	vkApi::VulkanCore* vVulkanCore,
+	vkApi::VulkanCorePtr vVulkanCorePtr,
 	const MeshShaderPassType& vMeshShaderPassType,
 	vk::CommandPool* vCommandPool,
 	vk::DescriptorPool* vDescriptorPool)
 	: ShaderPass(
-		vVulkanCore,
+		vVulkanCorePtr,
 		(GenericType)vMeshShaderPassType,
 		vCommandPool,
 		vDescriptorPool)

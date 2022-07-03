@@ -18,11 +18,11 @@ limitations under the License.
 #include <Modules/Lighting/ModelShadowModule.h>
 #include <Interfaces/LightOutputInterface.h>
 
-std::shared_ptr<ModelShadowNode> ModelShadowNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<ModelShadowNode> ModelShadowNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ModelShadowNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ ModelShadowNode::~ModelShadowNode()
 	Unit();
 }
 
-bool ModelShadowNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool ModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Model Shadow";
 
@@ -65,7 +65,7 @@ bool ModelShadowNode::Init(vkApi::VulkanCore* vVulkanCore)
 	AddOutput(slot, true, true);
 
 	bool res = false;
-	m_ModelShadowModulePtr = ModelShadowModule::Create(vVulkanCore);
+	m_ModelShadowModulePtr = ModelShadowModule::Create(vVulkanCorePtr);
 	if (m_ModelShadowModulePtr)
 	{
 		res = true;

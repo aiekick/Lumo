@@ -35,8 +35,8 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelSSSModule_Pass::ModelSSSModule_Pass(vkApi::VulkanCore* vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
+ModelSSSModule_Pass::ModelSSSModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Model SSS", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
@@ -65,8 +65,8 @@ bool ModelSSSModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 		}
 	}
 
-	DrawInputTexture(m_VulkanCore, "Input Position", 0U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Input SSS Map", 1U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Input Position", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Input SSS Map", 1U, m_OutputRatio);
 
 	return change;
 }
@@ -199,12 +199,12 @@ bool ModelSSSModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag));
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
 	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
 	m_DescriptorBufferInfo_Frag.range = sizeof(UBOFrag);
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
 	for (auto& a : m_ImageInfos)
 	{
@@ -220,7 +220,7 @@ void ModelSSSModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void ModelSSSModule_Pass::DestroyUBO()
@@ -399,7 +399,7 @@ void main()
 			for (int i=0;i<8;i++)
 			{
 				int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-				float sha = textureProj(light_shadow_map_sampler, shadowCoord.xy + poissonDisk[index] / poisson_scale).r;
+				float sha = texture(light_shadow_map_sampler, shadowCoord.xy + poissonDisk[index] / poisson_scale).r;
 				if (sha * cam_far < (shadowCoord.z - bias)/shadowCoord.w)
 				{
 					sha_vis -= sha_step * (1.0 - sha);

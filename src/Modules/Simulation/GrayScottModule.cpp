@@ -40,9 +40,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<GrayScottModule> GrayScottModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<GrayScottModule> GrayScottModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<GrayScottModule>(vVulkanCore);
+	auto res = std::make_shared<GrayScottModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -55,8 +55,8 @@ std::shared_ptr<GrayScottModule> GrayScottModule::Create(vkApi::VulkanCore* vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GrayScottModule::GrayScottModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+GrayScottModule::GrayScottModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -80,7 +80,7 @@ bool GrayScottModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_GrayScottModule_Pass_Ptr = std::make_shared<GrayScottModule_Pass>(m_VulkanCore);
+		m_GrayScottModule_Pass_Ptr = std::make_shared<GrayScottModule_Pass>(m_VulkanCorePtr);
 		if (m_GrayScottModule_Pass_Ptr)
 		{
 			// eR8G8B8A8Unorm is used for have nice white and black display

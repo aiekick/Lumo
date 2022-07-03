@@ -32,7 +32,7 @@ class ModelSSSNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<ModelSSSNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<ModelSSSNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<ModelSSSModule> m_ModelSSSModulePtr = nullptr;
@@ -40,7 +40,7 @@ private:
 public:
 	ModelSSSNode();
 	~ModelSSSNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

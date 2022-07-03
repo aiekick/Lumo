@@ -17,11 +17,11 @@ limitations under the License.
 #include "Texture2DNode.h"
 #include <Modules/Assets/Texture2DModule.h>
 
-std::shared_ptr<Texture2DNode> Texture2DNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<Texture2DNode> Texture2DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<Texture2DNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ Texture2DNode::~Texture2DNode()
 
 }
 
-bool Texture2DNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool Texture2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Texture 2D";
 
@@ -48,7 +48,7 @@ bool Texture2DNode::Init(vkApi::VulkanCore* vVulkanCore)
 	slot.showWidget = true;
 	AddOutput(slot, true, true);
 
-	m_Texture2DModule = Texture2DModule::Create(vVulkanCore, m_This);
+	m_Texture2DModule = Texture2DModule::Create(vVulkanCorePtr, m_This);
 	if (m_Texture2DModule)
 	{
 		return true;

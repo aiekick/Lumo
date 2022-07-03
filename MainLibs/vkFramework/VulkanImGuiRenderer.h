@@ -19,6 +19,7 @@ limitations under the License.
 #include <imgui/imgui.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan.hpp>
+#include <vkFramework/vkFramework.h>
 
 // Implemented features:
 //  [X] Renderer: Support for large meshes (64k+ vertices) with 16-bit indices.
@@ -176,6 +177,9 @@ namespace vkApi { class VulkanCore; }
 class VulkanImGuiRenderer
 {
 public:
+    static VulkanImGuiRendererPtr Create();
+
+public:
 	ImGui_ImplVulkan_InitInfo m_Info = {};
 
 private:
@@ -188,7 +192,7 @@ public:
 public:
 	void NewFrame();
 	void RenderDrawData(ImDrawData* draw_data, VkCommandBuffer command_buffer, VkPipeline pipeline = VK_NULL_HANDLE);
-	bool CreateFontsTexture(vkApi::VulkanCore* vVulkanCore);
+	bool CreateFontsTexture(vkApi::VulkanCorePtr vVulkanCorePtr);
 	vk::DescriptorSet CreateImGuiTexture(VkSampler sampler, VkImageView image_view, VkImageLayout image_layout, vk::DescriptorSet* vExistingDescriptorSet = nullptr);
 	bool DestroyImGuiTexture(vk::DescriptorSet* vVkDescriptorSet);
 

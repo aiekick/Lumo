@@ -67,7 +67,7 @@ protected: // vulkan creation
 	glm::vec3 m_CurrentCamPoint;
 
 public:
-	ModelSSSModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	ModelSSSModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ModelSSSModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

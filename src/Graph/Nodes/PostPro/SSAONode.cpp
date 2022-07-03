@@ -17,11 +17,11 @@ limitations under the License.
 #include "SSAONode.h"
 #include <Modules/PostPro/SSAOModule.h>
 
-std::shared_ptr<SSAONode> SSAONode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<SSAONode> SSAONode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<SSAONode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ SSAONode::~SSAONode()
 	Unit();
 }
 
-bool SSAONode::Init(vkApi::VulkanCore* vVulkanCore)
+bool SSAONode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "SSAO";
 
@@ -66,7 +66,7 @@ bool SSAONode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_SSAOModulePtr = SSAOModule::Create(vVulkanCore);
+	m_SSAOModulePtr = SSAOModule::Create(vVulkanCorePtr);
 	if (m_SSAOModulePtr)
 	{
 		res = true;

@@ -19,6 +19,7 @@ limitations under the License.
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/VulkanRessource.h>
 #include <ctools/cTools.h>
+#include <vkFramework/vkFramework.h>
 
 namespace vkApi
 {
@@ -38,15 +39,15 @@ namespace vkApi
 		vk::SampleCountFlagBits sampleCount = vk::SampleCountFlagBits::e1;
 
 	private:
-		vkApi::VulkanCore* m_VulkanCore = nullptr;
+		vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 	public:
 		VulkanFrameBufferAttachment() = default;
 		~VulkanFrameBufferAttachment();
 
 	public:
-		bool InitColor2D(vkApi::VulkanCore* vVulkanCore, ct::uvec2 vSize, vk::Format vFormat, uint32_t vMipLevelCount, bool vNeedToClear, vk::SampleCountFlagBits vSampleCount);
-		bool InitDepth(vkApi::VulkanCore* vVulkanCore, ct::uvec2 vSize, vk::Format vFormat, vk::SampleCountFlagBits vSampleCount);
+		bool InitColor2D(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat, uint32_t vMipLevelCount, bool vNeedToClear, vk::SampleCountFlagBits vSampleCount);
+		bool InitDepth(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat, vk::SampleCountFlagBits vSampleCount);
 		void Unit();
 	};
 }

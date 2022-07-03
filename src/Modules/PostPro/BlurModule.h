@@ -57,7 +57,7 @@ class BlurModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<BlurModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<BlurModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<BlurModule> m_This;
@@ -65,7 +65,7 @@ private:
 	std::shared_ptr<BlurModule_Pass> m_BlurModule_Pass_Ptr = nullptr;
 
 public:
-	BlurModule(vkApi::VulkanCore* vVulkanCore);
+	BlurModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~BlurModule();
 
 	bool Init();

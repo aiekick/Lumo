@@ -32,7 +32,7 @@ class ShadowMapNode :
 	public LightOutputInterface
 {
 public:
-	static std::shared_ptr<ShadowMapNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<ShadowMapNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<ShadowMapModule> m_ShadowMapModulePtr = nullptr;
@@ -40,7 +40,7 @@ private:
 public:
 	ShadowMapNode();
 	~ShadowMapNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

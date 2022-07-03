@@ -17,11 +17,11 @@ limitations under the License.
 #include "VariableNode.h"
 #include <Modules/Variables/VariableModule.h>
 
-std::shared_ptr<VariableNode> VariableNode::Create(vkApi::VulkanCore* vVulkanCore, const NodeTypeEnum& vNodeType)
+std::shared_ptr<VariableNode> VariableNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr, const NodeTypeEnum& vNodeType)
 {
 	auto res = std::make_shared<VariableNode>(vNodeType);
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ VariableNode::~VariableNode()
 	Unit();
 }
 
-bool VariableNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Boolean";
 
@@ -50,7 +50,7 @@ bool VariableNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_VariableModulePtr = VariableModule::Create(vVulkanCore, m_This);
+	m_VariableModulePtr = VariableModule::Create(vVulkanCorePtr, m_This);
 	if (m_VariableModulePtr)
 	{
 		res = true;

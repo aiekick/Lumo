@@ -47,13 +47,13 @@ class MatcapRenderer :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<MatcapRenderer> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<MatcapRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<MatcapRenderer_Pass> m_MatcapRenderer_Pass_Ptr = nullptr;
 
 public:
-	MatcapRenderer(vkApi::VulkanCore* vVulkanCore);
+	MatcapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~MatcapRenderer() override;
 
 	bool Init();

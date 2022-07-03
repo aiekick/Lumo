@@ -58,7 +58,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	MatcapRenderer_Pass(vkApi::VulkanCore* vVulkanCore);
+	MatcapRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~MatcapRenderer_Pass() override;
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

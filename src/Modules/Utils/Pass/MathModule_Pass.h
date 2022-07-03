@@ -61,7 +61,7 @@ private:
 	} m_UBOComp;
 
 public:
-	MathModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	MathModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~MathModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

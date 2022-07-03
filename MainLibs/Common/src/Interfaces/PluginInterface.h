@@ -21,6 +21,7 @@ limitations under the License.
 #include <vector>
 #include <Graph/Graph.h>
 #include <Graph/Library/LibraryCategory.h>
+#include <vkFramework/vkFramework.h>
 
 class PluginInterface;
 typedef ct::cWeak<PluginInterface> PluginInterfaceWeak;
@@ -30,7 +31,6 @@ class FileHelper;
 class VulkanShader;
 class CommonSystem;
 struct ImGuiContext;
-namespace vkApi { class VulkanCore; }
 namespace ImGui { class CustomStyle; }
 class PluginInterface
 {
@@ -38,7 +38,7 @@ public:
 	virtual ~PluginInterface() = default;
 
 	virtual bool Init(
-		vkApi::VulkanCore* vVkCore, 
+		vkApi::VulkanCoreWeak vVulkanCoreWeak,
 		FileHelper* vFileHelper, 
 		CommonSystem* vCommonSystem,
 		ImGuiContext* vContext,

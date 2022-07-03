@@ -38,8 +38,8 @@ using namespace vkApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DiffuseModule_Pass::DiffuseModule_Pass(vkApi::VulkanCore* vVulkanCore)
-	: ShaderPass(vVulkanCore)
+DiffuseModule_Pass::DiffuseModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Diffuse", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 }
@@ -68,8 +68,8 @@ bool DiffuseModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 			}
 		}
 
-		DrawInputTexture(m_VulkanCore, "Input", 0U, m_OutputRatio);
-		//DrawInputTexture(m_VulkanCore, "Output Diffuse", 0U, m_OutputRatio);
+		DrawInputTexture(m_VulkanCorePtr, "Input", 0U, m_OutputRatio);
+		//DrawInputTexture(m_VulkanCorePtr, "Output Diffuse", 0U, m_OutputRatio);
 
 		return change;
 	}
@@ -146,12 +146,12 @@ bool DiffuseModule_Pass::CreateUBO()
 	ZoneScoped;
 
 	auto size_in_bytes = sizeof(UBOComp);
-	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes);
+	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
 	m_DescriptorBufferInfo_Comp.buffer = m_UBO_Comp->buffer;
 	m_DescriptorBufferInfo_Comp.range = size_in_bytes;
 	m_DescriptorBufferInfo_Comp.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 	for (auto& a : m_ImageInfos)
 	{
 		a = m_EmptyTexturePtr->m_DescriptorImageInfo;
@@ -166,7 +166,7 @@ void DiffuseModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
 }
 
 void DiffuseModule_Pass::DestroyUBO()

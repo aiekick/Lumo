@@ -61,7 +61,7 @@ class ShadowMapModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<ShadowMapModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<ShadowMapModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<ShadowMapModule> m_This;
@@ -69,7 +69,7 @@ private:
 	std::shared_ptr<ShadowMapModule_Pass> m_ShadowMapModule_Pass_Ptr = nullptr;
 
 public:
-	ShadowMapModule(vkApi::VulkanCore* vVulkanCore);
+	ShadowMapModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ShadowMapModule();
 
 	bool Init();

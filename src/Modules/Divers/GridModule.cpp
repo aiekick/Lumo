@@ -27,9 +27,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<GridModule> GridModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<GridModule> GridModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<GridModule>(vVulkanCore);
+	auto res = std::make_shared<GridModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -42,8 +42,8 @@ std::shared_ptr<GridModule> GridModule::Create(vkApi::VulkanCore* vVulkanCore)
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GridModule::GridModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+GridModule::GridModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 	
 }
@@ -67,7 +67,7 @@ bool GridModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_GridModule_Pass_Ptr = std::make_shared<GridModule_Pass>(m_VulkanCore);
+		m_GridModule_Pass_Ptr = std::make_shared<GridModule_Pass>(m_VulkanCorePtr);
 		if (m_GridModule_Pass_Ptr)
 		{
 			if (m_GridModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f, 

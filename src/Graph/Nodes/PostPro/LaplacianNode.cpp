@@ -17,11 +17,11 @@ limitations under the License.
 #include "LaplacianNode.h"
 #include <Modules/PostPro/LaplacianModule.h>
 
-std::shared_ptr<LaplacianNode> LaplacianNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<LaplacianNode> LaplacianNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<LaplacianNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ LaplacianNode::~LaplacianNode()
 	Unit();
 }
 
-bool LaplacianNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool LaplacianNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Laplacian";
 
@@ -56,7 +56,7 @@ bool LaplacianNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_LaplacianModulePtr = LaplacianModule::Create(vVulkanCore);
+	m_LaplacianModulePtr = LaplacianModule::Create(vVulkanCorePtr);
 	if (m_LaplacianModulePtr)
 	{
 		res = true;

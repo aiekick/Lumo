@@ -73,7 +73,7 @@ bool Texture2D::loadImage(const std::string& inFile, std::vector<uint8_t>& outBu
 	return true;
 }
 
-vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCore* vVulkanCore, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels)
+vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels)
 {
 	vk::DescriptorImageInfo imgInfo;
 
@@ -82,7 +82,7 @@ vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCore* vVu
 		if (width == 0 || height == 0 || channels == 0)
 			return imgInfo;
 
-		auto tex2d = VulkanRessource::createTextureImage2D(vVulkanCore, width, height, 1U, vk::Format::eR8G8B8A8Unorm, buffer);
+		auto tex2d = VulkanRessource::createTextureImage2D(vVulkanCorePtr, width, height, 1U, vk::Format::eR8G8B8A8Unorm, buffer);
 
 		vk::ImageViewCreateInfo imViewInfo = {};
 		imViewInfo.flags = vk::ImageViewCreateFlags();
@@ -91,7 +91,7 @@ vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCore* vVu
 		imViewInfo.format = vk::Format::eR8G8B8A8Unorm;
 		imViewInfo.components = vk::ComponentMapping();
 		imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, 1U, 0, 1);
-		imgInfo.imageView = vVulkanCore->getDevice().createImageView(imViewInfo);
+		imgInfo.imageView = vVulkanCorePtr->getDevice().createImageView(imViewInfo);
 
 		vk::SamplerCreateInfo samplerInfo = {};
 		samplerInfo.flags = vk::SamplerCreateFlags();
@@ -109,7 +109,7 @@ vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCore* vVu
 		samplerInfo.minLod = 0.0f;
 		samplerInfo.maxLod = static_cast<float>(1U);
 		//samplerInfo.unnormalizedCoordinates = false;
-		imgInfo.sampler = vVulkanCore->getDevice().createSampler(samplerInfo);
+		imgInfo.sampler = vVulkanCorePtr->getDevice().createSampler(samplerInfo);
 
 		imgInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 	}
@@ -121,11 +121,11 @@ vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCore* vVu
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Texture2DPtr Texture2D::CreateFromFile(vkApi::VulkanCore* vVulkanCore, std::string vFilePathName)
+Texture2DPtr Texture2D::CreateFromFile(vkApi::VulkanCorePtr vVulkanCorePtr, std::string vFilePathName)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<Texture2D>(vVulkanCore);
+	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
 
 	if (!res->LoadFile(vFilePathName))
 	{
@@ -135,11 +135,11 @@ Texture2DPtr Texture2D::CreateFromFile(vkApi::VulkanCore* vVulkanCore, std::stri
 	return res;
 }
 
-Texture2DPtr Texture2D::CreateFromMemory(vkApi::VulkanCore* vVulkanCore, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels)
+Texture2DPtr Texture2D::CreateFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<Texture2D>(vVulkanCore);
+	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
 
 	if (!res->LoadMemory(buffer, width, height, channels))
 	{
@@ -149,11 +149,11 @@ Texture2DPtr Texture2D::CreateFromMemory(vkApi::VulkanCore* vVulkanCore, uint8_t
 	return res;
 }
 
-Texture2DPtr Texture2D::CreateEmptyTexture(vkApi::VulkanCore* vVulkanCore, ct::uvec2 vSize, vk::Format vFormat)
+Texture2DPtr Texture2D::CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<Texture2D>(vVulkanCore);
+	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
 
 	if (!res->LoadEmptyTexture(vSize, vFormat))
 	{
@@ -163,11 +163,11 @@ Texture2DPtr Texture2D::CreateEmptyTexture(vkApi::VulkanCore* vVulkanCore, ct::u
 	return res;
 }
 
-Texture2DPtr Texture2D::CreateEmptyImage(vkApi::VulkanCore* vVulkanCore, ct::uvec2 vSize, vk::Format vFormat)
+Texture2DPtr Texture2D::CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<Texture2D>(vVulkanCore);
+	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
 
 	if (!res->LoadEmptyImage(vSize, vFormat))
 	{
@@ -180,8 +180,8 @@ Texture2DPtr Texture2D::CreateEmptyImage(vkApi::VulkanCore* vVulkanCore, ct::uve
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Texture2D::Texture2D(vkApi::VulkanCore* vVulkanCore)
-	: m_VulkanCore(vVulkanCore)
+Texture2D::Texture2D(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	ZoneScoped;
 }
@@ -254,7 +254,7 @@ bool Texture2D::LoadMemory(
 
 		m_MipLevelCount = ct::clamp(vMipLevelCount, 1u, maxMipLevelCount);
 
-		m_Texture2D = VulkanRessource::createTextureImage2D(m_VulkanCore, m_Width, m_Height, m_MipLevelCount, vFormat, buffer);
+		m_Texture2D = VulkanRessource::createTextureImage2D(m_VulkanCorePtr, m_Width, m_Height, m_MipLevelCount, vFormat, buffer);
 
 		vk::ImageViewCreateInfo imViewInfo = {};
 		imViewInfo.flags = vk::ImageViewCreateFlags();
@@ -263,7 +263,7 @@ bool Texture2D::LoadMemory(
 		imViewInfo.format = vFormat;
 		imViewInfo.components = vk::ComponentMapping();
 		imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, m_MipLevelCount, 0, 1);
-		m_TextureView = m_VulkanCore->getDevice().createImageView(imViewInfo);
+		m_TextureView = m_VulkanCorePtr->getDevice().createImageView(imViewInfo);
 
 		vk::SamplerCreateInfo samplerInfo = {};
 		samplerInfo.flags = vk::SamplerCreateFlags();
@@ -281,7 +281,7 @@ bool Texture2D::LoadMemory(
 		samplerInfo.minLod = 0.0f;
 		samplerInfo.maxLod = static_cast<float>(m_MipLevelCount);
 		//samplerInfo.unnormalizedCoordinates = false;
-		m_Sampler = m_VulkanCore->getDevice().createSampler(samplerInfo);
+		m_Sampler = m_VulkanCorePtr->getDevice().createSampler(samplerInfo);
 
 		m_DescriptorImageInfo.sampler = m_Sampler;
 		m_DescriptorImageInfo.imageView = m_TextureView;
@@ -358,7 +358,7 @@ bool Texture2D::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vForm
 		memset(image_data.data(), 0, image_data.size());
 	}
 
-	m_Texture2D = VulkanRessource::createTextureImage2D(m_VulkanCore, vSize.x, vSize.y, 1, vFormat, image_data.data());
+	m_Texture2D = VulkanRessource::createTextureImage2D(m_VulkanCorePtr, vSize.x, vSize.y, 1, vFormat, image_data.data());
 
 	vk::ImageViewCreateInfo imViewInfo = {};
 	imViewInfo.flags = vk::ImageViewCreateFlags();
@@ -367,7 +367,7 @@ bool Texture2D::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vForm
 	imViewInfo.format = vFormat;
 	imViewInfo.components = vk::ComponentMapping();
 	imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, m_MipLevelCount, 0, 1);
-	m_TextureView = m_VulkanCore->getDevice().createImageView(imViewInfo);
+	m_TextureView = m_VulkanCorePtr->getDevice().createImageView(imViewInfo);
 
 	vk::SamplerCreateInfo samplerInfo = {};
 	samplerInfo.flags = vk::SamplerCreateFlags();
@@ -385,7 +385,7 @@ bool Texture2D::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vForm
 	//samplerInfo.minLod = 0.0f;
 	//samplerInfo.maxLod = static_cast<float>(m_MipLevelCount);
 	//samplerInfo.unnormalizedCoordinates = false;
-	m_Sampler = m_VulkanCore->getDevice().createSampler(samplerInfo);
+	m_Sampler = m_VulkanCorePtr->getDevice().createSampler(samplerInfo);
 
 	m_DescriptorImageInfo.sampler = m_Sampler;
 	m_DescriptorImageInfo.imageView = m_TextureView;
@@ -407,7 +407,7 @@ bool Texture2D::LoadEmptyImage(const ct::uvec2& vSize, const vk::Format& vFormat
 
 	Destroy();
 
-	m_Texture2D = VulkanRessource::createComputeTarget2D(m_VulkanCore, vSize.x, vSize.y, 1U, vFormat, vk::SampleCountFlagBits::e1);
+	m_Texture2D = VulkanRessource::createComputeTarget2D(m_VulkanCorePtr, vSize.x, vSize.y, 1U, vFormat, vk::SampleCountFlagBits::e1);
 
 	vk::ImageViewCreateInfo imViewInfo = {};
 	imViewInfo.flags = vk::ImageViewCreateFlags();
@@ -416,7 +416,7 @@ bool Texture2D::LoadEmptyImage(const ct::uvec2& vSize, const vk::Format& vFormat
 	imViewInfo.format = vFormat;
 	imViewInfo.components = vk::ComponentMapping();
 	imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0U, m_MipLevelCount, 0U, 1U);
-	m_TextureView = m_VulkanCore->getDevice().createImageView(imViewInfo);
+	m_TextureView = m_VulkanCorePtr->getDevice().createImageView(imViewInfo);
 
 	vk::SamplerCreateInfo samplerInfo = {};
 	samplerInfo.flags = vk::SamplerCreateFlags();
@@ -434,7 +434,7 @@ bool Texture2D::LoadEmptyImage(const ct::uvec2& vSize, const vk::Format& vFormat
 	//samplerInfo.minLod = 0.0f;
 	//samplerInfo.maxLod = static_cast<float>(m_MipLevelCount);
 	//samplerInfo.unnormalizedCoordinates = false;
-	m_Sampler = m_VulkanCore->getDevice().createSampler(samplerInfo);
+	m_Sampler = m_VulkanCorePtr->getDevice().createSampler(samplerInfo);
 
 	m_DescriptorImageInfo.sampler = m_Sampler;
 	m_DescriptorImageInfo.imageView = m_TextureView;
@@ -453,9 +453,9 @@ void Texture2D::Destroy()
 
 	if (!m_Loaded) return;
 
-	m_VulkanCore->getDevice().waitIdle();
-	m_VulkanCore->getDevice().destroySampler(m_Sampler);
-	m_VulkanCore->getDevice().destroyImageView(m_TextureView);
+	m_VulkanCorePtr->getDevice().waitIdle();
+	m_VulkanCorePtr->getDevice().destroySampler(m_Sampler);
+	m_VulkanCorePtr->getDevice().destroyImageView(m_TextureView);
 	m_Texture2D.reset();
 
 	m_Loaded = false;

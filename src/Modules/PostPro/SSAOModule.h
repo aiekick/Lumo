@@ -58,7 +58,7 @@ class SSAOModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<SSAOModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<SSAOModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<SSAOModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<SSAOModule_Pass> m_SSAOModule_Pass_Ptr = nullptr;
 
 public:
-	SSAOModule(vkApi::VulkanCore* vVulkanCore);
+	SSAOModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~SSAOModule();
 
 	bool Init();

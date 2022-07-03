@@ -64,7 +64,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	GrayScottModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	GrayScottModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~GrayScottModule_Pass();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

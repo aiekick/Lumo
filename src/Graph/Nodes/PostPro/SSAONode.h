@@ -28,7 +28,7 @@ class SSAONode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<SSAONode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<SSAONode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<SSAOModule> m_SSAOModulePtr = nullptr;
@@ -36,7 +36,7 @@ private:
 public:
 	SSAONode();
 	~SSAONode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;

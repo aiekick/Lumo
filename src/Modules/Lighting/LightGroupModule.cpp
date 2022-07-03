@@ -26,9 +26,9 @@ limitations under the License.
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LightGroupModulePtr LightGroupModule::Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode)
+LightGroupModulePtr LightGroupModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
-	auto res = std::make_shared<LightGroupModule>(vVulkanCore);
+	auto res = std::make_shared<LightGroupModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -42,8 +42,8 @@ LightGroupModulePtr LightGroupModule::Create(vkApi::VulkanCore* vVulkanCore, Bas
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LightGroupModule::LightGroupModule(vkApi::VulkanCore* vVulkanCore)
-	: m_VulkanCore(vVulkanCore)
+LightGroupModule::LightGroupModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	
 }
@@ -182,25 +182,25 @@ SceneLightGroupWeak LightGroupModule::GetLightGroup()
 /*
 	a utilsier plus tard..
 */
-void LightGroupModule::UploadBufferObjectIfDirty(vkApi::VulkanCore* vVulkanCore)
+void LightGroupModule::UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	if (m_BufferObjectIsDirty && m_SceneLightGroupPtr)
 	{
-		vkApi::VulkanRessource::upload(vVulkanCore, *m_BufferObject, &m_DescriptorBufferInfo.buffer, sizeof(SceneLight::lightDatas));
+		vkApi::VulkanRessource::upload(vVulkanCorePtr, *m_BufferObject, &m_DescriptorBufferInfo.buffer, sizeof(SceneLight::lightDatas));
 
 		m_BufferObjectIsDirty = false;
 	}
 }
 
-bool LightGroupModule::CreateBufferObject(vkApi::VulkanCore* vVulkanCore)
+bool LightGroupModule::CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	vVulkanCore->getDevice().waitIdle();
+	vVulkanCorePtr->getDevice().waitIdle();
 
-	m_BufferObject = vkApi::VulkanRessource::createStorageBufferObject(vVulkanCore, sizeof(SceneLight::lightDatas), VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
+	m_BufferObject = vkApi::VulkanRessource::createStorageBufferObject(vVulkanCorePtr, sizeof(SceneLight::lightDatas), VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
 	m_DescriptorBufferInfo.buffer = m_BufferObject->buffer;
 	m_DescriptorBufferInfo.range = sizeof(SceneLight::lightDatas);
 	m_DescriptorBufferInfo.offset = 0;

@@ -53,13 +53,13 @@ class MeshAttributesModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<MeshAttributesModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<MeshAttributesModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<MeshAttributesModule_Pass> m_MeshAttributesModule_Pass_Ptr = nullptr;
 
 public:
-	MeshAttributesModule(vkApi::VulkanCore* vVulkanCore);
+	MeshAttributesModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~MeshAttributesModule() override;
 
 	bool Init();

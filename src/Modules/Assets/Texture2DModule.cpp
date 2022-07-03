@@ -28,11 +28,11 @@ limitations under the License.
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<Texture2DModule> Texture2DModule::Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode)
+std::shared_ptr<Texture2DModule> Texture2DModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<Texture2DModule>(vVulkanCore);
+	auto res = std::make_shared<Texture2DModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -46,8 +46,8 @@ std::shared_ptr<Texture2DModule> Texture2DModule::Create(vkApi::VulkanCore* vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Texture2DModule::Texture2DModule(vkApi::VulkanCore* vVulkanCore)
-	: m_VulkanCore(vVulkanCore)
+Texture2DModule::Texture2DModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	unique_OpenPictureFileDialog_id = ct::toStr("OpenPictureFileDialog%u", (uintptr_t)this);
 }
@@ -163,7 +163,7 @@ vk::DescriptorImageInfo* Texture2DModule::GetDescriptorImageInfo(const uint32_t&
 
 void Texture2DModule::LoadTexture2D(const std::string& vFilePathName)
 {
-	m_Texture2DPtr = Texture2D::CreateFromFile(m_VulkanCore, vFilePathName);
+	m_Texture2DPtr = Texture2D::CreateFromFile(m_VulkanCorePtr, vFilePathName);
 	if (m_Texture2DPtr)
 	{
 		auto ps = FileHelper::Instance()->ParsePathFileName(m_FilePathName);
@@ -172,10 +172,10 @@ void Texture2DModule::LoadTexture2D(const std::string& vFilePathName)
 			m_FileName = ps.name;
 		}
 
-		auto imguiRendererPtr = m_VulkanCore->GetVulkanImGuiRenderer().getValidShared();
+		auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().getValidShared();
 		if (imguiRendererPtr)
 		{
-			m_ImGuiTexture.SetDescriptor(imguiRendererPtr.get(), &m_Texture2DPtr->m_DescriptorImageInfo, m_Texture2DPtr->m_Ratio);
+			m_ImGuiTexture.SetDescriptor(imguiRendererPtr, &m_Texture2DPtr->m_DescriptorImageInfo, m_Texture2DPtr->m_Ratio);
 		}
 
 		auto parentNodePtr = GetParentNode().getValidShared();

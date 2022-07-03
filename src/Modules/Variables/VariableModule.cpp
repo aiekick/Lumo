@@ -34,9 +34,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<VariableModule> VariableModule::Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode)
+std::shared_ptr<VariableModule> VariableModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
-	auto res = std::make_shared<VariableModule>(vVulkanCore);
+	auto res = std::make_shared<VariableModule>(vVulkanCorePtr);
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
 	{
@@ -49,7 +49,7 @@ std::shared_ptr<VariableModule> VariableModule::Create(vkApi::VulkanCore* vVulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VariableModule::VariableModule(vkApi::VulkanCore* vVulkanCore)
+VariableModule::VariableModule(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 
 }

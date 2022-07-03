@@ -41,9 +41,9 @@ using namespace vkApi;
 //// PUBLIC / STATIC ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ComputeBufferPtr ComputeBuffer::Create(vkApi::VulkanCore* vVulkanCore)
+ComputeBufferPtr ComputeBuffer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<ComputeBuffer>(vVulkanCore);
+	auto res = std::make_shared<ComputeBuffer>(vVulkanCorePtr);
 
 	return res;
 }
@@ -52,9 +52,9 @@ ComputeBufferPtr ComputeBuffer::Create(vkApi::VulkanCore* vVulkanCore)
 //// PUBLIC / CTOR/DTOR ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ComputeBuffer::ComputeBuffer(vkApi::VulkanCore* vVulkanCore)
+ComputeBuffer::ComputeBuffer(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	m_VulkanCore = vVulkanCore;
+	m_VulkanCorePtr = vVulkanCorePtr;
 }
 
 ComputeBuffer::~ComputeBuffer()
@@ -77,7 +77,7 @@ bool ComputeBuffer::Init(
 
 	m_Loaded = false;
 
-	m_Device = m_VulkanCore->getDevice();
+	m_Device = m_VulkanCorePtr->getDevice();
 	ct::uvec2 size = ct::clamp(vSize, 1u, 8192u);
 	if (!size.emptyOR())
 	{
@@ -86,7 +86,7 @@ bool ComputeBuffer::Init(
 		m_TemporarySize = ct::ivec2(size.x, size.y);
 		m_TemporaryCountBuffer = vCountBuffers;
 
-		m_Queue = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+		m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 
 		m_OutputSize = ct::uvec3(size.x, size.y, 0);
 		m_OutputRatio = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>();
@@ -275,7 +275,7 @@ bool ComputeBuffer::CreateComputeBuffers(
 			m_ComputeBuffers[0U].resize(m_CountBuffers);
 			for (auto& bufferPtr : m_ComputeBuffers[0U])
 			{
-				bufferPtr = Texture2D::CreateEmptyImage(m_VulkanCore, size, vFormat);
+				bufferPtr = Texture2D::CreateEmptyImage(m_VulkanCorePtr, size, vFormat);
 				res &= (bufferPtr != nullptr);
 			}
 
@@ -285,7 +285,7 @@ bool ComputeBuffer::CreateComputeBuffers(
 				m_ComputeBuffers[1U].resize(m_CountBuffers);
 				for (auto& bufferPtr : m_ComputeBuffers[1U])
 				{
-					bufferPtr = Texture2D::CreateEmptyImage(m_VulkanCore, size, vFormat);
+					bufferPtr = Texture2D::CreateEmptyImage(m_VulkanCorePtr, size, vFormat);
 					res &= (bufferPtr != nullptr);
 				}
 			}

@@ -49,8 +49,8 @@ public:
 class SceneMesh
 {
 public:
-	static SceneMeshPtr Create(vkApi::VulkanCore* vVulkanCore);
-	static SceneMeshPtr Create(vkApi::VulkanCore* vVulkanCore, VerticeArray vVerticeArray, IndiceArray vIndiceArray);
+	static SceneMeshPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static SceneMeshPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray vVerticeArray, IndiceArray vIndiceArray);
 	static SceneMeshPtr Copy(SceneMeshWeak vSceneMeshToCopy);
 
 private:
@@ -66,11 +66,11 @@ private:
 	bool m_HaveVertexColors = false;
 	bool m_HaveIndices = false;
 
-	vkApi::VulkanCore* m_VulkanCore = nullptr;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 public:
-	SceneMesh(vkApi::VulkanCore* vVulkanCore);
-	SceneMesh(vkApi::VulkanCore* vVulkanCore, VerticeArray vVerticeArray, IndiceArray vIndiceArray);
+	SceneMesh(vkApi::VulkanCorePtr vVulkanCorePtr);
+	SceneMesh(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray vVerticeArray, IndiceArray vIndiceArray);
 	~SceneMesh();
 
 	bool Init();

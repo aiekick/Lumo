@@ -49,81 +49,118 @@ limitations under the License.
 
 namespace vkApi
 {
-	VulkanImGuiOverlay::VulkanImGuiOverlay(
-		vkApi::VulkanCore* vVulkanCore,
-		VulkanImGuiRenderer* vVulkanImGuiRenderer,
-		vkApi::VulkanWindow* vVulkanWindow)
+	VulkanImGuiOverlayPtr VulkanImGuiOverlay::Create(
+		vkApi::VulkanCoreWeak vVulkanCoreWeak,
+		VulkanImGuiRendererWeak vVulkanImGuiRendererWeak,
+		vkApi::VulkanWindowWeak vVulkanWindowWeak)
 	{
-		ZoneScoped;
-
-		m_VulkanCore = vVulkanCore;
-		m_VulkanImGuiRenderer = vVulkanImGuiRenderer;
-		m_VulkanWindow = vVulkanWindow;
-
-		// Setup Dear ImGui context
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable ViewPort
-		io.FontAllowUserScaling = true; // activate zoom feature with ctrl + mousewheel
-		io.ConfigWindowsMoveFromTitleBarOnly = true; // can move windows only with titlebar
-#ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
-		io.ConfigViewportsNoDecoration = false; // toujours mettre une frame au fenetre enfant
-#endif
-
-		// Setup Dear ImGui style
-		//ImGui::StyleColorsClassic();
-		ImGui::StyleColorsDark();
-		//ImGui::StyleColorsLight();
-
-		m_PipelineCache = m_VulkanCore->getDevice().createPipelineCache(vk::PipelineCacheCreateInfo());
-
-		ImGui_ImplGlfw_InitForVulkan(m_VulkanWindow->WinPtr(), true);
-		ImGui_ImplVulkan_InitInfo init_info = {};
-		init_info.Instance = (VkInstance)m_VulkanCore->getInstance();
-		init_info.PhysicalDevice = (VkPhysicalDevice)m_VulkanCore->getPhysicalDevice();
-		init_info.Device = (VkDevice)m_VulkanCore->getDevice();
-		init_info.QueueFamily = m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics).familyQueueIndex;
-		init_info.Queue = (VkQueue)m_VulkanCore->getQueue(vk::QueueFlagBits::eGraphics).vkQueue;
-		init_info.PipelineCache = (VkPipelineCache)m_PipelineCache;
-		init_info.DescriptorPool = (VkDescriptorPool)m_VulkanCore->getDescriptorPool();
-		init_info.Allocator = nullptr;
-		init_info.MinImageCount = m_VulkanCore->getSwapchainFrameBuffers();
-		init_info.ImageCount = m_VulkanCore->getSwapchainFrameBuffers();
-		init_info.MSAASamples = (VkSampleCountFlagBits)m_VulkanCore->getSwapchainFrameBufferSampleCount();
-		init_info.CheckVkResultFn = vkApi::VulkanCore::check_error;
-
-		m_VulkanImGuiRenderer->Init(&init_info, (VkRenderPass)m_VulkanCore->getMainRenderPass());
-
-		// load memory font file
-		ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_RM, 15.0f);
-		static ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
-		static ImWchar icons_ranges_NDP[] = { ICON_MIN_NDP, ICON_MAX_NDP, 0 };
-		ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_NDP, 15.0f, &icons_config, icons_ranges_NDP);
-		static ImWchar icons_ranges_NDP2[] = { ICON_MIN_NDP2, ICON_MAX_NDP2, 0 };
-		ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_NDP2, 15.0f, &icons_config, icons_ranges_NDP2);
-
-		m_VulkanImGuiRenderer->CreateFontsTexture(vVulkanCore);
+		auto res = std::make_shared<VulkanImGuiOverlay>();
+		if (!res->Init(vVulkanCoreWeak, vVulkanImGuiRendererWeak, vVulkanWindowWeak))
+		{
+			res.reset();
+		}
+		return res;
 	}
+
+	VulkanImGuiOverlay::VulkanImGuiOverlay() = default;
 
 	VulkanImGuiOverlay::~VulkanImGuiOverlay()
 	{
-		Destroy(); // detuire les descripteur de imgui
+		Unit(); // detuit les descripteur de imgui
 	}
 
-	void VulkanImGuiOverlay::Destroy()
+	bool VulkanImGuiOverlay::Init(
+		vkApi::VulkanCoreWeak vVulkanCoreWeak,
+		VulkanImGuiRendererWeak vVulkanImGuiRendererWeak,
+		vkApi::VulkanWindowWeak vVulkanWindowWeak)
 	{
 		ZoneScoped;
 
-		m_VulkanCore->getDevice().waitIdle();
+		m_VulkanCoreWeak = vVulkanCoreWeak;
+		m_VulkanImGuiRendererWeak = vVulkanImGuiRendererWeak;
+		m_VulkanWindowWeak = vVulkanWindowWeak;
 
-		if (m_PipelineCache != vk::PipelineCache(nullptr))
+		auto corePtr = m_VulkanCoreWeak.getValidShared();
+		if (corePtr)
 		{
-			m_VulkanCore->getDevice().destroyPipelineCache(m_PipelineCache);
+			// Setup Dear ImGui context
+			IMGUI_CHECKVERSION();
+			ImGui::CreateContext();
+			ImGuiIO& io = ImGui::GetIO(); (void)io;
+			io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
+			io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable ViewPort
+			io.FontAllowUserScaling = true; // activate zoom feature with ctrl + mousewheel
+			io.ConfigWindowsMoveFromTitleBarOnly = true; // can move windows only with titlebar
+#ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
+			io.ConfigViewportsNoDecoration = false; // toujours mettre une frame au fenetre enfant
+#endif
+
+			ImGui::StyleColorsDark();
+
+			m_PipelineCache = corePtr->getDevice().createPipelineCache(vk::PipelineCacheCreateInfo());
+
+			auto winPtr = m_VulkanWindowWeak.getValidShared();
+			if (winPtr)
+			{
+				ImGui_ImplGlfw_InitForVulkan(winPtr->getWindowPtr(), true);
+				ImGui_ImplVulkan_InitInfo init_info = {};
+				init_info.Instance = (VkInstance)corePtr->getInstance();
+				init_info.PhysicalDevice = (VkPhysicalDevice)corePtr->getPhysicalDevice();
+				init_info.Device = (VkDevice)corePtr->getDevice();
+				init_info.QueueFamily = corePtr->getQueue(vk::QueueFlagBits::eGraphics).familyQueueIndex;
+				init_info.Queue = (VkQueue)corePtr->getQueue(vk::QueueFlagBits::eGraphics).vkQueue;
+				init_info.PipelineCache = (VkPipelineCache)m_PipelineCache;
+				init_info.DescriptorPool = (VkDescriptorPool)corePtr->getDescriptorPool();
+				init_info.Allocator = nullptr;
+				init_info.MinImageCount = corePtr->getSwapchainFrameBuffers();
+				init_info.ImageCount = corePtr->getSwapchainFrameBuffers();
+				init_info.MSAASamples = (VkSampleCountFlagBits)corePtr->getSwapchainFrameBufferSampleCount();
+				init_info.CheckVkResultFn = vkApi::VulkanCore::check_error;
+
+				auto imguiRendPtr = m_VulkanImGuiRendererWeak.getValidShared();
+				if (imguiRendPtr)
+				{
+					imguiRendPtr->Init(&init_info, (VkRenderPass)corePtr->getMainRenderPass());
+
+					// load memory font file
+					ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_RM, 15.0f);
+					static ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
+					static ImWchar icons_ranges_NDP[] = { ICON_MIN_NDP, ICON_MAX_NDP, 0 };
+					ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_NDP, 15.0f, &icons_config, icons_ranges_NDP);
+					static ImWchar icons_ranges_NDP2[] = { ICON_MIN_NDP2, ICON_MAX_NDP2, 0 };
+					ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_NDP2, 15.0f, &icons_config, icons_ranges_NDP2);
+
+					imguiRendPtr->CreateFontsTexture(corePtr);
+
+					return true;
+				}
+			}
 		}
 
-		m_VulkanImGuiRenderer->Unit();
+		return false;
+	}
+
+	void VulkanImGuiOverlay::Unit()
+	{
+		ZoneScoped;
+
+		auto corePtr = m_VulkanCoreWeak.getValidShared();
+		if (corePtr)
+		{
+			corePtr->getDevice().waitIdle();
+
+			if (m_PipelineCache != vk::PipelineCache(nullptr))
+			{
+				corePtr->getDevice().destroyPipelineCache(m_PipelineCache);
+			}
+		}
+
+		auto imguiRendPtr = m_VulkanImGuiRendererWeak.getValidShared();
+		if (imguiRendPtr)
+		{
+			imguiRendPtr->Unit();
+		}
+
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
@@ -132,8 +169,11 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		// Start the Dear ImGui frame
-		m_VulkanImGuiRenderer->NewFrame();
+		auto imguiRendPtr = m_VulkanImGuiRendererWeak.getValidShared();
+		if (imguiRendPtr)
+		{
+			imguiRendPtr->NewFrame();
+		}
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
@@ -153,10 +193,14 @@ namespace vkApi
 		const bool main_is_minimized = (main_draw_datas->DisplaySize.x <= 0.0f || main_draw_datas->DisplaySize.y <= 0.0f);
 		if (!main_is_minimized)
 		{
-			// Record Imgui Draw Data and draw funcs into command buffer
-			m_VulkanImGuiRenderer->RenderDrawData(
-				ImGui::GetDrawData(),
-				(VkCommandBuffer)m_VulkanCore->getGraphicCommandBuffer());
+			auto imguiRendPtr = m_VulkanImGuiRendererWeak.getValidShared();
+			auto corePtr = m_VulkanCoreWeak.getValidShared();
+			if (corePtr && imguiRendPtr)
+			{
+				imguiRendPtr->RenderDrawData(
+					ImGui::GetDrawData(),
+					(VkCommandBuffer)corePtr->getGraphicCommandBuffer());
+			}
 
 			return true;
 		}

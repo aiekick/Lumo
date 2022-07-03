@@ -55,7 +55,7 @@ private:
 	std::vector<std::string> m_Layers;
 
 public:
-	ChannelRenderer_Pass(vkApi::VulkanCore* vVulkanCore);
+	ChannelRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ChannelRenderer_Pass() override;
 
 	void ActionBeforeInit() override;

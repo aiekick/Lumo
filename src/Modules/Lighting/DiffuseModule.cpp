@@ -40,9 +40,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DiffuseModule> DiffuseModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<DiffuseModule> DiffuseModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<DiffuseModule>(vVulkanCore);
+	auto res = std::make_shared<DiffuseModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -55,8 +55,8 @@ std::shared_ptr<DiffuseModule> DiffuseModule::Create(vkApi::VulkanCore* vVulkanC
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DiffuseModule::DiffuseModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+DiffuseModule::DiffuseModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -80,7 +80,7 @@ bool DiffuseModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_DiffuseModule_Pass_Ptr = std::make_shared<DiffuseModule_Pass>(m_VulkanCore);
+		m_DiffuseModule_Pass_Ptr = std::make_shared<DiffuseModule_Pass>(m_VulkanCorePtr);
 		if (m_DiffuseModule_Pass_Ptr)
 		{
 			if (m_DiffuseModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))

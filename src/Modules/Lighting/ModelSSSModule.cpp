@@ -40,9 +40,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ModelSSSModule> ModelSSSModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<ModelSSSModule> ModelSSSModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<ModelSSSModule>(vVulkanCore);
+	auto res = std::make_shared<ModelSSSModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -55,8 +55,8 @@ std::shared_ptr<ModelSSSModule> ModelSSSModule::Create(vkApi::VulkanCore* vVulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelSSSModule::ModelSSSModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+ModelSSSModule::ModelSSSModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -80,7 +80,7 @@ bool ModelSSSModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_ModelSSSModule_Pass_Ptr = std::make_shared<ModelSSSModule_Pass>(m_VulkanCore);
+		m_ModelSSSModule_Pass_Ptr = std::make_shared<ModelSSSModule_Pass>(m_VulkanCorePtr);
 		if (m_ModelSSSModule_Pass_Ptr)
 		{
 			// eR8G8B8A8Unorm is used for have nice white and black display

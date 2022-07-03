@@ -18,11 +18,11 @@ limitations under the License.
 #include <Modules/Lighting/ModelSSSModule.h>
 #include <Interfaces/LightOutputInterface.h>
 
-std::shared_ptr<ModelSSSNode> ModelSSSNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<ModelSSSNode> ModelSSSNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ModelSSSNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ ModelSSSNode::~ModelSSSNode()
 	Unit();
 }
 
-bool ModelSSSNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool ModelSSSNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Model SSS";
 
@@ -65,7 +65,7 @@ bool ModelSSSNode::Init(vkApi::VulkanCore* vVulkanCore)
 	AddOutput(slot, true, true);
 
 	bool res = false;
-	m_ModelSSSModulePtr = ModelSSSModule::Create(vVulkanCore);
+	m_ModelSSSModulePtr = ModelSSSModule::Create(vVulkanCorePtr);
 	if (m_ModelSSSModulePtr)
 	{
 		res = true;

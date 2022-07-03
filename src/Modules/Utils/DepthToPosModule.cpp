@@ -35,9 +35,9 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DepthToPosModule> DepthToPosModule::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<DepthToPosModule> DepthToPosModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<DepthToPosModule>(vVulkanCore);
+	auto res = std::make_shared<DepthToPosModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -50,8 +50,8 @@ std::shared_ptr<DepthToPosModule> DepthToPosModule::Create(vkApi::VulkanCore* vV
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DepthToPosModule::DepthToPosModule(vkApi::VulkanCore* vVulkanCore)
-	: BaseRenderer(vVulkanCore)
+DepthToPosModule::DepthToPosModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
@@ -75,7 +75,7 @@ bool DepthToPosModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_DepthToPosModule_Pass_Ptr = std::make_shared<DepthToPosModule_Pass>(m_VulkanCore);
+		m_DepthToPosModule_Pass_Ptr = std::make_shared<DepthToPosModule_Pass>(m_VulkanCorePtr);
 		if (m_DepthToPosModule_Pass_Ptr)
 		{
 			if (m_DepthToPosModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

@@ -40,10 +40,12 @@ limitations under the License.
 
 #include <Panes/GraphPane.h>
 
+#include <ctools/Logger.h>
+
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanWindow.h>
-#include <ctools/Logger.h>
+#include <vkFramework/VulkanImGuiOverlay.h>
 #include <vkFramework/VulkanImGuiRenderer.h>
 
 #include <ImGuizmo/ImGuizmo.h>
@@ -84,23 +86,25 @@ int App::Run(const std::string& vAppPath)
 
 #ifdef _DEBUG
 	FileHelper::Instance()->CreateDirectoryIfNotExist("debug");
+#endif
+
 	FileHelper::Instance()->CreateDirectoryIfNotExist("plugins");
 	FileHelper::Instance()->CreateDirectoryIfNotExist("shaders");
 	FileHelper::Instance()->CreateDirectoryIfNotExist("projects");
-#endif
 
-	m_VulkanWindowPtr = std::make_shared<vkApi::VulkanWindow>();
-	m_VulkanWindowPtr->Init(WIDTH, HEIGHT, PROJECT_NAME " beta", false);
-
-	const auto& main_window = m_VulkanWindowPtr->WinPtr();
-	if (Init(main_window))
+	m_VulkanWindowPtr = vkApi::VulkanWindow::Create(WIDTH, HEIGHT, PROJECT_NAME " beta", false);
+	if (m_VulkanWindowPtr)
 	{
-		MainLoop(main_window);
-		Unit(main_window);
-	}
+		const auto& main_window = m_VulkanWindowPtr->getWindowPtr();
+		if (Init(main_window))
+		{
+			MainLoop(main_window);
+			Unit(main_window);
+		}
 
-	m_VulkanWindowPtr->Unit();
-	m_VulkanWindowPtr.reset();
+		m_VulkanWindowPtr->Unit();
+		m_VulkanWindowPtr.reset();
+	}
 
 	return 0;
 }
@@ -119,91 +123,94 @@ bool App::Init(GLFWwindow* vWindow)
 			std::list<std::string>{ "projects", "shaders" });
 
 		// Core
-		vkApi::VulkanCore::sVulkanShader = std::make_shared<VulkanShader>();
-		vkApi::VulkanCore::sVulkanShader->Init();
+		vkApi::VulkanCore::sVulkanShader = VulkanShader::Create();
+		if (vkApi::VulkanCore::sVulkanShader)
+		{
+			m_VulkanCorePtr = vkApi::VulkanCore::Create(m_VulkanWindowPtr, "Lumo", 1, "1.0", 1, true);
+			if (m_VulkanCorePtr)
+			{
+				// apres la creation du core
+				CommonSystem::Instance()->CreateBufferObject(m_VulkanCorePtr);
 
-		m_VulkanCorePtr = std::make_shared<vkApi::VulkanCore>();
-		m_VulkanCorePtr->Init(m_VulkanWindowPtr.get(), "Lumo", 1, "1.0", 1, true);
-		// apres la creation du core
-		CommonSystem::Instance()->CreateBufferObject(m_VulkanCorePtr.get());
+				m_VulkanImGuiRendererPtr = std::make_shared<VulkanImGuiRenderer>();
+				m_VulkanCorePtr->SetVulkanImGuiRenderer(m_VulkanImGuiRendererPtr);
 
-		m_VulkanImGuiRendererPtr = std::make_shared<VulkanImGuiRenderer>();
-		m_VulkanCorePtr->SetVulkanImGuiRenderer(m_VulkanImGuiRendererPtr);
+				m_VulkanImGuiOverlayPtr = vkApi::VulkanImGuiOverlay::Create(
+					m_VulkanCorePtr, m_VulkanImGuiRendererPtr, m_VulkanWindowPtr); // needed for alloc ImGui Textures
 
-		m_VulkanImGuiOverlay = std::make_unique<vkApi::VulkanImGuiOverlay>(
-			m_VulkanCorePtr.get(), m_VulkanImGuiRendererPtr.get(), m_VulkanWindowPtr.get()); // needed for alloc ImGui Textures
-		
-		View3DPane::Instance()->SetVulkanImGuiRenderer(m_VulkanImGuiRendererPtr.get());
+				View3DPane::Instance()->SetVulkanImGuiRenderer(m_VulkanImGuiRendererPtr);
 
-		ImGui::CustomStyle::Instance();
+				ImGui::CustomStyle::Instance();
 
-		// on charge les plugins
-		PluginManager::Instance()->LoadPlugins(m_VulkanCorePtr.get());
+				// on charge les plugins
+				PluginManager::Instance()->LoadPlugins(m_VulkanCorePtr);
 
-		NodeManager::Instance()->Init(m_VulkanCorePtr.get());
+				NodeManager::Instance()->Init(m_VulkanCorePtr);
 
-		// apres les autres, car on charge le fichier projet
-		MainFrame::Instance(vWindow)->Init();
+				// apres les autres, car on charge le fichier projet
+				MainFrame::Instance(vWindow)->Init();
 
 #ifdef USE_THUMBNAILS
-		ImGuiFileDialog::Instance()->SetCreateThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info)
-			{
-				if (vThumbnail_Info &&
-					vThumbnail_Info->isReadyToUpload &&
-					vThumbnail_Info->textureFileDatas)
-				{
-					std::shared_ptr<FileDialogAsset> res = std::shared_ptr<FileDialogAsset>(new FileDialogAsset,
-						[this](FileDialogAsset* obj)
-						{
-							delete obj;
-						}
-					);
-
-					res->tex = Texture2D::CreateFromMemory(
-						m_VulkanCorePtr.get(),
-						vThumbnail_Info->textureFileDatas,
-						vThumbnail_Info->textureWidth,
-						vThumbnail_Info->textureHeight,
-						vThumbnail_Info->textureChannels);
-					res->set = m_VulkanImGuiRendererPtr->CreateImGuiTexture(
-						(VkSampler)res->tex->m_DescriptorImageInfo.sampler,
-						(VkImageView)res->tex->m_DescriptorImageInfo.imageView,
-						(VkImageLayout)res->tex->m_DescriptorImageInfo.imageLayout);
-
-					vThumbnail_Info->userDatas = (void*)res.get();
-
-					m_FileDialogAssets.push_back(res);
-
-					vThumbnail_Info->textureID = (ImTextureID)&res->set;
-
-					delete[] vThumbnail_Info->textureFileDatas;
-					vThumbnail_Info->textureFileDatas = nullptr;
-
-					vThumbnail_Info->isReadyToUpload = false;
-					vThumbnail_Info->isReadyToDisplay = true;
-
-					m_VulkanCorePtr->getDevice().waitIdle();
-				}
-			});
-		ImGuiFileDialog::Instance()->SetDestroyThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info)
-			{
-				if (vThumbnail_Info)
-				{
-					if (vThumbnail_Info->userDatas)
+				ImGuiFileDialog::Instance()->SetCreateThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info)
 					{
-						auto asset = (FileDialogAsset*)vThumbnail_Info->userDatas;
-						asset->tex.reset();
-						m_VulkanImGuiRendererPtr->DestroyImGuiTexture(&asset->set);
-					}
-				}
-			});
+						if (vThumbnail_Info &&
+							vThumbnail_Info->isReadyToUpload &&
+							vThumbnail_Info->textureFileDatas)
+						{
+							std::shared_ptr<FileDialogAsset> res = std::shared_ptr<FileDialogAsset>(new FileDialogAsset,
+								[this](FileDialogAsset* obj)
+								{
+									delete obj;
+								}
+							);
+
+							res->tex = Texture2D::CreateFromMemory(
+								m_VulkanCorePtr,
+								vThumbnail_Info->textureFileDatas,
+								vThumbnail_Info->textureWidth,
+								vThumbnail_Info->textureHeight,
+								vThumbnail_Info->textureChannels);
+							res->set = m_VulkanImGuiRendererPtr->CreateImGuiTexture(
+								(VkSampler)res->tex->m_DescriptorImageInfo.sampler,
+								(VkImageView)res->tex->m_DescriptorImageInfo.imageView,
+								(VkImageLayout)res->tex->m_DescriptorImageInfo.imageLayout);
+
+							vThumbnail_Info->userDatas = (void*)res.get();
+
+							m_FileDialogAssets.push_back(res);
+
+							vThumbnail_Info->textureID = (ImTextureID)&res->set;
+
+							delete[] vThumbnail_Info->textureFileDatas;
+							vThumbnail_Info->textureFileDatas = nullptr;
+
+							vThumbnail_Info->isReadyToUpload = false;
+							vThumbnail_Info->isReadyToDisplay = true;
+
+							m_VulkanCorePtr->getDevice().waitIdle();
+						}
+					});
+				ImGuiFileDialog::Instance()->SetDestroyThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info)
+					{
+						if (vThumbnail_Info)
+						{
+							if (vThumbnail_Info->userDatas)
+							{
+								auto asset = (FileDialogAsset*)vThumbnail_Info->userDatas;
+								asset->tex.reset();
+								m_VulkanImGuiRendererPtr->DestroyImGuiTexture(&asset->set);
+							}
+						}
+					});
 #endif // USE_THUMBNAILS
 
-		vkprof::vkProfiler::Instance()->Init(
-			m_VulkanCorePtr->getPhysicalDevice(),
-			m_VulkanCorePtr->getDevice());
+				vkprof::vkProfiler::Instance()->Init(
+					m_VulkanCorePtr->getPhysicalDevice(),
+					m_VulkanCorePtr->getDevice());
 
-		res = true;     
+				res = true;
+			}
+		} 
 	}
 
 	return res;
@@ -223,7 +230,7 @@ void App::MainLoop(GLFWwindow* vWindow)
 
 		Update(); // to do absolutly beofre imgui rendering
 
-		ct::ivec4 viewportRect = ct::ivec4(0, m_VulkanWindowPtr->clentrez());
+		ct::ivec4 viewportRect = ct::ivec4(0, m_VulkanWindowPtr->getWindowResolution());
 
 		ImGui::SetPUSHID(125);
 		PluginManager::Instance()->ResetImGuiID(125);
@@ -234,7 +241,7 @@ void App::MainLoop(GLFWwindow* vWindow)
 		bool needResize = false;
 		if (BeginRender(needResize))
 		{
-			m_VulkanImGuiOverlay->render();
+			m_VulkanImGuiOverlayPtr->render();
 			EndRender();
 		}
 
@@ -276,18 +283,23 @@ bool App::BeginRender(bool& vNeedResize)
 {
 	ZoneScoped;
 
-	if (m_VulkanCorePtr->AcquireNextImage(m_VulkanWindowPtr.get()))
+	if (m_VulkanCorePtr->AcquireNextImage(m_VulkanWindowPtr))
 	{
 		m_VulkanCorePtr->frameBegin();
 
-		m_VulkanCorePtr->getFrameworkDevice()->BeginDebugLabel(&m_VulkanCorePtr->getGraphicCommandBuffer(), "ImGui", IMGUI_RENDERER_DEBUG_COLOR);
-
+		auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+		if (devicePtr)
 		{
-			TracyVkZone(m_VulkanCorePtr->getTracyContext(), m_VulkanCorePtr->getGraphicCommandBuffer(), "Record Renderer Command buffer");
-		}
-		m_VulkanCorePtr->beginMainRenderPass();
+			devicePtr->BeginDebugLabel(&m_VulkanCorePtr->getGraphicCommandBuffer(), "ImGui", IMGUI_RENDERER_DEBUG_COLOR);
 
-		return true;
+			{
+				TracyVkZone(m_VulkanCorePtr->getTracyContext(), m_VulkanCorePtr->getGraphicCommandBuffer(), "Record Renderer Command buffer");
+			}
+
+			m_VulkanCorePtr->beginMainRenderPass();
+
+			return true;
+		}
 	}
 	else // maybe a resize will fix
 	{
@@ -303,7 +315,11 @@ void App::EndRender()
 
 	m_VulkanCorePtr->endMainRenderPass();
 
-	m_VulkanCorePtr->getFrameworkDevice()->EndDebugLabel(&m_VulkanCorePtr->getGraphicCommandBuffer());
+	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+	if (devicePtr)
+	{
+		devicePtr->EndDebugLabel(&m_VulkanCorePtr->getGraphicCommandBuffer());
+	}
 
 	{
 		TracyVkCollect(m_VulkanCorePtr->getTracyContext(), m_VulkanCorePtr->getGraphicCommandBuffer());
@@ -322,7 +338,7 @@ void App::PrepareImGui(ct::ivec4 vViewport)
 	ZoneScoped;
 
 	// ImGui Calc juste avant de rendre dnas la swapchain
-	m_VulkanImGuiOverlay->begin();
+	m_VulkanImGuiOverlayPtr->begin();
 	ImGuizmo::BeginFrame();
 
 	auto io = ImGui::GetIO();
@@ -349,14 +365,14 @@ void App::PrepareImGui(ct::ivec4 vViewport)
 
 	NodeManager::Instance()->DisplayDialogsAndPopups(m_CurrentFrame, MainFrame::Instance()->m_DisplaySize);
 
-	m_VulkanImGuiOverlay->end();
+	m_VulkanImGuiOverlayPtr->end();
 }
 
 void App::Update()
 {
 	ZoneScoped;
 
-	CommonSystem::Instance()->UploadBufferObjectIfDirty(m_VulkanCorePtr.get());
+	CommonSystem::Instance()->UploadBufferObjectIfDirty(m_VulkanCorePtr);
 
 	CheckIfTheseAreSomeFileChanges();
 
@@ -368,7 +384,7 @@ void App::IncFrame()
 	++m_CurrentFrame;
 }
 
-std::shared_ptr<vkApi::VulkanWindow> App::GetWindowPtr()
+vkApi::VulkanWindowPtr App::GetWindowPtr()
 {
 	return m_VulkanWindowPtr;
 }
@@ -390,7 +406,7 @@ bool App::Unit(GLFWwindow* vWindow)
 	ProjectFile::Instance()->Clear();
 	NodeManager::Instance()->Unit();
 
-	m_VulkanImGuiOverlay.reset();
+	m_VulkanImGuiOverlayPtr.reset();
 	m_VulkanImGuiRendererPtr.reset();
 
 	CommonSystem::Instance()->DestroyBufferObject();
@@ -398,7 +414,7 @@ bool App::Unit(GLFWwindow* vWindow)
 	PluginManager::Instance()->Clear();
 
 	// fini la destruction de vulkan
-	vkApi::VulkanCore::sVulkanShader->Unit();
+	//vkApi::VulkanCore::sVulkanShader->Unit();
 	vkApi::VulkanCore::sVulkanShader.reset();
 
 	m_VulkanCorePtr->Unit();

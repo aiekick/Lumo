@@ -40,74 +40,78 @@ ImGuiTexture::~ImGuiTexture()
 	ZoneScoped;
 }
 
-void ImGuiTexture::SetDescriptor(VulkanImGuiRenderer* vVulkanImGuiRenderer, vk::DescriptorImageInfo* vDescriptorImageInfo, float vRatio)
+void ImGuiTexture::SetDescriptor(VulkanImGuiRendererWeak vVulkanImGuiRendererWeak, vk::DescriptorImageInfo* vDescriptorImageInfo, float vRatio)
 {
 	ZoneScoped;
 
-	assert(vVulkanImGuiRenderer);
-
-	if (vDescriptorImageInfo)
+	auto rendPtr = vVulkanImGuiRendererWeak.getValidShared();
+	if (rendPtr)
 	{
-		if (IS_FLOAT_DIFFERENT(vRatio, 0.0f))
-			ratio = vRatio;
-
-		if (firstLoad)
+		if (vDescriptorImageInfo)
 		{
-			descriptor = vVulkanImGuiRenderer->CreateImGuiTexture(
-				(VkSampler)vDescriptorImageInfo->sampler,
-				(VkImageView)vDescriptorImageInfo->imageView,
-				(VkImageLayout)vDescriptorImageInfo->imageLayout);
-			firstLoad = false;
+			if (IS_FLOAT_DIFFERENT(vRatio, 0.0f))
+				ratio = vRatio;
+
+			if (firstLoad)
+			{
+				descriptor = rendPtr->CreateImGuiTexture(
+					(VkSampler)vDescriptorImageInfo->sampler,
+					(VkImageView)vDescriptorImageInfo->imageView,
+					(VkImageLayout)vDescriptorImageInfo->imageLayout);
+				firstLoad = false;
+			}
+			else
+			{
+				descriptor = rendPtr->CreateImGuiTexture(
+					(VkSampler)vDescriptorImageInfo->sampler,
+					(VkImageView)vDescriptorImageInfo->imageView,
+					(VkImageLayout)vDescriptorImageInfo->imageLayout,
+					&descriptor);
+			}
+
+			canDisplayPreview = true;
 		}
 		else
 		{
-			descriptor = vVulkanImGuiRenderer->CreateImGuiTexture(
-				(VkSampler)vDescriptorImageInfo->sampler,
-				(VkImageView)vDescriptorImageInfo->imageView,
-				(VkImageLayout)vDescriptorImageInfo->imageLayout,
-				&descriptor);
+			ClearDescriptor();
 		}
-
-		canDisplayPreview = true;
-	}
-	else
-	{
-		ClearDescriptor();
 	}
 }
 
-void ImGuiTexture::SetDescriptor(VulkanImGuiRenderer* vVulkanImGuiRenderer, vkApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment)
+void ImGuiTexture::SetDescriptor(VulkanImGuiRendererWeak vVulkanImGuiRendererWeak, vkApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment)
 {
 	ZoneScoped;
 
-	assert(vVulkanImGuiRenderer);
-
-	if (vVulkanFrameBufferAttachment)
+	auto rendPtr = vVulkanImGuiRendererWeak.getValidShared();
+	if (rendPtr)
 	{
-		ratio = (float)vVulkanFrameBufferAttachment->width / (float)vVulkanFrameBufferAttachment->height;
-
-		if (firstLoad)
+		if (vVulkanFrameBufferAttachment)
 		{
-			descriptor = vVulkanImGuiRenderer->CreateImGuiTexture(
-				(VkSampler)vVulkanFrameBufferAttachment->attachmentDescriptorInfo.sampler,
-				(VkImageView)vVulkanFrameBufferAttachment->attachmentDescriptorInfo.imageView,
-				(VkImageLayout)vVulkanFrameBufferAttachment->attachmentDescriptorInfo.imageLayout);
-			firstLoad = false;
+			ratio = (float)vVulkanFrameBufferAttachment->width / (float)vVulkanFrameBufferAttachment->height;
+
+			if (firstLoad)
+			{
+				descriptor = rendPtr->CreateImGuiTexture(
+					(VkSampler)vVulkanFrameBufferAttachment->attachmentDescriptorInfo.sampler,
+					(VkImageView)vVulkanFrameBufferAttachment->attachmentDescriptorInfo.imageView,
+					(VkImageLayout)vVulkanFrameBufferAttachment->attachmentDescriptorInfo.imageLayout);
+				firstLoad = false;
+			}
+			else
+			{
+				descriptor = rendPtr->CreateImGuiTexture(
+					(VkSampler)vVulkanFrameBufferAttachment->attachmentSampler,
+					(VkImageView)vVulkanFrameBufferAttachment->attachmentView,
+					(VkImageLayout)vVulkanFrameBufferAttachment->attachmentDescriptorInfo.imageLayout,
+					&descriptor);
+			}
+
+			canDisplayPreview = true;
 		}
 		else
 		{
-			descriptor = vVulkanImGuiRenderer->CreateImGuiTexture(
-				(VkSampler)vVulkanFrameBufferAttachment->attachmentSampler,
-				(VkImageView)vVulkanFrameBufferAttachment->attachmentView,
-				(VkImageLayout)vVulkanFrameBufferAttachment->attachmentDescriptorInfo.imageLayout,
-				&descriptor);
+			ClearDescriptor();
 		}
-
-		canDisplayPreview = true;
-	}
-	else
-	{
-		ClearDescriptor();
 	}
 }
 
@@ -120,13 +124,14 @@ void ImGuiTexture::ClearDescriptor()
 	descriptor = vk::DescriptorSet{};
 }
 
-void ImGuiTexture::DestroyDescriptor(VulkanImGuiRenderer* vVulkanImGuiRenderer)
+void ImGuiTexture::DestroyDescriptor(VulkanImGuiRendererWeak vVulkanImGuiRendererWeak)
 {
 	ZoneScoped;
 
 	if (!destroyed)
 	{
-		if (vVulkanImGuiRenderer->DestroyImGuiTexture(&descriptor))
+		auto rendPtr = vVulkanImGuiRendererWeak.getValidShared();
+		if (rendPtr && rendPtr->DestroyImGuiTexture(&descriptor))
 		{
 			destroyed = true;
 		}

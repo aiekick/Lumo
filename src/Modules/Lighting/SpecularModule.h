@@ -57,7 +57,7 @@ class SpecularModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<SpecularModule> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<SpecularModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	ct::cWeak<SpecularModule> m_This;
@@ -65,7 +65,7 @@ private:
 	std::shared_ptr<SpecularModule_Pass> m_SpecularModule_Pass_Ptr = nullptr;
 
 public:
-	SpecularModule(vkApi::VulkanCore* vVulkanCore);
+	SpecularModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~SpecularModule();
 
 	bool Init();

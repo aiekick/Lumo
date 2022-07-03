@@ -19,6 +19,7 @@ limitations under the License.
 #include <vulkan/vulkan.hpp>
 #include "VulkanFrameBufferAttachment.h"
 #include <ctools/cTools.h>
+#include <vkFramework/vkFramework.h>
 
 namespace vkApi
 {
@@ -43,7 +44,7 @@ namespace vkApi
 		uint32_t depthAttIndex = 0U;
 
 	private:
-		VulkanCore* m_VulkanCore = nullptr;
+		VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 	public:
 		VulkanFrameBuffer();
@@ -51,7 +52,7 @@ namespace vkApi
 
 	public:
 		bool Init(
-			vkApi::VulkanCore* vVulkanCore,
+			vkApi::VulkanCorePtr vVulkanCorePtr,
 			ct::uvec2 vSize,
 			uint32_t vCount,
 			vk::RenderPass& vRenderPass,

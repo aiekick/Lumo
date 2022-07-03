@@ -36,8 +36,8 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DeferredRenderer_Pass::DeferredRenderer_Pass(vkApi::VulkanCore* vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
+DeferredRenderer_Pass::DeferredRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Deferred", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
@@ -53,15 +53,15 @@ DeferredRenderer_Pass::~DeferredRenderer_Pass()
 
 bool DeferredRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	DrawInputTexture(m_VulkanCore, "Position", 0U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Normal", 1U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Albedo", 2U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Diffuse", 3U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Specular", 4U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Attenuation", 5U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Mask", 6U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Ao", 7U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "shadow", 8U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Normal", 1U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Albedo", 2U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Diffuse", 3U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Specular", 4U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Attenuation", 5U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Mask", 6U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Ao", 7U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "shadow", 8U, m_OutputRatio);
 
 	return false;
 }
@@ -163,12 +163,12 @@ bool DeferredRenderer_Pass::CreateUBO()
 	ZoneScoped;
 
 	auto size_in_bytes = sizeof(UBOFrag);
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes);
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
 	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
 	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
 	for (auto& a : m_ImageInfos)
 	{
@@ -184,7 +184,7 @@ void DeferredRenderer_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void DeferredRenderer_Pass::DestroyUBO()

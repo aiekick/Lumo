@@ -32,6 +32,8 @@ limitations under the License.
 #include <Interfaces/NodeInterface.h>
 #include <Interfaces/VariableOutputInterface.h>
 
+#include <vkFramework/vkFramework.h>
+
 namespace vkApi { class VulkanCore; }
 class VariableModule_Pass;
 class VariableModule :
@@ -42,13 +44,13 @@ class VariableModule :
 	public VariableOutputInterface
 {
 public:
-	static std::shared_ptr<VariableModule> Create(vkApi::VulkanCore* vVulkanCore, BaseNodeWeak vParentNode);
+	static std::shared_ptr<VariableModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
 	SceneVariablePtr m_VariablePtr = nullptr;
 
 public:
-	VariableModule(vkApi::VulkanCore* vVulkanCore);
+	VariableModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~VariableModule();
 
 	bool Init();

@@ -58,6 +58,7 @@ void operator delete[](void* ptr) noexcept
 #include <ctools/Logger.h>
 #include <string>
 #include <iostream>
+#include <vkFramework/VulkanWindow.h>
 
 int main(int, char** argv)
 {
@@ -79,8 +80,11 @@ int main(int, char** argv)
 		LogVarLightInfo("Exception %s", e.what());
 		Logger::Instance()->Close();
 
-		const auto& main_window = App::Instance()->GetWindowPtr()->WinPtr();
-		App::Instance()->Unit(main_window);
+		if (App::Instance()->GetWindowPtr())
+		{
+			const auto& main_window = App::Instance()->GetWindowPtr()->getWindowPtr();
+			App::Instance()->Unit(main_window);
+		}
 
 		return EXIT_FAILURE;
 	}

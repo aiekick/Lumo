@@ -47,7 +47,7 @@ private:
 	} m_UBOVert;
 
 public:
-	GridModule_Pass(vkApi::VulkanCore* vVulkanCore);
+	GridModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~GridModule_Pass() override;
 
 	void ActionBeforeInit() override;

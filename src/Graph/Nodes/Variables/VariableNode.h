@@ -24,7 +24,7 @@ class VariableNode :
 	public VariableOutputInterface
 {
 public:
-	static std::shared_ptr<VariableNode> Create(vkApi::VulkanCore* vVulkanCore, const NodeTypeEnum& vNodeType);
+	static std::shared_ptr<VariableNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr, const NodeTypeEnum& vNodeType);
 
 private:
 	std::shared_ptr<VariableModule> m_VariableModulePtr = nullptr;
@@ -32,7 +32,7 @@ private:
 public:
 	VariableNode(const NodeTypeEnum& vNodeType);
 	~VariableNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;

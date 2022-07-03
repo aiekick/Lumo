@@ -35,8 +35,8 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelShadowModule_Pass::ModelShadowModule_Pass(vkApi::VulkanCore* vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
+ModelShadowModule_Pass::ModelShadowModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Model Shadow", QUAD_SHADER_PASS_DEBUG_COLOR);
 }
@@ -65,8 +65,8 @@ bool ModelShadowModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 		}
 	}
 
-	DrawInputTexture(m_VulkanCore, "Input Position", 0U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Input Shadow Map", 1U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Input Position", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Input Shadow Map", 1U, m_OutputRatio);
 
 	return change;
 }
@@ -198,12 +198,12 @@ bool ModelShadowModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag));
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
 	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
 	m_DescriptorBufferInfo_Frag.range = sizeof(UBOFrag);
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCore, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
 	for (auto& a : m_ImageInfos)
 	{
@@ -219,7 +219,7 @@ void ModelShadowModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void ModelShadowModule_Pass::DestroyUBO()

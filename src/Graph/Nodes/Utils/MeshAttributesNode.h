@@ -33,7 +33,7 @@ class MeshAttributesNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<MeshAttributesNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<MeshAttributesNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<MeshAttributesModule> m_MeshAttributesModulePtr = nullptr;
@@ -41,7 +41,7 @@ private:
 public:
 	MeshAttributesNode();
 	~MeshAttributesNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

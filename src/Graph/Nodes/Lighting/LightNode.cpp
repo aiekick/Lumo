@@ -17,11 +17,11 @@ limitations under the License.
 #include "LightNode.h"
 #include <Modules/Lighting/LightGroupModule.h>
 
-std::shared_ptr<LightNode> LightNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<LightNode> LightNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<LightNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -38,7 +38,7 @@ LightNode::~LightNode()
 
 }
 
-bool LightNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool LightNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Light";
 
@@ -48,7 +48,7 @@ bool LightNode::Init(vkApi::VulkanCore* vVulkanCore)
 	AddOutput(slot, true, true);
 
 	bool res = false;
-	m_LightGroupModulePtr = LightGroupModule::Create(vVulkanCore, m_This);
+	m_LightGroupModulePtr = LightGroupModule::Create(vVulkanCorePtr, m_This);
 	if (m_LightGroupModulePtr)
 	{
 		res = true;

@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
+#include <vkFramework/vkFramework.h>
 
 class ImGuiTexture;
 typedef std::shared_ptr<ImGuiTexture> ImGuiTexturePtr;
@@ -41,8 +42,8 @@ public:
 public:
 	ImGuiTexture();
 	~ImGuiTexture();
-	void SetDescriptor(VulkanImGuiRenderer* vVulkanImGuiRenderer, vk::DescriptorImageInfo* vDescriptorImageInfo, float vRatio = 1.0f);
-	void SetDescriptor(VulkanImGuiRenderer* vVulkanImGuiRenderer, vkApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment);
+	void SetDescriptor(VulkanImGuiRendererWeak vVulkanImGuiRenderer, vk::DescriptorImageInfo* vDescriptorImageInfo, float vRatio = 1.0f);
+	void SetDescriptor(VulkanImGuiRendererWeak vVulkanImGuiRenderer, vkApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment);
 	void ClearDescriptor();
-	void DestroyDescriptor(VulkanImGuiRenderer* vVulkanImGuiRenderer);
+	void DestroyDescriptor(VulkanImGuiRendererWeak vVulkanImGuiRenderer);
 };

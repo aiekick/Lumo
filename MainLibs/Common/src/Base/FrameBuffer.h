@@ -39,7 +39,7 @@ limitations under the License.
 class FrameBuffer
 {
 public:
-	static FrameBufferPtr Create(vkApi::VulkanCore* vVulkanCore);
+	static FrameBufferPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	bool m_NeedNewUBOUpload = true;			// true for first render
@@ -68,7 +68,7 @@ protected:
 	uint32_t m_CurrentFrame = 0U;
 
 	// vulkan creation
-	vkApi::VulkanCore* m_VulkanCore = nullptr;	// vulkan core
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;	// vulkan core
 	vkApi::VulkanQueue m_Queue;					// queue
 	vk::Device m_Device;						// device copy
 
@@ -100,7 +100,7 @@ protected:
 	std::vector<vk::ClearValue> m_ClearColorValues;
 
 public: // contructor
-	FrameBuffer(vkApi::VulkanCore* vVulkanCore);
+	FrameBuffer(vkApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~FrameBuffer();
 
 	// init/unit

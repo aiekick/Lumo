@@ -27,7 +27,7 @@ class GridNode :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<GridNode> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<GridNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<GridModule> m_GridModulePtr = nullptr;
@@ -35,7 +35,7 @@ private:
 public:
 	GridNode();
 	~GridNode() override;
-	bool Init(vkApi::VulkanCore* vVulkanCore) override;
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

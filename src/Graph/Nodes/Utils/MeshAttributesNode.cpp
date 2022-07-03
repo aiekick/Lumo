@@ -18,11 +18,11 @@ limitations under the License.
 #include <Modules/Utils/MeshAttributesModule.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-std::shared_ptr<MeshAttributesNode> MeshAttributesNode::Create(vkApi::VulkanCore* vVulkanCore)
+std::shared_ptr<MeshAttributesNode> MeshAttributesNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<MeshAttributesNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCore))
+	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
@@ -39,7 +39,7 @@ MeshAttributesNode::~MeshAttributesNode()
 	Unit();
 }
 
-bool MeshAttributesNode::Init(vkApi::VulkanCore* vVulkanCore)
+bool MeshAttributesNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Mesh Attributes";
 
@@ -91,7 +91,7 @@ bool MeshAttributesNode::Init(vkApi::VulkanCore* vVulkanCore)
 
 	bool res = false;
 
-	m_MeshAttributesModulePtr = MeshAttributesModule::Create(vVulkanCore);
+	m_MeshAttributesModulePtr = MeshAttributesModule::Create(vVulkanCorePtr);
 	if (m_MeshAttributesModulePtr)
 	{
 		res = true;

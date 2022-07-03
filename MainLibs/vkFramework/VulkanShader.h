@@ -19,6 +19,7 @@ limitations under the License.
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 
+#include <vkFramework/vkFramework.h>
 #include <glslang/glslang/MachineIndependent/localintermediate.h>
 
 #include <unordered_map>
@@ -33,8 +34,15 @@ limitations under the License.
 class VulkanShader
 {
 public:
+	static VulkanShaderPtr Create();
+
+public:
 	typedef std::function<void(std::string, std::string, std::string)> ShaderMessagingFunction;
 	typedef std::function<void(glslang::TIntermediate*)> TraverserFunction;
+
+public: // errors
+	std::unordered_map<EShLanguage, std::vector<std::string>> m_Error;
+	std::unordered_map<EShLanguage, std::vector<std::string>> m_Warnings;
 
 public:
 	const std::vector<unsigned int> CompileGLSLFile(
@@ -60,9 +68,9 @@ public:
 	void DestroyShaderModule(VkDevice vLogicalDevice, VkShaderModule vVkShaderModule);
 	std::unordered_map<std::string, bool> CollectUniformInfosFromIR(const glslang::TIntermediate& intermediate);
 
-public: // errors
-	std::unordered_map<EShLanguage, std::vector<std::string>> m_Error;
-	std::unordered_map<EShLanguage, std::vector<std::string>> m_Warnings;
+public:
+	bool Init();
+	void Unit();
 
 public:
 	VulkanShader(); // Prevent construction
@@ -70,7 +78,4 @@ public:
 	VulkanShader& operator =(const VulkanShader&) { return *this; }; // Prevent assignment
 	~VulkanShader(); // Prevent unwanted destruction
 
-public:
-	void Init();
-	void Unit();
 };

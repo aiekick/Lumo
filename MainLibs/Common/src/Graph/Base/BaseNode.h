@@ -28,6 +28,7 @@ limitations under the License.
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/NotifyInterface.h>
 #include <Interfaces/ResizerInterface.h>
+#include <vkFramework/vkFramework.h>
 
 #include <imgui_node_editor/NodeEditor/Include/imgui_node_editor.h>
 namespace nd = ax::NodeEditor;
@@ -170,7 +171,6 @@ struct BaseNodeStateStruct
 	BaseNodeWeak m_CustomContextMenuNode;
 };
 
-namespace vkApi { class VulkanCore; }
 class BaseNode : 
 	public conf::ConfigAbstract, 
 	public NotifyInterface,
@@ -190,10 +190,10 @@ public: // static
 	static uint32_t freeNodeId;
 	static uint32_t GetNextNodeId();
 	// get shared from weak
-	static BaseNodePtr GetSharedFromWeak(BaseNodeWeak vNode);
+	static BaseNodePtr GetSharedFromWeak(const BaseNodeWeak& vNode);
 
 	static std::function<void(BaseNodeWeak)> sOpenGraphCallback; // open graph
-	static void OpenGraph_Callback(BaseNodeWeak vNode);
+	static void OpenGraph_Callback(const BaseNodeWeak& vNode);
 
 	static std::function<void(std::string)> sOpenCodeCallback; // open code
 	static void OpenCode_Callback(std::string vCode);
@@ -205,14 +205,14 @@ public: // static
 	static void LogInfos_Callback(std::string vInfos);
 
 	static std::function<void(BaseNodeWeak)> sSelectCallback; // select node
-	static void Select_Callback(BaseNodeWeak vNode);
+	static void Select_Callback(const BaseNodeWeak& vNode);
 
 	static std::function<BaseNodeWeak(BaseNodeWeak vNodeGraph, BaseNodeStateStruct* vCanvasState)> sShowNewNodeMenuCallback; // new node menu
-	static void ShowNewNodeMenu_Callback(BaseNodeWeak vNodeGraph, BaseNodeStateStruct* vCanvasState);
+	static void ShowNewNodeMenu_Callback(const BaseNodeWeak& vNodeGraph, BaseNodeStateStruct* vCanvasState);
 
 	static std::function<bool(BaseNodeWeak, tinyxml2::XMLElement*, tinyxml2::XMLElement*,
 		const std::string&, const std::string&, const ct::fvec2&, const size_t&)> sLoadNodeFromXMLCallback; // log infos
-	static bool LoadNodeFromXML_Callback(BaseNodeWeak vBaseNodeWeak, tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent,
+	static bool LoadNodeFromXML_Callback(const BaseNodeWeak& vBaseNodeWeak, tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent,
 		const std::string& vNodeName, const std::string& vNodeType, const ct::fvec2& vPos, const size_t& vNodeId);
 
 public: // popups
@@ -250,7 +250,7 @@ public: // used by layout
 	bool changed = false; // need to save
 
 public: // parsing de la fonction pas du grpah complet
-	std::string funcNameToParse = "";
+	std::string funcNameToParse;
 	bool mainFuncParsing = false;
 
 public: // Code Generation
@@ -279,17 +279,17 @@ public:
 public:
 	std::string m_NodeGraphConfigFile;
 	ax::NodeEditor::Style m_Style;
-	vkApi::VulkanCore* m_VulkanCore = nullptr;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 public:
 	BaseNode();
 	virtual ~BaseNode();
 
 public:
-    virtual bool Init(vkApi::VulkanCore* vVulkanCore);
-	virtual bool Init(BaseNodeWeak vThis);
-	virtual bool Init(std::string vCode, BaseNodeWeak vThis);
-	void InitGraph(ax::NodeEditor::Style vStyle = ax::NodeEditor::Style());
+    virtual bool Init(vkApi::VulkanCorePtr vVulkanCorePtr);
+	virtual bool Init(const BaseNodeWeak& vThis);
+	virtual bool Init(const std::string& vCode, const BaseNodeWeak& vThis);
+	void InitGraph(const ax::NodeEditor::Style& vStyle = ax::NodeEditor::Style());
 	void FinalizeGraphLoading();
 
 	virtual void Unit();
@@ -318,8 +318,8 @@ public:
 	void ZoomToSelection() const;
 	void NavigateToSelection() const;
 
-	ImVec2 GetCanvasOffset() const;
-	float GetCanvasScale() const;
+	[[nodiscard]] ImVec2 GetCanvasOffset() const;
+	[[nodiscard]] float GetCanvasScale() const;
 
 	void SetCanvasOffset(const ImVec2& vOffset);
 	void SetCanvasScale(const float& vScale);
@@ -377,7 +377,7 @@ public:
 	void DoLayout();
 
 public: // shader gen related stuff
-	virtual std::string GetNodeCode(bool vRecursChilds = true);
+	virtual std::string GetNodeCode(bool vRecursChilds = false);
 	virtual void CompilGeneratedCode();
 	virtual void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot);
 	virtual void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot);
@@ -436,9 +436,9 @@ public: // ImGui
 	void DrawToolMenu();
 
 public: // gui interface
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext) override;
+	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext) override;
+	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext) override;
 
 public: // pane
 	virtual bool DrawDebugInfos(BaseNodeStateStruct *vCanvasState);
@@ -465,6 +465,6 @@ public: // loading / saving
 	typedef std::pair<uint32_t, uint32_t> SlotEntry;
 	typedef std::pair<SlotEntry, SlotEntry> LinkEntry;
 	std::vector<LinkEntry> m_LinksToBuildAfterLoading;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

@@ -60,13 +60,13 @@ class DeferredRenderer :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<DeferredRenderer> Create(vkApi::VulkanCore* vVulkanCore);
+	static std::shared_ptr<DeferredRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<DeferredRenderer_Pass> m_DeferredRenderer_Pass_Ptr = nullptr;
 
 public:
-	DeferredRenderer(vkApi::VulkanCore* vVulkanCore);
+	DeferredRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~DeferredRenderer();
 
 	bool Init();

@@ -33,12 +33,12 @@ namespace vkApi
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	std::mutex VulkanCommandBuffer::VulkanCommandBuffer_Mutex;
 
-	vk::CommandBuffer VulkanCommandBuffer::beginSingleTimeCommands(vkApi::VulkanCore* vVulkanCore, bool begin, vk::CommandPool* vCommandPool)
+	vk::CommandBuffer VulkanCommandBuffer::beginSingleTimeCommands(vkApi::VulkanCorePtr vVulkanCorePtr, bool begin, vk::CommandPool* vCommandPool)
 	{
 		ZoneScoped;
 
-		auto logDevice = vVulkanCore->getDevice();
-		auto queue = vVulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+		auto logDevice = vVulkanCorePtr->getDevice();
+		auto queue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 
 		std::unique_lock<std::mutex> lck(VulkanCommandBuffer::VulkanCommandBuffer_Mutex, std::defer_lock);
 		lck.lock();
@@ -57,7 +57,7 @@ namespace vkApi
 		return cmdBuffer;
 	}
 
-	void VulkanCommandBuffer::flushSingleTimeCommands(vkApi::VulkanCore* vVulkanCore, vk::CommandBuffer& commandBuffer, bool end, vk::CommandPool* vCommandPool)
+	void VulkanCommandBuffer::flushSingleTimeCommands(vkApi::VulkanCorePtr vVulkanCorePtr, vk::CommandBuffer& commandBuffer, bool end, vk::CommandPool* vCommandPool)
 	{
 		ZoneScoped;
 
@@ -67,13 +67,13 @@ namespace vkApi
 		}
 
 		VulkanCommandBuffer::VulkanCommandBuffer_Mutex.lock();
-		auto logDevice = vVulkanCore->getDevice();
-		auto queue = vVulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+		auto logDevice = vVulkanCorePtr->getDevice();
+		auto queue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 		vk::Fence fence = logDevice.createFence(vk::FenceCreateInfo());
 		VulkanCommandBuffer::VulkanCommandBuffer_Mutex.unlock();
 
 		auto submitInfos = vk::SubmitInfo(0, nullptr, nullptr, 1, &commandBuffer, 0, nullptr);
-		VulkanSubmitter::Submit(vVulkanCore, vk::QueueFlagBits::eGraphics, submitInfos, fence);
+		VulkanSubmitter::Submit(vVulkanCorePtr, vk::QueueFlagBits::eGraphics, submitInfos, fence);
 
 		// Wait for the fence to signal that command buffer has finished executing
 		if (logDevice.waitForFences(1, &fence, VK_TRUE, UINT_MAX) == vk::Result::eSuccess)
@@ -87,11 +87,11 @@ namespace vkApi
 		
 	}
 
-	VulkanCommandBuffer VulkanCommandBuffer::CreateCommandBuffer(vkApi::VulkanCore* vVulkanCore, vk::QueueFlagBits vQueueType, vk::CommandPool* vCommandPool)
+	VulkanCommandBuffer VulkanCommandBuffer::CreateCommandBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, vk::QueueFlagBits vQueueType, vk::CommandPool* vCommandPool)
 	{
 		ZoneScoped;
 
-		const auto device = vVulkanCore->getDevice();
+		const auto device = vVulkanCorePtr->getDevice();
 
 		VulkanCommandBuffer commandBuffer = {};
 
@@ -100,7 +100,7 @@ namespace vkApi
 
 		if (vQueueType == vk::QueueFlagBits::eGraphics)
 		{
-			const auto graphicQueue = vVulkanCore->getQueue(vk::QueueFlagBits::eGraphics);
+			const auto graphicQueue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 			commandBuffer.queue = graphicQueue.vkQueue;
 			commandBuffer.familyQueueIndex = graphicQueue.familyQueueIndex;
 			if (vCommandPool) commandBuffer.commandpool = *vCommandPool;
@@ -108,7 +108,7 @@ namespace vkApi
 		}
 		else if (vQueueType == vk::QueueFlagBits::eCompute)
 		{
-			const auto computeQueue = vVulkanCore->getQueue(vk::QueueFlagBits::eCompute);
+			const auto computeQueue = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eCompute);
 			commandBuffer.queue = computeQueue.vkQueue;
 			commandBuffer.familyQueueIndex = computeQueue.familyQueueIndex;
 			if (vCommandPool) commandBuffer.commandpool = *vCommandPool;

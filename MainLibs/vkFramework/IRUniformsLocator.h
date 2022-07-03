@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <glslang/glslang/MachineIndependent/localintermediate.h>
 #include <glslang/glslang/Include/InfoSink.h>
+#include <vkFramework/vkFramework.h>
 
 #include <unordered_map>
 #include <string>
