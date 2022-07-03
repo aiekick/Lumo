@@ -564,7 +564,10 @@ bool ShaderPass::CompilPixel()
 	}
 	else
 	{
-		FileHelper::Instance()->SaveStringToFile(m_VertexShaderCode.m_Code, vert_path);
+		if (!m_DontCreateShaderFilesOnDisk)
+		{
+			FileHelper::Instance()->SaveStringToFile(m_VertexShaderCode.m_Code, vert_path);
+		}
 	}
 
 	// FRAGMENT CODE
@@ -580,7 +583,10 @@ bool ShaderPass::CompilPixel()
 	}
 	else
 	{
-		FileHelper::Instance()->SaveStringToFile(m_FragmentShaderCode.m_Code, frag_path);
+		if (!m_DontCreateShaderFilesOnDisk)
+		{
+			FileHelper::Instance()->SaveStringToFile(m_FragmentShaderCode.m_Code, frag_path);
+		}
 	}
 
 	// COMPILATION
@@ -642,7 +648,10 @@ bool ShaderPass::CompilCompute()
 	}
 	else
 	{
-		FileHelper::Instance()->SaveStringToFile(m_ComputeShaderCode.m_Code, comp_path);
+		if (!m_DontCreateShaderFilesOnDisk)
+		{
+			FileHelper::Instance()->SaveStringToFile(m_ComputeShaderCode.m_Code, comp_path);
+		}
 	}
 
 	// COMPILATION

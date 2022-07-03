@@ -69,6 +69,7 @@ protected:
 	bool m_Loaded = false;
 	bool m_NeedNewUBOUpload = false;
 	bool m_NeedNewSBOUpload = false;
+	bool m_DontCreateShaderFilesOnDisk = false;
 
 	vkApi::VulkanCore* m_VulkanCore = nullptr;	// vulkan core
 	vkApi::VulkanQueue m_Queue;					// queue
