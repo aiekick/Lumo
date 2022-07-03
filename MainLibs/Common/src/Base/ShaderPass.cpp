@@ -564,15 +564,15 @@ bool ShaderPass::CompilPixel()
 	std::string vertex_name;
 	m_VertexShaderCode.m_Code = GetVertexShaderCode(vertex_name);
 	assert(!vertex_name.empty());
-	m_VertexShaderCode.m_FilePathName = "shaders/" + vertex_name + ".vert";
-	auto vert_path = FileHelper::Instance()->GetAppPath() + "/" + m_VertexShaderCode.m_FilePathName;
-	if (FileHelper::Instance()->IsFileExist(vert_path, true))
+	if (!m_DontUseShaderFilesOnDisk)
 	{
-		m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(vert_path, true);
-	}
-	else
-	{
-		if (!m_DontCreateShaderFilesOnDisk)
+		m_VertexShaderCode.m_FilePathName = "shaders/" + vertex_name + ".vert";
+		auto vert_path = FileHelper::Instance()->GetAppPath() + "/" + m_VertexShaderCode.m_FilePathName;
+		if (FileHelper::Instance()->IsFileExist(vert_path, true))
+		{
+			m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(vert_path, true);
+		}
+		else
 		{
 			FileHelper::Instance()->SaveStringToFile(m_VertexShaderCode.m_Code, vert_path);
 		}
@@ -583,15 +583,15 @@ bool ShaderPass::CompilPixel()
 	std::string fragment_name;
 	m_FragmentShaderCode.m_Code = GetFragmentShaderCode(fragment_name);
 	assert(!fragment_name.empty());
-	m_FragmentShaderCode.m_FilePathName = "shaders/" + fragment_name + ".frag";
-	auto frag_path = FileHelper::Instance()->GetAppPath() + "/" + m_FragmentShaderCode.m_FilePathName;
-	if (FileHelper::Instance()->IsFileExist(frag_path, true))
+	if (!m_DontUseShaderFilesOnDisk)
 	{
-		m_FragmentShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(frag_path, true);
-	}
-	else
-	{
-		if (!m_DontCreateShaderFilesOnDisk)
+		m_FragmentShaderCode.m_FilePathName = "shaders/" + fragment_name + ".frag";
+		auto frag_path = FileHelper::Instance()->GetAppPath() + "/" + m_FragmentShaderCode.m_FilePathName;
+		if (FileHelper::Instance()->IsFileExist(frag_path, true))
+		{
+			m_FragmentShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(frag_path, true);
+		}
+		else
 		{
 			FileHelper::Instance()->SaveStringToFile(m_FragmentShaderCode.m_Code, frag_path);
 		}
@@ -648,16 +648,17 @@ bool ShaderPass::CompilCompute()
 	std::string compute_name;
 	m_ComputeShaderCode.m_Code = GetComputeShaderCode(compute_name);
 	assert(!compute_name.empty());
-	m_ComputeShaderCode.m_FilePathName = "shaders/" + compute_name + ".comp";
-	auto comp_path = FileHelper::Instance()->GetAppPath() + "/" + m_ComputeShaderCode.m_FilePathName;
-	if (FileHelper::Instance()->IsFileExist(comp_path, true))
+	if (!m_DontUseShaderFilesOnDisk)
 	{
-		m_ComputeShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(comp_path, true);
-	}
-	else
-	{
-		if (!m_DontCreateShaderFilesOnDisk)
+		m_ComputeShaderCode.m_FilePathName = "shaders/" + compute_name + ".comp";
+		auto comp_path = FileHelper::Instance()->GetAppPath() + "/" + m_ComputeShaderCode.m_FilePathName;
+		if (FileHelper::Instance()->IsFileExist(comp_path, true))
 		{
+			m_ComputeShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(comp_path, true);
+		}
+		else
+		{
+
 			FileHelper::Instance()->SaveStringToFile(m_ComputeShaderCode.m_Code, comp_path);
 		}
 	}

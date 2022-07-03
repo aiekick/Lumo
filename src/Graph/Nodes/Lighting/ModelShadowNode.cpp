@@ -308,3 +308,11 @@ bool ModelShadowNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 
 	return true;
 }
+
+void ModelShadowNode::UpdateShaders(const std::set<std::string>& vFiles)
+{
+	if (m_ModelShadowModulePtr)
+	{
+		return m_ModelShadowModulePtr->UpdateShaders(vFiles);
+	}
+}
