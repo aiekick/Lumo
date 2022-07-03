@@ -31,7 +31,7 @@ std::shared_ptr<SSSMapNode> SSSMapNode::Create(vkApi::VulkanCorePtr vVulkanCoreP
 
 SSSMapNode::SSSMapNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::SSS_MAPPING;
+	m_NodeTypeString = "SSS_MAPPING";
 }
 
 SSSMapNode::~SSSMapNode()
@@ -281,7 +281,7 @@ std::string SSSMapNode::getXml(const std::string& vOffset, const std::string& vU
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

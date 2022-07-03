@@ -46,7 +46,7 @@ limitations under the License.
 #include <Interfaces/LightInputInterface.h>
 #include <Interfaces/LightOutputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 class SSSMapModule_Pass :
 	public ShaderPass,
 	public GuiInterface,

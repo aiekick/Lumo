@@ -47,7 +47,7 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightInputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 
 class ModelShadowModule_Pass;
 class ModelShadowModule :

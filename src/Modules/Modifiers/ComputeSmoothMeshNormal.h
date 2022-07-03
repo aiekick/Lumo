@@ -46,7 +46,7 @@ limitations under the License.
 #include <Utils/Mesh/VertexStruct.h>
 #include <Interfaces/SerializationInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 class ComputeSmoothMeshNormal :
 	public conf::ConfigAbstract,
 	public NodeInterface,

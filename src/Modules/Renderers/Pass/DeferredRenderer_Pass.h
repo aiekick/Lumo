@@ -49,7 +49,7 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 
 class ShadowMapModule;
-namespace vkApi { class VulkanCore; }
+
 class DeferredRenderer_Pass :
 	public QuadShaderPass,
 	public GuiInterface,

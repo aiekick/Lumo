@@ -28,7 +28,7 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 class Texture2DModule :
 	public conf::ConfigAbstract,
 	public GuiInterface,

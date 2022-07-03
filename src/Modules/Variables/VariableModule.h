@@ -32,9 +32,6 @@ limitations under the License.
 #include <Interfaces/NodeInterface.h>
 #include <Interfaces/VariableOutputInterface.h>
 
-#include <vkFramework/vkFramework.h>
-
-namespace vkApi { class VulkanCore; }
 class VariableModule_Pass;
 class VariableModule :
 	public conf::ConfigAbstract,
@@ -44,16 +41,16 @@ class VariableModule :
 	public VariableOutputInterface
 {
 public:
-	static std::shared_ptr<VariableModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<VariableModule> Create(const std::string& vNodeType, BaseNodeWeak vParentNode);
 
 private:
 	SceneVariablePtr m_VariablePtr = nullptr;
 
 public:
-	VariableModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	VariableModule();
 	~VariableModule();
 
-	bool Init();
+	bool Init(const std::string& vNodeType);
 	void Unit();
 
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
@@ -63,5 +60,5 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	bool DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	SceneVariableWeak GetVariable() override;
+	SceneVariableWeak GetVariable(const uint32_t& vVariableIndex) override;
 };

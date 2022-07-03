@@ -17,7 +17,7 @@ limitations under the License.
 #include "VariableNode.h"
 #include <Modules/Variables/VariableModule.h>
 
-std::shared_ptr<VariableNode> VariableNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr, const NodeTypeEnum& vNodeType)
+std::shared_ptr<VariableNode> VariableNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr, const std::string& vNodeType)
 {
 	auto res = std::make_shared<VariableNode>(vNodeType);
 	res->m_This = res;
@@ -28,9 +28,9 @@ std::shared_ptr<VariableNode> VariableNode::Create(vkApi::VulkanCorePtr vVulkanC
 	return res;
 }
 
-VariableNode::VariableNode(const NodeTypeEnum& vNodeType) : BaseNode()
+VariableNode::VariableNode(const std::string& vNodeType) : BaseNode()
 {
-	m_NodeType = vNodeType;
+	m_NodeTypeString = vNodeType;
 }
 
 VariableNode::~VariableNode()
@@ -50,11 +50,8 @@ bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_VariableModulePtr = VariableModule::Create(vVulkanCorePtr, m_This);
-	if (m_VariableModulePtr)
-	{
-		res = true;
-	}
+	m_VariableModulePtr = VariableModule::Create("TYPE_BOOLEAN", m_This);
+	res = (m_VariableModulePtr!=nullptr);
 
 	return res;
 }
@@ -144,7 +141,7 @@ std::string VariableNode::getXml(const std::string& vOffset, const std::string& 
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 
@@ -207,11 +204,11 @@ void VariableNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotW
 	}
 }
 
-SceneVariableWeak VariableNode::GetVariable()
+SceneVariableWeak VariableNode::GetVariable(const uint32_t& vVariableIndex)
 {
 	if (m_VariableModulePtr)
 	{
-		return m_VariableModulePtr->GetVariable();
+		return m_VariableModulePtr->GetVariable(vVariableIndex);
 	}
 
 	return SceneVariableWeak();

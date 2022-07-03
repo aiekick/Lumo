@@ -265,7 +265,11 @@ BaseNodePtr PluginManager::CreatePluginNode(const std::string& vPluginNodeName)
 				auto pluginInstancePtr = plugin.second->Get().getValidShared();
 				if (pluginInstancePtr)
 				{
-					return pluginInstancePtr->CreatePluginNode(vPluginNodeName);
+					auto nodePtr = pluginInstancePtr->CreatePluginNode(vPluginNodeName);
+					if (nodePtr)
+					{
+						return nodePtr;
+					}
 				}
 			}
 		}

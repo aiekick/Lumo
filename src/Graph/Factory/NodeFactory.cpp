@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-http://www.apache.org/licenses/LICENSE-2.0
+http"//www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,11 +21,15 @@ limitations under the License.
 
 #include <Graph/Nodes/Divers/GridNode.h>
 
+#include <Graph/Nodes/Simulation/GrayScottNode.h>
+
 #include <Graph/Nodes/Lighting/LightNode.h>
 #include <Graph/Nodes/Lighting/ShadowMapNode.h>
 #include <Graph/Nodes/Lighting/SSSMapNode.h>
 #include <Graph/Nodes/Lighting/ModelShadowNode.h>
 #include <Graph/Nodes/Lighting/ModelSSSNode.h>
+#include <Graph/Nodes/Lighting/DiffuseNode.h>
+#include <Graph/Nodes/Lighting/SpecularNode.h>
 
 #include <Graph/Nodes/Modifiers/ComputeSmoothMeshNormalNode.h>
 
@@ -43,68 +47,66 @@ limitations under the License.
 #include <Graph/Nodes/Utils/MeshAttributesNode.h>
 #include <Graph/Nodes/Utils/DepthToPosNode.h>
 #include <Graph/Nodes/Utils/PosToDepthNode.h>
+#include <Graph/Nodes/Utils/MathNode.h>
 
 #include <Graph/Nodes/Variables/VariableNode.h>
 
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType)
 {
-	return CreateNode(vNodeGraph, Graph::GetNodeTypeEnumFromString(vNodeType));
-}
-
-BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const NodeTypeEnum& vNodeType)
-{
 	auto graphPtr = vNodeGraph.getValidShared();
 	if (graphPtr)
 	{
-		auto vulkanCore = graphPtr->m_VulkanCorePtr;
-		switch (vNodeType)
+		auto corePtr = graphPtr->m_VulkanCorePtr;
+		if (corePtr)
 		{
-		// assets
-		case NodeTypeEnum::MESH:						return MeshNode::Create(vulkanCore);
-		case NodeTypeEnum::TEXTURE_2D:					return Texture2DNode::Create(vulkanCore);
+			// assets
+			if (vNodeType == "MESH")								return MeshNode::Create(corePtr);
+			else if (vNodeType == "TEXTURE_2D")						return Texture2DNode::Create(corePtr);
 
-		// Divers
-		case NodeTypeEnum::GRID_AXIS:					return GridNode::Create(vulkanCore);
+			// Divers
+			else if (vNodeType == "GRID_AXIS")						return GridNode::Create(corePtr);
 
-		// Lighting
-		case NodeTypeEnum::LIGHT:						return LightNode::Create(vulkanCore);
-		case NodeTypeEnum::SHADOW_MAPPING:				return ShadowMapNode::Create(vulkanCore);
-		case NodeTypeEnum::SSS_MAPPING:					return SSSMapNode::Create(vulkanCore);
-		case NodeTypeEnum::MODEL_SHADOW:				return ModelShadowNode::Create(vulkanCore);
-		case NodeTypeEnum::MODEL_SSS:					return ModelSSSNode::Create(vulkanCore);
+			// Lighting
+			else if (vNodeType == "LIGHT")							return LightNode::Create(corePtr);
+			else if (vNodeType == "SHADOW_MAPPING")					return ShadowMapNode::Create(corePtr);
+			else if (vNodeType == "SSS_MAPPING")					return SSSMapNode::Create(corePtr);
+			else if (vNodeType == "MODEL_SHADOW")					return ModelShadowNode::Create(corePtr);
+			else if (vNodeType == "MODEL_SSS")						return ModelSSSNode::Create(corePtr);
+			else if (vNodeType == "DIFFUSE")						return DiffuseNode::Create(corePtr);
+			else if (vNodeType == "SPECULAR")						return SpecularNode::Create(corePtr);
 
-		// Modifiers
-		case NodeTypeEnum::COMPUTE_SMOOTH_MESH_NORMAL:	return ComputeSmoothMeshNormalNode::Create(vulkanCore);
+			// Modifiers
+			else if (vNodeType == "COMPUTE_SMOOTH_MESH_NORMAL")		return ComputeSmoothMeshNormalNode::Create(corePtr);
 
 			// graph output
-		case NodeTypeEnum::OUTPUT:						return OutputNode::Create(vulkanCore);
+			else if (vNodeType == "OUTPUT")							return OutputNode::Create(corePtr);
 
-		// Post Processing
-		case NodeTypeEnum::SSAO:						return SSAONode::Create(vulkanCore);
-		case NodeTypeEnum::BLUR:						return BlurNode::Create(vulkanCore);
-		case NodeTypeEnum::LAPLACIAN:					return LaplacianNode::Create(vulkanCore);
+			// Post Processing
+			else if (vNodeType == "SSAO")							return SSAONode::Create(corePtr);
+			else if (vNodeType == "BLUR")							return BlurNode::Create(corePtr);
+			else if (vNodeType == "LAPLACIAN")						return LaplacianNode::Create(corePtr);
 
-		// renderers
-		case NodeTypeEnum::CHANNEL_RENDERER:			return ChannelRendererNode::Create(vulkanCore);
-		case NodeTypeEnum::DEFERRED_RENDERER:			return DeferredRendererNode::Create(vulkanCore);
-		case NodeTypeEnum::HEATMAP_RENDERER:			return HeatmapRendererNode::Create(vulkanCore);
-		case NodeTypeEnum::MATCAP_RENDERER:				return MatcapRendererNode::Create(vulkanCore);
+			// renderers
+			else if (vNodeType == "CHANNEL_RENDERER")				return ChannelRendererNode::Create(corePtr);
+			else if (vNodeType == "DEFERRED_RENDERER")				return DeferredRendererNode::Create(corePtr);
+			else if (vNodeType == "HEATMAP_RENDERER")				return HeatmapRendererNode::Create(corePtr);
+			else if (vNodeType == "MATCAP_RENDERER")				return MatcapRendererNode::Create(corePtr);
 
-		// Utils
-		case NodeTypeEnum::DEPTH_TO_POS:				return DepthToPosNode::Create(vulkanCore);
-		case NodeTypeEnum::MESH_ATTRIBUTES:				return MeshAttributesNode::Create(vulkanCore);
-		case NodeTypeEnum::POS_TO_DEPTH:				return PosToDepthNode::Create(vulkanCore);
+			// Simulations
+			else if (vNodeType == "GRAY_SCOTT_SIMULATION")			return GrayScottNode::Create(corePtr);
 
-		// Variables
-		case NodeTypeEnum::TYPE_BOOLEAN:
-		case NodeTypeEnum::TYPE_FLOAT:
-		case NodeTypeEnum::TYPE_INT:
-		case NodeTypeEnum::TYPE_UINT:
-			return VariableNode::Create(vulkanCore, vNodeType);
+			// Utils
+			else if (vNodeType == "DEPTH_TO_POS")					return DepthToPosNode::Create(corePtr);
+			else if (vNodeType == "MESH_ATTRIBUTES")				return MeshAttributesNode::Create(corePtr);
+			else if (vNodeType == "POS_TO_DEPTH")					return PosToDepthNode::Create(corePtr);
+			else if (vNodeType == "MATH")							return MathNode::Create(corePtr);
 
-		default:
-			break;
-		};
+			// Variables
+			else if (vNodeType == "TYPE_BOOLEAN")					return VariableNode::Create(corePtr, vNodeType);
+			else if (vNodeType == "TYPE_FLOAT")						return VariableNode::Create(corePtr, vNodeType);
+			else if (vNodeType == "TYPE_INT")						return VariableNode::Create(corePtr, vNodeType);
+			else if (vNodeType == "TYPE_UINT")						return VariableNode::Create(corePtr, vNodeType);
+		}
 	}
 
 	return nullptr;

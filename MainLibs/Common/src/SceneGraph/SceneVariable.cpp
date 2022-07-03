@@ -15,3 +15,53 @@ limitations under the License.
 */
 
 #include <SceneGraph/SceneVariable.h>
+
+SceneVariablePtr SceneVariable::Create(const std::string& vType)
+{
+	if (vType == "TYBE_BOOLEAN" ||
+		vType == "TYBE_FLOAT" ||
+		vType == "TYBE_INT" ||
+		vType == "TYBE_UINT")
+	{
+		return std::make_shared<SceneVariable>(vType);
+	}
+	
+	return nullptr;
+}
+
+SceneVariable::SceneVariable(const std::string& vType)
+{
+	type = vType;
+
+	if (type == "TYBE_BOOLEAN")
+	{
+		datas.m_Boolean = false;
+	}
+	else if (type == "TYBE_FLOAT")
+	{
+		datas.m_Float = 0.0f;
+	}
+	else if (type == "TYBE_INT")
+	{
+		datas.m_Int32 = 0;
+	}
+	else if (type == "TYBE_UINT")
+	{
+		datas.m_Uint32 = 0U;
+	}
+}
+
+void SceneVariable::SetType(const std::string& vType)
+{
+	type = vType;
+}
+
+std::string SceneVariable::GetType() 
+{ 
+	return type; 
+}
+
+SceneVariable::VariableUnion& SceneVariable::GetDatas()
+{ 
+	return datas; 
+}

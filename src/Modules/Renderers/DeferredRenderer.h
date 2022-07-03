@@ -49,7 +49,7 @@ limitations under the License.
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/SerializationInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 class DeferredRenderer_Pass;
 class DeferredRenderer : 
 	public BaseRenderer,

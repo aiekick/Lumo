@@ -19,15 +19,19 @@ limitations under the License.
 #include <vector>
 #include <ctools/cTools.h>
 #include <SceneGraph/SceneLight.h>
+#include <Interfaces/BufferObjectInterface.h>
 
 class SceneLightGroup;
 typedef std::shared_ptr<SceneLightGroup> SceneLightGroupPtr;
 typedef ct::cWeak<SceneLightGroup> SceneLightGroupWeak;
 
-class SceneLightGroup
+class SceneLightGroup : 
+	public BufferObjectInterface
 {
 public:
 	static SceneLightGroupPtr Create();
+	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding);
+	static VulkanBufferObjectPtr CreateEmptyBuffer(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	SceneLightGroupWeak m_This;
@@ -41,4 +45,9 @@ public:
 	std::vector<SceneLightPtr>::iterator end();
 	void Add(const SceneLightPtr& vLight);
 	SceneLightWeak Get(const size_t& vIndex);
+
+	void UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	void DestroyBufferObject() override;
+
 };

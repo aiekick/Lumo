@@ -23,7 +23,7 @@ limitations under the License.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/vkFramework.h>
 
-namespace vkApi { class VulkanCore; }
+
 class Texture2D
 {
 public:

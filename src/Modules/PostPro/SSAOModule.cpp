@@ -195,12 +195,9 @@ std::string SSAOModule::getXml(const std::string& vOffset, const std::string& vU
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_SSAOModule_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			str += passPtr->getXml(vOffset + "\t", vUserDatas);
-		}
+		str += m_SSAOModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</ssao_module>\n";
@@ -227,12 +224,9 @@ bool SSAOModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_SSAOModule_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			passPtr->setFromXml(vElem, vParent, vUserDatas);
-		}
+		m_SSAOModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

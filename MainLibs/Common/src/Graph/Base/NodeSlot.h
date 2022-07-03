@@ -144,6 +144,7 @@ public:
 	nd::PinId pinID = 0;
 	std::string name;
 	uint32_t descriptorBinding = 0u;
+	uint32_t variableIndex = 0u;
 	std::string help;
 	NodeStamp stamp; // style vec3(vec3,float), pour le linking
 	ImVec4 color = ImVec4(0.8f, 0.8f, 0.0f, 1.0f);

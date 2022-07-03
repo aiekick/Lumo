@@ -815,7 +815,7 @@ void CommonSystem::UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr
 
 	if (m_BufferObjectIsDirty)
 	{
-		vkApi::VulkanRessource::upload(vVulkanCorePtr, *m_BufferObject, &m_UBOCamera, sizeof(UBOCamera));
+		vkApi::VulkanRessource::upload(vVulkanCorePtr, *m_BufferObjectPtr, &m_UBOCamera, sizeof(UBOCamera));
 
 		m_BufferObjectIsDirty = false;
 	}
@@ -827,10 +827,7 @@ bool CommonSystem::CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	vVulkanCorePtr->getDevice().waitIdle();
 
-	m_BufferObject = vkApi::VulkanRessource::createUniformBufferObject(vVulkanCorePtr, sizeof(UBOCamera));
-	m_DescriptorBufferInfo.buffer = m_BufferObject->buffer;
-	m_DescriptorBufferInfo.range = sizeof(UBOCamera);
-	m_DescriptorBufferInfo.offset = 0;
+	m_BufferObjectPtr = vkApi::VulkanRessource::createUniformBufferObject(vVulkanCorePtr, sizeof(UBOCamera));
 	m_BufferObjectIsDirty = true;
 
 	return true;
@@ -840,8 +837,7 @@ void CommonSystem::DestroyBufferObject()
 {
 	ZoneScoped;
 
-	m_BufferObject.reset();
-	m_DescriptorBufferInfo = vk::DescriptorBufferInfo();
+	m_BufferObjectPtr.reset();
 }
 
 std::string CommonSystem::GetBufferObjectStructureHeader(const uint32_t& vBinding)
@@ -863,11 +859,6 @@ layout(std140, binding = %u) uniform UBO_Camera
 	float cam_far;		// the cam far
 };
 )", vBinding);
-}
-
-vk::DescriptorBufferInfo* CommonSystem::GetBufferInfo()
-{
-	return &m_DescriptorBufferInfo;
 }
 
 ///////////////////////////////////////////////////////

@@ -25,7 +25,7 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 
 class ChannelRenderer_Pass :
 	public ShaderPass,

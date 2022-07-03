@@ -75,6 +75,7 @@ class SceneLight : public GizmoInterface
 {
 public:
 	static SceneLightPtr Create();
+	static std::string GetStructureHeader();
 
 private:
 	SceneLightWeak m_This; 

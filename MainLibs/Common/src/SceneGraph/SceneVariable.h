@@ -27,19 +27,28 @@ typedef ct::cWeak<SceneVariable> SceneVariableWeak;
 
 class SceneVariable
 {
-private:
+public:
+	static SceneVariablePtr Create(const std::string& vType);
+
+public:
 	union VariableUnion
 	{
 		bool m_Boolean;
 		uint32_t m_Uint32;
 		int32_t m_Int32;
 		float m_Float;
-	} datas;
-	NodeTypeEnum type = NodeTypeEnum::TYPE_BOOLEAN;
+	};
+
+private:
+	VariableUnion datas;
+	std::string type;
 
 public:
-	NodeTypeEnum GetType() { return type; }
-	VariableUnion& GetDatas() { return datas; }
+	SceneVariable() = default;
+	SceneVariable(const std::string& vType);
+	void SetType(const std::string& vType);
+	std::string GetType();
+	VariableUnion& GetDatas();
 };
 
 	

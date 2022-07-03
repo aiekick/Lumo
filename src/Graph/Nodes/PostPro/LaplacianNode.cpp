@@ -30,7 +30,7 @@ std::shared_ptr<LaplacianNode> LaplacianNode::Create(vkApi::VulkanCorePtr vVulka
 
 LaplacianNode::LaplacianNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::LAPLACIAN;
+	m_NodeTypeString = "LAPLACIAN";
 }
 
 LaplacianNode::~LaplacianNode()
@@ -226,7 +226,7 @@ std::string LaplacianNode::getXml(const std::string& vOffset, const std::string&
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

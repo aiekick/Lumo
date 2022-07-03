@@ -44,7 +44,7 @@ limitations under the License.
 #include <set>
 #include <string>
 
-namespace vkApi { class VulkanCore; }
+
 class ModelShadowModule_Pass :
 	public QuadShaderPass,
 	public GuiInterface,

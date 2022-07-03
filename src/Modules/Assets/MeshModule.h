@@ -27,7 +27,7 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Utils/Mesh/VertexStruct.h>
 
-namespace vkApi { class VulkanCore; }
+
 class MeshModule : 
 	public conf::ConfigAbstract, 
 	public NodeInterface,

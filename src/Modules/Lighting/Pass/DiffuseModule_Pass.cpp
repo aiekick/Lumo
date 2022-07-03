@@ -29,6 +29,7 @@ limitations under the License.
 #include <utils/Mesh/VertexStruct.h>
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
+#include <Modules/Lighting/LightGroupModule.h>
 
 using namespace vkApi;
 
@@ -51,29 +52,6 @@ DiffuseModule_Pass::~DiffuseModule_Pass()
 
 bool DiffuseModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	if (ImGui::CollapsingHeader("Diffuse", ImGuiTreeNodeFlags_DefaultOpen))
-	{
-		bool change = false;
-
-		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_UBOComp.u_blur_radius, 1U, 10U, 4U);
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Offset", &m_UBOComp.u_blur_offset, 1U, 10U, 1U);
-
-			if (change)
-			{
-				m_UBOComp.u_blur_radius = ct::maxi(m_UBOComp.u_blur_radius, 1U);
-				m_UBOComp.u_blur_offset = ct::maxi(m_UBOComp.u_blur_offset, 1U);
-				NeedNewUBOUpload();
-			}
-		}
-
-		DrawInputTexture(m_VulkanCorePtr, "Input", 0U, m_OutputRatio);
-		//DrawInputTexture(m_VulkanCorePtr, "Output Diffuse", 0U, m_OutputRatio);
-
-		return change;
-	}
-
 	return false;
 }
 
@@ -126,6 +104,11 @@ vk::DescriptorImageInfo* DiffuseModule_Pass::GetDescriptorImageInfo(const uint32
 	return nullptr;
 }
 
+void DiffuseModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{
+	m_SceneLightGroup = vSceneLightGroup;
+}
+
 void DiffuseModule_Pass::SwapOutputDescriptors()
 {
 	writeDescriptorSets[0].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // output
@@ -145,12 +128,6 @@ bool DiffuseModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	auto size_in_bytes = sizeof(UBOComp);
-	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
-	m_DescriptorBufferInfo_Comp.buffer = m_UBO_Comp->buffer;
-	m_DescriptorBufferInfo_Comp.range = size_in_bytes;
-	m_DescriptorBufferInfo_Comp.offset = 0;
-
 	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 	for (auto& a : m_ImageInfos)
 	{
@@ -162,19 +139,24 @@ bool DiffuseModule_Pass::CreateUBO()
 	return true;
 }
 
-void DiffuseModule_Pass::UploadUBO()
-{
-	ZoneScoped;
-
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
-}
-
 void DiffuseModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp.reset();
 	m_EmptyTexturePtr.reset();
+}
+
+bool DiffuseModule_Pass::CreateSBO()
+{
+	m_EmptyLightSBOPtr = SceneLightGroup::CreateEmptyBuffer(m_VulkanCorePtr);
+	return (m_EmptyLightSBOPtr != nullptr);
+}
+
+void DiffuseModule_Pass::DestroySBO()
+{
+	ZoneScoped;
+
+	m_EmptyLightSBOPtr.reset();
 }
 
 bool DiffuseModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -183,7 +165,7 @@ bool DiffuseModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 
 	m_LayoutBindings.clear();
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
@@ -196,9 +178,25 @@ bool DiffuseModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 
 	assert(m_ComputeBufferPtr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // ssao
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, 
+		m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
+
+	auto lightGrouPtr = m_SceneLightGroup.getValidShared();
+	if (lightGrouPtr)
+	{
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+			nullptr, lightGrouPtr->GetBufferInfo());
+	}
+	else
+	{
+		// empty buffer
+		assert(m_EmptyLightSBOPtr);
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer,
+			nullptr, &m_EmptyLightSBOPtr->bufferInfo);
+	}
+
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, 
+		&m_ImageInfos[0], nullptr); // ssao
 
 	return true;
 }
@@ -214,41 +212,17 @@ std::string DiffuseModule_Pass::GetComputeShaderCode(std::string& vOutShaderName
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
-
-layout(std140, binding = 1) uniform UBO_Comp
-{
-	uint u_blur_radius; // default is 4
-	float u_blur_offset; // default is 1.0
-};
-
+)" 
++
+SceneLightGroup::GetBufferObjectStructureHeader(1U)
++ 
+u8R"(
 layout(binding = 2) uniform sampler2D input_map_sampler;
 
 void main()
 {
-	vec4 res = vec4(0.0);
-	
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
-	vec4 tex = texelFetch(input_map_sampler, coords, 0);
-	if (dot(tex, tex) > 0.0)
-	{
-		const uint blur_radius = u_blur_radius;
-		const uint blur_radius_radius = u_blur_radius * u_blur_radius;
-
-		const float blur_radius_f = float(blur_radius);
-
-		vec2 texSize = textureSize(input_map_sampler, 0);
-
-		for (uint i = 0 ; i < blur_radius_radius; ++i)
-		{
-			int x = int(floor(i * u_blur_offset / blur_radius_f) / blur_radius_f);
-			int y = int((mod(float(i * u_blur_offset), blur_radius_f)) / blur_radius_f);
-			res += texelFetch(input_map_sampler, coords + ivec2(x,y), 0);
-		}
-
-		res /= float(blur_radius_radius);
-	}
-
-	imageStore(outColor, coords, res); 
+	imageStore(outColor, coords, vec4(0.0)); 
 }
 )";
 }
@@ -261,9 +235,8 @@ std::string DiffuseModule_Pass::getXml(const std::string& vOffset, const std::st
 {
 	std::string str;
 
-	str += vOffset + "<blur_radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</blur_radius>\n";
-	str += vOffset + "<blur_offset>" + ct::toStr(m_UBOComp.u_blur_offset) + "</blur_offset>\n";
-
+	//str += vOffset + "<blur_radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</blur_radius>\n";
+	
 	return str;
 }
 
@@ -280,13 +253,10 @@ bool DiffuseModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "blur_module")
+	if (strParentName == "diffuse_module")
 	{
-		if (strName == "blur_radius")
-			m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
-		else if (strName == "blur_offset")
-			m_UBOComp.u_blur_offset = ct::uvariant(strValue).GetU();
-		else if (strName == "blur_smooth_inf")
+		//if (strName == "blur_radius")
+		//	m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
 
 		NeedNewUBOUpload();
 	}

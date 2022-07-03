@@ -31,7 +31,7 @@ std::shared_ptr<ChannelRendererNode> ChannelRendererNode::Create(vkApi::VulkanCo
 
 ChannelRendererNode::ChannelRendererNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::CHANNEL_RENDERER;
+	m_NodeTypeString = "CHANNEL_RENDERER";
 }
 
 ChannelRendererNode::~ChannelRendererNode()
@@ -220,7 +220,7 @@ std::string ChannelRendererNode::getXml(const std::string& vOffset, const std::s
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

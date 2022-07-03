@@ -233,7 +233,6 @@ public: // ident
 	
 public:
 	BaseNodeStateStruct m_BaseNodeState;
-	NodeTypeEnum m_NodeType = NodeTypeEnum::NONE;
 	std::string m_NodeTypeString = "NONE";
 
 public: // used by layout

@@ -34,11 +34,11 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<VariableModule> VariableModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<VariableModule> VariableModule::Create(const std::string& vNodeType, BaseNodeWeak vParentNode)
 {
-	auto res = std::make_shared<VariableModule>(vVulkanCorePtr);
+	auto res = std::make_shared<VariableModule>();
 	res->SetParentNode(vParentNode);
-	if (!res->Init())
+	if (!res->Init(vNodeType))
 	{
 		res.reset();
 	}
@@ -49,7 +49,7 @@ std::shared_ptr<VariableModule> VariableModule::Create(vkApi::VulkanCorePtr vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VariableModule::VariableModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+VariableModule::VariableModule()
 {
 
 }
@@ -63,11 +63,11 @@ VariableModule::~VariableModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool VariableModule::Init()
+bool VariableModule::Init(const std::string& vNodeType)
 {
 	ZoneScoped;
 
-	m_VariablePtr = std::make_shared<SceneVariable>();
+	m_VariablePtr = std::make_shared<SceneVariable>(vNodeType);
 
 	return true;
 }
@@ -129,9 +129,9 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 	{
 		if (m_VariablePtr)
 		{
-			if (m_VariablePtr->GetType() == NodeTypeEnum::TYPE_BOOLEAN)
+			if (m_VariablePtr->GetType() == "TYPE_BOOLEAN")
 			{
-				if (ImGui::CheckBoxBoolDefault("Variable##bool", &m_VariablePtr->GetDatas().m_Boolean, false))
+				if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Boolean, false))
 				{
 					auto parentNodePtr = GetParentNode().getValidShared();
 					if (parentNodePtr)
@@ -140,13 +140,46 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 					}
 				}
 			}
+			else if (m_VariablePtr->GetType() == "TYPE_FLOAT")
+			{
+				/*if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Float, false))
+				{
+					auto parentNodePtr = GetParentNode().getValidShared();
+					if (parentNodePtr)
+					{
+						parentNodePtr->Notify(NotifyEvent::VariableUpdateDone);
+					}
+				}*/
+			}
+			else if (m_VariablePtr->GetType() == "TYPE_INT")
+			{
+				/*if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Boolean, false))
+				{
+					auto parentNodePtr = GetParentNode().getValidShared();
+					if (parentNodePtr)
+					{
+						parentNodePtr->Notify(NotifyEvent::VariableUpdateDone);
+					}
+				}*/
+			}
+			else if (m_VariablePtr->GetType() == "TYPE_UINT")
+			{
+				/*if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Boolean, false))
+				{
+					auto parentNodePtr = GetParentNode().getValidShared();
+					if (parentNodePtr)
+					{
+						parentNodePtr->Notify(NotifyEvent::VariableUpdateDone);
+					}
+				}*/
+			}
 		}
 	}
 
 	return false;
 }
 
-SceneVariableWeak VariableModule::GetVariable()
+SceneVariableWeak VariableModule::GetVariable(const uint32_t& vVariableIndex)
 {
 	return m_VariablePtr;
 }
@@ -158,6 +191,30 @@ SceneVariableWeak VariableModule::GetVariable()
 std::string VariableModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
+
+	str += vOffset + "<variable_module>\n";
+
+	if (m_VariablePtr)
+	{
+		if (m_VariablePtr->GetType() == "TYPE_BOOLEAN")
+		{
+			str += vOffset + ct::toStr("\t<bool>%s</bool>\n", m_VariablePtr->GetDatas().m_Boolean ? "true" :"false");
+		}
+		else if (m_VariablePtr->GetType() == "TYPE_FLOAT")
+		{
+			str += vOffset + ct::toStr("\t<float>%.5f</float>\n", m_VariablePtr->GetDatas().m_Float);
+		}
+		else if (m_VariablePtr->GetType() == "TYPE_INT")
+		{
+			str += vOffset + ct::toStr("\t<int>%i</int>\n", m_VariablePtr->GetDatas().m_Int32);
+		}
+		else if (m_VariablePtr->GetType() == "TYPE_UINT")
+		{
+			str += vOffset + ct::toStr("\t<uint>%u</uint>\n", m_VariablePtr->GetDatas().m_Uint32);
+		}
+	}
+
+	str += vOffset + "</variable_module>\n";
 
 	return str;
 }
@@ -174,6 +231,30 @@ bool VariableModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 		strValue = vElem->GetText();
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
+
+	if (strParentName == "variable_module")
+	{
+		if (strName == "bool")
+		{
+			m_VariablePtr->SetType("TYPE_BOOLEAN");
+			m_VariablePtr->GetDatas().m_Boolean = ct::ivariant(strValue).GetB();
+		}
+		else if (strName == "float")
+		{
+			m_VariablePtr->SetType("TYPE_FLOAT");
+			m_VariablePtr->GetDatas().m_Float = ct::fvariant(strValue).GetF();
+		}
+		else if (strName == "int")
+		{
+			m_VariablePtr->SetType("TYPE_INT");
+			m_VariablePtr->GetDatas().m_Int32 = ct::ivariant(strValue).GetI();
+		}
+		else if (strName == "uint")
+		{
+			m_VariablePtr->SetType("TYPE_UINT");
+			m_VariablePtr->GetDatas().m_Uint32 = ct::uvariant(strValue).GetU();
+		}
+	}
 
 	return true;
 }

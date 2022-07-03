@@ -30,7 +30,7 @@ std::shared_ptr<LightNode> LightNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr
 
 LightNode::LightNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::LIGHT;
+	m_NodeTypeString = "LIGHT";
 }
 
 LightNode::~LightNode()
@@ -123,7 +123,7 @@ std::string LightNode::getXml(const std::string& vOffset, const std::string& vUs
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

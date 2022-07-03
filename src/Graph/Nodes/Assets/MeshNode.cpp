@@ -30,7 +30,7 @@ std::shared_ptr<MeshNode> MeshNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 MeshNode::MeshNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::MESH;
+	m_NodeTypeString = "MESH";
 }
 
 MeshNode::~MeshNode()
@@ -131,7 +131,7 @@ std::string MeshNode::getXml(const std::string& vOffset, const std::string& vUse
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

@@ -124,7 +124,7 @@ bool BaseNode::LoadNodeFromXML_Callback(const BaseNodeWeak& vBaseNodeWeak, tinyx
 
 BaseNode::BaseNode()
 {
-	m_NodeType = NodeTypeEnum::NONE;
+	m_NodeTypeString = "NONE";
 	nodeID = GetNextNodeId();
 }
 
@@ -787,7 +787,7 @@ bool BaseNode::DrawDebugInfos(BaseNodeStateStruct *vCanvasState)
 	}
 
 	ImGui::Text("Name : %s", name.c_str());
-	ImGui::Text("Type : %s", Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str());
+	ImGui::Text("Type : %s", m_NodeTypeString.c_str());
 	ImGui::Text("Func Code : %s", "");
 
 	ImGui::Separator();
@@ -2435,7 +2435,7 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

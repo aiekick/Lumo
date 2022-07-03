@@ -42,23 +42,19 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/LightInputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 
 class DiffuseModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
+	public LightInputInterface,
 	public TextureInputInterface<1U>,
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
-
-	struct UBOComp {
-		alignas(4) uint32_t u_blur_radius = 4;
-		alignas(4) uint32_t u_blur_offset = 1;
-	} m_UBOComp;
+	VulkanBufferObjectPtr m_EmptyLightSBOPtr = nullptr;
 
 public:
 	DiffuseModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -69,6 +65,7 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	void SwapOutputDescriptors() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
@@ -76,8 +73,10 @@ public:
 
 protected:
 	bool CreateUBO() override;
-	void UploadUBO() override;
 	void DestroyUBO() override;
+
+	bool CreateSBO() override;
+	void DestroySBO() override;
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;

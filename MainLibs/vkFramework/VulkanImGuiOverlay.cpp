@@ -88,7 +88,7 @@ namespace vkApi
 			ImGui::CreateContext();
 			ImGuiIO& io = ImGui::GetIO(); (void)io;
 			io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
-			io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable ViewPort
+			//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable ViewPort
 			io.FontAllowUserScaling = true; // activate zoom feature with ctrl + mousewheel
 			io.ConfigWindowsMoveFromTitleBarOnly = true; // can move windows only with titlebar
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS

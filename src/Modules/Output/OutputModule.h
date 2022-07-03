@@ -33,7 +33,7 @@ class OutputModule;
 typedef std::shared_ptr<OutputModule> OutputModulePtr;
 typedef ct::cWeak<OutputModule> OutputModuleWeak;
 
-namespace vkApi { class VulkanCore; }
+
 class OutputModule :
 	public conf::ConfigAbstract,
 	public GuiInterface,

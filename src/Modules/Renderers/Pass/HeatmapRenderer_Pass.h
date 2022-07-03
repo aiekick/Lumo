@@ -30,7 +30,7 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/MergedInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 class HeatmapRenderer_Pass :
 	public ShaderPass,
 	public GuiInterface,

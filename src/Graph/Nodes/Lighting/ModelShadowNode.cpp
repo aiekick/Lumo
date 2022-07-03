@@ -31,7 +31,7 @@ std::shared_ptr<ModelShadowNode> ModelShadowNode::Create(vkApi::VulkanCorePtr vV
 
 ModelShadowNode::ModelShadowNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::MODEL_SHADOW;
+	m_NodeTypeString = "MODEL_SHADOW";
 }
 
 ModelShadowNode::~ModelShadowNode()
@@ -261,7 +261,7 @@ std::string ModelShadowNode::getXml(const std::string& vOffset, const std::strin
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

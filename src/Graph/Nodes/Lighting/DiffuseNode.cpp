@@ -16,6 +16,7 @@ limitations under the License.
 
 #include "DiffuseNode.h"
 #include <Modules/Lighting/DiffuseModule.h>
+#include <Interfaces/LightOutputInterface.h>
 
 std::shared_ptr<DiffuseNode> DiffuseNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -30,7 +31,7 @@ std::shared_ptr<DiffuseNode> DiffuseNode::Create(vkApi::VulkanCorePtr vVulkanCor
 
 DiffuseNode::DiffuseNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::BLUR;
+	m_NodeTypeString = "BLUR";
 }
 
 DiffuseNode::~DiffuseNode()
@@ -45,7 +46,12 @@ bool DiffuseNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	NodeSlot slot;
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
-	slot.name = "Input";
+	slot.name = "Position";
+	slot.descriptorBinding = 0U;
+	AddInput(slot, true, false);
+
+	slot.slotType = NodeSlotTypeEnum::LIGHT;
+	slot.name = "Light";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
@@ -142,6 +148,14 @@ void DiffuseNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEn
 					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
 				}
 			}
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			{
+				auto otherTextureNodePtr = dynamic_pointer_cast<LightOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherTextureNodePtr)
+				{
+					SetLightGroup(otherTextureNodePtr->GetLightGroup());
+				}
+			}
 		}
 	}
 }
@@ -158,6 +172,10 @@ void DiffuseNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak 
 			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
 				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+			}
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			{
+				SetLightGroup();
 			}
 		}
 	}
@@ -181,6 +199,14 @@ vk::DescriptorImageInfo* DiffuseNode::GetDescriptorImageInfo(const uint32_t& vBi
 	return nullptr;
 }
 
+void DiffuseNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{
+	if (m_DiffuseModulePtr)
+	{
+		return m_DiffuseModulePtr->SetLightGroup(vSceneLightGroup);
+	}
+}
+
 void DiffuseNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
@@ -199,6 +225,26 @@ void DiffuseNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiter
 					if (receiverSlotPtr)
 					{
 						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding));
+					}
+				}
+			}
+		}
+		break;
+	}
+	case NotifyEvent::LightUpdateDone:
+	{
+		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		if (emiterSlotPtr)
+		{
+			if (emiterSlotPtr->IsAnOutput())
+			{
+				auto otherNodePtr = dynamic_pointer_cast<LightOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				if (otherNodePtr)
+				{
+					auto receiverSlotPtr = vReceiverSlot.getValidShared();
+					if (receiverSlotPtr)
+					{
+						SetLightGroup(otherNodePtr->GetLightGroup());
 					}
 				}
 			}
@@ -226,7 +272,7 @@ std::string DiffuseNode::getXml(const std::string& vOffset, const std::string& v
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

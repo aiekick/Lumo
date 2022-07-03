@@ -224,7 +224,7 @@ std::string ModelShadowModule::getXml(const std::string& vOffset, const std::str
 
 	if (m_ModelShadowModule_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_ModelShadowModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</model_shadow_module>\n";
@@ -253,7 +253,7 @@ bool ModelShadowModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 
 	if (m_ModelShadowModule_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_ModelShadowModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

@@ -218,16 +218,16 @@ std::string ModelSSSModule::getXml(const std::string& vOffset, const std::string
 {
 	std::string str;
 
-	str += vOffset + "<model_shadow_module>\n";
+	str += vOffset + "<model_sss_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
 	if (m_ModelSSSModule_Pass_Ptr)
 	{
-		return m_ModelSSSModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_ModelSSSModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</model_shadow_module>\n";
+	str += vOffset + "</model_sss_module>\n";
 
 	return str;
 }
@@ -245,7 +245,7 @@ bool ModelSSSModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "model_shadow_module")
+	if (strParentName == "model_sss_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
@@ -253,7 +253,7 @@ bool ModelSSSModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 
 	if (m_ModelSSSModule_Pass_Ptr)
 	{
-		return m_ModelSSSModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_ModelSSSModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

@@ -27,7 +27,7 @@ limitations under the License.
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 class GridModule_Pass :
 	public VertexShaderPass,
 	public GuiInterface,

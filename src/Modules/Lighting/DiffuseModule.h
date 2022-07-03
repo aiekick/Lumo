@@ -44,16 +44,18 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
+#include <Interfaces/LightInputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 
 class DiffuseModule_Pass;
 class DiffuseModule :
 	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
-	public TextureInputInterface<0U>,
+	public TextureInputInterface<1U>,
 	public TextureOutputInterface,
+	public LightInputInterface,
 	public ResizerInterface
 {
 public:
@@ -61,7 +63,6 @@ public:
 
 private:
 	ct::cWeak<DiffuseModule> m_This;
-
 	std::shared_ptr<DiffuseModule_Pass> m_DiffuseModule_Pass_Ptr = nullptr;
 
 public:
@@ -77,6 +78,7 @@ public:
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

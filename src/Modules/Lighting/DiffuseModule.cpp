@@ -179,6 +179,14 @@ vk::DescriptorImageInfo* DiffuseModule::GetDescriptorImageInfo(const uint32_t& v
 	return nullptr;
 }
 
+void DiffuseModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{
+	if (m_DiffuseModule_Pass_Ptr)
+	{
+		return m_DiffuseModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,7 +195,7 @@ std::string DiffuseModule::getXml(const std::string& vOffset, const std::string&
 {
 	std::string str;
 
-	str += vOffset + "<blur_module>\n";
+	str += vOffset + "<diffuse_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
@@ -199,7 +207,7 @@ std::string DiffuseModule::getXml(const std::string& vOffset, const std::string&
 		}
 	}
 
-	str += vOffset + "</blur_module>\n";
+	str += vOffset + "</diffuse_module>\n";
 
 	return str;
 }
@@ -217,7 +225,7 @@ bool DiffuseModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "blur_module")
+	if (strParentName == "diffuse_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();

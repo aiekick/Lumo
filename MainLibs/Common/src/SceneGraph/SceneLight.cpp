@@ -25,6 +25,23 @@ SceneLightPtr SceneLight::Create()
 	return res;
 }
 
+std::string SceneLight::GetStructureHeader()
+{
+	return u8R"(
+struct LightDatas
+{
+	mat4 lightGizmo;
+	mat4 lightView;
+	vec4 lightColor;
+	float lightIntensity;
+	int lightType;
+	float orthoSideSize;
+	float orthoRearSize;
+	float orthoDeepSize;
+	float perspectiveAngle;
+};)";
+}
+
 float* SceneLight::GetGizmoFloatPtr()
 {
 	return glm::value_ptr(lightDatas.lightGizmo);
@@ -56,8 +73,6 @@ bool SceneLight::NeedUpdateCamera()
 					-lightDatas.orthoRearSize, lightDatas.orthoDeepSize);
 				proj[1][1] *= -1;
 				glm::mat4 view = glm::lookAt(glm::vec3(lightDatas.lightGizmo[3]), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-				/*glm::mat4 view = glm::mat4(1.0f);
-				memcpy(glm::value_ptr(view), glm::value_ptr(m_LightGizmo), 16 * sizeof(float));*/
 				lightDatas.lightView = proj * view;
 				break;
 			}
@@ -69,8 +84,6 @@ bool SceneLight::NeedUpdateCamera()
 				glm::mat4 proj = glm::perspective(glm::radians(lightDatas.perspectiveAngle), persp_ratio, persp_near, persp_far);
 				proj[1][1] *= -1;
 				glm::mat4 view = glm::lookAt(glm::vec3(lightDatas.lightGizmo[3]), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-				/*glm::mat4 view = glm::mat4(1.0f);
-				memcpy(glm::value_ptr(view), glm::value_ptr(m_LightGizmo), 16 * sizeof(float));*/
 				lightDatas.lightView = proj * view;
 				break;
 			}

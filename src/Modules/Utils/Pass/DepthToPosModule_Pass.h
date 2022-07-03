@@ -49,7 +49,7 @@ limitations under the License.
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 class DepthToPosModule_Pass :
 	public QuadShaderPass,
 	public GuiInterface,

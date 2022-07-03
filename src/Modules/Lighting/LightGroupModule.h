@@ -35,17 +35,15 @@ class LightGroupModule;
 typedef std::shared_ptr<LightGroupModule> LightGroupModulePtr;
 typedef ct::cWeak<LightGroupModule> LightGroupModuleWeak;
 
-namespace vkApi { class VulkanCore; }
+
 class LightGroupModule :
 	public conf::ConfigAbstract,
 	public NodeInterface,
 	public GuiInterface,
-	public LightOutputInterface,
-	public BufferObjectInterface
+	public LightOutputInterface
 {
 public:
 	static LightGroupModulePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
-	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding);
 
 private:
 	LightGroupModuleWeak m_This;
@@ -67,15 +65,6 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 
 	SceneLightGroupWeak GetLightGroup();
-
-	///////////////////////////////////////////////////////
-	//// BUFFER OBJECTS ///////////////////////////////////
-	///////////////////////////////////////////////////////
-
-	void UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr) override;
-	bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) override;
-	void DestroyBufferObject() override;
-	vk::DescriptorBufferInfo* GetBufferInfo() override;
 
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

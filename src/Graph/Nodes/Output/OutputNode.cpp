@@ -31,7 +31,7 @@ std::shared_ptr<OutputNode> OutputNode::Create(vkApi::VulkanCorePtr vVulkanCoreP
 
 OutputNode::OutputNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::OUTPUT;
+	m_NodeTypeString = "OUTPUT";
 }
 
 OutputNode::~OutputNode()
@@ -242,7 +242,7 @@ std::string OutputNode::getXml(const std::string& vOffset, const std::string& vU
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

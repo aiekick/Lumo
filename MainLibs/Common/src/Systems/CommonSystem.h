@@ -225,7 +225,6 @@ public:
 	void UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void DestroyBufferObject() override;
-	vk::DescriptorBufferInfo* GetBufferInfo() override;
 
 private:
 	bool ComputeCameras(const ct::uvec2& vScreenSize);

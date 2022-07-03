@@ -33,7 +33,7 @@ limitations under the License.
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/MergedInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 
 class ChannelRenderer_Pass;
 class ChannelRenderer :

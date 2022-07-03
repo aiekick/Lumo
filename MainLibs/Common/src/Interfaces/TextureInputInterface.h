@@ -26,8 +26,6 @@ limitations under the License.
 #include <vkFramework/ImGuiTexture.h>
 #include <vkFramework/vkFramework.h>
 
-namespace vkApi { class VulkanCore; }
-
 class TextureInputFunctions
 {
 protected:

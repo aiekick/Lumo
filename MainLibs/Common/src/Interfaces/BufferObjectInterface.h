@@ -21,6 +21,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/VulkanRessource.h>
+#include <vkFramework/vkFramework.h>
 
 #ifdef BUILD_SHARED
 #ifdef _WIN32
@@ -31,12 +32,10 @@ limitations under the License.
 #define COMMON_API
 #endif // COMMON_API
 
-namespace vkApi { class VulkanCore; }
 class COMMON_API BufferObjectInterface
 {
-public:
-	VulkanBufferObjectPtr m_BufferObject = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo;
+protected:
+	VulkanBufferObjectPtr m_BufferObjectPtr = nullptr;
 	bool m_BufferObjectIsDirty = false;
 
 public:
@@ -44,5 +43,13 @@ public:
 	virtual bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) = 0;
 	virtual void DestroyBufferObject() = 0;
 	//virtual std::string GetBufferObjectStructureHeader(const uint32_t& vBinding) = 0;
-	virtual vk::DescriptorBufferInfo* GetBufferInfo() = 0;
+	vk::DescriptorBufferInfo* GetBufferInfo()
+	{
+		if (m_BufferObjectPtr)
+		{
+			return &m_BufferObjectPtr->bufferInfo;
+		}
+
+		return nullptr;
+	}
 };

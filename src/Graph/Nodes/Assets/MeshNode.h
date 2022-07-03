@@ -20,7 +20,7 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 class MeshModule;
 class MeshNode : 
 	public BaseNode,

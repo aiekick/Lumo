@@ -30,7 +30,7 @@ std::shared_ptr<MathNode> MathNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 MathNode::MathNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::BLUR;
+	m_NodeTypeString = "BLUR";
 }
 
 MathNode::~MathNode()
@@ -226,7 +226,7 @@ std::string MathNode::getXml(const std::string& vOffset, const std::string& vUse
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

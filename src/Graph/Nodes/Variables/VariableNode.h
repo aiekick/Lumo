@@ -24,13 +24,13 @@ class VariableNode :
 	public VariableOutputInterface
 {
 public:
-	static std::shared_ptr<VariableNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr, const NodeTypeEnum& vNodeType);
+	static std::shared_ptr<VariableNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr, const std::string& vNodeType);
 
 private:
 	std::shared_ptr<VariableModule> m_VariableModulePtr = nullptr;
 
 public:
-	VariableNode(const NodeTypeEnum& vNodeType);
+	VariableNode(const std::string& vNodeType);
 	~VariableNode() override;
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
@@ -41,5 +41,5 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 	void DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot) override;
-	SceneVariableWeak GetVariable() override;
+	SceneVariableWeak GetVariable(const uint32_t& vVariableIndex) override;
 };

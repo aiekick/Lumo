@@ -45,7 +45,7 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 
 class MathModule_Pass;
 class MathModule :

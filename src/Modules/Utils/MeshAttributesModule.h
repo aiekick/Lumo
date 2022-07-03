@@ -39,7 +39,7 @@ limitations under the License.
 #include <Interfaces/MergedInterface.h>
 #include <Interfaces/ResizerInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 
 class MeshAttributesModule_Pass;
 class MeshAttributesModule :

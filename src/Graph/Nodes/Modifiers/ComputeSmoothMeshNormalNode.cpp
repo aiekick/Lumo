@@ -30,7 +30,7 @@ std::shared_ptr<ComputeSmoothMeshNormalNode> ComputeSmoothMeshNormalNode::Create
 
 ComputeSmoothMeshNormalNode::ComputeSmoothMeshNormalNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::COMPUTE_SMOOTH_MESH_NORMAL;
+	m_NodeTypeString = "COMPUTE_SMOOTH_MESH_NORMAL";
 }
 
 ComputeSmoothMeshNormalNode::~ComputeSmoothMeshNormalNode()
@@ -213,7 +213,7 @@ std::string ComputeSmoothMeshNormalNode::getXml(const std::string& vOffset, cons
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

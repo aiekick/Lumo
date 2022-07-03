@@ -178,7 +178,7 @@ bool ModelSSSModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "shadow_map_module")
+	if (strParentName == "model_sss_module")
 	{
 		if (strName == "bias")
 			m_UBOFrag.u_bias = ct::fvariant(strValue).GetF();

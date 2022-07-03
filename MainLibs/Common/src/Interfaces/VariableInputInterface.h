@@ -18,13 +18,14 @@ limitations under the License.
 
 #include <SceneGraph/SceneVariable.h>
 
+template<size_t size_of_array>
 class VariableInputInterface
 {
 protected:
 	bool m_NeedVariableUpdate = false;
-	SceneVariableWeak m_SceneVariable;
+	std::array<SceneVariableWeak, size_of_array> m_SceneVariables;
 
 public:
 	// set a variable
-	virtual void SetVariable(SceneVariableWeak vSceneVariable = SceneVariableWeak()) = 0;
+	virtual void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) = 0;
 };

@@ -43,7 +43,7 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 
 class SSAOModule_Pass : 
 	public QuadShaderPass,

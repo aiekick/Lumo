@@ -34,7 +34,7 @@ limitations under the License.
 #include <Interfaces/MergedInterface.h>
 #include <vkFramework/ImGuiTexture.h>
 
-namespace vkApi { class VulkanCore; }
+
 class MatcapRenderer_Pass :
 	public ShaderPass,
 	public GuiInterface,

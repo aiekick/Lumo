@@ -30,7 +30,7 @@ std::shared_ptr<Texture2DNode> Texture2DNode::Create(vkApi::VulkanCorePtr vVulka
 
 Texture2DNode::Texture2DNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::TEXTURE_2D;
+	m_NodeTypeString = "TEXTURE_2D";
 }
 
 Texture2DNode::~Texture2DNode()
@@ -132,7 +132,7 @@ std::string Texture2DNode::getXml(const std::string& vOffset, const std::string&
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

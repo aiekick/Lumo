@@ -22,5 +22,5 @@ class VariableOutputInterface
 {
 public:
 	// return a Variable
-	virtual SceneVariableWeak GetVariable() = 0;
+	virtual SceneVariableWeak GetVariable(const uint32_t& vVariableIndex) = 0;
 };

@@ -31,7 +31,7 @@ std::shared_ptr<HeatmapRendererNode> HeatmapRendererNode::Create(vkApi::VulkanCo
 
 HeatmapRendererNode::HeatmapRendererNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::HEATMAP_RENDERER;
+	m_NodeTypeString = "HEATMAP_RENDERER";
 }
 
 HeatmapRendererNode::~HeatmapRendererNode()
@@ -220,7 +220,7 @@ std::string HeatmapRendererNode::getXml(const std::string& vOffset, const std::s
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 

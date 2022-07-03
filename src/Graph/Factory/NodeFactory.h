@@ -22,5 +22,4 @@ class NodeFactory
 {
 public:
 	static BaseNodePtr CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType);
-	static BaseNodePtr CreateNode(BaseNodeWeak vNodeGraph, const NodeTypeEnum& vNodeType);
 };

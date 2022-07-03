@@ -48,7 +48,7 @@ limitations under the License.
 #include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-namespace vkApi { class VulkanCore; }
+
 
 class SSSMapModule_Pass;
 class SSSMapModule :

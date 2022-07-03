@@ -286,7 +286,6 @@ bool BlurModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 			m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
 		else if (strName == "blur_offset")
 			m_UBOComp.u_blur_offset = ct::uvariant(strValue).GetU();
-		else if (strName == "blur_smooth_inf")
 
 		NeedNewUBOUpload();
 	}

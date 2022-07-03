@@ -63,6 +63,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "SSS Mapping", "SSS_MAPPING");
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Model Shadow", "MODEL_SHADOW");
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Model SSS", "MODEL_SSS");
+	m_RootLibraryCategory.AddCustom("Core/Lighting", "Diffuse", "DIFFUSE");
+	m_RootLibraryCategory.AddCustom("Core/Lighting", "Specular", "SPECULAR");
 
 	m_RootLibraryCategory.AddCustom("Core/Modifiers", "Smooth Normals", "COMPUTE_SMOOTH_MESH_NORMAL");
 
@@ -77,9 +79,12 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Heatmap", "HEATMAP_RENDERER");
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Matcap", "MATCAP_RENDERER");
 
+	m_RootLibraryCategory.AddCustom("Core/Simulations", "Gray Scott Reaction Diffusion", "GRAY_SCOTT_SIMULATION");
+
 	m_RootLibraryCategory.AddCustom("Core/Utils", "3D Model Attributes", "MESH_ATTRIBUTES");
 	m_RootLibraryCategory.AddCustom("Core/Utils", "Depth to Pos", "DEPTH_TO_POS");
 	m_RootLibraryCategory.AddCustom("Core/Utils", "Pos to Depth", "POS_TO_DEPTH");
+	m_RootLibraryCategory.AddCustom("Core/Utils", "Math", "MATH");
 
 	m_RootLibraryCategory.AddCustom("Core/Variables", "Boolean", "TYPE_BOOLEAN");
 

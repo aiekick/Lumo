@@ -30,7 +30,7 @@ std::shared_ptr<DeferredRendererNode> DeferredRendererNode::Create(vkApi::Vulkan
 
 DeferredRendererNode::DeferredRendererNode() : BaseNode()
 {
-	m_NodeType = NodeTypeEnum::DEFERRED_RENDERER;
+	m_NodeTypeString = "DEFERRED_RENDERER";
 }
 
 DeferredRendererNode::~DeferredRendererNode()
@@ -276,7 +276,7 @@ std::string DeferredRendererNode::getXml(const std::string& vOffset, const std::
 	{
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
-			Graph::GetStringFromNodeTypeEnum(m_NodeType).c_str(),
+			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)nodeID.Get());
 
