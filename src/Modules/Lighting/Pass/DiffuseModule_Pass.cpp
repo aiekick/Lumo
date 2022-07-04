@@ -224,28 +224,34 @@ u8R"(
 layout(binding = 2) uniform sampler2D pos_map_sampler;
 layout(binding = 3) uniform sampler2D nor_map_sampler;
 
+vec4 getLight(uint id, ivec2 coords, vec3 pos)
+{
+	vec3 light_pos = lightDatas[id].lightGizmo[3].xyz;
+	float light_intensity = lightDatas[id].lightIntensity;
+	vec4 light_col = lightDatas[id].lightColor;
+	
+	vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
+	vec3 light_dir = normalize(light_pos - pos);
+	vec4 diff = min(max(dot(normal, light_dir), 0.0) * light_intensity, 1.0) * light_col;
+
+	return diff;
+}
+
 void main()
 {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 	
 	vec4 res = vec4(0.0);
 	
-	// why length() return 0 ???
-	// there is always one light at least...
-	//if (lightDatas.length() >= 0) 
+	vec3 pos = texelFetch(pos_map_sampler, coords, 0).xyz;
+	if (dot(pos, pos) > 0.0)
 	{
-		vec3 pos = texelFetch(pos_map_sampler, coords, 0).xyz;
-		if (dot(pos, pos) > 0.0)
+		// why length() return 0 ???
+		// there is always one light at least...
+		// so we do length() + 1
+		for (int i=0;i<lightDatas.length() + 1;++i)
 		{
-			// only the light 0 for the moment
-			vec3 light0_pos = lightDatas[0].lightGizmo[3].xyz;
-			float light0_intensity = lightDatas[0].lightIntensity;
-
-			vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
-			vec3 light_dir = normalize(light0_pos - pos);
-			float diff = min(max(dot(normal, light_dir), 0.0) * light0_intensity, 1.0);
-
-			res = vec4(diff);
+			res += getLight(i, coords, pos);
 		}
 	}
 	

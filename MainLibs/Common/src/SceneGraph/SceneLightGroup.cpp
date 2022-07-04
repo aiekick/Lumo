@@ -148,29 +148,9 @@ void SceneLightGroup::Add(const SceneLightPtr& vLightPtr)
 
 	if (vLightPtr)
 	{
-		/*
-		alignas(16) glm::mat4x4 lightGizmo = glm::mat4x4(1.0f);
-		alignas(16) glm::mat4x4 lightView = glm::mat4x4(1.0f);
-		alignas(16) ct::fvec4 lightColor = 1.0f;
-		alignas(4) float lightIntensity = 1.0f;
-		alignas(4) int lightType = (int)LightTypeEnum::DIRECTIONNAL;
-		alignas(4) float orthoSideSize = 30.0f;
-		alignas(4) float orthoRearSize = 1000.0f;
-		alignas(4) float orthoDeepSize = 1000.0f;
-		alignas(4) float perspectiveAngle = 45.0f;
-		*/
-
 		uint32_t idx = (uint32_t)m_Lights.size();
 
-		m_SBO430.RegisterVar(ct::toStr("lightGizmo_%u", idx), vLightPtr->lightDatas.lightGizmo);
-		m_SBO430.RegisterVar(ct::toStr("lightView_%u", idx), vLightPtr->lightDatas.lightView);
-		m_SBO430.RegisterVar(ct::toStr("lightColor_%u", idx), vLightPtr->lightDatas.lightColor);
-		m_SBO430.RegisterVar(ct::toStr("lightIntensity_%u", idx), vLightPtr->lightDatas.lightIntensity);
-		m_SBO430.RegisterVar(ct::toStr("lightType_%u", idx), vLightPtr->lightDatas.lightType);
-		m_SBO430.RegisterVar(ct::toStr("orthoSideSize_%u", idx), vLightPtr->lightDatas.orthoSideSize);
-		m_SBO430.RegisterVar(ct::toStr("orthoRearSize_%u", idx), vLightPtr->lightDatas.orthoRearSize);
-		m_SBO430.RegisterVar(ct::toStr("orthoDeepSize_%u", idx), vLightPtr->lightDatas.orthoDeepSize);
-		m_SBO430.RegisterVar(ct::toStr("perspectiveAngle_%u", idx), vLightPtr->lightDatas.perspectiveAngle);
+		m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx), vLightPtr->lightDatas);
 
 		m_Lights.push_back(vLightPtr);
 	}

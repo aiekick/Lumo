@@ -57,7 +57,7 @@ void FilesTrackerSystem::handleFileAction(efsw::WatchID vWatchid, const std::str
 	{
 	case efsw::Actions::Modified:
 	{
-		LogVarDebug("Debug : DIR (%s) FILE (%s) has been Modified", vDir.c_str(), vFileName.c_str());
+		//LogVarDebug("Debug : DIR (%s) FILE (%s) has been Modified", vDir.c_str(), vFileName.c_str());
 		auto ps = FileHelper::Instance()->ParsePathFileName(vDir + vFileName);
 		if (ps.isOk)
 		{

@@ -78,8 +78,8 @@ bool LightGroupModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer*
 		{
 			if (lightPtr && lightPtr->wasChanged)
 			{
-				m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightGizmo_%u", idx), lightPtr->lightDatas.lightGizmo);
-
+				m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas); 
+				
 				lightPtr->wasChanged = false;
 			}
 			++idx;
@@ -116,80 +116,38 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 					ImGui::Header("Light");
 
 					auto lightTypeIndex = (int32_t)lightPtr->lightDatas.lightType;
-					if (ImGui::ContrastedComboVectorDefault(0.0f, "Type", &lightTypeIndex, { "NONE","POINT", "DIRECTIONNAL", "SPOT", "AREA" }, (int32_t)LightTypeEnum::POINT))
+					if (ImGui::ContrastedComboVectorDefault(0.0f, "Type", &lightTypeIndex, 
+						{ "NONE","POINT", "DIRECTIONNAL", "SPOT", "AREA" }, (int32_t)LightTypeEnum::POINT))
 					{
 						lightPtr->lightDatas.lightType = lightTypeIndex;
-						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightType_%u", idx), lightTypeIndex);
 						change = true;
 					}
-
-					if (ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightColor.x))
-					{
-						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightColor_%u", idx), lightPtr->lightDatas.lightColor);
-						change = true;
-					}
-					if (ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f))
-					{
-						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightIntensity_%u", idx), lightPtr->lightDatas.lightIntensity);
-						change = true;
-					}
+					change |= ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightColor.x);
+					change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f);
 
 					if (lightTypeIndex == 2U) // orthographic
 					{
 						ImGui::Header("Orthographic");
 
-						if (ImGui::SliderFloatDefaultCompact(0.0f, "Width/Height", &lightPtr->lightDatas.orthoSideSize, 0.0f, 1000.0f, 30.0f))
-						{
-							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("orthoSideSize_%u", idx), lightPtr->lightDatas.orthoSideSize);
-							change = true;
-						}
-
-						if (ImGui::SliderFloatDefaultCompact(0.0f, "Rear", &lightPtr->lightDatas.orthoRearSize, 0.0f, 1000.0f, 1000.0f))
-						{
-							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("orthoRearSize_%u", idx), lightPtr->lightDatas.orthoRearSize);
-							change = true;
-						}
-
-						if (ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f))
-						{
-							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("orthoDeepSizee_%u", idx), lightPtr->lightDatas.orthoDeepSize);
-							change = true;
-						}
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Width/Height", &lightPtr->lightDatas.orthoSideSize, 0.0f, 1000.0f, 30.0f);
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rear", &lightPtr->lightDatas.orthoRearSize, 0.0f, 1000.0f, 1000.0f);
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
 					}
 					else if (lightTypeIndex == 3U) // perspective
 					{
 						ImGui::Header("Perpective");
 
-						if (ImGui::SliderFloatDefaultCompact(0.0f, "Perspective Angle", &lightPtr->lightDatas.perspectiveAngle, 0.0f, 180.0f, 45.0f))
-						{
-							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("perspectiveAngle_%u", idx), lightPtr->lightDatas.perspectiveAngle);
-							change = true;
-						}
-
-						if (ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f))
-						{
-							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("orthoDeepSize_%u", idx), lightPtr->lightDatas.orthoDeepSize);
-							change = true;
-						}
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Perspective Angle", &lightPtr->lightDatas.perspectiveAngle, 0.0f, 180.0f, 45.0f);
+						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
 					}
-
+					
 					ImGui::Header("Gizmo");
 
-					if (ImGui::CheckBoxBoolDefault("Show Icon", &lightPtr->showIcon, true))
-					{
-						change = true;
-					}
 
-					if (ImGui::CheckBoxBoolDefault("Show Text", &lightPtr->showText, true))
-					{
-						change = true;
-					}
+					change |= ImGui::CheckBoxBoolDefault("Show Icon", &lightPtr->showIcon, true);
+					change |= ImGui::CheckBoxBoolDefault("Show Text", &lightPtr->showText, true);
 
-					if (GizmoSystem::Instance()->DrawGizmoTransformDialog(lightPtr))
-					{
-						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightGizmo_%u", idx), lightPtr->lightDatas.lightGizmo);
-						change = true;
-					}
+					change |= GizmoSystem::Instance()->DrawGizmoTransformDialog(lightPtr);
 
 					ImGui::Header("Gizmo Matrix");
 
@@ -201,6 +159,8 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 					if (change)
 					{
 						oneChangedLightAtLeast = true;
+
+						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
 					}
 				}
 			}
