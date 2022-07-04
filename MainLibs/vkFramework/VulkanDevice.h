@@ -51,6 +51,7 @@ namespace vkApi
 		vk::Instance m_Instance;
 		vk::DispatchLoaderDynamic m_Dldy;
 		vk::DebugReportCallbackEXT m_DebugReport;
+		vk::PhysicalDeviceRobustness2FeaturesEXT m_Robustness2Feature;
 		vk::PhysicalDeviceFeatures m_PhysDeviceFeatures;
 		vk::PhysicalDevice m_PhysDevice;
 		vk::Device m_LogDevice;
@@ -60,7 +61,7 @@ namespace vkApi
 		bool m_Debug_Utils_Supported = false;
 
 	public:
-		static void findBestExtensions(const std::vector<vk::ExtensionProperties>& installed, const std::vector<const char*>& wanted, std::vector<const char*>& out);
+		static void findBestExtensions(const char* vLabel, const std::vector<vk::ExtensionProperties>& installed, const std::vector<const char*>& wanted, std::vector<const char*>& out);
 		static void findBestLayers(const std::vector<vk::LayerProperties>& installed, const std::vector<const char*>& wanted, std::vector<const char*>& out);
 		static uint32_t getQueueIndex(vk::PhysicalDevice& physicalDevice, vk::QueueFlags flags, bool standalone);
 

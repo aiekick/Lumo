@@ -40,7 +40,6 @@ class TextureInputInterface : public TextureInputFunctions
 {
 protected:
 	bool m_NeedSamplerUpdate = false; 
-	Texture2DPtr m_EmptyTexturePtr = nullptr;
 	std::array<vk::DescriptorImageInfo, size_of_array> m_ImageInfos;
 	std::array<ImGuiTexture, size_of_array> m_ImGuiTextures;
 

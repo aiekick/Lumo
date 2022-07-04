@@ -69,7 +69,7 @@ VulkanBufferObjectPtr SceneLightGroup::CreateEmptyBuffer(vkApi::VulkanCorePtr vV
 
 SceneLightGroup::SceneLightGroup()
 {
-
+	
 }
 
 SceneLightGroup::~SceneLightGroup()
@@ -172,6 +172,11 @@ SceneLightWeak SceneLightGroup::Get(const size_t& vIndex)
 //// SBO //////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
+bool SceneLightGroup::IsOk()
+{
+	return false;
+}
+
 void SceneLightGroup::UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -202,11 +207,11 @@ void SceneLightGroup::DestroyBufferObject()
 
 vk::DescriptorBufferInfo* SceneLightGroup::GetBufferInfo()
 {
-	if (m_SBO430.bufferObjectPtr && m_SBO430.bufferObjectPtr->buffer)
+	if (m_SBO430.bufferObjectPtr)
 	{
 		return &m_SBO430.bufferObjectPtr->bufferInfo;
 	}
 
-	return nullptr;
+	return &m_EmptyBufferInfo;
 }
 

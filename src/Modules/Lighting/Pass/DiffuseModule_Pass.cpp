@@ -79,14 +79,7 @@ void DiffuseModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImag
 			}
 			else
 			{
-				if (m_EmptyTexturePtr)
-				{
-					m_ImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
-				}
+				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 			}
 
 			m_NeedSamplerUpdate = true;
@@ -128,22 +121,14 @@ bool DiffuseModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
-	for (auto& a : m_ImageInfos)
+	for (auto& info : m_ImageInfos)
 	{
-		a = m_EmptyTexturePtr->m_DescriptorImageInfo;
+		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();
 
 	return true;
-}
-
-void DiffuseModule_Pass::DestroyUBO()
-{
-	ZoneScoped;
-
-	m_EmptyTexturePtr.reset();
 }
 
 bool DiffuseModule_Pass::CreateSBO()
@@ -190,10 +175,8 @@ bool DiffuseModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	}
 	else
 	{
-		// empty buffer
-		assert(m_EmptyLightSBOPtr);
 		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, &m_EmptyLightSBOPtr->bufferInfo);
+			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 	}
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, 

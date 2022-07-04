@@ -62,6 +62,9 @@ namespace vkApi
 		VulkanDevicePtr m_VulkanDevicePtr = nullptr;
 		TracyVkCtx m_TracyContext = nullptr;
 		VulkanImGuiRendererWeak m_VulkanImGuiRendererWeak;
+		Texture2DPtr m_EmptyTexturePtr = nullptr;
+		vk::DescriptorBufferInfo m_EmptyDescriptorBufferInfo = 
+			vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 	protected:
 		std::vector<vk::CommandBuffer> m_CommandBuffers;
@@ -105,6 +108,12 @@ namespace vkApi
 		VulkanQueue getQueue(vk::QueueFlagBits vQueueType);
 		TracyVkCtx getTracyContext();
 		vk::SampleCountFlagBits getSwapchainFrameBufferSampleCount() const;
+
+		Texture2DWeak getEmptyTexture() const;
+		vk::DescriptorImageInfo getEmptyTextureDescriptorImageInfo() const;
+		
+		// when the NullDescriptor Feature is enabled
+		vk::DescriptorBufferInfo* getEmptyDescriptorBufferInfo();
 
 		void SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanShader);
 		VulkanImGuiRendererWeak GetVulkanImGuiRenderer();

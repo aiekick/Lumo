@@ -133,13 +133,9 @@ void MatcapRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorIma
 			{
 				m_ImageInfos[vBinding] = *vImageInfo;
 			}
-			else if (m_EmptyTexturePtr)
-			{
-				m_ImageInfos[vBinding] = m_EmptyTexturePtr->m_DescriptorImageInfo;
-			}
 			else
 			{
-				CTOOL_DEBUG_BREAK;
+				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 			}
 
 			m_NeedSamplerUpdate = true;
@@ -191,13 +187,9 @@ bool MatcapRenderer_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Frag.offset = 0;
 	}
 
-	m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_VulkanCorePtr, ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
-	if (m_EmptyTexturePtr)
+	for (auto& info : m_ImageInfos)
 	{
-		for (auto& a : m_ImageInfos)
-		{
-			a = m_EmptyTexturePtr->m_DescriptorImageInfo;
-		}
+		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();

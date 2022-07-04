@@ -79,7 +79,8 @@ int App::Run(const std::string& vAppPath)
 {
 	ZoneScoped;
 
-	LogVarLightInfo("[[ Lumo Beta %s ]]\n", Lumo_BuildId);
+	printf("-----------\n");
+	printf("[[ Lumo Beta %s ]]\n", Lumo_BuildId);
 
 	FileHelper::Instance()->SetAppPath(vAppPath);
 	FileHelper::Instance()->SetCurDirectory(FileHelper::Instance()->GetAppPath());

@@ -42,23 +42,24 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-
-
+#include <Interfaces/LightInputInterface.h>
 
 class SpecularModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
-	public TextureInputInterface<1U>,
+	public LightInputInterface,
+	public TextureInputInterface<2U>,
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
+	VulkanBufferObjectPtr m_EmptyLightSBOPtr = nullptr;
 
-	struct UBOComp {
-		alignas(4) uint32_t u_blur_radius = 4;
-		alignas(4) uint32_t u_blur_offset = 1;
-	} m_UBOComp;
+private:
+	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
+	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
+	struct UBOFrag {
+		alignas(4) float u_pow = 8.0f;
+	} m_UBOFrag;
 
 public:
 	SpecularModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -69,6 +70,7 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	void SwapOutputDescriptors() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
@@ -76,9 +78,6 @@ public:
 
 protected:
 	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
-
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 

@@ -108,6 +108,9 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #endif
 	if (std::filesystem::exists(plugin_directory))
 	{
+		printf("-----------\n");
+		printf("Availables Plugins :\n");
+
 		const auto dir_iter = std::filesystem::directory_iterator(plugin_directory);
 		for (const auto& file : dir_iter)
 		{
@@ -161,7 +164,7 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 
 								std::string desc = pluginInstancePtr->GetDescription();
 
-								LogVarLightInfo("Plugin loaded : %s v%s (%s)",
+								printf("Plugin loaded : %s v%s (%s)\n",
 									name.c_str(),
 									version.c_str(),
 									desc.c_str());

@@ -145,20 +145,29 @@ namespace vkApi
 		return res;
 	}
 
-	void VulkanDevice::findBestExtensions(const std::vector<vk::ExtensionProperties>& installed, const std::vector<const char*>& wanted, std::vector<const char*>& out)
+	void VulkanDevice::findBestExtensions(const char* vLabel, const std::vector<vk::ExtensionProperties>& installed, const std::vector<const char*>& wanted, std::vector<const char*>& out)
 	{
 		ZoneScoped;
 
-		for (const char* const& w : wanted)
+		assert(vLabel);
+		assert(strlen(vLabel) > 0U);
+
+		printf("-----------\n");
+		printf("Vulkan %s available Extentions : [%u]\n", vLabel, (uint32_t)installed.size());
+		for (const auto& i : installed)
 		{
-			for (const auto& i : installed)
+			bool extFound = false;
+			for (const char* const& w : wanted)
 			{
 				if (std::string((const char*)i.extensionName).compare(w) == 0)
 				{
+					extFound = true;
 					out.emplace_back(w);
 					break;
 				}
 			}
+
+			printf("Debug : [%s] Ext %s \n", extFound ? "X" : " ", (const char*)i.extensionName);
 		}
 	}
 
@@ -323,7 +332,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		printf("-- DEBUG --\n");
+		printf("-----------\n");
 		
 		// Query validation layers currently isntalled
 		uint32_t layerCount;
@@ -353,8 +362,6 @@ namespace vkApi
 
 			PrintLayerStatus(layer_info, layerWanted, maxSize);
 		}
-
-		printf("-----------\n");
 
 		return true;
 	}
@@ -444,13 +451,12 @@ namespace vkApi
 			// Find the best Instance Extensions
 			auto installedExtensions = vk::enumerateInstanceExtensionProperties();
 			std::vector<const char*> extensions = {};
-			findBestExtensions(installedExtensions, wantedExtensions, extensions);
+			findBestExtensions("Instance", installedExtensions, wantedExtensions, extensions);
 
 			// find best instance Layer
 			auto installedLayers = vk::enumerateInstanceLayerProperties();
 			std::vector<const char*> layers = {};
 			findBestLayers(installedLayers, wantedLayers, layers);
-
 
 			uint32_t apiVersion = VK_API_VERSION_1_0;
 			if (vk::enumerateInstanceVersion(&apiVersion) != vk::Result::eSuccess)
@@ -459,7 +465,8 @@ namespace vkApi
 			}
 			else
 			{
-				LogVarLightInfo("Vulkan api version is : %u.%u.%u.%u\n-----------",
+				printf("-----------\n");
+				printf("Vulkan api version is : %u.%u.%u.%u\n-----------",
 					VK_API_VERSION_VARIANT(apiVersion),
 					VK_API_VERSION_MAJOR(apiVersion),
 					VK_API_VERSION_MINOR(apiVersion),
@@ -562,6 +569,7 @@ namespace vkApi
 		}
 
 		m_PhysDevice = physicalDevices[gpuid];
+
 		m_Queues[vk::QueueFlagBits::eGraphics].familyQueueIndex = getQueueIndex(m_PhysDevice, vk::QueueFlagBits::eGraphics, false);
 		m_Queues[vk::QueueFlagBits::eCompute].familyQueueIndex = getQueueIndex(m_PhysDevice, vk::QueueFlagBits::eCompute, false);
 		m_Queues[vk::QueueFlagBits::eTransfer].familyQueueIndex = getQueueIndex(m_PhysDevice, vk::QueueFlagBits::eTransfer, false);
@@ -605,17 +613,31 @@ namespace vkApi
 
 		// Logical VulkanCore
 		std::vector<vk::ExtensionProperties> installedDeviceExtensions = m_PhysDevice.enumerateDeviceExtensionProperties();
-		std::vector<const char*> wantedDeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+		std::vector<const char*> wantedDeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_EXT_ROBUSTNESS_2_EXTENSION_NAME };
 		std::vector<const char*> deviceExtensions = {};
-		findBestExtensions(installedDeviceExtensions, wantedDeviceExtensions, deviceExtensions);
+		findBestExtensions("Device", installedDeviceExtensions, wantedDeviceExtensions, deviceExtensions);
 
+		printf("-----------\n");
+		printf("Device Features :\n");
+		
 		// enabled features
+		printf("Feature : wideLines\n");
 		m_PhysDeviceFeatures.wideLines = true;			// pour changer la taille des lignes
-		m_PhysDeviceFeatures.sampleRateShading = true;	// pour anti aliaser les textures
-		m_PhysDeviceFeatures.geometryShader = true;		// pour utiliser les shader de geometrie
-		m_PhysDeviceFeatures.tessellationShader = true;	// pour utiliser les shaders de tesselation
 
+		printf("Feature : sampleRateShading\n");
+		m_PhysDeviceFeatures.sampleRateShading = true;	// pour anti aliaser les textures
+
+		printf("Feature : geometryShader\n");
+		m_PhysDeviceFeatures.geometryShader = true;		// pour utiliser les shader de geometrie
+
+		printf("Feature : tessellationShader\n");
+		m_PhysDeviceFeatures.tessellationShader = true;	// pour utiliser les shaders de tesselation
+		
+		printf("Feature : nullDescriptor\n");
+		m_Robustness2Feature.nullDescriptor = true;		// null descriptor feature
+		
 		vk::DeviceCreateInfo dinfo;
+		dinfo.setPNext(&m_Robustness2Feature);
 		dinfo.setPEnabledFeatures(&m_PhysDeviceFeatures);
 		dinfo.setPQueueCreateInfos(qcinfo.data());
 		dinfo.setQueueCreateInfoCount(static_cast<uint32_t>(qcinfo.size()));

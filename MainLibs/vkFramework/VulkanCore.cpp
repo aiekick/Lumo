@@ -21,6 +21,7 @@ limitations under the License.
 
 #include <ctools/Logger.h>
 #include "VulkanSubmitter.h"
+#include "Texture2D.h"
 
 #define RECORD_VM_ALLOCATION
 
@@ -163,6 +164,8 @@ namespace vkApi
 
 			tracy::SetThreadName("Main");
 #endif
+			m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_This.getValidShared(), ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+
 			return true;
 		}
 
@@ -174,6 +177,8 @@ namespace vkApi
 		ZoneScoped;
 
 		m_VulkanDevicePtr->WaitIdle();
+
+		m_EmptyTexturePtr.reset();
 
 		TracyVkDestroy(m_TracyContext);
 
@@ -205,6 +210,12 @@ namespace vkApi
 	std::vector<vk::Semaphore>VulkanCore::getPresentSemaphores() { return m_VulkanSwapChainPtr->m_PresentCompleteSemaphores; }
 	std::vector<vk::Semaphore> VulkanCore::getRenderSemaphores() { return m_VulkanSwapChainPtr->m_PresentCompleteSemaphores; }
 	vk::SampleCountFlagBits VulkanCore::getSwapchainFrameBufferSampleCount() const { return m_VulkanSwapChainPtr->getSwapchainFrameBufferSampleCount(); }
+
+	Texture2DWeak VulkanCore::getEmptyTexture() const { return m_EmptyTexturePtr; }
+	vk::DescriptorImageInfo VulkanCore::getEmptyTextureDescriptorImageInfo() const { return m_EmptyTexturePtr->m_DescriptorImageInfo; }
+
+	// when the NullDescriptor Feature is enabled
+	vk::DescriptorBufferInfo* VulkanCore::getEmptyDescriptorBufferInfo() { return &m_EmptyDescriptorBufferInfo; }
 
 	vk::Instance VulkanCore::getInstance() const { return m_VulkanDevicePtr->m_Instance; }
 	vk::PhysicalDevice VulkanCore::getPhysicalDevice() const { return m_VulkanDevicePtr->m_PhysDevice; }

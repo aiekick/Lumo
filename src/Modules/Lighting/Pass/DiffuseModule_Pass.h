@@ -73,7 +73,6 @@ public:
 
 protected:
 	bool CreateUBO() override;
-	void DestroyUBO() override;
 
 	bool CreateSBO() override;
 	void DestroySBO() override;

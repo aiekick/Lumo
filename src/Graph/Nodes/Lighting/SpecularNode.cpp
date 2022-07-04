@@ -16,6 +16,7 @@ limitations under the License.
 
 #include "SpecularNode.h"
 #include <Modules/Lighting/SpecularModule.h>
+#include <Interfaces/LightOutputInterface.h>
 
 std::shared_ptr<SpecularNode> SpecularNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -44,9 +45,19 @@ bool SpecularNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
-	slot.name = "Input";
+	slot.slotType = NodeSlotTypeEnum::LIGHT;
+	slot.name = "Light";
 	slot.descriptorBinding = 0U;
+	AddInput(slot, true, false);
+
+	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.name = "Position";
+	slot.descriptorBinding = 0U;
+	AddInput(slot, true, false);
+
+	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.name = "Normal";
+	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
@@ -142,6 +153,14 @@ void SpecularNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vE
 					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
 				}
 			}
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			{
+				auto otherTextureNodePtr = dynamic_pointer_cast<LightOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherTextureNodePtr)
+				{
+					SetLightGroup(otherTextureNodePtr->GetLightGroup());
+				}
+			}
 		}
 	}
 }
@@ -158,6 +177,10 @@ void SpecularNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
 				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+			}
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			{
+				SetLightGroup();
 			}
 		}
 	}
@@ -181,6 +204,14 @@ vk::DescriptorImageInfo* SpecularNode::GetDescriptorImageInfo(const uint32_t& vB
 	return nullptr;
 }
 
+void SpecularNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{
+	if (m_SpecularModulePtr)
+	{
+		return m_SpecularModulePtr->SetLightGroup(vSceneLightGroup);
+	}
+}
+
 void SpecularNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
@@ -199,6 +230,26 @@ void SpecularNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmite
 					if (receiverSlotPtr)
 					{
 						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding));
+					}
+				}
+			}
+		}
+		break;
+	}
+	case NotifyEvent::LightUpdateDone:
+	{
+		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		if (emiterSlotPtr)
+		{
+			if (emiterSlotPtr->IsAnOutput())
+			{
+				auto otherNodePtr = dynamic_pointer_cast<LightOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				if (otherNodePtr)
+				{
+					auto receiverSlotPtr = vReceiverSlot.getValidShared();
+					if (receiverSlotPtr)
+					{
+						SetLightGroup(otherNodePtr->GetLightGroup());
 					}
 				}
 			}

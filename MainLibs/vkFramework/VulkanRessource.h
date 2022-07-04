@@ -35,7 +35,9 @@ public:
 	vk::Buffer buffer;
 	VmaAllocation alloc_meta;
 	VmaMemoryUsage alloc_usage;
-	vk::DescriptorBufferInfo bufferInfo;
+	// is working only when nulldescriptor feature is enabled
+	// and range must be VK_WHOLE_SIZE in this case
+	vk::DescriptorBufferInfo bufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 };
 typedef std::shared_ptr<VulkanBufferObject> VulkanBufferObjectPtr;
 

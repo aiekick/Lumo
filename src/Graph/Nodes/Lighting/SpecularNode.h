@@ -16,6 +16,7 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
+#include <Interfaces/LightInputInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
@@ -23,8 +24,9 @@ limitations under the License.
 class SpecularModule;
 class SpecularNode :
 	public BaseNode,
-	public TextureInputInterface<0U>,
-	public TextureOutputInterface,
+	public TextureInputInterface<2U>,
+	public TextureOutputInterface, 
+	public LightInputInterface,
 	public ShaderUpdateInterface
 {
 public:
@@ -47,6 +49,7 @@ public:
 	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 	void UpdateShaders(const std::set<std::string>& vFiles) override;

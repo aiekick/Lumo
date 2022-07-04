@@ -76,7 +76,7 @@ bool SpecularModule::Init()
 
 	ct::uvec2 map_size = 512;
 
-	m_Loaded = true;
+	m_Loaded = false;
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
@@ -179,6 +179,14 @@ vk::DescriptorImageInfo* SpecularModule::GetDescriptorImageInfo(const uint32_t& 
 	return nullptr;
 }
 
+void SpecularModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{
+	if (m_SpecularModule_Pass_Ptr)
+	{
+		return m_SpecularModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,7 +195,7 @@ std::string SpecularModule::getXml(const std::string& vOffset, const std::string
 {
 	std::string str;
 
-	str += vOffset + "<blur_module>\n";
+	str += vOffset + "<specular_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
@@ -199,7 +207,7 @@ std::string SpecularModule::getXml(const std::string& vOffset, const std::string
 		}
 	}
 
-	str += vOffset + "</blur_module>\n";
+	str += vOffset + "</specular_module>\n";
 
 	return str;
 }
@@ -217,7 +225,7 @@ bool SpecularModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "blur_module")
+	if (strParentName == "specular_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
