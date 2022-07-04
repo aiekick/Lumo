@@ -592,11 +592,15 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 	VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&bufferinfo, &alloc_info,
 		(VkBuffer*)&dataPtr->buffer, &dataPtr->alloc_meta, nullptr));
 
-	if (dataPtr)
+	if (dataPtr && dataPtr->buffer)
 	{
 		dataPtr->bufferInfo.buffer = dataPtr->buffer;
 		dataPtr->bufferInfo.range = bufferinfo.size;
 		dataPtr->bufferInfo.offset = 0;
+	}
+	else
+	{
+		dataPtr.reset();
 	}
 
 	return dataPtr;

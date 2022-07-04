@@ -167,6 +167,7 @@ bool DiffuseModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
 }
@@ -182,7 +183,7 @@ bool DiffuseModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 		m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
 
 	auto lightGrouPtr = m_SceneLightGroup.getValidShared();
-	if (lightGrouPtr)
+	if (lightGrouPtr && lightGrouPtr->GetBufferInfo())
 	{
 		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
 			nullptr, lightGrouPtr->GetBufferInfo());
@@ -196,7 +197,10 @@ bool DiffuseModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	}
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, 
-		&m_ImageInfos[0], nullptr); // ssao
+		&m_ImageInfos[0], nullptr); // pos
+
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler,
+		&m_ImageInfos[1], nullptr); // nor
 
 	return true;
 }
@@ -217,12 +221,30 @@ layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
 SceneLightGroup::GetBufferObjectStructureHeader(1U)
 + 
 u8R"(
-layout(binding = 2) uniform sampler2D input_map_sampler;
+layout(binding = 2) uniform sampler2D pos_map_sampler;
+layout(binding = 3) uniform sampler2D nor_map_sampler;
 
 void main()
 {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
-	imageStore(outColor, coords, vec4(0.0)); 
+	
+	vec4 res = vec4(0.0);
+	
+	if (lightDatas.length() > 0)
+	{
+		// only the light 0 for the moment
+		vec3 light0_pos = lightDatas[0].lightView[3].xyz;
+		float light0_intensity = lightDatas[0].lightIntensity;
+
+		vec3 pos = texelFetch(pos_map_sampler, coords, 0).xyz;
+		vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
+		vec3 light_dir = normalize(light0_pos - pos);
+		float diff = min(max(dot(normal, light_dir), 0.0) * light0_intensity, 1.0);
+
+		res = vec4(diff);
+	}
+	
+	imageStore(outColor, coords, res); 
 }
 )";
 }

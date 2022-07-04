@@ -24,7 +24,7 @@ limitations under the License.
 class DiffuseModule;
 class DiffuseNode :
 	public BaseNode,
-	public TextureInputInterface<1U>,
+	public TextureInputInterface<2U>,
 	public TextureOutputInterface, 
 	public LightInputInterface,
 	public ShaderUpdateInterface

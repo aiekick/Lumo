@@ -30,7 +30,7 @@ std::shared_ptr<SpecularNode> SpecularNode::Create(vkApi::VulkanCorePtr vVulkanC
 
 SpecularNode::SpecularNode() : BaseNode()
 {
-	m_NodeTypeString = "BLUR";
+	m_NodeTypeString = "SPECULAR";
 }
 
 SpecularNode::~SpecularNode()

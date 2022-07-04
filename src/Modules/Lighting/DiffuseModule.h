@@ -53,7 +53,7 @@ class DiffuseModule :
 	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
-	public TextureInputInterface<1U>,
+	public TextureInputInterface<2U>,
 	public TextureOutputInterface,
 	public LightInputInterface,
 	public ResizerInterface

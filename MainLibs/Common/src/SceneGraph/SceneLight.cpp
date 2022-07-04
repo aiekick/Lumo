@@ -22,6 +22,10 @@ SceneLightPtr SceneLight::Create()
 	auto res = std::make_shared<SceneLight>();
 	res->m_This = res;
 	res->name = "Light";
+
+	auto s = sizeof(LightDatasStruct);
+	s = sizeof(res->lightDatas);
+
 	return res;
 }
 

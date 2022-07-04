@@ -36,6 +36,8 @@ class COMMON_API BufferObjectInterface
 {
 protected:
 	VulkanBufferObjectPtr m_BufferObjectPtr = nullptr;
+
+public:
 	bool m_BufferObjectIsDirty = false;
 
 public:
@@ -43,7 +45,7 @@ public:
 	virtual bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) = 0;
 	virtual void DestroyBufferObject() = 0;
 	//virtual std::string GetBufferObjectStructureHeader(const uint32_t& vBinding) = 0;
-	vk::DescriptorBufferInfo* GetBufferInfo()
+	virtual vk::DescriptorBufferInfo* GetBufferInfo()
 	{
 		if (m_BufferObjectPtr)
 		{

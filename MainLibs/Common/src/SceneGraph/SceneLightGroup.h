@@ -20,24 +20,33 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <SceneGraph/SceneLight.h>
 #include <Interfaces/BufferObjectInterface.h>
+#include <vkFramework/StorageBufferStd430.h>
 
 class SceneLightGroup;
 typedef std::shared_ptr<SceneLightGroup> SceneLightGroupPtr;
 typedef ct::cWeak<SceneLightGroup> SceneLightGroupWeak;
 
-class SceneLightGroup : 
+class SceneLightGroup :
 	public BufferObjectInterface
 {
 public:
-	static SceneLightGroupPtr Create();
+	static SceneLightGroupPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding);
 	static VulkanBufferObjectPtr CreateEmptyBuffer(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 	SceneLightGroupWeak m_This;
 	std::vector<SceneLightPtr> m_Lights;
+	StorageBufferStd430 m_SBO430;
 
 public:
+	SceneLightGroup();
+	~SceneLightGroup();
+
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr);
+	void Unit();
+
 	void clear();
 	bool empty();
 	size_t size();
@@ -45,9 +54,11 @@ public:
 	std::vector<SceneLightPtr>::iterator end();
 	void Add(const SceneLightPtr& vLight);
 	SceneLightWeak Get(const size_t& vIndex);
+	StorageBufferStd430& GetSBO430() { return m_SBO430; }
 
 	void UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void DestroyBufferObject() override;
+	vk::DescriptorBufferInfo* GetBufferInfo() override;
 
 };

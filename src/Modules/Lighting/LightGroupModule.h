@@ -26,6 +26,7 @@ limitations under the License.
 #include <glm/gtc/type_ptr.hpp>
 #include <ctools/ConfigAbstract.h>
 #include <Interfaces/GuiInterface.h>
+#include <Interfaces/TaskInterface.h>
 #include <Interfaces/NodeInterface.h>
 #include <Interfaces/GizmoInterface.h>
 #include <Interfaces/LightOutputInterface.h>
@@ -40,7 +41,8 @@ class LightGroupModule :
 	public conf::ConfigAbstract,
 	public NodeInterface,
 	public GuiInterface,
-	public LightOutputInterface
+	public LightOutputInterface,
+	public TaskInterface
 {
 public:
 	static LightGroupModulePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
@@ -52,6 +54,10 @@ private:
 
 private: // imgui
 	ct::fvec4 m_DefaultLightColor = 1.0f;
+	// becasue by default there is one light
+	// and we must avoid adding a new one for nothing during xml parsing
+	// the second time, we check this var, adding a new light is ok
+	bool m_FirstXmlLight = true;
 
 public:
 	LightGroupModule(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -59,7 +65,7 @@ public:
 
 	bool Init();
 	void Unit();
-
+	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;

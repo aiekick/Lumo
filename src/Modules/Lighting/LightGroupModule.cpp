@@ -59,14 +59,38 @@ LightGroupModule::~LightGroupModule()
 
 bool LightGroupModule::Init()
 {
-	m_SceneLightGroupPtr = SceneLightGroup::Create();
+	m_SceneLightGroupPtr = SceneLightGroup::Create(m_VulkanCorePtr);
 
-	return true;
+	return (m_SceneLightGroupPtr != nullptr);
 }
 
 void LightGroupModule::Unit()
 {
 	m_SceneLightGroupPtr.reset();
+}
+
+bool LightGroupModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+{
+	if (m_LastExecutedFrame != vCurrentFrame)
+	{
+		uint32_t idx = 0U;
+		for (auto lightPtr : *m_SceneLightGroupPtr)
+		{
+			if (lightPtr && lightPtr->wasChanged)
+			{
+				m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightGizmo_%u", idx), lightPtr->lightDatas.lightGizmo);
+
+				lightPtr->wasChanged = false;
+			}
+			++idx;
+		}
+
+		m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
+
+		m_LastExecutedFrame = vCurrentFrame;
+	}
+
+	return false;
 }
 
 bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -78,12 +102,14 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 			m_SceneLightGroupPtr->Add(SceneLight::Create());
 		}
 
+		bool oneChangedLightAtLeast = false;
+
 		uint32_t idx = 0U;
 		for (auto lightPtr : *m_SceneLightGroupPtr)
 		{
 			if (lightPtr)
 			{
-				if (ImGui::CollapsingHeader(ct::toStr("Light %u : %s", idx++, lightPtr->name.c_str()).c_str()))
+				if (ImGui::CollapsingHeader(ct::toStr("Light %u : %s", idx, lightPtr->name.c_str()).c_str()))
 				{
 					bool change = false;
 
@@ -93,34 +119,77 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 					if (ImGui::ContrastedComboVectorDefault(0.0f, "Type", &lightTypeIndex, { "NONE","POINT", "DIRECTIONNAL", "SPOT", "AREA" }, (int32_t)LightTypeEnum::POINT))
 					{
 						lightPtr->lightDatas.lightType = lightTypeIndex;
+						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightType_%u", idx), lightTypeIndex);
 						change = true;
 					}
-					change |= ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightColor.x);
-					change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f);
+
+					if (ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightColor.x))
+					{
+						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightColor_%u", idx), lightPtr->lightDatas.lightColor);
+						change = true;
+					}
+					if (ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f))
+					{
+						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightIntensity_%u", idx), lightPtr->lightDatas.lightIntensity);
+						change = true;
+					}
 
 					if (lightTypeIndex == 2U) // orthographic
 					{
 						ImGui::Header("Orthographic");
 
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Width/Height", &lightPtr->lightDatas.orthoSideSize, 0.0f, 1000.0f, 30.0f);
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rear", &lightPtr->lightDatas.orthoRearSize, 0.0f, 1000.0f, 1000.0f);
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
+						if (ImGui::SliderFloatDefaultCompact(0.0f, "Width/Height", &lightPtr->lightDatas.orthoSideSize, 0.0f, 1000.0f, 30.0f))
+						{
+							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("orthoSideSize_%u", idx), lightPtr->lightDatas.orthoSideSize);
+							change = true;
+						}
+
+						if (ImGui::SliderFloatDefaultCompact(0.0f, "Rear", &lightPtr->lightDatas.orthoRearSize, 0.0f, 1000.0f, 1000.0f))
+						{
+							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("orthoRearSize_%u", idx), lightPtr->lightDatas.orthoRearSize);
+							change = true;
+						}
+
+						if (ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f))
+						{
+							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("orthoDeepSizee_%u", idx), lightPtr->lightDatas.orthoDeepSize);
+							change = true;
+						}
 					}
 					else if (lightTypeIndex == 3U) // perspective
 					{
 						ImGui::Header("Perpective");
 
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Perspective Angle", &lightPtr->lightDatas.perspectiveAngle, 0.0f, 180.0f, 45.0f);
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
+						if (ImGui::SliderFloatDefaultCompact(0.0f, "Perspective Angle", &lightPtr->lightDatas.perspectiveAngle, 0.0f, 180.0f, 45.0f))
+						{
+							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("perspectiveAngle_%u", idx), lightPtr->lightDatas.perspectiveAngle);
+							change = true;
+						}
+
+						if (ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f))
+						{
+							m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("orthoDeepSize_%u", idx), lightPtr->lightDatas.orthoDeepSize);
+							change = true;
+						}
 					}
-					
+
 					ImGui::Header("Gizmo");
 
+					if (ImGui::CheckBoxBoolDefault("Show Icon", &lightPtr->showIcon, true))
+					{
+						change = true;
+					}
 
-					change |= ImGui::CheckBoxBoolDefault("Show Icon", &lightPtr->showIcon, true);
-					change |= ImGui::CheckBoxBoolDefault("Show Text", &lightPtr->showText, true);
+					if (ImGui::CheckBoxBoolDefault("Show Text", &lightPtr->showText, true))
+					{
+						change = true;
+					}
 
-					change |= GizmoSystem::Instance()->DrawGizmoTransformDialog(lightPtr);
+					if (GizmoSystem::Instance()->DrawGizmoTransformDialog(lightPtr))
+					{
+						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightGizmo_%u", idx), lightPtr->lightDatas.lightGizmo);
+						change = true;
+					}
 
 					ImGui::Header("Gizmo Matrix");
 
@@ -131,15 +200,22 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 					if (change)
 					{
-						lightPtr->wasChanged = true;
-
-						auto parentNodePtr = GetParentNode().getValidShared();
-						if (parentNodePtr)
-						{
-							parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
-						}
+						oneChangedLightAtLeast = true;
 					}
 				}
+			}
+			
+			++idx;
+		}
+
+		if (oneChangedLightAtLeast)
+		{
+			m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
+
+			auto parentNodePtr = GetParentNode().getValidShared();
+			if (parentNodePtr)
+			{
+				parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
 			}
 		}
 	}
@@ -225,7 +301,14 @@ bool LightGroupModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 	{
 		if (strName == "light")
 		{
-			m_SceneLightGroupPtr->Add(SceneLight::Create());
+			if (!m_FirstXmlLight)
+			{
+				m_SceneLightGroupPtr->Add(SceneLight::Create());
+			}
+			else
+			{
+				m_FirstXmlLight = false;
+			}
 		}
 	}
 

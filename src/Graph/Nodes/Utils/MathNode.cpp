@@ -30,7 +30,7 @@ std::shared_ptr<MathNode> MathNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 MathNode::MathNode() : BaseNode()
 {
-	m_NodeTypeString = "BLUR";
+	m_NodeTypeString = "MATH";
 }
 
 MathNode::~MathNode()

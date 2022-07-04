@@ -76,7 +76,7 @@ bool DiffuseModule::Init()
 
 	ct::uvec2 map_size = 512;
 
-	m_Loaded = true;
+	m_Loaded = false;
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{

@@ -31,7 +31,7 @@ std::shared_ptr<DiffuseNode> DiffuseNode::Create(vkApi::VulkanCorePtr vVulkanCor
 
 DiffuseNode::DiffuseNode() : BaseNode()
 {
-	m_NodeTypeString = "BLUR";
+	m_NodeTypeString = "DIFFUSE";
 }
 
 DiffuseNode::~DiffuseNode()
@@ -45,14 +45,19 @@ bool DiffuseNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
+	slot.slotType = NodeSlotTypeEnum::LIGHT;
+	slot.name = "Light";
+	slot.descriptorBinding = 0U;
+	AddInput(slot, true, false);
+
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Position";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::LIGHT;
-	slot.name = "Light";
-	slot.descriptorBinding = 0U;
+	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.name = "Normal";
+	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;

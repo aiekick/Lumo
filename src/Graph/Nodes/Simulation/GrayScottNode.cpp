@@ -30,7 +30,7 @@ std::shared_ptr<GrayScottNode> GrayScottNode::Create(vkApi::VulkanCorePtr vVulka
 
 GrayScottNode::GrayScottNode() : BaseNode()
 {
-	m_NodeTypeString = "BLUR";
+	m_NodeTypeString = "GRAY_SCOTT_SIMULATION";
 }
 
 GrayScottNode::~GrayScottNode()

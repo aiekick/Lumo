@@ -776,8 +776,6 @@ void ShaderPass::NeedNewUBOUpload()
 void ShaderPass::UploadUBO()
 {
 	ZoneScoped;
-
-	CTOOL_DEBUG_BREAK;
 }
 
 void ShaderPass::DestroyUBO()

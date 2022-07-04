@@ -50,7 +50,7 @@ class DiffuseModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
 	public LightInputInterface,
-	public TextureInputInterface<1U>,
+	public TextureInputInterface<2U>,
 	public TextureOutputInterface
 {
 private:
