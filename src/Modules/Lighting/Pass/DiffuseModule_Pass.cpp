@@ -230,18 +230,23 @@ void main()
 	
 	vec4 res = vec4(0.0);
 	
-	if (lightDatas.length() > 0)
+	// why length() return 0 ???
+	// there is always one light at least...
+	//if (lightDatas.length() >= 0) 
 	{
-		// only the light 0 for the moment
-		vec3 light0_pos = lightDatas[0].lightView[3].xyz;
-		float light0_intensity = lightDatas[0].lightIntensity;
-
 		vec3 pos = texelFetch(pos_map_sampler, coords, 0).xyz;
-		vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
-		vec3 light_dir = normalize(light0_pos - pos);
-		float diff = min(max(dot(normal, light_dir), 0.0) * light0_intensity, 1.0);
+		if (dot(pos, pos) > 0.0)
+		{
+			// only the light 0 for the moment
+			vec3 light0_pos = lightDatas[0].lightGizmo[3].xyz;
+			float light0_intensity = lightDatas[0].lightIntensity;
 
-		res = vec4(diff);
+			vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
+			vec3 light_dir = normalize(light0_pos - pos);
+			float diff = min(max(dot(normal, light_dir), 0.0) * light0_intensity, 1.0);
+
+			res = vec4(diff);
+		}
 	}
 	
 	imageStore(outColor, coords, res); 
