@@ -103,10 +103,8 @@ protected: // vulkan creation
 	std::vector<vk::PipelineColorBlendAttachmentState> m_BlendAttachmentStates;
 
 	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
-	VulkanBufferObjectPtr m_SBO_Empty_Vertex_Input = nullptr;
-	VulkanBufferObjectPtr m_SBO_Empty_Index_Input = nullptr;
 	VulkanBufferObjectPtr m_SBO_Normals_Compute_Helper = nullptr;
-	VulkanBufferObjectPtr m_SBO_Empty_Normals_Compute_Helper = nullptr;
+	vk::DescriptorBufferInfo m_SBO_Normals_Compute_Helper_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 	std::vector<int> m_NormalDatas; // 3 components
 
@@ -151,9 +149,6 @@ private:
 
 	bool CreateSyncObjects();
 	void DestroySyncObjects();
-
-	bool CreateSBO();
-	void DestroySBO();
 
 	bool CreateUBO();
 	void UploadUBO_Comp();

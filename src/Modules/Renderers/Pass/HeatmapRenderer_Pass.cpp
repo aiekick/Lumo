@@ -195,9 +195,14 @@ bool HeatmapRenderer_Pass::CreateSBO()
 
 	const auto sizeInBytes = sizeof(ct::fvec4) * m_Colors.size();
 	m_SBO_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
-	
-	const auto color_buffer_size = sizeof(ct::fvec4);
-	m_SBO_Empty_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, color_buffer_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
+	if (m_SBO_Colors->buffer)
+	{
+		m_SBO_ColorsDescriptorBufferInfo = vk::DescriptorBufferInfo{ m_SBO_Colors->buffer, 0, sizeInBytes };
+	}
+	else
+	{
+		m_SBO_ColorsDescriptorBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	}
 
 	NeedNewSBOUpload();
 
@@ -218,7 +223,6 @@ void HeatmapRenderer_Pass::DestroySBO()
 	ZoneScoped;
 
 	m_SBO_Colors.reset();
-	m_SBO_Empty_Colors.reset();
 }
 
 bool HeatmapRenderer_Pass::CreateUBO()
@@ -283,14 +287,7 @@ bool HeatmapRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Vert);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	if (m_Colors.empty())
-	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_Empty_Colors->bufferInfo);
-	}
-	else
-	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_Colors->bufferInfo);
-	}
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_ColorsDescriptorBufferInfo);
 
 	return true;
 }

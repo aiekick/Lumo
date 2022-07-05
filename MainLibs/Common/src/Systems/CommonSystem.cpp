@@ -828,6 +828,15 @@ bool CommonSystem::CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr)
 	vVulkanCorePtr->getDevice().waitIdle();
 
 	m_BufferObjectPtr = vkApi::VulkanRessource::createUniformBufferObject(vVulkanCorePtr, sizeof(UBOCamera));
+	if (m_BufferObjectPtr && m_BufferObjectPtr->buffer)
+	{
+		m_DescriptorBufferInfo = vk::DescriptorBufferInfo { m_BufferObjectPtr->buffer, 0, sizeof(UBOCamera) };
+	}
+	else
+	{
+		m_DescriptorBufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	}
+
 	m_BufferObjectIsDirty = true;
 
 	return true;

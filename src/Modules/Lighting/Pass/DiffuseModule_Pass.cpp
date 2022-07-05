@@ -100,6 +100,19 @@ vk::DescriptorImageInfo* DiffuseModule_Pass::GetDescriptorImageInfo(const uint32
 void DiffuseModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	m_SceneLightGroup = vSceneLightGroup;
+
+	auto lightGrouPtr = m_SceneLightGroup.getValidShared();
+	if (lightGrouPtr)
+	{
+		m_SceneLightGroupDescriptorInfo.buffer = lightGrouPtr->GetBufferInfo()->buffer;
+		m_SceneLightGroupDescriptorInfo.offset = lightGrouPtr->GetBufferInfo()->offset;
+		m_SceneLightGroupDescriptorInfo.range = lightGrouPtr->GetBufferInfo()->range;
+	}
+	else
+	{
+		m_SceneLightGroupDescriptorInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
+	}
+
 }
 
 void DiffuseModule_Pass::SwapOutputDescriptors()
@@ -131,19 +144,6 @@ bool DiffuseModule_Pass::CreateUBO()
 	return true;
 }
 
-bool DiffuseModule_Pass::CreateSBO()
-{
-	m_EmptyLightSBOPtr = SceneLightGroup::CreateEmptyBuffer(m_VulkanCorePtr);
-	return (m_EmptyLightSBOPtr != nullptr);
-}
-
-void DiffuseModule_Pass::DestroySBO()
-{
-	ZoneScoped;
-
-	m_EmptyLightSBOPtr.reset();
-}
-
 bool DiffuseModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
@@ -167,17 +167,8 @@ bool DiffuseModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, 
 		m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
 
-	auto lightGrouPtr = m_SceneLightGroup.getValidShared();
-	if (lightGrouPtr && lightGrouPtr->GetBufferInfo())
-	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
-			nullptr, lightGrouPtr->GetBufferInfo());
-	}
-	else
-	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
-	}
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+		nullptr, &m_SceneLightGroupDescriptorInfo);
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, 
 		&m_ImageInfos[0], nullptr); // pos

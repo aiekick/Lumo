@@ -97,12 +97,20 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 {
 	if (m_SceneLightGroupPtr)
 	{
+		bool oneChangedLightAtLeast = false;
+
 		if (ImGui::ContrastedButton("Add Light"))
 		{
 			m_SceneLightGroupPtr->Add(SceneLight::Create());
-		}
 
-		bool oneChangedLightAtLeast = false;
+			m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
+
+			auto parentNodePtr = GetParentNode().getValidShared();
+			if (parentNodePtr)
+			{
+				parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+			}
+		}
 
 		uint32_t idx = 0U;
 		for (auto lightPtr : *m_SceneLightGroupPtr)

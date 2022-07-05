@@ -207,11 +207,6 @@ void SceneLightGroup::DestroyBufferObject()
 
 vk::DescriptorBufferInfo* SceneLightGroup::GetBufferInfo()
 {
-	if (m_SBO430.bufferObjectPtr)
-	{
-		return &m_SBO430.bufferObjectPtr->bufferInfo;
-	}
-
-	return &m_EmptyBufferInfo;
+	return &m_SBO430.descriptorBufferInfo;
 }
 

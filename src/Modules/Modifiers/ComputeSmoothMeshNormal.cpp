@@ -90,12 +90,10 @@ bool ComputeSmoothMeshNormal::Init(ct::uvec3 vDispatchSize)
 			if (CreateCommandBuffer()) {
 				if (CreateSyncObjects()) {
 					if (BuildModel()) {
-						if (CreateSBO()) {
-							if (CreateUBO()) {
-								if (CreateRessourceDescriptor()) {
-									if (CreateComputePipeline()) {
-										m_Loaded = true;
-									}
+						if (CreateUBO()) {
+							if (CreateRessourceDescriptor()) {
+								if (CreateComputePipeline()) {
+									m_Loaded = true;
 								}
 							}
 						}
@@ -117,7 +115,6 @@ void ComputeSmoothMeshNormal::Unit()
 	DestroyPipeline();
 	DestroyRessourceDescriptor();
 	DestroyUBO();
-	DestroySBO();
 	DestroyModel();
 	DestroySyncObjects();
 	DestroyCommandBuffer();
@@ -131,6 +128,13 @@ void ComputeSmoothMeshNormal::Unit()
 
 bool ComputeSmoothMeshNormal::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
+	if (m_LastExecutedFrame != vCurrentFrame)
+	{
+		Compute();
+
+		m_LastExecutedFrame = vCurrentFrame;
+	}
+
 	return false;
 }
 
@@ -478,34 +482,6 @@ void ComputeSmoothMeshNormal::DestroySyncObjects()
 	m_WaitFences.clear();
 }
 
-bool ComputeSmoothMeshNormal::CreateSBO()
-{
-	ZoneScoped;
-
-	const auto vertice_size = sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
-	m_SBO_Empty_Vertex_Input = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, vertice_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
-
-	const auto index_size = sizeof(VertexStruct::I1);
-	m_SBO_Empty_Index_Input = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, index_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
-
-	const auto normal_size = sizeof(ct::ivec3);
-	m_SBO_Empty_Normals_Compute_Helper = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, normal_size, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
-
-	return 
-		m_SBO_Empty_Vertex_Input != nullptr &&
-		m_SBO_Empty_Index_Input != nullptr &&
-		m_SBO_Empty_Normals_Compute_Helper != nullptr;
-}
-
-void ComputeSmoothMeshNormal::DestroySBO()
-{
-	ZoneScoped;
-
-	m_SBO_Empty_Vertex_Input.reset();
-	m_SBO_Empty_Index_Input.reset();
-	m_SBO_Empty_Normals_Compute_Helper.reset();
-}
-
 bool ComputeSmoothMeshNormal::CreateUBO()
 {
 	ZoneScoped;
@@ -546,6 +522,14 @@ bool ComputeSmoothMeshNormal::BuildModel()
 		const auto sizeInBytes = sizeof(int) * m_NormalDatas.size();
 		memset(m_NormalDatas.data(), 0U, sizeInBytes);
 		m_SBO_Normals_Compute_Helper = VulkanRessource::createGPUOnlyStorageBufferObject(m_VulkanCorePtr, m_NormalDatas.data(), sizeInBytes);
+		if (m_SBO_Normals_Compute_Helper->buffer)
+		{
+			m_SBO_Normals_Compute_Helper_BufferInfos = vk::DescriptorBufferInfo{ m_SBO_Normals_Compute_Helper->buffer, 0, sizeInBytes };
+		}
+		else
+		{
+			m_SBO_Normals_Compute_Helper_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+		}
 	}
 
 	return true;
@@ -585,20 +569,26 @@ bool ComputeSmoothMeshNormal::UpdateBufferInfoInRessourceDescriptor()
 	if (outputMeshPtr && outputMeshPtr->GetVerticesBufferInfo()->range > 0U)
 	{
 		// VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, outputMeshPtr->GetVerticesBufferInfo());
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+			nullptr, outputMeshPtr->GetVerticesBufferInfo());
 		// VertexStruct::I1
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, outputMeshPtr->GetIndicesBufferInfo());
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+			nullptr, outputMeshPtr->GetIndicesBufferInfo());
 		// Normals
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_Normals_Compute_Helper->bufferInfo);
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+			nullptr, &m_SBO_Normals_Compute_Helper_BufferInfos);
 	}
 	else
 	{
 		// empty version, almost empty because his size is thr size of 1 VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_Empty_Vertex_Input->bufferInfo);
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 		// empty version, almost empty because his size is thr size of 1 VertexStruct::I1
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_Empty_Index_Input->bufferInfo);
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 		// empty version, almost empty because his size is thr size of 1 uvec3
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_Empty_Normals_Compute_Helper->bufferInfo);
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 	}
 
 	return true;

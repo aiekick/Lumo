@@ -35,15 +35,21 @@ public:
 	vk::Buffer buffer;
 	VmaAllocation alloc_meta;
 	VmaMemoryUsage alloc_usage;
-	// is working only when nulldescriptor feature is enabled
-	// and range must be VK_WHOLE_SIZE in this case
-	vk::DescriptorBufferInfo bufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 };
 typedef std::shared_ptr<VulkanBufferObject> VulkanBufferObjectPtr;
 
 namespace vkApi {
 class VulkanRessource
 {
+public:
+	static vk::DescriptorBufferInfo* getEmptyDescriptorBufferInfo() 
+	{
+		// is working only when nulldescriptor feature is enabled
+		// and range must be VK_WHOLE_SIZE in this case
+		static vk::DescriptorBufferInfo bufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+		return &bufferInfo;
+	}
+
 public: // image
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Image dst, vk::Buffer src, const vk::BufferImageCopy& region, vk::ImageLayout layout = vk::ImageLayout::eTransferDstOptimal);
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Image dst, vk::Buffer src, const std::vector<vk::BufferImageCopy>& regions, vk::ImageLayout layout = vk::ImageLayout::eTransferDstOptimal);

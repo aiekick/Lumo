@@ -50,6 +50,7 @@ private:
 
 public: // vulkan object to share
 	VulkanBufferObjectPtr bufferObjectPtr = nullptr;
+	vk::DescriptorBufferInfo descriptorBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 public:
 	~StorageBufferStd430();

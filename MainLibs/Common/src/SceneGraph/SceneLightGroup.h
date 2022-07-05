@@ -39,6 +39,7 @@ private:
 	SceneLightGroupWeak m_This;
 	std::vector<SceneLightPtr> m_Lights;
 	StorageBufferStd430 m_SBO430;
+	vk::DescriptorBufferInfo m_SBO430BufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	vk::DescriptorBufferInfo m_EmptyBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 public:

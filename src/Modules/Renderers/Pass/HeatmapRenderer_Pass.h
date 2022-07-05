@@ -56,7 +56,8 @@ private:
 	std::vector<ct::fvec4> m_Colors;
 	std::vector<ct::fvec4> m_DefaultColors;
 	VulkanBufferObjectPtr m_SBO_Colors = nullptr;
-	VulkanBufferObjectPtr m_SBO_Empty_Colors = nullptr;
+	vk::DescriptorBufferInfo m_SBO_ColorsDescriptorBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	//VulkanBufferObjectPtr m_SBO_Empty_Colors = nullptr;
 
 public:
 	HeatmapRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);

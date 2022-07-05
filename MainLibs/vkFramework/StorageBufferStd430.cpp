@@ -93,9 +93,9 @@ bool StorageBufferStd430::CreateSBO(vkApi::VulkanCorePtr vVulkanCorePtr, VmaMemo
 		bufferObjectPtr = VulkanRessource::createStorageBufferObject(vVulkanCorePtr, datas.size(), vVmaMemoryUsage);
 		if (bufferObjectPtr && bufferObjectPtr->buffer)
 		{
-			bufferObjectPtr->bufferInfo.buffer = bufferObjectPtr->buffer;
-			bufferObjectPtr->bufferInfo.range = datas.size();
-			bufferObjectPtr->bufferInfo.offset = 0;
+			descriptorBufferInfo.buffer = bufferObjectPtr->buffer;
+			descriptorBufferInfo.range = datas.size();
+			descriptorBufferInfo.offset = 0;
 
 			Upload(vVulkanCorePtr, false);
 
@@ -103,7 +103,7 @@ bool StorageBufferStd430::CreateSBO(vkApi::VulkanCorePtr vVulkanCorePtr, VmaMemo
 		}
 		else
 		{
-			bufferObjectPtr.reset();
+			DestroySBO();
 		}
 	}
 	else
@@ -119,6 +119,7 @@ void StorageBufferStd430::DestroySBO()
 	ZoneScoped;
 
 	bufferObjectPtr.reset();
+	descriptorBufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
 bool StorageBufferStd430::RecreateSBO(vkApi::VulkanCorePtr vVulkanCorePtr)

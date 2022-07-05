@@ -52,7 +52,21 @@ SpecularModule_Pass::~SpecularModule_Pass()
 
 bool SpecularModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	return false;
+	bool change = false;
+
+	if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Power", &m_UBOComp.u_pow_coef, 0.0f, 64.0f, 8.0f);
+
+		if (change)
+		{
+			NeedNewUBOUpload();
+		}
+	}
+
+	//DrawInputTexture(m_VulkanCorePtr, "Input Position", 0U, m_OutputRatio);
+
+	return change;
 }
 
 void SpecularModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
@@ -119,12 +133,40 @@ void SpecularModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIte
 
 bool SpecularModule_Pass::CreateUBO()
 {
+	ZoneScoped;
+
+	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	if (m_UBO_Comp->buffer)
+	{
+		m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo{ m_UBO_Comp->buffer, 0, sizeof(UBOComp) };
+	}
+	else
+	{
+		m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	}
+	
 	for (auto& info : m_ImageInfos)
 	{
 		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 	}
 
+	NeedNewUBOUpload();
+
 	return true;
+}
+
+void SpecularModule_Pass::UploadUBO()
+{
+	ZoneScoped;
+
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
+}
+
+void SpecularModule_Pass::DestroyUBO()
+{
+	ZoneScoped;
+
+	m_UBO_Comp.reset();
 }
 
 bool SpecularModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -135,8 +177,9 @@ bool SpecularModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
 }
@@ -152,23 +195,28 @@ bool SpecularModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 		m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, 
 		nullptr, CommonSystem::Instance()->GetBufferInfo()); // output
-
+	
 	auto lightGrouPtr = m_SceneLightGroup.getValidShared();
-	if (lightGrouPtr && lightGrouPtr->GetBufferInfo())
+	if (lightGrouPtr)
 	{
 		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer, 
 			nullptr, lightGrouPtr->GetBufferInfo());
 	}
+	/*
 	else
 	{
 		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 	}
+	*/
 
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, 
-		&m_ImageInfos[0], nullptr); // pos
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eUniformBuffer,
+		nullptr, &m_UBO_Comp_BufferInfo); // output
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler,
+		&m_ImageInfos[0], nullptr); // pos
+
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1, vk::DescriptorType::eCombinedImageSampler,
 		&m_ImageInfos[1], nullptr); // nor
 
 	return true;
@@ -192,8 +240,13 @@ CommonSystem::GetBufferObjectStructureHeader(1U)
 SceneLightGroup::GetBufferObjectStructureHeader(2U)
 + 
 u8R"(
-layout(binding = 3) uniform sampler2D pos_map_sampler;
-layout(binding = 4) uniform sampler2D nor_map_sampler;
+layout (std140, binding = 3) uniform UBO_Comp
+{
+	float u_pow_coef;
+};
+
+layout(binding = 4) uniform sampler2D pos_map_sampler;
+layout(binding = 5) uniform sampler2D nor_map_sampler;
 
 vec3 getRayOrigin()
 {
@@ -214,7 +267,7 @@ vec4 getLight(uint id, ivec2 coords, vec3 pos)
 	vec3 ro = getRayOrigin();
 	vec3 rd = normalize(ro - pos);
 	vec3 refl = reflect(-light_dir, normal);  
-	vec4 spec = min(pow(max(dot(rd, refl), 0.0), 32.0) * light_intensity, 1.0) * light_col;
+	vec4 spec = min(pow(max(dot(rd, refl), 0.0), u_pow_coef) * light_intensity, 1.0) * light_col;
 	
 	return spec;
 }

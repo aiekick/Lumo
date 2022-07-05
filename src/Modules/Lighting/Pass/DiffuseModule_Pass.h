@@ -54,7 +54,7 @@ class DiffuseModule_Pass :
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_EmptyLightSBOPtr = nullptr;
+	vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 
 public:
 	DiffuseModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -73,9 +73,6 @@ public:
 
 protected:
 	bool CreateUBO() override;
-
-	bool CreateSBO() override;
-	void DestroySBO() override;
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;

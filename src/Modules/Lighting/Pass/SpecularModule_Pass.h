@@ -52,14 +52,11 @@ class SpecularModule_Pass :
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_EmptyLightSBOPtr = nullptr;
-
-private:
-	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
-	struct UBOFrag {
-		alignas(4) float u_pow = 8.0f;
-	} m_UBOFrag;
+	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
+	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	struct UBOComp {
+		alignas(4) float u_pow_coef = 8.0f;
+	} m_UBOComp;
 
 public:
 	SpecularModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -78,6 +75,8 @@ public:
 
 protected:
 	bool CreateUBO() override;
+	void UploadUBO() override;
+	void DestroyUBO() override;
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 

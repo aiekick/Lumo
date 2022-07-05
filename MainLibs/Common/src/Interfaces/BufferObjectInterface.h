@@ -36,6 +36,7 @@ class COMMON_API BufferObjectInterface
 {
 protected:
 	VulkanBufferObjectPtr m_BufferObjectPtr = nullptr;
+	vk::DescriptorBufferInfo m_DescriptorBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 public:
 	bool m_BufferObjectIsDirty = false;
@@ -43,15 +44,15 @@ public:
 public:
 	virtual void UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr) = 0;
 	virtual bool CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr) = 0;
-	virtual void DestroyBufferObject() = 0;
+	virtual void DestroyBufferObject()
+	{
+		m_BufferObjectPtr.reset();
+		m_DescriptorBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	}
+
 	//virtual std::string GetBufferObjectStructureHeader(const uint32_t& vBinding) = 0;
 	virtual vk::DescriptorBufferInfo* GetBufferInfo()
 	{
-		if (m_BufferObjectPtr)
-		{
-			return &m_BufferObjectPtr->bufferInfo;
-		}
-
-		return nullptr;
+		return &m_DescriptorBufferInfo;
 	}
 };

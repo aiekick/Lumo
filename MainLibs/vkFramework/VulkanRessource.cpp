@@ -586,7 +586,7 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 	auto dataPtr = VulkanBufferObjectPtr(new VulkanBufferObject, [](VulkanBufferObject* obj)
 		{
 			vmaDestroyBuffer(vkApi::VulkanCore::sAllocator, (VkBuffer)obj->buffer, obj->alloc_meta);
-			obj->bufferInfo = vk::DescriptorBufferInfo{};
+			//obj->bufferInfo = vk::DescriptorBufferInfo{};
 		});
 	dataPtr->alloc_usage = alloc_info.usage;
 	VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&bufferinfo, &alloc_info,
@@ -594,9 +594,9 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 
 	if (dataPtr && dataPtr->buffer)
 	{
-		dataPtr->bufferInfo.buffer = dataPtr->buffer;
-		dataPtr->bufferInfo.range = bufferinfo.size;
-		dataPtr->bufferInfo.offset = 0;
+		//dataPtr->bufferInfo.buffer = dataPtr->buffer;
+		//dataPtr->bufferInfo.range = bufferinfo.size;
+		//dataPtr->bufferInfo.offset = 0;
 	}
 	else
 	{
