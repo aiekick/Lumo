@@ -56,8 +56,9 @@ bool ModelShadowModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 
 	if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
 	{
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Strength", &m_UBOFrag.u_shadow_strength, 0.0f, 1.0f, 0.5f);
 		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOFrag.u_bias, 0.0f, 0.02f, 0.01f);
-		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_poisson_scale, 1.0f, 10000.0f, 5000.0f);
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_poisson_scale, 1.0f, 10000.0f, 2000.0f);
 
 		if (change)
 		{
@@ -129,18 +130,18 @@ vk::DescriptorImageInfo* ModelShadowModule_Pass::GetDescriptorImageInfo(const ui
 
 void ModelShadowModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	ZoneScoped;
-
 	m_SceneLightGroup = vSceneLightGroup;
 
-	m_NeedLightGroupUpdate = true;
-}
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
 
-void ModelShadowModule_Pass::SetLighViewMatrix(const glm::mat4& vLightViewMatrix)
-{
-	m_UBOFrag.u_light_cam = vLightViewMatrix;
+	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	if (lightGroupPtr &&
+		lightGroupPtr->GetBufferInfo())
+	{
+		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
+	}
 
-	NeedNewUBOUpload();
+	UpdateBufferInfoInRessourceDescriptor();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,6 +153,7 @@ std::string ModelShadowModule_Pass::getXml(const std::string& vOffset, const std
 	std::string str;
 
 	str += vOffset + "<bias>" + ct::toStr(m_UBOFrag.u_bias) + "</bias>\n";
+	str += vOffset + "<strength>" + ct::toStr(m_UBOFrag.u_shadow_strength) + "</strength>\n";
 	str += vOffset + "<noise_scale>" + ct::toStr(m_UBOFrag.u_poisson_scale) + "</noise_scale>\n";
 
 	return str;
@@ -174,6 +176,8 @@ bool ModelShadowModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 	{
 		if (strName == "bias")
 			m_UBOFrag.u_bias = ct::fvariant(strValue).GetF();
+		else if (strName == "strength")
+			m_UBOFrag.u_shadow_strength = ct::fvariant(strValue).GetF();
 		else if (strName == "noise_scale")
 			m_UBOFrag.u_poisson_scale = ct::fvariant(strValue).GetF();
 
@@ -229,6 +233,7 @@ bool ModelShadowModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
 	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
@@ -242,39 +247,9 @@ bool ModelShadowModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
 
 	return true;
-}
-
-void ModelShadowModule_Pass::UpdateRessourceDescriptor()
-{
-	ZoneScoped;
-
-	m_Device.waitIdle();
-
-	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
-	if (lightGroupPtr && !lightGroupPtr->empty())
-	{
-		auto lightPtr = lightGroupPtr->Get(0).getValidShared();
-		if (lightPtr)
-		{
-			if (m_NeedLightGroupUpdate)
-			{
-				lightPtr->NeedUpdateCamera();
-
-				m_UBOFrag.u_light_cam = lightPtr->lightDatas.lightView;
-
-				// va provoquer une nouvel upload dans 
-				// MixedMeshRenderer::UpdateRessourceDescriptor();
-				// juste apres
-				NeedNewUBOUpload();
-
-				m_NeedLightGroupUpdate = false;
-			}
-		}
-	}
-
-	ShaderPass::UpdateRessourceDescriptor();
 }
 
 std::string ModelShadowModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
@@ -306,11 +281,13 @@ std::string ModelShadowModule_Pass::GetFragmentShaderCode(std::string& vOutShade
 layout(location = 0) out vec4 fragShadow;
 layout(location = 0) in vec2 v_uv;
 )"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
++ 
+CommonSystem::GetBufferObjectStructureHeader(0U) 
++
 u8R"(
 layout (std140, binding = 1) uniform UBO_Frag 
 { 
-	mat4 u_light_cam;
+	float u_shadow_strength;
 	float u_bias;
 	float u_poisson_scale;
 	float use_sampler_pos;
@@ -318,7 +295,11 @@ layout (std140, binding = 1) uniform UBO_Frag
 };
 layout(binding = 2) uniform sampler2D position_map_sampler;
 layout(binding = 3) uniform sampler2D light_shadow_map_sampler;
-
+)"
++
+SceneLightGroup::GetBufferObjectStructureHeader(4U)
++
+u8R"(
 const vec2 poissonDisk[16] = vec2[]
 ( 
    vec2( -0.94201624, -0.39906216 ), 
@@ -356,16 +337,16 @@ void main()
 		vec3 pos = texture(position_map_sampler, v_uv).xyz;
 		if (dot(pos, pos) > 0.0)
 		{
-			vec4 shadowCoord = u_light_cam * vec4(pos, 1.0);
+			vec4 shadowCoord = lightDatas[0].lightView * vec4(pos, 1.0);
 			shadowCoord.xyz /= shadowCoord.w;
 			shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
 
 			const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
 			const float bias = u_bias * 0.01;
 
-			float sha_vis = 1.0;
+			float sha_vis = 0.5 + mix(0.5, 0.0, u_shadow_strength);
 			float sha_step = 1.0 / 16.0;
-			for (int i=0;i<8;i++)
+			for (int i=0;i<8;i++) // total sha steps => 8 / 16 => 0.5
 			{
 				int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
 				float sha = texture(light_shadow_map_sampler, shadowCoord.xy + poissonDisk[index] / poisson_scale).r;

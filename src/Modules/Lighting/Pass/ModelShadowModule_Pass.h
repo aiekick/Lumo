@@ -52,12 +52,14 @@ class ModelShadowModule_Pass :
 	public TextureOutputInterface,
 	public LightInputInterface
 {
-protected: // vulkan creation
+protected:
+	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
+	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+
 	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
-
 	struct UBOFrag {
-		alignas(16) glm::mat4 u_light_cam = glm::mat4(1.0f);
+		alignas(4) float u_shadow_strength = 0.5f;
 		alignas(4) float u_bias = 0.01f;
 		alignas(4) float u_poisson_scale = 5000.0f;
 		alignas(4) float use_sampler_pos = 0.0f;
@@ -77,8 +79,6 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
-	void SetLighViewMatrix(const glm::mat4& vLightViewMatrix);
-
 private:
 	bool CreateUBO() override;
 	void UploadUBO() override;
@@ -86,7 +86,6 @@ private:
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
-	void UpdateRessourceDescriptor() override;
 
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;

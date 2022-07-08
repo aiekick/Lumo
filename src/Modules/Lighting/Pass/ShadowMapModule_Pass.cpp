@@ -120,11 +120,18 @@ void ShadowMapModule_Pass::SetModel(SceneModelWeak vSceneModel)
 
 void ShadowMapModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	ZoneScoped;
-
 	m_SceneLightGroup = vSceneLightGroup;
 
-	m_NeedLightGroupUpdate = true;
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+
+	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	if (lightGroupPtr &&
+		lightGroupPtr->GetBufferInfo())
+	{
+		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
+	}
+
+	UpdateBufferInfoInRessourceDescriptor();
 }
 
 SceneLightGroupWeak ShadowMapModule_Pass::GetLightGroup()
@@ -221,7 +228,8 @@ bool ShadowMapModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 
 	m_LayoutBindings.clear();
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
@@ -232,40 +240,10 @@ bool ShadowMapModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Vert);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
-
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
+	
 	return true;
-}
-
-void ShadowMapModule_Pass::UpdateRessourceDescriptor()
-{
-	ZoneScoped;
-
-	m_Device.waitIdle();
-
-	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
-	if (lightGroupPtr && !lightGroupPtr->empty())
-	{
-		auto lightPtr = lightGroupPtr->Get(0).getValidShared();
-		if (lightPtr)
-		{
-			if (m_NeedLightGroupUpdate)
-			{
-				lightPtr->NeedUpdateCamera();
-
-				m_UBOVert.light_cam = lightPtr->lightDatas.lightView;
-
-				// va provoquer une nouvel upload dans 
-				// MixedMeshRenderer::UpdateRessourceDescriptor();
-				// juste apres
-				NeedNewUBOUpload();
-
-				m_NeedLightGroupUpdate = false;
-			}
-		}
-	}
-
-	ShaderPass::UpdateRessourceDescriptor();
 }
 
 void ShadowMapModule_Pass::SetInputStateBeforePipelineCreation()
@@ -289,12 +267,16 @@ layout(location = 5) in vec4 vertColor;
 
 layout (std140, binding = 0) uniform UBO_Vert 
 { 
-	mat4 light_cam;
+	uint light_id_to_use;
 };
-
+)"
++
+SceneLightGroup::GetBufferObjectStructureHeader(1U)
++
+u8R"(
 void main() 
 {
-	gl_Position = light_cam * vec4(vertPosition, 1.0);
+	gl_Position = lightDatas[light_id_to_use].lightView * vec4(vertPosition, 1.0);
 }
 )";
 }
@@ -308,21 +290,21 @@ std::string ShadowMapModule_Pass::GetFragmentShaderCode(std::string& vOutShaderN
 
 layout(location = 0) out float fragDepth;
 )"
-+ CommonSystem::GetBufferObjectStructureHeader(1U) +
++ CommonSystem::GetBufferObjectStructureHeader(2U) +
 u8R"(
 void main() 
 {
 	float depth = gl_FragCoord.z / gl_FragCoord.w;
-	//if (depth > 0.0)
-	{
+	/*if (depth > 0.0)
+	{*/
 		if (cam_far > 0.0)
 			depth /= cam_far;
 		fragDepth = depth;
-	}
-	//else
+	/*}
+	else
 	{
-	//	discard;
-	}
+		discard;
+	}*/
 }
 )";
 }

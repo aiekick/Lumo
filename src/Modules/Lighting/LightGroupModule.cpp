@@ -78,6 +78,7 @@ bool LightGroupModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 		{
 			if (lightPtr && lightPtr->wasChanged)
 			{
+				lightPtr->NeedUpdateCamera();
 				m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas); 
 				
 				lightPtr->wasChanged = false;
@@ -119,8 +120,6 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 			{
 				if (ImGui::CollapsingHeader(ct::toStr("Light %u : %s", idx, lightPtr->name.c_str()).c_str()))
 				{
-					bool change = false;
-
 					ImGui::Header("Light");
 
 					auto lightTypeIndex = (int32_t)lightPtr->lightDatas.lightType;
@@ -128,34 +127,33 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						{ "NONE","POINT", "DIRECTIONNAL", "SPOT", "AREA" }, (int32_t)LightTypeEnum::POINT))
 					{
 						lightPtr->lightDatas.lightType = lightTypeIndex;
-						change = true;
+						lightPtr->wasChanged = true;
 					}
-					change |= ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightColor.x);
-					change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f);
+					lightPtr->wasChanged |= ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightColor.x);
+					lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f);
 
 					if (lightTypeIndex == 2U) // orthographic
 					{
 						ImGui::Header("Orthographic");
 
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Width/Height", &lightPtr->lightDatas.orthoSideSize, 0.0f, 1000.0f, 30.0f);
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rear", &lightPtr->lightDatas.orthoRearSize, 0.0f, 1000.0f, 1000.0f);
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
+						lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Width/Height", &lightPtr->lightDatas.orthoSideSize, 0.0f, 1000.0f, 30.0f);
+						lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Rear", &lightPtr->lightDatas.orthoRearSize, 0.0f, 1000.0f, 1000.0f);
+						lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
 					}
 					else if (lightTypeIndex == 3U) // perspective
 					{
 						ImGui::Header("Perpective");
 
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Perspective Angle", &lightPtr->lightDatas.perspectiveAngle, 0.0f, 180.0f, 45.0f);
-						change |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
+						lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Perspective Angle", &lightPtr->lightDatas.perspectiveAngle, 0.0f, 180.0f, 45.0f);
+						lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Deep", &lightPtr->lightDatas.orthoDeepSize, 0.0f, 1000.0f, 1000.0f);
 					}
 					
 					ImGui::Header("Gizmo");
 
+					lightPtr->wasChanged |= ImGui::CheckBoxBoolDefault("Show Icon", &lightPtr->showIcon, true);
+					lightPtr->wasChanged |= ImGui::CheckBoxBoolDefault("Show Text", &lightPtr->showText, true);
 
-					change |= ImGui::CheckBoxBoolDefault("Show Icon", &lightPtr->showIcon, true);
-					change |= ImGui::CheckBoxBoolDefault("Show Text", &lightPtr->showText, true);
-
-					change |= GizmoSystem::Instance()->DrawGizmoTransformDialog(lightPtr);
+					lightPtr->wasChanged |= GizmoSystem::Instance()->DrawGizmoTransformDialog(lightPtr);
 
 					ImGui::Header("Gizmo Matrix");
 
@@ -164,7 +162,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						floatArr[0], floatArr[1], floatArr[2], floatArr[3], floatArr[4], floatArr[5], floatArr[6], floatArr[7],
 						floatArr[8], floatArr[9], floatArr[10], floatArr[11], floatArr[12], floatArr[13], floatArr[14], floatArr[15]);
 
-					if (change)
+					if (lightPtr->wasChanged)
 					{
 						oneChangedLightAtLeast = true;
 

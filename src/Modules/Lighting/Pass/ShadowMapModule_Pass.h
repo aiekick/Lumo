@@ -46,7 +46,6 @@ limitations under the License.
 #include <Interfaces/LightInputInterface.h>
 #include <Interfaces/LightOutputInterface.h>
 
-
 class ShadowMapModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
@@ -55,12 +54,14 @@ class ShadowMapModule_Pass :
 	public LightInputInterface,
 	public LightOutputInterface
 {
-protected: // vulkan creation
+protected:
+	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
+	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+
 	VulkanBufferObjectPtr m_UBO_Vert = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
-
 	struct UBOVert {
-		alignas(16) glm::mat4x4 light_cam = glm::mat4x4(1.0f);
+		alignas(16) uint32_t light_id_to_use = 0U;
 	} m_UBOVert;
 
 public:
@@ -78,8 +79,6 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
-	glm::mat4 GetLightViewMatrix() { return m_UBOVert.light_cam; }
-
 private:
 	void DestroyModel(const bool& vReleaseDatas = false) override;
 
@@ -89,7 +88,6 @@ private:
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override; 
-	void UpdateRessourceDescriptor() override;
 
 	void SetInputStateBeforePipelineCreation() override;
 
