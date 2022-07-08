@@ -65,7 +65,7 @@ bool GrayScottNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool GrayScottNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

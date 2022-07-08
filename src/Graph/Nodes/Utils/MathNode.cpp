@@ -65,7 +65,7 @@ bool MathNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool MathNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool MathNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

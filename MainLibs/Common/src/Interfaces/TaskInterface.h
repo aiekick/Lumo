@@ -24,7 +24,57 @@ protected:
 	// to compare to current frame
 	// to know is the execution was already done
 	uint32_t m_LastExecutedFrame = 0U;
+	bool m_NeedNewExecution = false;
+	bool m_ExecutionWhenNeededOnly = false; // execution when asked, or all time
+
+protected:
+	void NeedNewExecution() { m_NeedNewExecution = true; }
+	void SetExecutionWhenNeededOnly(const bool& vEnable) { m_ExecutionWhenNeededOnly = vEnable; }
+
+	// mais ond definira que ces fonctions, l'une ou l'autre ou les deux.
+	// en effet, les deux peuvent exister simultanenemt, si besoin d'un traitement different en time to time et all
+	// ex : - un ExecuteWhenNeeded quand il y a une maj d'un input de mesh, pour calcul des smooths normal une fois seulement
+	//      - un ExecuteAllTime pour le traitement a chaque frame du mesh
+
+	virtual bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr)
+	{
+		UNUSED(vCurrentFrame);
+		UNUSED(vCmd);
+
+		CTOOL_DEBUG_BREAK; // pour eviter d'oublier d'avoir implementé cette fonction alors qu'on l'apelle
+
+		return false;
+	}
+
+	virtual bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr)
+	{
+		UNUSED(vCurrentFrame);
+		UNUSED(vCmd);
+
+		CTOOL_DEBUG_BREAK; // pour eviter d'oublier d'avoir implementé cette fonction alors qu'on l'apelle
+
+		return false;
+	}
 
 public:
-	virtual bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd = nullptr) = 0;
+	// il reviends a chaque classe qui derive de TaskInterface de choisir son mode d'execution
+	// donc on appellera Execute entre classe
+	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr)
+	{
+		if (m_ExecutionWhenNeededOnly)
+		{
+			if (m_NeedNewExecution)
+			{
+				m_NeedNewExecution = false;
+
+				return ExecuteWhenNeeded(vCurrentFrame, vCmd);
+			}
+		}
+		else
+		{
+			return ExecuteAllTime(vCurrentFrame, vCmd);
+		}
+
+		return false;
+	}
 };

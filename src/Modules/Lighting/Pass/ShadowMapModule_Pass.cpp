@@ -116,8 +116,6 @@ void ShadowMapModule_Pass::SetModel(SceneModelWeak vSceneModel)
 	ZoneScoped;
 
 	m_SceneModel = vSceneModel;
-
-	m_NeedModelUpdate = true;
 }
 
 void ShadowMapModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)

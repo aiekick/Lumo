@@ -57,7 +57,7 @@ bool LightNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool LightNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool LightNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	if (m_LightGroupModulePtr)
 	{

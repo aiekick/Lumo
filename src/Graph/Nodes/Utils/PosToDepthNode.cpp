@@ -65,7 +65,7 @@ bool PosToDepthNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool PosToDepthNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool PosToDepthNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

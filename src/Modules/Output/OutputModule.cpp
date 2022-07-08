@@ -128,7 +128,7 @@ void OutputModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBu
 	}
 }
 
-bool OutputModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* /*vCmd*/)
+bool OutputModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* /*vCmd*/)
 {
 	ZoneScoped;
 

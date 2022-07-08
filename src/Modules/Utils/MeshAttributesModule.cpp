@@ -101,7 +101,7 @@ bool MeshAttributesModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool MeshAttributesModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool MeshAttributesModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

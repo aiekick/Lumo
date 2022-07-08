@@ -93,7 +93,7 @@ bool MatcapRenderer::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool MatcapRenderer::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool MatcapRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

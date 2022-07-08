@@ -65,7 +65,7 @@ bool BlurNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool BlurNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool BlurNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

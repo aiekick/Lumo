@@ -180,7 +180,7 @@ bool ShaderPass::InitCompute2D(
 	const bool& vMultiPassMode,
 	const vk::Format& vFormat)
 {
-	m_RendererType = GenericType::COMPUTE;
+	m_RendererType = GenericType::COMPUTE_2D;
 
 	Resize(vDispatchSize); // will update m_RenderArea and m_Viewport
 
@@ -200,7 +200,8 @@ bool ShaderPass::InitCompute2D(
 	CompilCompute();
 
 	m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
-	if (m_ComputeBufferPtr->Init(
+	if (m_ComputeBufferPtr && 
+		m_ComputeBufferPtr->Init(
 		vDispatchSize, vCountBuffers, 
 		vMultiPassMode, vFormat)) {
 		if (BuildModel()) {
@@ -232,9 +233,7 @@ bool ShaderPass::InitCompute2D(
 
 bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize)
 {
-	/*m_RendererType = GenericType::COMPUTE;
-
-	Resize(vDispatchSize.xy()); // will update m_RenderArea and m_Viewport
+	m_RendererType = GenericType::COMPUTE_3D;
 
 	ActionBeforeInit();
 
@@ -272,9 +271,7 @@ bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize)
 	else
 	{
 		ActionAfterInitFail();
-	}*/
-
-	CTOOL_DEBUG_BREAK;
+	}
 
 	return m_Loaded;
 }
@@ -349,12 +346,15 @@ bool ShaderPass::ResizeIfNeeded()
 
 	if (m_ResizingIsAllowed)
 	{
-		if (m_FrameBufferPtr && m_FrameBufferPtr->ResizeIfNeeded())
+		if (m_FrameBufferPtr && 
+			m_FrameBufferPtr->ResizeIfNeeded())
 		{
 			Resize(m_FrameBufferPtr->GetOutputSize());
 			return true;
 		}
-		else if (m_ComputeBufferPtr && m_ComputeBufferPtr->ResizeIfNeeded())
+		else if (
+			m_ComputeBufferPtr && 
+			m_ComputeBufferPtr->ResizeIfNeeded())
 		{
 			UpdateBufferInfoInRessourceDescriptor();
 			Resize(m_ComputeBufferPtr->GetOutputSize());
@@ -393,16 +393,15 @@ void ShaderPass::SwapOutputDescriptors()
 
 void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
-	if (m_IsShaderCompiled)
+	if (m_IsShaderCompiled && m_Pipeline && m_PipelineLayout)
 	{
-
 		auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
 		if (devicePtr)
 		{
 			devicePtr->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
 		}
 
-		if (IsPixelRenderer())
+		if (IsPixelRenderer() && m_FrameBufferPtr)
 		{
 			if (m_FrameBufferPtr->Begin(vCmdBuffer))
 			{
@@ -411,7 +410,7 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 				m_FrameBufferPtr->End(vCmdBuffer);
 			}
 		}
-		else if (IsComputeRenderer())
+		else if (IsCompute2DRenderer() && m_ComputeBufferPtr)
 		{
 			if (m_ComputeBufferPtr->Begin(vCmdBuffer))
 			{
@@ -419,6 +418,10 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 
 				m_ComputeBufferPtr->End(vCmdBuffer);
 			}
+		}
+		else if (IsCompute3DRenderer())
+		{
+			Compute(vCmdBuffer, vIterationNumber);
 		}
 
 		if (devicePtr)
@@ -465,6 +468,11 @@ bool ShaderPass::BuildModel()
 	return true;
 }
 
+void ShaderPass::NeedNewModelUpload()
+{
+	m_NeedNewModelUpdate = true;
+}
+
 void ShaderPass::DestroyModel(const bool& vReleaseDatas)
 {
 	ZoneScoped;
@@ -477,7 +485,16 @@ void ShaderPass::DestroyModel(const bool& vReleaseDatas)
 
 void ShaderPass::UpdateModel(const bool& vLoaded)
 {
+	ZoneScoped;
 
+	if (vLoaded)
+	{
+		DestroyModel();
+	}
+
+	BuildModel();
+
+	UpdateBufferInfoInRessourceDescriptor();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -542,9 +559,14 @@ bool ShaderPass::IsPixelRenderer()
 	return (m_RendererType == GenericType::PIXEL);
 }
 
-bool ShaderPass::IsComputeRenderer()
+bool ShaderPass::IsCompute2DRenderer()
 {
-	return (m_RendererType == GenericType::COMPUTE);
+	return (m_RendererType == GenericType::COMPUTE_2D);
+}
+
+bool ShaderPass::IsCompute3DRenderer()
+{
+	return (m_RendererType == GenericType::COMPUTE_3D);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -703,7 +725,8 @@ bool ShaderPass::ReCompil()
 {
 	bool res = false;
 
-	if (m_RendererType == GenericType::COMPUTE)
+	if (m_RendererType == GenericType::COMPUTE_2D ||
+		m_RendererType == GenericType::COMPUTE_3D)
 	{
 		res = CompilCompute();
 	}
@@ -897,7 +920,11 @@ void ShaderPass::UpdateRessourceDescriptor()
 		m_NeedNewSBOUpload = false;
 	}
 
-	SwapOutputDescriptors();
+	if (m_ComputeBufferPtr && 
+		m_ComputeBufferPtr->IsMultiPassMode())
+	{
+		SwapOutputDescriptors();
+	}
 
 	// update descriptor
 	m_Device.updateDescriptorSets(writeDescriptorSets, nullptr);
@@ -959,6 +986,16 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PRIVATE / PUSH CONSTANTS //////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// to call before create pipeline
+void ShaderPass::SetPushConstantRange(const vk::PushConstantRange& vPushConstantRange)
+{
+	m_Internal_PushConstants = vPushConstantRange;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE / PIPELINE ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -966,16 +1003,21 @@ bool ShaderPass::CreateComputePipeline()
 {
 	ZoneScoped;
 
-	if (!m_ComputeBufferPtr) return false;
 	if (m_ComputeShaderCode.m_SPIRV.empty()) return false;
+
+	std::vector<vk::PushConstantRange> push_constants;
+	if (m_Internal_PushConstants.size)
+	{
+		push_constants.push_back(m_Internal_PushConstants);
+	}
 
 	m_PipelineLayout =
 		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
 			vk::PipelineLayoutCreateFlags(),
 			1, &m_DescriptorSetLayout,
-			0, nullptr
+			(uint32_t)push_constants.size(), push_constants.data()
 		));
-
+	
 	auto cs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ComputeShaderCode.m_SPIRV);
 
 	m_ShaderCreateInfos.clear();
@@ -1017,11 +1059,17 @@ bool ShaderPass::CreatePixelPipeline()
 	if (m_VertexShaderCode.m_SPIRV.empty()) return false;
 	if (m_FragmentShaderCode.m_SPIRV.empty()) return false;
 	
+	std::vector<vk::PushConstantRange> push_constants;
+	if (m_Internal_PushConstants.size)
+	{
+		push_constants.push_back(m_Internal_PushConstants);
+	}
+
 	m_PipelineLayout =
 		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
 			vk::PipelineLayoutCreateFlags(),
 			1, &m_DescriptorSetLayout,
-			0, nullptr
+			(uint32_t)push_constants.size(), push_constants.data()
 		));
 
 	auto vs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_VertexShaderCode.m_SPIRV);

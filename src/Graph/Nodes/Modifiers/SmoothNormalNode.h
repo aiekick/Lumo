@@ -21,23 +21,23 @@ limitations under the License.
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-class ComputeSmoothMeshNormal;
-class ComputeSmoothMeshNormalNode : 
+class SmoothNormalModule;
+class SmoothNormalNode : 
 	public BaseNode,
 	public ModelInputInterface,
 	public ModelOutputInterface
 {
 public:
-	static std::shared_ptr<ComputeSmoothMeshNormalNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SmoothNormalNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<ComputeSmoothMeshNormal> m_ComputeSmoothMeshNormalPtr = nullptr;
+	std::shared_ptr<SmoothNormalModule> m_SmoothNormalModulePtr = nullptr;
 
 public:
-	ComputeSmoothMeshNormalNode();
-	~ComputeSmoothMeshNormalNode() override;
+	SmoothNormalNode();
+	~SmoothNormalNode() override;
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
-	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd = nullptr) override;
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	SceneModelWeak GetModel() override;

@@ -100,7 +100,7 @@ bool LaplacianModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool LaplacianModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool LaplacianModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

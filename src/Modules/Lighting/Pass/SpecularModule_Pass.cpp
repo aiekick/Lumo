@@ -114,11 +114,17 @@ vk::DescriptorImageInfo* SpecularModule_Pass::GetDescriptorImageInfo(const uint3
 void SpecularModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	m_SceneLightGroup = vSceneLightGroup;
-}
 
-void SpecularModule_Pass::SwapOutputDescriptors()
-{
-	writeDescriptorSets[0].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // output
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+
+	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	if (lightGroupPtr &&
+		lightGroupPtr->GetBufferInfo())
+	{
+		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
+	}
+
+	UpdateBufferInfoInRessourceDescriptor();
 }
 
 void SpecularModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
@@ -196,19 +202,8 @@ bool SpecularModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, 
 		nullptr, CommonSystem::Instance()->GetBufferInfo()); // output
 	
-	auto lightGrouPtr = m_SceneLightGroup.getValidShared();
-	if (lightGrouPtr)
-	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer, 
-			nullptr, lightGrouPtr->GetBufferInfo());
-	}
-	/*
-	else
-	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
-	}
-	*/
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		nullptr, m_SceneLightGroupDescriptorInfoPtr);
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eUniformBuffer,
 		nullptr, &m_UBO_Comp_BufferInfo); // output

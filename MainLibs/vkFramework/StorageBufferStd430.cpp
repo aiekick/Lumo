@@ -62,6 +62,16 @@ void StorageBufferStd430::SetDirty()
 	isDirty = true;
 }
 
+bool StorageBufferStd430::IsDirty()
+{
+	return isDirty;
+}
+
+bool StorageBufferStd430::IsOk()
+{
+	return firstUploadWasDone;
+}
+
 void StorageBufferStd430::Upload(vkApi::VulkanCorePtr vVulkanCorePtr, bool vOnlyIfDirty)
 {
 	ZoneScoped;
@@ -75,9 +85,10 @@ void StorageBufferStd430::Upload(vkApi::VulkanCorePtr vVulkanCorePtr, bool vOnly
 			if (bufferObjectPtr)
 			{
 				VulkanRessource::upload(vVulkanCorePtr, *bufferObjectPtr, datas.data(), datas.size());
-			}
 
-			isDirty = false;
+				firstUploadWasDone = true;
+				isDirty = false;
+			}
 		}
 	}
 }

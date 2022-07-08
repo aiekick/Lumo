@@ -100,7 +100,7 @@ bool ShadowMapModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ShadowMapModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool ShadowMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

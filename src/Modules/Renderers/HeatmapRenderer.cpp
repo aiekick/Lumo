@@ -91,7 +91,7 @@ bool HeatmapRenderer::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool HeatmapRenderer::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool HeatmapRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

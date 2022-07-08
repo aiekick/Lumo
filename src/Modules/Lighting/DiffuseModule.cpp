@@ -98,7 +98,7 @@ bool DiffuseModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DiffuseModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool DiffuseModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 
@@ -120,13 +120,9 @@ bool DiffuseModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 		{
 			bool change = false;
 
-			for (auto passPtr : m_ShaderPass)
+			if (m_DiffuseModule_Pass_Ptr)
 			{
-				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(passPtr);
-				if (passGuiPtr)
-				{
-					change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext);
-				}
+				change |= m_DiffuseModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 
 			return change;
@@ -199,12 +195,9 @@ std::string DiffuseModule::getXml(const std::string& vOffset, const std::string&
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_DiffuseModule_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			str += passPtr->getXml(vOffset + "\t", vUserDatas);
-		}
+		str += m_DiffuseModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</diffuse_module>\n";
@@ -231,12 +224,9 @@ bool DiffuseModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_DiffuseModule_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			passPtr->setFromXml(vElem, vParent, vUserDatas);
-		}
+		m_DiffuseModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

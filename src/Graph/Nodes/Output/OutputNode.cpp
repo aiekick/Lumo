@@ -64,7 +64,7 @@ void OutputNode::Unit()
 	m_OutputModulePtr.reset();
 }
 
-bool OutputNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool OutputNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
@@ -200,7 +200,7 @@ void OutputNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWea
 	// one output only
 	//if (m_OutputModulePtr)
 	{
-		//ImGui::Text("%s", m_ComputeSmoothMeshNormal->GetFileName().c_str());
+		//ImGui::Text("%s", m_SmoothNormal->GetFileName().c_str());
 	}
 }
 

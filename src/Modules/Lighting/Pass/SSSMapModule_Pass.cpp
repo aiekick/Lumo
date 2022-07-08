@@ -116,8 +116,6 @@ void SSSMapModule_Pass::SetModel(SceneModelWeak vSceneModel)
 	ZoneScoped;
 
 	m_SceneModel = vSceneModel;
-
-	m_NeedModelUpdate = true;
 }
 
 void SSSMapModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)

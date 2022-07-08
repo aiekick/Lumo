@@ -85,7 +85,7 @@ void NodeManager::PrepareToLoadGraph()
 //// TASK //////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	auto outputPtr = m_RootNodePtr->m_OutputNode.getValidShared();
 	if (outputPtr)

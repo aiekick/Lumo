@@ -66,7 +66,7 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Diffuse", "DIFFUSE");
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Specular", "SPECULAR");
 
-	m_RootLibraryCategory.AddCustom("Core/Modifiers", "Smooth Normals", "COMPUTE_SMOOTH_MESH_NORMAL");
+	m_RootLibraryCategory.AddCustom("Core/Modifiers", "Smooth Normals", "SMOOTH_NORMAL");
 
 	m_RootLibraryCategory.AddCustom("Core/Output", "Output", "OUTPUT");
 

@@ -76,7 +76,7 @@ bool SpecularNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool SpecularNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool SpecularNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

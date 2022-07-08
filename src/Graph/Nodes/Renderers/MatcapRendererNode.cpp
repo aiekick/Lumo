@@ -75,7 +75,7 @@ void MatcapRendererNode::Unit()
 	m_MatcapRenderer.reset();
 }
 
-bool MatcapRendererNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool MatcapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

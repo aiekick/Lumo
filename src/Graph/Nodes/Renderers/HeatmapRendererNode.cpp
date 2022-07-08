@@ -69,7 +69,7 @@ void HeatmapRendererNode::Unit()
 	m_HeatmapRenderer.reset();
 }
 
-bool HeatmapRendererNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool HeatmapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

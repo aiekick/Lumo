@@ -98,7 +98,7 @@ bool BlurModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool BlurModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool BlurModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

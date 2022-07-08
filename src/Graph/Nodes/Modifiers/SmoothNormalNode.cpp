@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "ComputeSmoothMeshNormalNode.h"
-#include <Modules/Modifiers/ComputeSmoothMeshNormal.h>
+#include "SmoothNormalNode.h"
+#include <Modules/Modifiers/SmoothNormalModule.h>
 
-std::shared_ptr<ComputeSmoothMeshNormalNode> ComputeSmoothMeshNormalNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SmoothNormalNode> SmoothNormalNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<ComputeSmoothMeshNormalNode>();
+	auto res = std::make_shared<SmoothNormalNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -28,17 +28,17 @@ std::shared_ptr<ComputeSmoothMeshNormalNode> ComputeSmoothMeshNormalNode::Create
 	return res;
 }
 
-ComputeSmoothMeshNormalNode::ComputeSmoothMeshNormalNode() : BaseNode()
+SmoothNormalNode::SmoothNormalNode() : BaseNode()
 {
-	m_NodeTypeString = "COMPUTE_SMOOTH_MESH_NORMAL";
+	m_NodeTypeString = "SMOOTH_NORMAL";
 }
 
-ComputeSmoothMeshNormalNode::~ComputeSmoothMeshNormalNode()
+SmoothNormalNode::~SmoothNormalNode()
 {
 
 }
 
-bool ComputeSmoothMeshNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SmoothNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Smooth Normal";
 
@@ -52,8 +52,10 @@ bool ComputeSmoothMeshNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	slot.showWidget = true;
 	AddOutput(slot, true, true);
 
-	m_ComputeSmoothMeshNormalPtr = ComputeSmoothMeshNormal::Create(vVulkanCorePtr, m_This, ct::uvec3(1,0,0));
-	if (m_ComputeSmoothMeshNormalPtr)
+	// we keep this node in ExecuteAllTime, because we need to propagate to inputs for each frames
+	
+	m_SmoothNormalModulePtr = SmoothNormalModule::Create(vVulkanCorePtr, m_This);
+	if (m_SmoothNormalModulePtr)
 	{
 		return true;
 	}
@@ -61,36 +63,36 @@ bool ComputeSmoothMeshNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return false;
 }
 
-bool ComputeSmoothMeshNormalNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool SmoothNormalNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
-	if (m_ComputeSmoothMeshNormalPtr)
+	if (m_SmoothNormalModulePtr)
 	{
-		return m_ComputeSmoothMeshNormalPtr->Execute(vCurrentFrame, vCmd);
+		return m_SmoothNormalModulePtr->Execute(vCurrentFrame, vCmd);
 	}
 	return false;
 }
 
-bool ComputeSmoothMeshNormalNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SmoothNormalNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	if (m_ComputeSmoothMeshNormalPtr)
+	if (m_SmoothNormalModulePtr)
 	{
-		return m_ComputeSmoothMeshNormalPtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_SmoothNormalModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void ComputeSmoothMeshNormalNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void SmoothNormalNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	if (m_ComputeSmoothMeshNormalPtr)
+	if (m_SmoothNormalModulePtr)
 	{
-		m_ComputeSmoothMeshNormalPtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_SmoothNormalModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void ComputeSmoothMeshNormalNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void SmoothNormalNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
 {
 	if (vCanvasState && vCanvasState->debug_mode)
 	{
@@ -107,30 +109,30 @@ void ComputeSmoothMeshNormalNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct
 	}
 }
 
-void ComputeSmoothMeshNormalNode::SetModel(SceneModelWeak vSceneModel)
+void SmoothNormalNode::SetModel(SceneModelWeak vSceneModel)
 {
-	if (m_ComputeSmoothMeshNormalPtr)
+	if (m_SmoothNormalModulePtr)
 	{
-		m_ComputeSmoothMeshNormalPtr->SetModel(vSceneModel);
+		m_SmoothNormalModulePtr->SetModel(vSceneModel);
 	}
 }
 
-SceneModelWeak ComputeSmoothMeshNormalNode::GetModel()
+SceneModelWeak SmoothNormalNode::GetModel()
 {
-	if (m_ComputeSmoothMeshNormalPtr)
+	if (m_SmoothNormalModulePtr)
 	{
-		return m_ComputeSmoothMeshNormalPtr->GetModel();
+		return m_SmoothNormalModulePtr->GetModel();
 	}
 
 	return SceneModelWeak();
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ComputeSmoothMeshNormalNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void SmoothNormalNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ComputeSmoothMeshNormalPtr)
+	if (startSlotPtr && endSlotPtr && m_SmoothNormalModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
@@ -150,7 +152,7 @@ void ComputeSmoothMeshNormalNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, 
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ComputeSmoothMeshNormalNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void SmoothNormalNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
@@ -163,14 +165,15 @@ void ComputeSmoothMeshNormalNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlo
 	}
 }
 
-void ComputeSmoothMeshNormalNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void SmoothNormalNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
 	case NotifyEvent::ModelUpdateDone:
 	{
+		// traitment on inputs
 		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
-		if (emiterSlotPtr && m_ComputeSmoothMeshNormalPtr)
+		if (emiterSlotPtr && m_SmoothNormalModulePtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
@@ -181,6 +184,17 @@ void ComputeSmoothMeshNormalNode::Notify(const NotifyEvent& vEvent, const NodeSl
 				}
 			}
 		}
+
+		// notify on outputs than the mesh have changed
+		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::MESH);
+		for (const auto& slot : slots)
+		{
+			auto slotPtr = slot.getValidShared();
+			if (slotPtr)
+			{
+				slotPtr->Notify(NotifyEvent::ModelUpdateDone, slot);
+			}
+		}
 		break;
 	}
 	default:
@@ -188,12 +202,12 @@ void ComputeSmoothMeshNormalNode::Notify(const NotifyEvent& vEvent, const NodeSl
 	}
 }
 
-void ComputeSmoothMeshNormalNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
+void SmoothNormalNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
 {
 	// one output only
-	//if (m_ComputeSmoothMeshNormalPtr)
+	//if (m_SmoothNormalModulePtr)
 	{
-		//ImGui::Text("%s", m_ComputeSmoothMeshNormal->GetFileName().c_str());
+		//ImGui::Text("%s", m_SmoothNormal->GetFileName().c_str());
 	}
 }
 
@@ -201,7 +215,7 @@ void ComputeSmoothMeshNormalNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasS
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ComputeSmoothMeshNormalNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string SmoothNormalNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -227,9 +241,9 @@ std::string ComputeSmoothMeshNormalNode::getXml(const std::string& vOffset, cons
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_ComputeSmoothMeshNormalPtr)
+		if (m_SmoothNormalModulePtr)
 		{
-			res += m_ComputeSmoothMeshNormalPtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_SmoothNormalModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -238,7 +252,7 @@ std::string ComputeSmoothMeshNormalNode::getXml(const std::string& vOffset, cons
 	return res;
 }
 
-bool ComputeSmoothMeshNormalNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool SmoothNormalNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -253,9 +267,9 @@ bool ComputeSmoothMeshNormalNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxm
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_ComputeSmoothMeshNormalPtr)
+	if (m_SmoothNormalModulePtr)
 	{
-		m_ComputeSmoothMeshNormalPtr->setFromXml(vElem, vParent, vUserDatas);
+		m_SmoothNormalModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

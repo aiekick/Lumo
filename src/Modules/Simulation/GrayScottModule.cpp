@@ -103,7 +103,7 @@ bool GrayScottModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool GrayScottModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool GrayScottModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

@@ -103,7 +103,7 @@ bool ModelSSSModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ModelSSSModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool ModelSSSModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

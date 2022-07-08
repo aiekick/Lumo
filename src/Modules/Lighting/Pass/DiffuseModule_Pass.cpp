@@ -101,23 +101,16 @@ void DiffuseModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	m_SceneLightGroup = vSceneLightGroup;
 
-	auto lightGrouPtr = m_SceneLightGroup.getValidShared();
-	if (lightGrouPtr)
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+
+	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	if (lightGroupPtr && 
+		lightGroupPtr->GetBufferInfo())
 	{
-		m_SceneLightGroupDescriptorInfo.buffer = lightGrouPtr->GetBufferInfo()->buffer;
-		m_SceneLightGroupDescriptorInfo.offset = lightGrouPtr->GetBufferInfo()->offset;
-		m_SceneLightGroupDescriptorInfo.range = lightGrouPtr->GetBufferInfo()->range;
-	}
-	else
-	{
-		m_SceneLightGroupDescriptorInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
+		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
 	}
 
-}
-
-void DiffuseModule_Pass::SwapOutputDescriptors()
-{
-	writeDescriptorSets[0].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // output
+	UpdateBufferInfoInRessourceDescriptor();
 }
 
 void DiffuseModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
@@ -165,10 +158,10 @@ bool DiffuseModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	assert(m_ComputeBufferPtr);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, 
-		m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
+		m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
-		nullptr, &m_SceneLightGroupDescriptorInfo);
+		nullptr, m_SceneLightGroupDescriptorInfoPtr);
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, 
 		&m_ImageInfos[0], nullptr); // pos

@@ -86,7 +86,7 @@ bool GridModule::Init()
 //// PUBLIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool GridModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool GridModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	ZoneScoped;
 

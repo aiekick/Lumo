@@ -76,7 +76,7 @@ bool DiffuseNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool DiffuseNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool DiffuseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

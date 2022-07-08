@@ -117,8 +117,6 @@ void MatcapRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
 	ZoneScoped;
 
 	m_SceneModel = vSceneModel;
-
-	m_NeedModelUpdate = true;
 }
 
 void MatcapRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)

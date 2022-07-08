@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "DepthToPosModule.h"
+#include "SmoothNormalModule.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -27,18 +27,26 @@ limitations under the License.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
-#include <Modules/Utils/Pass/DepthToPosModule_Pass.h>
+#include <Graph/Base/BaseNode.h>
+#include <cinttypes>
+#include <Base/FrameBuffer.h>
+
+#include <Modules/Modifiers/Pass/SmoothNormalModule_Pass.h>
 
 using namespace vkApi;
+
+#define COUNT_BUFFERS 2
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DepthToPosModule> DepthToPosModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SmoothNormalModule> SmoothNormalModule::Create(
+	vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
-	auto res = std::make_shared<DepthToPosModule>(vVulkanCorePtr);
+	auto res = std::make_shared<SmoothNormalModule>(vVulkanCorePtr);
 	res->m_This = res;
+	res->SetParentNode(vParentNode);
 	if (!res->Init())
 	{
 		res.reset();
@@ -50,38 +58,43 @@ std::shared_ptr<DepthToPosModule> DepthToPosModule::Create(vkApi::VulkanCorePtr 
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DepthToPosModule::DepthToPosModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+SmoothNormalModule::SmoothNormalModule(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
 
-DepthToPosModule::~DepthToPosModule()
+SmoothNormalModule::~SmoothNormalModule()
 {
 	Unit();
 }
 
 //////////////////////////////////////////////////////////////
-//// INIT ////////////////////////////////////////////////////
+//// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DepthToPosModule::Init()
+bool SmoothNormalModule::Init()
 {
 	ZoneScoped;
 
-	ct::uvec2 map_size = 512;
+	ct::uvec3 map_size = 1;
 
 	m_Loaded = true;
 
-	if (BaseRenderer::InitPixel(map_size))
+	// one time update
+	// will be executed when the mesh will be updated
+	SetExecutionWhenNeededOnly(true);
+
+	if (BaseRenderer::InitCompute3D(map_size))
 	{
-		m_DepthToPosModule_Pass_Ptr = std::make_shared<DepthToPosModule_Pass>(m_VulkanCorePtr);
-		if (m_DepthToPosModule_Pass_Ptr)
+
+		m_SmoothNormalModule_Pass_Ptr = std::make_shared<SmoothNormalModule_Pass>(m_VulkanCorePtr);
+		if (m_SmoothNormalModule_Pass_Ptr)
 		{
-			if (m_DepthToPosModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+
+			if (m_SmoothNormalModule_Pass_Ptr->InitCompute3D(map_size))
 			{
-				AddGenericPass(m_DepthToPosModule_Pass_Ptr);
+				AddGenericPass(m_SmoothNormalModule_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -94,13 +107,21 @@ bool DepthToPosModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DepthToPosModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool SmoothNormalModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		BaseRenderer::Render("Depth To Pos Module", vCmd);
+		BaseRenderer::Render("Smooth Normal when mesh update", vCmd);
+
+		// mesh was updated, we notify the parent here
+		// becasue this execution is event based
+		auto parentNodePtr = GetParentNode().getValidShared();
+		if (parentNodePtr)
+		{
+			parentNodePtr->Notify(NotifyEvent::ModelUpdateDone);
+		}
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -108,23 +129,31 @@ bool DepthToPosModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 	return true;
 }
 
-bool DepthToPosModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("Depth To Pos", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("Smooth Normal when mesh update", -1.0f, true, true, &m_CanWeRender))
 		{
-			if (m_DepthToPosModule_Pass_Ptr)
+			bool change = false;
+
+			for (auto passPtr : m_ShaderPass)
 			{
-				return m_DepthToPosModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(passPtr);
+				if (passGuiPtr)
+				{
+					change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext);
+				}
 			}
+
+			return change;
 		}
 	}
 
 	return false;
 }
 
-void DepthToPosModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void SmoothNormalModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -132,7 +161,7 @@ void DepthToPosModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 	}
 }
 
-void DepthToPosModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void SmoothNormalModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -140,56 +169,42 @@ void DepthToPosModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 	}
 }
 
-void DepthToPosModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void SmoothNormalModule::SetModel(SceneModelWeak vSceneModel)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
-}
-
-void DepthToPosModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
-{
-	ZoneScoped;
-
-	if (m_DepthToPosModule_Pass_Ptr)
+	if (m_SmoothNormalModule_Pass_Ptr)
 	{
-		m_DepthToPosModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		NeedNewExecution(); // just updated so need a normal smoothing
+		m_SmoothNormalModule_Pass_Ptr->SetModel(vSceneModel);
 	}
 }
 
-vk::DescriptorImageInfo* DepthToPosModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+SceneModelWeak SmoothNormalModule::GetModel()
 {
-	ZoneScoped;
-
-	if (m_DepthToPosModule_Pass_Ptr)
+	if (m_SmoothNormalModule_Pass_Ptr)
 	{
-		return m_DepthToPosModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_SmoothNormalModule_Pass_Ptr->GetModel();
 	}
 
-	return nullptr;
+	return SceneModelWeak();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string DepthToPosModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string SmoothNormalModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
 	return str;
 }
 
-bool DepthToPosModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool SmoothNormalModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
 	std::string strValue;
 	std::string strParentName;
-
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
 
 	return true;
 }

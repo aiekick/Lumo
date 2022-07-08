@@ -100,7 +100,7 @@ bool SSSMapModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SSSMapModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool SSSMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

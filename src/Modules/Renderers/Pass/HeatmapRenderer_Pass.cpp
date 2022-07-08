@@ -146,8 +146,6 @@ void HeatmapRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
 	ZoneScoped;
 
 	m_SceneModel = vSceneModel;
-
-	m_NeedModelUpdate = true;
 }
 
 vk::DescriptorImageInfo* HeatmapRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)

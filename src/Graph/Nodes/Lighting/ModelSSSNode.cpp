@@ -79,7 +79,7 @@ void ModelSSSNode::Unit()
 	m_ModelSSSModulePtr.reset();
 }
 
-bool ModelSSSNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool ModelSSSNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

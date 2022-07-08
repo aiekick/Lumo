@@ -65,7 +65,7 @@ bool LaplacianNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool LaplacianNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool LaplacianNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

@@ -332,7 +332,7 @@ void BaseNode::ClearDescriptors()
 ////// CLEAR /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-bool BaseNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool BaseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	return BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 }

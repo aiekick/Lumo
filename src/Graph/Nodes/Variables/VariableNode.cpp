@@ -56,7 +56,7 @@ bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool VariableNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool VariableNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

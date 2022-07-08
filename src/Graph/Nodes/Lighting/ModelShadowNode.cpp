@@ -79,7 +79,7 @@ void ModelShadowNode::Unit()
 	m_ModelShadowModulePtr.reset();
 }
 
-bool ModelShadowNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool ModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

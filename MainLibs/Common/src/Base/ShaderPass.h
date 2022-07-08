@@ -42,8 +42,9 @@ limitations under the License.
 enum class GenericType : uint8_t
 {
 	NONE = 0,
-	PIXEL,			// vertex + fragment (shader + m_Pipeline + ubo + fbo)
-	COMPUTE,		// compute (shader + m_Pipeline + ubo)
+	PIXEL,				// vertex + fragment (shader + m_Pipeline + ubo + fbo)
+	COMPUTE_2D,			// compute (shader + m_Pipeline + ubo + compute image)
+	COMPUTE_3D,			// compute (shader + m_Pipeline + ubo)
 	Count
 };
 
@@ -70,6 +71,7 @@ protected:
 	bool m_NeedNewUBOUpload = false;
 	bool m_NeedNewSBOUpload = false;
 	bool m_DontUseShaderFilesOnDisk = false;
+	bool m_NeedNewModelUpdate = false;
 
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;	// vulkan core
 	vkApi::VulkanQueue m_Queue;					// queue
@@ -126,6 +128,9 @@ protected:
 
 	VertexStruct::PipelineVertexInputState m_InputState;
 
+private:
+	vk::PushConstantRange m_Internal_PushConstants;
+
 public:
 	ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum);
@@ -166,7 +171,8 @@ public:
 
 	// Renderer Type
 	bool IsPixelRenderer();
-	bool IsComputeRenderer();
+	bool IsCompute2DRenderer();
+	bool IsCompute3DRenderer();
 
 	// FBO
 	FrameBufferWeak GetFrameBuffer() { return m_FrameBufferPtr; }
@@ -211,8 +217,9 @@ protected:
 	virtual bool ReCompil();
 
 	virtual bool BuildModel();
+	void NeedNewModelUpload();
 	virtual void DestroyModel(const bool& vReleaseDatas = false);
-	virtual void UpdateModel(const bool& vLoaded);
+	void UpdateModel(const bool& vLoaded);
 
 	// Uniform Buffer Object
 	virtual bool CreateUBO();
@@ -231,6 +238,9 @@ protected:
 	virtual bool UpdateBufferInfoInRessourceDescriptor();
 	bool CreateRessourceDescriptor();
 	void DestroyRessourceDescriptor();
+
+	// push constants
+	void SetPushConstantRange(const vk::PushConstantRange& vPushConstantRange);
 
 	// Pipelines
 	virtual void SetInputStateBeforePipelineCreation(); // for doing this kind of thing VertexStruct::P2_T2::GetInputState(m_InputState);

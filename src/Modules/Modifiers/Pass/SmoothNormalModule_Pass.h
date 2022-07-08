@@ -27,7 +27,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
+#include <Base/ShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
@@ -40,43 +40,51 @@ limitations under the License.
 #include <vkFramework/VulkanFrameBuffer.h>
 
 #include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ResizerInterface.h>
+#include <Interfaces/ModelInputInterface.h>
+#include <Interfaces/ModelOutputInterface.h>
 
-
-
-class MathModule_Pass;
-class MathModule :
-	public BaseRenderer,
-	public GuiInterface,
-	public TaskInterface,
-	public TextureInputInterface<0U>,
-	public TextureOutputInterface,
-	public ResizerInterface
+class SmoothNormalModule_Pass : 
+	public ShaderPass,
+	public ModelInputInterface,
+	public ModelOutputInterface,
+	public GuiInterface
 {
-public:
-	static std::shared_ptr<MathModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
-
 private:
-	ct::cWeak<MathModule> m_This;
+	SceneMeshWeak m_InputMesh;
 
-	std::shared_ptr<MathModule_Pass> m_MathModule_Pass_Ptr = nullptr;
+	VulkanBufferObjectPtr m_SBO_Normals_Compute_Helper = nullptr;
+	vk::DescriptorBufferInfo m_SBO_Normals_Compute_Helper_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+
+	std::vector<int> m_NormalDatas; // 3 components
+
+	struct PushConstants {
+		uint32_t pass_number;
+	} m_PushConstants;
 
 public:
-	MathModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~MathModule();
+	SmoothNormalModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	virtual ~SmoothNormalModule_Pass();
 
-	bool Init();
-
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
+	void ActionBeforeInit();
+	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+	SceneModelWeak GetModel() override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+
+protected:
+	bool BuildModel() override;
+	void DestroyModel(const bool& vReleaseDatas = false) override;
+
+	bool UpdateLayoutBindingInRessourceDescriptor() override;
+	bool UpdateBufferInfoInRessourceDescriptor() override;
+
+	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+
+private:
+	void ComputePass(vk::CommandBuffer* vCmd, const uint32_t& vPassNumber);
+
 };

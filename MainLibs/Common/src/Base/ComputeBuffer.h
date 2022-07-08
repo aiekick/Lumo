@@ -108,7 +108,9 @@ public: // contructor
 	
 	float GetOutputRatio() const;
 	ct::fvec2 GetOutputSize() const;
-	
+	uint32_t GetBuffersCount() const;
+	bool IsMultiPassMode() const;
+
 	void Swap();
 
 protected:

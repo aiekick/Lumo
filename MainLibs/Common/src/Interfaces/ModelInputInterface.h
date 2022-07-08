@@ -21,7 +21,6 @@ limitations under the License.
 class ModelInputInterface
 {
 protected:
-	bool m_NeedModelUpdate = false;
 	SceneModelWeak m_SceneModel;
 
 public:

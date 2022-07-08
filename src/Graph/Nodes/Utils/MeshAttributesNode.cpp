@@ -105,7 +105,7 @@ void MeshAttributesNode::Unit()
 	m_MeshAttributesModulePtr.reset();
 }
 
-bool MeshAttributesNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool MeshAttributesNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

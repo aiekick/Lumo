@@ -77,7 +77,7 @@ void SSSMapNode::Unit()
 	m_SSSMapModulePtr.reset();
 }
 
-bool SSSMapNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool SSSMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

@@ -66,7 +66,7 @@ public:
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
-	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd);
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd);
 
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

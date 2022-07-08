@@ -114,7 +114,7 @@ void DeferredRendererNode::Unit()
 	m_DeferredRendererPtr.reset();
 }
 
-bool DeferredRendererNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool DeferredRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 

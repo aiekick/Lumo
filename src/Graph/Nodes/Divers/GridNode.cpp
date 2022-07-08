@@ -62,7 +62,7 @@ void GridNode::Unit()
 	m_GridModulePtr.reset();
 }
 
-bool GridNode::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool GridNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	if (m_GridModulePtr)
 	{

@@ -31,7 +31,7 @@ limitations under the License.
 #include <Graph/Nodes/Lighting/DiffuseNode.h>
 #include <Graph/Nodes/Lighting/SpecularNode.h>
 
-#include <Graph/Nodes/Modifiers/ComputeSmoothMeshNormalNode.h>
+#include <Graph/Nodes/Modifiers/SmoothNormalNode.h>
 
 #include <Graph/Nodes/Output/OutputNode.h>
 
@@ -76,7 +76,7 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			else if (vNodeType == "SPECULAR")						return SpecularNode::Create(corePtr);
 
 			// Modifiers
-			else if (vNodeType == "COMPUTE_SMOOTH_MESH_NORMAL")		return ComputeSmoothMeshNormalNode::Create(corePtr);
+			else if (vNodeType == "SMOOTH_NORMAL")					return SmoothNormalNode::Create(corePtr);
 
 			// graph output
 			else if (vNodeType == "OUTPUT")							return OutputNode::Create(corePtr);

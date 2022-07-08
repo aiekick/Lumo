@@ -41,6 +41,8 @@ private:
 	// uniforms datas buffer
 	std::vector<uint8_t> datas;
 
+	bool firstUploadWasDone = false;
+
 	// if he is dirty, value has been changed and mut be uploaded in gpu memory
 	// dirty at first for init in gpu memory
 	bool isDirty = true;
@@ -59,7 +61,9 @@ public:
 	bool Build();
 	void Unit();
 	void Clear();
-	void SetDirty();
+	void SetDirty(); // say => there is some change to upload on the gpu
+	bool IsDirty(); // say => is needed to be uploaded
+	bool IsOk(); // was uploaded one time at least, so the vkBuffer is valid to bind
 
 	// upload to gpu memory
 	void Upload(vkApi::VulkanCorePtr vVulkanCorePtr, bool vOnlyIfDirty);

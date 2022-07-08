@@ -94,7 +94,7 @@ bool PosToDepthModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool PosToDepthModule::Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool PosToDepthModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 

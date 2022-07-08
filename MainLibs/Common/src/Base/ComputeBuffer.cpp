@@ -212,6 +212,16 @@ ct::fvec2 ComputeBuffer::GetOutputSize() const
 	return ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y);
 }
 
+uint32_t ComputeBuffer::GetBuffersCount() const
+{
+	return m_CountBuffers;
+}
+
+bool ComputeBuffer::IsMultiPassMode() const
+{
+	return m_MultiPassMode;
+}
+
 vk::DescriptorImageInfo* ComputeBuffer::GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	if (vBindingPoint < m_CountBuffers)
@@ -221,7 +231,12 @@ vk::DescriptorImageInfo* ComputeBuffer::GetFrontDescriptorImageInfo(const uint32
 		{
 			return &buffers[vBindingPoint]->m_DescriptorImageInfo;
 		}
+
+		LogVarError("return nullptr for frame %u", (uint32_t)m_CurrentFrame);
 	}
+
+	LogVarError("return nullptr for binding point %u", (uint32_t)vBindingPoint);
+
 	return nullptr;
 }
 
@@ -238,7 +253,12 @@ vk::DescriptorImageInfo* ComputeBuffer::GetBackDescriptorImageInfo(const uint32_
 		{
 			return &buffers[vBindingPoint]->m_DescriptorImageInfo;
 		}
+
+		LogVarError("return nullptr for frame %u", (uint32_t)frame);
 	}
+
+	LogVarError("return nullptr for binding point %u", (uint32_t)vBindingPoint);
+
 	return nullptr;
 }
 
