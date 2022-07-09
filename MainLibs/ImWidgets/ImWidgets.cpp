@@ -900,7 +900,8 @@ bool ImGui::CollapsingHeader_CheckBox(const char* vName, float vWidth, bool vDef
 	return is_open;
 }
 
-bool ImGui::CollapsingHeader_Button(const char* vName, float vWidth, bool vDefaulExpanded, const char* vLabelButton, bool vShowButton, bool* vButtonPressed, ImFont* vButtonFont)
+bool ImGui::CollapsingHeader_Button(const char* vName, float vWidth, bool vDefaulExpanded, 
+	const char* vLabelButton, bool vShowButton, bool* vButtonPressed, ImFont* vButtonFont)
 {
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 	if (window->SkipItems)
@@ -942,11 +943,16 @@ bool ImGui::CollapsingHeader_Button(const char* vName, float vWidth, bool vDefau
 		(is_open ? ImGuiDir_::ImGuiDir_Down : ImGuiDir_::ImGuiDir_Right), 1.0f);
 
 	// menu
-	if (vButtonPressed && vShowButton)
+	if (vButtonPressed && vShowButton && vLabelButton)
 	{
+		const ImVec2 button_label_size = ImGui::CalcTextSize(vLabelButton, nullptr, true);
+		
 		// item
+		const float button_width = ImMax(button_label_size.x + padding.x, bb.Max.y - bb.Min.y);
+
 		const ImGuiID extraId = window->GetID((void*)(intptr_t)(id + 1));
-		const ImRect bbMenu(ImVec2(bb.Max.x - nsize.y, bb.Min.y), bb.Max);
+		const ImRect bbMenu(ImVec2(bb.Max.x - button_width, bb.Min.y), bb.Max);
+		const ImVec2 offset = (bbMenu.GetSize() - button_label_size) * 0.5f;
 
 		// detection
 		bool menuHovered, menuHeld;
@@ -955,11 +961,7 @@ bool ImGui::CollapsingHeader_Button(const char* vName, float vWidth, bool vDefau
 
 		// render
 		ImGui::RenderFrame(bbMenu.Min, bbMenu.Max, menuCol, true, style.FrameRounding);
-		const ImVec2 iconPos = ImVec2(pos.x + nsize.x - nsize.y * 0.5f, pos.y + nsize.y * 0.5f);
-
-		const float cross_extent = (nsize.y * 0.5f * 0.7071f) - 1.0f;
-		window->DrawList->AddLine(iconPos + ImVec2(+cross_extent * 0.2f, -cross_extent * 0.2f), iconPos + ImVec2(-cross_extent, +cross_extent), ImGui::GetColorU32(ImGuiCol_Text), 4.0f);
-		window->DrawList->AddLine(iconPos + ImVec2(+cross_extent * 0.4f, -cross_extent * 0.4f), iconPos + ImVec2(+cross_extent, -cross_extent), ImGui::GetColorU32(ImGuiCol_Text), 4.0f);
+		ImGui::RenderTextClipped(bbMenu.Min + offset, bbMenu.Max, vLabelButton, nullptr, &button_label_size);
 	}
 
 	return is_open;

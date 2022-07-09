@@ -21,6 +21,8 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
 #include <Systems/GizmoSystem.h>
+#include <FontIcons/CustomFont.h>
+#include <cinttypes>
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
@@ -100,17 +102,22 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 	{
 		bool oneChangedLightAtLeast = false;
 
-		if (ImGui::ContrastedButton("Add Light"))
+		if (m_SceneLightGroupPtr->CanAddLight())
 		{
-			m_SceneLightGroupPtr->Add(SceneLight::Create());
-
-			m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
-
-			auto parentNodePtr = GetParentNode().getValidShared();
-			if (parentNodePtr)
+			if (ImGui::ContrastedButton("Add Light"))
 			{
-				parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+				m_SceneLightGroupPtr->Add();
+				m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
+				auto parentNodePtr = GetParentNode().getValidShared();
+				if (parentNodePtr)
+				{
+					parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+				}
 			}
+
+			ImGui::SameLine();
+
+			ImGui::Text("Maximum 8 lights");
 		}
 
 		uint32_t idx = 0U;
@@ -118,7 +125,34 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 		{
 			if (lightPtr)
 			{
-				if (ImGui::CollapsingHeader(ct::toStr("Light %u : %s", idx, lightPtr->name.c_str()).c_str()))
+				std::string label = ct::toStr("Light %u : %s##%" PRIxPTR "",
+					idx, lightPtr->name.c_str(), (uintptr_t)lightPtr.get());
+
+				bool expanded = false;
+				if (m_SceneLightGroupPtr->CanRemoveLight())
+				{
+					bool delete_button = false;
+					expanded = ImGui::CollapsingHeader_Button(
+						label.c_str(), -1.0f, false,
+						ICON_NDP_CANCEL, true, &delete_button);
+					if (delete_button)
+					{
+						m_SceneLightGroupPtr->erase(idx);
+						m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
+						auto parentNodePtr = GetParentNode().getValidShared();
+						if (parentNodePtr)
+						{
+							parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+						}
+						break;
+					}
+				}
+				else
+				{
+					expanded = ImGui::CollapsingHeader(label.c_str());
+				}
+				
+				if (expanded)
 				{
 					ImGui::Header("Light");
 
@@ -269,7 +303,7 @@ bool LightGroupModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 		{
 			if (!m_FirstXmlLight)
 			{
-				m_SceneLightGroupPtr->Add(SceneLight::Create());
+				m_SceneLightGroupPtr->Add();
 			}
 			else
 			{

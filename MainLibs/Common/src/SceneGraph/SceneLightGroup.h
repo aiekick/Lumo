@@ -22,6 +22,12 @@ limitations under the License.
 #include <Interfaces/BufferObjectInterface.h>
 #include <vkFramework/StorageBufferStd430.h>
 
+/*
+- group of lights
+- for the moment max 8 lights
+
+*/
+
 class SceneLightGroup;
 typedef std::shared_ptr<SceneLightGroup> SceneLightGroupPtr;
 typedef ct::cWeak<SceneLightGroup> SceneLightGroupWeak;
@@ -29,6 +35,9 @@ typedef ct::cWeak<SceneLightGroup> SceneLightGroupWeak;
 class SceneLightGroup :
 	public BufferObjectInterface
 {
+public:
+	static constexpr uint32_t sMaxLightCount = 8U;
+
 public:
 	static SceneLightGroupPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding);
@@ -54,9 +63,13 @@ public:
 	size_t size();
 	std::vector<SceneLightPtr>::iterator begin();
 	std::vector<SceneLightPtr>::iterator end();
-	void Add(const SceneLightPtr& vLight);
+	void erase(uint32_t vIdx);
+	SceneLightWeak Add();
 	SceneLightWeak Get(const size_t& vIndex);
 	StorageBufferStd430& GetSBO430() { return m_SBO430; }
+
+	bool CanAddLight() const;
+	bool CanRemoveLight() const;
 
 	bool IsOk();
 	void UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr) override;

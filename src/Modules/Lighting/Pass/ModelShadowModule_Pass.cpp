@@ -344,12 +344,12 @@ void main()
 			const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
 			const float bias = u_bias * 0.01;
 
-			float sha_vis = 0.5 + mix(0.5, 0.0, u_shadow_strength);
-			float sha_step = 1.0 / 16.0;
-			for (int i=0;i<8;i++) // total sha steps => 8 / 16 => 0.5
+			float sha_vis = 1.0;
+			float sha_step = 1.0 / mix(16.0, 8.0, u_shadow_strength);
+			for (int i=0;i<8;i++)
 			{
 				int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-				float sha = texture(light_shadow_map_sampler, shadowCoord.xy + poissonDisk[index] / poisson_scale).r;
+				float sha = texture(light_shadow_map_sampler, shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;
 				if (sha * cam_far < (shadowCoord.z - bias)/shadowCoord.w)
 				{
 					sha_vis -= sha_step * (1.0 - sha);

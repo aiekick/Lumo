@@ -89,7 +89,7 @@ bool SceneLightGroup::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	{
 		if (empty())
 		{
-			Add(SceneLight::Create());
+			Add();
 		}
 
 		return CreateBufferObject(m_VulkanCorePtr);
@@ -142,17 +142,45 @@ bool SceneLightGroup::empty()
 	return m_Lights.empty();
 }
 
-void SceneLightGroup::Add(const SceneLightPtr& vLightPtr)
+SceneLightWeak SceneLightGroup::Add()
 {
 	ZoneScoped;
 
-	if (vLightPtr)
+	uint32_t idx = (uint32_t)m_Lights.size();
+
+	if (idx <= sMaxLightCount)
 	{
-		uint32_t idx = (uint32_t)m_Lights.size();
+		auto lightPtr = SceneLight::Create();
+		if (lightPtr)
+		{
+			m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
 
-		m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx), vLightPtr->lightDatas);
+			m_Lights.push_back(lightPtr);
 
-		m_Lights.push_back(vLightPtr);
+			return Get(idx);
+		}
+	}
+
+	return SceneLightWeak();
+}
+
+void SceneLightGroup::erase(uint32_t vIndex)
+{
+	ZoneScoped;
+
+	if ((size_t)vIndex < m_Lights.size())
+	{
+		m_Lights.erase(m_Lights.begin() + vIndex);
+
+		m_SBO430.Clear();
+		uint32_t idx = 0U;
+		for (auto lightPtr : m_Lights)
+		{
+			if (lightPtr)
+			{
+				m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx++), lightPtr->lightDatas);
+			}
+		}
 	}
 }
 
@@ -166,6 +194,16 @@ SceneLightWeak SceneLightGroup::Get(const size_t& vIndex)
 	}
 
 	return SceneLightWeak();
+}
+
+bool SceneLightGroup::CanAddLight() const
+{
+	return (m_Lights.size() <= sMaxLightCount);
+}
+
+bool SceneLightGroup::CanRemoveLight() const
+{
+	return (m_Lights.size() > 1U);
 }
 
 ///////////////////////////////////////////////////////
