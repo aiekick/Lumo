@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "SpecularNode.h"
 #include <Modules/Lighting/SpecularModule.h>
-#include <Interfaces/LightOutputInterface.h>
+#include <Interfaces/LightGroupOutputInterface.h>
 
 std::shared_ptr<SpecularNode> SpecularNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -45,8 +45,8 @@ bool SpecularNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::LIGHT;
-	slot.name = "Light";
+	slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
+	slot.name = "Lights";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
@@ -81,7 +81,7 @@ bool SpecularNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
 	// for update input texture buffer infos => avoid vk crash
-	UpdateInputDescriptorImageInfos(m_Inputs);
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_SpecularModulePtr)
 	{
@@ -153,9 +153,9 @@ void SpecularNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vE
 					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
 				}
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
 			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<LightOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				auto otherTextureNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
 					SetLightGroup(otherTextureNodePtr->GetLightGroup());
@@ -178,7 +178,7 @@ void SpecularNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 			{
 				SetTexture(startSlotPtr->descriptorBinding, nullptr);
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
 			{
 				SetLightGroup();
 			}
@@ -236,14 +236,14 @@ void SpecularNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmite
 		}
 		break;
 	}
-	case NotifyEvent::LightUpdateDone:
+	case NotifyEvent::LightGroupUpdateDone:
 	{
 		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto otherNodePtr = dynamic_pointer_cast<LightOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
 				if (otherNodePtr)
 				{
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();

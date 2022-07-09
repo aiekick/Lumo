@@ -182,6 +182,14 @@ void ModelShadowModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImage
 	}
 }
 
+void ModelShadowModule::SetTextures(const uint32_t& vBinding, const std::vector<vk::DescriptorImageInfo*>& vImageInfos)
+{
+	if (m_ModelShadowModule_Pass_Ptr)
+	{
+		m_ModelShadowModule_Pass_Ptr->SetTextures(vBinding, vImageInfos);
+	}
+}
+
 vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	ZoneScoped;
@@ -192,22 +200,6 @@ vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_
 	}
 
 	return nullptr;
-}
-
-void ModelShadowModule::UpdateDescriptorsBeforeCommandBuffer()
-{
-	/*if (m_ModelShadowModule_Pass_Light_Shadow_Map_Ptr && 
-		m_ModelShadowModule_Pass_Ptr)
-	{
-		// ligh shadow map in model shadow pass
-		m_ModelShadowModule_Pass_Ptr->SetTexture(3U,
-			m_ModelShadowModule_Pass_Light_Shadow_Map_Ptr->GetDescriptorImageInfo(0U));
-
-		m_ModelShadowModule_Pass_Ptr->SetLighViewMatrix(
-			m_ModelShadowModule_Pass_Light_Shadow_Map_Ptr->GetLightViewMatrix());
-	}*/
-
-	BaseRenderer::UpdateDescriptorsBeforeCommandBuffer();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

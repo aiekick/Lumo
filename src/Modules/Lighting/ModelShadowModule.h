@@ -45,18 +45,18 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/LightInputInterface.h>
-
-
+#include <Interfaces/TextureGroupInputInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
 
 class ModelShadowModule_Pass;
 class ModelShadowModule :
 	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
-	public TextureInputInterface<0U>, // 0, because no need of items here
+	public TextureInputInterface<0U>, // 0, because no need of items here, just need funcs
+	public TextureGroupInputInterface<0U>, // 0, because no need of items here, just need funcs
 	public TextureOutputInterface,
-	public LightInputInterface,
+	public LightGroupInputInterface,
 	public ResizerInterface
 {
 public:
@@ -79,9 +79,9 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
+	void SetTextures(const uint32_t& vBinding, const std::vector<vk::DescriptorImageInfo*>& vImageInfos) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void UpdateDescriptorsBeforeCommandBuffer() override;
 };

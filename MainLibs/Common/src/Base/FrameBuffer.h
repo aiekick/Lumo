@@ -143,6 +143,7 @@ public: // contructor
 	vk::RenderPass* GetRenderPass();
 	vk::SampleCountFlagBits GetSampleCount() const;
 	ct::fvec2 GetOutputSize() const;
+	uint32_t GetBuffersCount() const;
 	
 	void BeginRenderPass(vk::CommandBuffer* vCmdBuffer);
 	void ClearAttachmentsIfNeeded(vk::CommandBuffer* vCmdBuffer); // clear if clear is needed internally (set by ClearAttachments)

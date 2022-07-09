@@ -42,12 +42,12 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/LightInputInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
 
 class SpecularModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
-	public LightInputInterface,
+	public LightGroupInputInterface,
 	public TextureInputInterface<2U>,
 	public TextureOutputInterface
 {

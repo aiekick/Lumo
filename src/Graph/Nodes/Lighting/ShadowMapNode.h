@@ -20,16 +20,17 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/LightInputInterface.h>
-#include <Interfaces/LightOutputInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/LightGroupOutputInterface.h>
+#include <Interfaces/TextureGroupOutputInterface.h>
 
 class ShadowMapModule;
 class ShadowMapNode : 
 	public BaseNode,
 	public ModelInputInterface,
-	public TextureOutputInterface,
-	public LightInputInterface,
-	public LightOutputInterface
+	public TextureGroupOutputInterface,
+	public LightGroupInputInterface,
+	public LightGroupOutputInterface
 {
 public:
 	static std::shared_ptr<ShadowMapNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -46,7 +47,7 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	std::vector<vk::DescriptorImageInfo*> GetDescriptorImageInfos(const uint32_t& vBindingPoint) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	SceneLightGroupWeak GetLightGroup() override;
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;

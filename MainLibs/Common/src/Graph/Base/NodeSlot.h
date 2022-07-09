@@ -37,10 +37,11 @@ enum class NodeSlotTypeEnum : uint8_t
 	NONE = 0,
 	MESH,
 	MESH_GROUP,
-	LIGHT,
+	LIGHT_GROUP,
 	ENVIRONMENT,
 	MERGED,
 	TEXTURE_2D,
+	TEXTURE_2D_GROUP,
 	MIXED,
 	TYPE_BOOLEAN,
 	TYPE_UINT,
@@ -56,10 +57,11 @@ inline static std::string GetStringFromNodeSlotTypeEnum(const NodeSlotTypeEnum& 
 		"NONE",
 		"MESH",
 		"MESH_GROUP",
-		"LIGHT",
+		"LIGHT_GROUP",
 		"ENVIRONMENT",
 		"MERGED",
 		"TEXTURE_2D",
+		"TEXTURE_2D_GROUP",
 		"MIXED",
 		"TYPE_BOOLEAN",
 		"TYPE_UINT",
@@ -78,10 +80,11 @@ inline static NodeSlotTypeEnum GetNodeSlotTypeEnumFromString(const std::string& 
 	if (vNodeSlotTypeString == "NONE") return NodeSlotTypeEnum::NONE;
 	else if (vNodeSlotTypeString == "MESH") return NodeSlotTypeEnum::MESH;
 	else if (vNodeSlotTypeString == "MESH_GROUP") return NodeSlotTypeEnum::MESH;
-	else if (vNodeSlotTypeString == "LIGHT") return NodeSlotTypeEnum::LIGHT;
+	else if (vNodeSlotTypeString == "LIGHT_GROUP") return NodeSlotTypeEnum::LIGHT_GROUP;
 	else if (vNodeSlotTypeString == "ENVIRONMENT") return NodeSlotTypeEnum::ENVIRONMENT;
 	else if (vNodeSlotTypeString == "MERGED") return NodeSlotTypeEnum::MERGED;
 	else if (vNodeSlotTypeString == "TEXTURE_2D") return NodeSlotTypeEnum::TEXTURE_2D;
+	else if (vNodeSlotTypeString == "TEXTURE_2D_GROUP") return NodeSlotTypeEnum::TEXTURE_2D_GROUP;
 	else if (vNodeSlotTypeString == "MIXED") return NodeSlotTypeEnum::MIXED;
 	else if (vNodeSlotTypeString == "TYPE_BOOLEAN") return NodeSlotTypeEnum::TYPE_BOOLEAN;
 	else if (vNodeSlotTypeString == "TYPE_UINT") return NodeSlotTypeEnum::TYPE_UINT;

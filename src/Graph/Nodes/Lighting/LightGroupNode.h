@@ -18,22 +18,22 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/LightOutputInterface.h>
+#include <Interfaces/LightGroupOutputInterface.h>
 
 class LightGroupModule;
-class LightNode : 
+class LightGroupNode : 
 	public BaseNode,
-	public LightOutputInterface
+	public LightGroupOutputInterface
 {
 public:
-	static std::shared_ptr<LightNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<LightGroupNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<LightGroupModule> m_LightGroupModulePtr = nullptr;
 
 public:
-	LightNode();
-	~LightNode() override;
+	LightGroupNode();
+	~LightGroupNode() override;
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

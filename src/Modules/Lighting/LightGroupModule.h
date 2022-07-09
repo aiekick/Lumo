@@ -29,7 +29,7 @@ limitations under the License.
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/NodeInterface.h>
 #include <Interfaces/GizmoInterface.h>
-#include <Interfaces/LightOutputInterface.h>
+#include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/BufferObjectInterface.h>
 
 class LightGroupModule;
@@ -41,7 +41,7 @@ class LightGroupModule :
 	public conf::ConfigAbstract,
 	public NodeInterface,
 	public GuiInterface,
-	public LightOutputInterface,
+	public LightGroupOutputInterface,
 	public TaskInterface
 {
 public:
@@ -53,11 +53,11 @@ private:
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 private: // imgui
-	ct::fvec4 m_DefaultLightColor = 1.0f;
+	ct::fvec4 m_DefaultLightGroupColor = 1.0f;
 	// becasue by default there is one light
 	// and we must avoid adding a new one for nothing during xml parsing
 	// the second time, we check this var, adding a new light is ok
-	bool m_FirstXmlLight = true;
+	bool m_FirstXmlLightGroup = true;
 
 public:
 	LightGroupModule(vkApi::VulkanCorePtr vVulkanCorePtr);

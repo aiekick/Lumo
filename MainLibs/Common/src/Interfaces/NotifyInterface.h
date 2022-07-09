@@ -25,7 +25,7 @@ enum class NotifyEvent
 	// need to update the texture
 	TextureUpdateDone,
 	// need to update the light
-	LightUpdateDone,
+	LightGroupUpdateDone,
 	// need to update the variable
 	VariableUpdateDone,
 	// the node link is breked

@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "ModelShadowNode.h"
 #include <Modules/Lighting/ModelShadowModule.h>
-#include <Interfaces/LightOutputInterface.h>
+#include <Interfaces/LightGroupOutputInterface.h>
 
 std::shared_ptr<ModelShadowNode> ModelShadowNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -45,8 +45,8 @@ bool ModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::LIGHT;
-	slot.name = "Light";
+	slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
+	slot.name = "Lights";
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
@@ -54,8 +54,8 @@ bool ModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::DEPTH;
-	slot.name = "Shadow Map";
+	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D_GROUP;
+	slot.name = "Shadow Maps";
 	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
 
@@ -84,7 +84,7 @@ bool ModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
 	// for update input texture buffer infos => avoid vk crash
-	UpdateInputDescriptorImageInfos(m_Inputs);
+	UpdateTextureGroupInputDescriptorImageInfos(m_Inputs);
 
 	if (m_ModelShadowModulePtr)
 	{
@@ -127,6 +127,14 @@ void ModelShadowNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 	}
 }
 
+void ModelShadowNode::SetTextures(const uint32_t& vBinding, const std::vector<vk::DescriptorImageInfo*>& vImageInfos)
+{
+	if (m_ModelShadowModulePtr)
+	{
+		m_ModelShadowModulePtr->SetTextures(vBinding, vImageInfos);
+	}
+}
+
 vk::DescriptorImageInfo* ModelShadowNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	if (m_ModelShadowModulePtr)
@@ -154,9 +162,9 @@ void ModelShadowNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
 				}
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
 			{
-				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherLightGroupNodePtr)
 				{
 					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
@@ -179,7 +187,7 @@ void ModelShadowNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 			{
 				SetTexture(startSlotPtr->descriptorBinding, nullptr);
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
 			{
 				SetLightGroup();
 			}
@@ -213,14 +221,14 @@ void ModelShadowNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 		//todo emit notification
 		break;
 	}
-	case NotifyEvent::LightUpdateDone:
+	case NotifyEvent::LightGroupUpdateDone:
 	{
 		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto otherNodePtr = dynamic_pointer_cast<LightOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
 				if (otherNodePtr)
 				{
 					SetLightGroup(otherNodePtr->GetLightGroup());

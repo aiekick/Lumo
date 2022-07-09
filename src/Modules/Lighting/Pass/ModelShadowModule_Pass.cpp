@@ -39,6 +39,8 @@ ModelShadowModule_Pass::ModelShadowModule_Pass(vkApi::VulkanCorePtr vVulkanCoreP
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Model Shadow", QUAD_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ModelShadowModule_Pass::~ModelShadowModule_Pass()
@@ -67,7 +69,6 @@ bool ModelShadowModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 	}
 
 	DrawInputTexture(m_VulkanCorePtr, "Input Position", 0U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Input Shadow Map", 1U, m_OutputRatio);
 
 	return change;
 }
@@ -88,27 +89,75 @@ void ModelShadowModule_Pass::SetTexture(const uint32_t& vBinding, vk::Descriptor
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_ImageInfos.size())
+		if (vBinding == 0U)
 		{
-			if (vImageInfo)
+			if (vBinding < m_ImageInfos.size())
 			{
-				m_ImageInfos[vBinding] = *vImageInfo;
-
-				if ((&m_UBOFrag.use_sampler_pos)[vBinding] < 1.0f)
+				if (vImageInfo)
 				{
-					(&m_UBOFrag.use_sampler_pos)[vBinding] = 1.0f;
-					NeedNewUBOUpload();
+					m_ImageInfos[vBinding] = *vImageInfo;
+
+					if (m_UBOFrag.use_sampler_pos < 1.0f)
+					{
+						m_UBOFrag.use_sampler_pos = 1.0f;
+
+						NeedNewUBOUpload();
+					}
+				}
+				else
+				{
+					if (m_UBOFrag.use_sampler_pos > 0.0f)
+					{
+						m_UBOFrag.use_sampler_pos = 0.0f;
+
+						NeedNewUBOUpload();
+					}
+
+					m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				}
+
+				m_NeedSamplerUpdate = true;
+			}
+		}
+	}
+}
+
+void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, const std::vector<vk::DescriptorImageInfo*>& vImageInfos)
+{
+	ZoneScoped;
+
+	if (m_Loaded)
+	{
+		if (vBinding == 1U)
+		{
+			if (vImageInfos.size() == m_ImageGroupInfos.size())
+			{
+				for (size_t i = 0U; i < vImageInfos.size(); ++i)
+				{
+					auto ptr = vImageInfos.at(i);
+					if (ptr)
+					{
+						m_ImageGroupInfos[i] = *ptr;
+					}
+					else
+					{
+						m_ImageGroupInfos[i] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+					}
 				}
 			}
 			else
 			{
-				if ((&m_UBOFrag.use_sampler_pos)[vBinding] > 0.0f)
+				for (auto& info : m_ImageGroupInfos)
 				{
-					(&m_UBOFrag.use_sampler_pos)[vBinding] = 0.0f;
-					NeedNewUBOUpload();
+					info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 				}
 
-				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				if (m_UBOFrag.use_sampler_pos > 0.0f)
+				{
+					m_UBOFrag.use_sampler_pos = 0.0f;
+
+					NeedNewUBOUpload();
+				}
 			}
 
 			m_NeedSamplerUpdate = true;
@@ -205,6 +254,12 @@ bool ModelShadowModule_Pass::CreateUBO()
 		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 	}
 
+	for (auto& info : m_ImageGroupInfos)
+	{
+		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		//info.imageView = VK_NULL_HANDLE;
+	}
+
 	NeedNewUBOUpload();
 
 	return true;
@@ -229,12 +284,17 @@ bool ModelShadowModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
+	//m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
 
+	// the shadow maps
+	///m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler,
+	//	(uint32_t)m_ImageGroupInfos.size(), vk::ShaderStageFlagBits::eFragment);
+
+	// next binding will be 4 + 8 => 12
+	
 	return true;
 }
 
@@ -245,9 +305,14 @@ bool ModelShadowModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
+	//writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
+	
+	// the shadow maps
+	//writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0,
+	//	(uint32_t)m_ImageGroupInfos.size(), vk::DescriptorType::eCombinedImageSampler, m_ImageGroupInfos.data(), nullptr);
+	
+	// next binding will be 4 + 8 => 12
 
 	return true;
 }
@@ -293,13 +358,13 @@ layout (std140, binding = 1) uniform UBO_Frag
 	float use_sampler_pos;
 	float use_sampler_shadow_map;
 };
-layout(binding = 2) uniform sampler2D position_map_sampler;
-layout(binding = 3) uniform sampler2D light_shadow_map_sampler;
+//layout(binding = 2) uniform sampler2D position_map_sampler;
 )"
 +
-SceneLightGroup::GetBufferObjectStructureHeader(4U)
+SceneLightGroup::GetBufferObjectStructureHeader(3U)
 +
 u8R"(
+//layout(binding = 4) uniform sampler2D light_shadow_map_samplers[8]; // binding 4 + 8
 const vec2 poissonDisk[16] = vec2[]
 ( 
    vec2( -0.94201624, -0.39906216 ), 
@@ -331,7 +396,9 @@ void main()
 {
 	fragShadow = vec4(0);
 	
-	if (use_sampler_pos > 0.5 && 
+	//fragShadow = texture(light_shadow_map_samplers[0], v_uv);
+
+	/*if (use_sampler_pos > 0.5 && 
 		use_sampler_shadow_map > 0.5)
 	{
 		vec3 pos = texture(position_map_sampler, v_uv).xyz;
@@ -366,7 +433,7 @@ void main()
 	else
 	{
 		discard;
-	}
+	}*/
 }
 )";
 }

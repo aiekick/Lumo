@@ -21,6 +21,8 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 #include <Interfaces/GuiInterface.h>
 
+#include <set>
+#include <string>
 #include <Headers/Globals.h>
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/vk_mem_alloc.h>
@@ -40,17 +42,16 @@ limitations under the License.
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/LightInputInterface.h>
-#include <set>
-#include <string>
-
+#include <Interfaces/TextureGroupInputInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
 
 class ModelShadowModule_Pass :
 	public QuadShaderPass,
 	public GuiInterface,
-	public TextureInputInterface<2U>,
+	public TextureInputInterface<1U>,
+	public TextureGroupInputInterface<8U>,
 	public TextureOutputInterface,
-	public LightInputInterface
+	public LightGroupInputInterface
 {
 protected:
 	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
@@ -74,6 +75,7 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
+	void SetTextures(const uint32_t& vBinding, const std::vector<vk::DescriptorImageInfo*>& vImageInfos) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

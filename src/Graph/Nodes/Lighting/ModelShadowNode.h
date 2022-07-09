@@ -19,16 +19,18 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/TextureInputInterface.h>
+#include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/LightInputInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
 class ModelShadowModule;
 class ModelShadowNode : 
 	public BaseNode,
 	public TextureInputInterface<0U>,
+	public TextureGroupInputInterface<0U>,
 	public TextureOutputInterface,
-	public LightInputInterface,
+	public LightGroupInputInterface,
 	public ShaderUpdateInterface
 {
 public:
@@ -46,6 +48,7 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
+	void SetTextures(const uint32_t& vBinding, const std::vector<vk::DescriptorImageInfo*>& vImageInfos) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;

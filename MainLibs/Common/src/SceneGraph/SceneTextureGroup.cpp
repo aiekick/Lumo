@@ -14,15 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <SceneGraph/SceneLightGroup.h>
+#include <SceneGraph/SceneTextureGroup.h>
 
 ///////////////////////////////////////////////////////
 //// STATIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneLightGroupPtr SceneLightGroup::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+SceneTextureGroupPtr SceneTextureGroup::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<SceneLightGroup>();
+	auto res = std::make_shared<SceneTextureGroup>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -35,30 +35,23 @@ SceneLightGroupPtr SceneLightGroup::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// STATIC : SBO//////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-std::string SceneLightGroup::GetBufferObjectStructureHeader(const uint32_t& vBinding)
+std::string SceneTextureGroup::GetBufferObjectStructureHeader(const uint32_t& vBinding, const char *vTextureName, const uint32_t& vCount)
 {
-	return ct::toStr(u8R"(
-%s
-
-layout(std430, binding = %u) readonly buffer SBO_LightGroup
-{
-	LightDatas lightDatas[];
-};
-)", SceneLight::GetStructureHeader().c_str(), vBinding);
+	return ct::toStr("layout(binding = %u) uniform sampler2D %s[%u];\n", vBinding, vTextureName, vCount);
 }
 
 // will create a empty sbo for default sbo when no slot are connected
-VulkanBufferObjectPtr SceneLightGroup::CreateEmptyBuffer(vkApi::VulkanCorePtr vVulkanCorePtr)
+VulkanBufferObjectPtr SceneTextureGroup::CreateEmptyBuffer(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	if (vVulkanCorePtr)
+	/*if (vVulkanCorePtr)
 	{
-		auto size_in_bytes = sizeof(SceneLight::lightDatas);
+		auto size_in_bytes = sizeof(SceneTexture::lightDatas);
 		//gpu only since no udpate will be done
 		return vkApi::VulkanRessource::createStorageBufferObject(
 			vVulkanCorePtr, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
-	}
+	}*/
 
 	return nullptr;
 }
@@ -67,12 +60,12 @@ VulkanBufferObjectPtr SceneLightGroup::CreateEmptyBuffer(vkApi::VulkanCorePtr vV
 //// PUBLIC : CTOR / DTOR /////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneLightGroup::SceneLightGroup()
+SceneTextureGroup::SceneTextureGroup()
 {
 	
 }
 
-SceneLightGroup::~SceneLightGroup()
+SceneTextureGroup::~SceneTextureGroup()
 {
 	Unit();
 }
@@ -81,7 +74,7 @@ SceneLightGroup::~SceneLightGroup()
 //// PUBLIC : INIT / UNIT /////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool SceneLightGroup::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SceneTextureGroup::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	m_VulkanCorePtr = vVulkanCorePtr;
 
@@ -98,7 +91,7 @@ bool SceneLightGroup::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return false;
 }
 
-void SceneLightGroup::Unit()
+void SceneTextureGroup::Unit()
 {
 	DestroyBufferObject();
 }
@@ -107,148 +100,138 @@ void SceneLightGroup::Unit()
 //// PUBLIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-std::vector<SceneLightPtr>::iterator SceneLightGroup::begin()
+std::vector<vk::DescriptorImageInfo>::iterator SceneTextureGroup::begin()
 {
 	ZoneScoped;
 
-	return m_Lights.begin();
+	return m_Textures.begin();
 }
 
-std::vector<SceneLightPtr>::iterator SceneLightGroup::end()
+std::vector<vk::DescriptorImageInfo>::iterator SceneTextureGroup::end()
 {
 	ZoneScoped;
 
-	return m_Lights.end();
+	return m_Textures.end();
 }
 
-size_t SceneLightGroup::size()
+size_t SceneTextureGroup::size()
 {
 	ZoneScoped;
 
-	return m_Lights.size();
+	return m_Textures.size();
 }
 
-void SceneLightGroup::clear()
+void SceneTextureGroup::clear()
 {
 	ZoneScoped;
 
-	m_Lights.clear();
+	m_Textures.clear();
 }
 
-bool SceneLightGroup::empty()
+bool SceneTextureGroup::empty()
 {
 	ZoneScoped;
 
-	return m_Lights.empty();
+	return m_Textures.empty();
 }
 
-SceneLightWeak SceneLightGroup::Add()
+vk::DescriptorImageInfo* SceneTextureGroup::Add()
 {
 	ZoneScoped;
 
-	uint32_t idx = (uint32_t)m_Lights.size();
+	/*uint32_t idx = (uint32_t)m_Textures.size();
 
-	if (idx <= sMaxLightCount)
+	if (idx <= sMaxTextureCount)
 	{
-		auto lightPtr = SceneLight::Create();
+		auto lightPtr = SceneTexture::Create();
 		if (lightPtr)
 		{
 			m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
 
-			m_Lights.push_back(lightPtr);
+			m_Textures.push_back(lightPtr);
 
 			return Get(idx);
 		}
-	}
+	}*/
 
-	return SceneLightWeak();
+	return nullptr;
 }
 
-void SceneLightGroup::erase(uint32_t vIndex)
+void SceneTextureGroup::erase(uint32_t vIndex)
 {
 	ZoneScoped;
 
-	if ((size_t)vIndex < m_Lights.size())
+	if ((size_t)vIndex < m_Textures.size())
 	{
-		m_Lights.erase(m_Lights.begin() + vIndex);
-
-		m_SBO430.Clear();
-		uint32_t idx = 0U;
-		for (auto lightPtr : m_Lights)
-		{
-			if (lightPtr)
-			{
-				m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx++), lightPtr->lightDatas);
-			}
-		}
+		m_Textures.erase(m_Textures.begin() + vIndex);
 	}
 }
 
-SceneLightWeak SceneLightGroup::Get(const size_t& vIndex)
+vk::DescriptorImageInfo* SceneTextureGroup::Get(const size_t& vIndex)
 {
 	ZoneScoped;
 
-	if (m_Lights.size() > (size_t)vIndex)
+	if (m_Textures.size() > (size_t)vIndex)
 	{
-		return m_Lights[(size_t)vIndex];
+		return &m_Textures.at((size_t)vIndex);
 	}
 
-	return SceneLightWeak();
+	return nullptr;
 }
 
-bool SceneLightGroup::CanAddLight() const
+bool SceneTextureGroup::CanAddTexture() const
 {
-	return (m_Lights.size() <= sMaxLightCount);
+	return (m_Textures.size() <= sMaxTextureCount);
 }
 
-bool SceneLightGroup::CanRemoveLight() const
+bool SceneTextureGroup::CanRemoveTexture() const
 {
-	return (m_Lights.size() > 1U);
+	return (m_Textures.size() > 1U);
 }
 
 ///////////////////////////////////////////////////////
 //// SBO //////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool SceneLightGroup::IsOk()
+bool SceneTextureGroup::IsOk()
 {
 	return false;
 }
 
-void SceneLightGroup::UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr)
+void SceneTextureGroup::UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	m_SBO430.Upload(vVulkanCorePtr, true);
+	//m_SBO430.Upload(vVulkanCorePtr, true);
 }
 
-bool SceneLightGroup::CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SceneTextureGroup::CreateBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	if (vVulkanCorePtr && !m_Lights.empty())
+	/*if (vVulkanCorePtr && !m_Textures.empty())
 	{
 		vVulkanCorePtr->getDevice().waitIdle();
 
 		return m_SBO430.CreateSBO(vVulkanCorePtr, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
-	}
+	}*/
 
 	return false;
 }
 
-void SceneLightGroup::DestroyBufferObject()
+void SceneTextureGroup::DestroyBufferObject()
 {
 	ZoneScoped;
 
-	m_SBO430.DestroySBO();
+	//m_SBO430.DestroySBO();
 }
 
-vk::DescriptorBufferInfo* SceneLightGroup::GetBufferInfo()
+vk::DescriptorBufferInfo* SceneTextureGroup::GetBufferInfo()
 {
-	if (m_SBO430.IsOk())
+	/*if (m_SBO430.IsOk())
 	{
 		return &m_SBO430.descriptorBufferInfo;
-	}
+	}*/
 	return nullptr;
 }
 

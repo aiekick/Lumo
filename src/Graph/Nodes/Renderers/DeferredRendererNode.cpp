@@ -44,8 +44,8 @@ bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	/*slot.slotType = NodeSlotTypeEnum::LIGHT;
-	slot.name = "Light";
+	/*slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
+	slot.name = "Lights";
 	AddInput(slot, true, false);*/
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
@@ -119,7 +119,7 @@ bool DeferredRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Com
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
 	// for update input texture buffer infos => avoid vk crash
-	UpdateInputDescriptorImageInfos(m_Inputs);
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_DeferredRendererPtr)
 	{

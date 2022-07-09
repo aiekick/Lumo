@@ -41,18 +41,18 @@ limitations under the License.
 
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/TextureGroupOutputInterface.h>
 #include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/LightInputInterface.h>
-#include <Interfaces/LightOutputInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/LightGroupOutputInterface.h>
 
 class ShadowMapModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
-	public TextureOutputInterface,
+	public TextureGroupOutputInterface,
 	public ModelInputInterface,
-	public LightInputInterface,
-	public LightOutputInterface
+	public LightGroupInputInterface,
+	public LightGroupOutputInterface
 {
 protected:
 	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
@@ -64,16 +64,21 @@ protected:
 		alignas(16) uint32_t light_id_to_use = 0U;
 	} m_UBOVert;
 
+	struct PushConstants {
+		uint32_t light_id_to_use = 0U;
+	} m_PushConstants;
+
 public:
 	ShadowMapModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ShadowMapModule_Pass();
 
+	void ActionBeforeInit() override;
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	std::vector<vk::DescriptorImageInfo*> GetDescriptorImageInfos(const uint32_t& vBindingPoint) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
 	SceneLightGroupWeak GetLightGroup() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
@@ -93,4 +98,7 @@ private:
 
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+
+private:
+	void DrawModelForOneLightGroup(const uint32_t vLigthNumber, vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 };

@@ -29,7 +29,7 @@ limitations under the License.
 class TextureInputFunctions
 {
 protected:
-	void UpdateInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs);
+	void UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs);
 
 public:
 	virtual void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) = 0;

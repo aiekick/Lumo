@@ -48,7 +48,7 @@ ImVec4 NodeSlot::GetSlotColorAccordingToType(const NodeSlotTypeEnum& vNodeSlotTy
 	case NodeSlotTypeEnum::MESH_GROUP:
 		res = ImVec4(0.1f, 0.1f, 0.8f, 1.0f);
 		break;
-	case NodeSlotTypeEnum::LIGHT:
+	case NodeSlotTypeEnum::LIGHT_GROUP:
 		res = ImVec4(0.9f, 0.9f, 0.1f, 1.0f);
 		break;
 	case NodeSlotTypeEnum::ENVIRONMENT:
@@ -59,6 +59,9 @@ ImVec4 NodeSlot::GetSlotColorAccordingToType(const NodeSlotTypeEnum& vNodeSlotTy
 		break;
 	case NodeSlotTypeEnum::TEXTURE_2D:
 		res = ImVec4(0.9f, 0.5f, 0.1f, 1.0f);
+		break;
+	case NodeSlotTypeEnum::TEXTURE_2D_GROUP:
+		res = ImVec4(0.9f, 0.5f, 0.3f, 1.0f);
 		break;
 	case NodeSlotTypeEnum::MIXED:
 		res = ImVec4(0.3f, 0.5f, 0.1f, 1.0f);

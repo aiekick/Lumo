@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "LightNode.h"
+#include "LightGroupNode.h"
 #include <Modules/Lighting/LightGroupModule.h>
 
-std::shared_ptr<LightNode> LightNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<LightGroupNode> LightGroupNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<LightNode>();
+	auto res = std::make_shared<LightGroupNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -28,22 +28,22 @@ std::shared_ptr<LightNode> LightNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr
 	return res;
 }
 
-LightNode::LightNode() : BaseNode()
+LightGroupNode::LightGroupNode() : BaseNode()
 {
-	m_NodeTypeString = "LIGHT";
+	m_NodeTypeString = "LIGHT_GROUP";
 }
 
-LightNode::~LightNode()
+LightGroupNode::~LightGroupNode()
 {
 
 }
 
-bool LightNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool LightGroupNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Light";
+	name = "Lights";
 
 	NodeSlot slot;
-	slot.slotType = NodeSlotTypeEnum::LIGHT;
+	slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
 	slot.name = "Output";
 	AddOutput(slot, true, true);
 
@@ -57,7 +57,7 @@ bool LightNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool LightNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool LightGroupNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	if (m_LightGroupModulePtr)
 	{
@@ -67,7 +67,7 @@ bool LightNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer*
 	return false;
 }
 
-bool LightNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	if (m_LightGroupModulePtr)
 	{
@@ -77,7 +77,7 @@ bool LightNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContex
 	return false;
 }
 
-void LightNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void LightGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	if (m_LightGroupModulePtr)
 	{
@@ -85,7 +85,7 @@ void LightNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRe
 	}
 }
 
-SceneLightGroupWeak LightNode::GetLightGroup()
+SceneLightGroupWeak LightGroupNode::GetLightGroup()
 {
 	if (m_LightGroupModulePtr)
 	{
@@ -95,19 +95,19 @@ SceneLightGroupWeak LightNode::GetLightGroup()
 	return SceneLightGroupWeak();
 }
 
-void LightNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void LightGroupNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
-	case NotifyEvent::LightUpdateDone:
+	case NotifyEvent::LightGroupUpdateDone:
 	{
-		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::LIGHT);
+		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::LIGHT_GROUP);
 		for (const auto& slot : slots)
 		{
 			auto slotPtr = slot.getValidShared();
 			if (slotPtr)
 			{
-				slotPtr->Notify(NotifyEvent::LightUpdateDone, slot);
+				slotPtr->Notify(NotifyEvent::LightGroupUpdateDone, slot);
 			}
 		}
 		break;
@@ -121,7 +121,7 @@ void LightNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSl
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string LightNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string LightGroupNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -158,7 +158,7 @@ std::string LightNode::getXml(const std::string& vOffset, const std::string& vUs
 	return res;
 }
 
-bool LightNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool LightGroupNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;

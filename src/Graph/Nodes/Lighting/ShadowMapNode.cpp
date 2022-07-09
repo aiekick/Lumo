@@ -45,20 +45,20 @@ bool ShadowMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::LIGHT;
-	slot.name = "Light";
+	slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
+	slot.name = "Lights";
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::MESH;
 	slot.name = "Mesh";
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::LIGHT;
-	slot.name = "Light";
+	slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
+	slot.name = "Lights";
 	AddOutput(slot, true, true);
 
-	slot.slotType = NodeSlotTypeEnum::DEPTH;
-	slot.name = "Output";
+	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D_GROUP;
+	slot.name = "Outputs";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
 
@@ -132,14 +132,14 @@ SceneLightGroupWeak ShadowMapNode::GetLightGroup()
 	return SceneLightGroupWeak();
 }
 
-vk::DescriptorImageInfo* ShadowMapNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+std::vector<vk::DescriptorImageInfo*> ShadowMapNode::GetDescriptorImageInfos(const uint32_t& vBindingPoint)
 {
 	if (m_ShadowMapModulePtr)
 	{
-		return m_ShadowMapModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_ShadowMapModulePtr->GetDescriptorImageInfos(vBindingPoint);
 	}
 
-	return nullptr;
+	return std::vector<vk::DescriptorImageInfo*>();
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
@@ -159,9 +159,9 @@ void ShadowMapNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak v
 					SetModel(otherModelNodePtr->GetModel());
 				}
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
 			{
-				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherLightGroupNodePtr)
 				{
 					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
@@ -184,7 +184,7 @@ void ShadowMapNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWea
 			{
 				SetModel();
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT)
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
 			{
 				SetLightGroup();
 			}
@@ -212,7 +212,7 @@ void ShadowMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmit
 		}
 		break;
 	}
-	case NotifyEvent::LightUpdateDone:
+	case NotifyEvent::LightGroupUpdateDone:
 	{
 		// maj dans ce node
 		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
@@ -220,7 +220,7 @@ void ShadowMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmit
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto otherNodePtr = dynamic_pointer_cast<LightOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
 				if (otherNodePtr)
 				{
 					SetLightGroup(otherNodePtr->GetLightGroup());
@@ -229,13 +229,13 @@ void ShadowMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmit
 		}
 
 		// propagation en output
-		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::LIGHT);
+		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::LIGHT_GROUP);
 		for (const auto& slot : slots)
 		{
 			auto slotPtr = slot.getValidShared();
 			if (slotPtr)
 			{
-				slotPtr->Notify(NotifyEvent::LightUpdateDone, slot);
+				slotPtr->Notify(NotifyEvent::LightGroupUpdateDone, slot);
 			}
 		}
 

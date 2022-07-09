@@ -44,7 +44,7 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
-#include <Interfaces/LightInputInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
 
 
 
@@ -55,7 +55,7 @@ class SpecularModule :
 	public TaskInterface,
 	public TextureInputInterface<2U>,
 	public TextureOutputInterface,
-	public LightInputInterface,
+	public LightGroupInputInterface,
 	public ResizerInterface
 {
 public:

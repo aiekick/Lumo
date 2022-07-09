@@ -16,7 +16,7 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/LightInputInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
@@ -26,7 +26,7 @@ class DiffuseNode :
 	public BaseNode,
 	public TextureInputInterface<2U>,
 	public TextureOutputInterface, 
-	public LightInputInterface,
+	public LightGroupInputInterface,
 	public ShaderUpdateInterface
 {
 public:

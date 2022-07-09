@@ -58,7 +58,7 @@ void UserNodeLibrary::AnalyseRootDirectory()
 
 	m_RootLibraryCategory.AddCustom("Core/Divers", "Grid / Axis", "GRID_AXIS");
 	
-	m_RootLibraryCategory.AddCustom("Core/Lighting", "Light", "LIGHT");
+	m_RootLibraryCategory.AddCustom("Core/Lighting", "Lights", "LIGHT_GROUP");
 	m_RootLibraryCategory.AddCustom("Core/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING");
 	m_RootLibraryCategory.AddCustom("Core/Lighting/Shadow", "Model Shadow", "MODEL_SHADOW");
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Diffuse", "DIFFUSE");

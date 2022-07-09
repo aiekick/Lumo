@@ -329,6 +329,11 @@ ct::fvec2 FrameBuffer::GetOutputSize() const
 	return ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y);
 }
 
+uint32_t FrameBuffer::GetBuffersCount() const
+{
+	return m_CountBuffers;
+}
+
 vkApi::VulkanFrameBuffer* FrameBuffer::GetBackFbo()
 {
 	ZoneScoped;

@@ -83,7 +83,7 @@ bool ShadowMapModule::Init()
 		m_ShadowMapModule_Pass_Ptr = std::make_shared<ShadowMapModule_Pass>(m_VulkanCorePtr);
 		if (m_ShadowMapModule_Pass_Ptr)
 		{
-			if (m_ShadowMapModule_Pass_Ptr->InitPixel(1024U, 1U, true, true, 0.0f,
+			if (m_ShadowMapModule_Pass_Ptr->InitPixel(1024U, 8U, true, true, 0.0f,
 				false, vk::Format::eR32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				m_ShadowMapModule_Pass_Ptr->AllowResize(false); // 1024 is fixed
@@ -191,16 +191,14 @@ SceneLightGroupWeak ShadowMapModule::GetLightGroup()
 	return SceneLightGroupWeak();
 }
 
-vk::DescriptorImageInfo* ShadowMapModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+std::vector<vk::DescriptorImageInfo*> ShadowMapModule::GetDescriptorImageInfos(const uint32_t& vBindingPoint)
 {
-	ZoneScoped;
-
 	if (m_ShadowMapModule_Pass_Ptr)
 	{
-		return m_ShadowMapModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_ShadowMapModule_Pass_Ptr->GetDescriptorImageInfos(vBindingPoint);
 	}
 
-	return nullptr;
+	return std::vector<vk::DescriptorImageInfo*>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

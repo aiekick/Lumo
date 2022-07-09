@@ -80,7 +80,7 @@ bool SSAONode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
 	// for update input texture buffer infos => avoid vk crash
-	UpdateInputDescriptorImageInfos(m_Inputs);
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_SSAOModulePtr)
 	{

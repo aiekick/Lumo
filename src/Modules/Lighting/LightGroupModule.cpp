@@ -100,18 +100,18 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 {
 	if (m_SceneLightGroupPtr)
 	{
-		bool oneChangedLightAtLeast = false;
+		bool oneChangedLightGroupAtLeast = false;
 
 		if (m_SceneLightGroupPtr->CanAddLight())
 		{
-			if (ImGui::ContrastedButton("Add Light"))
+			if (ImGui::ContrastedButton("Add LightGroup"))
 			{
 				m_SceneLightGroupPtr->Add();
 				m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
 				auto parentNodePtr = GetParentNode().getValidShared();
 				if (parentNodePtr)
 				{
-					parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+					parentNodePtr->Notify(NotifyEvent::LightGroupUpdateDone);
 				}
 			}
 
@@ -125,7 +125,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 		{
 			if (lightPtr)
 			{
-				std::string label = ct::toStr("Light %u : %s##%" PRIxPTR "",
+				std::string label = ct::toStr("LightGroup %u : %s##%" PRIxPTR "",
 					idx, lightPtr->name.c_str(), (uintptr_t)lightPtr.get());
 
 				bool expanded = false;
@@ -142,7 +142,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						auto parentNodePtr = GetParentNode().getValidShared();
 						if (parentNodePtr)
 						{
-							parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+							parentNodePtr->Notify(NotifyEvent::LightGroupUpdateDone);
 						}
 						break;
 					}
@@ -154,7 +154,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 				
 				if (expanded)
 				{
-					ImGui::Header("Light");
+					ImGui::Header("Lights");
 
 					auto lightTypeIndex = (int32_t)lightPtr->lightDatas.lightType;
 					if (ImGui::ContrastedComboVectorDefault(0.0f, "Type", &lightTypeIndex, 
@@ -163,7 +163,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						lightPtr->lightDatas.lightType = lightTypeIndex;
 						lightPtr->wasChanged = true;
 					}
-					lightPtr->wasChanged |= ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightColor.x);
+					lightPtr->wasChanged |= ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightGroupColor.x);
 					lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f);
 
 					if (lightTypeIndex == 2U) // orthographic
@@ -198,7 +198,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 					if (lightPtr->wasChanged)
 					{
-						oneChangedLightAtLeast = true;
+						oneChangedLightGroupAtLeast = true;
 
 						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
 					}
@@ -208,14 +208,14 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 			++idx;
 		}
 
-		if (oneChangedLightAtLeast)
+		if (oneChangedLightGroupAtLeast)
 		{
 			m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
 
 			auto parentNodePtr = GetParentNode().getValidShared();
 			if (parentNodePtr)
 			{
-				parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+				parentNodePtr->Notify(NotifyEvent::LightGroupUpdateDone);
 			}
 		}
 	}
@@ -234,7 +234,7 @@ void LightGroupModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 				auto parentNodePtr = GetParentNode().getValidShared();
 				if (parentNodePtr)
 				{
-					parentNodePtr->Notify(NotifyEvent::LightUpdateDone);
+					parentNodePtr->Notify(NotifyEvent::LightGroupUpdateDone);
 				}
 			}
 		}
@@ -301,13 +301,13 @@ bool LightGroupModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 	{
 		if (strName == "light")
 		{
-			if (!m_FirstXmlLight)
+			if (!m_FirstXmlLightGroup)
 			{
 				m_SceneLightGroupPtr->Add();
 			}
 			else
 			{
-				m_FirstXmlLight = false;
+				m_FirstXmlLightGroup = false;
 			}
 		}
 	}

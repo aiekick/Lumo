@@ -929,7 +929,7 @@ void ShaderPass::UpdateRessourceDescriptor()
 	// update descriptor
 	m_Device.updateDescriptorSets(writeDescriptorSets, nullptr);
 
-	// on le met la avant le rendu pluto qu'apres sinon au reload la 1ere
+	// on le met la avant le rendu plutot qu'apres sinon au reload la 1ere
 	// frame vaut 0 et ca peut reset le shader selon ce qu'on a mis dedans
 	// par contre on incremente la frame apres le submit
 	//m_UniformWidgets.SetFrame(m_Frame);

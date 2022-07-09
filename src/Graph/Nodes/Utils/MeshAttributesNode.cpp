@@ -110,7 +110,7 @@ bool MeshAttributesNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
 	// for update input texture buffer infos => avoid vk crash
-	UpdateInputDescriptorImageInfos(m_Inputs);
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_MeshAttributesModulePtr)
 	{

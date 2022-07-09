@@ -38,7 +38,9 @@ using namespace vkApi;
 ShadowMapModule_Pass::ShadowMapModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
-	SetRenderDocDebugName("Mesh Pass 1 : Light Shadow Map", MESH_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Mesh Pass 1 : LightGroup Shadow Map", MESH_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ShadowMapModule_Pass::~ShadowMapModule_Pass()
@@ -50,6 +52,16 @@ ShadowMapModule_Pass::~ShadowMapModule_Pass()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
+void ShadowMapModule_Pass::ActionBeforeInit()
+{
+	vk::PushConstantRange push_constant;
+	push_constant.offset = 0;
+	push_constant.size = sizeof(PushConstants);
+	push_constant.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment;
+
+	SetPushConstantRange(push_constant);
+}
+
 void ShadowMapModule_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	ZoneScoped;
@@ -58,31 +70,15 @@ void ShadowMapModule_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& v
 
 	if (vCmdBuffer)
 	{
-		auto modelPtr = m_SceneModel.getValidShared();
-		if (!modelPtr || modelPtr->empty()) return;
-
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+		if (lightGroupPtr)
 		{
-			VKFPScoped(*vCmdBuffer, "ShadowMapModule_Pass", "DrawMesh");
-
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-
-			for (auto meshPtr : *modelPtr)
+			uint32_t idx = 0U;
+			for (auto lightPtr : *lightGroupPtr)
 			{
-				if (meshPtr)
+				if (lightPtr)
 				{
-					vk::DeviceSize offsets = 0;
-					vCmdBuffer->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
-
-					if (meshPtr->GetIndicesCount())
-					{
-						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
-						vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
-					}
-					else
-					{
-						vCmdBuffer->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
-					}
+					DrawModelForOneLightGroup(idx++, vCmdBuffer, vIterationNumber);
 				}
 			}
 		}
@@ -125,8 +121,7 @@ void ShadowMapModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
 
 	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
-	if (lightGroupPtr &&
-		lightGroupPtr->GetBufferInfo())
+	if (lightGroupPtr && lightGroupPtr->GetBufferInfo())
 	{
 		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
 	}
@@ -141,16 +136,28 @@ SceneLightGroupWeak ShadowMapModule_Pass::GetLightGroup()
 	return m_SceneLightGroup;
 }
 
-vk::DescriptorImageInfo* ShadowMapModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+std::vector<vk::DescriptorImageInfo*> ShadowMapModule_Pass::GetDescriptorImageInfos(const uint32_t& vBindingPoint)
 {
-	ZoneScoped;
-
+	std::vector<vk::DescriptorImageInfo*> res;
+	
 	if (m_FrameBufferPtr)
-	{
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+	{	
+		res.reserve(8U);
+		for (uint32_t i = 0U; i < 8U; ++i)
+		{	
+			auto descPtr = m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint + i);
+			if (descPtr)
+			{	
+				res.push_back(descPtr);
+			}
+			else
+			{
+				CTOOL_DEBUG_BREAK;
+			}
+		}
 	}
 
-	return nullptr;
+	return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +234,7 @@ bool ShadowMapModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 
@@ -265,8 +272,8 @@ layout(location = 3) in vec3 vertBiTangent;
 layout(location = 4) in vec2 vertUv;
 layout(location = 5) in vec4 vertColor;
 
-layout (std140, binding = 0) uniform UBO_Vert 
-{ 
+layout(push_constant) uniform constants
+{
 	uint light_id_to_use;
 };
 )"
@@ -288,25 +295,97 @@ std::string ShadowMapModule_Pass::GetFragmentShaderCode(std::string& vOutShaderN
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) out float fragDepth;
+layout(location = 0) out float fragDepth0;
+layout(location = 1) out float fragDepth1;
+layout(location = 2) out float fragDepth2;
+layout(location = 3) out float fragDepth3;
+layout(location = 4) out float fragDepth4;
+layout(location = 5) out float fragDepth5;
+layout(location = 6) out float fragDepth6;
+layout(location = 7) out float fragDepth7;
+
+layout(push_constant) uniform constants
+{
+	uint light_id_to_use;
+};
 )"
 + 
 CommonSystem::GetBufferObjectStructureHeader(2U) 
 +
 u8R"(
+
 void main() 
 {
+	fragDepth0 = 0.0;
+	fragDepth1 = 0.0;
+	fragDepth2 = 0.0;
+	fragDepth3 = 0.0;
+	fragDepth4 = 0.0;
+	fragDepth5 = 0.0;
+	fragDepth6 = 0.0;
+	fragDepth7 = 0.0;
+
 	float depth = gl_FragCoord.z / gl_FragCoord.w;
-	/*if (depth > 0.0)
-	{*/
-		if (cam_far > 0.0)
-			depth /= cam_far;
-		fragDepth = depth;
-	/*}
-	else
+	if (cam_far > 0.0)
 	{
-		discard;
-	}*/
+		depth /= cam_far;
+		switch(light_id_to_use)
+		{
+		case 0: fragDepth0 = depth; break;
+		case 1: fragDepth1 = depth; break;
+		case 2: fragDepth2 = depth; break;
+		case 3: fragDepth3 = depth; break;
+		case 4: fragDepth4 = depth; break;
+		case 5: fragDepth5 = depth; break;
+		case 6: fragDepth6 = depth; break;
+		case 7: fragDepth7 = depth; break;
+		}
+	}
 }
 )";
+}
+
+void ShadowMapModule_Pass::DrawModelForOneLightGroup(const uint32_t vLigthNumber, vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+{
+	ZoneScoped;
+
+	if (!m_Loaded) return;
+
+	if (vCmdBuffer && 
+		vLigthNumber < SceneLightGroup::sMaxLightCount)
+	{
+		auto modelPtr = m_SceneModel.getValidShared();
+		if (!modelPtr || modelPtr->empty()) return;
+
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		{
+			VKFPScoped(*vCmdBuffer, "ShadowMapModule_Pass", "DrawMesh");
+
+			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+			
+			m_PushConstants.light_id_to_use = vLigthNumber;
+			vCmdBuffer->pushConstants(m_PipelineLayout, 
+				vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
+				0, sizeof(PushConstants), &m_PushConstants);
+
+			for (auto meshPtr : *modelPtr)
+			{
+				if (meshPtr)
+				{
+					vk::DeviceSize offsets = 0;
+					vCmdBuffer->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
+
+					if (meshPtr->GetIndicesCount())
+					{
+						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
+						vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
+					}
+					else
+					{
+						vCmdBuffer->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
+					}
+				}
+			}
+		}
+	}
 }

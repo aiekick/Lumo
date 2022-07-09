@@ -43,11 +43,9 @@ limitations under the License.
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/LightInputInterface.h>
-#include <Interfaces/LightOutputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
-
-
+#include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/LightGroupOutputInterface.h>
+#include <Interfaces/TextureGroupOutputInterface.h>
 
 class ShadowMapModule_Pass;
 class ShadowMapModule :
@@ -55,9 +53,9 @@ class ShadowMapModule :
 	public GuiInterface,
 	public TaskInterface,
 	public ModelInputInterface,
-	public TextureOutputInterface,
-	public LightInputInterface,
-	public LightOutputInterface,
+	public TextureGroupOutputInterface,
+	public LightGroupInputInterface,
+	public LightGroupOutputInterface,
 	public ResizerInterface
 {
 public:
@@ -80,7 +78,7 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	std::vector<vk::DescriptorImageInfo*> GetDescriptorImageInfos(const uint32_t& vBindingPoint) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
 	SceneLightGroupWeak GetLightGroup() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

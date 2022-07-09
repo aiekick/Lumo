@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "TextureInputInterface.h"
+#include "TextureGroupInputInterface.h"
 
 #include <memory>
 #include <ctools/cTools.h>
@@ -22,9 +22,9 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <Graph/Base/NodeSlot.h>
 #include <vkFramework/VulkanCore.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/TextureGroupOutputInterface.h>
 
-void TextureInputFunctions::UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs)
+void TextureGroupInputFunctions::UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs)
 {
 	for (const auto& input : vInputs) {
 		if (input.second) {
@@ -33,10 +33,10 @@ void TextureInputFunctions::UpdateTextureInputDescriptorImageInfos(const std::ma
 				if (otherSLotPtr) {
 					auto otherParentPtr = otherSLotPtr->parentNode.getValidShared();
 					if (otherParentPtr) {
-						auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(otherParentPtr);
+						auto otherNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(otherParentPtr);
 						if (otherNodePtr) {
-							SetTexture(input.second->descriptorBinding, 
-								otherNodePtr->GetDescriptorImageInfo(
+							SetTextures(input.second->descriptorBinding, 
+								otherNodePtr->GetDescriptorImageInfos(
 									otherSLotPtr->descriptorBinding)); 
 						}}}}}}
 }

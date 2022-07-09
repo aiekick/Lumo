@@ -23,7 +23,7 @@ limitations under the License.
 
 #include <Graph/Nodes/Simulation/GrayScottNode.h>
 
-#include <Graph/Nodes/Lighting/LightNode.h>
+#include <Graph/Nodes/Lighting/LightGroupNode.h>
 #include <Graph/Nodes/Lighting/DiffuseNode.h>
 #include <Graph/Nodes/Lighting/SpecularNode.h>
 #include <Graph/Nodes/Lighting/ShadowMapNode.h>
@@ -65,7 +65,7 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			else if (vNodeType == "GRID_AXIS")						return GridNode::Create(corePtr);
 
 			// Lighting
-			else if (vNodeType == "LIGHT")							return LightNode::Create(corePtr);
+			else if (vNodeType == "LIGHT_GROUP")					return LightGroupNode::Create(corePtr);
 			else if (vNodeType == "SHADOW_MAPPING")					return ShadowMapNode::Create(corePtr);
 			else if (vNodeType == "MODEL_SHADOW")					return ModelShadowNode::Create(corePtr);
 			else if (vNodeType == "DIFFUSE")						return DiffuseNode::Create(corePtr);

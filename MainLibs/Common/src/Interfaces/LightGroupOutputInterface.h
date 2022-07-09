@@ -18,12 +18,8 @@ limitations under the License.
 
 #include <SceneGraph/SceneLightGroup.h>
 
-class LightInputInterface
+class LightGroupOutputInterface
 {
-protected:
-	bool m_NeedLightGroupUpdate = false;
-	SceneLightGroupWeak m_SceneLightGroup;
-
 public:
-	virtual void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) = 0;
+	virtual SceneLightGroupWeak GetLightGroup() = 0;
 };

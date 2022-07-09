@@ -191,7 +191,7 @@ u8R"(
 layout(binding = 2) uniform sampler2D pos_map_sampler;
 layout(binding = 3) uniform sampler2D nor_map_sampler;
 
-vec4 getLight(uint id, ivec2 coords, vec3 pos)
+vec4 getLightGroup(uint id, ivec2 coords, vec3 pos)
 {
 	vec3 light_pos = lightDatas[id].lightGizmo[3].xyz;
 	float light_intensity = lightDatas[id].lightIntensity;
@@ -218,7 +218,7 @@ void main()
 		// so we do length() + 1
 		for (int i=0;i<lightDatas.length() + 1;++i)
 		{
-			res += getLight(i, coords, pos);
+			res += getLightGroup(i, coords, pos);
 		}
 	}
 	
