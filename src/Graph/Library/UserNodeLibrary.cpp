@@ -59,18 +59,16 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Core/Divers", "Grid / Axis", "GRID_AXIS");
 	
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Light", "LIGHT");
-	m_RootLibraryCategory.AddCustom("Core/Lighting", "Shadow Mapping", "SHADOW_MAPPING");
-	m_RootLibraryCategory.AddCustom("Core/Lighting", "SSS Mapping", "SSS_MAPPING");
-	m_RootLibraryCategory.AddCustom("Core/Lighting", "Model Shadow", "MODEL_SHADOW");
-	m_RootLibraryCategory.AddCustom("Core/Lighting", "Model SSS", "MODEL_SSS");
+	m_RootLibraryCategory.AddCustom("Core/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING");
+	m_RootLibraryCategory.AddCustom("Core/Lighting/Shadow", "Model Shadow", "MODEL_SHADOW");
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Diffuse", "DIFFUSE");
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Specular", "SPECULAR");
-
+	m_RootLibraryCategory.AddCustom("Core/Lighting", "SSAO", "SSAO");
+	
 	m_RootLibraryCategory.AddCustom("Core/Modifiers", "Smooth Normals", "SMOOTH_NORMAL");
 
 	m_RootLibraryCategory.AddCustom("Core/Output", "Output", "OUTPUT");
 
-	m_RootLibraryCategory.AddCustom("Core/PostPro", "SSAO", "SSAO");
 	m_RootLibraryCategory.AddCustom("Core/PostPro", "Blur", "BLUR");
 	m_RootLibraryCategory.AddCustom("Core/PostPro", "Laplacian", "LAPLACIAN");
 

@@ -24,12 +24,10 @@ limitations under the License.
 #include <Graph/Nodes/Simulation/GrayScottNode.h>
 
 #include <Graph/Nodes/Lighting/LightNode.h>
-#include <Graph/Nodes/Lighting/ShadowMapNode.h>
-#include <Graph/Nodes/Lighting/SSSMapNode.h>
-#include <Graph/Nodes/Lighting/ModelShadowNode.h>
-#include <Graph/Nodes/Lighting/ModelSSSNode.h>
 #include <Graph/Nodes/Lighting/DiffuseNode.h>
 #include <Graph/Nodes/Lighting/SpecularNode.h>
+#include <Graph/Nodes/Lighting/ShadowMapNode.h>
+#include <Graph/Nodes/Lighting/ModelShadowNode.h>
 
 #include <Graph/Nodes/Modifiers/SmoothNormalNode.h>
 
@@ -39,15 +37,15 @@ limitations under the License.
 #include <Graph/Nodes/PostPro/BlurNode.h>
 #include <Graph/Nodes/PostPro/LaplacianNode.h>
 
-#include <Graph/Nodes/Renderers/ChannelRendererNode.h>
-#include <Graph/Nodes/Renderers/DeferredRendererNode.h>
-#include <Graph/Nodes/Renderers/HeatmapRendererNode.h>
 #include <Graph/Nodes/Renderers/MatcapRendererNode.h>
+#include <Graph/Nodes/Renderers/ChannelRendererNode.h>
+#include <Graph/Nodes/Renderers/HeatmapRendererNode.h>
+#include <Graph/Nodes/Renderers/DeferredRendererNode.h>
 
-#include <Graph/Nodes/Utils/MeshAttributesNode.h>
+#include <Graph/Nodes/Utils/MathNode.h>
 #include <Graph/Nodes/Utils/DepthToPosNode.h>
 #include <Graph/Nodes/Utils/PosToDepthNode.h>
-#include <Graph/Nodes/Utils/MathNode.h>
+#include <Graph/Nodes/Utils/MeshAttributesNode.h>
 
 #include <Graph/Nodes/Variables/VariableNode.h>
 
@@ -69,9 +67,7 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			// Lighting
 			else if (vNodeType == "LIGHT")							return LightNode::Create(corePtr);
 			else if (vNodeType == "SHADOW_MAPPING")					return ShadowMapNode::Create(corePtr);
-			else if (vNodeType == "SSS_MAPPING")					return SSSMapNode::Create(corePtr);
 			else if (vNodeType == "MODEL_SHADOW")					return ModelShadowNode::Create(corePtr);
-			else if (vNodeType == "MODEL_SSS")						return ModelSSSNode::Create(corePtr);
 			else if (vNodeType == "DIFFUSE")						return DiffuseNode::Create(corePtr);
 			else if (vNodeType == "SPECULAR")						return SpecularNode::Create(corePtr);
 
