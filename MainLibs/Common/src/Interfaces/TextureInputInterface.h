@@ -39,7 +39,6 @@ template<size_t size_of_array>
 class TextureInputInterface : public TextureInputFunctions
 {
 protected:
-	bool m_NeedSamplerUpdate = false; 
 	std::array<vk::DescriptorImageInfo, size_of_array> m_ImageInfos;
 	std::array<ImGuiTexture, size_of_array> m_ImGuiTextures;
 

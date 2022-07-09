@@ -17,6 +17,7 @@ limitations under the License.
 #include "ModelShadowNode.h"
 #include <Modules/Lighting/ModelShadowModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
+#include <Interfaces/TextureGroupOutputInterface.h>
 
 std::shared_ptr<ModelShadowNode> ModelShadowNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -51,12 +52,12 @@ bool ModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Position";
-	slot.descriptorBinding = 0U;
+	slot.descriptorBinding = 0U; // target a texture input
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D_GROUP;
 	slot.name = "Shadow Maps";
-	slot.descriptorBinding = 1U;
+	slot.descriptorBinding = 1U; // target a texture group input
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
@@ -82,6 +83,9 @@ void ModelShadowNode::Unit()
 bool ModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+
+	// for update input texture buffer infos => avoid vk crash
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureGroupInputDescriptorImageInfos(m_Inputs);
@@ -127,7 +131,7 @@ void ModelShadowNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 	}
 }
 
-void ModelShadowNode::SetTextures(const uint32_t& vBinding, const std::vector<vk::DescriptorImageInfo*>& vImageInfos)
+void ModelShadowNode::SetTextures(const uint32_t& vBinding, std::vector<vk::DescriptorImageInfo>* vImageInfos)
 {
 	if (m_ModelShadowModulePtr)
 	{
@@ -159,7 +163,9 @@ void ModelShadowNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
+					SetTexture(startSlotPtr->descriptorBinding, 
+						otherTextureNodePtr->GetDescriptorImageInfo(
+							endSlotPtr->descriptorBinding));
 				}
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
@@ -168,6 +174,16 @@ void ModelShadowNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 				if (otherLightGroupNodePtr)
 				{
 					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
+				}
+			}
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP)
+			{
+				auto otherTextureNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherTextureNodePtr)
+				{
+					SetTextures(startSlotPtr->descriptorBinding, 
+						otherTextureNodePtr->GetDescriptorImageInfos(
+							endSlotPtr->descriptorBinding));
 				}
 			}
 		}
@@ -191,6 +207,10 @@ void ModelShadowNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 			{
 				SetLightGroup();
 			}
+			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP)
+			{
+				SetTextures(startSlotPtr->descriptorBinding, nullptr);
+			}
 		}
 	}
 }
@@ -213,6 +233,30 @@ void ModelShadowNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 					if (receiverSlotPtr)
 					{
 						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding));
+					}
+				}
+			}
+		}
+
+		//todo emit notification
+		break;
+	}
+	case NotifyEvent::TextureGroupUpdateDone:
+	{
+		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		if (emiterSlotPtr)
+		{
+			if (emiterSlotPtr->IsAnOutput())
+			{
+				auto otherNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				if (otherNodePtr)
+				{
+					auto receiverSlotPtr = vReceiverSlot.getValidShared();
+					if (receiverSlotPtr)
+					{
+						SetTextures(receiverSlotPtr->descriptorBinding, 
+							otherNodePtr->GetDescriptorImageInfos(
+								emiterSlotPtr->descriptorBinding));
 					}
 				}
 			}

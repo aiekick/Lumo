@@ -24,6 +24,8 @@ enum class NotifyEvent
 	ModelUpdateDone = 0,
 	// need to update the texture
 	TextureUpdateDone,
+	// need to update the texture group
+	TextureGroupUpdateDone,
 	// need to update the light
 	LightGroupUpdateDone,
 	// need to update the variable

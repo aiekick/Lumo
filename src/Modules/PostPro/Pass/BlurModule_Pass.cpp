@@ -103,8 +103,6 @@ void BlurModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 			{
 				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 			}
-
-			m_NeedSamplerUpdate = true;
 		}
 	}
 }

@@ -132,14 +132,14 @@ SceneLightGroupWeak ShadowMapNode::GetLightGroup()
 	return SceneLightGroupWeak();
 }
 
-std::vector<vk::DescriptorImageInfo*> ShadowMapNode::GetDescriptorImageInfos(const uint32_t& vBindingPoint)
+std::vector<vk::DescriptorImageInfo>* ShadowMapNode::GetDescriptorImageInfos(const uint32_t& vBindingPoint)
 {
 	if (m_ShadowMapModulePtr)
 	{
 		return m_ShadowMapModulePtr->GetDescriptorImageInfos(vBindingPoint);
 	}
 
-	return std::vector<vk::DescriptorImageInfo*>();
+	return nullptr;
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté

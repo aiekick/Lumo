@@ -78,7 +78,7 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	std::vector<vk::DescriptorImageInfo*> GetDescriptorImageInfos(const uint32_t& vBindingPoint) override;
+	std::vector<vk::DescriptorImageInfo>* GetDescriptorImageInfos(const uint32_t& vBindingPoint) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
 	SceneLightGroupWeak GetLightGroup() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

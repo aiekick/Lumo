@@ -115,14 +115,12 @@ void ModelShadowModule_Pass::SetTexture(const uint32_t& vBinding, vk::Descriptor
 
 					m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 				}
-
-				m_NeedSamplerUpdate = true;
 			}
 		}
 	}
 }
 
-void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, const std::vector<vk::DescriptorImageInfo*>& vImageInfos)
+void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, std::vector<vk::DescriptorImageInfo>* vImageInfos)
 {
 	ZoneScoped;
 
@@ -130,19 +128,12 @@ void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, const std::ve
 	{
 		if (vBinding == 1U)
 		{
-			if (vImageInfos.size() == m_ImageGroupInfos.size())
+			if (vImageInfos && 
+				vImageInfos->size() == m_ImageGroupInfos.size())
 			{
-				for (size_t i = 0U; i < vImageInfos.size(); ++i)
+				for (size_t i = 0U; i < vImageInfos->size(); ++i)
 				{
-					auto ptr = vImageInfos.at(i);
-					if (ptr)
-					{
-						m_ImageGroupInfos[i] = *ptr;
-					}
-					else
-					{
-						m_ImageGroupInfos[i] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
-					}
+					m_ImageGroupInfos[i] = vImageInfos->at(i);
 				}
 			}
 			else
@@ -158,9 +149,7 @@ void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, const std::ve
 
 					NeedNewUBOUpload();
 				}
-			}
-
-			m_NeedSamplerUpdate = true;
+			}			
 		}
 	}
 }
@@ -286,12 +275,12 @@ bool ModelShadowModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	m_LayoutBindings.clear();
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
-	//m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
 	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
 
 	// the shadow maps
-	///m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler,
-	//	(uint32_t)m_ImageGroupInfos.size(), vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler,
+		(uint32_t)m_ImageGroupInfos.size(), vk::ShaderStageFlagBits::eFragment);
 
 	// next binding will be 4 + 8 => 12
 	
@@ -305,12 +294,12 @@ bool ModelShadowModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	//writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
 	
 	// the shadow maps
-	//writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0,
-	//	(uint32_t)m_ImageGroupInfos.size(), vk::DescriptorType::eCombinedImageSampler, m_ImageGroupInfos.data(), nullptr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0,
+		(uint32_t)m_ImageGroupInfos.size(), vk::DescriptorType::eCombinedImageSampler, m_ImageGroupInfos.data(), nullptr);
 	
 	// next binding will be 4 + 8 => 12
 
@@ -358,13 +347,13 @@ layout (std140, binding = 1) uniform UBO_Frag
 	float use_sampler_pos;
 	float use_sampler_shadow_map;
 };
-//layout(binding = 2) uniform sampler2D position_map_sampler;
+layout(binding = 2) uniform sampler2D position_map_sampler;
 )"
 +
 SceneLightGroup::GetBufferObjectStructureHeader(3U)
 +
 u8R"(
-//layout(binding = 4) uniform sampler2D light_shadow_map_samplers[8]; // binding 4 + 8
+layout(binding = 4) uniform sampler2D light_shadow_map_samplers[8]; // binding 4 + 8
 const vec2 poissonDisk[16] = vec2[]
 ( 
    vec2( -0.94201624, -0.39906216 ), 
@@ -395,6 +384,8 @@ float random(vec3 seed, int i)
 void main() 
 {
 	fragShadow = vec4(0);
+	
+	fragShadow = texture(position_map_sampler, v_uv);
 	
 	//fragShadow = texture(light_shadow_map_samplers[0], v_uv);
 

@@ -27,16 +27,23 @@ limitations under the License.
 void TextureInputFunctions::UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs)
 {
 	for (const auto& input : vInputs) {
-		if (input.second) {
+		if (input.second && input.second->slotType == NodeSlotTypeEnum::TEXTURE_2D) {
 			for (auto slot : input.second->linkedSlots) {
 				auto otherSLotPtr = slot.getValidShared();
 				if (otherSLotPtr) {
-					auto otherParentPtr = otherSLotPtr->parentNode.getValidShared();
-					if (otherParentPtr) {
-						auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(otherParentPtr);
-						if (otherNodePtr) {
-							SetTexture(input.second->descriptorBinding, 
-								otherNodePtr->GetDescriptorImageInfo(
-									otherSLotPtr->descriptorBinding)); 
-						}}}}}}
+					if (otherSLotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D) {
+						auto otherParentPtr = otherSLotPtr->parentNode.getValidShared();
+						if (otherParentPtr) {
+							auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(otherParentPtr);
+							if (otherNodePtr) {
+								SetTexture(input.second->descriptorBinding,
+									otherNodePtr->GetDescriptorImageInfo(
+										otherSLotPtr->descriptorBinding));
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

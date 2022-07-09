@@ -182,7 +182,7 @@ void ModelShadowModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImage
 	}
 }
 
-void ModelShadowModule::SetTextures(const uint32_t& vBinding, const std::vector<vk::DescriptorImageInfo*>& vImageInfos)
+void ModelShadowModule::SetTextures(const uint32_t& vBinding, std::vector<vk::DescriptorImageInfo>* vImageInfos)
 {
 	if (m_ModelShadowModule_Pass_Ptr)
 	{

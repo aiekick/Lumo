@@ -44,10 +44,6 @@ bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	/*slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
-	slot.name = "Lights";
-	AddInput(slot, true, false);*/
-
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Position";
 	slot.descriptorBinding = 0U;

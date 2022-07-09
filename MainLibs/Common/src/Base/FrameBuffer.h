@@ -67,6 +67,9 @@ protected:
 
 	uint32_t m_CurrentFrame = 0U;
 
+	std::vector<vk::DescriptorImageInfo> m_FrontDescriptors;
+	std::vector<vk::DescriptorImageInfo> m_BackDescriptors;
+
 	// vulkan creation
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;	// vulkan core
 	vkApi::VulkanQueue m_Queue;					// queue
@@ -130,11 +133,13 @@ public: // contructor
 	// get sampler / image / buffer
 	vkApi::VulkanFrameBuffer* GetBackFbo();
 	std::vector<vkApi::VulkanFrameBufferAttachment>* GetBackBufferAttachments(uint32_t* vMaxBuffers);
-	vk::DescriptorImageInfo* FrameBuffer::GetBackDescriptorImageInfo(const uint32_t& vBindingPoint);
-	
+	vk::DescriptorImageInfo* GetBackDescriptorImageInfo(const uint32_t& vBindingPoint);
+	std::vector<vk::DescriptorImageInfo>* GetBackDescriptorImageInfos();
+
 	vkApi::VulkanFrameBuffer* GetFrontFbo();
 	std::vector<vkApi::VulkanFrameBufferAttachment>* GetFrontBufferAttachments(uint32_t* vMaxBuffers);
-	vk::DescriptorImageInfo* FrameBuffer::GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint);
+	vk::DescriptorImageInfo* GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint);
+	std::vector<vk::DescriptorImageInfo>* GetFrontDescriptorImageInfos();
 	
 	// Get
 	vk::Viewport GetViewport() const;

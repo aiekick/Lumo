@@ -136,28 +136,16 @@ SceneLightGroupWeak ShadowMapModule_Pass::GetLightGroup()
 	return m_SceneLightGroup;
 }
 
-std::vector<vk::DescriptorImageInfo*> ShadowMapModule_Pass::GetDescriptorImageInfos(const uint32_t& vBindingPoint)
+std::vector<vk::DescriptorImageInfo>* ShadowMapModule_Pass::GetDescriptorImageInfos(const uint32_t& vBindingPoint)
 {
-	std::vector<vk::DescriptorImageInfo*> res;
-	
+	UNUSED(vBindingPoint);
+
 	if (m_FrameBufferPtr)
-	{	
-		res.reserve(8U);
-		for (uint32_t i = 0U; i < 8U; ++i)
-		{	
-			auto descPtr = m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint + i);
-			if (descPtr)
-			{	
-				res.push_back(descPtr);
-			}
-			else
-			{
-				CTOOL_DEBUG_BREAK;
-			}
-		}
+	{
+		return m_FrameBufferPtr->GetFrontDescriptorImageInfos();
 	}
 
-	return res;
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

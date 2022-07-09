@@ -359,18 +359,6 @@ std::vector<vkApi::VulkanFrameBufferAttachment>* FrameBuffer::GetFrontBufferAtta
 	return 0;
 }
 
-std::vector<vkApi::VulkanFrameBufferAttachment>* FrameBuffer::GetBackBufferAttachments(uint32_t* vMaxBuffers)
-{
-	if (vMaxBuffers)
-		*vMaxBuffers = m_CountBuffers;
-	uint32_t frame = m_CurrentFrame;
-	if (m_MultiPassMode)
-		frame = 1U - frame;
-	if (m_FrameBuffers.size() > frame)
-		return &m_FrameBuffers[frame].attachments;
-	return 0;
-}
-
 vk::DescriptorImageInfo* FrameBuffer::GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	uint32_t maxBuffers = 0U;
@@ -396,6 +384,28 @@ vk::DescriptorImageInfo* FrameBuffer::GetFrontDescriptorImageInfo(const uint32_t
 	return nullptr;
 }
 
+std::vector<vk::DescriptorImageInfo>* FrameBuffer::GetFrontDescriptorImageInfos()
+{
+	uint32_t maxBuffers = 0U;
+	auto fbos = GetFrontBufferAttachments(&maxBuffers);
+	if (fbos)
+	{
+		if (m_FrontDescriptors.size() == (size_t)maxBuffers)
+		{
+			size_t offset = 0U;
+			if (m_SampleCount != vk::SampleCountFlagBits::e1)
+				offset = (size_t)maxBuffers;
+
+			for (size_t i = 0U; i < (size_t)maxBuffers; ++i)
+			{
+				m_FrontDescriptors[i] = fbos->at(i + offset).attachmentDescriptorInfo;
+			}
+		}
+	}
+
+	return &m_FrontDescriptors;
+}
+
 vk::DescriptorImageInfo* FrameBuffer::GetBackDescriptorImageInfo(const uint32_t& vBindingPoint)
 {
 	uint32_t maxBuffers = 0U;
@@ -419,6 +429,40 @@ vk::DescriptorImageInfo* FrameBuffer::GetBackDescriptorImageInfo(const uint32_t&
 	}
 
 	return nullptr;
+}
+
+std::vector<vkApi::VulkanFrameBufferAttachment>* FrameBuffer::GetBackBufferAttachments(uint32_t* vMaxBuffers)
+{
+	if (vMaxBuffers)
+		*vMaxBuffers = m_CountBuffers;
+	uint32_t frame = m_CurrentFrame;
+	if (m_MultiPassMode)
+		frame = 1U - frame;
+	if (m_FrameBuffers.size() > frame)
+		return &m_FrameBuffers[frame].attachments;
+	return 0;
+}
+
+std::vector<vk::DescriptorImageInfo>* FrameBuffer::GetBackDescriptorImageInfos()
+{
+	uint32_t maxBuffers = 0U;
+	auto fbos = GetBackBufferAttachments(&maxBuffers);
+	if (fbos)
+	{
+		if (m_BackDescriptors.size() == (size_t)maxBuffers)
+		{
+			size_t offset = 0U;
+			if (m_SampleCount != vk::SampleCountFlagBits::e1)
+				offset = (size_t)maxBuffers;
+
+			for (size_t i = 0U; i < (size_t)maxBuffers; ++i)
+			{
+				m_BackDescriptors[i] = fbos->at(i + offset).attachmentDescriptorInfo;
+			}
+		}
+	}
+
+	return &m_BackDescriptors;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -452,6 +496,12 @@ bool FrameBuffer::CreateFrameBuffers(
 			m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(m_OutputSize.x, m_OutputSize.y));
 			m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(m_OutputSize.x), static_cast<float>(m_OutputSize.y), 0, 1.0f);
 			m_OutputRatio = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>();
+
+			m_FrontDescriptors.clear();
+			m_FrontDescriptors.resize(m_CountBuffers);
+
+			m_BackDescriptors.clear();
+			m_BackDescriptors.resize(m_CountBuffers);
 
 			m_ClearColorValues.clear();
 

@@ -95,8 +95,6 @@ void DepthToPosModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorI
 
 				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 			}
-
-			m_NeedSamplerUpdate = true;
 		}
 	}
 }
