@@ -51,11 +51,8 @@ at least, support all rendering features and result of the SketchFab Renderer
 
 - [X] Assets / Mesh Node 
 - [X] Assets / Texture 2D Node 
-
 - [X] Breaks / Break Texture 2D Group Node
-
 - [X] Divers / Grid / Axis Node
-
 - [ ] Lighting / Attenuation Node
 - [X] Lighting / Diffuse Node
 - [X] Lighting / Light Group Node
@@ -64,30 +61,22 @@ at least, support all rendering features and result of the SketchFab Renderer
 - [ ] Lighting / RoughNess Node
 - [X] Lighting / Shadow Mappings Node
 - [X] Lighting / Specular Node
-
 - [X] Modifiers / Smooth Normals Node
-
 - [X] Outputs / Output 2D Node
 - [X] Outputs / Output 3D Node
-
 - [X] Postpro / Blur Node
 - [X] Postpro / Laplacian Node
 - [X] Postpro / SSAO Node
-
 - [X] Renderers / Channels Renderer Node
 - [X] Renderers / Deferred Renderer Node
 - [X] Renderers / Heatmap Renderer Node
 - [X] Renderers / Matcap Renderer Node
-
 - [ ] Simulation / GrayScott Node
-
 - [X] Utils / Depth To Pos Node
 - [ ] Utils / Math Node (add, sub, mul, smoothstep, step, etc..)
 - [X] Utils / Mesh Attributes Node
 - [X] Utils / Pos To Depth Node
-
 - [X] Variables / Variable Node
-
 
 # ScreenShots
 
