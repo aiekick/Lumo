@@ -116,6 +116,6 @@ My MeshSim plugin, with a basic deferred renderrer, one light shadow + ssao
 
 ## And my libs :
 
-- [ctools](https://github.com/aiekick/cTools.git)
-- [ImGuiFileDialog](https://github.com/aiekick/ImGuiFileDialog.git)
-- [BuildInc](https://github.com/aiekick/buildinc.git)
+- [ctools](https://github.com/aiekick/cTools.git) (MIT)
+- [ImGuiFileDialog](https://github.com/aiekick/ImGuiFileDialog.git) (MIT)
+- [BuildInc](https://github.com/aiekick/buildinc.git) (MIT)
