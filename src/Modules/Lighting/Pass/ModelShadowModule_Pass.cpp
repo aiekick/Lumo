@@ -40,7 +40,7 @@ ModelShadowModule_Pass::ModelShadowModule_Pass(vkApi::VulkanCorePtr vVulkanCoreP
 {
 	SetRenderDocDebugName("Quad Pass 1 : Model Shadow", QUAD_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+	//m_DontUseShaderFilesOnDisk = true;
 }
 
 ModelShadowModule_Pass::~ModelShadowModule_Pass()
@@ -135,6 +135,13 @@ void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, std::vector<v
 				{
 					m_ImageGroupInfos[i] = vImageInfos->at(i);
 				}
+
+				if (m_UBOFrag.use_sampler_shadow_map < 1.0f)
+				{
+					m_UBOFrag.use_sampler_shadow_map = 1.0f;
+
+					NeedNewUBOUpload();
+				}
 			}
 			else
 			{
@@ -143,9 +150,9 @@ void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, std::vector<v
 					info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 				}
 
-				if (m_UBOFrag.use_sampler_pos > 0.0f)
+				if (m_UBOFrag.use_sampler_shadow_map > 0.0f)
 				{
-					m_UBOFrag.use_sampler_pos = 0.0f;
+					m_UBOFrag.use_sampler_shadow_map = 0.0f;
 
 					NeedNewUBOUpload();
 				}
@@ -381,40 +388,52 @@ float random(vec3 seed, int i)
 	return fract(sin(dot_product) * 43758.5453);
 }
 
+float getShadowForLight(uint vLightID, vec3 pos)
+{
+	vec4 shadowCoord = lightDatas[vLightID].lightView * vec4(pos, 1.0);
+	shadowCoord.xyz /= shadowCoord.w;
+	shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
+
+	const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
+	const float bias = u_bias * 0.01;
+
+	float sha_vis = 1.0;
+	float sha_step = 1.0 / mix(16.0, 8.0, u_shadow_strength);
+	for (int i=0;i<8;i++)
+	{
+		int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
+		float sha = texture(light_shadow_map_samplers[vLightID], shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;
+		if (sha * cam_far < (shadowCoord.z - bias)/shadowCoord.w)
+		{
+			sha_vis -= sha_step * (1.0 - sha);
+		}
+		else
+		{
+			sha_vis += sha_step;
+		}
+	}
+
+	return sha_vis;
+}
+
 void main() 
 {
-	fragShadow = vec4(0);
+	fragShadow = vec4(0.0);
 	
-	fragShadow = texture(position_map_sampler, v_uv);
-	
-	//fragShadow = texture(light_shadow_map_samplers[0], v_uv);
-
-	/*if (use_sampler_pos > 0.5 && 
+	if (use_sampler_pos > 0.5 && 
 		use_sampler_shadow_map > 0.5)
 	{
 		vec3 pos = texture(position_map_sampler, v_uv).xyz;
 		if (dot(pos, pos) > 0.0)
 		{
-			vec4 shadowCoord = lightDatas[0].lightView * vec4(pos, 1.0);
-			shadowCoord.xyz /= shadowCoord.w;
-			shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
-
-			const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
-			const float bias = u_bias * 0.01;
-
-			float sha_vis = 1.0;
-			float sha_step = 1.0 / mix(16.0, 8.0, u_shadow_strength);
-			for (int i=0;i<8;i++)
+			uint count = min(lightDatas.length() + 1, 8);
+			float l_step = 1.0 / float(count);
+			for (uint lid = 0 ; lid < count ; ++lid)
 			{
-				int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-				float sha = texture(light_shadow_map_sampler, shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;
-				if (sha * cam_far < (shadowCoord.z - bias)/shadowCoord.w)
-				{
-					sha_vis -= sha_step * (1.0 - sha);
-				}
+				fragShadow += getShadowForLight(lid, pos) * l_step;
 			}
 
-			fragShadow = vec4(sha_vis);
+			fragShadow = clamp(fragShadow, 0.0, 1.0);
 		}
 		else
 		{
@@ -424,7 +443,7 @@ void main()
 	else
 	{
 		discard;
-	}*/
+	}
 }
 )";
 }
