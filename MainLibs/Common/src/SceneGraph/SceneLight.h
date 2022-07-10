@@ -99,4 +99,6 @@ public:
 	float* GetGizmoFloatPtr() override;
 
 	bool NeedUpdateCamera();
+
+	void AdaptIconColor();
 };

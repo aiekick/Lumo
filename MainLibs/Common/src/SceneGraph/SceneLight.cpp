@@ -26,6 +26,8 @@ SceneLightPtr SceneLight::Create()
 	auto s = sizeof(LightDatasStruct);
 	s = sizeof(res->lightDatas);
 
+	res->AdaptIconColor();
+
 	return res;
 }
 
@@ -104,4 +106,14 @@ bool SceneLight::NeedUpdateCamera()
 	}
 
 	return false;
+}
+
+void SceneLight::AdaptIconColor()
+{
+	idle_color = ct::toImVec4(lightDatas.lightColor);
+	idle_color.w = 1.0f;
+	hovered_color = ct::toImVec4(lightDatas.lightColor * 1.5f);
+	hovered_color.w = 1.0f;
+	pressed_color = ct::toImVec4(lightDatas.lightColor * 2.0f);
+	pressed_color.w = 1.0f;
 }

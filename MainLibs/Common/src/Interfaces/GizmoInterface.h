@@ -27,6 +27,9 @@ class GizmoInterface
 {
 public:
 	std::string name = "";
+	ImVec4 pressed_color = ImVec4(1.0f, 1.f, 0.2f, 1.0f);
+	ImVec4 hovered_color = ImVec4(0.2f, 1.0f, 1.0f, 1.0f);
+	ImVec4 idle_color = ImVec4(0.2f, 0.2f, 1.0f, 1.0f);
 	bool showIcon = true;
 	bool showText = true;
 	bool wasChanged = true; // true, for have a first update

@@ -166,7 +166,11 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						lightPtr->lightDatas.lightType = lightTypeIndex;
 						lightPtr->wasChanged = true;
 					}
-					lightPtr->wasChanged |= ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightGroupColor.x);
+					if (ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightGroupColor.x))
+					{
+						lightPtr->AdaptIconColor();
+						lightPtr->wasChanged = true;
+					}
 					lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f);
 
 					if (lightTypeIndex == 2U) // orthographic
@@ -334,7 +338,10 @@ bool LightGroupModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 				else if (strName == "active")
 					lastPtr->lightDatas.lightActive = ct::ivariant(strValue).GetB();
 				else if (strName == "color")
+				{
 					lastPtr->lightDatas.lightColor = ct::fvariant(strValue).GetV4();
+					lastPtr->AdaptIconColor();
+				}
 				else if (strName == "perspective_angle")
 					lastPtr->lightDatas.perspectiveAngle = ct::fvariant(strValue).GetF();
 				else if (strName == "intensity")

@@ -77,7 +77,10 @@ bool GizmoSystem::DrawTooltips(GizmoInterfaceWeak vGizmo, ct::frect vRect)
 			gizmoPtr->name.c_str(),
 			10.0f,
 			gizmoPtr->showIcon,
-			gizmoPtr->showText))
+			gizmoPtr->showText,
+			gizmoPtr->pressed_color,
+			gizmoPtr->hovered_color,
+			gizmoPtr->idle_color))
 		{
 			m_CurrentGizmo = gizmoPtr->GetGizmoFloatPtr();
 		}
