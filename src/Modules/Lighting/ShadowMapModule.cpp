@@ -130,9 +130,11 @@ void ShadowMapModule::Unit()
 {
 	m_ImageInfos.clear();
 
-	for (auto fboPtr : m_FrameBuffers)
+	// the renderpass in the FBO[0], must be destroyed in last
+	// if not, will cause errors, because the renderpass loaned to other fbo will be invalid
+	for (size_t i = 0U; i < 8U; ++i)
 	{
-		fboPtr.reset();
+		m_FrameBuffers[i].reset();
 	}
 
 	BaseRenderer::Unit();

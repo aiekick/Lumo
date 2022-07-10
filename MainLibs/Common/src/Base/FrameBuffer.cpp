@@ -333,6 +333,7 @@ void FrameBuffer::SetRenderPass(const vk::RenderPass& vExternalRenderPass)
 		if (!m_CreateRenderPass) // we can set a renderpass only if the creation was not demand
 		{
 			m_RenderPass = vExternalRenderPass;
+			m_IsRenderPassExternal = true;
 		}
 		else
 		{
@@ -585,7 +586,11 @@ void FrameBuffer::DestroyFrameBuffers()
 	m_FrameBuffers.clear();
 	if (m_RenderPass)
 	{
-		m_Device.destroyRenderPass(m_RenderPass);
+		if (!m_IsRenderPassExternal)
+		{
+			m_Device.destroyRenderPass(m_RenderPass);
+		}
+
 		m_RenderPass = vk::RenderPass {};
 	}
 }
