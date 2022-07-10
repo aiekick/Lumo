@@ -33,6 +33,7 @@ limitations under the License.
 #include <vkFramework/vk_mem_alloc.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
+#include <vkFramework/vkFramework.h>
 
 #include <Base/Base.h>
 
@@ -67,8 +68,9 @@ protected:
 
 	uint32_t m_CurrentFrame = 0U;
 
-	std::vector<vk::DescriptorImageInfo> m_FrontDescriptors;
-	std::vector<vk::DescriptorImageInfo> m_BackDescriptors;
+	DescriptorImageInfoVector m_FrontDescriptors;
+	DescriptorImageInfoVector m_BackDescriptors;
+	fvec2Vector m_DescriptorSizes;
 
 	// vulkan creation
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;	// vulkan core
@@ -134,12 +136,12 @@ public: // contructor
 	vkApi::VulkanFrameBuffer* GetBackFbo();
 	std::vector<vkApi::VulkanFrameBufferAttachment>* GetBackBufferAttachments(uint32_t* vMaxBuffers);
 	vk::DescriptorImageInfo* GetBackDescriptorImageInfo(const uint32_t& vBindingPoint);
-	std::vector<vk::DescriptorImageInfo>* GetBackDescriptorImageInfos();
+	DescriptorImageInfoVector* GetBackDescriptorImageInfos(fvec2Vector* vOutSizes);
 
 	vkApi::VulkanFrameBuffer* GetFrontFbo();
 	std::vector<vkApi::VulkanFrameBufferAttachment>* GetFrontBufferAttachments(uint32_t* vMaxBuffers);
 	vk::DescriptorImageInfo* GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint);
-	std::vector<vk::DescriptorImageInfo>* GetFrontDescriptorImageInfos();
+	DescriptorImageInfoVector* GetFrontDescriptorImageInfos(fvec2Vector* vOutSizes);
 	
 	// Get
 	vk::Viewport GetViewport() const;
@@ -151,7 +153,7 @@ public: // contructor
 	uint32_t GetBuffersCount() const;
 	
 	void BeginRenderPass(vk::CommandBuffer* vCmdBuffer);
-	void ClearAttachmentsIfNeeded(vk::CommandBuffer* vCmdBuffer); // clear if clear is needed internally (set by ClearAttachments)
+	void ClearAttachmentsIfNeeded(vk::CommandBuffer* vCmdBuffer, const bool& vForce = false); // clear if clear is needed internally (set by ClearAttachments)
 	void EndRenderPass(vk::CommandBuffer* vCmdBuffer);
 
 	void ClearAttachments(); // set clear flag for clearing at next render

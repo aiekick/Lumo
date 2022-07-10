@@ -25,5 +25,5 @@ limitations under the License.
 class TextureGroupOutputInterface
 {
 public:
-	virtual std::vector<vk::DescriptorImageInfo>* GetDescriptorImageInfos(const uint32_t& vBindingPoint) = 0;
+	virtual DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes) = 0;
 };

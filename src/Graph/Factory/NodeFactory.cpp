@@ -19,6 +19,8 @@ limitations under the License.
 #include <Graph/Nodes/Assets/MeshNode.h>
 #include <Graph/Nodes/Assets/Texture2DNode.h>
 
+#include <Graph/Nodes/Breaks/BreakTexturesGroupNode.h>
+
 #include <Graph/Nodes/Divers/GridNode.h>
 
 #include <Graph/Nodes/Simulation/GrayScottNode.h>
@@ -61,6 +63,9 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			// assets
 			if (vNodeType == "MESH")								return MeshNode::Create(corePtr);
 			else if (vNodeType == "TEXTURE_2D")						return Texture2DNode::Create(corePtr);
+
+			// Divers
+			else if (vNodeType == "BREAK_TEXTURE_2D_GROUP")			return BreakTexturesGroupNode::Create(corePtr);
 
 			// Divers
 			else if (vNodeType == "GRID_AXIS")						return GridNode::Create(corePtr);

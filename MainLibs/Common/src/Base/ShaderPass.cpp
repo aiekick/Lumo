@@ -145,7 +145,7 @@ bool ShaderPass::InitPixel(
 
 	m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
 	if (m_FrameBufferPtr->Init(
-		vSize, vCountColorBuffer, vUseDepth, vNeedToClear, 
+		vSize, vCountColorBuffer, vUseDepth, vNeedToClear,
 		vClearColor, vMultiPassMode, vFormat, vSampleCount)) {
 		if (BuildModel()) {
 			if (CreateSBO()) {
@@ -405,6 +405,9 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 		{
 			if (m_FrameBufferPtr->Begin(vCmdBuffer))
 			{
+				m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBuffer, m_ForceFBOClearing);
+				m_ForceFBOClearing = false;
+
 				DrawModel(vCmdBuffer, vIterationNumber);
 
 				m_FrameBufferPtr->End(vCmdBuffer);
@@ -983,6 +986,11 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 	{
 		ReCompil();
 	}
+}
+
+void ShaderPass::NeedToClearFBOThisFrame()
+{
+	m_ForceFBOClearing = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

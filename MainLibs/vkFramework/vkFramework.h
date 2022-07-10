@@ -3,6 +3,9 @@
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 
+typedef std::vector<ct::fvec2> fvec2Vector;
+typedef std::vector<vk::DescriptorImageInfo> DescriptorImageInfoVector;
+
 class Texture2D;
 typedef std::shared_ptr<Texture2D> Texture2DPtr;
 typedef ct::cWeak<Texture2D> Texture2DWeak;

@@ -100,14 +100,14 @@ void SceneTextureGroup::Unit()
 //// PUBLIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-std::vector<vk::DescriptorImageInfo>::iterator SceneTextureGroup::begin()
+DescriptorImageInfoVector::iterator SceneTextureGroup::begin()
 {
 	ZoneScoped;
 
 	return m_Textures.begin();
 }
 
-std::vector<vk::DescriptorImageInfo>::iterator SceneTextureGroup::end()
+DescriptorImageInfoVector::iterator SceneTextureGroup::end()
 {
 	ZoneScoped;
 

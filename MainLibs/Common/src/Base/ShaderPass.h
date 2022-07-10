@@ -79,6 +79,8 @@ protected:
 	vk::DescriptorPool m_DescriptorPool;		// descriptor pool
 	vk::Device m_Device;						// device copy
 
+	bool m_ForceFBOClearing = false;
+
 	// Multi Sampling
 	vk::SampleCountFlagBits m_SampleCount = vk::SampleCountFlagBits::e1; // sampling for primitives
 
@@ -202,6 +204,8 @@ public:
 
 	// shader update from file
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
+
+	void NeedToClearFBOThisFrame();
 
 protected:
 	virtual void ActionBeforeCompilation();

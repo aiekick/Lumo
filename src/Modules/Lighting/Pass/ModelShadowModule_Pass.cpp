@@ -118,7 +118,7 @@ void ModelShadowModule_Pass::SetTexture(const uint32_t& vBinding, vk::Descriptor
 	}
 }
 
-void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, std::vector<vk::DescriptorImageInfo>* vImageInfos)
+void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
 	ZoneScoped;
 
@@ -397,6 +397,8 @@ float random(vec3 seed, int i)
 	return fract(sin(dot_product) * 43758.5453);
 }
 
+/*#define USE_PCF
+
 vec4 getShadowForLight(uint id, vec3 pos, vec3 nor)
 {
 	vec4 color = vec4(0.0);
@@ -424,40 +426,41 @@ vec4 getShadowForLight(uint id, vec3 pos, vec3 nor)
 			{
 				if (li > 0.0)
 				{
-					sha_vis -= sha_step * (1.0 - sha) * li;
+					sha_vis -= sha_step * (1.0 - sha);
 				}
 			}
 			else
 			{
 				if (li > 0.0)
 				{
-					sha_vis += sha_step * sha * li;
+					sha_vis += sha_step * sha;
 				}
 			}
 		}
 		color = vec4(sha_vis);
 #else
-		float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy, 0.0).r;// * cam_far;
+		float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy, 0.0).r;
 		if (sha < (shadowCoord.z - bias)/shadowCoord.w)
 		{
 			vec3 ld = normalize(lightDatas[id].lightGizmo[3].xyz);
 			float li = dot(ld, nor);
 			if (li > 0.0)
 			{
-				color += li;
+				color += li * 5.0;
 			}
 		}
 #endif
 	}
 
 	return color;
-}
+}*/
 
 void main() 
 {
-	fragShadow = vec4(1.0);
+	fragShadow = vec4(0.0);
 	
 	if (use_sampler_pos > 0.5 && 
+		use_sampler_nor > 0.5 && 
 		use_sampler_shadow_map > 0.5)
 	{
 		vec3 pos = texture(position_map_sampler, v_uv).xyz;
@@ -465,23 +468,46 @@ void main()
 		{
 			vec3 nor = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
 		
+			vec4 sha_accum = vec4(1.0);
+			float count_sha = 0.0;
+			
 			uint count = min(lightDatas.length() + 1, 8);
-			for (uint lid = 0 ; lid < count ; ++lid)
+			for (uint lid = 0 ; lid < 1 ; ++lid)
 			{
-				fragShadow -= getShadowForLight(lid, pos, nor);
+				if (lightDatas[lid].lightActive > 0.5)
+				{
+					count_sha++;
+					vec4 shadowCoord = lightDatas[lid].lightView * vec4(pos, 1.0);
+					shadowCoord.xyz /= shadowCoord.w;
+					shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
+
+					const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
+					const float bias = u_bias * 0.01;
+					
+					float sha = texture(light_shadow_map_samplers[lid], shadowCoord.xy, 0.0).r;
+					if (sha < shadowCoord.z - bias)
+					{
+						vec3 ld = normalize(lightDatas[lid].lightGizmo[3].xyz - pos);
+						float li = dot(ld, nor);
+						if (li > 0.0)
+						{
+							sha_accum -= (1.0 - sha);
+						}
+					}
+				}
 			}
 
-			//fragShadow = clamp(fragShadow, 0.0, 1.0);
+			fragShadow = clamp(sha_accum, 0.0, 1.0);
 		}
 		else
 		{
-			discard;
+			//discard;
 		}
 	}	
 	else
 	{
-		discard;
-	}
+		//discard;
+	}	
 }
 
 )";

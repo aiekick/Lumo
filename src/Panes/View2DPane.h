@@ -20,6 +20,7 @@ limitations under the License.
 
 #include <imgui/imgui.h>
 #include <vulkan/vulkan.hpp>
+#include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 #include <ImGuiColorTextEdit/TextEditor.h>
 #include <Modules/Output/Output2DModule.h>
@@ -36,6 +37,8 @@ class View2DPane : public AbstractPane
 {
 private:
 	Output2DModuleWeak m_Output2DModule;
+	Texture2DPtr m_BGTexture = nullptr; // pour y afficher le damier
+	ImGuiTexture m_ImGuiBGTexture;
 	ImGuiTexture m_ImGuiTexture;
 	ct::irect m_PreviewRect;
 	VulkanImGuiRendererPtr m_VulkanImGuiRenderer = nullptr;

@@ -136,13 +136,13 @@ SceneLightGroupWeak ShadowMapModule_Pass::GetLightGroup()
 	return m_SceneLightGroup;
 }
 
-std::vector<vk::DescriptorImageInfo>* ShadowMapModule_Pass::GetDescriptorImageInfos(const uint32_t& vBindingPoint)
+DescriptorImageInfoVector* ShadowMapModule_Pass::GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes)
 {
 	UNUSED(vBindingPoint);
 
 	if (m_FrameBufferPtr)
 	{
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfos();
+		return m_FrameBufferPtr->GetFrontDescriptorImageInfos(vOutSizes);
 	}
 
 	return nullptr;
@@ -316,7 +316,6 @@ void main()
 	float depth = gl_FragCoord.z / gl_FragCoord.w;
 	if (cam_far > 0.0)
 	{
-		//depth /= cam_far;
 		vec4 dp = vec4(vec3(depth), 1.0);
 
 		switch(light_id_to_use)

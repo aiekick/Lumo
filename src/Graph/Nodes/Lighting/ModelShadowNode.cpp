@@ -136,11 +136,11 @@ void ModelShadowNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 	}
 }
 
-void ModelShadowNode::SetTextures(const uint32_t& vBinding, std::vector<vk::DescriptorImageInfo>* vImageInfos)
+void ModelShadowNode::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
 	if (m_ModelShadowModulePtr)
 	{
-		m_ModelShadowModulePtr->SetTextures(vBinding, vImageInfos);
+		m_ModelShadowModulePtr->SetTextures(vBinding, vImageInfos, vOutSizes);
 	}
 }
 
@@ -186,9 +186,9 @@ void ModelShadowNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTextures(startSlotPtr->descriptorBinding, 
-						otherTextureNodePtr->GetDescriptorImageInfos(
-							endSlotPtr->descriptorBinding));
+					fvec2Vector arr;
+					auto descsPtr = otherTextureNodePtr->GetDescriptorImageInfos(endSlotPtr->descriptorBinding, &arr);
+					SetTextures(startSlotPtr->descriptorBinding, descsPtr, &arr);
 				}
 			}
 		}
@@ -214,7 +214,7 @@ void ModelShadowNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP)
 			{
-				SetTextures(startSlotPtr->descriptorBinding, nullptr);
+				SetTextures(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
@@ -259,9 +259,9 @@ void ModelShadowNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						SetTextures(receiverSlotPtr->descriptorBinding, 
-							otherNodePtr->GetDescriptorImageInfos(
-								emiterSlotPtr->descriptorBinding));
+						fvec2Vector arr; // tofix : je sens les emmerdes a ce transfert de pointeurs dans un scope court 
+						auto descsPtr = otherNodePtr->GetDescriptorImageInfos(emiterSlotPtr->descriptorBinding, &arr);
+						SetTextures(receiverSlotPtr->descriptorBinding, descsPtr, &arr);
 					}
 				}
 			}

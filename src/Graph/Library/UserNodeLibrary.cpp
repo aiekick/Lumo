@@ -56,6 +56,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Core/Assets", "3D Model", "MESH");
 	m_RootLibraryCategory.AddCustom("Core/Assets", "2D Texture", "TEXTURE_2D");
 
+	m_RootLibraryCategory.AddCustom("Core/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP");
+
 	m_RootLibraryCategory.AddCustom("Core/Divers", "Grid / Axis", "GRID_AXIS");
 	
 	m_RootLibraryCategory.AddCustom("Core/Lighting", "Lights", "LIGHT_GROUP");

@@ -195,7 +195,7 @@ bool FrameBuffer::Begin(vk::CommandBuffer* vCmdBuffer)
 		vCmdBuffer->setScissor(0, 1, &m_RenderArea);
 
 		BeginRenderPass(vCmdBuffer);
-
+		
 		return true;
 	}
 
@@ -206,7 +206,6 @@ void FrameBuffer::End(vk::CommandBuffer* vCmdBuffer)
 {
 	if (m_Loaded)
 	{
-		ClearAttachmentsIfNeeded(vCmdBuffer);
 		EndRenderPass(vCmdBuffer);
 
 		Swap();
@@ -235,12 +234,12 @@ void FrameBuffer::BeginRenderPass(vk::CommandBuffer* vCmdBuffer)
 	}
 }
 
-void FrameBuffer::ClearAttachmentsIfNeeded(vk::CommandBuffer* vCmdBuffer)
+void FrameBuffer::ClearAttachmentsIfNeeded(vk::CommandBuffer* vCmdBuffer, const bool& vForce)
 {
 	auto fbo = GetFrontFbo();
-	if (fbo->neverCleared)
+	if (fbo->neverCleared || vForce)
 	{
-		if (fbo->neverToClear)
+		if (fbo->neverToClear || vForce)
 		{
 			if (vCmdBuffer)
 			{
@@ -384,7 +383,7 @@ vk::DescriptorImageInfo* FrameBuffer::GetFrontDescriptorImageInfo(const uint32_t
 	return nullptr;
 }
 
-std::vector<vk::DescriptorImageInfo>* FrameBuffer::GetFrontDescriptorImageInfos()
+DescriptorImageInfoVector* FrameBuffer::GetFrontDescriptorImageInfos(fvec2Vector* vOutSizes)
 {
 	uint32_t maxBuffers = 0U;
 	auto fbos = GetFrontBufferAttachments(&maxBuffers);
@@ -399,6 +398,12 @@ std::vector<vk::DescriptorImageInfo>* FrameBuffer::GetFrontDescriptorImageInfos(
 			for (size_t i = 0U; i < (size_t)maxBuffers; ++i)
 			{
 				m_FrontDescriptors[i] = fbos->at(i + offset).attachmentDescriptorInfo;
+				m_DescriptorSizes[i] = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y);
+			}
+
+			if (vOutSizes)
+			{
+				*vOutSizes = m_DescriptorSizes;
 			}
 		}
 	}
@@ -443,7 +448,7 @@ std::vector<vkApi::VulkanFrameBufferAttachment>* FrameBuffer::GetBackBufferAttac
 	return 0;
 }
 
-std::vector<vk::DescriptorImageInfo>* FrameBuffer::GetBackDescriptorImageInfos()
+DescriptorImageInfoVector* FrameBuffer::GetBackDescriptorImageInfos(fvec2Vector* vOutSizes)
 {
 	uint32_t maxBuffers = 0U;
 	auto fbos = GetBackBufferAttachments(&maxBuffers);
@@ -458,6 +463,12 @@ std::vector<vk::DescriptorImageInfo>* FrameBuffer::GetBackDescriptorImageInfos()
 			for (size_t i = 0U; i < (size_t)maxBuffers; ++i)
 			{
 				m_BackDescriptors[i] = fbos->at(i + offset).attachmentDescriptorInfo;
+				m_DescriptorSizes[i] = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y);
+			}
+
+			if (vOutSizes)
+			{
+				*vOutSizes = m_DescriptorSizes;
 			}
 		}
 	}
@@ -502,6 +513,9 @@ bool FrameBuffer::CreateFrameBuffers(
 
 			m_BackDescriptors.clear();
 			m_BackDescriptors.resize(m_CountBuffers);
+
+			m_DescriptorSizes.clear();
+			m_DescriptorSizes.resize(m_CountBuffers);
 
 			m_ClearColorValues.clear();
 

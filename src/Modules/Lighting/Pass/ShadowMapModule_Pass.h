@@ -78,7 +78,7 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	std::vector<vk::DescriptorImageInfo>* GetDescriptorImageInfos(const uint32_t& vBindingPoint) override;
+	DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
 	SceneLightGroupWeak GetLightGroup() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

@@ -36,9 +36,9 @@ void TextureGroupInputFunctions::UpdateTextureGroupInputDescriptorImageInfos(con
 						if (otherParentPtr) {
 							auto otherNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(otherParentPtr);
 							if (otherNodePtr) {
-								SetTextures(input.second->descriptorBinding,
-									otherNodePtr->GetDescriptorImageInfos(
-										otherSLotPtr->descriptorBinding));
+								fvec2Vector arr; // tofix : je sens les emmerdes a ce transfert de pointeurs dans un scope court 
+								auto descsPtr = otherNodePtr->GetDescriptorImageInfos(otherSLotPtr->descriptorBinding, &arr);
+								SetTextures(input.second->descriptorBinding, descsPtr, &arr);
 							}
 						}
 					}

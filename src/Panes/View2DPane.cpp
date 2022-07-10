@@ -159,7 +159,11 @@ void View2DPane::SetOrUpdateOutput(ct::cWeak<Output2DModule> vOutput2DModule)
 	{
 		ct::fvec2 outSize;
 		m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, outputModulePtr->GetDescriptorImageInfo(0U, &outSize));
-		m_ImGuiTexture.ratio = outSize.ratioXY<float>();
+		m_ImGuiTexture.ratio = 1.0f;
+		if (!outSize.emptyAND())
+		{
+			m_ImGuiTexture.ratio = outSize.ratioXY<float>();
+		}
 	}
 	else
 	{

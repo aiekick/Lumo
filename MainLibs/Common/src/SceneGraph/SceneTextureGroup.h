@@ -45,7 +45,7 @@ public:
 private:
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 	SceneTextureGroupWeak m_This;
-	std::vector<vk::DescriptorImageInfo> m_Textures;
+	DescriptorImageInfoVector m_Textures;
 	vk::DescriptorBufferInfo m_EmptyBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 public:
@@ -58,8 +58,8 @@ public:
 	void clear();
 	bool empty();
 	size_t size();
-	std::vector<vk::DescriptorImageInfo>::iterator begin();
-	std::vector<vk::DescriptorImageInfo>::iterator end();
+	DescriptorImageInfoVector::iterator begin();
+	DescriptorImageInfoVector::iterator end();
 	void erase(uint32_t vIdx);
 	vk::DescriptorImageInfo* Add();
 	vk::DescriptorImageInfo* Get(const size_t& vIndex);

@@ -87,19 +87,21 @@ void NodeManager::PrepareToLoadGraph()
 
 bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
+	bool res = false;
+
 	auto output3DPtr = m_RootNodePtr->m_Output3DNode.getValidShared();
 	if (output3DPtr)
 	{
-		return output3DPtr->Execute(vCurrentFrame, vCmd);
+		res |= output3DPtr->Execute(vCurrentFrame, vCmd);
 	}
 
 	auto output2DPtr = m_RootNodePtr->m_Output2DNode.getValidShared();
 	if (output2DPtr)
 	{
-		return output2DPtr->Execute(vCurrentFrame, vCmd);
+		res |= output2DPtr->Execute(vCurrentFrame, vCmd);
 	}
 
-	return false;
+	return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

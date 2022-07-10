@@ -132,11 +132,11 @@ SceneLightGroupWeak ShadowMapNode::GetLightGroup()
 	return SceneLightGroupWeak();
 }
 
-std::vector<vk::DescriptorImageInfo>* ShadowMapNode::GetDescriptorImageInfos(const uint32_t& vBindingPoint)
+DescriptorImageInfoVector* ShadowMapNode::GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes)
 {
 	if (m_ShadowMapModulePtr)
 	{
-		return m_ShadowMapModulePtr->GetDescriptorImageInfos(vBindingPoint);
+		return m_ShadowMapModulePtr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
 	}
 
 	return nullptr;

@@ -155,7 +155,11 @@ vk::DescriptorImageInfo* Output3DModule::GetDescriptorImageInfo(const uint32_t& 
 		if (imguiRendererPtr)
 		{
 			m_ImGuiTexture.SetDescriptor(imguiRendererPtr, desc);
-			m_ImGuiTexture.ratio = m_fOutputSize.ratioXY<float>();
+			m_ImGuiTexture.ratio = 1.0f;
+			if (vOutSize && !vOutSize->emptyAND())
+			{
+				m_ImGuiTexture.ratio = m_fOutputSize.ratioXY<float>();
+			}
 		}
 		return desc;
 	}
