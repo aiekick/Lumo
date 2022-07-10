@@ -43,7 +43,7 @@ limitations under the License.
 #endif // COMMON_API
 
 #ifndef CAM_FAR
-#define CAM_FAR 100.0f
+#define CAM_FAR 1000.0f
 #endif
 
 enum class CAMERA_TYPE_Enum : uint8_t

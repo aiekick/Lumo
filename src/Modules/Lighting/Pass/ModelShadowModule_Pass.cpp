@@ -415,27 +415,36 @@ vec4 getShadowForLight(uint id, vec3 pos, vec3 nor)
 		float sha_step = 1.0 / mix(16.0, 8.0, u_shadow_strength);
 		for (int i=0;i<8;i++)
 		{
+			vec3 ld = normalize(lightDatas[id].lightGizmo[3].xyz);
+			float li = dot(ld, nor);
+				
 			int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-			float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;
-			if (sha * cam_far < (shadowCoord.z - bias)/shadowCoord.w)
+			float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;// * cam_far;
+			if (sha < (shadowCoord.z - bias)/shadowCoord.w)
 			{
-				sha_vis -= sha_step * (1.0 - sha);
+				if (li > 0.0)
+				{
+					sha_vis -= sha_step * (1.0 - sha) * li;
+				}
 			}
 			else
 			{
-				sha_vis += sha_step * sha;
+				if (li > 0.0)
+				{
+					sha_vis += sha_step * sha * li;
+				}
 			}
 		}
 		color = vec4(sha_vis);
 #else
-		float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy, 0.0).r;
-		if (sha * cam_far < (shadowCoord.z - bias)/shadowCoord.w)
+		float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy, 0.0).r;// * cam_far;
+		if (sha < (shadowCoord.z - bias)/shadowCoord.w)
 		{
 			vec3 ld = normalize(lightDatas[id].lightGizmo[3].xyz);
 			float li = dot(ld, nor);
 			if (li > 0.0)
 			{
-				color += lightDatas[id].lightColor * li * (1.0 - lightDatas[id].lightIntensity);
+				color += li;
 			}
 		}
 #endif

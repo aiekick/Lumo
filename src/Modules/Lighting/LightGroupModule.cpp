@@ -85,6 +85,7 @@ bool LightGroupModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 				
 				lightPtr->wasChanged = false;
 			}
+
 			++idx;
 		}
 
@@ -272,6 +273,7 @@ std::string LightGroupModule::getXml(const std::string& vOffset, const std::stri
 
 			str += vOffset + "\t<light>\n";
 			str += vOffset + "\t\t<transform>" + ct::fvariant(matrix).GetS() + "</transform>\n";
+			str += vOffset + "\t\t<active>" + (lightPtr->lightDatas.lightActive ? "true" : "false") + "</active>\n";
 			str += vOffset + "\t\t<color>" + lightPtr->lightDatas.lightColor.string() + "</color>\n";
 			str += vOffset + "\t\t<perspective_angle>" + ct::toStr(lightPtr->lightDatas.perspectiveAngle) + "</perspective_angle>\n";
 			str += vOffset + "\t\t<intensity>" + ct::toStr(lightPtr->lightDatas.lightIntensity) + "</intensity>\n";
@@ -329,6 +331,8 @@ bool LightGroupModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 						memcpy(lastPtr->GetGizmoFloatPtr(), matrix.data(), matrix.size() * sizeof(float));
 					}
 				}
+				else if (strName == "active")
+					lastPtr->lightDatas.lightActive = ct::ivariant(strValue).GetB();
 				else if (strName == "color")
 					lastPtr->lightDatas.lightColor = ct::fvariant(strValue).GetV4();
 				else if (strName == "perspective_angle")

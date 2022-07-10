@@ -316,7 +316,7 @@ void main()
 	float depth = gl_FragCoord.z / gl_FragCoord.w;
 	if (cam_far > 0.0)
 	{
-		depth /= cam_far;
+		//depth /= cam_far;
 		vec4 dp = vec4(vec3(depth), 1.0);
 
 		switch(light_id_to_use)
