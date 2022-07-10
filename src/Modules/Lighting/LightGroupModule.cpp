@@ -126,8 +126,8 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 		{
 			if (lightPtr)
 			{
-				std::string label = ct::toStr("LightGroup %u : %s##%" PRIxPTR "",
-					idx, lightPtr->name.c_str(), (uintptr_t)lightPtr.get());
+				std::string label = ct::toStr("%s##%" PRIxPTR "", 
+					lightPtr->name.c_str(), (uintptr_t)lightPtr.get());
 
 				bool expanded = false;
 				if (m_SceneLightGroupPtr->CanRemoveLight())

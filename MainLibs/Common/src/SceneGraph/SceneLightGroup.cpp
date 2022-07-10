@@ -152,6 +152,8 @@ SceneLightWeak SceneLightGroup::Add()
 		auto lightPtr = SceneLight::Create();
 		if (lightPtr)
 		{
+			lightPtr->name = ct::toStr("Light %u", idx);
+
 			m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
 
 			m_Lights.push_back(lightPtr);

@@ -81,7 +81,13 @@ at least, support all rendering features and result of the SketchFab Renderer
 
 # ScreenShots
 
+v0.2.794 :
+
+My Shadow mapping (max 8 lights), diffuse, specular and SSAO
+![v0_2_794](doc/screenshots/Lumo_Windows_Debug_x64_0_2_794.png)
+
 v0.2.32 :
 
 My MeshSim plugin, with a basic deferred renderrer, one light shadow + ssao
 ![v0_2_32](doc/screenshots/Lumo_Windows_Debug_x64_0_2_32.png)
+
