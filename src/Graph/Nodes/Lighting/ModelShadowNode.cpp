@@ -291,15 +291,15 @@ void ModelShadowNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 	}
 }
 
-void ModelShadowNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void ModelShadowNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_ModelShadowModulePtr)
 	{
-		m_ModelShadowModulePtr->NeedResize(vNewSize, vCountColorBuffer);
+		m_ModelShadowModulePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

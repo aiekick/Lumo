@@ -8,11 +8,11 @@ Lumo is "Light" in Esperanto, its a short and pretty word to me :)
 
 * Implement all realtime rendering Algo used in Games / realtime Presentation softwares
 * Mastering all theses tech for learning purposes
-* Implement my own idea ( by ex related to SubSurface Scatering )
-* Implement a modern use of 3D vulkan Api, and generic Scene Graph related stuff
+* Implement my own idea ( by ex related to SubSurface Scatering, or Shadows )
+* Implement a modern use of 3D vulkan Api, and Node Graph related stuff
 * Can Render mesh's or sdf's in the same way
 * And finally can export rendering to picture, video, and maybe a self little portable binary form to be used everywhere
-* Implement some sepcific VFX algo by plugigns like (compute based mesh sim, morphogenesis, sdf meshing)
+* Implement some specific VFX algo by plugigns like (compute based mesh sim, morphogenesis, sdf meshing)
 
 at least, support all rendering features and result of the SketchFab Renderer
 
@@ -46,6 +46,7 @@ at least, support all rendering features and result of the SketchFab Renderer
 - [x] SSAO
 - [ ] SSS
 - [ ] VR
+- [ ] Particles System
 
 # Nodes :
 

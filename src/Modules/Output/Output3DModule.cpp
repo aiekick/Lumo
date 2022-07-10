@@ -114,7 +114,7 @@ void Output3DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 	}
 }
 
-void Output3DModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void Output3DModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (vNewSize)
 	{
@@ -124,7 +124,7 @@ void Output3DModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColor
 	auto parentNodePtr = dynamic_pointer_cast<ResizerInterface>(GetParentNode().getValidShared());
 	if (parentNodePtr)
 	{
-		parentNodePtr->NeedResize(vNewSize, vCountColorBuffer);
+		parentNodePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 }
 

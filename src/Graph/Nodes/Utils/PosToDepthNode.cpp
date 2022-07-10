@@ -114,15 +114,15 @@ void PosToDepthNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasStat
 	}
 }
 
-void PosToDepthNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void PosToDepthNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_PosToDepthModulePtr)
 	{
-		m_PosToDepthModulePtr->NeedResize(vNewSize, vCountColorBuffer);
+		m_PosToDepthModulePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté

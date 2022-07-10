@@ -103,15 +103,15 @@ void GridNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
 	}
 }
 
-void GridNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void GridNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_GridModulePtr)
 	{
-		m_GridModulePtr->NeedResize(vNewSize, vCountColorBuffer);
+		m_GridModulePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 vk::DescriptorImageInfo* GridNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)

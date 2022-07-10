@@ -40,7 +40,7 @@ ShadowMapModule_Pass::ShadowMapModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : LightGroup Shadow Map", MESH_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ShadowMapModule_Pass::~ShadowMapModule_Pass()
@@ -222,9 +222,8 @@ bool ShadowMapModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
@@ -236,7 +235,6 @@ bool ShadowMapModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Vert);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	
 	return true;
 }
@@ -283,53 +281,11 @@ std::string ShadowMapModule_Pass::GetFragmentShaderCode(std::string& vOutShaderN
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) out vec4 fragDepth0;
-layout(location = 1) out vec4 fragDepth1;
-layout(location = 2) out vec4 fragDepth2;
-layout(location = 3) out vec4 fragDepth3;
-layout(location = 4) out vec4 fragDepth4;
-layout(location = 5) out vec4 fragDepth5;
-layout(location = 6) out vec4 fragDepth6;
-layout(location = 7) out vec4 fragDepth7;
-
-layout(push_constant) uniform constants
-{
-	uint light_id_to_use;
-};
-)"
-+ 
-CommonSystem::GetBufferObjectStructureHeader(2U) 
-+
-u8R"(
+layout(location = 0) out vec4 fragDepth;
 
 void main() 
 {
-	fragDepth0 = vec4(0.0);
-	fragDepth1 = vec4(0.0);
-	fragDepth2 = vec4(0.0);
-	fragDepth3 = vec4(0.0);
-	fragDepth4 = vec4(0.0);
-	fragDepth5 = vec4(0.0);
-	fragDepth6 = vec4(0.0);
-	fragDepth7 = vec4(0.0);
-
-	float depth = gl_FragCoord.z / gl_FragCoord.w;
-	if (cam_far > 0.0)
-	{
-		vec4 dp = vec4(vec3(depth), 1.0);
-
-		switch(light_id_to_use)
-		{
-		case 0: fragDepth0 = dp; break;
-		case 1: fragDepth1 = dp; break;
-		case 2: fragDepth2 = dp; break;
-		case 3: fragDepth3 = dp; break;
-		case 4: fragDepth4 = dp; break;
-		case 5: fragDepth5 = dp; break;
-		case 6: fragDepth6 = dp; break;
-		case 7: fragDepth7 = dp; break;
-		}
-	}
+	fragDepth = vec4(vec3(gl_FragCoord.z / gl_FragCoord.w), 1.0);
 }
 )";
 }

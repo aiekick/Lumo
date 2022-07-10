@@ -16,14 +16,13 @@ limitations under the License.
 
 #pragma once
 
-#include <ctools/cTools.h>
+#include <SceneGraph/SceneLight.h>
 
-class ResizerInterface
+class LightInputInterface
 {
-public:
-	ct::fvec2 m_fOutputSize;
+protected:
+	SceneLightWeak m_SceneLightWeak;
 
 public:
-	virtual void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) = 0; 
-	virtual ct::fvec2 GetOutputSize() { return m_fOutputSize; }
+	virtual void SetLight(SceneLightWeak vSceneLight) = 0;
 };

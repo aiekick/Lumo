@@ -124,15 +124,15 @@ void MatcapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvas
 	}
 }
 
-void MatcapRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void MatcapRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_MatcapRenderer)
 	{
-		m_MatcapRenderer->NeedResize(vNewSize, vCountColorBuffer);
+		m_MatcapRenderer->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void MatcapRendererNode::SetModel(SceneModelWeak vSceneModel)

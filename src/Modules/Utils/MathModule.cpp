@@ -152,9 +152,9 @@ void MathModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 	}
 }
 
-void MathModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void MathModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void MathModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)

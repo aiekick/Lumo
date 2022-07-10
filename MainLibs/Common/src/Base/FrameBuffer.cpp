@@ -73,13 +73,15 @@ FrameBuffer::~FrameBuffer()
 
 bool FrameBuffer::Init(
 	const ct::uvec2& vSize,
-	const uint32_t& vCountColorBuffer, 
+	const uint32_t& vCountColorBuffers, 
 	const bool& vUseDepth, 
 	const bool& vNeedToClear, 
 	const ct::fvec4& vClearColor,
 	const bool& vMultiPassMode,
 	const vk::Format& vFormat,
-	const vk::SampleCountFlagBits& vSampleCount)
+	const vk::SampleCountFlagBits& vSampleCount,
+	const bool& vCreateRenderPass,
+	const vk::RenderPass& vExternalRenderPass)
 {
 	ZoneScoped;
 
@@ -90,9 +92,13 @@ bool FrameBuffer::Init(
 	if (!size.emptyOR())
 	{
 		m_MultiPassMode = vMultiPassMode;
+		
+		m_CreateRenderPass = vCreateRenderPass;
+
+		SetRenderPass(vExternalRenderPass); // can only be set if m_CreateRenderPass is false 
 
 		m_TemporarySize = ct::ivec2(size.x, size.y);
-		m_TemporaryCountBuffer = vCountColorBuffer;
+		m_TemporaryCountBuffer = vCountColorBuffers;
 
 		m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 
@@ -108,9 +114,10 @@ bool FrameBuffer::Init(
 		m_PixelFormat = vFormat;
 
 		if (CreateFrameBuffers(
-			vSize, vCountColorBuffer, 
+			vSize, vCountColorBuffers, 
 			m_UseDepth, m_NeedToClear, 
-			m_ClearColor, m_PixelFormat, m_SampleCount))
+			m_ClearColor, m_PixelFormat, 
+			m_SampleCount, m_CreateRenderPass))
 		{ 
 			// renderpass est créé dans createFrameBuffers
 			m_Loaded = true;
@@ -133,7 +140,7 @@ void FrameBuffer::Unit()
 //// PUBLIC / RESIZE ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FrameBuffer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void FrameBuffer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (vNewSize)
 	{
@@ -141,9 +148,9 @@ void FrameBuffer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuf
 		m_NeedResize = true;
 	}
 
-	if (vCountColorBuffer)
+	if (vCountColorBuffers)
 	{
-		m_TemporaryCountBuffer = *vCountColorBuffer;
+		m_TemporaryCountBuffer = *vCountColorBuffers;
 		m_NeedResize = true;
 	}
 }
@@ -166,7 +173,8 @@ bool FrameBuffer::ResizeIfNeeded()
 		DestroyFrameBuffers();
 		CreateFrameBuffers(
 			ct::uvec2(m_TemporarySize.x, m_TemporarySize.y), m_TemporaryCountBuffer, 
-			m_UseDepth, m_NeedToClear, m_ClearColor, m_PixelFormat, m_SampleCount);
+			m_UseDepth, m_NeedToClear, m_ClearColor, m_PixelFormat, 
+			m_SampleCount, m_CreateRenderPass);
 
 		m_TemporaryCountBuffer = m_CountBuffers;
 		m_TemporarySize = ct::ivec2(m_OutputSize.x, m_OutputSize.y);
@@ -316,6 +324,21 @@ float FrameBuffer::GetOutputRatio() const
 vk::RenderPass* FrameBuffer::GetRenderPass()
 {
 	return &m_RenderPass;
+}
+
+void FrameBuffer::SetRenderPass(const vk::RenderPass& vExternalRenderPass)
+{
+	if (vExternalRenderPass)
+	{
+		if (!m_CreateRenderPass) // we can set a renderpass only if the creation was not demand
+		{
+			m_RenderPass = vExternalRenderPass;
+		}
+		else
+		{
+			CTOOL_DEBUG_BREAK;
+		}
+	}
 }
 
 vk::SampleCountFlagBits FrameBuffer::GetSampleCount() const
@@ -482,18 +505,19 @@ DescriptorImageInfoVector* FrameBuffer::GetBackDescriptorImageInfos(fvec2Vector*
 
 bool FrameBuffer::CreateFrameBuffers(
 	const ct::uvec2& vSize, 
-	const uint32_t& vCountColorBuffer,
+	const uint32_t& vCountColorBuffers,
 	const bool& vUseDepth, 
 	const bool& vNeedToClear, 
 	const ct::fvec4& vClearColor,
 	const vk::Format& vFormat,
-	const vk::SampleCountFlagBits& vSampleCount)
+	const vk::SampleCountFlagBits& vSampleCount,
+	const bool& vCreateRenderPass)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	auto countColorBuffers = vCountColorBuffer;
+	auto countColorBuffers = vCountColorBuffers;
 	if (countColorBuffers == 0)
 		countColorBuffers = m_CountBuffers;
 
@@ -525,14 +549,14 @@ bool FrameBuffer::CreateFrameBuffers(
 			
 			m_FrameBuffers.push_back(vkApi::VulkanFrameBuffer{});
 			res &= m_FrameBuffers[0U].Init(
-				m_VulkanCorePtr, size, m_CountBuffers, m_RenderPass, true,
+				m_VulkanCorePtr, size, m_CountBuffers, m_RenderPass, vCreateRenderPass,
 				vUseDepth, vNeedToClear, vClearColor, vFormat, vSampleCount);
 			
 			if (m_MultiPassMode)
 			{
 				m_FrameBuffers.push_back(vkApi::VulkanFrameBuffer{});
 				res &= m_FrameBuffers[1U].Init(
-					m_VulkanCorePtr, size, m_CountBuffers, m_RenderPass, false,
+					m_VulkanCorePtr, size, m_CountBuffers, m_RenderPass, false, // this one will re use the same Renderpass as first one
 					vUseDepth, vNeedToClear, vClearColor, vFormat, vSampleCount);
 			}
 
@@ -548,7 +572,7 @@ bool FrameBuffer::CreateFrameBuffers(
 	}
 	else
 	{
-		LogVarDebug("Debug : CountColorBuffer must be between 0 and 8. here => %u", vCountColorBuffer);
+		LogVarDebug("Debug : CountColorBuffer must be between 0 and 8. here => %u", vCountColorBuffers);
 	}
 
 	return res;

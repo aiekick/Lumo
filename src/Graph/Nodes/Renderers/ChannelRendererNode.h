@@ -45,7 +45,7 @@ public:
 	void DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;

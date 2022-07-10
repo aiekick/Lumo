@@ -157,9 +157,9 @@ void GrayScottModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	}
 }
 
-void GrayScottModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void GrayScottModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void GrayScottModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)

@@ -1820,7 +1820,7 @@ void BaseNode::Notify(const NotifyEvent& /*vEvent*/, const NodeSlotWeak& /*vEmmi
 #endif
 }
 
-void BaseNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void BaseNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	for (auto input : m_Inputs)
 	{
@@ -1834,7 +1834,7 @@ void BaseNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer
 					auto parentPtr = slotPtr->parentNode.getValidShared();
 					if (parentPtr)
 					{
-						parentPtr->NeedResize(vNewSize, vCountColorBuffer);
+						parentPtr->NeedResize(vNewSize, vCountColorBuffers);
 					}
 				}
 			}

@@ -106,9 +106,9 @@ bool ChannelRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	return true;
 }
 
-void ChannelRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void ChannelRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 bool ChannelRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

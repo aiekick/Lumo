@@ -125,15 +125,15 @@ void SpecularNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
 	}
 }
 
-void SpecularNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void SpecularNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_SpecularModulePtr)
 	{
-		m_SpecularModulePtr->NeedResize(vNewSize, vCountColorBuffer);
+		m_SpecularModulePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté

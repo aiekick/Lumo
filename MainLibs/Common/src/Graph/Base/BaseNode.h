@@ -304,7 +304,7 @@ public:
 
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	ct::fvec2 GetOutputSize() override;
 
 	virtual void UpdateSlots();

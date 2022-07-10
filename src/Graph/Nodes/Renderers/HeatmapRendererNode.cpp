@@ -115,15 +115,15 @@ void HeatmapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanva
 	}
 }
 
-void HeatmapRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void HeatmapRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_HeatmapRenderer)
 	{
-		m_HeatmapRenderer->NeedResize(vNewSize, vCountColorBuffer);
+		m_HeatmapRenderer->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void HeatmapRendererNode::SetModel(SceneModelWeak vSceneModel)

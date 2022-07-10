@@ -152,9 +152,9 @@ void BlurModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 	}
 }
 
-void BlurModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void BlurModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void BlurModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)

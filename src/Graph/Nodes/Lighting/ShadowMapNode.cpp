@@ -246,15 +246,15 @@ void ShadowMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmit
 	}
 }
 
-void ShadowMapNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void ShadowMapNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_ShadowMapModulePtr)
 	{
-		m_ShadowMapModulePtr->NeedResize(vNewSize, vCountColorBuffer);
+		m_ShadowMapModulePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

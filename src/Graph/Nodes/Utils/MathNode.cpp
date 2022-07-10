@@ -114,15 +114,15 @@ void MathNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
 	}
 }
 
-void MathNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void MathNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_MathModulePtr)
 	{
-		m_MathModulePtr->NeedResize(vNewSize, vCountColorBuffer);
+		m_MathModulePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté

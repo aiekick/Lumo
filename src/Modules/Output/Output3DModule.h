@@ -64,7 +64,7 @@ public:
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd);
 
 public:

@@ -154,15 +154,15 @@ void MeshAttributesNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvas
 	}
 }
 
-void MeshAttributesNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void MeshAttributesNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_MeshAttributesModulePtr)
 	{
-		m_MeshAttributesModulePtr->NeedResize(vNewSize, vCountColorBuffer);
+		m_MeshAttributesModulePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void MeshAttributesNode::SetModel(SceneModelWeak vSceneModel)

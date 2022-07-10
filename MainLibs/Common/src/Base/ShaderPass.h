@@ -78,15 +78,17 @@ protected:
 	vk::CommandPool m_CommandPool;				// command pool
 	vk::DescriptorPool m_DescriptorPool;		// descriptor pool
 	vk::Device m_Device;						// device copy
+	
+	vk::SampleCountFlagBits m_SampleCount = vk::SampleCountFlagBits::e1;
+
+	uint32_t m_CountColorBuffers = 0U;
 
 	bool m_ForceFBOClearing = false;
 
-	// Multi Sampling
-	vk::SampleCountFlagBits m_SampleCount = vk::SampleCountFlagBits::e1; // sampling for primitives
-
-	uint32_t m_CountBuffers = 0U;			// FRAGMENT count framebuffer color attachment from 0 to 7
+	vk::RenderPass* m_RenderPassPtr = nullptr;
 
 	// Framebuffer
+	FrameBufferWeak m_FrameBufferWeak; // when loaned
 	FrameBufferPtr m_FrameBufferPtr = nullptr;
 	ComputeBufferPtr m_ComputeBufferPtr = nullptr;
 	bool m_ResizingIsAllowed = true;
@@ -146,9 +148,14 @@ public:
 	virtual void ActionAfterInitFail();
 
 	// init
+	virtual bool InitPixelWithoutFBO(
+		const ct::uvec2& vSize,
+		const uint32_t& vCountColorBuffers,
+		vk::RenderPass* vRenderPassPtr,
+		const vk::SampleCountFlagBits& vSampleCount = vk::SampleCountFlagBits::e1); // for this one, a compatible fbo must be set before rendering
 	virtual bool InitPixel(
 		const ct::uvec2& vSize,
-		const uint32_t& vCountColorBuffer,
+		const uint32_t& vCountColorBuffers,
 		const bool& vUseDepth,
 		const bool& vNeedToClear,
 		const ct::fvec4& vClearColor,
@@ -157,16 +164,18 @@ public:
 		const vk::SampleCountFlagBits& vSampleCount = vk::SampleCountFlagBits::e1);
 	virtual bool InitCompute2D(
 		const ct::uvec2& vDispatchSize,
-		const uint32_t& vCountBuffers,
+		const uint32_t& vCountColorBuffers,
 		const bool& vMultiPassMode,
 		const vk::Format& vFormat);
 	virtual bool InitCompute3D(const ct::uvec3& vDispatchSize);
 	virtual void Unit();
 
+	void SetFrameBuffer(FrameBufferWeak vFrameBufferWeak);
+
 	void SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor);
 
 	void AllowResize(const bool& vResizing); // allow or block the resize
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer); // to call at any moment
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers); // to call at any moment
 	void NeedResize(ct::ivec2* vNewSize); // to call at any moment
 	void Resize(const ct::uvec2& vNewSize);
 	bool ResizeIfNeeded();

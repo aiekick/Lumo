@@ -76,24 +76,66 @@ bool ShadowMapModule::Init()
 
 	ct::uvec2 map_size = 512;
 
-	m_Loaded = true;
+	m_Loaded = false;
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_ShadowMapModule_Pass_Ptr = std::make_shared<ShadowMapModule_Pass>(m_VulkanCorePtr);
-		if (m_ShadowMapModule_Pass_Ptr)
+		m_ImageInfos.resize(8U);
+
+		bool res = true;
+		for (size_t i = 0U; i < 8U; ++i)
 		{
-			if (m_ShadowMapModule_Pass_Ptr->InitPixel(1024U, 8U, true, true, 0.0f,
-				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+			m_FrameBuffers[i] = FrameBuffer::Create(m_VulkanCorePtr);
+			if (m_FrameBuffers[i])
 			{
-				m_ShadowMapModule_Pass_Ptr->AllowResize(false); // 1024 is fixed
-				AddGenericPass(m_ShadowMapModule_Pass_Ptr);
-				m_Loaded = true;
+				if (i == 0U)
+				{
+					// we create the renderpass only for the first
+					res &= m_FrameBuffers[i]->Init(1024U, 1U, true, true, 0.0f,
+						false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1);
+				}
+				else
+				{
+					auto renderpassPtr = m_FrameBuffers[0]->GetRenderPass();
+					if (renderpassPtr)
+					{
+						res &= m_FrameBuffers[i]->Init(1024U, 1U, true, true, 0.0f,
+							false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1, false, *renderpassPtr);
+					}
+				}
+			}
+		}
+
+		if (res)
+		{
+			m_ShadowMapModule_Pass_Ptr = std::make_shared<ShadowMapModule_Pass>(m_VulkanCorePtr);
+			if (m_ShadowMapModule_Pass_Ptr)
+			{
+				if (m_ShadowMapModule_Pass_Ptr->InitPixelWithoutFBO(
+					1024U, 1U, m_FrameBuffers[0]->GetRenderPass(),
+					vk::SampleCountFlagBits::e1))
+				{
+					m_ShadowMapModule_Pass_Ptr->AllowResize(false); // 1024 is fixed
+					AddGenericPass(m_ShadowMapModule_Pass_Ptr);
+					m_Loaded = true;
+				}
 			}
 		}
 	}
 
 	return m_Loaded;
+}
+
+void ShadowMapModule::Unit()
+{
+	m_ImageInfos.clear();
+
+	for (auto fboPtr : m_FrameBuffers)
+	{
+		fboPtr.reset();
+	}
+
+	BaseRenderer::Unit();
 }
 
 //////////////////////////////////////////////////////////////
@@ -106,7 +148,7 @@ bool ShadowMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		BaseRenderer::Render("Shadow Map Module");
+		//BaseRenderer::Render("Shadow Map Module");
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -154,9 +196,9 @@ void ShadowMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	}
 }
 
-void ShadowMapModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void ShadowMapModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void ShadowMapModule::SetModel(SceneModelWeak vSceneModel)
@@ -193,12 +235,19 @@ SceneLightGroupWeak ShadowMapModule::GetLightGroup()
 
 DescriptorImageInfoVector* ShadowMapModule::GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes)
 {
-	if (m_ShadowMapModule_Pass_Ptr)
+	for (size_t i = 0U; i < 8U; ++i)
 	{
-		return m_ShadowMapModule_Pass_Ptr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
+		if (m_FrameBuffers[i])
+		{
+			auto descPtr = m_FrameBuffers[i]->GetFrontDescriptorImageInfo(0U);
+			if (descPtr)
+			{
+				m_ImageInfos[i] = *descPtr;
+			}
+		}
 	}
 
-	return nullptr;
+	return &m_ImageInfos;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -157,9 +157,9 @@ void ModelShadowModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 	}
 }
 
-void ModelShadowModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void ModelShadowModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void ModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)

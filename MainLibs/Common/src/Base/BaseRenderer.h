@@ -125,7 +125,7 @@ public: // contructor
 	void Unit();
 
 	// resize
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer); // to call at any moment
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers); // to call at any moment
 	void NeedResize(ct::ivec2* vNewSize); // to call at any moment
 	bool ResizeIfNeeded();
 

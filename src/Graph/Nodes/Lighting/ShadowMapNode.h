@@ -51,7 +51,7 @@ public:
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	SceneLightGroupWeak GetLightGroup() override;
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

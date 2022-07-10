@@ -113,20 +113,13 @@ void ShaderPass::ActionAfterInitFail()
 //// PUBLIC / INIT/UNIT ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ShaderPass::InitPixel(
+bool ShaderPass::InitPixelWithoutFBO(
 	const ct::uvec2& vSize,
-	const uint32_t& vCountColorBuffer,
-	const bool& vUseDepth,
-	const bool& vNeedToClear,
-	const ct::fvec4& vClearColor,
-	const bool& vMultiPassMode,
-	const vk::Format& vFormat,
+	const uint32_t& vCountColorBuffers,
+	vk::RenderPass* vRenderPassPtr,
 	const vk::SampleCountFlagBits& vSampleCount)
 {
 	m_RendererType = GenericType::PIXEL;
-
-	m_CountBuffers = vCountColorBuffer;
-	m_SampleCount = vSampleCount;
 
 	Resize(vSize); // will update m_RenderArea and m_Viewport
 
@@ -139,14 +132,75 @@ bool ShaderPass::InitPixel(
 	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 	m_CommandPool = m_Queue.cmdPools;
 
+	m_CountColorBuffers = vCountColorBuffers;
+	m_SampleCount = vSampleCount;
+	m_RenderPassPtr = vRenderPassPtr;
+
+	// ca peut ne pas compiler, masi c'est plus bloquant
+	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
+	CompilPixel();
+
+	if (BuildModel()) {
+		if (CreateSBO()) {
+			if (CreateUBO()) {
+				if (CreateRessourceDescriptor()) {
+					// si ca compile pas
+					// c'est pas bon mais on renvoi true car on va afficher 
+					// l'erreur dans le node et on pourra le corriger en editant le shader
+					CreatePixelPipeline();
+					m_Loaded = true;
+				}
+			}
+		}
+	}
+
+	if (m_Loaded)
+	{
+		ActionAfterInitSucceed();
+	}
+	else
+	{
+		ActionAfterInitFail();
+	}
+
+	return m_Loaded;
+}
+
+bool ShaderPass::InitPixel(
+	const ct::uvec2& vSize,
+	const uint32_t& vCountColorBuffers,
+	const bool& vUseDepth,
+	const bool& vNeedToClear,
+	const ct::fvec4& vClearColor,
+	const bool& vMultiPassMode,
+	const vk::Format& vFormat,
+	const vk::SampleCountFlagBits& vSampleCount)
+{
+	m_RendererType = GenericType::PIXEL;
+
+	Resize(vSize); // will update m_RenderArea and m_Viewport
+
+	ActionBeforeInit();
+
+	m_Loaded = false;
+
+	m_Device = m_VulkanCorePtr->getDevice();
+	m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+	m_CommandPool = m_Queue.cmdPools;
+
+	m_CountColorBuffers = vCountColorBuffers;
+	m_SampleCount = vSampleCount;
+
 	// ca peut ne pas compiler, masi c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	CompilPixel();
 
 	m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
 	if (m_FrameBufferPtr->Init(
-		vSize, vCountColorBuffer, vUseDepth, vNeedToClear,
+		vSize, vCountColorBuffers, vUseDepth, vNeedToClear,
 		vClearColor, vMultiPassMode, vFormat, vSampleCount)) {
+		m_RenderPassPtr = m_FrameBufferPtr->GetRenderPass();
 		if (BuildModel()) {
 			if (CreateSBO()) {
 				if (CreateUBO()) {
@@ -176,7 +230,7 @@ bool ShaderPass::InitPixel(
 
 bool ShaderPass::InitCompute2D(
 	const ct::uvec2& vDispatchSize,
-	const uint32_t& vCountBuffers,
+	const uint32_t& vCountColorBuffers,
 	const bool& vMultiPassMode,
 	const vk::Format& vFormat)
 {
@@ -193,6 +247,8 @@ bool ShaderPass::InitCompute2D(
 	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 	m_CommandPool = m_Queue.cmdPools;
 
+	m_CountColorBuffers = vCountColorBuffers;
+
 	m_DispatchSize = ct::uvec3(vDispatchSize.x, vDispatchSize.y, 1);
 
 	// ca peut ne pas compiler, masi c'est plus bloquant
@@ -202,7 +258,7 @@ bool ShaderPass::InitCompute2D(
 	m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
 	if (m_ComputeBufferPtr && 
 		m_ComputeBufferPtr->Init(
-		vDispatchSize, vCountBuffers, 
+		vDispatchSize, vCountColorBuffers, 
 		vMultiPassMode, vFormat)) {
 		if (BuildModel()) {
 			if (CreateSBO()) {
@@ -287,12 +343,19 @@ void ShaderPass::Unit()
 	DestroySBO();
 	DestroyModel(true);
 	m_FrameBufferPtr.reset();
+	m_FrameBufferWeak.reset();
 	m_ComputeBufferPtr.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PUBLIC ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void ShaderPass::SetFrameBuffer(FrameBufferWeak vFrameBufferWeak)
+{
+	m_FrameBufferWeak = vFrameBufferWeak;
+}
 
 void ShaderPass::SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor)
 {
@@ -310,17 +373,25 @@ void ShaderPass::AllowResize(const bool& vResizing)
 	m_ResizingIsAllowed = vResizing;
 }
 
-void ShaderPass::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void ShaderPass::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_ResizingIsAllowed)
 	{
 		if (m_FrameBufferPtr)
 		{
-			m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffer);
+			m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
 		}
 		else if (m_ComputeBufferPtr)
 		{
-			m_ComputeBufferPtr->NeedResize(vNewSize, vCountColorBuffer);
+			m_ComputeBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
+		}
+		else
+		{
+			auto fboPtr = m_FrameBufferWeak.getValidShared();
+			if (fboPtr)
+			{
+				fboPtr->NeedResize(vNewSize, vCountColorBuffers);
+			}
 		}
 	}
 }
@@ -336,6 +407,14 @@ void ShaderPass::NeedResize(ct::ivec2* vNewSize)
 		else if (m_ComputeBufferPtr)
 		{
 			m_ComputeBufferPtr->NeedResize(vNewSize);
+		}
+		else
+		{
+			auto fboPtr = m_FrameBufferWeak.getValidShared();
+			if (fboPtr)
+			{
+				fboPtr->NeedResize(vNewSize);
+			}
 		}
 	}
 }
@@ -360,6 +439,16 @@ bool ShaderPass::ResizeIfNeeded()
 			Resize(m_ComputeBufferPtr->GetOutputSize());
 			return true;
 		}
+		else
+		{
+			auto fboPtr = m_FrameBufferWeak.getValidShared();
+			if (fboPtr &&
+				fboPtr->ResizeIfNeeded())
+			{
+				Resize(fboPtr->GetOutputSize());
+				return true;
+			}
+		}
 	}
 
 	return false;
@@ -371,7 +460,7 @@ void ShaderPass::Resize(const ct::uvec2& vNewSize)
 
 	if (m_ResizingIsAllowed)
 	{
-		if (m_FrameBufferPtr)
+		if (m_FrameBufferPtr || !m_FrameBufferWeak.expired())
 		{
 			m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(vNewSize.x, vNewSize.y));
 			m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(vNewSize.x), static_cast<float>(vNewSize.y), 0, 1.0f);
@@ -411,6 +500,22 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 				DrawModel(vCmdBuffer, vIterationNumber);
 
 				m_FrameBufferPtr->End(vCmdBuffer);
+			}
+		}
+		else if (IsPixelRenderer() && !m_FrameBufferWeak.expired())
+		{
+			auto fboPtr = m_FrameBufferWeak.getValidShared();
+			if (fboPtr)
+			{
+				if (fboPtr->Begin(vCmdBuffer))
+				{
+					fboPtr->ClearAttachmentsIfNeeded(vCmdBuffer, m_ForceFBOClearing);
+					m_ForceFBOClearing = false;
+
+					DrawModel(vCmdBuffer, vIterationNumber);
+
+					fboPtr->End(vCmdBuffer);
+				}
 			}
 		}
 		else if (IsCompute2DRenderer() && m_ComputeBufferPtr)
@@ -1062,8 +1167,7 @@ bool ShaderPass::CreatePixelPipeline()
 {
 	ZoneScoped;
 
-	if (!m_FrameBufferPtr) return false;
-	if (!m_FrameBufferPtr->GetRenderPass()) return false;
+	if (!m_RenderPassPtr) return false;
 	if (m_VertexShaderCode.m_SPIRV.empty()) return false;
 	if (m_FragmentShaderCode.m_SPIRV.empty()) return false;
 	
@@ -1142,7 +1246,7 @@ bool ShaderPass::CreatePixelPipeline()
 
 #ifdef BLEND_ENABLED
 	m_BlendAttachmentStates.clear();
-	for (uint32_t i = 0; i < m_CountBuffers; ++i)
+	for (uint32_t i = 0; i < m_CountColorBuffers; ++i)
 	{
 		m_BlendAttachmentStates.emplace_back(
 			VK_TRUE,
@@ -1168,7 +1272,7 @@ bool ShaderPass::CreatePixelPipeline()
 	);
 #else
 	m_BlendAttachmentStates.clear();
-	for (uint32_t i = 0; i < m_CountBuffers; ++i)
+	for (uint32_t i = 0; i < m_CountColorBuffers; ++i)
 	{
 		m_BlendAttachmentStates.emplace_back(
 			VK_FALSE,
@@ -1224,7 +1328,7 @@ bool ShaderPass::CreatePixelPipeline()
 			&colorBlendState,
 			&dynamicState,
 			m_PipelineLayout,
-			*m_FrameBufferPtr->GetRenderPass(),
+			*m_RenderPassPtr,
 			0
 		)
 	).value;

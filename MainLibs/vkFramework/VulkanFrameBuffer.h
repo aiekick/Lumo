@@ -37,10 +37,10 @@ namespace vkApi
 		uint32_t height = 0u;
 		vk::Format format = vk::Format::eR32G32B32A32Sfloat;
 		float ratio = 0.0f;
-		vk::Framebuffer framebuffer;
+		vk::Framebuffer framebuffer = nullptr;
 		bool neverCleared = true;
 		bool neverToClear = false;
-		vk::SampleCountFlagBits sampleCount;
+		vk::SampleCountFlagBits sampleCount = vk::SampleCountFlagBits::e1;
 		uint32_t depthAttIndex = 0U;
 
 	private:

@@ -63,20 +63,23 @@ public:
 
 private:
 	ct::cWeak<ShadowMapModule> m_This;
-
+	DescriptorImageInfoVector m_ImageInfos;
+	std::array<FrameBufferPtr, 8U> m_FrameBuffers; // 8 Lights
 	std::shared_ptr<ShadowMapModule_Pass> m_ShadowMapModule_Pass_Ptr = nullptr;
+
+private:
+	bool Init();
+	void Unit();
 
 public:
 	ShadowMapModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ShadowMapModule();
 
-	bool Init();
-
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;

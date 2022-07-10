@@ -107,9 +107,9 @@ bool MatcapRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return true;
 }
 
-void MatcapRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void MatcapRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

@@ -85,13 +85,13 @@ public: // contructor
 	// init/unit
 	bool Init(
 		const ct::uvec2& vSize, 
-		const uint32_t& vCountBuffers,
+		const uint32_t& vCountColorBuffers,
 		const bool& vMultiPassMode,
 		const vk::Format& vFormat);
 	void Unit();
 
 	// resize
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer); // to call at any moment
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers); // to call at any moment
 	void NeedResize(ct::ivec2* vNewSize); // to call at any moment
 
 	// not to call at any moment, to call only aftter submit or before any command buffer recording
@@ -117,7 +117,7 @@ protected:
 	// Framebuffer
 	bool CreateComputeBuffers(
 		const ct::uvec2& vSize,
-		const uint32_t& vCountBuffers,
+		const uint32_t& vCountColorBuffers,
 		const vk::Format& vFormat);
 	void DestroyComputeBuffers();
 };

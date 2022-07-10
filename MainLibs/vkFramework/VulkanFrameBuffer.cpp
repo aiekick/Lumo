@@ -42,7 +42,7 @@ namespace vkApi
 	bool VulkanFrameBuffer::Init(
 		vkApi::VulkanCorePtr vVulkanCorePtr,
 		ct::uvec2 vSize,
-		uint32_t vCountColorBuffer,
+		uint32_t vCountColorBuffers,
 		vk::RenderPass& vRenderPass,
 		bool vCreateRenderPass,
 		bool vUseDepth,
@@ -58,7 +58,7 @@ namespace vkApi
 		m_VulkanCorePtr = vVulkanCorePtr;
 		neverToClear = vNeedToClear;
 
-		if (vCountColorBuffer > 0 && vCountColorBuffer <= 8)
+		if (vCountColorBuffers > 0 && vCountColorBuffers <= 8)
 		{
 			ct::uvec2 size = ct::clamp(vSize, 1u, 8192u);
 			if (!size.emptyOR())
@@ -90,14 +90,14 @@ namespace vkApi
 				// https://vulkan-tutorial.com/Multisampling
 				// on doit ajouter une resolve target
 				// pour le sampleCount
-				attachments.resize(vCountColorBuffer
-					+ (useMultiSampling ? vCountColorBuffer : 0U)
+				attachments.resize(vCountColorBuffers
+					+ (useMultiSampling ? vCountColorBuffers : 0U)
 					+ (vUseDepth ? 1U : 0U)
 				);
 
 				uint32_t attIndex = 0;
 
-				for (uint32_t j = 0; j < vCountColorBuffer; j++)
+				for (uint32_t j = 0; j < vCountColorBuffers; j++)
 				{
 					if (attachments[attIndex].InitColor2D(m_VulkanCorePtr, size, format, 1U, vNeedToClear, sampleCount))
 					{
@@ -123,7 +123,7 @@ namespace vkApi
 				// on doit ajouter une resolve target
 				if (useMultiSampling)
 				{
-					for (uint32_t j = 0; j < vCountColorBuffer; j++)
+					for (uint32_t j = 0; j < vCountColorBuffers; j++)
 					{
 						if (attachments[attIndex].InitColor2D(m_VulkanCorePtr, size, format, 1U, vNeedToClear, vk::SampleCountFlagBits::e1))
 						{
@@ -243,7 +243,7 @@ namespace vkApi
 		}
 		else
 		{
-			LogVarDebug("Debug : CountColorBuffer must be between 0 and 8. here => %u", vCountColorBuffer);
+			LogVarDebug("Debug : CountColorBuffer must be between 0 and 8. here => %u", vCountColorBuffers);
 		}
 
 		return res;

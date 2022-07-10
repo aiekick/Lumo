@@ -147,9 +147,9 @@ void MeshAttributesModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame
 	}
 }
 
-void MeshAttributesModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void MeshAttributesModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void MeshAttributesModule::SetModel(SceneModelWeak vSceneModel)

@@ -51,7 +51,7 @@ protected:
 	bool m_IsRenderPassExternal = false;							// true if the renderpass is not created here, but come from external (inportant for not destroy him)
 	
 	bool m_MultiPassMode = false;
-
+	bool m_CreateRenderPass = false;
 	bool m_NeedResize = false;				// will be resized if true
 	bool m_Loaded = false;					// if shader operationnel
 	bool m_JustReseted = false;				// when shader was reseted
@@ -111,17 +111,19 @@ public: // contructor
 	// init/unit
 	bool Init(
 		const ct::uvec2& vSize, 
-		const uint32_t& vCountColorBuffer, 
+		const uint32_t& vCountColorBuffers, 
 		const bool& vUseDepth, 
 		const bool& vNeedToClear, 
 		const ct::fvec4& vClearColor,
 		const bool& vMultiPassMode,
 		const vk::Format& vFormat,
-		const vk::SampleCountFlagBits& vSampleCount);
+		const vk::SampleCountFlagBits& vSampleCount,
+		const bool& vCreateRenderPass = true,
+		const vk::RenderPass& vExternalRenderPass = nullptr);
 	void Unit();
 
 	// resize
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer); // to call at any moment
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers); // to call at any moment
 	void NeedResize(ct::ivec2* vNewSize); // to call at any moment
 
 	// not to call at any moment, to call only aftter submit or before any command buffer recording
@@ -148,6 +150,7 @@ public: // contructor
 	vk::Rect2D GetRenderArea() const;
 	float GetOutputRatio() const;
 	vk::RenderPass* GetRenderPass();
+	void SetRenderPass(const vk::RenderPass& vExternalRenderPass);
 	vk::SampleCountFlagBits GetSampleCount() const;
 	ct::fvec2 GetOutputSize() const;
 	uint32_t GetBuffersCount() const;
@@ -165,11 +168,12 @@ protected:
 	// Framebuffer
 	bool CreateFrameBuffers(
 		const ct::uvec2& vSize,
-		const uint32_t& vCountColorBuffer,
+		const uint32_t& vCountColorBuffers,
 		const bool& vUseDepth,
 		const bool& vNeedToClear,
 		const ct::fvec4& vClearColor,
 		const vk::Format& vFormat,
-		const vk::SampleCountFlagBits& vSampleCount);
+		const vk::SampleCountFlagBits& vSampleCount,
+		const bool& vCreateRenderPass);
 	void DestroyFrameBuffers();
 };

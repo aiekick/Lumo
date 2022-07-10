@@ -141,9 +141,9 @@ void DeferredRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 	}
 }
 
-void DeferredRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void DeferredRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void DeferredRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)

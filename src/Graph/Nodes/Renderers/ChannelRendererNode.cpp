@@ -115,15 +115,15 @@ void ChannelRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanva
 	}
 }
 
-void ChannelRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void ChannelRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_ChannelRenderer)
 	{
-		m_ChannelRenderer->NeedResize(vNewSize, vCountColorBuffer);
+		m_ChannelRenderer->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void ChannelRendererNode::SetModel(SceneModelWeak vSceneModel)

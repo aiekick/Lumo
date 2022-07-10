@@ -105,9 +105,9 @@ bool HeatmapRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	return true;
 }
 
-void HeatmapRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void HeatmapRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

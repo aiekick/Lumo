@@ -160,15 +160,15 @@ void DeferredRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanv
 	}
 }
 
-void DeferredRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void DeferredRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_DeferredRendererPtr)
 	{
-		m_DeferredRendererPtr->NeedResize(vNewSize, vCountColorBuffer);
+		m_DeferredRendererPtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffer);
+	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void DeferredRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)

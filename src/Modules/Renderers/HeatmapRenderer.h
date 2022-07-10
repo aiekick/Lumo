@@ -59,7 +59,7 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer = nullptr) override;
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 

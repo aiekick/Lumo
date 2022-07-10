@@ -69,7 +69,7 @@ ComputeBuffer::~ComputeBuffer()
 
 bool ComputeBuffer::Init(
 	const ct::uvec2& vSize,
-	const uint32_t& vCountBuffers,
+	const uint32_t& vCountColorBuffers,
 	const bool& vMultiPassMode,
 	const vk::Format& vFormat)
 {
@@ -84,7 +84,7 @@ bool ComputeBuffer::Init(
 		m_MultiPassMode = vMultiPassMode;
 
 		m_TemporarySize = ct::ivec2(size.x, size.y);
-		m_TemporaryCountBuffer = vCountBuffers;
+		m_TemporaryCountBuffer = vCountColorBuffers;
 
 		m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
 
@@ -93,7 +93,7 @@ bool ComputeBuffer::Init(
 
 		m_Format = vFormat;
 
-		if (CreateComputeBuffers(vSize, vCountBuffers, m_Format))
+		if (CreateComputeBuffers(vSize, vCountColorBuffers, m_Format))
 		{ 
 			m_Loaded = true;
 		}
@@ -115,7 +115,7 @@ void ComputeBuffer::Unit()
 //// PUBLIC / RESIZE ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ComputeBuffer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void ComputeBuffer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (vNewSize)
 	{
@@ -123,9 +123,9 @@ void ComputeBuffer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorB
 		m_NeedResize = true;
 	}
 
-	if (vCountColorBuffer)
+	if (vCountColorBuffers)
 	{
-		m_TemporaryCountBuffer = *vCountColorBuffer;
+		m_TemporaryCountBuffer = *vCountColorBuffers;
 		m_NeedResize = true;
 	}
 }
@@ -268,14 +268,14 @@ vk::DescriptorImageInfo* ComputeBuffer::GetBackDescriptorImageInfo(const uint32_
 
 bool ComputeBuffer::CreateComputeBuffers(
 	const ct::uvec2& vSize, 
-	const uint32_t& vCountBuffers,
+	const uint32_t& vCountColorBuffers,
 	const vk::Format& vFormat)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	auto countColorBuffers = vCountBuffers;
+	auto countColorBuffers = vCountColorBuffers;
 	if (countColorBuffers == 0)
 		countColorBuffers = m_CountBuffers;
 
@@ -317,7 +317,7 @@ bool ComputeBuffer::CreateComputeBuffers(
 	}
 	else
 	{
-		LogVarDebug("Debug : CountColorBuffer must be between 0 and 8. here => %u", vCountBuffers);
+		LogVarDebug("Debug : CountColorBuffer must be between 0 and 8. here => %u", vCountColorBuffers);
 	}
 
 	return res;

@@ -152,9 +152,9 @@ void SpecularModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 	}
 }
 
-void SpecularModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void SpecularModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffer);
+	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void SpecularModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
