@@ -44,6 +44,8 @@ MeshAttributesModule_Pass::MeshAttributesModule_Pass(vkApi::VulkanCorePtr vVulka
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Mesh Attributes", MESH_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 MeshAttributesModule_Pass::~MeshAttributesModule_Pass()
@@ -114,10 +116,15 @@ void MeshAttributesModule_Pass::SetTexture(const uint32_t& vBinding, vk::Descrip
 	}
 }
 
-vk::DescriptorImageInfo* MeshAttributesModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MeshAttributesModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_FrameBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 

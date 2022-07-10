@@ -37,6 +37,8 @@ ChannelRenderer_Pass::ChannelRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Channel", MESH_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ChannelRenderer_Pass::~ChannelRenderer_Pass()
@@ -132,10 +134,15 @@ void ChannelRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
 	m_NeedModelUpdate = true;
 }
 
-vk::DescriptorImageInfo* ChannelRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* ChannelRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_FrameBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 

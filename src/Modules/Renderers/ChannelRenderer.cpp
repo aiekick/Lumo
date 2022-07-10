@@ -153,11 +153,11 @@ void ChannelRenderer::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-vk::DescriptorImageInfo* ChannelRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* ChannelRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ChannelRenderer_Pass_Ptr)
 	{
-		return m_ChannelRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_ChannelRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

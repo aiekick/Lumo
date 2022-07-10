@@ -31,7 +31,7 @@ limitations under the License.
 #include <ctools/FileHelper.h>
 #include <Graph/Library/UserNodeLibrary.h>
 #include <Graph/Manager/NodeManager.h>
-#include <Graph/Nodes/Output/OutputNode.h>
+#include <Graph/Nodes/Output/Output3DNode.h>
 #include <Plugins/PluginManager.h>
 #include <cinttypes> // printf zu
 

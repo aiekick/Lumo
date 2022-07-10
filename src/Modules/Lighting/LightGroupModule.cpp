@@ -156,6 +156,8 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 				{
 					ImGui::Header("Lights");
 
+					lightPtr->wasChanged |= ImGui::CheckBoxFloatDefault("Active", &lightPtr->lightDatas.lightActive, true);
+
 					auto lightTypeIndex = (int32_t)lightPtr->lightDatas.lightType;
 					if (ImGui::ContrastedComboVectorDefault(0.0f, "Type", &lightTypeIndex, 
 						{ "NONE","POINT", "DIRECTIONNAL", "SPOT", "AREA" }, (int32_t)LightTypeEnum::POINT))

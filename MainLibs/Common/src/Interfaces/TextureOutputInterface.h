@@ -27,5 +27,5 @@ limitations under the License.
 class TextureOutputInterface
 {
 public:
-	virtual vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) = 0;
+	virtual vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) = 0;
 };

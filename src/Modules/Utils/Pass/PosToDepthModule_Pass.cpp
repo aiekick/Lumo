@@ -38,6 +38,8 @@ PosToDepthModule_Pass::PosToDepthModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Pos To Depth", QUAD_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 PosToDepthModule_Pass::~PosToDepthModule_Pass()
@@ -98,12 +100,17 @@ void PosToDepthModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorI
 	}
 }
 
-vk::DescriptorImageInfo* PosToDepthModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* PosToDepthModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_FrameBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 

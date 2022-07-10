@@ -2103,10 +2103,16 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 				fromPtr->NotifyConnectionChangeToParent(true);
 				toPtr->NotifyConnectionChangeToParent(true);
 
-				auto outputNodePtr = m_OutputNode.getValidShared();
-				if (outputNodePtr)
+				auto output3DNodePtr = m_Output3DNode.getValidShared();
+				if (output3DNodePtr)
 				{
-					outputNodePtr->Notify(NotifyEvent::SomeTasksWasUpdated);
+					output3DNodePtr->Notify(NotifyEvent::SomeTasksWasUpdated);
+				}
+
+				auto output2DNodePtr = m_Output2DNode.getValidShared();
+				if (output2DNodePtr)
+				{
+					output2DNodePtr->Notify(NotifyEvent::SomeTasksWasUpdated);
 				}
 
 				res = true;

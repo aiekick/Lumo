@@ -172,13 +172,13 @@ void MeshAttributesModule::SetTexture(const uint32_t& vBinding, vk::DescriptorIm
 	}
 }
 
-vk::DescriptorImageInfo* MeshAttributesModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MeshAttributesModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_MeshAttributesModule_Pass_Ptr)
 	{
-		return m_MeshAttributesModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_MeshAttributesModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

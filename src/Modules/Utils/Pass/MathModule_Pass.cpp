@@ -107,11 +107,16 @@ void MathModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 	}
 }
 
-vk::DescriptorImageInfo* MathModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MathModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ComputeBufferPtr)
 	{
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
+		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 
 	return nullptr;

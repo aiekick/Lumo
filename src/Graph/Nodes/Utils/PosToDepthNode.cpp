@@ -139,7 +139,9 @@ void PosToDepthNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak 
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(0U)); // output
+					SetTexture(startSlotPtr->descriptorBinding,
+						otherTextureNodePtr->GetDescriptorImageInfo(
+							endSlotPtr->descriptorBinding));
 				}
 			}
 		}
@@ -171,11 +173,11 @@ void PosToDepthNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInf
 	}
 }
 
-vk::DescriptorImageInfo* PosToDepthNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* PosToDepthNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_PosToDepthModulePtr)
 	{
-		return m_PosToDepthModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_PosToDepthModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

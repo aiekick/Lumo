@@ -171,11 +171,11 @@ void MathNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vIm
 	}
 }
 
-vk::DescriptorImageInfo* MathNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MathNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_MathModulePtr)
 	{
-		return m_MathModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_MathModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

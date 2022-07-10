@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "OutputModule.h"
+#include "Output3DModule.h"
 #include <Panes/View3DPane.h>
 #include <ImWidgets/ImWidgets.h>
 #include <Graph/Base/BaseNode.h>
@@ -26,9 +26,9 @@ limitations under the License.
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-OutputModulePtr OutputModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+Output3DModulePtr Output3DModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
-	auto res = std::make_shared<OutputModule>(vVulkanCorePtr);
+	auto res = std::make_shared<Output3DModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -42,13 +42,13 @@ OutputModulePtr OutputModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNo
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-OutputModule::OutputModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+Output3DModule::Output3DModule(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	ZoneScoped;	
 }
 
-OutputModule::~OutputModule()
+Output3DModule::~Output3DModule()
 {
 	ZoneScoped;
 
@@ -59,7 +59,7 @@ OutputModule::~OutputModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool OutputModule::Init()
+bool Output3DModule::Init()
 {
 	ZoneScoped;
 
@@ -68,15 +68,15 @@ bool OutputModule::Init()
 	return true;
 }
 
-void OutputModule::Unit()
+void Output3DModule::Unit()
 {
 	ZoneScoped;
 
-	View3DPane::Instance()->SetOrUpdateOutput(OutputModuleWeak());
+	View3DPane::Instance()->SetOrUpdateOutput(Output3DModuleWeak());
 	m_ImGuiTexture.ClearDescriptor();
 }
 
-bool OutputModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool Output3DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -84,7 +84,7 @@ bool OutputModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 	{
 		CommonSystem::Instance()->DrawImGui();
 
-		ImGui::Header("Output");
+		ImGui::Header("Output 3D");
 
 		if (m_ImGuiTexture.canDisplayPreview)
 		{
@@ -98,7 +98,7 @@ bool OutputModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 	return false;
 }
 
-void OutputModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& /*vRect*/, ImGuiContext* vContext)
+void Output3DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& /*vRect*/, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -106,7 +106,7 @@ void OutputModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& 
 	}
 }
 
-void OutputModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& /*vMaxSize*/, ImGuiContext* vContext)
+void Output3DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& /*vMaxSize*/, ImGuiContext* vContext)
 {
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -114,7 +114,7 @@ void OutputModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 	}
 }
 
-void OutputModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
+void Output3DModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer)
 {
 	if (vNewSize)
 	{
@@ -128,7 +128,7 @@ void OutputModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBu
 	}
 }
 
-bool OutputModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* /*vCmd*/)
+bool Output3DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* /*vCmd*/)
 {
 	ZoneScoped;
 
@@ -140,17 +140,17 @@ bool OutputModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 	return true;
 }
 
-void OutputModule::SetTexture(const uint32_t& /*vBinding*/, vk::DescriptorImageInfo* /*vImageInfo*/)
+void Output3DModule::SetTexture(const uint32_t& /*vBinding*/, vk::DescriptorImageInfo* /*vImageInfo*/)
 {
 	
 }
 
-vk::DescriptorImageInfo* OutputModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* Output3DModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	auto parentNodePtr = dynamic_pointer_cast<TextureOutputInterface>(GetParentNode().getValidShared());
 	if (parentNodePtr)
 	{
-		auto desc = parentNodePtr->GetDescriptorImageInfo(vBindingPoint);
+		auto desc = parentNodePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 		auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().getValidShared();
 		if (imguiRendererPtr)
 		{
@@ -166,14 +166,14 @@ vk::DescriptorImageInfo* OutputModule::GetDescriptorImageInfo(const uint32_t& vB
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string OutputModule::getXml(const std::string& /*vOffset*/, const std::string& /*vUserDatas*/)
+std::string Output3DModule::getXml(const std::string& /*vOffset*/, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
 	return str;
 }
 
-bool OutputModule::setFromXml(tinyxml2::XMLElement* /*vElem*/, tinyxml2::XMLElement* /*vParent*/, const std::string& /*vUserDatas*/)
+bool Output3DModule::setFromXml(tinyxml2::XMLElement* /*vElem*/, tinyxml2::XMLElement* /*vParent*/, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	/*std::string strName;

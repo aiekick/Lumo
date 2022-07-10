@@ -40,7 +40,7 @@ ShadowMapModule_Pass::ShadowMapModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : LightGroup Shadow Map", MESH_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+	//m_DontUseShaderFilesOnDisk = true;
 }
 
 ShadowMapModule_Pass::~ShadowMapModule_Pass()
@@ -76,7 +76,7 @@ void ShadowMapModule_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& v
 			uint32_t idx = 0U;
 			for (auto lightPtr : *lightGroupPtr)
 			{
-				if (lightPtr)
+				if (lightPtr && lightPtr->lightDatas.lightActive > 0.5f)
 				{
 					DrawModelForOneLightGroup(idx++, vCmdBuffer, vIterationNumber);
 				}
@@ -283,14 +283,14 @@ std::string ShadowMapModule_Pass::GetFragmentShaderCode(std::string& vOutShaderN
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) out float fragDepth0;
-layout(location = 1) out float fragDepth1;
-layout(location = 2) out float fragDepth2;
-layout(location = 3) out float fragDepth3;
-layout(location = 4) out float fragDepth4;
-layout(location = 5) out float fragDepth5;
-layout(location = 6) out float fragDepth6;
-layout(location = 7) out float fragDepth7;
+layout(location = 0) out vec4 fragDepth0;
+layout(location = 1) out vec4 fragDepth1;
+layout(location = 2) out vec4 fragDepth2;
+layout(location = 3) out vec4 fragDepth3;
+layout(location = 4) out vec4 fragDepth4;
+layout(location = 5) out vec4 fragDepth5;
+layout(location = 6) out vec4 fragDepth6;
+layout(location = 7) out vec4 fragDepth7;
 
 layout(push_constant) uniform constants
 {
@@ -304,29 +304,31 @@ u8R"(
 
 void main() 
 {
-	fragDepth0 = 0.0;
-	fragDepth1 = 0.0;
-	fragDepth2 = 0.0;
-	fragDepth3 = 0.0;
-	fragDepth4 = 0.0;
-	fragDepth5 = 0.0;
-	fragDepth6 = 0.0;
-	fragDepth7 = 0.0;
+	fragDepth0 = vec4(0.0);
+	fragDepth1 = vec4(0.0);
+	fragDepth2 = vec4(0.0);
+	fragDepth3 = vec4(0.0);
+	fragDepth4 = vec4(0.0);
+	fragDepth5 = vec4(0.0);
+	fragDepth6 = vec4(0.0);
+	fragDepth7 = vec4(0.0);
 
 	float depth = gl_FragCoord.z / gl_FragCoord.w;
 	if (cam_far > 0.0)
 	{
 		depth /= cam_far;
+		vec4 dp = vec4(vec3(depth), 1.0);
+
 		switch(light_id_to_use)
 		{
-		case 0: fragDepth0 = depth; break;
-		case 1: fragDepth1 = depth; break;
-		case 2: fragDepth2 = depth; break;
-		case 3: fragDepth3 = depth; break;
-		case 4: fragDepth4 = depth; break;
-		case 5: fragDepth5 = depth; break;
-		case 6: fragDepth6 = depth; break;
-		case 7: fragDepth7 = depth; break;
+		case 0: fragDepth0 = dp; break;
+		case 1: fragDepth1 = dp; break;
+		case 2: fragDepth2 = dp; break;
+		case 3: fragDepth3 = dp; break;
+		case 4: fragDepth4 = dp; break;
+		case 5: fragDepth5 = dp; break;
+		case 6: fragDepth6 = dp; break;
+		case 7: fragDepth7 = dp; break;
 		}
 	}
 }

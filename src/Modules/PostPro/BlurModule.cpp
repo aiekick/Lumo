@@ -167,13 +167,13 @@ void BlurModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* v
 	}
 }
 
-vk::DescriptorImageInfo* BlurModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* BlurModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_BlurModule_Pass_Ptr)
 	{
-		return m_BlurModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_BlurModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

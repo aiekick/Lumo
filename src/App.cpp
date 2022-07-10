@@ -68,6 +68,7 @@ limitations under the License.
 
 #include <Plugins/PluginManager.h>
 #include <Panes/View3DPane.h>
+#include <Panes/View2DPane.h>
 
 #include <Base/Base.h>
 
@@ -140,6 +141,7 @@ bool App::Init(GLFWwindow* vWindow)
 					m_VulkanCorePtr, m_VulkanImGuiRendererPtr, m_VulkanWindowPtr); // needed for alloc ImGui Textures
 
 				View3DPane::Instance()->SetVulkanImGuiRenderer(m_VulkanImGuiRendererPtr);
+				View2DPane::Instance()->SetVulkanImGuiRenderer(m_VulkanImGuiRendererPtr);
 
 				ImGui::CustomStyle::Instance();
 

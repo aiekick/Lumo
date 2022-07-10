@@ -106,11 +106,11 @@ void Texture2DNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmit
 	}
 }
 
-vk::DescriptorImageInfo* Texture2DNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* Texture2DNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_Texture2DModule)
 	{
-		return m_Texture2DModule->GetDescriptorImageInfo(vBindingPoint);
+		return m_Texture2DModule->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

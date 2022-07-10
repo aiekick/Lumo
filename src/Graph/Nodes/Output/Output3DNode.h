@@ -21,23 +21,23 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-class OutputModule;
-class OutputNode : 
+class Output3DModule;
+class Output3DNode : 
 	public BaseNode,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface // le output n'est pas dans le graph, mais appelé par la vue, ce node conlue le graph, il est unique
 {
 public:
-	static std::shared_ptr<OutputNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<Output3DNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<OutputModule> m_OutputModulePtr = nullptr;
+	std::shared_ptr<Output3DModule> m_Output3DModulePtr = nullptr;
 	bool m_CanExploreTasks = false;
 	NodeSlotWeak m_InputSlot;
 
 public:
-	OutputNode();
-	~OutputNode() override;
+	Output3DNode();
+	~Output3DNode() override;
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
@@ -50,7 +50,7 @@ public:
 	void DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot) override;
 	ct::fvec2 GetOutputSize() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

@@ -154,11 +154,11 @@ void DeferredRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageI
 	}
 }
 
-vk::DescriptorImageInfo* DeferredRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* DeferredRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_DeferredRenderer_Pass_Ptr)
 	{
-		return m_DeferredRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_DeferredRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

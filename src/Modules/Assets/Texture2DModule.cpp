@@ -145,7 +145,7 @@ void Texture2DModule::DrawTexture(ct::ivec2 vMaxSize)
 	}
 }
 
-vk::DescriptorImageInfo* Texture2DModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* Texture2DModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 

@@ -42,6 +42,8 @@ SSAOModule_Pass::SSAOModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass : SSAO", QUAD_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 SSAOModule_Pass::~SSAOModule_Pass()
@@ -121,10 +123,15 @@ void SSAOModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 	}
 }
 
-vk::DescriptorImageInfo* SSAOModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* SSAOModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_FrameBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 

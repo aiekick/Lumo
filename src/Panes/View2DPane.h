@@ -22,6 +22,7 @@ limitations under the License.
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/VulkanFrameBuffer.h>
 #include <ImGuiColorTextEdit/TextEditor.h>
+#include <Modules/Output/Output2DModule.h>
 #include <vkFramework/ImGuiTexture.h>
 #include <ctools/cTools.h>
 #include <cstdint>
@@ -33,12 +34,21 @@ class RenderTask;
 class ProjectFile;
 class View2DPane : public AbstractPane
 {
+private:
+	Output2DModuleWeak m_Output2DModule;
+	ImGuiTexture m_ImGuiTexture;
+	ct::irect m_PreviewRect;
+	VulkanImGuiRendererPtr m_VulkanImGuiRenderer = nullptr;
+
 public:
 	bool Init() override;
 	void Unit() override;
 	int DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
 	void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas) override;
 	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
+
+	void SetOrUpdateOutput(ct::cWeak<Output2DModule> vOutput2DModule);
+	void SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer);
 
 public: // singleton
 	static View2DPane* Instance()

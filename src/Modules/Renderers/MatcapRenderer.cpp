@@ -162,11 +162,11 @@ void MatcapRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInf
 	}
 }
 
-vk::DescriptorImageInfo* MatcapRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MatcapRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_MatcapRenderer_Pass_Ptr)
 	{
-		return m_MatcapRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_MatcapRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

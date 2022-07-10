@@ -84,7 +84,7 @@ bool ShadowMapModule::Init()
 		if (m_ShadowMapModule_Pass_Ptr)
 		{
 			if (m_ShadowMapModule_Pass_Ptr->InitPixel(1024U, 8U, true, true, 0.0f,
-				false, vk::Format::eR32Sfloat, vk::SampleCountFlagBits::e1))
+				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				m_ShadowMapModule_Pass_Ptr->AllowResize(false); // 1024 is fixed
 				AddGenericPass(m_ShadowMapModule_Pass_Ptr);

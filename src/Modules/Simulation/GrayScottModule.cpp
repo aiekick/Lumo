@@ -172,13 +172,13 @@ void GrayScottModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 	}
 }
 
-vk::DescriptorImageInfo* GrayScottModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* GrayScottModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_GrayScottModule_Pass_Ptr)
 	{
-		return m_GrayScottModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_GrayScottModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

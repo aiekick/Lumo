@@ -73,8 +73,7 @@ int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 	{
 		static ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoBringToFrontOnFocus |
-			ImGuiWindowFlags_MenuBar;
+			ImGuiWindowFlags_NoBringToFrontOnFocus;
 		if (ImGui::Begin<PaneFlags>(m_PaneName,
 			&LayoutManager::Instance()->m_Pane_Shown, m_PaneFlag, flags))
 		{
@@ -84,11 +83,30 @@ int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 				flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
 			else
 				flags = ImGuiWindowFlags_NoCollapse |
-				ImGuiWindowFlags_NoBringToFrontOnFocus |
-				ImGuiWindowFlags_MenuBar;
+				ImGuiWindowFlags_NoBringToFrontOnFocus;
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
+				SetOrUpdateOutput(m_Output2DModule);
+
+				auto outputModulePtr = m_Output2DModule.getValidShared();
+				if (outputModulePtr)
+				{
+					ct::ivec2 maxSize = ImGui::GetContentRegionAvail();
+
+					if (m_ImGuiTexture.canDisplayPreview)
+					{
+						m_PreviewRect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture.ratio, maxSize, false);
+
+						ImVec2 pos = ImVec2((float)m_PreviewRect.x, (float)m_PreviewRect.y);
+						ImVec2 siz = ImVec2((float)m_PreviewRect.w, (float)m_PreviewRect.h);
+
+						// faut faire ca avant le dessin de la texture.
+						// apres, GetCursorScreenPos ne donnera pas la meme valeur
+						ImVec2 org = ImGui::GetCursorScreenPos() + pos;
+						ImGui::ImageRect((ImTextureID)&m_ImGuiTexture.descriptor, pos, siz);
+					}
+				}
 			}
 		}
 
@@ -128,4 +146,28 @@ void View2DPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string
 int View2DPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
 {
 	return vWidgetId;
+}
+
+void View2DPane::SetOrUpdateOutput(ct::cWeak<Output2DModule> vOutput2DModule)
+{
+	ZoneScoped;
+
+	m_Output2DModule = vOutput2DModule;
+
+	auto outputModulePtr = m_Output2DModule.getValidShared();
+	if (outputModulePtr)
+	{
+		ct::fvec2 outSize;
+		m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, outputModulePtr->GetDescriptorImageInfo(0U, &outSize));
+		m_ImGuiTexture.ratio = outSize.ratioXY<float>();
+	}
+	else
+	{
+		m_ImGuiTexture.ClearDescriptor();
+	}
+}
+
+void View2DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer)
+{
+	m_VulkanImGuiRenderer = vVulkanImGuiRenderer;
 }

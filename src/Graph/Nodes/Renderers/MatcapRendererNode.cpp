@@ -151,11 +151,11 @@ void MatcapRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImag
 	}
 }
 
-vk::DescriptorImageInfo* MatcapRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MatcapRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_MatcapRenderer)
 	{
-		return m_MatcapRenderer->GetDescriptorImageInfo(vBindingPoint);
+		return m_MatcapRenderer->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

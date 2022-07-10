@@ -16,77 +16,58 @@ limitations under the License.
 
 #pragma once
 
-#include <set>
 #include <array>
-#include <string>
 #include <memory>
-
-#include <Headers/Globals.h>
-
-#include <vulkan/vulkan.hpp>
-
 #include <ctools/cTools.h>
-#include <ctools/ConfigAbstract.h>
-
-#include <Base/QuadShaderPass.h>
-
 #include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
+#include <ctools/ConfigAbstract.h>
 #include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
-
-#include <SceneGraph/SceneMesh.h>
-
-#include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
+#include <Interfaces/GuiInterface.h>
+#include <Interfaces/NodeInterface.h>
+#include <Interfaces/ResizerInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ShaderInterface.h>
-#include <Interfaces/ResizerInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
 
+class Output3DModule;
+typedef std::shared_ptr<Output3DModule> Output3DModulePtr;
+typedef ct::cWeak<Output3DModule> Output3DModuleWeak;
 
-class DepthToPosModule_Pass :
-	public QuadShaderPass,
+class Output3DModule :
+	public conf::ConfigAbstract,
 	public GuiInterface,
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface
+	public TaskInterface,
+	public NodeInterface,
+	public TextureInputInterface<0U>, // 0, because no need of items here
+	public TextureOutputInterface, // le output n'est pas dans le graph, mais appelé par la vue, ce node conlue le graph, il est unique
+	public ResizerInterface
 {
+public:
+	static Output3DModulePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+
 private:
-	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
-
-	struct UBOFrag {
-		alignas(4) float use_sampler_dep = 0.0f;
-	} m_UBOFrag;
-
-	std::string m_VertexShaderCode;
-	std::string m_FragmentShaderCode;
+	Output3DModuleWeak m_This;
+	ImGuiTexture m_ImGuiTexture;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 public:
-	DepthToPosModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~DepthToPosModule_Pass();
+	Output3DModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~Output3DModule();
+
+	bool Init();
+	void Unit();
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
+		
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
+
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd);
+
+public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-
-private:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
-
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
-
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 };

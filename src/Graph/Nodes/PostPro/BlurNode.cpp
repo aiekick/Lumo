@@ -171,11 +171,11 @@ void BlurNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vIm
 	}
 }
 
-vk::DescriptorImageInfo* BlurNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* BlurNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_BlurModulePtr)
 	{
-		return m_BlurModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_BlurModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

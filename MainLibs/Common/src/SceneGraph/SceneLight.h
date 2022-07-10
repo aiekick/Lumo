@@ -81,19 +81,6 @@ private:
 	SceneLightWeak m_This; 
 
 public:
-	// std140
-	/*struct LightDatasStruct {
-		alignas(16) glm::mat4x4 lightGizmo = glm::mat4x4(1.0f);
-		alignas(16) glm::mat4x4 lightView = glm::mat4x4(1.0f);
-		alignas(16) ct::fvec4 lightColor = 1.0f;
-		alignas(4) float lightIntensity = 1.0f;
-		alignas(4) int lightType = (int)LightTypeEnum::DIRECTIONNAL;
-		alignas(4) float orthoSideSize = 30.0f;
-		alignas(4) float orthoRearSize = 1000.0f;
-		alignas(4) float orthoDeepSize = 1000.0f;
-		alignas(4) float perspectiveAngle = 45.0f;
-	} lightDatas;*/
-
 	// std430
 	struct LightDatasStruct {
 		glm::mat4x4 lightGizmo = glm::mat4x4(1.0f);
@@ -105,6 +92,7 @@ public:
 		float orthoRearSize = 1000.0f;
 		float orthoDeepSize = 1000.0f;
 		float perspectiveAngle = 45.0f;
+		float lightActive = 1.0f;
 	} lightDatas;
 	
 public:

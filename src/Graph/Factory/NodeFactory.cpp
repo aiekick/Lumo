@@ -31,7 +31,8 @@ limitations under the License.
 
 #include <Graph/Nodes/Modifiers/SmoothNormalNode.h>
 
-#include <Graph/Nodes/Output/OutputNode.h>
+#include <Graph/Nodes/Output/Output3DNode.h>
+#include <Graph/Nodes/Output/Output2DNode.h>
 
 #include <Graph/Nodes/PostPro/SSAONode.h>
 #include <Graph/Nodes/PostPro/BlurNode.h>
@@ -75,7 +76,8 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			else if (vNodeType == "SMOOTH_NORMAL")					return SmoothNormalNode::Create(corePtr);
 
 			// graph output
-			else if (vNodeType == "OUTPUT")							return OutputNode::Create(corePtr);
+			else if (vNodeType == "OUTPUT_3D")						return Output3DNode::Create(corePtr);
+			else if (vNodeType == "OUTPUT_2D")						return Output2DNode::Create(corePtr);
 
 			// Post Processing
 			else if (vNodeType == "SSAO")							return SSAONode::Create(corePtr);

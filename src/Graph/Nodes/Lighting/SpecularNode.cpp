@@ -194,11 +194,11 @@ void SpecularNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo*
 	}
 }
 
-vk::DescriptorImageInfo* SpecularNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* SpecularNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_SpecularModulePtr)
 	{
-		return m_SpecularModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_SpecularModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

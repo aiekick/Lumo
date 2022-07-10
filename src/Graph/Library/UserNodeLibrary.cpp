@@ -67,7 +67,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	
 	m_RootLibraryCategory.AddCustom("Core/Modifiers", "Smooth Normals", "SMOOTH_NORMAL");
 
-	m_RootLibraryCategory.AddCustom("Core/Output", "Output", "OUTPUT");
+	m_RootLibraryCategory.AddCustom("Core/Outputs", "Output 3D", "OUTPUT_3D");
+	m_RootLibraryCategory.AddCustom("Core/Outputs", "Output 2D", "OUTPUT_2D");
 
 	m_RootLibraryCategory.AddCustom("Core/PostPro", "Blur", "BLUR");
 	m_RootLibraryCategory.AddCustom("Core/PostPro", "Laplacian", "LAPLACIAN");
@@ -158,7 +159,7 @@ BaseNodeWeak UserNodeLibrary::CreateNode(BaseNodeWeak vNodeGraph, const LibraryE
 	if (vNodeGraph.expired()) return BaseNodeWeak();
 	if (vLibraryEntry.first.empty()) return BaseNodeWeak();
 
-	bool isOutputNode = false;
+	bool isOutput3DNode = false;
 	BaseNodePtr nodePtr = nullptr;
 
 	if (vLibraryEntry.first == "internal")
@@ -181,9 +182,13 @@ BaseNodeWeak UserNodeLibrary::CreateNode(BaseNodeWeak vNodeGraph, const LibraryE
 		auto graphPtr = vNodeGraph.getValidShared();
 		if (graphPtr)
 		{
-			if (vLibraryEntry.second.nodeType == "OUTPUT")
+			if (vLibraryEntry.second.nodeType == "OUTPUT_3D")
 			{
-				graphPtr->m_OutputNode = nodePtr;
+				graphPtr->m_Output3DNode = nodePtr;
+			}
+			else if (vLibraryEntry.second.nodeType == "OUTPUT_2D")
+			{
+				graphPtr->m_Output2DNode = nodePtr;
 			}
 
 			graphPtr->AddChildNode(nodePtr);

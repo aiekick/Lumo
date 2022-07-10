@@ -43,6 +43,7 @@ struct LightDatas
 	float orthoRearSize;
 	float orthoDeepSize;
 	float perspectiveAngle;
+	float lightActive;
 };)";
 }
 

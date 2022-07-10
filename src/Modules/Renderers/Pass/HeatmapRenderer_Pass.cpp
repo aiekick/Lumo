@@ -36,6 +36,8 @@ HeatmapRenderer_Pass::HeatmapRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Heatmap", MESH_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 HeatmapRenderer_Pass::~HeatmapRenderer_Pass()
@@ -148,10 +150,15 @@ void HeatmapRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
 	m_SceneModel = vSceneModel;
 }
 
-vk::DescriptorImageInfo* HeatmapRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* HeatmapRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_FrameBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 

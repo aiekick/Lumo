@@ -89,7 +89,7 @@ void ModelShadowModule_Pass::SetTexture(const uint32_t& vBinding, vk::Descriptor
 
 	if (m_Loaded)
 	{
-		if (vBinding == 0U)
+		if (vBinding == 0U || vBinding == 1U)
 		{
 			if (vBinding < m_ImageInfos.size())
 			{
@@ -97,19 +97,17 @@ void ModelShadowModule_Pass::SetTexture(const uint32_t& vBinding, vk::Descriptor
 				{
 					m_ImageInfos[vBinding] = *vImageInfo;
 
-					if (m_UBOFrag.use_sampler_pos < 1.0f)
+					if ((&m_UBOFrag.use_sampler_pos)[vBinding] < 1.0f)
 					{
-						m_UBOFrag.use_sampler_pos = 1.0f;
-
+						(&m_UBOFrag.use_sampler_pos)[vBinding] = 1.0f;
 						NeedNewUBOUpload();
 					}
 				}
 				else
 				{
-					if (m_UBOFrag.use_sampler_pos > 0.0f)
+					if ((&m_UBOFrag.use_sampler_pos)[vBinding] > 0.0f)
 					{
-						m_UBOFrag.use_sampler_pos = 0.0f;
-
+						(&m_UBOFrag.use_sampler_pos)[vBinding] = 0.0f;
 						NeedNewUBOUpload();
 					}
 
@@ -161,12 +159,17 @@ void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, std::vector<v
 	}
 }
 
-vk::DescriptorImageInfo* ModelShadowModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* ModelShadowModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_FrameBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 
@@ -283,10 +286,11 @@ bool ModelShadowModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
 
 	// the shadow maps
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler,
+	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eCombinedImageSampler,
 		(uint32_t)m_ImageGroupInfos.size(), vk::ShaderStageFlagBits::eFragment);
 
 	// next binding will be 4 + 8 => 12
@@ -302,10 +306,11 @@ bool ModelShadowModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
 	
 	// the shadow maps
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0,
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0,
 		(uint32_t)m_ImageGroupInfos.size(), vk::DescriptorType::eCombinedImageSampler, m_ImageGroupInfos.data(), nullptr);
 	
 	// next binding will be 4 + 8 => 12
@@ -352,15 +357,19 @@ layout (std140, binding = 1) uniform UBO_Frag
 	float u_bias;
 	float u_poisson_scale;
 	float use_sampler_pos;
+	float use_sampler_nor;
 	float use_sampler_shadow_map;
 };
 layout(binding = 2) uniform sampler2D position_map_sampler;
+layout(binding = 3) uniform sampler2D normal_map_sampler;
+
 )"
 +
-SceneLightGroup::GetBufferObjectStructureHeader(3U)
+SceneLightGroup::GetBufferObjectStructureHeader(4U)
 +
 u8R"(
-layout(binding = 4) uniform sampler2D light_shadow_map_samplers[8]; // binding 4 + 8
+layout(binding = 5) uniform sampler2D light_shadow_map_samplers[8]; // binding 5 + 8 => the next binding is 13
+
 const vec2 poissonDisk[16] = vec2[]
 ( 
    vec2( -0.94201624, -0.39906216 ), 
@@ -388,37 +397,56 @@ float random(vec3 seed, int i)
 	return fract(sin(dot_product) * 43758.5453);
 }
 
-float getShadowForLight(uint vLightID, vec3 pos)
+vec4 getShadowForLight(uint id, vec3 pos, vec3 nor)
 {
-	vec4 shadowCoord = lightDatas[vLightID].lightView * vec4(pos, 1.0);
-	shadowCoord.xyz /= shadowCoord.w;
-	shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
+	vec4 color = vec4(0.0);
 
-	const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
-	const float bias = u_bias * 0.01;
-
-	float sha_vis = 1.0;
-	float sha_step = 1.0 / mix(16.0, 8.0, u_shadow_strength);
-	for (int i=0;i<8;i++)
+	if (lightDatas[id].lightActive > 0.5)
 	{
-		int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-		float sha = texture(light_shadow_map_samplers[vLightID], shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;
+		vec4 shadowCoord = lightDatas[id].lightView * vec4(pos, 1.0);
+		shadowCoord.xyz /= shadowCoord.w;
+		shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
+
+		const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
+		const float bias = u_bias * 0.01;
+
+#ifdef USE_PCF
+		float sha_vis = 1.0;
+		float sha_step = 1.0 / mix(16.0, 8.0, u_shadow_strength);
+		for (int i=0;i<8;i++)
+		{
+			int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
+			float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;
+			if (sha * cam_far < (shadowCoord.z - bias)/shadowCoord.w)
+			{
+				sha_vis -= sha_step * (1.0 - sha);
+			}
+			else
+			{
+				sha_vis += sha_step * sha;
+			}
+		}
+		color = vec4(sha_vis);
+#else
+		float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy, 0.0).r;
 		if (sha * cam_far < (shadowCoord.z - bias)/shadowCoord.w)
 		{
-			sha_vis -= sha_step * (1.0 - sha);
+			vec3 ld = normalize(lightDatas[id].lightGizmo[3].xyz);
+			float li = dot(ld, nor);
+			if (li > 0.0)
+			{
+				color += lightDatas[id].lightColor * li * (1.0 - lightDatas[id].lightIntensity);
+			}
 		}
-		else
-		{
-			sha_vis += sha_step;
-		}
+#endif
 	}
 
-	return sha_vis;
+	return color;
 }
 
 void main() 
 {
-	fragShadow = vec4(0.0);
+	fragShadow = vec4(1.0);
 	
 	if (use_sampler_pos > 0.5 && 
 		use_sampler_shadow_map > 0.5)
@@ -426,14 +454,15 @@ void main()
 		vec3 pos = texture(position_map_sampler, v_uv).xyz;
 		if (dot(pos, pos) > 0.0)
 		{
+			vec3 nor = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
+		
 			uint count = min(lightDatas.length() + 1, 8);
-			float l_step = 1.0 / float(count);
 			for (uint lid = 0 ; lid < count ; ++lid)
 			{
-				fragShadow += getShadowForLight(lid, pos) * l_step;
+				fragShadow -= getShadowForLight(lid, pos, nor);
 			}
 
-			fragShadow = clamp(fragShadow, 0.0, 1.0);
+			//fragShadow = clamp(fragShadow, 0.0, 1.0);
 		}
 		else
 		{
@@ -445,5 +474,6 @@ void main()
 		discard;
 	}
 }
+
 )";
 }

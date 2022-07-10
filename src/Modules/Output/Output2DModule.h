@@ -29,31 +29,31 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-class OutputModule;
-typedef std::shared_ptr<OutputModule> OutputModulePtr;
-typedef ct::cWeak<OutputModule> OutputModuleWeak;
+class Output2DModule;
+typedef std::shared_ptr<Output2DModule> Output2DModulePtr;
+typedef ct::cWeak<Output2DModule> Output2DModuleWeak;
 
 
-class OutputModule :
+class Output2DModule :
 	public conf::ConfigAbstract,
 	public GuiInterface,
 	public TaskInterface,
 	public NodeInterface,
 	public TextureInputInterface<0U>, // 0, because no need of items here
-	public TextureOutputInterface, // le output n'est pas dans le graph, mais appelé par la vue, ce node conlue le graph, il est unique
-	public ResizerInterface
+	public TextureOutputInterface // le output n'est pas dans le graph, mais appelé par la vue, ce node conlue le graph, il est unique
 {
 public:
-	static OutputModulePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static Output2DModulePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
-	OutputModuleWeak m_This;
+	Output2DModuleWeak m_This;
 	ImGuiTexture m_ImGuiTexture;
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	ct::fvec2 m_OutputSize;
 
 public:
-	OutputModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~OutputModule();
+	Output2DModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~Output2DModule();
 
 	bool Init();
 	void Unit();
@@ -62,11 +62,10 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 		
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
-
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd);
+	ct::fvec2 GetOutputSize() const;
 
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

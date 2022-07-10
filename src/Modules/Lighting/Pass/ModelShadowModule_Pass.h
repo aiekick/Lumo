@@ -48,7 +48,7 @@ limitations under the License.
 class ModelShadowModule_Pass :
 	public QuadShaderPass,
 	public GuiInterface,
-	public TextureInputInterface<1U>,
+	public TextureInputInterface<2U>,
 	public TextureGroupInputInterface<8U>,
 	public TextureOutputInterface,
 	public LightGroupInputInterface
@@ -64,6 +64,7 @@ protected:
 		alignas(4) float u_bias = 0.01f;
 		alignas(4) float u_poisson_scale = 5000.0f;
 		alignas(4) float use_sampler_pos = 0.0f;
+		alignas(4) float use_sampler_nor = 0.0f;
 		alignas(4) float use_sampler_shadow_map = 0.0f;
 	} m_UBOFrag;
 
@@ -76,7 +77,7 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
 	void SetTextures(const uint32_t& vBinding, std::vector<vk::DescriptorImageInfo>* vImageInfos) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint) override;
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

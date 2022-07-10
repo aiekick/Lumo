@@ -42,6 +42,8 @@ BlurModule_Pass::BlurModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Blur", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 BlurModule_Pass::~BlurModule_Pass()
@@ -107,10 +109,15 @@ void BlurModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 	}
 }
 
-vk::DescriptorImageInfo* BlurModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* BlurModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ComputeBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
+		}
+
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 

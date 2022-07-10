@@ -87,10 +87,16 @@ void NodeManager::PrepareToLoadGraph()
 
 bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
-	auto outputPtr = m_RootNodePtr->m_OutputNode.getValidShared();
-	if (outputPtr)
+	auto output3DPtr = m_RootNodePtr->m_Output3DNode.getValidShared();
+	if (output3DPtr)
 	{
-		return outputPtr->Execute(vCurrentFrame, vCmd);
+		return output3DPtr->Execute(vCurrentFrame, vCmd);
+	}
+
+	auto output2DPtr = m_RootNodePtr->m_Output2DNode.getValidShared();
+	if (output2DPtr)
+	{
+		return output2DPtr->Execute(vCurrentFrame, vCmd);
 	}
 
 	return false;
@@ -186,10 +192,17 @@ bool NodeManager::LoadNodeFromXML(
 				nodePtr->name = vNodeName;
 			nodePtr->pos = ImVec2(vPos.x, vPos.y);
 			nodePtr->nodeID = vNodeId;
-			if (vNodeType == "OUTPUT")
+			
+			if (vNodeType == "OUTPUT_3D")
 			{
-				m_RootNodePtr->m_OutputNode = nodePtr;
+				m_RootNodePtr->m_Output3DNode = nodePtr;
 			}
+			
+			if (vNodeType == "OUTPUT_2D")
+			{
+				m_RootNodePtr->m_Output2DNode = nodePtr;
+			}
+
 			m_RootNodePtr->AddChildNode(nodePtr);
 			nodePtr->RecursParsingConfigChilds(vElem);
 			nd::SetNodePosition(vNodeId, nodePtr->pos);

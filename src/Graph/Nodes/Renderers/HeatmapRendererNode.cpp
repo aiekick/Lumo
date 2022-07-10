@@ -134,11 +134,11 @@ void HeatmapRendererNode::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-vk::DescriptorImageInfo* HeatmapRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* HeatmapRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_HeatmapRenderer)
 	{
-		return m_HeatmapRenderer->GetDescriptorImageInfo(vBindingPoint);
+		return m_HeatmapRenderer->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

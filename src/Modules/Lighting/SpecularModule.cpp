@@ -167,13 +167,13 @@ void SpecularModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInf
 	}
 }
 
-vk::DescriptorImageInfo* SpecularModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* SpecularModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_SpecularModule_Pass_Ptr)
 	{
-		return m_SpecularModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_SpecularModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

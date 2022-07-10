@@ -31,6 +31,8 @@ GridModule_Pass::GridModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: VertexShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Vertex Pass 1 : Grid", VERTEX_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 GridModule_Pass::~GridModule_Pass()
@@ -89,12 +91,17 @@ void GridModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 
 }
 
-vk::DescriptorImageInfo* GridModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* GridModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_FrameBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 

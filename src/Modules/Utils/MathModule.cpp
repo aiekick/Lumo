@@ -167,13 +167,13 @@ void MathModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* v
 	}
 }
 
-vk::DescriptorImageInfo* MathModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MathModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_MathModule_Pass_Ptr)
 	{
-		return m_MathModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_MathModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

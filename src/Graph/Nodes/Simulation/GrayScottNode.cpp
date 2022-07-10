@@ -171,11 +171,11 @@ void GrayScottNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo
 	}
 }
 
-vk::DescriptorImageInfo* GrayScottNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* GrayScottNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_GrayScottModulePtr)
 	{
-		return m_GrayScottModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_GrayScottModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

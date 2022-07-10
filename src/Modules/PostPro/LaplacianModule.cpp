@@ -169,13 +169,13 @@ void LaplacianModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 	}
 }
 
-vk::DescriptorImageInfo* LaplacianModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* LaplacianModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_LaplacianModule_Pass_Ptr)
 	{
-		return m_LaplacianModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_LaplacianModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

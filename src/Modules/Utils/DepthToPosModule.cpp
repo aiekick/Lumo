@@ -155,13 +155,13 @@ void DepthToPosModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageI
 	}
 }
 
-vk::DescriptorImageInfo* DepthToPosModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* DepthToPosModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_DepthToPosModule_Pass_Ptr)
 	{
-		return m_DepthToPosModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_DepthToPosModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

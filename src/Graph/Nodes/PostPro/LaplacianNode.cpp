@@ -171,11 +171,11 @@ void LaplacianNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo
 	}
 }
 
-vk::DescriptorImageInfo* LaplacianNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* LaplacianNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_LaplacianModulePtr)
 	{
-		return m_LaplacianModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_LaplacianModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

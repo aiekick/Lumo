@@ -181,11 +181,11 @@ void MeshAttributesNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImag
 	}
 }
 
-vk::DescriptorImageInfo* MeshAttributesNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MeshAttributesNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_MeshAttributesModulePtr)
 	{
-		return m_MeshAttributesModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_MeshAttributesModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

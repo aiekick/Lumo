@@ -87,7 +87,7 @@ bool ModelShadowModule::Init()
 			// unfortunatly not for perf, but the main purpose is for nice widget display
 			// or maybe there is a way in glsl to know the component count of a texture
 			// so i could modify in this way the shader of imgui
-			if (m_ModelShadowModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_ModelShadowModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 1.0f,
 				false, vk::Format::eR8G8B8A8Unorm, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_ModelShadowModule_Pass_Ptr);
@@ -190,13 +190,13 @@ void ModelShadowModule::SetTextures(const uint32_t& vBinding, std::vector<vk::De
 	}
 }
 
-vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_ModelShadowModule_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_Ptr->GetDescriptorImageInfo(0U);
+		return m_ModelShadowModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

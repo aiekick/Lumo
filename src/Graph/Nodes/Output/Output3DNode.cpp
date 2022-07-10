@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "OutputNode.h"
-#include <Modules/Output/OutputModule.h>
+#include "Output3DNode.h"
+#include <Modules/Output/Output3DModule.h>
 #include <Interfaces/MergedInterface.h>
 
-std::shared_ptr<OutputNode> OutputNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<Output3DNode> Output3DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<OutputNode>();
+	auto res = std::make_shared<Output3DNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -29,19 +29,19 @@ std::shared_ptr<OutputNode> OutputNode::Create(vkApi::VulkanCorePtr vVulkanCoreP
 	return res;
 }
 
-OutputNode::OutputNode() : BaseNode()
+Output3DNode::Output3DNode() : BaseNode()
 {
-	m_NodeTypeString = "OUTPUT";
+	m_NodeTypeString = "OUTPUT_3D";
 }
 
-OutputNode::~OutputNode()
+Output3DNode::~Output3DNode()
 {
 	Unit();
 }
 
-bool OutputNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool Output3DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Scene Output";
+	name = "Scene Output 3D";
 
 	NodeSlot slot;
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
@@ -50,8 +50,8 @@ bool OutputNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_OutputModulePtr = OutputModule::Create(vVulkanCorePtr, m_This);
-	if (m_OutputModulePtr)
+	m_Output3DModulePtr = Output3DModule::Create(vVulkanCorePtr, m_This);
+	if (m_Output3DModulePtr)
 	{
 		res = true;
 	}
@@ -59,45 +59,45 @@ bool OutputNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-void OutputNode::Unit()
+void Output3DNode::Unit()
 {
-	m_OutputModulePtr.reset();
+	m_Output3DModulePtr.reset();
 }
 
-bool OutputNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool Output3DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
-	if (m_OutputModulePtr)
+	if (m_Output3DModulePtr)
 	{
-		return m_OutputModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_Output3DModulePtr->Execute(vCurrentFrame, vCmd);
 	}
 
 	return false;
 }
 
-bool OutputNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool Output3DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	if (m_OutputModulePtr)
+	if (m_Output3DModulePtr)
 	{
-		return m_OutputModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_Output3DModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void OutputNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void Output3DNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	/*if (m_OutputModulePtr)
+	/*if (m_Output3DModulePtr)
 	{
-		m_OutputModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_Output3DModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}*/
 }
 
-void OutputNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void Output3DNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
 {
 	if (vCanvasState && vCanvasState->debug_mode)
 	{
@@ -115,11 +115,11 @@ void OutputNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void OutputNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void Output3DNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_OutputModulePtr)
+	if (startSlotPtr && endSlotPtr && m_Output3DModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
@@ -129,7 +129,7 @@ void OutputNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEnd
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void OutputNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void Output3DNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
@@ -142,12 +142,12 @@ void OutputNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak v
 	}
 }
 
-void OutputNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void Output3DNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	
 }
 
-vk::DescriptorImageInfo* OutputNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* Output3DNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	auto slotPtr = m_InputSlot.getValidShared();
 	if (slotPtr)
@@ -160,7 +160,7 @@ vk::DescriptorImageInfo* OutputNode::GetDescriptorImageInfo(const uint32_t& vBin
 				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(otherSLotPtr->parentNode.getValidShared());
 				if (otherNodePtr)
 				{
-					return otherNodePtr->GetDescriptorImageInfo(otherSLotPtr->descriptorBinding);
+					return otherNodePtr->GetDescriptorImageInfo(otherSLotPtr->descriptorBinding, vOutSize);
 				}
 			}
 		}
@@ -169,24 +169,24 @@ vk::DescriptorImageInfo* OutputNode::GetDescriptorImageInfo(const uint32_t& vBin
 	return nullptr;
 }
 
-void OutputNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void Output3DNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
 	case NotifyEvent::SomeTasksWasUpdated:
 	{
-		if (m_CanExploreTasks && m_OutputModulePtr)
+		if (m_CanExploreTasks && m_Output3DModulePtr)
 		{
-			//m_OutputModulePtr->ExploreTasks();
+			//m_Output3DModulePtr->ExploreTasks();
 		}
 		break;
 	}
 	case NotifyEvent::GraphIsLoaded:
 	{
 		m_CanExploreTasks = true;
-		if (m_OutputModulePtr)
+		if (m_Output3DModulePtr)
 		{
-			//m_OutputModulePtr->ExploreTasks();
+			//m_Output3DModulePtr->ExploreTasks();
 		}
 		break;
 	}
@@ -195,16 +195,16 @@ void OutputNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterS
 	}
 }
 
-void OutputNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
+void Output3DNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
 {
 	// one output only
-	//if (m_OutputModulePtr)
+	//if (m_Output3DModulePtr)
 	{
 		//ImGui::Text("%s", m_SmoothNormal->GetFileName().c_str());
 	}
 }
 
-ct::fvec2 OutputNode::GetOutputSize()
+ct::fvec2 Output3DNode::GetOutputSize()
 {
 	auto slotPtr = m_InputSlot.getValidShared();
 	if (slotPtr)
@@ -230,7 +230,7 @@ ct::fvec2 OutputNode::GetOutputSize()
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string OutputNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string Output3DNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -256,9 +256,9 @@ std::string OutputNode::getXml(const std::string& vOffset, const std::string& vU
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_OutputModulePtr)
+		if (m_Output3DModulePtr)
 		{
-			res += m_OutputModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_Output3DModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -267,7 +267,7 @@ std::string OutputNode::getXml(const std::string& vOffset, const std::string& vU
 	return res;
 }
 
-bool OutputNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool Output3DNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -282,9 +282,9 @@ bool OutputNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_OutputModulePtr)
+	if (m_Output3DModulePtr)
 	{
-		m_OutputModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_Output3DModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

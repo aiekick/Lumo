@@ -36,6 +36,8 @@ MatcapRenderer_Pass::MatcapRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Matcap", MESH_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 MatcapRenderer_Pass::~MatcapRenderer_Pass()
@@ -139,10 +141,15 @@ void MatcapRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorIma
 	}
 }
 
-vk::DescriptorImageInfo* MatcapRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* MatcapRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_FrameBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 

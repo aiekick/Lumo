@@ -26,7 +26,7 @@ limitations under the License.
 #include <Panes/Abstract/AbstractPane.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 #include <ImGuiColorTextEdit/TextEditor.h>
-#include <Modules/Output/OutputModule.h>
+#include <Modules/Output/Output3DModule.h>
 #include <Interfaces/GuiInterface.h>
 
 class RenderTask;
@@ -35,7 +35,7 @@ class VulkanImGuiRenderer;
 class View3DPane : public AbstractPane
 {
 private:
-	OutputModuleWeak m_OutputModule;
+	Output3DModuleWeak m_Output3DModule;
 	ImGuiTexture m_ImGuiTexture;
 
 	ct::irect m_PreviewRect;
@@ -61,7 +61,7 @@ public:
 	void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas) override;
 	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
 
-	void SetOrUpdateOutput(ct::cWeak<OutputModule> vOutputModule);
+	void SetOrUpdateOutput(ct::cWeak<Output3DModule> vOutput3DModule);
 	void SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer);
 
 private:

@@ -42,6 +42,8 @@ LaplacianModule_Pass::LaplacianModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass : Laplacian", QUAD_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 LaplacianModule_Pass::~LaplacianModule_Pass()
@@ -106,10 +108,15 @@ void LaplacianModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorIm
 	}
 }
 
-vk::DescriptorImageInfo* LaplacianModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* LaplacianModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_FrameBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 

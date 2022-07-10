@@ -42,6 +42,8 @@ SmoothNormalModule_Pass::SmoothNormalModule_Pass(vkApi::VulkanCorePtr vVulkanCor
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Smooth Normal", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 SmoothNormalModule_Pass::~SmoothNormalModule_Pass()

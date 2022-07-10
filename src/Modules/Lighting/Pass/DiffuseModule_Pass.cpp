@@ -43,6 +43,8 @@ DiffuseModule_Pass::DiffuseModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Diffuse", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 DiffuseModule_Pass::~DiffuseModule_Pass()
@@ -85,10 +87,15 @@ void DiffuseModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImag
 	}
 }
 
-vk::DescriptorImageInfo* DiffuseModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* DiffuseModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ComputeBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
+		}
+
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 
@@ -191,13 +198,18 @@ layout(binding = 3) uniform sampler2D nor_map_sampler;
 
 vec4 getLightGroup(uint id, ivec2 coords, vec3 pos)
 {
-	vec3 light_pos = lightDatas[id].lightGizmo[3].xyz;
-	float light_intensity = lightDatas[id].lightIntensity;
-	vec4 light_col = lightDatas[id].lightColor;
+	vec4 diff = vec4(1.0);
+
+	if (lightDatas[id].lightActive > 0.5)
+	{
+		vec3 light_pos = lightDatas[id].lightGizmo[3].xyz;
+		float light_intensity = lightDatas[id].lightIntensity;
+		vec4 light_col = lightDatas[id].lightColor;
 	
-	vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
-	vec3 light_dir = normalize(light_pos - pos);
-	vec4 diff = min(max(dot(normal, light_dir), 0.0) * light_intensity, 1.0) * light_col;
+		vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
+		vec3 light_dir = normalize(light_pos - pos);
+		diff = min(max(dot(normal, light_dir), 0.0) * light_intensity, 1.0) * light_col;
+	}
 
 	return diff;
 }

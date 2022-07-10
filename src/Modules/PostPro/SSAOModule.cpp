@@ -171,13 +171,13 @@ void SSAOModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* v
 	}
 }
 
-vk::DescriptorImageInfo* SSAOModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* SSAOModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_SSAOModule_Pass_Ptr)
 	{
-		return m_SSAOModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_SSAOModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

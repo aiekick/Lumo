@@ -169,11 +169,11 @@ void ChannelRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeS
 	}
 }
 
-vk::DescriptorImageInfo* ChannelRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* ChannelRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ChannelRenderer)
 	{
-		return m_ChannelRenderer->GetDescriptorImageInfo(vBindingPoint);
+		return m_ChannelRenderer->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

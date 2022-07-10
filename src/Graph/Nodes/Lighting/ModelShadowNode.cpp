@@ -55,6 +55,11 @@ bool ModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	slot.descriptorBinding = 0U; // target a texture input
 	AddInput(slot, true, false);
 
+	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.name = "Normal";
+	slot.descriptorBinding = 1U; // target a texture input
+	AddInput(slot, true, false);
+
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D_GROUP;
 	slot.name = "Shadow Maps";
 	slot.descriptorBinding = 1U; // target a texture group input
@@ -139,11 +144,11 @@ void ModelShadowNode::SetTextures(const uint32_t& vBinding, std::vector<vk::Desc
 	}
 }
 
-vk::DescriptorImageInfo* ModelShadowNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* ModelShadowNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ModelShadowModulePtr)
 	{
-		return m_ModelShadowModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_ModelShadowModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

@@ -90,9 +90,9 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
-				SetOrUpdateOutput(m_OutputModule);
+				SetOrUpdateOutput(m_Output3DModule);
 
-				auto outputModulePtr = m_OutputModule.getValidShared();
+				auto outputModulePtr = m_Output3DModule.getValidShared();
 				if (outputModulePtr)
 				{
 					if (ImGui::BeginMenuBar())
@@ -209,17 +209,18 @@ int View3DPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::s
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-void View3DPane::SetOrUpdateOutput(ct::cWeak<OutputModule> vOutputModule)
+void View3DPane::SetOrUpdateOutput(ct::cWeak<Output3DModule> vOutput3DModule)
 {
 	ZoneScoped;
 
-	m_OutputModule = vOutputModule;
+	m_Output3DModule = vOutput3DModule;
 
-	auto outputModulePtr = m_OutputModule.getValidShared();
+	auto outputModulePtr = m_Output3DModule.getValidShared();
 	if (outputModulePtr)
 	{
-		m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, outputModulePtr->GetDescriptorImageInfo(0U));
-		m_ImGuiTexture.ratio = outputModulePtr->GetOutputSize().ratioXY<float>();
+		ct::fvec2 outSize;
+		m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, outputModulePtr->GetDescriptorImageInfo(0U, &outSize));
+		m_ImGuiTexture.ratio = outSize.ratioXY<float>();
 	}
 	else
 	{

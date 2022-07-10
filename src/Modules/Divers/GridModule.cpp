@@ -139,11 +139,11 @@ void GridModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 	}
 }
 
-vk::DescriptorImageInfo* GridModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* GridModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_GridModule_Pass_Ptr)
 	{
-		return m_GridModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint);
+		return m_GridModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

@@ -194,11 +194,11 @@ void DiffuseNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* 
 	}
 }
 
-vk::DescriptorImageInfo* DiffuseNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* DiffuseNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_DiffuseModulePtr)
 	{
-		return m_DiffuseModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_DiffuseModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

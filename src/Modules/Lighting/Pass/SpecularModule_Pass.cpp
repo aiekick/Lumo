@@ -43,6 +43,8 @@ SpecularModule_Pass::SpecularModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Specular", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 SpecularModule_Pass::~SpecularModule_Pass()
@@ -99,10 +101,15 @@ void SpecularModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorIma
 	}
 }
 
-vk::DescriptorImageInfo* SpecularModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* SpecularModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ComputeBufferPtr)
 	{
+		if (vOutSize)
+		{
+			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
+		}
+
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 
@@ -250,18 +257,23 @@ vec3 getRayOrigin()
 
 vec4 getLightGroup(uint id, ivec2 coords, vec3 pos)
 {
-	vec3 light_pos = lightDatas[id].lightGizmo[3].xyz;
-	float light_intensity = lightDatas[id].lightIntensity;
-	vec4 light_col = lightDatas[id].lightColor;
+	vec4 spec = vec4(1.0);
+
+	if (lightDatas[id].lightActive > 0.5)
+	{
+		vec3 light_pos = lightDatas[id].lightGizmo[3].xyz;
+		float light_intensity = lightDatas[id].lightIntensity;
+		vec4 light_col = lightDatas[id].lightColor;
 	
-	vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
-	vec3 light_dir = normalize(light_pos - pos);
+		vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
+		vec3 light_dir = normalize(light_pos - pos);
 	
-	vec3 ro = getRayOrigin();
-	vec3 rd = normalize(ro - pos);
-	vec3 refl = reflect(-light_dir, normal);  
-	vec4 spec = min(pow(max(dot(rd, refl), 0.0), u_pow_coef) * light_intensity, 1.0) * light_col;
-	
+		vec3 ro = getRayOrigin();
+		vec3 rd = normalize(ro - pos);
+		vec3 refl = reflect(-light_dir, normal);  
+		spec = min(pow(max(dot(rd, refl), 0.0), u_pow_coef) * light_intensity, 1.0) * light_col;
+	}
+
 	return spec;
 }
 

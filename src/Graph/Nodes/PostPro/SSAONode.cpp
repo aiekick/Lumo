@@ -181,11 +181,11 @@ void SSAONode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vIm
 	}
 }
 
-vk::DescriptorImageInfo* SSAONode::GetDescriptorImageInfo(const uint32_t& vBindingPoint)
+vk::DescriptorImageInfo* SSAONode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_SSAOModulePtr)
 	{
-		return m_SSAOModulePtr->GetDescriptorImageInfo(vBindingPoint);
+		return m_SSAOModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
