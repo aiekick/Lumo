@@ -312,6 +312,17 @@ void BaseRenderer::NeedResize(ct::ivec2* vNewSize)
 //// PUBLIC / RENDER ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+void BaseRenderer::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
+{
+	for (auto passPtr : m_ShaderPass)
+	{
+		if (passPtr)
+		{
+			passPtr->DrawPass(vCmdBuffer);
+		}
+	}
+}
+
 void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* vCmdBuffer)
 {
 	ZoneScoped;
@@ -323,13 +334,7 @@ void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* vCmdBuff
 		{
 			if (BeginRender(vSectionLabel))
 			{
-				for (auto passPtr : m_ShaderPass)
-				{
-					if (passPtr)
-					{
-						passPtr->DrawPass(cmd);
-					}
-				}
+				RenderShaderPasses(cmd);
 
 				auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
 				if (devicePtr)

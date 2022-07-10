@@ -134,6 +134,7 @@ public: // contructor
 	void EndRender();
 
 	// render
+	virtual void RenderShaderPasses(vk::CommandBuffer* vCmdBuffer);
 	void Render(const char* vSectionLabel = nullptr, vk::CommandBuffer* vCmdBuffer = nullptr);
 
 	virtual void UpdateDescriptorsBeforeCommandBuffer();

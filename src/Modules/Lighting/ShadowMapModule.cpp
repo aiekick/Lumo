@@ -144,13 +144,43 @@ void ShadowMapModule::Unit()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
+void ShadowMapModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
+{
+	/*
+	here we must run the model for each lights
+	so for each pass :
+	- set the fbo, (the pipelines of all fbo's already have the renderpass of the first fbo)
+	- set the light id
+	*/
+
+	if (m_ShadowMapModule_Pass_Ptr)
+	{
+		auto lightGroupPtr = m_SceneLightGroupWeak.getValidShared();
+		if (lightGroupPtr)
+		{
+			uint32_t idx = 0U;
+			for (auto lightPtr : *lightGroupPtr)
+			{
+				if (lightPtr)
+				{
+					m_ShadowMapModule_Pass_Ptr->SetFrameBuffer(m_FrameBuffers[idx]);
+					m_ShadowMapModule_Pass_Ptr->SetLightIdToUse(idx);
+					m_ShadowMapModule_Pass_Ptr->DrawPass(vCmdBuffer);
+				}
+
+				++idx;
+			}
+		}
+	}
+}
+
 bool ShadowMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
 {
 	ZoneScoped;
 
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{
-		//BaseRenderer::Render("Shadow Map Module");
+		BaseRenderer::Render("Shadow Map Module");
 
 		m_LastExecutedFrame = vCurrentFrame;
 	}
@@ -216,6 +246,8 @@ void ShadowMapModule::SetModel(SceneModelWeak vSceneModel)
 void ShadowMapModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	ZoneScoped;
+
+	m_SceneLightGroupWeak = vSceneLightGroup;
 
 	if (m_ShadowMapModule_Pass_Ptr)
 	{

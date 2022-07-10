@@ -66,6 +66,7 @@ private:
 	DescriptorImageInfoVector m_ImageInfos;
 	std::array<FrameBufferPtr, 8U> m_FrameBuffers; // 8 Lights
 	std::shared_ptr<ShadowMapModule_Pass> m_ShadowMapModule_Pass_Ptr = nullptr;
+	SceneLightGroupWeak m_SceneLightGroupWeak;
 
 private:
 	bool Init();
@@ -75,6 +76,7 @@ public:
 	ShadowMapModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ShadowMapModule();
 
+	void RenderShaderPasses(vk::CommandBuffer* vCmdBuffer) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

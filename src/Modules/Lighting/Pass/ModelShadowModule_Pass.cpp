@@ -59,8 +59,17 @@ bool ModelShadowModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 	if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Strength", &m_UBOFrag.u_shadow_strength, 0.0f, 1.0f, 0.5f);
-		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOFrag.u_bias, 0.0f, 0.02f, 0.01f);
-		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_poisson_scale, 1.0f, 10000.0f, 2000.0f);
+
+		ImGui::Separator();
+
+		change |= ImGui::CheckBoxFloatDefault("Use PCF Filtering", &m_UBOFrag.u_use_pcf, true);
+		if (m_UBOFrag.u_use_pcf > 0.5f)
+		{
+			ImGui::Indent();
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOFrag.u_bias, 0.0f, 0.02f, 0.01f);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_poisson_scale, 1.0f, 10000.0f, 2000.0f);
+			ImGui::Unindent();
+		}
 
 		if (change)
 		{
@@ -203,6 +212,7 @@ std::string ModelShadowModule_Pass::getXml(const std::string& vOffset, const std
 	str += vOffset + "<bias>" + ct::toStr(m_UBOFrag.u_bias) + "</bias>\n";
 	str += vOffset + "<strength>" + ct::toStr(m_UBOFrag.u_shadow_strength) + "</strength>\n";
 	str += vOffset + "<noise_scale>" + ct::toStr(m_UBOFrag.u_poisson_scale) + "</noise_scale>\n";
+	str += vOffset + "<use_pcf>" + (m_UBOFrag.u_use_pcf > 0.5f ? "true" : "false") + "</use_pcf>\n";
 
 	return str;
 }
@@ -228,6 +238,8 @@ bool ModelShadowModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 			m_UBOFrag.u_shadow_strength = ct::fvariant(strValue).GetF();
 		else if (strName == "noise_scale")
 			m_UBOFrag.u_poisson_scale = ct::fvariant(strValue).GetF();
+		else if (strName == "use_pcf")
+			m_UBOFrag.u_use_pcf = ct::ivariant(strValue).GetB() ? 1.0f : 0.0f;
 
 		NeedNewUBOUpload();
 	}
@@ -356,13 +368,14 @@ layout (std140, binding = 1) uniform UBO_Frag
 	float u_shadow_strength;
 	float u_bias;
 	float u_poisson_scale;
+	float u_use_pcf;
 	float use_sampler_pos;
 	float use_sampler_nor;
 	float use_sampler_shadow_map;
 };
+
 layout(binding = 2) uniform sampler2D position_map_sampler;
 layout(binding = 3) uniform sampler2D normal_map_sampler;
-
 )"
 +
 SceneLightGroup::GetBufferObjectStructureHeader(4U)
@@ -397,63 +410,60 @@ float random(vec3 seed, int i)
 	return fract(sin(dot_product) * 43758.5453);
 }
 
-/*#define USE_PCF
-
-vec4 getShadowForLight(uint id, vec3 pos, vec3 nor)
+float getShadowPCF(uint lid, vec3 pos, vec3 nor)
 {
-	vec4 color = vec4(0.0);
-
-	if (lightDatas[id].lightActive > 0.5)
+	if (lightDatas[lid].lightActive > 0.5)
 	{
-		vec4 shadowCoord = lightDatas[id].lightView * vec4(pos, 1.0);
+		vec4 shadowCoord = lightDatas[lid].lightView * vec4(pos, 1.0);
 		shadowCoord.xyz /= shadowCoord.w;
 		shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
 
 		const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
 		const float bias = u_bias * 0.01;
 
-#ifdef USE_PCF
-		float sha_vis = 1.0;
-		float sha_step = 1.0 / mix(16.0, 8.0, u_shadow_strength);
-		for (int i=0;i<8;i++)
+		float sha_vis = 0.0;
+		float sha_step = 1.0 / 16.0;
+		for (int i=0;i<16;i++)
 		{
-			vec3 ld = normalize(lightDatas[id].lightGizmo[3].xyz);
-			float li = dot(ld, nor);
-				
 			int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-			float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;// * cam_far;
+			float sha = texture(light_shadow_map_samplers[lid], shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;// * cam_far;
 			if (sha < (shadowCoord.z - bias)/shadowCoord.w)
 			{
-				if (li > 0.0)
-				{
-					sha_vis -= sha_step * (1.0 - sha);
-				}
-			}
-			else
-			{
-				if (li > 0.0)
-				{
-					sha_vis += sha_step * sha;
-				}
+				sha_vis += sha_step * (1.0 - sha);
 			}
 		}
-		color = vec4(sha_vis);
-#else
-		float sha = texture(light_shadow_map_samplers[id], shadowCoord.xy, 0.0).r;
-		if (sha < (shadowCoord.z - bias)/shadowCoord.w)
-		{
-			vec3 ld = normalize(lightDatas[id].lightGizmo[3].xyz);
-			float li = dot(ld, nor);
-			if (li > 0.0)
-			{
-				color += li * 5.0;
-			}
-		}
-#endif
+		
+		vec3 ld = normalize(lightDatas[lid].lightGizmo[3].xyz);
+		float li = dot(ld, nor) * lightDatas[lid].lightIntensity * u_shadow_strength;
+				
+		return (sha_vis) * li;
 	}
 
-	return color;
-}*/
+	return 0.0;
+}
+
+float getShadowSimple(uint lid, vec3 pos, vec3 nor)
+{
+	if (lightDatas[lid].lightActive > 0.5)
+	{
+		vec4 shadowCoord = lightDatas[lid].lightView * vec4(pos, 1.0);
+		shadowCoord.xyz /= shadowCoord.w;
+		shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
+
+		const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
+		const float bias = u_bias * 0.01;
+		
+		float sha = texture(light_shadow_map_samplers[lid], shadowCoord.xy, 0.0).r;
+		if (sha < shadowCoord.z - bias)
+		{
+			vec3 ld = normalize(lightDatas[lid].lightGizmo[3].xyz);
+			float li = dot(ld, nor) * lightDatas[lid].lightIntensity * u_shadow_strength;
+			return (1.0 - sha) * li;
+		}
+	}
+	
+	return 0.0;
+}
 
 void main() 
 {
@@ -468,45 +478,31 @@ void main()
 		{
 			vec3 nor = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
 		
-			vec4 sha_accum = vec4(1.0);
-			float count_sha = 0.0;
+			float sha_accum = 1.0;
 			
-			uint count = min(lightDatas.length() + 1, 8);
-			for (uint lid = 0 ; lid < 1 ; ++lid)
+			uint count = uint(lightDatas.length() + 1) % 8; // maxi 8 lights in this system
+			for (uint lid = 0 ; lid < count ; ++lid)
 			{
-				if (lightDatas[lid].lightActive > 0.5)
+				if (u_use_pcf > 0.5)
 				{
-					count_sha++;
-					vec4 shadowCoord = lightDatas[lid].lightView * vec4(pos, 1.0);
-					shadowCoord.xyz /= shadowCoord.w;
-					shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
-
-					const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
-					const float bias = u_bias * 0.01;
-					
-					float sha = texture(light_shadow_map_samplers[lid], shadowCoord.xy, 0.0).r;
-					if (sha < shadowCoord.z - bias)
-					{
-						vec3 ld = normalize(lightDatas[lid].lightGizmo[3].xyz - pos);
-						float li = dot(ld, nor);
-						if (li > 0.0)
-						{
-							sha_accum -= (1.0 - sha);
-						}
-					}
+					sha_accum -= getShadowPCF(lid, pos, nor);
+				}
+				else
+				{
+					sha_accum -= getShadowSimple(lid, pos, nor);
 				}
 			}
 
-			fragShadow = clamp(sha_accum, 0.0, 1.0);
+			fragShadow = vec4(clamp(sha_accum, 0.0, 1.0));
 		}
 		else
 		{
-			//discard;
+			discard;
 		}
 	}	
 	else
 	{
-		//discard;
+		discard;
 	}	
 }
 

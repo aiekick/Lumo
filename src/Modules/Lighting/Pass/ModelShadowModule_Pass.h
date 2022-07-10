@@ -63,6 +63,7 @@ protected:
 		alignas(4) float u_shadow_strength = 0.5f;
 		alignas(4) float u_bias = 0.01f;
 		alignas(4) float u_poisson_scale = 5000.0f;
+		alignas(4) float u_use_pcf = 1.0f;
 		alignas(4) float use_sampler_pos = 0.0f;
 		alignas(4) float use_sampler_nor = 0.0f;
 		alignas(4) float use_sampler_shadow_map = 0.0f;

@@ -37,8 +37,7 @@ SceneLightGroupPtr SceneLightGroup::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 std::string SceneLightGroup::GetBufferObjectStructureHeader(const uint32_t& vBinding)
 {
-	return ct::toStr(u8R"(
-%s
+	return ct::toStr(u8R"(%s
 
 layout(std430, binding = %u) readonly buffer SBO_LightGroup
 {

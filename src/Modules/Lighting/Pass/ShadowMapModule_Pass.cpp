@@ -68,17 +68,38 @@ void ShadowMapModule_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& v
 
 	if (!m_Loaded) return;
 
-	if (vCmdBuffer)
+	if (vCmdBuffer &&
+		m_PushConstants.light_id_to_use < SceneLightGroup::sMaxLightCount)
 	{
-		auto lightGroupPtr = m_SceneLightGroup.getValidShared();
-		if (lightGroupPtr)
+		auto modelPtr = m_SceneModel.getValidShared();
+		if (!modelPtr || modelPtr->empty()) return;
+
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
 		{
-			uint32_t idx = 0U;
-			for (auto lightPtr : *lightGroupPtr)
+			VKFPScoped(*vCmdBuffer, "ShadowMapModule_Pass", "DrawMesh");
+
+			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+
+			vCmdBuffer->pushConstants(m_PipelineLayout,
+				vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+				0, sizeof(PushConstants), &m_PushConstants);
+
+			for (auto meshPtr : *modelPtr)
 			{
-				if (lightPtr && lightPtr->lightDatas.lightActive > 0.5f)
+				if (meshPtr)
 				{
-					DrawModelForOneLightGroup(idx++, vCmdBuffer, vIterationNumber);
+					vk::DeviceSize offsets = 0;
+					vCmdBuffer->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
+
+					if (meshPtr->GetIndicesCount())
+					{
+						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
+						vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
+					}
+					else
+					{
+						vCmdBuffer->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
+					}
 				}
 			}
 		}
@@ -146,6 +167,11 @@ DescriptorImageInfoVector* ShadowMapModule_Pass::GetDescriptorImageInfos(const u
 	}
 
 	return nullptr;
+}
+
+void ShadowMapModule_Pass::SetLightIdToUse(const uint32_t& vLightID)
+{
+	m_PushConstants.light_id_to_use = vLightID;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -288,49 +314,4 @@ void main()
 	fragDepth = vec4(vec3(gl_FragCoord.z / gl_FragCoord.w), 1.0);
 }
 )";
-}
-
-void ShadowMapModule_Pass::DrawModelForOneLightGroup(const uint32_t vLigthNumber, vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
-{
-	ZoneScoped;
-
-	if (!m_Loaded) return;
-
-	if (vCmdBuffer && 
-		vLigthNumber < SceneLightGroup::sMaxLightCount)
-	{
-		auto modelPtr = m_SceneModel.getValidShared();
-		if (!modelPtr || modelPtr->empty()) return;
-
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
-		{
-			VKFPScoped(*vCmdBuffer, "ShadowMapModule_Pass", "DrawMesh");
-
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-			
-			m_PushConstants.light_id_to_use = vLigthNumber;
-			vCmdBuffer->pushConstants(m_PipelineLayout, 
-				vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 
-				0, sizeof(PushConstants), &m_PushConstants);
-
-			for (auto meshPtr : *modelPtr)
-			{
-				if (meshPtr)
-				{
-					vk::DeviceSize offsets = 0;
-					vCmdBuffer->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
-
-					if (meshPtr->GetIndicesCount())
-					{
-						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
-						vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
-					}
-					else
-					{
-						vCmdBuffer->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
-					}
-				}
-			}
-		}
-	}
 }
