@@ -66,12 +66,14 @@ protected: // internal struct
 		std::string m_FilePathName;			// file path name on disk drive
 	};
 
-protected:
-	bool m_Loaded = false;
+private:
 	bool m_NeedNewUBOUpload = false;
 	bool m_NeedNewSBOUpload = false;
-	bool m_DontUseShaderFilesOnDisk = false;
 	bool m_NeedNewModelUpdate = false;
+
+protected:
+	bool m_Loaded = false;
+	bool m_DontUseShaderFilesOnDisk = false;
 
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;	// vulkan core
 	vkApi::VulkanQueue m_Queue;					// queue
@@ -119,9 +121,9 @@ protected:
 	std::vector<vk::PipelineColorBlendAttachmentState> m_BlendAttachmentStates;
 
 	ct::uvec3 m_DispatchSize = 1U;									// COMPUTE dispatch size
-	ct::uvec4 m_CountVertexs = ct::uvec4(0U, 0U, 0U, 6U);			// count vertex to draw
-	ct::uvec4 m_CountInstances = ct::uvec4(0U, 0U, 0U, 1U);			// count instances to draw
-	ct::uvec4 m_CountIterations = ct::uvec4(0U, 0U, 0U, 1U);		// rendering iterations loop
+	ct::uvec4 m_CountVertexs = ct::uvec4(0U, 0U, 6U, 6U);			// count vertex to draw
+	ct::uvec4 m_CountInstances = ct::uvec4(0U, 0U, 4U, 1U);			// count instances to draw
+	ct::uvec4 m_CountIterations = ct::uvec4(0U, 0U, 4U, 1U);		// rendering iterations loop
 
 	std::unordered_map<std::string, bool> m_UsedUniforms;			// Used Uniforms
 

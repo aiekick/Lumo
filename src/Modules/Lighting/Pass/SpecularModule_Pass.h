@@ -62,7 +62,7 @@ private:
 
 public:
 	SpecularModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	virtual ~SpecularModule_Pass();
+	~SpecularModule_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

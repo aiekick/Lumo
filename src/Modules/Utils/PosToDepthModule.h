@@ -67,7 +67,7 @@ private:
 
 public:
 	PosToDepthModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~PosToDepthModule();
+	~PosToDepthModule() override;
 
 	bool Init();
 

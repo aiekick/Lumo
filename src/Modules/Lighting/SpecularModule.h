@@ -67,7 +67,7 @@ private:
 
 public:
 	SpecularModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~SpecularModule();
+	~SpecularModule() override;
 
 	bool Init();
 

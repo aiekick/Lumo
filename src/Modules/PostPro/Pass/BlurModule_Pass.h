@@ -62,7 +62,7 @@ private:
 
 public:
 	BlurModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	virtual ~BlurModule_Pass();
+	~BlurModule_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

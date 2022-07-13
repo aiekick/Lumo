@@ -66,7 +66,7 @@ private:
 
 public:
 	BlurModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~BlurModule();
+	~BlurModule() override;
 
 	bool Init();
 

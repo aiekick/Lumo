@@ -69,7 +69,7 @@ private:
 
 public:
 	ModelShadowModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~ModelShadowModule();
+	~ModelShadowModule() override;
 
 	bool Init();
 

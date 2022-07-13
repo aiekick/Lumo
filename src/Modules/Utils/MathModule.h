@@ -66,7 +66,7 @@ private:
 
 public:
 	MathModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~MathModule();
+	~MathModule() override;
 
 	bool Init();
 

@@ -66,7 +66,7 @@ private:
 
 public:
 	GrayScottModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~GrayScottModule();
+	~GrayScottModule() override;
 
 	bool Init();
 

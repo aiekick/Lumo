@@ -63,7 +63,7 @@ private:
 
 public:
 	SmoothNormalModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	virtual ~SmoothNormalModule_Pass();
+	~SmoothNormalModule_Pass() override;
 
 	void ActionBeforeInit();
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;

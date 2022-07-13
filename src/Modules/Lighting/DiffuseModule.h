@@ -67,7 +67,7 @@ private:
 
 public:
 	DiffuseModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~DiffuseModule();
+	~DiffuseModule() override;
 
 	bool Init();
 

@@ -65,7 +65,7 @@ private:
 
 public:
 	SmoothNormalModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~SmoothNormalModule();
+	~SmoothNormalModule() override;
 
 	bool Init();
 

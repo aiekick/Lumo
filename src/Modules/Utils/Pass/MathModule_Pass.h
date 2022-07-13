@@ -62,7 +62,7 @@ private:
 
 public:
 	MathModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	virtual ~MathModule_Pass();
+	~MathModule_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

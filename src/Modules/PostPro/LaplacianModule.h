@@ -67,7 +67,7 @@ private:
 
 public:
 	LaplacianModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~LaplacianModule();
+	~LaplacianModule() override;
 
 	bool Init();
 

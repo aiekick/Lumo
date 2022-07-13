@@ -57,7 +57,7 @@ private:
 
 public:
 	DiffuseModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	virtual ~DiffuseModule_Pass();
+	~DiffuseModule_Pass() override;
 
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

@@ -63,7 +63,7 @@ private:
 
 public:
 	LaplacianModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	virtual ~LaplacianModule_Pass();
+	~LaplacianModule_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

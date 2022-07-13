@@ -67,7 +67,7 @@ private:
 
 public:
 	SSAOModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~SSAOModule();
+	~SSAOModule() override;
 
 	bool Init();
 

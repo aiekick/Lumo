@@ -67,7 +67,7 @@ private:
 
 public:
 	DeferredRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~DeferredRenderer();
+	~DeferredRenderer() override;
 
 	bool Init();
 

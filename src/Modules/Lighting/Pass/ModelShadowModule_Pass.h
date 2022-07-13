@@ -71,7 +71,7 @@ protected:
 
 public:
 	ModelShadowModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~ModelShadowModule_Pass();
+	~ModelShadowModule_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

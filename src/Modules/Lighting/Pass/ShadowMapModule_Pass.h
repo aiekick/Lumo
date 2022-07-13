@@ -70,7 +70,7 @@ protected:
 
 public:
 	ShadowMapModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~ShadowMapModule_Pass();
+	~ShadowMapModule_Pass() override;
 
 	void ActionBeforeInit() override;
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;

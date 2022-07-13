@@ -74,7 +74,7 @@ private:
 
 public:
 	ShadowMapModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~ShadowMapModule();
+	~ShadowMapModule() override;
 
 	void RenderShaderPasses(vk::CommandBuffer* vCmdBuffer) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr) override;
