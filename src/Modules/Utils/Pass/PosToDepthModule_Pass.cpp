@@ -53,6 +53,8 @@ PosToDepthModule_Pass::~PosToDepthModule_Pass()
 
 bool PosToDepthModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
 
 	return false;
@@ -60,11 +62,13 @@ bool PosToDepthModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 
 void PosToDepthModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void PosToDepthModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

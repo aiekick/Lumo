@@ -1023,16 +1023,20 @@ void BaseNode::DrawToolMenu()
 
 bool BaseNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	return false;
 }
 
 void BaseNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& /*vRect*/, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void BaseNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& /*vMaxSize*/, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

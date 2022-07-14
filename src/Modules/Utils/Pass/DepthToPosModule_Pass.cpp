@@ -54,6 +54,8 @@ DepthToPosModule_Pass::~DepthToPosModule_Pass()
 
 bool DepthToPosModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	DrawInputTexture(m_VulkanCorePtr, "Input Depth", 0U, m_OutputRatio);
 
 	return false;
@@ -61,11 +63,13 @@ bool DepthToPosModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 
 void DepthToPosModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void DepthToPosModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

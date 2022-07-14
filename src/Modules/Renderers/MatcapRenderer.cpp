@@ -114,6 +114,8 @@ void MatcapRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColor
 
 bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Matcap", -1.0f, true, true, &m_CanWeRender))
@@ -130,6 +132,8 @@ bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void MatcapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -138,6 +142,8 @@ void MatcapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 
 void MatcapRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

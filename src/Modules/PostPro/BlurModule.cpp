@@ -114,6 +114,8 @@ bool BlurModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 
 bool BlurModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Blur", -1.0f, true, true, &m_CanWeRender))
@@ -138,6 +140,8 @@ bool BlurModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 
 void BlurModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -146,6 +150,8 @@ void BlurModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vR
 
 void BlurModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

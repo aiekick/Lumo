@@ -110,6 +110,8 @@ bool PosToDepthModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 
 bool PosToDepthModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Depth To Pos", -1.0f, true, true, &m_CanWeRender))
@@ -126,6 +128,8 @@ bool PosToDepthModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 void PosToDepthModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -134,6 +138,8 @@ void PosToDepthModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 
 void PosToDepthModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

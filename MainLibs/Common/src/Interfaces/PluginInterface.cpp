@@ -31,6 +31,11 @@ bool PluginInterface::Init(
 	{
 		if (vkApi::VulkanCore::sAllocator == nullptr)
 		{
+			assert(vFileHelper);
+			assert(vCommonSystem);
+			assert(vContext);
+			assert(vCustomStyle);
+
 			iSinAPlugin = true;
 			corePtr->setupMemoryAllocator();
 			FileHelper::Instance(vFileHelper);

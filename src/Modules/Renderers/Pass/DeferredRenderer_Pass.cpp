@@ -53,6 +53,8 @@ DeferredRenderer_Pass::~DeferredRenderer_Pass()
 
 bool DeferredRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Normal", 1U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Albedo", 2U, m_OutputRatio);
@@ -68,11 +70,13 @@ bool DeferredRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 
 void DeferredRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void DeferredRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

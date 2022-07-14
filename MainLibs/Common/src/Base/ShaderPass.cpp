@@ -1021,6 +1021,8 @@ void ShaderPass::UpdateRessourceDescriptor()
 	m_UniformWidgets.UpdateBuffers(m_This);
 	m_UniformWidgets.UpdateBlocks(m_This, true);*/
 
+	UpdateModel(m_Loaded);
+
 	if (m_NeedNewUBOUpload)
 	{
 		UploadUBO();

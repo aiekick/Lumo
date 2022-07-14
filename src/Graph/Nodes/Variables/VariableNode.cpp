@@ -70,6 +70,8 @@ bool VariableNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 
 bool VariableNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_VariableModulePtr)
 	{
 		return m_VariableModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -80,6 +82,8 @@ bool VariableNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 
 void VariableNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_VariableModulePtr)
 	{
 		m_VariableModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);

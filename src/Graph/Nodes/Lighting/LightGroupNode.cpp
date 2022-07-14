@@ -69,6 +69,8 @@ bool LightGroupNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 
 bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LightGroupModulePtr)
 	{
 		return m_LightGroupModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -79,6 +81,8 @@ bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void LightGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LightGroupModulePtr)
 	{
 		m_LightGroupModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext);

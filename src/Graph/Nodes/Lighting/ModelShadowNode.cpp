@@ -104,6 +104,8 @@ bool ModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 bool ModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_ModelShadowModulePtr)
 	{
 		return m_ModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -114,6 +116,8 @@ bool ModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void ModelShadowNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_ModelShadowModulePtr)
 	{
 		m_ModelShadowModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext);

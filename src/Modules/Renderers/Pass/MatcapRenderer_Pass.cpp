@@ -90,6 +90,8 @@ void MatcapRenderer_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vI
 
 bool MatcapRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	bool change = false;
 
 	change |= ImGui::CheckBoxFloatDefault("Show Face Normal", &m_UBOFrag.show_face_normal, false);
@@ -106,11 +108,13 @@ bool MatcapRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 
 void MatcapRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void MatcapRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

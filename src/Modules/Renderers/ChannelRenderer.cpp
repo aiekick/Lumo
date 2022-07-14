@@ -113,6 +113,8 @@ void ChannelRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColo
 
 bool ChannelRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Channels", -1.0f, true, true, &m_CanWeRender))
@@ -129,6 +131,8 @@ bool ChannelRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void ChannelRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -137,6 +141,8 @@ void ChannelRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frec
 
 void ChannelRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

@@ -112,6 +112,8 @@ void HeatmapRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColo
 
 bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("HeatMap", -1.0f, true, true, &m_CanWeRender))
@@ -130,6 +132,8 @@ bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void HeatmapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -138,6 +142,8 @@ void HeatmapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frec
 
 void HeatmapRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

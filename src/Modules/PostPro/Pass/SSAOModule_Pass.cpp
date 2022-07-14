@@ -53,6 +53,8 @@ SSAOModule_Pass::~SSAOModule_Pass()
 
 bool SSAOModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (ImGui::CollapsingHeader("SSAO", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		bool change = false;
@@ -83,12 +85,14 @@ bool SSAOModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void SSAOModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	
+	assert(vContext);
+
 }
 
 void SSAOModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	
+	assert(vContext);
+
 }
 
 void SSAOModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)

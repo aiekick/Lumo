@@ -121,6 +121,8 @@ bool MeshAttributesNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 
 bool MeshAttributesNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_MeshAttributesModulePtr)
 	{
 		return m_MeshAttributesModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -131,6 +133,8 @@ bool MeshAttributesNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 
 void MeshAttributesNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_MeshAttributesModulePtr)
 	{
 		m_MeshAttributesModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);

@@ -1,8 +1,8 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "SdfMesher.h"
-#include <Headers/Build.h>
+#include "Particles.h"
+#include <Headers/ParticlesBuild.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
 #include <Graph/Base/BaseNode.h>
@@ -11,6 +11,7 @@
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanWindow.h>
 
+#ifndef USE_STATIC_LINKING_OF_PLUGINS
 // needed for plugin creating / destroying
 extern "C" // needed for avoid renaming of funcs by the compiler
 {
@@ -20,18 +21,19 @@ extern "C" // needed for avoid renaming of funcs by the compiler
 #define PLUGIN_PREFIX
 #endif
 
-	PLUGIN_PREFIX SdfMesher* allocator()
+	PLUGIN_PREFIX Particles* allocator()
 	{
-		return new SdfMesher();
+		return new Particles();
 	}
 
-	PLUGIN_PREFIX void deleter(SdfMesher* ptr)
+	PLUGIN_PREFIX void deleter(Particles* ptr)
 	{
 		delete ptr;
 	}
 }
+#endif // USE_STATIC_LINKING_OF_PLUGINS
 
-SdfMesher::SdfMesher()
+Particles::Particles()
 {
 #ifdef _MSC_VER
 	// active memory leak detector
@@ -39,101 +41,37 @@ SdfMesher::SdfMesher()
 #endif
 }
 
-SdfMesher::~SdfMesher()
+uint32_t Particles::GetVersionMajor() const
 {
-	Unit();
+	return Particles_MinorNumber;
 }
 
-bool SdfMesher::Init(
-	vkApi::VulkanCoreWeak vVulkanCoreWeak,
-	FileHelper* vFileHelper,
-	CommonSystem* vCommonSystem,
-	ImGuiContext* vContext,
-	ImGui::CustomStyle* vCustomStyle)
+uint32_t Particles::GetVersionMinor() const
 {
-	// on transfere les singleton dans l'espace memoire static de la dll
-	// ca evitera dans recreer des vides et d'avoir des erreurs partout
-	// car les statics contenus dans ces classes sont null quand ils arrivent ici
-
-	m_VulkanCoreWeak = vVulkanCoreWeak;
-
-	auto corePtr = m_VulkanCoreWeak.getValidShared();
-	if (corePtr)
-	{
-		if (vkApi::VulkanCore::sAllocator == nullptr)
-		{
-			corePtr->setupMemoryAllocator();
-		}
-		else
-		{
-			CTOOL_DEBUG_BREAK;
-			LogVarInfo("le static VulkanCore::sAllocator n'est pas null..");
-			// a tien ? ca a changé ?
-		}
-		vkApi::VulkanCore::sVulkanShader = VulkanShader::Create();
-
-		FileHelper::Instance(vFileHelper);
-		CommonSystem::Instance(vCommonSystem);
-		ImGui::SetCurrentContext(vContext);
-		ImGui::CustomStyle::Instance(vCustomStyle);
-
-		return true;
-	}
-
-	return false;
+	return Particles_MajorNumber;
 }
 
-void SdfMesher::Unit()
+uint32_t Particles::GetVersionBuild() const
 {
-	auto corePtr = m_VulkanCoreWeak.getValidShared();
-	if (corePtr)
-	{
-		corePtr->getDevice().waitIdle();
-
-		ImGui::CustomStyle::Instance(nullptr, true);
-		CommonSystem::Instance(nullptr, true);
-		FileHelper::Instance(nullptr, true);
-
-		ImGui::SetCurrentContext(nullptr);
-
-		vkApi::VulkanCore::sVulkanShader.reset();
-
-		corePtr = nullptr;
-		vmaDestroyAllocator(vkApi::VulkanCore::sAllocator);
-	}
+	return Particles_BuildNumber;
 }
 
-uint32_t SdfMesher::GetVersionMajor() const
+std::string Particles::GetName() const
 {
-	return SdfMesher_MinorNumber;
+	return "Particles";
 }
 
-uint32_t SdfMesher::GetVersionMinor() const
+std::string Particles::GetVersion() const
 {
-	return SdfMesher_MajorNumber;
+	return Particles_BuildId;
 }
 
-uint32_t SdfMesher::GetVersionBuild() const
+std::string Particles::GetDescription() const
 {
-	return SdfMesher_BuildNumber;
+	return "Particles system plugin";
 }
 
-std::string SdfMesher::GetName() const
-{
-	return "SdfMesher";
-}
-
-std::string SdfMesher::GetVersion() const
-{
-	return SdfMesher_BuildId;
-}
-
-std::string SdfMesher::GetDescription() const
-{
-	return "Sdf To Mesh Conversion plugin";
-}
-
-std::vector<std::string> SdfMesher::GetNodes() const
+std::vector<std::string> Particles::GetNodes() const
 {
 	return
 	{
@@ -144,7 +82,7 @@ std::vector<std::string> SdfMesher::GetNodes() const
 	};
 }
 
-std::vector<LibraryEntry> SdfMesher::GetLibrary() const
+std::vector<LibraryEntry> Particles::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
@@ -155,7 +93,7 @@ std::vector<LibraryEntry> SdfMesher::GetLibrary() const
 	entry_MESH_SIM_RENDERER.second.nodeLabel = "Mesh Simulation";
 	entry_MESH_SIM_RENDERER.second.nodeType = "MESH_SIM_RENDERER";
 	entry_MESH_SIM_RENDERER.second.color = ct::fvec4(0.0f);
-	entry_MESH_SIM_RENDERER.second.categoryPath = "SdfMesher/Renderers";
+	entry_MESH_SIM_RENDERER.second.categoryPath = "Particles/Renderers";
 	res.push_back(entry_MESH_SIM_RENDERER);
 
 	LibraryEntry entry_COMPUTE_MESH_SIM;
@@ -164,28 +102,28 @@ std::vector<LibraryEntry> SdfMesher::GetLibrary() const
 	entry_COMPUTE_MESH_SIM.second.nodeLabel = "Mesh Simulation";
 	entry_COMPUTE_MESH_SIM.second.nodeType = "COMPUTE_MESH_SIM";
 	entry_COMPUTE_MESH_SIM.second.color = ct::fvec4(0.0f);
-	entry_COMPUTE_MESH_SIM.second.categoryPath = "SdfMesher/Generators";
+	entry_COMPUTE_MESH_SIM.second.categoryPath = "Particles/Generators";
 	res.push_back(entry_COMPUTE_MESH_SIM);
 	*/
 
 	return res;
 }
 
-BaseNodePtr SdfMesher::CreatePluginNode(const std::string& vPluginNodeName)
+BaseNodePtr Particles::CreatePluginNode(const std::string& vPluginNodeName)
 {
 	BaseNodePtr res = nullptr;
 
 	/*
 	if (vPluginNodeName == "MESH_SIM_RENDERER")
-		res = SdfMesherRendererNode::Create(m_VulkanCorePtr);
+		res = ParticlesRendererNode::Create(m_VulkanCorePtr);
 	else if (vPluginNodeName == "COMPUTE_MESH_SIM")
-		res = ComputeSdfMesherNode::Create(m_VulkanCorePtr);
+		res = ComputeParticlesNode::Create(m_VulkanCorePtr);
 	*/
 
 	return res;
 }
 
-int SdfMesher::ResetImGuiID(const int& vWidgetId)
+int Particles::ResetImGuiID(const int& vWidgetId)
 {
 	auto ids = ImGui::CustomStyle::Instance()->pushId;
 	ImGui::CustomStyle::Instance()->pushId = vWidgetId;

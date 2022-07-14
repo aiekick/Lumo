@@ -115,6 +115,8 @@ bool SSAOModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 
 bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("SSAO", -1.0f, true, true, &m_CanWeRender))
@@ -139,6 +141,8 @@ bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 
 void SSAOModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -147,6 +151,8 @@ void SSAOModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vR
 
 void SSAOModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

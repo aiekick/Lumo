@@ -110,6 +110,8 @@ bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 
 bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	ZoneScoped;
 
 	bool change = false;
@@ -131,6 +133,8 @@ bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 
 void NodeManager::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	ImGuizmo::SetDrawlist(ImGui::GetCurrentWindow()->DrawList);
 
 	ImGuizmo::SetRect(vRect.x, vRect.y, vRect.w, vRect.h);
@@ -147,6 +151,8 @@ void NodeManager::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& v
 
 void NodeManager::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	for (auto eff : m_RootNodePtr->m_ChildNodes)
 	{
 		auto nodePtr = eff.second;

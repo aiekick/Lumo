@@ -54,16 +54,20 @@ DiffuseModule_Pass::~DiffuseModule_Pass()
 
 bool DiffuseModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	return false;
 }
 
 void DiffuseModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void DiffuseModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

@@ -121,9 +121,11 @@ protected:
 	std::vector<vk::PipelineColorBlendAttachmentState> m_BlendAttachmentStates;
 
 	ct::uvec3 m_DispatchSize = 1U;									// COMPUTE dispatch size
+
+	// x:inf, y:sup, z:defaut, w:value
 	ct::uvec4 m_CountVertexs = ct::uvec4(0U, 0U, 6U, 6U);			// count vertex to draw
-	ct::uvec4 m_CountInstances = ct::uvec4(0U, 0U, 4U, 1U);			// count instances to draw
-	ct::uvec4 m_CountIterations = ct::uvec4(0U, 0U, 4U, 1U);		// rendering iterations loop
+	ct::uvec4 m_CountInstances = ct::uvec4(1U, 1U, 1U, 1U);			// count instances to draw
+	ct::uvec4 m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);		// rendering iterations loop
 
 	std::unordered_map<std::string, bool> m_UsedUniforms;			// Used Uniforms
 

@@ -105,6 +105,8 @@ void HeatmapRenderer_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& v
 
 bool HeatmapRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	bool change = false;
 
 	ImGui::Text("Component : ");
@@ -135,11 +137,13 @@ bool HeatmapRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 
 void HeatmapRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void HeatmapRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

@@ -53,6 +53,8 @@ BlurModule_Pass::~BlurModule_Pass()
 
 bool BlurModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (ImGui::CollapsingHeader("Blur", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		bool change = false;
@@ -81,11 +83,13 @@ bool BlurModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void BlurModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void BlurModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

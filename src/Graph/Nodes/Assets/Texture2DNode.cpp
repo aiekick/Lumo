@@ -59,6 +59,8 @@ bool Texture2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 bool Texture2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_Texture2DModule)
 	{
 		return m_Texture2DModule->DrawWidgets(vCurrentFrame, vContext);
@@ -69,6 +71,8 @@ bool Texture2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 
 void Texture2DNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_Texture2DModule)
 	{
 		m_Texture2DModule->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);

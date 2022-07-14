@@ -82,6 +82,8 @@ bool ChannelRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comm
 
 bool ChannelRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_ChannelRenderer)
 	{
 		return m_ChannelRenderer->DrawWidgets(vCurrentFrame, vContext);
@@ -92,6 +94,8 @@ bool ChannelRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 
 void ChannelRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_ChannelRenderer)
 	{
 		m_ChannelRenderer->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);

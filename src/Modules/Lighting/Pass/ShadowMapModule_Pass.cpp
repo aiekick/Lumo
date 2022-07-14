@@ -108,6 +108,8 @@ void ShadowMapModule_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& v
 
 bool ShadowMapModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	bool change = false;
 
 	if (change)
@@ -120,11 +122,13 @@ bool ShadowMapModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 
 void ShadowMapModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void ShadowMapModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

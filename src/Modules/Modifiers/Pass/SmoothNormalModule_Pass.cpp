@@ -63,6 +63,8 @@ void SmoothNormalModule_Pass::ActionBeforeInit()
 
 bool SmoothNormalModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	ImGui::Header("Infos");
 
 	auto modelPtr = m_SceneModel.getValidShared();
@@ -92,12 +94,14 @@ bool SmoothNormalModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 
 void SmoothNormalModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	
+	assert(vContext);
+
 }
 
 void SmoothNormalModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	
+	assert(vContext);
+
 }
 
 void SmoothNormalModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)

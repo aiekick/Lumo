@@ -91,6 +91,8 @@ bool SSAONode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 
 bool SSAONode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_SSAOModulePtr)
 	{
 		return m_SSAOModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -101,6 +103,8 @@ bool SSAONode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 
 void SSAONode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_SSAOModulePtr)
 	{
 		m_SSAOModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);

@@ -78,6 +78,8 @@ void Output2DModule::Unit()
 
 bool Output2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	ZoneScoped;
 
 	if (m_LastExecutedFrame == vCurrentFrame)
@@ -100,6 +102,8 @@ bool Output2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void Output2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& /*vRect*/, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -108,6 +112,8 @@ void Output2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 
 void Output2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& /*vMaxSize*/, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

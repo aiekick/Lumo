@@ -96,6 +96,8 @@ bool VariableModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 
 bool VariableModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Boolean"))
@@ -109,6 +111,8 @@ bool VariableModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void VariableModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -117,6 +121,8 @@ void VariableModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 
 void VariableModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

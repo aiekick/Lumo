@@ -1194,22 +1194,28 @@ void ImGui::Header(const char* vName, float width)
 	const ImGuiID id = window->GetID(vName);
 	const ImVec2 label_size = ImGui::CalcTextSize(vName, NULL, true);
 
-	ImVec2 pos = window->DC.CursorPos;
-	ImVec2 size = ImGui::CalcItemSize(ImVec2(width, label_size.y + style.FramePadding.y * 2.0f), label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+	float w = width;
+	if (width <= 0.0f)
+	{
+		w = ImGui::GetContentRegionAvail().x;
+	}
 
-	const ImRect bb(pos, pos + size);
-	ImGui::ItemSize(bb, style.FramePadding.y);
-	if (!ImGui::ItemAdd(bb, id))
+	ImVec2 pos = window->DC.CursorPos;
+	const ImRect frame_bb(window->DC.CursorPos, window->DC.CursorPos + ImVec2(w, label_size.y + style.FramePadding.y * 2.0f));
+	const ImRect total_bb(frame_bb.Min, frame_bb.Max + ImVec2(label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f, 0.0f));
+	
+	ImGui::ItemSize(total_bb, style.FramePadding.y);
+	if (!ImGui::ItemAdd(total_bb, id, &frame_bb))
 		return;
 
 	bool hovered, held;
-	/*bool pressed = */ImGui::ButtonBehavior(bb, id, &hovered, &held, 0);
+	/*bool pressed = */ImGui::ButtonBehavior(frame_bb, id, &hovered, &held, 0);
 	ImGui::SetItemAllowOverlap();
 
 	// Render
 	const ImU32 col = ImGui::GetColorU32(hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
-	ImGui::RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
-	ImGui::RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, vName, NULL, &label_size, style.ButtonTextAlign, &bb);
+	ImGui::RenderFrame(frame_bb.Min, frame_bb.Max, col, true, style.FrameRounding);
+	ImGui::RenderTextClipped(frame_bb.Min + style.FramePadding, frame_bb.Max - style.FramePadding, vName, NULL, &label_size, style.ButtonTextAlign, &frame_bb);
 }
 
 void ImGui::ImageRect(ImTextureID user_texture_id, const ImVec2& pos, const ImVec2& size, const ImVec2& uv0, const ImVec2& uv1, const ImVec4& tint_col, const ImVec4& border_col)
@@ -2728,6 +2734,8 @@ bool ImGui::SliderScalarDefaultCompact(float width, const char* label, ImGuiData
 {
 	bool change = false;
 
+	float px = ImGui::GetCursorPosX();
+
 	ImGui::PushID(label);
 	if (ContrastedButton(ICON_NDP_RESET))
 	{
@@ -2753,7 +2761,7 @@ bool ImGui::SliderScalarDefaultCompact(float width, const char* label, ImGuiData
 
 	if (width > 0.0f)
 	{
-		width -= ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemSpacing.x;
+		width -= ImGui::GetCursorPosX() - px;
 	}
 
 	change |= SliderScalarCompact(width, label, data_type, p_data, p_min, p_max, p_step, format);
@@ -3194,6 +3202,8 @@ bool ImGui::ContrastedComboVectorDefault(float vWidth, const char* label, int* c
 
 	if (!items.empty())
 	{
+		float px = ImGui::GetCursorPosX();
+
 		ImGui::PushID(++CustomStyle::Instance()->pushId);
 
 		change = ImGui::ContrastedButton(ICON_NDP_RESET);
@@ -3201,6 +3211,11 @@ bool ImGui::ContrastedComboVectorDefault(float vWidth, const char* label, int* c
 			*current_item = vDefault;
 
 		ImGui::CustomSameLine();
+
+		if (vWidth > 0.0f)
+		{
+			vWidth -= ImGui::GetCursorPosX() - px;
+		}
 
 		change |= ContrastedCombo(vWidth, label, current_item, [](void* data, int idx, const char** out_text)
 			{

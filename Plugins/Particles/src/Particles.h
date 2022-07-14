@@ -6,21 +6,13 @@
 #include <vkFramework/vk_mem_alloc.h>
 
 
-class SdfMesher : public PluginInterface
+class Particles : public PluginInterface
 {
 private:
 	vkApi::VulkanCoreWeak m_VulkanCoreWeak;
 
 public:
-	SdfMesher();
-	virtual ~SdfMesher() override;
-	bool Init(
-		vkApi::VulkanCoreWeak vVkCore,
-		FileHelper* vFileHelper,
-		CommonSystem* vCommonSystem,
-		ImGuiContext* vContext,
-		ImGui::CustomStyle* vCustomStyle) override;
-	void Unit() override;
+	Particles();
 	uint32_t GetVersionMajor() const override;
 	uint32_t GetVersionMinor() const override;
 	uint32_t GetVersionBuild() const override;

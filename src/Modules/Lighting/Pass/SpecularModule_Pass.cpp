@@ -54,6 +54,8 @@ SpecularModule_Pass::~SpecularModule_Pass()
 
 bool SpecularModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	bool change = false;
 
 	if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
@@ -73,11 +75,13 @@ bool SpecularModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 
 void SpecularModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void SpecularModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

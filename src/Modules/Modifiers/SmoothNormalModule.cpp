@@ -131,6 +131,8 @@ bool SmoothNormalModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Co
 
 bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Smooth Normal when mesh update", -1.0f, true, true, &m_CanWeRender))
@@ -155,6 +157,8 @@ bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 
 void SmoothNormalModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -163,6 +167,8 @@ void SmoothNormalModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::f
 
 void SmoothNormalModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

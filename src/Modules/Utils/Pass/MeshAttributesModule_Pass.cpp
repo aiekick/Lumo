@@ -55,6 +55,8 @@ MeshAttributesModule_Pass::~MeshAttributesModule_Pass()
 
 bool MeshAttributesModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (ImGui::CollapsingHeader("Attributes"))
 	{
 		bool change = false;
@@ -69,11 +71,13 @@ bool MeshAttributesModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 
 void MeshAttributesModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void MeshAttributesModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

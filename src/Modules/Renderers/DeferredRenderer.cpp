@@ -111,6 +111,8 @@ bool DeferredRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 
 bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Deferred Renderer", -1.0f, true, true, &m_CanWeRender))
@@ -127,6 +129,8 @@ bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 void DeferredRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -135,6 +139,8 @@ void DeferredRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 
 void DeferredRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

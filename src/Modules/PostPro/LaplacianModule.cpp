@@ -116,6 +116,8 @@ bool LaplacianModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 bool LaplacianModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Laplacian", -1.0f, true, true, &m_CanWeRender))
@@ -140,6 +142,8 @@ bool LaplacianModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void LaplacianModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -148,6 +152,8 @@ void LaplacianModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frec
 
 void LaplacianModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

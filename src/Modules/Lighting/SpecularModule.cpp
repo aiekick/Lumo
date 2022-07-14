@@ -114,6 +114,8 @@ bool SpecularModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 
 bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Specular", -1.0f, true, true, &m_CanWeRender))
@@ -138,6 +140,8 @@ bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void SpecularModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -146,6 +150,8 @@ void SpecularModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 
 void SpecularModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

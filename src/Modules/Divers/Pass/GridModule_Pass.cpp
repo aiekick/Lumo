@@ -54,6 +54,8 @@ void GridModule_Pass::ActionBeforeInit()
 
 bool GridModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	ZoneScoped;
 
 	bool change = false;
@@ -83,11 +85,13 @@ bool GridModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void GridModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void GridModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

@@ -82,6 +82,8 @@ bool HeatmapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comm
 
 bool HeatmapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_HeatmapRenderer)
 	{
 		return m_HeatmapRenderer->DrawWidgets(vCurrentFrame, vContext);
@@ -92,6 +94,8 @@ bool HeatmapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 
 void HeatmapRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_HeatmapRenderer)
 	{
 		m_HeatmapRenderer->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);

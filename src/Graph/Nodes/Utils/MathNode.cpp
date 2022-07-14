@@ -81,6 +81,8 @@ bool MathNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 
 bool MathNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_MathModulePtr)
 	{
 		return m_MathModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -91,6 +93,8 @@ bool MathNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 
 void MathNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_MathModulePtr)
 	{
 		m_MathModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);

@@ -81,6 +81,8 @@ bool BlurNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 
 bool BlurNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_BlurModulePtr)
 	{
 		return m_BlurModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -91,6 +93,8 @@ bool BlurNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 
 void BlurNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_BlurModulePtr)
 	{
 		m_BlurModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);

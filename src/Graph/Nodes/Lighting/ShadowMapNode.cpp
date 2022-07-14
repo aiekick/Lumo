@@ -90,6 +90,8 @@ bool ShadowMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 
 bool ShadowMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_ShadowMapModulePtr)
 	{
 		return m_ShadowMapModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -100,6 +102,8 @@ bool ShadowMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 
 void ShadowMapNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_ShadowMapModulePtr)
 	{
 		m_ShadowMapModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext);

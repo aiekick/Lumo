@@ -114,6 +114,8 @@ bool MathModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 
 bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Math", -1.0f, true, true, &m_CanWeRender))
@@ -138,6 +140,8 @@ bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 
 void MathModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
@@ -146,6 +150,8 @@ void MathModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vR
 
 void MathModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 

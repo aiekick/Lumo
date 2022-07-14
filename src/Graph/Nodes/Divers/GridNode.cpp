@@ -73,6 +73,8 @@ bool GridNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *
 
 bool GridNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_GridModulePtr)
 	{
 		return m_GridModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -83,6 +85,7 @@ bool GridNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 
 void GridNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

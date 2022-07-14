@@ -124,6 +124,9 @@ void PluginManager::Clear()
 
 void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 {
+	printf("-----------\n");
+	printf("Availables Plugins :\n");
+
 #ifndef USE_STATIC_LINKING_OF_PLUGINS
 	auto plugin_directory = std::filesystem::path(FileHelper::Instance()->GetAppPath());
 #ifndef _DEBUG
@@ -131,9 +134,6 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #endif
 	if (std::filesystem::exists(plugin_directory))
 	{
-		printf("-----------\n");
-		printf("Availables Plugins :\n");
-
 		const auto dir_iter = std::filesystem::directory_iterator(plugin_directory);
 		for (const auto& file : dir_iter)
 		{
@@ -208,19 +208,22 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 	printf("-----------\n");
 #else // USE_STATIC_LINKING_OF_PLUGINS
 #ifdef USE_PLUGIN_MESH_SIM
-	AddPlugin("MeshSim", std::make_shared<MeshSim>, vVulkanCoreWeak);
+	AddPlugin("MeshSim", std::make_shared<MeshSim>(), vVulkanCoreWeak);
 #endif
 #ifdef USE_PLUGIN_MESH_SSS
-	AddPlugin("MeshSSS", std::make_shared<MeshSSS>, vVulkanCoreWeak);
+	AddPlugin("MeshSSS", std::make_shared<MeshSSS>(), vVulkanCoreWeak);
 #endif
 #ifdef USE_PLUGIN_SDF_MESHER
-	AddPlugin("SdfMesher", std::make_shared<SdfMesher>, vVulkanCoreWeak);
+	AddPlugin("SdfMesher", std::make_shared<SdfMesher>(), vVulkanCoreWeak);
 #endif
 #ifdef USE_PLUGIN_MORPHOGENESIS
-	AddPlugin("MorphoGenesis", std::make_shared<MorphoGenesis>, vVulkanCoreWeak);
+	AddPlugin("MorphoGenesis", std::make_shared<MorphoGenesis>(), vVulkanCoreWeak);
 #endif
 #ifdef USE_PLUGIN_RTX
-	AddPlugin("RTX", std::make_shared<RTX>, vVulkanCoreWeak);
+	AddPlugin("RTX", std::make_shared<RTX>(), vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_PARTICLES
+	AddPlugin("Particles", std::make_shared<Particles>(), vVulkanCoreWeak);
 #endif
 #endif // USE_STATIC_LINKING_OF_PLUGINS
 }

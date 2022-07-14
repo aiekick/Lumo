@@ -103,6 +103,8 @@ void ChannelRenderer_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& v
 
 bool ChannelRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	bool change = false;
 
 	change |= ImGui::ContrastedComboVectorDefault(0.0f, "Layers", &m_UBOFrag.show_layer, m_Layers, (int32_t)m_Layers.size(), 0);
@@ -117,12 +119,14 @@ bool ChannelRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 
 void ChannelRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	
+	assert(vContext);
+
 }
 
 void ChannelRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	
+	assert(vContext);
+
 }
 
 void ChannelRenderer_Pass::SetModel(SceneModelWeak vSceneModel)

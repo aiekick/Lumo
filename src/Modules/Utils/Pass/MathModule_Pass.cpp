@@ -51,6 +51,8 @@ MathModule_Pass::~MathModule_Pass()
 
 bool MathModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (ImGui::CollapsingHeader("Math", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		bool change = false;
@@ -79,11 +81,13 @@ bool MathModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void MathModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 
 void MathModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
 
 }
 

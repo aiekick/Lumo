@@ -82,6 +82,8 @@ void MeshModule::Unit()
 
 bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	ZoneScoped;
 
 	ImGui::Header("Model");
@@ -142,11 +144,15 @@ bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 
 void MeshModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	ZoneScoped;
 }
 
 void MeshModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	ImVec2 max = ImVec2((float)vMaxSize.x, (float)vMaxSize.y);
 	ImVec2 min = max * 0.5f;
 

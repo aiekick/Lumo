@@ -58,6 +58,8 @@ bool MeshNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 bool MeshNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_MeshModule)
 	{
 		return m_MeshModule->DrawWidgets(vCurrentFrame, vContext);
@@ -68,6 +70,8 @@ bool MeshNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 
 void MeshNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_MeshModule)
 	{
 		m_MeshModule->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);

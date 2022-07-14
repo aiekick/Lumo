@@ -76,6 +76,8 @@ bool SmoothNormalNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 
 bool SmoothNormalNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_SmoothNormalModulePtr)
 	{
 		return m_SmoothNormalModulePtr->DrawWidgets(vCurrentFrame, vContext);
@@ -86,6 +88,8 @@ bool SmoothNormalNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 void SmoothNormalNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	if (m_SmoothNormalModulePtr)
 	{
 		m_SmoothNormalModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
