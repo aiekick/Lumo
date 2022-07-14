@@ -39,6 +39,7 @@ limitations under the License.
 #include <Graph/Nodes/PostPro/SSAONode.h>
 #include <Graph/Nodes/PostPro/BlurNode.h>
 #include <Graph/Nodes/PostPro/LaplacianNode.h>
+#include <Graph/Nodes/PostPro/ToneMapNode.h>
 
 #include <Graph/Nodes/Renderers/MatcapRendererNode.h>
 #include <Graph/Nodes/Renderers/ChannelRendererNode.h>
@@ -76,6 +77,7 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			else if (vNodeType == "MODEL_SHADOW")					return ModelShadowNode::Create(corePtr);
 			else if (vNodeType == "DIFFUSE")						return DiffuseNode::Create(corePtr);
 			else if (vNodeType == "SPECULAR")						return SpecularNode::Create(corePtr);
+			else if (vNodeType == "SSAO")							return SSAONode::Create(corePtr);
 
 			// Modifiers
 			else if (vNodeType == "SMOOTH_NORMAL")					return SmoothNormalNode::Create(corePtr);
@@ -85,9 +87,9 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			else if (vNodeType == "OUTPUT_2D")						return Output2DNode::Create(corePtr);
 
 			// Post Processing
-			else if (vNodeType == "SSAO")							return SSAONode::Create(corePtr);
 			else if (vNodeType == "BLUR")							return BlurNode::Create(corePtr);
 			else if (vNodeType == "LAPLACIAN")						return LaplacianNode::Create(corePtr);
+			else if (vNodeType == "TONE_MAP")						return ToneMapNode::Create(corePtr);
 
 			// renderers
 			else if (vNodeType == "CHANNEL_RENDERER")				return ChannelRendererNode::Create(corePtr);

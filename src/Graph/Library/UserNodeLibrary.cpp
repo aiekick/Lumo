@@ -74,7 +74,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
 
 	m_RootLibraryCategory.AddCustom("Core/PostPro", "Blur", "BLUR");
 	m_RootLibraryCategory.AddCustom("Core/PostPro", "Laplacian", "LAPLACIAN");
-
+	m_RootLibraryCategory.AddCustom("Core/PostPro", "Tone Map", "TONE_MAP");
+	
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Channels", "CHANNEL_RENDERER");
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Deferred", "DEFERRED_RENDERER");
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Heatmap", "HEATMAP_RENDERER");

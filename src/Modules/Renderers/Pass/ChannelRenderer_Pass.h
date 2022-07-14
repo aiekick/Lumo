@@ -25,8 +25,6 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-
-
 class ChannelRenderer_Pass :
 	public ShaderPass,
 	public GuiInterface,
