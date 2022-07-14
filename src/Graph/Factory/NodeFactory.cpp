@@ -45,6 +45,7 @@ limitations under the License.
 #include <Graph/Nodes/Renderers/ChannelRendererNode.h>
 #include <Graph/Nodes/Renderers/HeatmapRendererNode.h>
 #include <Graph/Nodes/Renderers/DeferredRendererNode.h>
+#include <Graph/Nodes/Renderers/PBRRendererNode.h>
 
 #include <Graph/Nodes/Utils/MathNode.h>
 #include <Graph/Nodes/Utils/DepthToPosNode.h>
@@ -96,6 +97,7 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			else if (vNodeType == "DEFERRED_RENDERER")				return DeferredRendererNode::Create(corePtr);
 			else if (vNodeType == "HEATMAP_RENDERER")				return HeatmapRendererNode::Create(corePtr);
 			else if (vNodeType == "MATCAP_RENDERER")				return MatcapRendererNode::Create(corePtr);
+			else if (vNodeType == "PBR_RENDERER")					return PBRRendererNode::Create(corePtr);
 
 			// Simulations
 			else if (vNodeType == "GRAY_SCOTT_SIMULATION")			return GrayScottNode::Create(corePtr);

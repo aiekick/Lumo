@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "ModelShadowModule_Pass.h"
+#include "PBRRenderer_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -31,19 +31,20 @@ limitations under the License.
 
 using namespace vkApi;
 
+
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelShadowModule_Pass::ModelShadowModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+PBRRenderer_Pass::PBRRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Quad Pass 1 : Model Shadow", QUAD_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Quad Pass 1 : PBR", QUAD_SHADER_PASS_DEBUG_COLOR);
 
 	m_DontUseShaderFilesOnDisk = true;
 }
 
-ModelShadowModule_Pass::~ModelShadowModule_Pass()
+PBRRenderer_Pass::~PBRRenderer_Pass()
 {
 	Unit();
 }
@@ -52,89 +53,69 @@ ModelShadowModule_Pass::~ModelShadowModule_Pass()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ModelShadowModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PBRRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	bool change = false;
+	/*DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Normal", 1U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Albedo", 2U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Diffuse", 3U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Specular", 4U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Attenuation", 5U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Mask", 6U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "Ao", 7U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "shadow", 8U, m_OutputRatio);*/
 
-	if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
-	{
-		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Strength", &m_UBOFrag.u_shadow_strength, 0.0f, 1.0f, 0.5f);
-
-		ImGui::Separator();
-
-		change |= ImGui::CheckBoxFloatDefault("Use PCF Filtering", &m_UBOFrag.u_use_pcf, true);
-		if (m_UBOFrag.u_use_pcf > 0.5f)
-		{
-			ImGui::Indent();
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOFrag.u_bias, 0.0f, 0.02f, 0.01f);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_poisson_scale, 1.0f, 10000.0f, 2000.0f);
-			ImGui::Unindent();
-		}
-
-		if (change)
-		{
-			NeedNewUBOUpload();
-		}
-	}
-
-	DrawInputTexture(m_VulkanCorePtr, "Input Position", 0U, m_OutputRatio);
-
-	return change;
+	return false;
 }
 
-void ModelShadowModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void PBRRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext);
 
 }
 
-void ModelShadowModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void PBRRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
 
 }
 
-void ModelShadowModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void PBRRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding == 0U || vBinding == 1U)
+		if (vBinding < m_ImageInfos.size())
 		{
-			if (vBinding < m_ImageInfos.size())
+			if (vImageInfo)
 			{
-				if (vImageInfo)
-				{
-					m_ImageInfos[vBinding] = *vImageInfo;
+				m_ImageInfos[vBinding] = *vImageInfo;
 
-					if ((&m_UBOFrag.use_sampler_pos)[vBinding] < 1.0f)
-					{
-						(&m_UBOFrag.use_sampler_pos)[vBinding] = 1.0f;
-						NeedNewUBOUpload();
-					}
-				}
-				else
+				if ((&m_UBOFrag.use_sampler_position)[vBinding] < 1.0f)
 				{
-					if ((&m_UBOFrag.use_sampler_pos)[vBinding] > 0.0f)
-					{
-						(&m_UBOFrag.use_sampler_pos)[vBinding] = 0.0f;
-						NeedNewUBOUpload();
-					}
-
-					m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+					(&m_UBOFrag.use_sampler_position)[vBinding] = 1.0f;
+					NeedNewUBOUpload();
 				}
+			}
+			else
+			{
+				if ((&m_UBOFrag.use_sampler_position)[vBinding] > 0.0f)
+				{
+					(&m_UBOFrag.use_sampler_position)[vBinding] = 0.0f;
+					NeedNewUBOUpload();
+				}
+				
+				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 			}
 		}
 	}
 }
 
-vk::DescriptorImageInfo* ModelShadowModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* PBRRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	ZoneScoped;
-
 	if (m_FrameBufferPtr)
 	{
 		if (vOutSize)
@@ -148,13 +129,13 @@ vk::DescriptorImageInfo* ModelShadowModule_Pass::GetDescriptorImageInfo(const ui
 	return nullptr;
 }
 
-void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+void PBRRenderer_Pass::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding == 1U)
+		if (vBinding == 0U)
 		{
 			if (vImageInfos &&
 				vImageInfos->size() == m_ImageGroupInfos.size())
@@ -164,9 +145,9 @@ void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, DescriptorIma
 					m_ImageGroupInfos[i] = vImageInfos->at(i);
 				}
 
-				if (m_UBOFrag.use_sampler_shadow_map < 1.0f)
+				if (m_UBOFrag.use_sampler_position < 1.0f)
 				{
-					m_UBOFrag.use_sampler_shadow_map = 1.0f;
+					m_UBOFrag.use_sampler_shadow_maps = 1.0f;
 
 					NeedNewUBOUpload();
 				}
@@ -178,9 +159,9 @@ void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, DescriptorIma
 					info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 				}
 
-				if (m_UBOFrag.use_sampler_shadow_map > 0.0f)
+				if (m_UBOFrag.use_sampler_position > 0.0f)
 				{
-					m_UBOFrag.use_sampler_shadow_map = 0.0f;
+					m_UBOFrag.use_sampler_position = 0.0f;
 
 					NeedNewUBOUpload();
 				}
@@ -188,7 +169,8 @@ void ModelShadowModule_Pass::SetTextures(const uint32_t& vBinding, DescriptorIma
 		}
 	}
 }
-void ModelShadowModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+
+void PBRRenderer_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	m_SceneLightGroup = vSceneLightGroup;
 
@@ -208,7 +190,7 @@ void ModelShadowModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ModelShadowModule_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string PBRRenderer_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
@@ -220,7 +202,7 @@ std::string ModelShadowModule_Pass::getXml(const std::string& vOffset, const std
 	return str;
 }
 
-bool ModelShadowModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool PBRRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -233,7 +215,7 @@ bool ModelShadowModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "model_shadow_module")
+	if (strParentName == "pbr_renderer_module")
 	{
 		if (strName == "bias")
 			m_UBOFrag.u_bias = ct::fvariant(strValue).GetF();
@@ -254,13 +236,14 @@ bool ModelShadowModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelShadowModule_Pass::CreateUBO()
+bool PBRRenderer_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
+	auto size_in_bytes = sizeof(UBOFrag);
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
 	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
-	m_DescriptorBufferInfo_Frag.range = sizeof(UBOFrag);
+	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
 	for (auto& info : m_ImageInfos)
@@ -271,7 +254,6 @@ bool ModelShadowModule_Pass::CreateUBO()
 	for (auto& info : m_ImageGroupInfos)
 	{
 		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
-		//info.imageView = VK_NULL_HANDLE;
 	}
 
 	NeedNewUBOUpload();
@@ -279,63 +261,65 @@ bool ModelShadowModule_Pass::CreateUBO()
 	return true;
 }
 
-void ModelShadowModule_Pass::UploadUBO()
+void PBRRenderer_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void ModelShadowModule_Pass::DestroyUBO()
+void PBRRenderer_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
 	m_UBO_Frag.reset();
 }
 
-bool ModelShadowModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool PBRRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(6U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(7U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 
 	// the shadow maps
-	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eCombinedImageSampler,
+	m_LayoutBindings.emplace_back(8U, vk::DescriptorType::eCombinedImageSampler,
 		(uint32_t)m_ImageGroupInfos.size(), vk::ShaderStageFlagBits::eFragment);
 
-	// next binding will be 4 + 8 => 12
-	
 	return true;
 }
 
-bool ModelShadowModule_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool PBRRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
-	
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // position
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr); // normal
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2], nullptr); // albedo
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[3], nullptr); // mask
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 6U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[4], nullptr); // ssaao
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 7U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
+
 	// the shadow maps
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0,
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 8U, 0,
 		(uint32_t)m_ImageGroupInfos.size(), vk::DescriptorType::eCombinedImageSampler, m_ImageGroupInfos.data(), nullptr);
-	
-	// next binding will be 4 + 8 => 12
 
 	return true;
 }
 
-std::string ModelShadowModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
+std::string PBRRenderer_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ModelShadowModule_Pass_Vertex";
+	vOutShaderName = "PBRRenderer_Pass_Vertex";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -352,19 +336,17 @@ void main()
 )";
 }
 
-std::string ModelShadowModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string PBRRenderer_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ModelShadowModule_Pass";
+	vOutShaderName = "PBRRenderer_Pass_Fragment";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) out vec4 fragShadow;
+layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec2 v_uv;
 )"
-+ 
-CommonSystem::GetBufferObjectStructureHeader(0U) 
-+
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout (std140, binding = 1) uniform UBO_Frag 
 { 
@@ -372,19 +354,25 @@ layout (std140, binding = 1) uniform UBO_Frag
 	float u_bias;
 	float u_poisson_scale;
 	float u_use_pcf;
-	float use_sampler_pos;
-	float use_sampler_nor;
-	float use_sampler_shadow_map;
+	float use_sampler_position;		// position
+	float use_sampler_normal;		// normal
+	float use_sampler_albedo;		// albedo
+	float use_sampler_mask;			// mask
+	float use_sampler_ssao;			// ssao
+	float use_sampler_shadow_maps;	// shadow maps
 };
 
 layout(binding = 2) uniform sampler2D position_map_sampler;
 layout(binding = 3) uniform sampler2D normal_map_sampler;
+layout(binding = 4) uniform sampler2D albedo_map_sampler;
+layout(binding = 5) uniform sampler2D mask_map_sampler;
+layout(binding = 6) uniform sampler2D ssao_map_sampler;
 )"
 +
-SceneLightGroup::GetBufferObjectStructureHeader(4U)
+SceneLightGroup::GetBufferObjectStructureHeader(7U)
 +
 u8R"(
-layout(binding = 5) uniform sampler2D light_shadow_map_samplers[8]; // binding 5 + 8 => the next binding is 13
+layout(binding = 8) uniform sampler2D light_shadow_map_samplers[8]; // binding 8 + 8 => the next binding is 16
 
 const vec2 poissonDisk[16] = vec2[]
 ( 
@@ -468,46 +456,78 @@ float getShadowSimple(uint lid, vec3 pos, vec3 nor)
 	return 0.0;
 }
 
+vec3 getRayOrigin()
+{
+	vec3 ro = view[3].xyz + model[3].xyz;
+	ro *= mat3(view * model);
+	return -ro;
+}
+
 void main() 
 {
-	fragShadow = vec4(0.0);
+	fragColor = vec4(0);
 	
-	if (use_sampler_pos > 0.5 && 
-		use_sampler_nor > 0.5 && 
-		use_sampler_shadow_map > 0.5)
+	vec3 pos = vec3(0);
+	vec3 nor = vec3(0);
+	vec4 col = vec4(1);
+	float ssao = 1.0;
+	
+	if (use_sampler_position > 0.5)
+		pos = texture(position_map_sampler, v_uv).xyz;
+	
+	if (dot(pos, pos) > 0.0)
 	{
-		vec3 pos = texture(position_map_sampler, v_uv).xyz;
-		if (dot(pos, pos) > 0.0)
-		{
-			vec3 nor = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
+		if (use_sampler_normal > 0.5)
+			nor = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
+		if (use_sampler_albedo > 0.5)
+			col = texture(albedo_map_sampler, v_uv);
+		if (use_sampler_ssao > 0.5)
+			ssao = texture(ssao_map_sampler, v_uv).r;
 		
-			float sha_accum = 1.0;
-			
-			uint count = uint(lightDatas.length() + 1) % 8; // maxi 8 lights in this system
-			for (uint lid = 0 ; lid < count ; ++lid)
-			{
-				if (u_use_pcf > 0.5)
-				{
-					sha_accum -= getShadowPCF(lid, pos, nor);
-				}
-				else
-				{
-					sha_accum -= getShadowSimple(lid, pos, nor);
-				}
-			}
-
-			fragShadow = vec4(clamp(sha_accum, 0.0, 1.0));
-		}
-		else
+		// ray pos, ray dir
+		vec3 ro = getRayOrigin();
+		vec3 rd = normalize(ro - pos);
+				
+		uint count = uint(lightDatas.length() + 1) % 8; // maxi 8 lights in this system
+		for (uint lid = 0 ; lid < count ; ++lid)
 		{
-			discard;
+			if (lightDatas[lid].lightActive > 0.5)
+			{
+				// light
+				vec3 light_pos = lightDatas[lid].lightGizmo[3].xyz;
+				float light_intensity = lightDatas[lid].lightIntensity;
+				vec4 light_col = lightDatas[lid].lightColor;
+				vec3 light_dir = normalize(light_pos - pos);
+				
+				// diffuse
+				vec4 diff = min(max(dot(nor, light_dir), 0.0) * light_intensity, 1.0) * light_col;
+				
+				// specular
+				vec3 refl = reflect(-light_dir, nor);  
+				vec4 spec = min(pow(max(dot(rd, refl), 0.0), 8.0) * light_intensity, 1.0) * light_col;
+				
+				// shadow
+				float sha = 1.0;
+				if (u_use_pcf > 0.5) sha -= getShadowPCF(lid, pos, nor);
+				else sha -= getShadowSimple(lid, pos, nor);
+				
+				fragColor += (col * diff * ssao + spec) * sha;
+			}
 		}
-	}	
+
+		if (use_sampler_mask > 0.5)
+		{
+			float mask =  texture(mask_map_sampler, v_uv).r;
+			if (mask < 0.5)
+			{
+				discard; // a faire en dernier
+			}
+		}
+	}
 	else
 	{
 		discard;
-	}	
+	}		
 }
-
 )";
 }

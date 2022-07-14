@@ -80,6 +80,7 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Deferred", "DEFERRED_RENDERER");
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Heatmap", "HEATMAP_RENDERER");
 	m_RootLibraryCategory.AddCustom("Core/Renderers", "Matcap", "MATCAP_RENDERER");
+	m_RootLibraryCategory.AddCustom("Core/Renderers", "PBR", "PBR_RENDERER");
 
 	m_RootLibraryCategory.AddCustom("Core/Simulations", "Gray Scott Reaction Diffusion", "GRAY_SCOTT_SIMULATION");
 
