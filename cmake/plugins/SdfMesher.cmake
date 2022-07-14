@@ -10,4 +10,15 @@ set_target_properties(SdfMesher PROPERTIES FOLDER Plugins)
 
 set_target_properties(SdfMesher PROPERTIES OUTPUT_NAME "SdfMesher_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
 
-set_target_properties(SdfMesher PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(SdfMesher PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+
+set(PROJECT_PLUGINS ${PROJECT_PLUGINS} SdfMesher)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/SdfMesher/src)
+
+if (USE_STATIC_LINKING_OF_PLUGINS)
+set(PROJECT_PLUGINS ${PROJECT_PLUGINS} MorphoGenesis)
+set(PROJECT_PLUGINS_INCLUDES ${PROJECT_PLUGINS_INCLUDES} "<SdfMesher.h>")
+set(LOAD_STATIC_PLUGINS ${LOAD_STATIC_PLUGINS} "LOAD_PLUGIN(\"SdfMesher\", SdfMesher)")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/SdfMesher/src)
+endif()

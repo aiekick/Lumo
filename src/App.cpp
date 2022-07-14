@@ -64,9 +64,10 @@ limitations under the License.
 #include <vkProfiler/Profiler.h>
 #include <Profiler/vkProfiler.hpp>
 
-#include <Headers/Build.h>
-
 #include <Plugins/PluginManager.h>
+
+#include <Headers/LumoBuild.h>
+
 #include <Panes/View3DPane.h>
 #include <Panes/View2DPane.h>
 
@@ -366,7 +367,7 @@ void App::PrepareImGui(ct::ivec4 vViewport)
 
 	MainFrame::Instance()->Display(m_CurrentFrame, vViewport);
 
-	NodeManager::Instance()->DisplayDialogsAndPopups(m_CurrentFrame, MainFrame::Instance()->m_DisplaySize);
+	NodeManager::Instance()->DisplayDialogsAndPopups(m_CurrentFrame, MainFrame::Instance()->m_DisplaySize, ImGui::GetCurrentContext());
 
 	m_VulkanImGuiOverlayPtr->end();
 }

@@ -22,7 +22,15 @@ limitations under the License.
 #include <Systems/CommonSystem.h>
 #include <ImWidgets/ImWidgets.h>
 #include <filesystem>
+
 namespace fs = std::filesystem;
+
+#ifdef USE_STATIC_LINKING_OF_PLUGINS
+#ifdef PROJECT_PLUGINS_INCLUDES
+#include PROJECT_PLUGINS_INCLUDES
+#define LOAD_PLUGIN(PLUGIN_NAME, PLUGIN_CLASS) AddPlugin(PLUGIN_NAME, std::make_shared<PLUGIN_CLASS>(), vVulkanCoreWeak);
+#endif // PROJECT_PLUGINS_INCLUDES
+#endif // USE_STATIC_LINKING_OF_PLUGINS
 
 //////////////////////////////////////////////////////////////////////////////
 ////// PluginInstance ////////////////////////////////////////////////////////
@@ -102,6 +110,7 @@ void PluginManager::Clear()
 
 void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 {
+#ifndef USE_STATIC_LINKING_OF_PLUGINS
 	auto plugin_directory = std::filesystem::path(FileHelper::Instance()->GetAppPath());
 #ifndef _DEBUG
 	plugin_directory.append("plugins");
@@ -123,6 +132,7 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 					if (ps.isOk)
 					{
 						auto resPtr = std::make_shared<PluginInstance>();
+
 						if (!resPtr->Init(vVulkanCoreWeak, ps.name, ps.GetFPNE()))
 						{
 							resPtr.reset();
@@ -182,56 +192,11 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 		LogVarLightInfo("Plugin directory %s not found !", plugin_directory.string().c_str());
 	}
 	printf("-----------\n");
-}
-
-ct::cWeak<PluginInstance> PluginManager::LoadPlugin(vkApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vPluginName)
-{
-	ct::cWeak<PluginInstance> res;
-
-	if (!vPluginName.empty())
-	{
-		PathStruct ps;
-		auto file_path_name = ps.GetFPNE_WithPathNameExt(FileHelper::Instance()->GetAppPath(), vPluginName, GetDLLExtention());
-
-		if (fs::exists(file_path_name))
-		{
-			auto resPtr = std::make_shared<PluginInstance>();
-			if (!resPtr->Init(vVulkanCoreWeak, vPluginName, file_path_name))
-			{
-				resPtr.reset();
-				LogVarDebug("Plugin %s fail to load",
-					vPluginName.c_str());
-			}
-			else
-			{
-				auto pluginInstancePtr = resPtr->Get().getValidShared();
-				if (pluginInstancePtr)
-				{
-					LogVarLightInfo("Plugin %s %s loaded - (%s)",
-						vPluginName.c_str(),
-						pluginInstancePtr->GetVersion().c_str(),
-						pluginInstancePtr->GetDescription().c_str());
-				}
-
-				m_Plugins[vPluginName] = resPtr;
-				res = resPtr;
-			}
-		}
-	}
-	
-	return res;
-}
-
-ct::cWeak<PluginInstance> PluginManager::Get(const std::string& vPluginName)
-{
-	if (!vPluginName.empty())
-	{
-		if (m_Plugins.find(vPluginName) != m_Plugins.end())
-		{
-			return m_Plugins.at(vPluginName);
-		}
-	}
-	return ct::cWeak<PluginInstance>();
+#else // USE_STATIC_LINKING_OF_PLUGINS
+	#ifdef LOAD_STATIC_PLUGINS
+		LOAD_STATIC_PLUGINS
+	#endif
+#endif // USE_STATIC_LINKING_OF_PLUGINS
 }
 
 std::vector<LibraryEntry> PluginManager::GetLibraryEntrys()
@@ -242,6 +207,7 @@ std::vector<LibraryEntry> PluginManager::GetLibraryEntrys()
 	{
 		if (plugin.second)
 		{
+#ifndef USE_STATIC_LINKING_OF_PLUGINS
 			auto pluginInstancePtr = plugin.second->Get().getValidShared();
 			if (pluginInstancePtr)
 			{
@@ -251,6 +217,13 @@ std::vector<LibraryEntry> PluginManager::GetLibraryEntrys()
 					res.insert(res.end(), lib_entrys.begin(), lib_entrys.end());
 				}
 			}
+#else // USE_STATIC_LINKING_OF_PLUGINS
+			auto lib_entrys = plugin.second->GetLibrary();
+			if (!lib_entrys.empty())
+			{
+				res.insert(res.end(), lib_entrys.begin(), lib_entrys.end());
+			}
+#endif // USE_STATIC_LINKING_OF_PLUGINS
 		}
 	}
 
@@ -265,6 +238,7 @@ BaseNodePtr PluginManager::CreatePluginNode(const std::string& vPluginNodeName)
 		{
 			if (plugin.second)
 			{
+#ifndef USE_STATIC_LINKING_OF_PLUGINS
 				auto pluginInstancePtr = plugin.second->Get().getValidShared();
 				if (pluginInstancePtr)
 				{
@@ -274,10 +248,16 @@ BaseNodePtr PluginManager::CreatePluginNode(const std::string& vPluginNodeName)
 						return nodePtr;
 					}
 				}
+#else // USE_STATIC_LINKING_OF_PLUGINS
+				auto nodePtr = plugin.second->CreatePluginNode(vPluginNodeName);
+				if (nodePtr)
+				{
+					return nodePtr;
+				}
+#endif // USE_STATIC_LINKING_OF_PLUGINS
 			}
 		}
 	}
-
 	return nullptr;
 }
 
@@ -289,11 +269,93 @@ void PluginManager::ResetImGuiID(int vWidgetId)
 		id += 10000;
 		if (plugin.second)
 		{
+#ifndef USE_STATIC_LINKING_OF_PLUGINS
 			auto pluginInstancePtr = plugin.second->Get().getValidShared();
 			if (pluginInstancePtr)
 			{
 				id += pluginInstancePtr->ResetImGuiID(id);
 			}
+#else // USE_STATIC_LINKING_OF_PLUGINS
+			id += plugin.second->ResetImGuiID(id);
+#endif // USE_STATIC_LINKING_OF_PLUGINS
 		}
 	}
 }
+
+//////////////////////////////////////////////////////////////
+//// PRIVATE /////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+#ifndef USE_STATIC_LINKING_OF_PLUGINS
+
+ct::cWeak<PluginInstance> PluginManager::Get(const std::string& vPluginName)
+{
+	if (!vPluginName.empty())
+	{
+		if (m_Plugins.find(vPluginName) != m_Plugins.end())
+		{
+			return m_Plugins.at(vPluginName);
+		}
+	}
+	return ct::cWeak<PluginInstance>();
+}
+
+#else // USE_STATIC_LINKING_OF_PLUGINS
+
+void PluginManager::AddPlugin(
+	const std::string& vPluginName,
+	PluginInterfacePtr vPluginPtr,
+	vkApi::VulkanCoreWeak vVulkanCoreWeak)
+{
+	if (!vPluginPtr->Init(
+		vVulkanCoreWeak,
+		nullptr,
+		nullptr,
+		nullptr,
+		nullptr))
+	{
+		vPluginPtr.reset();
+	}
+	else
+	{
+		char spaceBuffer[40 + 1] = "";
+		spaceBuffer[0] = '\0';
+
+		std::string name = vPluginPtr->GetName();
+		if (name.size() < 15U)
+		{
+			size_t of = 15U - name.size();
+			memset(spaceBuffer, 32, of); // 32 is space code in ASCII table
+			spaceBuffer[of] = '\0';
+			name += spaceBuffer;
+		}
+		else
+		{
+			name = name.substr(0, 15U);
+		}
+
+		std::string version = vPluginPtr->GetVersion();
+		if (version.size() < 10U)
+		{
+			size_t of = 10U - version.size();
+			memset(spaceBuffer, 32, of); // 32 is space code in ASCII table
+			spaceBuffer[of] = '\0';
+			version += spaceBuffer;
+		}
+		else
+		{
+			version = version.substr(0, 10U);
+		}
+
+		std::string desc = vPluginPtr->GetDescription();
+
+		printf("Plugin loaded : %s v%s (%s)\n",
+			name.c_str(),
+			version.c_str(),
+			desc.c_str());
+
+		m_Plugins[vPluginName] = vPluginPtr;
+	}
+}
+
+#endif // USE_STATIC_LINKING_OF_PLUGINS

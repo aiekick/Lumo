@@ -576,7 +576,7 @@ bool ShaderPass::BuildModel()
 	return true;
 }
 
-void ShaderPass::NeedNewModelUpload()
+void ShaderPass::NeedNewModelUpdate()
 {
 	m_NeedNewModelUpdate = true;
 }
@@ -595,14 +595,19 @@ void ShaderPass::UpdateModel(const bool& vLoaded)
 {
 	ZoneScoped;
 
-	if (vLoaded)
+	if (m_NeedNewModelUpdate)
 	{
-		DestroyModel();
+		if (vLoaded)
+		{
+			DestroyModel();
+		}
+
+		BuildModel();
+
+		UpdateBufferInfoInRessourceDescriptor();
+
+		m_NeedNewModelUpdate = false;
 	}
-
-	BuildModel();
-
-	UpdateBufferInfoInRessourceDescriptor();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

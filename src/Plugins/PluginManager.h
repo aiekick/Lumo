@@ -53,16 +53,28 @@ public:
 class PluginManager
 {
 private:
+#ifndef USE_STATIC_LINKING_OF_PLUGINS
 	std::map<std::string, PluginInstancePtr> m_Plugins;
+#else // USE_STATIC_LINKING_OF_PLUGINS
+	std::map<std::string, PluginInterfacePtr> m_Plugins;
+#endif // USE_STATIC_LINKING_OF_PLUGINS
 
 public:
 	void LoadPlugins(vkApi::VulkanCoreWeak vVulkanCorePtr);
-	PluginInstanceWeak LoadPlugin(vkApi::VulkanCoreWeak vVulkanCorePtr, const std::string& vPluginName);
-	PluginInstanceWeak Get(const std::string& vPluginName);
 	std::vector<LibraryEntry> GetLibraryEntrys();
 	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName);
 	void ResetImGuiID(int vWidgetId);
 	void Clear();
+
+private:
+#ifndef USE_STATIC_LINKING_OF_PLUGINS
+	PluginInstanceWeak Get(const std::string& vPluginName);
+#else // USE_STATIC_LINKING_OF_PLUGINS
+	void AddPlugin(
+		const std::string& vPluginName,
+		PluginInterfacePtr vPluginPtr,
+		vkApi::VulkanCoreWeak vVulkanCoreWeak);
+#endif
 
 public:
 	static PluginManager* Instance()

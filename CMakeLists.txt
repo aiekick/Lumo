@@ -8,9 +8,10 @@ project(${PROJECT} CXX)
 
 option(USE_PLUGINS "Enable the plugin MeshSim" OFF)
 if (USE_PLUGINS)
+	option(USE_STATIC_LINKING_OF_PLUGINS "Enable the static linking of plugins for easy dev" OFF)
 	option(USE_PLUGIN_MESH_SIM "Enable the plugin MeshSim" OFF)
 	option(USE_PLUGIN_MESH_SSS "Enable the plugin MeshSSS" OFF)
-	option(USE_PLUGIN_SDF_MEHER "Enable the plugin SdfMesher" OFF)
+	option(USE_PLUGIN_SDF_MESHER "Enable the plugin SdfMesher" OFF)
 	option(USE_PLUGIN_MORPHOGENESIS "Enable the plugin MorphoGenesis" OFF)
 endif()
 
@@ -31,6 +32,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 ## some defines for debug mode (before 3rdparty.cmake)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
+if (USE_STATIC_LINKING_OF_PLUGINS)
+	add_definitions(-DUSE_STATIC_LINKING_OF_PLUGINS)
+endif()
+
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
 
 message("${PROJECT} => ${FINAL_BIN_DIR}")
@@ -45,7 +50,16 @@ endif()
 
 include(cmake/3rdparty/3rdparty.cmake)
 if (USE_PLUGINS)
+	if(USE_STATIC_LINKING_OF_PLUGINS)
+		set(PROJECT_PLUGINS)
+		set(PROJECT_PLUGINS_INCLUDES)
+		set(LOAD_STATIC_PLUGINS)
+	endif()
 	include(cmake/plugins/plugins.cmake)
+	if(USE_STATIC_LINKING_OF_PLUGINS)
+		add_definitions(-DPROJECT_PLUGINS_INCLUDES=${PROJECT_PLUGINS_INCLUDES})
+		add_definitions(-DLOAD_STATIC_PLUGINS=${LOAD_STATIC_PLUGINS})
+	endif()
 endif()
 
 set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
@@ -134,6 +148,7 @@ add_executable(${PROJECT}
 	${PROJECT_MAIN}
 	${CMAKE_RECURSE}
 	${SHADER_SOURCES}
+	${PLUGINS_FACTORY}
 	${IMGUIIMPL_SOURCES}
 	${PROJECT_SRC_RECURSE}
 	${IMGUI_FREETYPE_SOURCES}
@@ -175,6 +190,7 @@ include_directories(
 
 target_link_libraries(${PROJECT} PRIVATE
 	${COMMON_LIBRARIES}
+	${PROJECT_PLUGINS}
 )
 
 ########################################################
@@ -187,7 +203,7 @@ set_target_properties(BuildInc PROPERTIES FOLDER 3rdparty/aiekick)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=Lumo 1000:10 $<$<CONFIG:Debug>:${CMAKE_SOURCE_DIR}/src/Headers/Build.h>
+	COMMAND BuildInc -prefix=Lumo 1000:10 $<$<CONFIG:Debug>:${CMAKE_SOURCE_DIR}/src/Headers/LumoBuild.h>
 	DEPENDS ${PROJECT}
 )
 
@@ -222,7 +238,7 @@ endif()
 ### VERSION #################################################
 #############################################################
 
-file(READ ${CMAKE_SOURCE_DIR}/src/Headers/Build.h BuildIdFile)
+file(READ ${CMAKE_SOURCE_DIR}/src/Headers/LumoBuild.h BuildIdFile)
 string(REGEX MATCH "#define ${PROJECT}_BuildNumber ([0-9]*)" _ ${BuildIdFile})
 set(BuildNumber ${CMAKE_MATCH_1})
 string(REGEX MATCH "#define ${PROJECT}_MinorNumber ([0-9]*)" _ ${BuildIdFile})

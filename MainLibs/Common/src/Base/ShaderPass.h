@@ -232,7 +232,7 @@ protected:
 	virtual bool ReCompil();
 
 	virtual bool BuildModel();
-	void NeedNewModelUpload();
+	void NeedNewModelUpdate();
 	virtual void DestroyModel(const bool& vReleaseDatas = false);
 	void UpdateModel(const bool& vLoaded);
 

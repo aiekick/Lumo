@@ -1,4 +1,3 @@
-
 ## plugins
 
 if(USE_PLUGIN_MESH_SIM)
@@ -9,7 +8,7 @@ if(USE_PLUGIN_MESH_SSS)
 	include(cmake/plugins/MeshSSS.cmake)
 endif()
 
-if(USE_PLUGIN_SDF_MEHER)
+if(USE_PLUGIN_SDF_MESHER)
 	include(cmake/plugins/SdfMesher.cmake)
 endif()
 

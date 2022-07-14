@@ -115,3 +115,13 @@ set_target_properties(${PROJECT} PROPERTIES LINKER_LANGUAGE CXX)
 set(COMMON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 set(COMMON_LIBRARIES ${PROJECT} PARENT_SCOPE)
 set(COMMON_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR} PARENT_SCOPE)
+
+########################################################
+################# BUILD INCREMENT TOOL #################
+########################################################
+
+add_custom_command(
+	TARGET ${PROJECT} PRE_BUILD
+	COMMAND BuildInc -prefix=Common 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/CommonBuild.h>
+	DEPENDS ${PROJECT}
+)
