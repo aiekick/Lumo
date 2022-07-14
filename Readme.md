@@ -113,6 +113,7 @@ My MeshSim plugin, with a basic deferred renderrer, one light shadow + ssao
 - [zlib](https://github.com/madler/zlib.git) (Zlib)
 - [taskflow](https://github.com/taskflow/taskflow) (MIT)
 - [Tracy](https://github.com/wolfpld/tracy.git) (BSD-3)
+- [glsl-tone-map](https://github.com/dmnsgn/glsl-tone-map) (MIT)
 
 ## And my libs :
 
