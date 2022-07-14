@@ -6,13 +6,15 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(USE_PLUGINS "Enable the plugin MeshSim" OFF)
+option(USE_PLUGINS "Enable the plugins building" OFF)
 if (USE_PLUGINS)
 	option(USE_STATIC_LINKING_OF_PLUGINS "Enable the static linking of plugins for easy dev" OFF)
 	option(USE_PLUGIN_MESH_SIM "Enable the plugin MeshSim" OFF)
 	option(USE_PLUGIN_MESH_SSS "Enable the plugin MeshSSS" OFF)
 	option(USE_PLUGIN_SDF_MESHER "Enable the plugin SdfMesher" OFF)
 	option(USE_PLUGIN_MORPHOGENESIS "Enable the plugin MorphoGenesis" OFF)
+	option(USE_PLUGIN_RTX "Enable the plugin RTX" OFF)
+	option(USE_PLUGIN_PARTICLES "Enable the plugin Particles" OFF)
 endif()
 
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
@@ -52,14 +54,8 @@ include(cmake/3rdparty/3rdparty.cmake)
 if (USE_PLUGINS)
 	if(USE_STATIC_LINKING_OF_PLUGINS)
 		set(PROJECT_PLUGINS)
-		set(PROJECT_PLUGINS_INCLUDES)
-		set(LOAD_STATIC_PLUGINS)
 	endif()
 	include(cmake/plugins/plugins.cmake)
-	if(USE_STATIC_LINKING_OF_PLUGINS)
-		add_definitions(-DPROJECT_PLUGINS_INCLUDES=${PROJECT_PLUGINS_INCLUDES})
-		add_definitions(-DLOAD_STATIC_PLUGINS=${LOAD_STATIC_PLUGINS})
-	endif()
 endif()
 
 set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
@@ -148,7 +144,6 @@ add_executable(${PROJECT}
 	${PROJECT_MAIN}
 	${CMAKE_RECURSE}
 	${SHADER_SOURCES}
-	${PLUGINS_FACTORY}
 	${IMGUIIMPL_SOURCES}
 	${PROJECT_SRC_RECURSE}
 	${IMGUI_FREETYPE_SOURCES}

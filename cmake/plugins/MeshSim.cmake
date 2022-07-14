@@ -12,10 +12,8 @@ set_target_properties(MeshSim PROPERTIES OUTPUT_NAME "MeshSim_${CMAKE_SYSTEM_NAM
 
 set_target_properties(MeshSim PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MeshSim/src)
+
 if (USE_STATIC_LINKING_OF_PLUGINS)
 set(PROJECT_PLUGINS ${PROJECT_PLUGINS} MeshSim)
-set(PROJECT_PLUGINS_INCLUDES ${PROJECT_PLUGINS_INCLUDES} "<MeshSim.h>")
-set(LOAD_STATIC_PLUGINS ${LOAD_STATIC_PLUGINS} "LOAD_PLUGIN(\"MeshSim\", MeshSim)")
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MeshSim/src)
 endif()
-

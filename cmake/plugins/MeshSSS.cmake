@@ -7,18 +7,11 @@ set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF CACHE BOOL "")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MeshSSS)
 
 set_target_properties(MeshSSS PROPERTIES FOLDER Plugins)
-
 set_target_properties(MeshSSS PROPERTIES OUTPUT_NAME "MeshSSS_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
-
 set_target_properties(MeshSSS PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
-
-set(PROJECT_PLUGINS ${PROJECT_PLUGINS} MeshSSS)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MeshSSS/src)
 
 if (USE_STATIC_LINKING_OF_PLUGINS)
 set(PROJECT_PLUGINS ${PROJECT_PLUGINS} MeshSSS)
-set(PROJECT_PLUGINS_INCLUDES ${PROJECT_PLUGINS_INCLUDES} "<MeshSSS.h>")
-set(LOAD_STATIC_PLUGINS ${LOAD_STATIC_PLUGINS} "LOAD_PLUGIN(\"MeshSSS\", MeshSSS)")
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MeshSSS/src)
 endif()

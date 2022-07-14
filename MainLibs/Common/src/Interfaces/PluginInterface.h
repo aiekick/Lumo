@@ -34,16 +34,21 @@ struct ImGuiContext;
 namespace ImGui { class CustomStyle; }
 class PluginInterface
 {
+protected:
+	vkApi::VulkanCoreWeak m_VulkanCoreWeak;
+	bool iSinAPlugin = false;
+
 public:
-	virtual ~PluginInterface() = default;
+	virtual ~PluginInterface();
 
 	virtual bool Init(
 		vkApi::VulkanCoreWeak vVulkanCoreWeak,
 		FileHelper* vFileHelper, 
 		CommonSystem* vCommonSystem,
 		ImGuiContext* vContext,
-		ImGui::CustomStyle* vCustomStyle) = 0;
-	virtual void Unit() = 0;
+		ImGui::CustomStyle* vCustomStyle);
+	virtual void Unit();
+
 	virtual uint32_t GetVersionMajor() const = 0;
 	virtual uint32_t GetVersionMinor() const = 0;
 	virtual uint32_t GetVersionBuild() const = 0;

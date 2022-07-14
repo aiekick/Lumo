@@ -26,10 +26,24 @@ limitations under the License.
 namespace fs = std::filesystem;
 
 #ifdef USE_STATIC_LINKING_OF_PLUGINS
-#ifdef PROJECT_PLUGINS_INCLUDES
-#include PROJECT_PLUGINS_INCLUDES
-#define LOAD_PLUGIN(PLUGIN_NAME, PLUGIN_CLASS) AddPlugin(PLUGIN_NAME, std::make_shared<PLUGIN_CLASS>(), vVulkanCoreWeak);
-#endif // PROJECT_PLUGINS_INCLUDES
+#ifdef USE_PLUGIN_MESH_SIM
+#include <MeshSim.h>
+#endif
+#ifdef USE_PLUGIN_MESH_SSS
+#include <MeshSSS.h>
+#endif
+#ifdef USE_PLUGIN_SDF_MESHER
+#include <SdfMesher.h>
+#endif
+#ifdef USE_PLUGIN_MORPHOGENESIS
+#include <MorphoGenesis.h>
+#endif
+#ifdef USE_PLUGIN_RTX
+#include <RTX.h>
+#endif
+#ifdef USE_PLUGIN_PARTICLES
+#include <Particles.h>
+#endif
 #endif // USE_STATIC_LINKING_OF_PLUGINS
 
 //////////////////////////////////////////////////////////////////////////////
@@ -38,7 +52,7 @@ namespace fs = std::filesystem;
 
 PluginInstance::PluginInstance()
 {
-	
+
 }
 
 PluginInstance::~PluginInstance()
@@ -193,9 +207,21 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 	}
 	printf("-----------\n");
 #else // USE_STATIC_LINKING_OF_PLUGINS
-	#ifdef LOAD_STATIC_PLUGINS
-		LOAD_STATIC_PLUGINS
-	#endif
+#ifdef USE_PLUGIN_MESH_SIM
+	AddPlugin("MeshSim", std::make_shared<MeshSim>, vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_MESH_SSS
+	AddPlugin("MeshSSS", std::make_shared<MeshSSS>, vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_SDF_MESHER
+	AddPlugin("SdfMesher", std::make_shared<SdfMesher>, vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_MORPHOGENESIS
+	AddPlugin("MorphoGenesis", std::make_shared<MorphoGenesis>, vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_RTX
+	AddPlugin("RTX", std::make_shared<RTX>, vVulkanCoreWeak);
+#endif
 #endif // USE_STATIC_LINKING_OF_PLUGINS
 }
 
