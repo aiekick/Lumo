@@ -40,6 +40,8 @@ DeferredRenderer_Pass::DeferredRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Deferred", QUAD_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 DeferredRenderer_Pass::~DeferredRenderer_Pass()
@@ -55,7 +57,7 @@ bool DeferredRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 {
 	assert(vContext);
 
-	DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
+	/*DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Normal", 1U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Albedo", 2U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Diffuse", 3U, m_OutputRatio);
@@ -63,7 +65,7 @@ bool DeferredRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 	DrawInputTexture(m_VulkanCorePtr, "Attenuation", 5U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Mask", 6U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Ao", 7U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "shadow", 8U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCorePtr, "shadow", 8U, m_OutputRatio);*/
 
 	return false;
 }
