@@ -138,15 +138,10 @@ bool Output3DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		m_LastExecutedFrame = vCurrentFrame;
-	}
-
 	return true;
 }
 
-void Output3DModule::SetTexture(const uint32_t& /*vBinding*/, vk::DescriptorImageInfo* /*vImageInfo*/)
+void Output3DModule::SetTexture(const uint32_t& /*vBinding*/, vk::DescriptorImageInfo* /*vImageInfo*/, ct::fvec2* vTextureSize)
 {
 	
 }

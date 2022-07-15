@@ -514,7 +514,8 @@ std::string NodeSlot::getXml(const std::string& vOffset, const std::string& /*vU
 {
 	std::string res;
 
-	res += vOffset + ct::toStr("<slot name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\"/>\n",
+	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\"/>\n",
+		index,
 		name.c_str(),
 		GetStringFromNodeSlotTypeEnum(slotType).c_str(),
 		GetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
@@ -538,6 +539,7 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 
 	if (strName == "slot" && strParentName == "node")
 	{
+		uint32_t _index = 0U;
 		std::string _name;
 		NodeSlotTypeEnum _type = NodeSlotTypeEnum::NONE;
 		NodeSlotPlaceEnum _place = NodeSlotPlaceEnum::NONE;
@@ -548,17 +550,19 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			std::string attName = attr->Name();
 			std::string attValue = attr->Value();
 
-			if (attName == "name")
+			if (attName == "index")
+				_index = ct::ivariant(attValue).GetU();
+			else if (attName == "name")
 				_name = attValue;
-			if (attName == "type")
+			else if (attName == "type")
 				_type = GetNodeSlotTypeEnumFromString(attValue);
-			if (attName == "place")
+			else if (attName == "place")
 				_place = GetNodeSlotPlaceEnumFromString(attValue);
-			if (attName == "id")
+			else if (attName == "id")
 				_pinId = ct::ivariant(attValue).GetU();
 		}
 
-		if (name == _name && 
+		if (index == _index &&
 			slotType == _type && 
 			slotPlace == _place && 
 			!idAlreadySetbyXml)

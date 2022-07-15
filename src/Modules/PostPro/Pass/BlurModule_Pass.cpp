@@ -93,7 +93,7 @@ void BlurModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 
 }
 
-void BlurModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void BlurModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 

@@ -107,12 +107,7 @@ bool ModelShadowModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Model Shadow Module");
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Model Shadow Module");
 
 	return true;
 }
@@ -178,13 +173,13 @@ void ModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	}
 }
 
-void ModelShadowModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void ModelShadowModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_ModelShadowModule_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		return m_ModelShadowModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

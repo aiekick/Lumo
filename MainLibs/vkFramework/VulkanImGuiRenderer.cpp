@@ -557,7 +557,7 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
 
                         // Draw
                         vkCmdDrawIndexed(command_buffer, pcmd->ElemCount, 1, pcmd->IdxOffset + global_idx_offset, pcmd->VtxOffset + global_vtx_offset, 0);
-                    }
+                   }
                     else
                     {
                         printf("pcmd->TextureId is NULL VkDescriptorSet\n");

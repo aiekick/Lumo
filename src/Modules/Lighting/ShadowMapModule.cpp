@@ -178,12 +178,7 @@ bool ShadowMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Shadow Map Module");
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Shadow Map Module");
 
 	return true;
 }

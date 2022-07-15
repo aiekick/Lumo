@@ -44,8 +44,7 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
-
-
+#include <Interfaces/NodeInterface.h>
 
 class MathModule_Pass;
 class MathModule :
@@ -54,7 +53,8 @@ class MathModule :
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
-	public ResizerInterface
+	public ResizerInterface,
+	public NodeInterface
 {
 public:
 	static std::shared_ptr<MathModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -75,8 +75,12 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
+	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+	bool DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
+
+	uint32_t GetComponentCount();
+	std::string GetInputName(const uint32_t& vIdx);
 };

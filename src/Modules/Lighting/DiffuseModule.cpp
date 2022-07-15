@@ -102,12 +102,7 @@ bool DiffuseModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Diffuse", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Diffuse", vCmd);
 
 	return true;
 }
@@ -159,13 +154,13 @@ void DiffuseModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorB
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void DiffuseModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DiffuseModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_DiffuseModule_Pass_Ptr)
 	{
-		m_DiffuseModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		m_DiffuseModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

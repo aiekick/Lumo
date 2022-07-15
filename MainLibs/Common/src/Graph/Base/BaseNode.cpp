@@ -871,12 +871,14 @@ NodeSlotWeak BaseNode::AddInput(NodeSlot vFlow, bool vIncSlotId, bool vHideName)
 {
 	assert(!m_This.expired());
 	vFlow.parentNode = m_This;
-	vFlow.stamp.typeStamp = "flow";
 	vFlow.slotPlace = NodeSlotPlaceEnum::INPUT;
 	vFlow.hideName = vHideName;
 	vFlow.type = uType::uTypeEnum::U_FLOW;
 	if (vIncSlotId)
+	{
 		vFlow.pinID = NodeSlot::GetNewSlotId();
+	}
+	vFlow.index = (uint32_t)m_Inputs.size();
 	m_Inputs[(int)vFlow.pinID.Get()] = NodeSlot::Create(vFlow);
 	return m_Inputs[(int)vFlow.pinID.Get()];
 }
@@ -885,12 +887,14 @@ NodeSlotWeak BaseNode::AddOutput(NodeSlot vFlow, bool vIncSlotId, bool vHideName
 {
 	assert(!m_This.expired());
 	vFlow.parentNode = m_This;
-	vFlow.stamp.typeStamp = "flow";
 	vFlow.slotPlace = NodeSlotPlaceEnum::OUTPUT;
 	vFlow.hideName = vHideName;
 	vFlow.type = uType::uTypeEnum::U_FLOW;
 	if (vIncSlotId)
+	{
 		vFlow.pinID = NodeSlot::GetNewSlotId();
+	}
+	vFlow.index = (uint32_t)m_Inputs.size();
 	m_Outputs[(int)vFlow.pinID.Get()] = NodeSlot::Create(vFlow);
 	return m_Outputs[(int)vFlow.pinID.Get()];
 }
@@ -2584,7 +2588,9 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 				std::string attName = attr->Name();
 				std::string attValue = attr->Value();
 
-				if (attName == "name")
+				if (attName == "index")
+					slot.index = ct::ivariant(attValue).GetU();
+				else if (attName == "name")
 					slot.name = attValue;
 				else if (attName == "type")
 					slot.slotType = GetNodeSlotTypeEnumFromString(attValue);
@@ -2601,7 +2607,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 					bool wasSet = false;
 					for (auto input : m_Inputs)
 					{
-						if (input.second->name == slot.name)
+						if (input.second->index == slot.index)
 						{
 							wasSet = !input.second->setFromXml(vElem, vParent);
 							if (wasSet)
@@ -2629,7 +2635,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 					bool wasSet = false;
 					for (auto output : m_Outputs)
 					{
-						if (output.second->name == slot.name)
+						if (output.second->index == slot.index)
 						{
 							wasSet = !output.second->setFromXml(vElem, vParent);
 							if (wasSet)

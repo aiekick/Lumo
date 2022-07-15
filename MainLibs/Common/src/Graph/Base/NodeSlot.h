@@ -146,6 +146,7 @@ public:
 public:
 	nd::PinId pinID = 0;
 	std::string name;
+	uint32_t index = 0U; // index of the slot for xml
 	uint32_t descriptorBinding = 0u;
 	uint32_t variableIndex = 0u;
 	std::string help;

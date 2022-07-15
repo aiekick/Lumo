@@ -103,12 +103,7 @@ bool SSAOModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("SSAO", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("SSAO", vCmd);
 
 	return true;
 }
@@ -164,7 +159,7 @@ void SSAOModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuff
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void SSAOModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void SSAOModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
@@ -172,7 +167,7 @@ void SSAOModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* v
 	{
 		if (m_SSAOModule_Pass_Ptr)
 		{
-			m_SSAOModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+			m_SSAOModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 		}
 	}
 }

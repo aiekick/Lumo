@@ -105,12 +105,7 @@ bool MeshAttributesModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Com
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Mesh Attributes Module", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Mesh Attributes Module", vCmd);
 
 	return true;
 }
@@ -168,13 +163,13 @@ void MeshAttributesModule::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-void MeshAttributesModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void MeshAttributesModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_MeshAttributesModule_Pass_Ptr)
 	{
-		m_MeshAttributesModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		m_MeshAttributesModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

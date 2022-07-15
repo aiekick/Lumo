@@ -98,12 +98,7 @@ bool DepthToPosModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Depth To Pos Module", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Depth To Pos Module", vCmd);
 
 	return true;
 }
@@ -151,13 +146,13 @@ void DepthToPosModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountCol
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void DepthToPosModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DepthToPosModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_DepthToPosModule_Pass_Ptr)
 	{
-		m_DepthToPosModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		m_DepthToPosModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

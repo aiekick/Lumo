@@ -88,6 +88,7 @@ bool DeferredRenderer::Init()
 			}
 		}
 	}
+
 	return m_Loaded;
 }
 
@@ -99,12 +100,7 @@ bool DeferredRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Deferred Renderer", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Deferred Renderer", vCmd);
 
 	return true;
 }
@@ -152,11 +148,11 @@ void DeferredRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountCol
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void DeferredRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DeferredRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_DeferredRenderer_Pass_Ptr)
 	{
-		return m_DeferredRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		return m_DeferredRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

@@ -29,6 +29,10 @@ limitations under the License.
 #include <utils/Mesh/VertexStruct.h>
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
+#include <FontIcons/CustomFont.h>
+
+#include <imgui_node_editor/NodeEditor/Include/imgui_node_editor.h>
+namespace nd = ax::NodeEditor;
 
 using namespace vkApi;
 
@@ -39,14 +43,88 @@ using namespace vkApi;
 //////////////////////////////////////////////////////////////
 
 MathModule_Pass::MathModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Comp Pass : Math", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Frag Pass : Math", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 MathModule_Pass::~MathModule_Pass()
 {
 	Unit();
+}
+
+void MathModule_Pass::ActionBeforeInit()
+{
+	m_Functions.clear();
+
+	// unary
+	m_Functions.push_back(MathModuleEntry("cos", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("sin", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("tan", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("acos", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("asin", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("atan", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("acosh", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("asinh", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("atanh", 1U, "v", "", ""));
+
+	m_Functions.push_back(MathModuleEntry("abs", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("floor", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("ceil", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("fract", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("round", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("roundEven", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("sqrt", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("sign", 1U, "v", "", ""));
+
+	m_Functions.push_back(MathModuleEntry("dFdx", 1U, "v", "", "")); // need fragment
+	m_Functions.push_back(MathModuleEntry("dFdxCoarse", 1U, "v", "", "")); // need fragment
+	m_Functions.push_back(MathModuleEntry("dFdxFine", 1U, "v", "", "")); // need fragment
+
+	m_Functions.push_back(MathModuleEntry("dFdy", 1U, "v", "", "")); // need fragment
+	m_Functions.push_back(MathModuleEntry("dFdyCoarse", 1U, "v", "", "")); // need fragment
+	m_Functions.push_back(MathModuleEntry("dFdyFine", 1U, "v", "", "")); // need fragment
+
+	m_Functions.push_back(MathModuleEntry("fwidth", 1U, "v", "", "")); // need fragment
+	m_Functions.push_back(MathModuleEntry("fwidthCoarse", 1U, "v", "", "")); // need fragment
+	m_Functions.push_back(MathModuleEntry("fwidthFine", 1U, "v", "", "")); // need fragment
+
+	m_Functions.push_back(MathModuleEntry("length", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("normalize", 1U, "v", "", ""));
+
+	m_Functions.push_back(MathModuleEntry("log", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("log2", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("exp", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("exp2", 1U, "v", "", ""));
+
+	// binary
+	m_Functions.push_back(MathModuleEntry("atan 2", 1U, "x", "y", ""));
+	m_Functions.push_back(MathModuleEntry("cross", 2U, "x", "y", ""));
+	m_Functions.push_back(MathModuleEntry("dot", 2U, "x", "y", ""));
+	m_Functions.push_back(MathModuleEntry("distance", 2U, "p0", "p1", ""));
+	m_Functions.push_back(MathModuleEntry("reflect", 2U, "I", "N", ""));
+	m_Functions.push_back(MathModuleEntry("pow", 2U, "x", "y", ""));
+	m_Functions.push_back(MathModuleEntry("mod", 2U, "x", "y", ""));
+	m_Functions.push_back(MathModuleEntry("step", 2U, "edge", "x", ""));
+
+	m_Functions.push_back(MathModuleEntry("add", 2U, "a", "b", ""));
+	m_Functions.push_back(MathModuleEntry("sub", 2U, "a", "b", ""));
+	m_Functions.push_back(MathModuleEntry("mul", 2U, "a", "b", ""));
+	m_Functions.push_back(MathModuleEntry("div", 2U, "a", "b", ""));
+
+	m_Functions.push_back(MathModuleEntry("min", 2U, "x", "y", ""));
+	m_Functions.push_back(MathModuleEntry("max", 2U, "x", "y", ""));
+
+	m_Functions.push_back(MathModuleEntry("smooth abs", 2U, "v", "k", ""));
+
+	// ternary
+	m_Functions.push_back(MathModuleEntry("clamp", 3U, "x", "minVal", "maxVal"));
+	m_Functions.push_back(MathModuleEntry("mix", 3U, "x", "y", "a"));
+	m_Functions.push_back(MathModuleEntry("smoothstep", 3U, "edge0", "edge1", "x"));
+	m_Functions.push_back(MathModuleEntry("refract", 3U, "I", "N", "eta"));
+	m_Functions.push_back(MathModuleEntry("faceforward", 3U, "N", "I", "Nref"));
 }
 
 bool MathModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -55,25 +133,7 @@ bool MathModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 	if (ImGui::CollapsingHeader("Math", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		bool change = false;
-
-		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_UBOComp.u_blur_radius, 1U, 10U, 4U);
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Offset", &m_UBOComp.u_blur_offset, 1U, 10U, 1U);
-
-			if (change)
-			{
-				m_UBOComp.u_blur_radius = ct::maxi(m_UBOComp.u_blur_radius, 1U);
-				m_UBOComp.u_blur_offset = ct::maxi(m_UBOComp.u_blur_offset, 1U);
-				NeedNewUBOUpload();
-			}
-		}
-
-		DrawInputTexture(m_VulkanCorePtr, "Input", 0U, m_OutputRatio);
-		//DrawInputTexture(m_VulkanCorePtr, "Output Math", 0U, m_OutputRatio);
-
-		return change;
+		return DrawCombo(0.0f);
 	}
 
 	return false;
@@ -91,7 +151,7 @@ void MathModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 
 }
 
-void MathModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void MathModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
@@ -102,9 +162,23 @@ void MathModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 			if (vImageInfo)
 			{
 				m_ImageInfos[vBinding] = *vImageInfo;
+
+				if ((&m_UBOFrag.u_use_input_0)[vBinding] < 1.0f)
+				{
+					(&m_UBOFrag.u_use_input_0)[vBinding] = 1.0f;
+
+					NeedNewUBOUpload();
+				}
 			}
 			else
 			{
+				if ((&m_UBOFrag.u_use_input_0)[vBinding] > 0.0f)
+				{
+					(&m_UBOFrag.u_use_input_0)[vBinding] = 0.0f;
+					
+					NeedNewUBOUpload();
+				}
+
 				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 			}
 		}
@@ -113,7 +187,7 @@ void MathModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 
 vk::DescriptorImageInfo* MathModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_ComputeBufferPtr)
+	if (m_FrameBufferPtr)
 	{
 		if (vOutSize)
 		{
@@ -126,30 +200,15 @@ vk::DescriptorImageInfo* MathModule_Pass::GetDescriptorImageInfo(const uint32_t&
 	return nullptr;
 }
 
-void MathModule_Pass::SwapOutputDescriptors()
-{
-	writeDescriptorSets[0].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // output
-}
-
-void MathModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
-{
-	if (vCmdBuffer)
-	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
-		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-		vCmdBuffer->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
-	}
-}
-
 bool MathModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	auto size_in_bytes = sizeof(UBOComp);
-	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
-	m_DescriptorBufferInfo_Comp.buffer = m_UBO_Comp->buffer;
-	m_DescriptorBufferInfo_Comp.range = size_in_bytes;
-	m_DescriptorBufferInfo_Comp.offset = 0;
+	auto size_in_bytes = sizeof(UBOFrag);
+	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
+	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
+	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
+	m_DescriptorBufferInfo_Frag.offset = 0;
 
 	for (auto& info : m_ImageInfos)
 	{
@@ -165,14 +224,14 @@ void MathModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void MathModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp.reset();
+	m_UBO_Frag.reset();
 }
 
 bool MathModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -180,9 +239,12 @@ bool MathModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
+
+	// max 3 input
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
@@ -192,61 +254,159 @@ bool MathModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
 
-	assert(m_ComputeBufferPtr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // ssao
+	// max 3 input
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2], nullptr);
 
 	return true;
 }
 
-std::string MathModule_Pass::GetComputeShaderCode(std::string& vOutShaderName)
+std::string MathModule_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "MathModule_Pass";
+	vOutShaderName = "MathModule_Pass_Vertex";
 
-	return u8R"(
-#version 450
+	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
+layout(location = 0) in vec2 vertPosition;
+layout(location = 1) in vec2 vertUv;
+layout(location = 0) out vec2 v_uv;
 
-layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
-
-layout(std140, binding = 1) uniform UBO_Comp
+void main() 
 {
-	uint u_blur_radius; // default is 4
-	float u_blur_offset; // default is 1.0
+	v_uv = vertUv;
+	gl_Position = vec4(vertPosition, 0.0, 1.0);
+}
+)";
+}
+
+std::string MathModule_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "MathModule_Pass_Fragment";
+
+	return u8R"(#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) out vec4 fragColor;
+layout(location = 0) in vec2 v_uv;
+
+layout (std140, binding = 0) uniform UBO_Frag 
+{ 
+	int u_Function_index;
+	float u_use_input_0;
+	float u_use_input_1;
+	float u_use_input_2;
 };
 
-layout(binding = 2) uniform sampler2D input_map_sampler;
+layout(binding = 1) uniform sampler2D input_0_map_sampler;
+layout(binding = 2) uniform sampler2D input_1_map_sampler;
+layout(binding = 3) uniform sampler2D input_2_map_sampler;
 
-void main()
+void main() 
 {
-	vec4 res = vec4(0.0);
+	fragColor = vec4(0);
 	
-	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
-	vec4 tex = texelFetch(input_map_sampler, coords, 0);
-	if (dot(tex, tex) > 0.0)
+	vec4 input_0 = vec4(0);
+	vec4 input_1 = vec4(0);
+	vec4 input_2 = vec4(0);
+	
+	if (u_use_input_0 > 0.5) { input_0 = texture(input_0_map_sampler, v_uv); }
+	if (u_use_input_1 > 0.5) { input_1 = texture(input_1_map_sampler, v_uv); }
+	if (u_use_input_2 > 0.5) { input_2 = texture(input_2_map_sampler, v_uv); }
+	
+	switch(u_Function_index)
 	{
-		const uint blur_radius = u_blur_radius;
-		const uint blur_radius_radius = u_blur_radius * u_blur_radius;
+		// unary
+		case 0: fragColor = cos(input_0); break;
+		case 1: fragColor = sin(input_0); break;
+		case 2: fragColor = tan(input_0); break;
+		case 3: fragColor = acos(input_0); break;
+		case 4: fragColor = asin(input_0); break;
+		case 5: fragColor = atan(input_0); break;
+		case 6: fragColor = acosh(input_0); break;
+		case 7: fragColor = asinh(input_0); break;
+		case 8: fragColor = atanh(input_0); break;
+		
+		case 9: fragColor = abs(input_0); break;
+		case 10: fragColor = floor(input_0); break;
+		case 11: fragColor = ceil(input_0); break;
+		case 12: fragColor = fract(input_0); break;
+		case 13: fragColor = round(input_0); break;
+		case 14: fragColor = roundEven(input_0); break;
+		case 15: fragColor = sqrt(input_0); break;
+		case 16: fragColor = sign(input_0); break;
+		
+		case 17: fragColor = dFdx(input_0); break;
+		case 18: fragColor = dFdxCoarse(input_0); break;
+		case 19: fragColor = dFdxFine(input_0); break;
+		case 20: fragColor = dFdy(input_0); break;
+		case 21: fragColor = dFdyCoarse(input_0); break;
+		case 22: fragColor = dFdyFine(input_0); break;
+		case 23: fragColor = fwidth(input_0); break;
+		case 24: fragColor = fwidthCoarse(input_0); break;
+		case 25: fragColor = fwidthFine(input_0); break;
 
-		const float blur_radius_f = float(blur_radius);
+		case 26: fragColor = vec4(length(input_0)); break;
+		case 27: fragColor = vec4(normalize(input_0.xyz), 1.0); break;
+		
+		case 28: fragColor = log(input_0); break;
+		case 29: fragColor = log2(input_0); break;
+		case 30: fragColor = exp(input_0); break;
+		case 31: fragColor = exp2(input_0); break;
 
-		vec2 texSize = textureSize(input_map_sampler, 0);
-
-		for (uint i = 0 ; i < blur_radius_radius; ++i)
+		// binary
+		case 32: fragColor = atan(input_0, input_1); break;
+		case 33: fragColor = vec4(cross(input_0.xyz, input_1.xyz), 1.0); break;
+		case 34: fragColor = vec4(dot(input_0, input_1)); break;
+		case 35: fragColor = vec4(distance(input_0, input_1)); break;
+		case 36: fragColor = reflect(input_0, input_1); break;
+		case 37: 
 		{
-			int x = int(floor(i * u_blur_offset / blur_radius_f) / blur_radius_f);
-			int y = int((mod(float(i * u_blur_offset), blur_radius_f)) / blur_radius_f);
-			res += texelFetch(input_map_sampler, coords + ivec2(x,y), 0);
-		}
+			if (input_0.x > 0.0f && 
+				input_0.y > 0.0f && 
+				input_0.z > 0.0f && 
+				input_0.w > 0.0f &&
+				input_1.x > 0.0f &&
+				input_1.y > 0.0f &&
+				input_1.z > 0.0f &&
+				input_1.w > 0.0f)
+			{
+				fragColor = pow(input_0, input_1);
+			}
+			break;
+		}		
+		case 38: fragColor = mod(input_0, input_1); break;
+		case 39: fragColor = step(input_0, input_1); break;
 
-		res /= float(blur_radius_radius);
+		case 40: fragColor = input_0 + input_1; break;
+		case 41: fragColor = input_0 - input_1; break;
+		case 42: fragColor = input_0 * input_1; break;
+		case 43:
+		{
+			if (input_1.x != 0.0f &&
+				input_1.y != 0.0f &&
+				input_1.z != 0.0f &&
+				input_1.w != 0.0f)
+			{
+				fragColor = input_0 / input_1;
+			}
+			break;
+		}		
+		case 44: fragColor = min(input_0, input_1); break;
+		case 45: fragColor = max(input_0, input_1); break;
+
+		case 46: fragColor = sqrt(input_0 * input_0 + abs(input_1)); break;
+
+		// ternary
+		case 47: fragColor = clamp(input_0, input_1, input_2); break;
+		case 48: fragColor = mix(input_0, input_1, input_2); break;
+		case 49: fragColor = smoothstep(input_0, input_1, input_2); break;
+		case 50: fragColor = vec4(refract(input_0.xyz, input_1.xyz, input_2.x), 1.0); break;
+		case 51: fragColor = vec4(faceforward(input_0.xyz, input_1.xyz, input_2.xyz), 1.0); break;
 	}
-
-	imageStore(outColor, coords, res); 
 }
 )";
 }
@@ -259,8 +419,7 @@ std::string MathModule_Pass::getXml(const std::string& vOffset, const std::strin
 {
 	std::string str;
 
-	str += vOffset + "<blur_radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</blur_radius>\n";
-	str += vOffset + "<blur_offset>" + ct::toStr(m_UBOComp.u_blur_offset) + "</blur_offset>\n";
+	str += vOffset + "<function>" + ct::toStr(m_UBOFrag.u_Function_index) + "</function>\n";
 
 	return str;
 }
@@ -278,16 +437,90 @@ bool MathModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "blur_module")
+	if (strParentName == "math_module")
 	{
-		if (strName == "blur_radius")
-			m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
-		else if (strName == "blur_offset")
-			m_UBOComp.u_blur_offset = ct::uvariant(strValue).GetU();
-		else if (strName == "blur_smooth_inf")
+		if (strName == "function")
+			m_UBOFrag.u_Function_index = ct::ivariant(strValue).GetI();
 
 		NeedNewUBOUpload();
 	}
 
 	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool MathModule_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+{
+	assert(m_UBOFrag.u_Function_index < (int32_t)m_Functions.size());
+
+	ImGui::Text(std::get<0>(m_Functions.at(m_UBOFrag.u_Function_index)).c_str());
+
+	return false;
+}
+
+bool MathModule_Pass::DrawCombo(const float vWidth)
+{
+	bool change = false;
+
+	if (!m_Functions.empty())
+	{
+		float px = ImGui::GetCursorPosX();
+
+		ImGui::PushID(++ImGui::CustomStyle::Instance()->pushId);
+
+		change = ImGui::ContrastedButton(ICON_NDP_RESET);
+		if (change)
+			m_UBOFrag.u_Function_index = 0;
+
+		ImGui::CustomSameLine();
+
+		//nd::Suspend();
+
+		change |= ImGui::ContrastedCombo(vWidth, "##Function", &m_UBOFrag.u_Function_index, [](void* data, int idx, const char** out_text)
+			{
+				*out_text = std::get<0>(((const std::vector<MathModuleEntry>*)data)->at(idx)).c_str();
+				return true;
+			}, (void*)&m_Functions, (int)m_Functions.size(), -1);
+
+
+		//nd::Resume();
+
+		ImGui::PopID();
+	}
+
+	if (change)
+	{
+		NeedNewUBOUpload();
+	}
+
+	return change;
+}
+
+uint32_t MathModule_Pass::GetComponentCount()
+{
+	if (m_UBOFrag.u_Function_index < (int32_t)m_Functions.size())
+	{
+		return std::get<1>(m_Functions.at(m_UBOFrag.u_Function_index));
+	}
+
+	return 0U;
+}
+
+std::string MathModule_Pass::GetInputName(const uint32_t& vIdx)
+{
+	if (m_UBOFrag.u_Function_index < (int32_t)m_Functions.size() && vIdx < 3U)
+	{
+		const auto& tu = m_Functions.at(m_UBOFrag.u_Function_index);
+		switch (vIdx)
+		{
+		case 0: return std::get<2>(tu);
+		case 1: return std::get<3>(tu);
+		case 2: return std::get<4>(tu);
+		}
+	}
+
+	return "";
 }

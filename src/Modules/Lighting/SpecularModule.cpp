@@ -102,12 +102,7 @@ bool SpecularModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Specular", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Specular", vCmd);
 
 	return true;
 }
@@ -163,13 +158,13 @@ void SpecularModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColor
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void SpecularModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void SpecularModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_SpecularModule_Pass_Ptr)
 	{
-		m_SpecularModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		m_SpecularModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

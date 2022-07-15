@@ -99,12 +99,7 @@ bool PBRRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("PBR Renderer", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("PBR Renderer", vCmd);
 
 	return true;
 }
@@ -152,11 +147,11 @@ void PBRRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuf
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void PBRRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void PBRRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_PBRRenderer_Pass_Ptr)
 	{
-		return m_PBRRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		return m_PBRRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

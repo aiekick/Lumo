@@ -124,11 +124,6 @@ bool Output2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		m_LastExecutedFrame = vCurrentFrame;
-	}
-
 	return true;
 }
 
@@ -137,7 +132,7 @@ ct::fvec2 Output2DModule::GetOutputSize() const
 	return 0.0f;
 }
 
-void Output2DModule::SetTexture(const uint32_t& /*vBinding*/, vk::DescriptorImageInfo* /*vImageInfo*/)
+void Output2DModule::SetTexture(const uint32_t& /*vBinding*/, vk::DescriptorImageInfo* /*vImageInfo*/, ct::fvec2* vTextureSize)
 {
 	
 }

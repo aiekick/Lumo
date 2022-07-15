@@ -73,26 +73,21 @@ void LightGroupModule::Unit()
 
 bool LightGroupModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	if (m_LastExecutedFrame != vCurrentFrame)
+	uint32_t idx = 0U;
+	for (auto lightPtr : *m_SceneLightGroupPtr)
 	{
-		uint32_t idx = 0U;
-		for (auto lightPtr : *m_SceneLightGroupPtr)
+		if (lightPtr && lightPtr->wasChanged)
 		{
-			if (lightPtr && lightPtr->wasChanged)
-			{
-				lightPtr->NeedUpdateCamera();
-				m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas); 
+			lightPtr->NeedUpdateCamera();
+			m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas); 
 				
-				lightPtr->wasChanged = false;
-			}
-
-			++idx;
+			lightPtr->wasChanged = false;
 		}
 
-		m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
-
-		m_LastExecutedFrame = vCurrentFrame;
+		++idx;
 	}
+
+	m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
 
 	return false;
 }

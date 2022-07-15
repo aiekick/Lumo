@@ -111,20 +111,17 @@ bool SmoothNormalModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Co
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
+	BaseRenderer::Render("Smooth Normal when mesh update", vCmd);
+
+	// mesh was updated, we notify the parent here
+	// becasue this execution is event based
+	auto parentNodePtr = GetParentNode().getValidShared();
+	if (parentNodePtr)
 	{
-		BaseRenderer::Render("Smooth Normal when mesh update", vCmd);
-
-		// mesh was updated, we notify the parent here
-		// becasue this execution is event based
-		auto parentNodePtr = GetParentNode().getValidShared();
-		if (parentNodePtr)
-		{
-			parentNodePtr->Notify(NotifyEvent::ModelUpdateDone);
-		}
-
-		m_LastExecutedFrame = vCurrentFrame;
+		parentNodePtr->Notify(NotifyEvent::ModelUpdateDone);
 	}
+
+	m_LastExecutedFrame = vCurrentFrame;
 
 	return true;
 }

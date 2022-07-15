@@ -97,12 +97,7 @@ bool MatcapRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Matcap Renderer", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Matcap Renderer", vCmd);
 
 	return true;
 }
@@ -160,11 +155,11 @@ void MatcapRenderer::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-void MatcapRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void MatcapRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_MatcapRenderer_Pass_Ptr)
 	{
-		return m_MatcapRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		return m_MatcapRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

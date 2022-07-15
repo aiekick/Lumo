@@ -27,7 +27,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/ShaderPass.h>
+#include <Base/QuadShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
@@ -42,37 +42,47 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-
+#include <Interfaces/NodeInterface.h>
 
 
 class MathModule_Pass :
-	public ShaderPass,
+	public QuadShaderPass,
 	public GuiInterface,
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface
+	public TextureInputInterface<3U>,
+	public TextureOutputInterface,
+	public NodeInterface
 {
 private:
-	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
+	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
+	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
-	struct UBOComp {
-		alignas(4) uint32_t u_blur_radius = 4;
-		alignas(4) uint32_t u_blur_offset = 1;
-	} m_UBOComp;
+	struct UBOFrag {
+		alignas(4) int32_t u_Function_index = 0;
+		alignas(4) float u_use_input_0 = 0.0f;
+		alignas(4) float u_use_input_1 = 0.0f;
+		alignas(4) float u_use_input_2 = 0.0f;
+	} m_UBOFrag;
+
+	typedef std::tuple<std::string, uint32_t, std::string, std::string, std::string> MathModuleEntry;
+
+	std::vector<MathModuleEntry> m_Functions;
 
 public:
 	MathModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~MathModule_Pass() override;
 
+	void ActionBeforeInit() override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo) override;
+	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	void SwapOutputDescriptors() override;
-	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+
+	bool DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext) override;
+	uint32_t GetComponentCount();
+	std::string GetInputName(const uint32_t& vIdx);
 
 protected:
 	bool CreateUBO() override;
@@ -82,5 +92,8 @@ protected:
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+
+	bool DrawCombo(const float vWidth);
 };

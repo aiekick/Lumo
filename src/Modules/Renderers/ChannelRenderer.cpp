@@ -96,12 +96,7 @@ bool ChannelRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Channel Renderer", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Channel Renderer", vCmd);
 
 	return true;
 }

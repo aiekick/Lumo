@@ -102,12 +102,7 @@ bool BlurModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Blur", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Blur", vCmd);
 
 	return true;
 }
@@ -163,13 +158,13 @@ void BlurModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuff
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void BlurModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void BlurModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_BlurModule_Pass_Ptr)
 	{
-		m_BlurModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		m_BlurModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

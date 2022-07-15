@@ -90,12 +90,7 @@ bool GridModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Grid Module", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Grid Module", vCmd);
 	
 	return true;
 }

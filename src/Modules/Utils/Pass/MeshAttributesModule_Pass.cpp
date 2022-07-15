@@ -88,7 +88,7 @@ void MeshAttributesModule_Pass::SetModel(SceneModelWeak vSceneModel)
 	m_SceneModel = vSceneModel;
 }
 
-void MeshAttributesModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void MeshAttributesModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 

@@ -154,7 +154,9 @@ void SpecularNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vE
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
 				}
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
@@ -180,7 +182,7 @@ void SpecularNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 		{
 			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
 			{
@@ -190,11 +192,11 @@ void SpecularNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 	}
 }
 
-void SpecularNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void SpecularNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_SpecularModulePtr)
 	{
-		m_SpecularModulePtr->SetTexture(vBinding, vImageInfo);
+		m_SpecularModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -233,7 +235,9 @@ void SpecularNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmite
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding));
+						ct::fvec2 textureSize;
+						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
 					}
 				}
 			}

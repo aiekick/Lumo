@@ -73,7 +73,7 @@ void DepthToPosModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFram
 
 }
 
-void DepthToPosModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DepthToPosModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 

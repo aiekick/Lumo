@@ -82,7 +82,7 @@ void DeferredRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFram
 
 }
 
-void DeferredRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DeferredRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 

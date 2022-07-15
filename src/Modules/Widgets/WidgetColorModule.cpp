@@ -102,12 +102,7 @@ bool WidgetColorModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("WidgetColor", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("WidgetColor", vCmd);
 
 	return true;
 }
@@ -116,7 +111,7 @@ bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 {
 	assert(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Widget Color", -1.0f, true, true, &m_CanWeRender))
 		{
@@ -158,7 +153,7 @@ bool WidgetColorModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiConte
 {
 	assert(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		bool change = false;
 

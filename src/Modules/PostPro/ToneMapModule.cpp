@@ -104,12 +104,7 @@ bool ToneMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("ToneMap", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("ToneMap", vCmd);
 
 	return true;
 }
@@ -165,13 +160,13 @@ void ToneMapModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorB
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void ToneMapModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void ToneMapModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_ToneMapModule_Pass_Ptr)
 	{
-		m_ToneMapModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		m_ToneMapModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

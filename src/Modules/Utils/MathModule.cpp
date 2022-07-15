@@ -78,12 +78,13 @@ bool MathModule::Init()
 
 	m_Loaded = true;
 
-	if (BaseRenderer::InitCompute2D(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
 		m_MathModule_Pass_Ptr = std::make_shared<MathModule_Pass>(m_VulkanCorePtr);
 		if (m_MathModule_Pass_Ptr)
 		{
-			if (m_MathModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			if (m_MathModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_MathModule_Pass_Ptr);
 				m_Loaded = true;
@@ -102,12 +103,7 @@ bool MathModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Math", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Math", vCmd);
 
 	return true;
 }
@@ -116,7 +112,7 @@ bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 {
 	assert(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Math", -1.0f, true, true, &m_CanWeRender))
 		{
@@ -163,13 +159,13 @@ void MathModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuff
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void MathModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void MathModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_MathModule_Pass_Ptr)
 	{
-		m_MathModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		m_MathModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -193,19 +189,16 @@ std::string MathModule::getXml(const std::string& vOffset, const std::string& vU
 {
 	std::string str;
 
-	str += vOffset + "<blur_module>\n";
+	str += vOffset + "<math_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_MathModule_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			str += passPtr->getXml(vOffset + "\t", vUserDatas);
-		}
+		str += m_MathModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</blur_module>\n";
+	str += vOffset + "</math_module>\n";
 
 	return str;
 }
@@ -223,19 +216,49 @@ bool MathModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "blur_module")
+	if (strParentName == "math_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_MathModule_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			passPtr->setFromXml(vElem, vParent, vUserDatas);
-		}
+		return m_MathModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
+}
+
+bool MathModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+{
+	//if (m_LastExecutedFrame == vCurrentFrame)
+	{
+		if (m_MathModule_Pass_Ptr)
+		{
+			return m_MathModule_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContext);
+		}
+	}
+
+	return false;
+}
+
+uint32_t MathModule::GetComponentCount()
+{
+	if (m_MathModule_Pass_Ptr)
+	{
+		return m_MathModule_Pass_Ptr->GetComponentCount();
+	}
+
+	return 0U;
+}
+
+std::string MathModule::GetInputName(const uint32_t& vIdx)
+{
+	if (m_MathModule_Pass_Ptr)
+	{
+		return m_MathModule_Pass_Ptr->GetInputName(vIdx);
+	}
+
+	return "";
 }

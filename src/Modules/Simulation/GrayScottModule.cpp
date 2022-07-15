@@ -107,12 +107,7 @@ bool GrayScottModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("GrayScott", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("GrayScott", vCmd);
 
 	return true;
 }
@@ -168,13 +163,13 @@ void GrayScottModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColo
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void GrayScottModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void GrayScottModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_GrayScottModule_Pass_Ptr)
 	{
-		m_GrayScottModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		m_GrayScottModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

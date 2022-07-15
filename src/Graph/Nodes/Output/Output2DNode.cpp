@@ -146,7 +146,7 @@ void Output2DNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 	}
 }
 
-void Output2DNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void Output2DNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	
 }

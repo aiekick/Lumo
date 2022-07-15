@@ -64,18 +64,23 @@ public:
 	// donc on appellera Execute entre classe
 	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr)
 	{
-		if (m_ExecutionWhenNeededOnly)
+		if (m_LastExecutedFrame != vCurrentFrame)
 		{
-			if (m_NeedNewExecution)
-			{
-				m_NeedNewExecution = false;
+			m_LastExecutedFrame = vCurrentFrame;
 
-				return ExecuteWhenNeeded(vCurrentFrame, vCmd, vBaseNodeState);
+			if (m_ExecutionWhenNeededOnly)
+			{
+				if (m_NeedNewExecution)
+				{
+					m_NeedNewExecution = false;
+
+					return ExecuteWhenNeeded(vCurrentFrame, vCmd, vBaseNodeState);
+				}
 			}
-		}
-		else
-		{
-			return ExecuteAllTime(vCurrentFrame, vCmd, vBaseNodeState);
+			else
+			{
+				return ExecuteAllTime(vCurrentFrame, vCmd, vBaseNodeState);
+			}
 		}
 
 		return false;

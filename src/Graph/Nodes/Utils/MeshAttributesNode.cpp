@@ -177,11 +177,11 @@ void MeshAttributesNode::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-void MeshAttributesNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void MeshAttributesNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_MeshAttributesModulePtr)
 	{
-		m_MeshAttributesModulePtr->SetTexture(vBinding, vImageInfo);
+		m_MeshAttributesModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -217,7 +217,9 @@ void MeshAttributesNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding)); // output
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
 				}
 			}
 		}
@@ -239,7 +241,7 @@ void MeshAttributesNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
@@ -278,7 +280,9 @@ void MeshAttributesNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& v
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding)); // output
+						ct::fvec2 textureSize;
+						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
 					}
 				}
 			}

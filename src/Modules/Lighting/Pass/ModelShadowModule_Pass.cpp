@@ -96,7 +96,7 @@ void ModelShadowModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFra
 
 }
 
-void ModelShadowModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void ModelShadowModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 

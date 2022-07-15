@@ -147,11 +147,11 @@ void MatcapRendererNode::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-void MatcapRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void MatcapRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_MatcapRenderer)
 	{
-		m_MatcapRenderer->SetTexture(vBinding, vImageInfo);
+		m_MatcapRenderer->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -187,7 +187,9 @@ void MatcapRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
 				}
 			}
 		}
@@ -209,7 +211,7 @@ void MatcapRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
@@ -248,7 +250,9 @@ void MatcapRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& v
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding));
+						ct::fvec2 textureSize;
+						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
 					}
 				}
 			}

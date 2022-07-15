@@ -92,7 +92,7 @@ void LaplacianModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame
 
 }
 
-void LaplacianModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void LaplacianModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 

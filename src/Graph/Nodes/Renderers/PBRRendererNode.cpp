@@ -166,11 +166,11 @@ void PBRRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColo
 	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void PBRRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void PBRRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_PBRRendererPtr)
 	{
-		m_PBRRendererPtr->SetTexture(vBinding, vImageInfo);
+		m_PBRRendererPtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -214,7 +214,9 @@ void PBRRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
 				}
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
@@ -250,7 +252,7 @@ void PBRRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 		{
 			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
 			{
@@ -281,7 +283,9 @@ void PBRRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding));
+						ct::fvec2 textureSize;
+						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
 					}
 				}
 			}

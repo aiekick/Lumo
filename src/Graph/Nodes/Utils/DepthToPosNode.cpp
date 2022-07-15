@@ -143,9 +143,9 @@ void DepthToPosNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak 
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding,
-						otherTextureNodePtr->GetDescriptorImageInfo(
-							endSlotPtr->descriptorBinding));
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
 				}
 			}
 		}
@@ -163,17 +163,17 @@ void DepthToPosNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWe
 		{
 			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
 }
 
-void DepthToPosNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DepthToPosNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_DepthToPosModulePtr)
 	{
-		m_DepthToPosModulePtr->SetTexture(vBinding, vImageInfo);
+		m_DepthToPosModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -204,7 +204,9 @@ void DepthToPosNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmi
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding)); // output
+						ct::fvec2 textureSize;
+						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
 					}
 				}
 			}

@@ -26,6 +26,7 @@ limitations under the License.
 
 void TextureInputFunctions::UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs)
 {
+	ct::fvec2 texSize;
 	for (const auto& input : vInputs) {
 		if (input.second && input.second->slotType == NodeSlotTypeEnum::TEXTURE_2D) {
 			for (auto slot : input.second->linkedSlots) {
@@ -36,9 +37,8 @@ void TextureInputFunctions::UpdateTextureInputDescriptorImageInfos(const std::ma
 						if (otherParentPtr) {
 							auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(otherParentPtr);
 							if (otherNodePtr) {
-								SetTexture(input.second->descriptorBinding,
-									otherNodePtr->GetDescriptorImageInfo(
-										otherSLotPtr->descriptorBinding));
+								auto descPtr = otherNodePtr->GetDescriptorImageInfo(otherSLotPtr->descriptorBinding, &texSize);
+								SetTexture(input.second->descriptorBinding, descPtr, &texSize);
 							}
 						}
 					}

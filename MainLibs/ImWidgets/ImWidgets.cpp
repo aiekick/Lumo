@@ -28,6 +28,9 @@ limitations under the License.
 #endif
 #include <imgui/imgui_internal.h>
 
+#include <imgui_node_editor/NodeEditor/Include/imgui_node_editor.h>
+namespace nd = ax::NodeEditor;
+
 #define STARTING_CUSTOMID 125
 
 #ifdef USE_GLFW3
@@ -3312,6 +3315,8 @@ bool ImGui::ContrastedCombo(float vWidth, const char* label, int* current_item, 
 	if (!BeginContrastedCombo(label, preview_value, ImGuiComboFlags_None))
 		return false;
 
+	//nd::Suspend();
+
 	// Display items
 	// FIXME-OPT: Use clipper (but we need to disable it on the appearing frame to make sure our call to SetItemDefaultFocus() is processed)
 	bool value_changed = false;
@@ -3331,6 +3336,8 @@ bool ImGui::ContrastedCombo(float vWidth, const char* label, int* current_item, 
 			SetItemDefaultFocus();
 		PopID();
 	}
+
+	//nd::Resume();
 
 	EndCombo();
 	if (value_changed)

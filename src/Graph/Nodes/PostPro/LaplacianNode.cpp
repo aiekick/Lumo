@@ -143,7 +143,9 @@ void LaplacianNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak v
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
 				}
 			}
 		}
@@ -161,17 +163,17 @@ void LaplacianNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWea
 		{
 			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
 }
 
-void LaplacianNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void LaplacianNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_LaplacianModulePtr)
 	{
-		m_LaplacianModulePtr->SetTexture(vBinding, vImageInfo);
+		m_LaplacianModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -202,7 +204,9 @@ void LaplacianNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmit
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding));
+						ct::fvec2 textureSize;
+						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
 					}
 				}
 			}

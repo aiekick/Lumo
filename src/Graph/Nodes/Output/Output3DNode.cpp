@@ -146,7 +146,7 @@ void Output3DNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 	}
 }
 
-void Output3DNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void Output3DNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	
 }

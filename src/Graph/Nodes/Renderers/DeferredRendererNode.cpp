@@ -175,11 +175,11 @@ void DeferredRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCoun
 	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void DeferredRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DeferredRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_DeferredRendererPtr)
 	{
-		m_DeferredRendererPtr->SetTexture(vBinding, vImageInfo);
+		m_DeferredRendererPtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -207,7 +207,9 @@ void DeferredRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlo
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
 				}
 			}
 		}
@@ -225,7 +227,7 @@ void DeferredRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, Node
 		{
 			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
@@ -248,7 +250,9 @@ void DeferredRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak&
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding));
+						ct::fvec2 textureSize;
+						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
 					}
 				}
 			}

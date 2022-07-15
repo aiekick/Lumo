@@ -86,10 +86,7 @@ bool VariableModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	m_LastExecutedFrame = vCurrentFrame;
 
 	return true;
 }

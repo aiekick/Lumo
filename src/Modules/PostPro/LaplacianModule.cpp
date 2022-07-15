@@ -104,12 +104,7 @@ bool LaplacianModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 {
 	ZoneScoped;
 
-	if (m_LastExecutedFrame != vCurrentFrame)
-	{
-		BaseRenderer::Render("Laplacian", vCmd);
-
-		m_LastExecutedFrame = vCurrentFrame;
-	}
+	BaseRenderer::Render("Laplacian", vCmd);
 
 	return true;
 }
@@ -165,13 +160,13 @@ void LaplacianModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColo
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void LaplacianModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void LaplacianModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_LaplacianModule_Pass_Ptr)
 	{
-		m_LaplacianModule_Pass_Ptr->SetTexture(vBinding, vImageInfo);
+		m_LaplacianModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

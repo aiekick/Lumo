@@ -45,13 +45,28 @@ bool MathNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	NodeSlot slot;
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
-	slot.name = "Input";
+	slot.name = "";
 	slot.descriptorBinding = 0U;
+	slot.hidden = true;
+	AddInput(slot, true, false);
+
+	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.name = "";
+	slot.descriptorBinding = 1U;
+	slot.hidden = true;
+	AddInput(slot, true, false);
+
+	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.name = "";
+	slot.descriptorBinding = 2U;
+	slot.hidden = true;
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
+	slot.hidden = false;
+	slot.showWidget = true;
 	AddOutput(slot, true, true);
 
 	bool res = false;
@@ -59,6 +74,8 @@ bool MathNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	m_MathModulePtr = MathModule::Create(vVulkanCorePtr);
 	if (m_MathModulePtr)
 	{
+		ReorganizeSlots();
+
 		res = true;
 	}
 
@@ -83,12 +100,19 @@ bool MathNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 {
 	assert(vContext);
 
+	bool change = false;
+
 	if (m_MathModulePtr)
 	{
-		return m_MathModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		change = m_MathModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
-	return false;
+	if (change)
+	{
+		ReorganizeSlots();
+	}
+
+	return change;
 }
 
 void MathNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
@@ -143,7 +167,9 @@ void MathNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSl
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					SetTexture(startSlotPtr->descriptorBinding, otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding));
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
 				}
 			}
 		}
@@ -161,17 +187,17 @@ void MathNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEn
 		{
 			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr);
+				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
 }
 
-void MathNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void MathNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_MathModulePtr)
 	{
-		m_MathModulePtr->SetTexture(vBinding, vImageInfo);
+		m_MathModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -202,11 +228,18 @@ void MathNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlo
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						SetTexture(receiverSlotPtr->descriptorBinding, otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding));
+						ct::fvec2 textureSize;
+						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
 					}
 				}
 			}
 		}
+		break;
+	}
+	case NotifyEvent::GraphIsLoaded:
+	{
+		ReorganizeSlots();
 		break;
 	}
 	default:
@@ -283,5 +316,49 @@ void MathNode::UpdateShaders(const std::set<std::string>& vFiles)
 	if (m_MathModulePtr)
 	{
 		m_MathModulePtr->UpdateShaders(vFiles);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// PRIVATE /////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MathNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
+{
+	if (vBaseNodeState)
+	{
+		auto slotPtr = vSlot.getValidShared();
+		if (slotPtr)
+		{
+			if (m_MathModulePtr)
+			{
+				m_MathModulePtr->DrawNodeWidget(vBaseNodeState->m_CurrentFrame, ImGui::GetCurrentContext());
+			}
+		}
+	}
+}
+
+void MathNode::ReorganizeSlots()
+{
+	if (m_MathModulePtr)
+	{
+		auto count = m_MathModulePtr->GetComponentCount();
+
+		// on va montrer que les slots utiles
+
+		uint32_t idx = 0;
+		for (auto& input : m_Inputs)
+		{
+			if (input.second)
+			{
+				input.second->hidden = true;
+				if (count > idx)
+				{
+					input.second->hidden = false;
+					input.second->name = m_MathModulePtr->GetInputName(idx);
+				}
+			}
+			++idx;
+		}
 	}
 }

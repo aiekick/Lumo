@@ -71,7 +71,7 @@ void DiffuseModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, 
 
 }
 
-void DiffuseModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo)
+void DiffuseModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
