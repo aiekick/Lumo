@@ -92,7 +92,7 @@ bool ChannelRenderer::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ChannelRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool ChannelRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 

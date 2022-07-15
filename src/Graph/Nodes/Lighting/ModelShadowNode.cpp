@@ -85,9 +85,9 @@ void ModelShadowNode::Unit()
 	m_ModelShadowModulePtr.reset();
 }
 
-bool ModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool ModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
@@ -97,7 +97,7 @@ bool ModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 	if (m_ModelShadowModulePtr)
 	{
-		return m_ModelShadowModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_ModelShadowModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }

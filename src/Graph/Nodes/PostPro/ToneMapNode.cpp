@@ -65,16 +65,16 @@ bool ToneMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool ToneMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool ToneMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_ToneMapModulePtr)
 	{
-		return m_ToneMapModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_ToneMapModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -101,9 +101,9 @@ void ToneMapNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const c
 	}
 }
 
-void ToneMapNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void ToneMapNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)

@@ -85,20 +85,23 @@ void NodeManager::PrepareToLoadGraph()
 //// TASK //////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	bool res = false;
+
+	m_RootNodePtr->m_BaseNodeState.m_CurrentFrame = vCurrentFrame;
+	m_RootNodePtr->m_BaseNodeState.m_Context = ImGui::GetCurrentContext();
 
 	auto output3DPtr = m_RootNodePtr->m_Output3DNode.getValidShared();
 	if (output3DPtr)
 	{
-		res |= output3DPtr->Execute(vCurrentFrame, vCmd);
+		res |= output3DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
 	}
 
 	auto output2DPtr = m_RootNodePtr->m_Output2DNode.getValidShared();
 	if (output2DPtr)
 	{
-		res |= output2DPtr->Execute(vCurrentFrame, vCmd);
+		res |= output2DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
 	}
 
 	return res;

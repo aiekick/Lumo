@@ -147,7 +147,7 @@ void LibraryCategory::AddLibraryEntry(const LibraryEntry& vLibraryEntry)
 	}
 }
 
-LibraryEntry LibraryCategory::ShowMenu(BaseNodeWeak vNodeGraph, BaseNodeStateStruct *vCanvasState, int vLevel)
+LibraryEntry LibraryCategory::ShowMenu(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState, int vLevel)
 {
 	LibraryEntry entry;
 
@@ -155,7 +155,7 @@ LibraryEntry LibraryCategory::ShowMenu(BaseNodeWeak vNodeGraph, BaseNodeStateStr
 
 	if (ImGui::BeginMenu(m_CategoryName.c_str()))
 	{
-		auto ent = ShowContent(vNodeGraph, vCanvasState, vLevel + 1);
+		auto ent = ShowContent(vNodeGraph, vBaseNodeState, vLevel + 1);
 		if (!ent.first.empty())
 		{
 			entry = ent;
@@ -167,19 +167,19 @@ LibraryEntry LibraryCategory::ShowMenu(BaseNodeWeak vNodeGraph, BaseNodeStateStr
 	return entry;
 }
 
-LibraryEntry LibraryCategory::ShowContent(BaseNodeWeak vNodeGraph, BaseNodeStateStruct *vCanvasState, int vLevel)
+LibraryEntry LibraryCategory::ShowContent(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState, int vLevel)
 {
 	LibraryEntry entry;
 	
-	if (vCanvasState && vLevel == 0)
+	if (vBaseNodeState && vLevel == 0)
 	{
-		if (!vCanvasState->linkFromSlot.expired())
+		if (!vBaseNodeState->linkFromSlot.expired())
 		{
 			ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
 
 			if (ImGui::MenuItem("extract"))
 			{
-				auto slotPtr = vCanvasState->linkFromSlot.lock();
+				auto slotPtr = vBaseNodeState->linkFromSlot.lock();
 				if (slotPtr)
 				{
 					entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_INTERNAL;
@@ -196,7 +196,7 @@ LibraryEntry LibraryCategory::ShowContent(BaseNodeWeak vNodeGraph, BaseNodeState
 
 	for (auto &category : m_SubCategories)
 	{
-		auto ent = category.second.ShowMenu(vNodeGraph, vCanvasState, vLevel + 1);
+		auto ent = category.second.ShowMenu(vNodeGraph, vBaseNodeState, vLevel + 1);
 		if (!ent.first.empty())
 		{
 			entry = ent;

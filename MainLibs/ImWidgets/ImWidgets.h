@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
-
 #pragma once
 
 #include <imgui/imgui.h>
@@ -258,8 +256,9 @@ namespace ImGui
 
 	IMGUI_API bool ColorEdit3Default(float vWidth, const char* vName, float* vCol, float* vDefault);
 	IMGUI_API bool ColorEdit4Default(float vWidth, const char* vName, float* vCol, float* vDefault);
-	IMGUI_API bool ColorEdit3DefaultForNode(float vWidth, const char* vName, float* vCol, float* vDefault);
-	IMGUI_API bool ColorEdit4DefaultForNode(float vWidth, const char* vName, float* vCol, float* vDefault);
+	IMGUI_API bool ColorPicker3DefaultForNode(float vWidth, const char* vName, float* vCol, float* vDefault);
+	IMGUI_API bool ColorPicker4DefaultForNode(float vWidth, const char* vName, float* vCol, float* vDefault);
+	IMGUI_API bool ColorPicker4ForNode(float vWidth, const char* vName, float* vCol);
 
 	IMGUI_API void Spacing(float vSpace);
 	IMGUI_API ImGuiWindow* GetHoveredWindow();

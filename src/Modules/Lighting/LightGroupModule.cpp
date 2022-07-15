@@ -71,7 +71,7 @@ void LightGroupModule::Unit()
 	m_SceneLightGroupPtr.reset();
 }
 
-bool LightGroupModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool LightGroupModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	if (m_LastExecutedFrame != vCurrentFrame)
 	{

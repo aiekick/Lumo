@@ -65,16 +65,16 @@ bool GrayScottNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_GrayScottModulePtr)
 	{
-		return m_GrayScottModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_GrayScottModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -101,9 +101,9 @@ void GrayScottNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const
 	}
 }
 
-void GrayScottNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void GrayScottNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)

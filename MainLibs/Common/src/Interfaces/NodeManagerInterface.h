@@ -25,7 +25,7 @@ class NodeManagerInterface
 {
 public:
 	virtual void Select(BaseNodeWeak) = 0;
-	virtual BaseNodeWeak ShowNewNodeMenu(BaseNodeWeak, BaseNodeStateStruct*) = 0;
+	virtual BaseNodeWeak ShowNewNodeMenu(BaseNodeWeak, BaseNodeState*) = 0;
 	virtual bool LoadNodeFromXML(BaseNodeWeak, tinyxml2::XMLElement*, tinyxml2::XMLElement*,
 		const std::string&, const std::string&, const ct::fvec2&, const size_t&) = 0;
 };

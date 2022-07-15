@@ -75,16 +75,16 @@ bool SSAONode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool SSAONode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool SSAONode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_SSAOModulePtr)
 	{
-		return m_SSAOModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_SSAOModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -111,9 +111,9 @@ void SSAONode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::
 	}
 }
 
-void SSAONode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void SSAONode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)

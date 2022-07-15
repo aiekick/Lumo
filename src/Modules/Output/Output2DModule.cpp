@@ -120,7 +120,7 @@ void Output2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 	}
 }
 
-bool Output2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* /*vCmd*/)
+bool Output2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/)
 {
 	ZoneScoped;
 

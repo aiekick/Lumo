@@ -69,13 +69,13 @@ void HeatmapRendererNode::Unit()
 	m_HeatmapRenderer.reset();
 }
 
-bool HeatmapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool HeatmapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_HeatmapRenderer)
 	{
-		return m_HeatmapRenderer->Execute(vCurrentFrame, vCmd);
+		return m_HeatmapRenderer->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -102,9 +102,9 @@ void HeatmapRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame,
 	}
 }
 
-void HeatmapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void HeatmapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)

@@ -76,16 +76,16 @@ bool DiffuseNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool DiffuseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool DiffuseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_DiffuseModulePtr)
 	{
-		return m_DiffuseModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_DiffuseModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -112,9 +112,9 @@ void DiffuseNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const c
 	}
 }
 
-void DiffuseNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void DiffuseNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)

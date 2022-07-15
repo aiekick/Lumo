@@ -105,16 +105,16 @@ void MeshAttributesNode::Unit()
 	m_MeshAttributesModulePtr.reset();
 }
 
-bool MeshAttributesNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool MeshAttributesNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_MeshAttributesModulePtr)
 	{
-		return m_MeshAttributesModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_MeshAttributesModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -141,9 +141,9 @@ void MeshAttributesNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, 
 	}
 }
 
-void MeshAttributesNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void MeshAttributesNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)

@@ -236,9 +236,9 @@ std::vector<NodeSlotWeak> NodeSlot::InjectTypeInSlot(uType::uTypeEnum vType)
 	return res;
 }
 
-void NodeSlot::DrawContent(BaseNodeStateStruct *vCanvasState)
+void NodeSlot::DrawContent(BaseNodeState *vBaseNodeState)
 {
-	if (vCanvasState && !hidden)
+	if (vBaseNodeState && !hidden)
 	{
 		if (slotPlace == NodeSlotPlaceEnum::INPUT)
 		{
@@ -249,11 +249,11 @@ void NodeSlot::DrawContent(BaseNodeStateStruct *vCanvasState)
 				nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
 				nd::PinPivotSize(ImVec2(0, 0));
 				
-				DrawSlot(vCanvasState, ImVec2(slotIconSize, slotIconSize));
+				DrawSlot(vBaseNodeState, ImVec2(slotIconSize, slotIconSize));
 
 				if (showWidget)
 				{
-					DrawInputWidget(vCanvasState);
+					DrawInputWidget(vBaseNodeState);
 				}
 				if (!hideName)
 				{
@@ -280,13 +280,13 @@ void NodeSlot::DrawContent(BaseNodeStateStruct *vCanvasState)
 				}
 				if (showWidget)
 				{
-					DrawOutputWidget(vCanvasState);
+					DrawOutputWidget(vBaseNodeState);
 				}
 
 				nd::PinPivotAlignment(ImVec2(1.0f, 0.5f));
 				nd::PinPivotSize(ImVec2(0, 0));
 
-				DrawSlot(vCanvasState, ImVec2(slotIconSize, slotIconSize));
+				DrawSlot(vBaseNodeState, ImVec2(slotIconSize, slotIconSize));
 				
 				ImGui::EndHorizontal();
 			}
@@ -295,9 +295,9 @@ void NodeSlot::DrawContent(BaseNodeStateStruct *vCanvasState)
 	}
 }
 
-void NodeSlot::DrawSlot(BaseNodeStateStruct *vCanvasState, ImVec2 vSlotSize, ImVec2 vSlotOffset)
+void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset)
 {
-	if (vCanvasState)
+	if (vBaseNodeState)
 	{
 		ImGui::Dummy(vSlotSize);
 
@@ -324,7 +324,7 @@ void NodeSlot::DrawSlot(BaseNodeStateStruct *vCanvasState, ImVec2 vSlotSize, ImV
 					colorIsSet = true;
 				}
 
-				DrawNodeSlot(draw_list, slotCenter, vCanvasState->graphStyle.SLOT_RADIUS,
+				DrawNodeSlot(draw_list, slotCenter, vBaseNodeState->graphStyle.SLOT_RADIUS,
 					connected, ImGui::GetColorU32(color), ImGui::GetColorU32(color));
 			}
 
@@ -332,7 +332,7 @@ void NodeSlot::DrawSlot(BaseNodeStateStruct *vCanvasState, ImVec2 vSlotSize, ImV
 			{
 				highLighted = true;
 
-				DrawSlotText(vCanvasState);
+				DrawSlotText(vBaseNodeState);
 			}
 		}
 	}
@@ -387,35 +387,35 @@ void NodeSlot::DrawDebugInfos()
 //// PRIVATE /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void NodeSlot::DrawInputWidget(BaseNodeStateStruct *vCanvasState)
+void NodeSlot::DrawInputWidget(BaseNodeState *vBaseNodeState)
 {
-	if (vCanvasState && !parentNode.expired())
+	if (vBaseNodeState && !parentNode.expired())
 	{
 		assert(!m_This.expired());
 		auto ptr = parentNode.lock();
 		if (ptr)
 		{
-			ptr->DrawInputWidget(vCanvasState, m_This);
+			ptr->DrawInputWidget(vBaseNodeState, m_This);
 		}
 	}
 }
 
-void NodeSlot::DrawOutputWidget(BaseNodeStateStruct *vCanvasState)
+void NodeSlot::DrawOutputWidget(BaseNodeState *vBaseNodeState)
 {
-	if (vCanvasState && !parentNode.expired())
+	if (vBaseNodeState && !parentNode.expired())
 	{
 		assert(!m_This.expired());
 		auto ptr = parentNode.lock();
 		if (ptr)
 		{
-			ptr->DrawOutputWidget(vCanvasState, m_This);
+			ptr->DrawOutputWidget(vBaseNodeState, m_This);
 		}
 	}
 }
 
-void NodeSlot::DrawSlotText(BaseNodeStateStruct *vCanvasState)
+void NodeSlot::DrawSlotText(BaseNodeState *vBaseNodeState)
 {
-	if (vCanvasState)
+	if (vBaseNodeState)
 	{
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 		if (draw_list)
@@ -429,7 +429,7 @@ void NodeSlot::DrawSlotText(BaseNodeStateStruct *vCanvasState)
 
 				slotName = GetStringFromNodeSlotTypeEnum(slotType);
 
-				if (vCanvasState->debug_mode)
+				if (vBaseNodeState->debug_mode)
 				{
 					slotName = "in " + slotUType + " links(";
 
@@ -474,7 +474,7 @@ void NodeSlot::DrawSlotText(BaseNodeStateStruct *vCanvasState)
 
 				slotName = GetStringFromNodeSlotTypeEnum(slotType);
 
-				if (vCanvasState->debug_mode)
+				if (vBaseNodeState->debug_mode)
 				{
 					slotName = "links(" + ct::toStr(linkedSlots.size()) + ")" + slotUType + " out";
 				}

@@ -77,13 +77,13 @@ void ShadowMapNode::Unit()
 	m_ShadowMapModulePtr.reset();
 }
 
-bool ShadowMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool ShadowMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_ShadowMapModulePtr)
 	{
-		return m_ShadowMapModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_ShadowMapModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }

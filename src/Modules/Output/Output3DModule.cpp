@@ -134,7 +134,7 @@ void Output3DModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColor
 	}
 }
 
-bool Output3DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* /*vCmd*/)
+bool Output3DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/)
 {
 	ZoneScoped;
 

@@ -69,13 +69,13 @@ void ChannelRendererNode::Unit()
 	m_ChannelRenderer.reset();
 }
 
-bool ChannelRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool ChannelRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_ChannelRenderer)
 	{
-		return m_ChannelRenderer->Execute(vCurrentFrame, vCmd);
+		return m_ChannelRenderer->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -102,9 +102,9 @@ void ChannelRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame,
 	}
 }
 
-void ChannelRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void ChannelRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)

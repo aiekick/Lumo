@@ -75,16 +75,16 @@ void MatcapRendererNode::Unit()
 	m_MatcapRenderer.reset();
 }
 
-bool MatcapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool MatcapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_MatcapRenderer)
 	{
-		return m_MatcapRenderer->Execute(vCurrentFrame, vCmd);
+		return m_MatcapRenderer->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -111,9 +111,9 @@ void MatcapRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, 
 	}
 }
 
-void MatcapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void MatcapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)

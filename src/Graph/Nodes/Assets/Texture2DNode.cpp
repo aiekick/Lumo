@@ -79,7 +79,7 @@ void Texture2DNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const
 	}
 }
 
-void Texture2DNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
+void Texture2DNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
 	// one output only
 	if (m_Texture2DModule)

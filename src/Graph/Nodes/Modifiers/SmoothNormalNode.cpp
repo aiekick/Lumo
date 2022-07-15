@@ -63,13 +63,13 @@ bool SmoothNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return false;
 }
 
-bool SmoothNormalNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool SmoothNormalNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_SmoothNormalModulePtr)
 	{
-		return m_SmoothNormalModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_SmoothNormalModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -96,9 +96,9 @@ void SmoothNormalNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 	}
 }
 
-void SmoothNormalNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void SmoothNormalNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)
@@ -206,7 +206,7 @@ void SmoothNormalNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEm
 	}
 }
 
-void SmoothNormalNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
+void SmoothNormalNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
 	// one output only
 	//if (m_SmoothNormalModulePtr)

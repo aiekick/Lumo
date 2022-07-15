@@ -62,11 +62,11 @@ void GridNode::Unit()
 	m_GridModulePtr.reset();
 }
 
-bool GridNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool GridNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	if (m_GridModulePtr)
 	{
-		return m_GridModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_GridModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -89,9 +89,9 @@ void GridNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::
 
 }
 
-void GridNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void GridNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)

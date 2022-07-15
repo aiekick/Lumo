@@ -126,7 +126,7 @@ inline static NodeSlotPlaceEnum GetNodeSlotPlaceEnumFromString(const std::string
 struct ImRect;
 class BaseNode;
 class UniformWidgetBase;
-struct BaseNodeStateStruct;
+struct BaseNodeState;
 class NodeSlot : 
 	public conf::ConfigAbstract,
 	public NotifyInterface
@@ -210,8 +210,8 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
-	void DrawContent(BaseNodeStateStruct *vCanvasState);
-	void DrawSlot(BaseNodeStateStruct *vCanvasState, ImVec2 vSlotSize, ImVec2 vSlotOffset = ImVec2(0,0));
+	void DrawContent(BaseNodeState *vBaseNodeState);
+	void DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset = ImVec2(0,0));
 	
 	bool IsAnInput();
 	bool IsAnOutput();
@@ -221,9 +221,9 @@ public:
 	void DrawDebugInfos();
 
 private:
-	void DrawInputWidget(BaseNodeStateStruct *vCanvasState);
-	void DrawOutputWidget(BaseNodeStateStruct *vCanvasState);
-	void DrawSlotText(BaseNodeStateStruct *vCanvasState);
+	void DrawInputWidget(BaseNodeState *vBaseNodeState);
+	void DrawOutputWidget(BaseNodeState *vBaseNodeState);
+	void DrawSlotText(BaseNodeState *vBaseNodeState);
 
 	void DrawNodeSlot(ImDrawList *vDrawList, ImVec2 vCenter, float vSlotRadius, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
 };

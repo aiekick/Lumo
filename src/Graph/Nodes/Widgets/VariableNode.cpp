@@ -64,13 +64,13 @@ bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool VariableNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool VariableNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_VariableModulePtr)
 	{
-		return m_VariableModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_VariableModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return false;
@@ -98,9 +98,9 @@ void VariableNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 	}
 }
 
-void VariableNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void VariableNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)
@@ -201,9 +201,9 @@ bool VariableNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 	return true;
 }
 
-void VariableNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
+void VariableNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
-	if (vCanvasState)
+	if (vBaseNodeState)
 	{
 		auto slotPtr = vSlot.getValidShared();
 		if (slotPtr)

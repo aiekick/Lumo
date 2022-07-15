@@ -174,7 +174,7 @@ void ShadowMapModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 	}
 }
 
-bool ShadowMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool ShadowMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 

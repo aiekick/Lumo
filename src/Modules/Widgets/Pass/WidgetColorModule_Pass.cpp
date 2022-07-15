@@ -56,7 +56,12 @@ bool WidgetColorModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 {
 	assert(vContext);
 
-	ImGui::ColorEdit4Default(0.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x);
+	if (ImGui::ColorEdit4Default(0.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x))
+	{
+		NeedNewUBOUpload();
+
+		return true;
+	}
 
 	return false;
 }
@@ -64,20 +69,25 @@ bool WidgetColorModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 void WidgetColorModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext);
-
 }
 
 void WidgetColorModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
-
 }
 
 bool WidgetColorModule_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	return ImGui::ColorEdit4DefaultForNode(0.0f, "Color", & m_UBOComp.u_color.x, & m_DefaultColor.x);
+	if (ImGui::ColorPicker4DefaultForNode(100.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x))
+	{
+		NeedNewUBOUpload();
+
+		return true;
+	}
+
+	return false;
 }
 
 vk::DescriptorImageInfo* WidgetColorModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
@@ -177,7 +187,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
 
-layout (std140, binding = 4) uniform UBO_Comp
+layout (std140, binding = 1) uniform UBO_Comp
 {
 	vec4 u_color;
 };
@@ -197,7 +207,7 @@ std::string WidgetColorModule_Pass::getXml(const std::string& vOffset, const std
 {
 	std::string str;
 
-	//str += vOffset + "<blur_radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</blur_radius>\n";
+	str += vOffset + "<color>" + m_UBOComp.u_color.string() + "</color>\n";
 	
 	return str;
 }
@@ -215,10 +225,10 @@ bool WidgetColorModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "diffuse_module")
+	if (strParentName == "widget_color_module")
 	{
-		//if (strName == "blur_radius")
-		//	m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
+		if (strName == "color")
+			m_UBOComp.u_color = ct::fvariant(strValue).GetV4();
 
 		NeedNewUBOUpload();
 	}

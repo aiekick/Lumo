@@ -65,13 +65,13 @@ void WidgetColorNode::Unit()
 	m_WidgetColorModule.reset();
 }
 
-bool WidgetColorNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool WidgetColorNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_WidgetColorModule)
 	{
-		return m_WidgetColorModule->Execute(vCurrentFrame, vCmd);
+		return m_WidgetColorModule->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
@@ -98,9 +98,9 @@ void WidgetColorNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	}
 }
 
-void WidgetColorNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void WidgetColorNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)
@@ -175,16 +175,16 @@ void WidgetColorNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 	}
 }
 
-void WidgetColorNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
+void WidgetColorNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
-	if (vCanvasState)
+	if (vBaseNodeState)
 	{
 		auto slotPtr = vSlot.getValidShared();
 		if (slotPtr)
 		{
 			if (m_WidgetColorModule)
 			{
-				m_WidgetColorModule->DrawNodeWidget(0U, ImGui::GetCurrentContext());
+				m_WidgetColorModule->DrawNodeWidget(vBaseNodeState->m_CurrentFrame, ImGui::GetCurrentContext());
 			}
 		}
 	}

@@ -95,12 +95,12 @@ void BaseNode::Select_Callback(const BaseNodeWeak& vNode)
 	}
 }
 
-std::function<BaseNodeWeak(BaseNodeWeak vNodeGraph, BaseNodeStateStruct* vCanvasState)> BaseNode::sShowNewNodeMenuCallback; // new node menu
-void BaseNode::ShowNewNodeMenu_Callback(const BaseNodeWeak& vNodeGraph, BaseNodeStateStruct* vCanvasState)
+std::function<BaseNodeWeak(BaseNodeWeak vNodeGraph, BaseNodeState* vBaseNodeState)> BaseNode::sShowNewNodeMenuCallback; // new node menu
+void BaseNode::ShowNewNodeMenu_Callback(const BaseNodeWeak& vNodeGraph, BaseNodeState* vBaseNodeState)
 {
 	if (BaseNode::sShowNewNodeMenuCallback)
 	{
-		BaseNode::sShowNewNodeMenuCallback(vNodeGraph, vCanvasState);
+		BaseNode::sShowNewNodeMenuCallback(vNodeGraph, vBaseNodeState);
 	}
 }
 
@@ -233,64 +233,64 @@ void BaseNode::FinalizeGraphLoading()
 	}
 }
 
-void BaseNode::DoGraphActions(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DoGraphActions(BaseNodeState *vBaseNodeState)
 {
 	auto editor = nd::GetCurrentEditor();
 	if (editor)
 	{
 		if (nd::IsBackgroundClicked())
 		{
-			vCanvasState->node_to_select.reset();
-			vCanvasState->current_selected_node.reset();
+			vBaseNodeState->node_to_select.reset();
+			vBaseNodeState->current_selected_node.reset();
 		}
 	}
 
-	OpenNodeInNewPane(vCanvasState);
-	SelectNodeforPreview(vCanvasState);
+	OpenNodeInNewPane(vBaseNodeState);
+	SelectNodeforPreview(vBaseNodeState);
 }
 
-void BaseNode::OpenNodeInNewPane(BaseNodeStateStruct* vCanvasState)
+void BaseNode::OpenNodeInNewPane(BaseNodeState* vBaseNodeState)
 {
 	// open node in new pane
-	if (!vCanvasState->node_to_open.expired())
+	if (!vBaseNodeState->node_to_open.expired())
 	{
-		auto nodePtr = vCanvasState->node_to_open.lock();
+		auto nodePtr = vBaseNodeState->node_to_open.lock();
 		if (nodePtr)
 		{
 			// dans notre cas, si le graph est vide c'est pas grave, car on doit pouvoir y ajouter du code
-			//if (!vCanvasState->node_to_open->m_ChildNodes.empty())
+			//if (!vBaseNodeState->node_to_open->m_ChildNodes.empty())
 			if (!nodePtr->graphDisabled)
 			{
-				OpenGraph_Callback(vCanvasState->node_to_open);
+				OpenGraph_Callback(vBaseNodeState->node_to_open);
 			}
 
-			vCanvasState->node_to_open.reset();
+			vBaseNodeState->node_to_open.reset();
 		}
 	}
 }
 
-void BaseNode::SelectNodeforPreview(BaseNodeStateStruct* vCanvasState)
+void BaseNode::SelectNodeforPreview(BaseNodeState* vBaseNodeState)
 {
 	// select node for preview
-	if (!vCanvasState->node_to_select.expired())
+	if (!vBaseNodeState->node_to_select.expired())
 	{
-		auto current_selected_nodePtr = vCanvasState->current_selected_node.lock();
-		auto node_to_selectPtr = vCanvasState->node_to_select.lock();
+		auto current_selected_nodePtr = vBaseNodeState->current_selected_node.lock();
+		auto node_to_selectPtr = vBaseNodeState->node_to_select.lock();
 
 		//if (current_selected_nodePtr != node_to_selectPtr)
 		{
-			vCanvasState->current_selected_node = vCanvasState->node_to_select;
+			vBaseNodeState->current_selected_node = vBaseNodeState->node_to_select;
 
-			if (!vCanvasState->current_selected_node.expired())
+			if (!vBaseNodeState->current_selected_node.expired())
 			{
-				auto nodePtr = vCanvasState->current_selected_node.lock();
+				auto nodePtr = vBaseNodeState->current_selected_node.lock();
 				if (nodePtr)
 				{
 					Select_Callback(nodePtr);
 				}
 			}
 
-			vCanvasState->node_to_select.reset();
+			vBaseNodeState->node_to_select.reset();
 		}
 	}
 }
@@ -332,15 +332,21 @@ void BaseNode::ClearDescriptors()
 ////// CLEAR /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-bool BaseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool BaseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd, BaseNodeState* vBaseNodeState)
 {
-	return BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	if (vBaseNodeState)
+		vBaseNodeState->m_CurrentFrame = vCurrentFrame;
+	
+	return BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 }
 
-bool BaseNode::ExecuteChilds(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd)
+bool BaseNode::ExecuteChilds(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	bool res = false;
 
+	if (vBaseNodeState)
+		vBaseNodeState->m_CurrentFrame = vCurrentFrame;
+	
 	for (auto input : m_Inputs)
 	{
 		if (input.second)
@@ -353,7 +359,7 @@ bool BaseNode::ExecuteChilds(const uint32_t& vCurrentFrame, vk::CommandBuffer* v
 					auto otherParentPtr = otherSLotPtr->parentNode.getValidShared();
 					if (otherParentPtr)
 					{
-						res &= otherParentPtr->Execute(vCurrentFrame, vCmd);
+						res &= otherParentPtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 					}
 				}
 			}
@@ -487,19 +493,19 @@ void BaseNode::DuplicateSelectedNodes(ImVec2 vOffset)
 ////// NODE DRAWING //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-void BaseNode::DrawNode(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DrawNode(BaseNodeState *vBaseNodeState)
 {
-	if (vCanvasState)
+	if (vBaseNodeState)
 	{
-		ImGui::SetCurrentContext(vCanvasState->m_Context);
-		nd::SetCurrentEditor(vCanvasState->m_NodeGraphContext);
+		ImGui::SetCurrentContext(vBaseNodeState->m_Context);
+		nd::SetCurrentEditor(vBaseNodeState->m_NodeGraphContext);
 
-		if (DrawBegin(vCanvasState))
+		if (DrawBegin(vBaseNodeState))
 		{
-			DrawHeader(vCanvasState);
-			DrawNodeContent(vCanvasState);
-			DrawFooter(vCanvasState);
-			DrawEnd(vCanvasState);
+			DrawHeader(vBaseNodeState);
+			DrawNodeContent(vBaseNodeState);
+			DrawFooter(vBaseNodeState);
+			DrawEnd(vBaseNodeState);
 		}
 		size = ImGui::GetItemRectSize();
 		pos = ImGui::GetItemRectMin();
@@ -509,39 +515,39 @@ void BaseNode::DrawNode(BaseNodeStateStruct *vCanvasState)
 			if (ImGui::IsMouseClicked(0)) // bouton gauche click
 			{
 				assert(!m_This.expired());
-				vCanvasState->node_to_select = m_This;
+				vBaseNodeState->node_to_select = m_This;
 			}
 		}
 	}
 }
 
-void BaseNode::FillState(BaseNodeStateStruct *vCanvasState)
+void BaseNode::FillState(BaseNodeState *vBaseNodeState)
 {
-	vCanvasState->hoveredItem = ImGui::IsItemHovered();
-	vCanvasState->activeItem = ImGui::IsItemActive();
-	vCanvasState->is_any_hovered_items |= vCanvasState->hoveredItem;
-	vCanvasState->is_any_active_items |= vCanvasState->activeItem;
+	vBaseNodeState->hoveredItem = ImGui::IsItemHovered();
+	vBaseNodeState->activeItem = ImGui::IsItemActive();
+	vBaseNodeState->is_any_hovered_items |= vBaseNodeState->hoveredItem;
+	vBaseNodeState->is_any_active_items |= vBaseNodeState->activeItem;
 
-	if (vCanvasState->hoveredItem)
+	if (vBaseNodeState->hoveredItem)
 	{
 		assert(!m_This.expired());
-		vCanvasState->current_hovered_node = m_This;
+		vBaseNodeState->current_hovered_node = m_This;
 	}
 	else
 	{
-		vCanvasState->current_hovered_node.reset();
+		vBaseNodeState->current_hovered_node.reset();
 		if (ImGui::IsMouseClicked(0)) // bouton gauche click
 		{
-			vCanvasState->node_to_select.reset();
-			vCanvasState->current_selected_node.reset();
+			vBaseNodeState->node_to_select.reset();
+			vBaseNodeState->current_selected_node.reset();
 		}
 	}
 
-	if (vCanvasState->hoveredItem &&
-		vCanvasState->activeItem)
+	if (vBaseNodeState->hoveredItem &&
+		vBaseNodeState->activeItem)
 	{
 		assert(!m_This.expired());
-		vCanvasState->current_selected_node = m_This;
+		vBaseNodeState->current_selected_node = m_This;
 	}
 	else
 	{
@@ -553,7 +559,7 @@ void BaseNode::FillState(BaseNodeStateStruct *vCanvasState)
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-bool BaseNode::DrawNodeContent(BaseNodeStateStruct *vCanvasState)
+bool BaseNode::DrawNodeContent(BaseNodeState *vBaseNodeState)
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 0));
 
@@ -563,7 +569,7 @@ bool BaseNode::DrawNodeContent(BaseNodeStateStruct *vCanvasState)
 	ImGui::BeginVertical("inputs", ImVec2(0, 0), 0.0f);
 	for (auto & param : m_Inputs) // input flows
 	{
-		param.second->DrawContent(vCanvasState);
+		param.second->DrawContent(vBaseNodeState);
 	}
 	ImGui::EndVertical();
 
@@ -572,7 +578,7 @@ bool BaseNode::DrawNodeContent(BaseNodeStateStruct *vCanvasState)
 	ImGui::BeginVertical("outputs", ImVec2(0, 0), 1.0f); // 1.0f pour que l'interieur soit aligné sur la fin
 	for (auto & param : m_Outputs) // output flows
 	{
-		param.second->DrawContent(vCanvasState);
+		param.second->DrawContent(vBaseNodeState);
 	}
 	ImGui::EndVertical();
 
@@ -583,32 +589,32 @@ bool BaseNode::DrawNodeContent(BaseNodeStateStruct *vCanvasState)
 	return true;
 }
 
-void BaseNode::DrawInputWidget(BaseNodeStateStruct *vCanvasState, NodeSlotWeak vSlot)
+void BaseNode::DrawInputWidget(BaseNodeState *vBaseNodeState, NodeSlotWeak vSlot)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 	UNUSED(vSlot);
 }
 
-void BaseNode::DrawOutputWidget(BaseNodeStateStruct *vCanvasState, NodeSlotWeak vSlot)
+void BaseNode::DrawOutputWidget(BaseNodeState *vBaseNodeState, NodeSlotWeak vSlot)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 	UNUSED(vSlot);
 }
 
-void BaseNode::DrawContextMenuForSlot(BaseNodeStateStruct *vCanvasState, NodeSlotWeak vSlot)
+void BaseNode::DrawContextMenuForSlot(BaseNodeState *vBaseNodeState, NodeSlotWeak vSlot)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 	UNUSED(vSlot);
 }
 
-void BaseNode::DrawContextMenuForNode(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DrawContextMenuForNode(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 }
 
-void BaseNode::DrawCustomContextMenuForNode(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DrawCustomContextMenuForNode(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 }
 
 std::string BaseNode::GetNodeCode(bool vRecursChilds)
@@ -650,9 +656,9 @@ void BaseNode::CompilGeneratedCode()
 	}*/
 }
 
-bool BaseNode::DrawBegin(BaseNodeStateStruct *vCanvasState)
+bool BaseNode::DrawBegin(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 
 	nd::BeginNode(nodeID);
 	ImGui::PushID(nodeID.AsPointer());
@@ -661,9 +667,9 @@ bool BaseNode::DrawBegin(BaseNodeStateStruct *vCanvasState)
 	return true;
 }
 
-bool BaseNode::DrawHeader(BaseNodeStateStruct *vCanvasState)
+bool BaseNode::DrawHeader(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 
 	ImGui::BeginHorizontal("header");
 	ImGui::Spring(1, 5.0f);
@@ -677,14 +683,14 @@ bool BaseNode::DrawHeader(BaseNodeStateStruct *vCanvasState)
 	return true;
 }
 
-bool BaseNode::DrawFooter(BaseNodeStateStruct *vCanvasState)
+bool BaseNode::DrawFooter(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 
 	return true;
 }
 
-bool BaseNode::DrawEnd(BaseNodeStateStruct *vCanvasState)
+bool BaseNode::DrawEnd(BaseNodeState *vBaseNodeState)
 {
 	ImGui::EndVertical();
 
@@ -709,7 +715,7 @@ bool BaseNode::DrawEnd(BaseNodeStateStruct *vCanvasState)
 					ImColor(255, 255, 255, 96 * alpha / (3 * 255)), 1.0f);
 			}
 
-			DisplayInfosOnTopOfTheNode(vCanvasState);
+			DisplayInfosOnTopOfTheNode(vBaseNodeState);
 		}
 		else
 		{
@@ -722,9 +728,9 @@ bool BaseNode::DrawEnd(BaseNodeStateStruct *vCanvasState)
 	return true;
 }
 
-void BaseNode::DrawLinks(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DrawLinks(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 	if (!m_BaseNodeState.showLinks) return;
 
 	if (!m_ChildNodes.empty())
@@ -751,9 +757,9 @@ void BaseNode::DrawLinks(BaseNodeStateStruct *vCanvasState)
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-bool BaseNode::DrawDebugInfos(BaseNodeStateStruct *vCanvasState)
+bool BaseNode::DrawDebugInfos(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 	ImGui::Separator();
 
 
@@ -834,9 +840,9 @@ bool BaseNode::DrawDebugInfos(BaseNodeStateStruct *vCanvasState)
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-void BaseNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DisplayInfosOnTopOfTheNode(BaseNodeState *vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)
@@ -851,9 +857,9 @@ void BaseNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct *vCanvasState)
 	}
 }
 
-void BaseNode::DrawProperties(BaseNodeStateStruct* vCanvasState)
+void BaseNode::DrawProperties(BaseNodeState* vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 	ImGui::Text("Properties of %s", name.c_str());
 }
 
@@ -1297,7 +1303,7 @@ std::vector<NodeSlotWeak> BaseNode::GetOutputSlotsOfType(NodeSlotTypeEnum vType)
 	return GetSlotsOfType(NodeSlotPlaceEnum::OUTPUT , vType);
 }
 
-void BaseNode::DoCreateLinkOrNode(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 {
 	if (nd::BeginCreate(ImColor(255, 255, 255), 2.0f))
 	{
@@ -1387,7 +1393,7 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeStateStruct *vCanvasState)
 
 			if (nd::AcceptNewItem())
 			{
-				vCanvasState->linkFromSlot = newNodeLinkSlot;
+				vBaseNodeState->linkFromSlot = newNodeLinkSlot;
 				m_CreateNewNode = true;
 				nd::Suspend();
 				ImGui::OpenPopup("CreateNewNode");
@@ -1398,9 +1404,9 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeStateStruct *vCanvasState)
 	nd::EndCreate();
 }
 
-void BaseNode::DoDeleteLinkOrNode(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DoDeleteLinkOrNode(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 
 	if (nd::BeginDelete())
 	{
@@ -1440,9 +1446,9 @@ void BaseNode::DoDeleteLinkOrNode(BaseNodeStateStruct *vCanvasState)
 	nd::EndDelete();
 }
 
-void BaseNode::DoShorcutsOnNode(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DoShorcutsOnNode(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 
 	if (nd::BeginShortcut())
 	{
@@ -1465,17 +1471,17 @@ void BaseNode::DoShorcutsOnNode(BaseNodeStateStruct *vCanvasState)
 	nd::EndShortcut();
 }
 
-void BaseNode::DoPopups(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DoPopups(BaseNodeState *vBaseNodeState)
 {
 	m_OpenPopupPosition = ImGui::GetMousePos();
 
 	nd::Suspend();
 
-	if (vCanvasState->m_CustomContextMenuRequested &&
-		!vCanvasState->m_CustomContextMenuNode.expired())
+	if (vBaseNodeState->m_CustomContextMenuRequested &&
+		!vBaseNodeState->m_CustomContextMenuNode.expired())
 	{
 		ImGui::OpenPopup("CustomNodePopup");
-		vCanvasState->m_CustomContextMenuRequested = false;
+		vBaseNodeState->m_CustomContextMenuRequested = false;
 	}
 	else if (nd::ShowNodeContextMenu(&m_ContextMenuNodeId))
 	{
@@ -1491,28 +1497,28 @@ void BaseNode::DoPopups(BaseNodeStateStruct *vCanvasState)
 	}
 	else if (nd::ShowBackgroundContextMenu())
 	{
-		vCanvasState->linkFromSlot.reset();
+		vBaseNodeState->linkFromSlot.reset();
 		ImGui::OpenPopup("CreateNewNode");
 	}
 
-	DoCheckNodePopup(vCanvasState);
-	DoCheckSlotPopup(vCanvasState);
-	DoCheckLinkPopup(vCanvasState);
-	DoNewNodePopup(vCanvasState);
+	DoCheckNodePopup(vBaseNodeState);
+	DoCheckSlotPopup(vBaseNodeState);
+	DoCheckLinkPopup(vBaseNodeState);
+	DoNewNodePopup(vBaseNodeState);
 
 	nd::Resume();
 }
 
-void BaseNode::DoCheckNodePopup(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DoCheckNodePopup(BaseNodeState *vBaseNodeState)
 {
 	if (ImGui::BeginPopup("CustomNodePopup"))
 	{
-		if (!vCanvasState->m_CustomContextMenuNode.expired())
+		if (!vBaseNodeState->m_CustomContextMenuNode.expired())
 		{
-			auto nodePtr = vCanvasState->m_CustomContextMenuNode.lock();
+			auto nodePtr = vBaseNodeState->m_CustomContextMenuNode.lock();
 			if (nodePtr)
 			{
-				nodePtr->DrawCustomContextMenuForNode(vCanvasState);
+				nodePtr->DrawCustomContextMenuForNode(vBaseNodeState);
 			}
 		}
 		
@@ -1520,7 +1526,7 @@ void BaseNode::DoCheckNodePopup(BaseNodeStateStruct *vCanvasState)
 	}
 	else
 	{
-		vCanvasState->m_CustomContextMenuNode.reset();
+		vBaseNodeState->m_CustomContextMenuNode.reset();
 
 		if (ImGui::BeginPopup("NodeContextMenu"))
 		{
@@ -1530,7 +1536,7 @@ void BaseNode::DoCheckNodePopup(BaseNodeStateStruct *vCanvasState)
 				auto nodePtr = node.lock();
 				if (nodePtr)
 				{
-					nodePtr->DrawContextMenuForNode(vCanvasState);
+					nodePtr->DrawContextMenuForNode(vBaseNodeState);
 				}
 				else
 				{
@@ -1554,9 +1560,9 @@ void BaseNode::DoCheckNodePopup(BaseNodeStateStruct *vCanvasState)
 	}
 }
 
-void BaseNode::DoCheckSlotPopup(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DoCheckSlotPopup(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 
 	if (ImGui::BeginPopup("SlotContextMenu"))
 	{
@@ -1571,7 +1577,7 @@ void BaseNode::DoCheckSlotPopup(BaseNodeStateStruct *vCanvasState)
 					auto nodePtr = slotPtr->parentNode.lock();
 					if (nodePtr)
 					{
-						nodePtr->DrawContextMenuForSlot(vCanvasState, slot);
+						nodePtr->DrawContextMenuForSlot(vBaseNodeState, slot);
 					}
 				}
 			}
@@ -1584,9 +1590,9 @@ void BaseNode::DoCheckSlotPopup(BaseNodeStateStruct *vCanvasState)
 	}
 }
 
-void BaseNode::DoCheckLinkPopup(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DoCheckLinkPopup(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 
 	if (ImGui::BeginPopup("LinkContextMenu"))
 	{
@@ -1602,15 +1608,15 @@ void BaseNode::DoCheckLinkPopup(BaseNodeStateStruct *vCanvasState)
 	}
 }
 
-void BaseNode::DoNewNodePopup(BaseNodeStateStruct *vCanvasState)
+void BaseNode::DoNewNodePopup(BaseNodeState *vBaseNodeState)
 {
-	UNUSED(vCanvasState);
+	UNUSED(vBaseNodeState);
 
 	assert(!m_This.expired());
 
 	if (m_Depth == 0)
 	{
-		ShowNewNodeMenu_Callback(m_This, vCanvasState);
+		ShowNewNodeMenu_Callback(m_This, vBaseNodeState);
 	}
 	else
 	{
@@ -2054,7 +2060,7 @@ void BaseNode::Break_VisualLink_ConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWea
 			}
 			else
 			{
-				CTOOL_DEBUG_BREAK;
+				//CTOOL_DEBUG_BREAK;
 			}
 
 			// averti le parent que les slot on changé leur statut de connection

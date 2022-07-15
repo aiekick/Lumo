@@ -64,16 +64,16 @@ void Output2DNode::Unit()
 	m_Output2DModulePtr.reset();
 }
 
-bool Output2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd)
+bool Output2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd);
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_Output2DModulePtr)
 	{
-		return m_Output2DModulePtr->Execute(vCurrentFrame, vCmd);
+		return m_Output2DModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return false;
@@ -101,9 +101,9 @@ void Output2DNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 	}*/
 }
 
-void Output2DNode::DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState)
+void Output2DNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
-	if (vCanvasState && vCanvasState->debug_mode)
+	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)
@@ -199,7 +199,7 @@ void Output2DNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmite
 	}
 }
 
-void Output2DNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
+void Output2DNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
 	// one output only
 	//if (m_Output3DModulePtr)

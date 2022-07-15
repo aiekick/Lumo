@@ -110,7 +110,7 @@ void MeshNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlo
 	}
 }
 
-void MeshNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotWeak vSlot)
+void MeshNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
 	// one output only
 	if (m_MeshModule)

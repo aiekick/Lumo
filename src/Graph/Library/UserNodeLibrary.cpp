@@ -114,7 +114,7 @@ UserNodeLibrary::UserNodeLibrary()
 //// MENU ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeStateStruct *vCanvasState)
+BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState)
 {
 	if (vNodeGraph.expired()) return BaseNodeWeak();
 	
@@ -124,7 +124,7 @@ BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeS
 
 	if (ImGui::BeginPopup("CreateNewNode"))
 	{
-		auto entry = m_RootLibraryCategory.ShowContent(vNodeGraph, vCanvasState, 0);
+		auto entry = m_RootLibraryCategory.ShowContent(vNodeGraph, vBaseNodeState, 0);
 		if (!entry.first.empty())
 		{
 			createdNode = CreateNode(vNodeGraph, entry);

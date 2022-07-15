@@ -58,7 +58,7 @@ public:
 typedef std::pair<std::string, LibraryItem> LibraryEntry;
 
 class BaseNode;
-struct BaseNodeStateStruct;
+struct BaseNodeState;
 class LibraryCategory
 {
 public:
@@ -71,7 +71,7 @@ private:
 	std::map<std::string, LibraryCategory> m_SubCategories;
 
 private:
-	LibraryEntry ShowMenu(BaseNodeWeak vNodeGraph, BaseNodeStateStruct *vCanvasState, int vLevel);
+	LibraryEntry ShowMenu(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState, int vLevel);
 
 public:
 	LibraryCategory();
@@ -81,5 +81,5 @@ public:
 	void AddShader(const std::string& vShaderName, const std::string& vShaderPath);
 	void AddCustom(const std::string& vCategoryPath, const std::string& vNodeLabel, const std::string& vNodeType, const ct::fvec4& vColor = 0.0f);
 	void AddLibraryEntry(const LibraryEntry& vLibraryEntry);
-	LibraryEntry ShowContent(BaseNodeWeak vNodeGraph, BaseNodeStateStruct *vCanvasState, int vLevel);
+	LibraryEntry ShowContent(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState, int vLevel);
 };

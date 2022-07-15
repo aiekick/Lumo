@@ -34,7 +34,7 @@ private:
 
 public:
 	BaseNodeWeak ShowNewNodeMenu(
-		BaseNodeWeak vNodeGraph, BaseNodeStateStruct *vCanvasState);
+		BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState);
 	void AnalyseRootDirectory();
 
 private:

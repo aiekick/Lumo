@@ -128,7 +128,7 @@ enum class LINK_TYPE_Enum : uint8_t
 	LINK_TYPE_Count
 };
 
-struct BaseNodeStateStruct
+struct BaseNodeState
 {
 	ImGuiContext* m_Context = nullptr;
 	nd::EditorContext* m_NodeGraphContext = nullptr;
@@ -208,8 +208,8 @@ public: // static
 	static std::function<void(BaseNodeWeak)> sSelectCallback; // select node
 	static void Select_Callback(const BaseNodeWeak& vNode);
 
-	static std::function<BaseNodeWeak(BaseNodeWeak vNodeGraph, BaseNodeStateStruct* vCanvasState)> sShowNewNodeMenuCallback; // new node menu
-	static void ShowNewNodeMenu_Callback(const BaseNodeWeak& vNodeGraph, BaseNodeStateStruct* vCanvasState);
+	static std::function<BaseNodeWeak(BaseNodeWeak vNodeGraph, BaseNodeState* vBaseNodeState)> sShowNewNodeMenuCallback; // new node menu
+	static void ShowNewNodeMenu_Callback(const BaseNodeWeak& vNodeGraph, BaseNodeState* vBaseNodeState);
 
 	static std::function<bool(BaseNodeWeak, tinyxml2::XMLElement*, tinyxml2::XMLElement*,
 		const std::string&, const std::string&, const ct::fvec2&, const size_t&)> sLoadNodeFromXMLCallback; // log infos
@@ -233,7 +233,7 @@ public: // ident
 	std::string uniquePaneId;
 	
 public:
-	BaseNodeStateStruct m_BaseNodeState;
+	BaseNodeState m_BaseNodeState;
 	std::string m_NodeTypeString = "NONE";
 
 public: // used by layout
@@ -299,8 +299,8 @@ public:
 	void ClearGraph();
 	void ClearSlots();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *vCmd = nullptr) override;
-	bool ExecuteChilds(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr);
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+	bool ExecuteChilds(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr);
 
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 
@@ -385,18 +385,18 @@ public: // shader gen related stuff
 	void SetCodeDirty(bool vFlag);
 	
 private: // graph states / action / drawings
-	void DoGraphActions(BaseNodeStateStruct *vCanvasState);
-	void OpenNodeInNewPane(BaseNodeStateStruct* vCanvasState);
-	void SelectNodeforPreview(BaseNodeStateStruct* vCanvasState);
-	void FillState(BaseNodeStateStruct *vCanvasState);
-	void DoCreateLinkOrNode(BaseNodeStateStruct *vCanvasState);
-	void DoDeleteLinkOrNode(BaseNodeStateStruct *vCanvasState);
-	void DoShorcutsOnNode(BaseNodeStateStruct *vCanvasState);
-	void DoPopups(BaseNodeStateStruct *vCanvasState);
-	void DoCheckNodePopup(BaseNodeStateStruct *vCanvasState);
-	void DoCheckSlotPopup(BaseNodeStateStruct *vCanvasState);
-	void DoCheckLinkPopup(BaseNodeStateStruct *vCanvasState);
-	void DoNewNodePopup(BaseNodeStateStruct *vCanvasState);
+	void DoGraphActions(BaseNodeState *vBaseNodeState);
+	void OpenNodeInNewPane(BaseNodeState* vBaseNodeState);
+	void SelectNodeforPreview(BaseNodeState* vBaseNodeState);
+	void FillState(BaseNodeState *vBaseNodeState);
+	void DoCreateLinkOrNode(BaseNodeState *vBaseNodeState);
+	void DoDeleteLinkOrNode(BaseNodeState *vBaseNodeState);
+	void DoShorcutsOnNode(BaseNodeState *vBaseNodeState);
+	void DoPopups(BaseNodeState *vBaseNodeState);
+	void DoCheckNodePopup(BaseNodeState *vBaseNodeState);
+	void DoCheckSlotPopup(BaseNodeState *vBaseNodeState);
+	void DoCheckLinkPopup(BaseNodeState *vBaseNodeState);
+	void DoNewNodePopup(BaseNodeState *vBaseNodeState);
 	
 private: // node manipulation
 	void DuplicateNode(uint32_t vNodeId, ImVec2 vOffsetPos);
@@ -441,25 +441,25 @@ public: // gui interface
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext) override;
 
 public: // pane
-	virtual bool DrawDebugInfos(BaseNodeStateStruct *vCanvasState);
-	virtual void DrawProperties(BaseNodeStateStruct* vCanvasState);
+	virtual bool DrawDebugInfos(BaseNodeState *vBaseNodeState);
+	virtual void DrawProperties(BaseNodeState* vBaseNodeState);
 
 public: // draw nodes widgets (can be caleed from external)
-	virtual void DrawInputWidget(BaseNodeStateStruct *vCanvasState, NodeSlotWeak vSlot);
-	virtual void DrawOutputWidget(BaseNodeStateStruct *vCanvasState, NodeSlotWeak vSlot);
-	virtual void DrawContextMenuForSlot(BaseNodeStateStruct *vCanvasState, NodeSlotWeak vSlot);
-	virtual void DrawContextMenuForNode(BaseNodeStateStruct *vCanvasState);
-	virtual void DrawCustomContextMenuForNode(BaseNodeStateStruct *vCanvasState);
+	virtual void DrawInputWidget(BaseNodeState *vBaseNodeState, NodeSlotWeak vSlot);
+	virtual void DrawOutputWidget(BaseNodeState *vBaseNodeState, NodeSlotWeak vSlot);
+	virtual void DrawContextMenuForSlot(BaseNodeState *vBaseNodeState, NodeSlotWeak vSlot);
+	virtual void DrawContextMenuForNode(BaseNodeState *vBaseNodeState);
+	virtual void DrawCustomContextMenuForNode(BaseNodeState *vBaseNodeState);
 
 protected: // cant bt called from external, must be derived
-	virtual void DisplayInfosOnTopOfTheNode(BaseNodeStateStruct* vCanvasState);
-	virtual void DrawNode(BaseNodeStateStruct *vCanvasState);
-	virtual bool DrawBegin(BaseNodeStateStruct *vCanvasState);
-	virtual bool DrawHeader(BaseNodeStateStruct *vCanvasState);
-	virtual bool DrawNodeContent(BaseNodeStateStruct *vCanvasState);
-	virtual bool DrawFooter(BaseNodeStateStruct *vCanvasState);
-	virtual bool DrawEnd(BaseNodeStateStruct *vCanvasState);
-	virtual void DrawLinks(BaseNodeStateStruct *vCanvasState);
+	virtual void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState);
+	virtual void DrawNode(BaseNodeState *vBaseNodeState);
+	virtual bool DrawBegin(BaseNodeState *vBaseNodeState);
+	virtual bool DrawHeader(BaseNodeState *vBaseNodeState);
+	virtual bool DrawNodeContent(BaseNodeState *vBaseNodeState);
+	virtual bool DrawFooter(BaseNodeState *vBaseNodeState);
+	virtual bool DrawEnd(BaseNodeState *vBaseNodeState);
+	virtual void DrawLinks(BaseNodeState *vBaseNodeState);
 	
 public: // loading / saving
 	typedef std::pair<uint32_t, uint32_t> SlotEntry;
