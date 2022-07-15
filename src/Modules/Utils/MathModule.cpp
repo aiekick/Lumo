@@ -74,7 +74,7 @@ bool MathModule::Init()
 {
 	ZoneScoped;
 
-	ct::uvec2 map_size = 512;
+	ct::uvec2 map_size = 1U;
 
 	m_Loaded = true;
 
@@ -152,11 +152,6 @@ void MathModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 	{
 
 	}
-}
-
-void MathModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 void MathModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)

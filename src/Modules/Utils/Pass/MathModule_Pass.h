@@ -96,4 +96,5 @@ protected:
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 
 	bool DrawCombo(const float vWidth);
+	void ResizeToMaxOfTexturesIfNeeded();
 };

@@ -40,6 +40,7 @@ class TextureInputInterface : public TextureInputFunctions
 {
 protected:
 	std::array<vk::DescriptorImageInfo, size_of_array> m_ImageInfos;
+	std::array<ct::fvec2, size_of_array> m_ImageInfosSize;
 	std::array<ImGuiTexture, size_of_array> m_ImGuiTextures;
 
 protected: // internal use

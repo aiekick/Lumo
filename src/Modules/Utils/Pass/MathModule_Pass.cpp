@@ -163,12 +163,21 @@ void MathModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 			{
 				m_ImageInfos[vBinding] = *vImageInfo;
 
+				if (vTextureSize)
+				{
+					m_ImageInfosSize[vBinding] = *vTextureSize;
+
+					ResizeToMaxOfTexturesIfNeeded();
+				}
+
 				if ((&m_UBOFrag.u_use_input_0)[vBinding] < 1.0f)
 				{
 					(&m_UBOFrag.u_use_input_0)[vBinding] = 1.0f;
 
 					NeedNewUBOUpload();
 				}
+
+
 			}
 			else
 			{
@@ -523,4 +532,36 @@ std::string MathModule_Pass::GetInputName(const uint32_t& vIdx)
 	}
 
 	return "";
+}
+
+/// <summary>
+/// on va ajuster l'output au plus grand des inputs
+/// on veut ni etre trop grand, ni etre trop petit, juste egal au plus rgand des trois
+/// </summary>
+void MathModule_Pass::ResizeToMaxOfTexturesIfNeeded()
+{
+	if (m_FrameBufferPtr)
+	{
+		ct::fvec2 max_size;
+		for (const auto& size : m_ImageInfosSize)
+		{
+			if (size > max_size)
+			{
+				max_size = size;
+			}
+		}
+
+		if (!max_size.emptyAND())
+		{
+			// need resize to max of input textures ?
+			ct::fvec2 current_size = m_FrameBufferPtr->GetOutputSize();
+			if (IS_FLOAT_DIFFERENT(max_size.x, current_size.x) &&
+				IS_FLOAT_DIFFERENT(max_size.y, current_size.y))
+			{
+				// yes !
+				ct::ivec2 new_size = ct::ivec2((int32_t)max_size.x, (int32_t)max_size.y);
+				QuadShaderPass::NeedResize(&new_size);
+			}
+		}
+	}
 }
