@@ -72,7 +72,7 @@ at least, support all rendering features and result of the SketchFab Renderer
 - [X] Renderers / Deferred Renderer Node
 - [X] Renderers / Heatmap Renderer Node
 - [X] Renderers / Matcap Renderer Node
-- [-] Renderers / PBR Renderer Node
+- [ ] Renderers / PBR Renderer Node
 - [ ] Simulation / GrayScott Node
 - [X] Utils / Depth To Pos Node
 - [X] Utils / Math Node (add, sub, mul, smoothstep, step, etc..)
