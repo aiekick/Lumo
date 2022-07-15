@@ -68,6 +68,7 @@ at least, support all rendering features and result of the SketchFab Renderer
 - [X] Postpro / Blur Node
 - [X] Postpro / Laplacian Node
 - [X] Postpro / SSAO Node
+- [X] Postpro / Tone Map Node
 - [X] Renderers / Channels Renderer Node
 - [X] Renderers / Deferred Renderer Node
 - [X] Renderers / Heatmap Renderer Node
