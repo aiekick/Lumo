@@ -1236,7 +1236,10 @@ bool ImGui::ColorEdit4Default(float vWidth, const char* vName, float* vCol, floa
 
 	ImGui::PushID(ImGui::IncPUSHID());
 	ImGui::PushItemWidth(w);
-	change |= ImGui::ColorEdit4(vName, vCol, ImGuiColorEditFlags_Float);
+	change |= ImGui::ColorEdit4(vName, vCol, 
+		ImGuiColorEditFlags_Float | 
+		ImGuiColorEditFlags_AlphaBar | 
+		ImGuiColorEditFlags_AlphaPreview);
 	ImGui::PopItemWidth();
 	ImGui::PopID();
 

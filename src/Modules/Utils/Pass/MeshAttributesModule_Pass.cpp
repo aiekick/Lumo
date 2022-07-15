@@ -249,7 +249,7 @@ bool MeshAttributesModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // depth
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // mask
 
 	return true;
 }
@@ -335,10 +335,7 @@ void main()
 	fragUV = vec4(vertUv,0,1);
 	fragCol = vertColor;
 
-	float depth = gl_FragCoord.z / gl_FragCoord.w;
-	if (cam_far > 0.0)
-		depth /= cam_far;
-	fragDep = vec4(vec3(depth), 1.0);
+	fragDep = vec4(vec3(gl_FragCoord.z / gl_FragCoord.w), 1.0);
 
 	if (use_sampler_mask > 0.5)
 	{
