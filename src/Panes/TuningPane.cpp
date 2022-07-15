@@ -46,8 +46,7 @@ static int SourcePane_WidgetId = 0;
 
 TuningPane::TuningPane()
 {
-	using namespace std::placeholders;
-	BaseNode::sSelectCallback = std::bind(&TuningPane::Select, this, _1);
+
 }
 
 TuningPane::~TuningPane() = default;

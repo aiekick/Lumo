@@ -41,7 +41,7 @@ PBRRenderer_Pass::PBRRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Quad Pass 1 : PBR", QUAD_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+	//m_DontUseShaderFilesOnDisk = true;
 }
 
 PBRRenderer_Pass::~PBRRenderer_Pass()

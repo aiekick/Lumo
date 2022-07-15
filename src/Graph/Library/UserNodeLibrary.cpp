@@ -89,7 +89,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Core/Utils", "Pos to Depth", "POS_TO_DEPTH");
 	m_RootLibraryCategory.AddCustom("Core/Utils", "Math", "MATH");
 
-	m_RootLibraryCategory.AddCustom("Core/Variables", "Boolean", "TYPE_BOOLEAN");
+	m_RootLibraryCategory.AddCustom("Core/Widgets", "Boolean", "WIDGET_BOOLEAN");
+	m_RootLibraryCategory.AddCustom("Core/Widgets", "Color", "WIDGET_COLOR");
 
 	// les plugins
 	auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();

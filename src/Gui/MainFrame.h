@@ -21,7 +21,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 #include <Project/ProjectFile.h>
 #include <Systems/FrameActionSystem.h>
-
+#include <Graph/Graph.h>
 #include <functional>
 #include <string>
 #include <vector>
@@ -127,6 +127,8 @@ private:
 public:
 	void Init();
 	void Unit();
+
+	void SelectNode(const BaseNodeWeak& vNode);
 
 	void NeedToNewProject(const std::string& vFilePathName);
 	void NeedToLoadProject(const std::string& vFilePathName);

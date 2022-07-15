@@ -18,13 +18,13 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "DebugPane.h"
-
 #include <Gui/MainFrame.h>
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
 #include <Project/ProjectFile.h>
 #include <Project/ProjectFile.h>
+#include <Graph/Base/BaseNode.h>
 #include <imgui/imgui_internal.h>
 #include <Panes/Manager/LayoutManager.h>
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
@@ -74,7 +74,11 @@ int DebugPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::stri
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
-
+				auto nodePtr = m_NodeToDebug.getValidShared();
+				if (nodePtr)
+				{
+					nodePtr->DrawDebugInfos(nullptr);
+				}
 			}
 		}
 
@@ -108,4 +112,9 @@ void DebugPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string 
 int DebugPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
 {
 	return vWidgetId;
+}
+
+void DebugPane::Select(BaseNodeWeak vNode)
+{
+	m_NodeToDebug = vNode;
 }

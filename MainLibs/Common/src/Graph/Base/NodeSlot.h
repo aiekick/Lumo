@@ -159,6 +159,7 @@ public:
 	uint32_t fboAttachmentId = 0;
 	uint32_t channelId = 0; // by ex is this slot is the b channel of a vec4, channelId will be 2
 	bool idAlreadySetbyXml = false; // know if id was already set by xml
+	bool acceptManyInputs = false; // one input can be connected to more than one output
 
 	std::string originalFuncName;
 	std::string funcCode; // code de la function si c'est un slot de type FUNCTION
@@ -216,6 +217,8 @@ public:
 	bool IsAnOutput();
 
 	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
+
+	void DrawDebugInfos();
 
 private:
 	void DrawInputWidget(BaseNodeStateStruct *vCanvasState);

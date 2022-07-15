@@ -52,7 +52,8 @@ limitations under the License.
 #include <Graph/Nodes/Utils/PosToDepthNode.h>
 #include <Graph/Nodes/Utils/MeshAttributesNode.h>
 
-#include <Graph/Nodes/Variables/VariableNode.h>
+#include <Graph/Nodes/Widgets/VariableNode.h>
+#include <Graph/Nodes/Widgets/WidgetColorNode.h>
 
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType)
 {
@@ -109,10 +110,11 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			else if (vNodeType == "MATH")							return MathNode::Create(corePtr);
 
 			// Variables
-			else if (vNodeType == "TYPE_BOOLEAN")					return VariableNode::Create(corePtr, vNodeType);
-			else if (vNodeType == "TYPE_FLOAT")						return VariableNode::Create(corePtr, vNodeType);
-			else if (vNodeType == "TYPE_INT")						return VariableNode::Create(corePtr, vNodeType);
-			else if (vNodeType == "TYPE_UINT")						return VariableNode::Create(corePtr, vNodeType);
+			else if (vNodeType == "WIDGET_BOOLEAN")					return VariableNode::Create(corePtr, vNodeType);
+			else if (vNodeType == "WIDGET_FLOAT")					return VariableNode::Create(corePtr, vNodeType);
+			else if (vNodeType == "WIDGET_INT")						return VariableNode::Create(corePtr, vNodeType);
+			else if (vNodeType == "WIDGET_UINT")					return VariableNode::Create(corePtr, vNodeType);
+			else if (vNodeType == "WIDGET_COLOR")					return WidgetColorNode::Create(corePtr);
 		}
 	}
 

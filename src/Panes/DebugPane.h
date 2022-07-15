@@ -17,18 +17,19 @@ limitations under the License.
 #pragma once
 
 #include <Panes/Abstract/AbstractPane.h>
-
+#include <Interfaces/NodeInterface.h>
+#include <Graph/Graph.h>
 #include <imgui/imgui.h>
-
 #include <stdint.h>
 #include <string>
-#include <map>
 #include <memory>
+#include <map>
 
 class ProjectFile;
-class DebugPane : public AbstractPane
+class DebugPane : public AbstractPane, public NodeInterface
 {
 private:
+	BaseNodeWeak m_NodeToDebug;
 
 public:
 	bool Init() override;
@@ -36,6 +37,7 @@ public:
 	int DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
 	void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas) override;
 	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
+	void Select(BaseNodeWeak vObjet) override;
 
 public: // singleton
 	static DebugPane* Instance()

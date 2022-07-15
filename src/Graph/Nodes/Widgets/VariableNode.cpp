@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 #include "VariableNode.h"
-#include <Modules/Variables/VariableModule.h>
+#include <Modules/Widgets/VariableModule.h>
 
 std::shared_ptr<VariableNode> VariableNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr, const std::string& vNodeType)
 {
@@ -40,17 +40,25 @@ VariableNode::~VariableNode()
 
 bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Boolean";
+	name = "Widget Bool";
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::TYPE_BOOLEAN;
+	if (m_NodeTypeString == "WIDGET_BOOLEAN")
+		slot.slotType = NodeSlotTypeEnum::TYPE_BOOLEAN;
+	else if (m_NodeTypeString == "WIDGET_FLOAT")
+		slot.slotType = NodeSlotTypeEnum::TYPE_FLOAT;
+	else if (m_NodeTypeString == "WIDGET_INT")
+		slot.slotType = NodeSlotTypeEnum::TYPE_INT;
+	else if (m_NodeTypeString == "WIDGET_UINT")
+		slot.slotType = NodeSlotTypeEnum::TYPE_UINT;
+
 	slot.showWidget = true;
 	AddOutput(slot, true, false);
 
 	bool res = false;
 
-	m_VariableModulePtr = VariableModule::Create("TYPE_BOOLEAN", m_This);
+	m_VariableModulePtr = VariableModule::Create(m_NodeTypeString, m_This);
 	res = (m_VariableModulePtr!=nullptr);
 
 	return res;
@@ -198,11 +206,11 @@ void VariableNode::DrawOutputWidget(BaseNodeStateStruct* vCanvasState, NodeSlotW
 	if (vCanvasState)
 	{
 		auto slotPtr = vSlot.getValidShared();
-		if (slotPtr && slotPtr->slotType == NodeSlotTypeEnum::TYPE_BOOLEAN)
+		if (slotPtr)
 		{
 			if (m_VariableModulePtr)
 			{
-				m_VariableModulePtr->DrawNodeWidget(0U);
+				m_VariableModulePtr->DrawNodeWidget(0U, ImGui::GetCurrentContext());
 			}
 		}
 	}

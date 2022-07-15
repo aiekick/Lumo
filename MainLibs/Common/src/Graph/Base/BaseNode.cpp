@@ -756,54 +756,37 @@ bool BaseNode::DrawDebugInfos(BaseNodeStateStruct *vCanvasState)
 	UNUSED(vCanvasState);
 	ImGui::Separator();
 
-	/*auto rend = GetRenderer();
-	if (!rend.expired())
-	{
-		auto rendPtr = rend.lock();
-		if (rendPtr)
-		{
-			ImGui::Text("CodeTree");
-
-			//rendPtr->DisplayCodeTree();
-		}
-	}*/
-
-	ImGui::Text("Code Generator");
-
-	ImGui::Separator();
-	
-	if (!m_ParentNode.expired())
-	{
-		auto parentPtr = m_ParentNode.lock();
-		if (parentPtr)
-		{
-			ImGui::Separator();
-			ImGui::Text("Parent Code");
-			ImGui::Indent();
-			ImGui::Text("Func Code : %s", "");
-			ImGui::Unindent();
-			ImGui::Separator();
-		}
-	}
 
 	ImGui::Text("Name : %s", name.c_str());
 	ImGui::Text("Type : %s", m_NodeTypeString.c_str());
-	ImGui::Text("Func Code : %s", "");
-
+	
 	ImGui::Separator();
 
 	if (!m_Inputs.empty())
 	{
-		if (ImGui::TreeNode("Input Calls :"))
+		if (ImGui::TreeNode("Inputs :"))
 		{
 			ImGui::Indent();
 			for (auto & uni : m_Inputs) // input calls
 			{
 				ImGui::Text("Name : %s", uni.second->name.c_str());
-				uni.second->stamp.DrawImGui();
 				ImGui::Text("Type : %s", GetStringFromNodeSlotTypeEnum(uni.second->slotType).c_str());
-				ImGui::Text("Func Code : %s", uni.second->funcCode.c_str());
-				ImGui::Separator();
+				ImGui::Text("Count connections : %u", (uint32_t)uni.second->linkedSlots.size());
+				ImGui::Indent();
+				for (auto lslot : uni.second->linkedSlots)
+				{
+					auto lslotPtr = lslot.getValidShared();
+					if (lslotPtr)
+					{
+						auto pNodePtr = lslotPtr->parentNode.getValidShared();
+						if (pNodePtr)
+						{
+							ImGui::Text("Node %s", pNodePtr->name.c_str());
+						}
+					}
+				}
+				ImGui::Unindent();
+				ImGui::Text("--------------------");
 			}
 			ImGui::Unindent();
 
@@ -813,15 +796,29 @@ bool BaseNode::DrawDebugInfos(BaseNodeStateStruct *vCanvasState)
 
 	if (!m_Outputs.empty())
 	{
-		if (ImGui::TreeNode("Output Calls :"))
+		if (ImGui::TreeNode("Outputs :"))
 		{
 			ImGui::Indent();
 			for (auto & uni : m_Outputs) // input calls
 			{
 				ImGui::Text("Name : %s", uni.second->name.c_str());
-				uni.second->stamp.DrawImGui();
 				ImGui::Text("Type : %s", GetStringFromNodeSlotTypeEnum(uni.second->slotType).c_str());
-				ImGui::Text("Func Code : %s", uni.second->funcCode.c_str());
+				ImGui::Text("Count connections : %u", (uint32_t)uni.second->linkedSlots.size());
+				ImGui::Indent();
+				for (auto lslot : uni.second->linkedSlots)
+				{
+					auto lslotPtr = lslot.getValidShared();
+					if (lslotPtr)
+					{
+						auto pNodePtr = lslotPtr->parentNode.getValidShared();
+						if (pNodePtr)
+						{
+							ImGui::Text("Node %s", pNodePtr->name.c_str());
+						}
+					}
+				}
+				ImGui::Unindent();
+				ImGui::Text("--------------------");
 				ImGui::Separator();
 			}
 			ImGui::Unindent();
@@ -1985,6 +1982,7 @@ void BaseNode::Del_VisualLink(uint32_t vLinkId)
 	}
 	else
 	{
+		CTOOL_DEBUG_BREAK;
 		LogVarDebug("Link id %i not found", vLinkId);
 	}
 }
@@ -2005,6 +2003,10 @@ void BaseNode::Break_VisualLinks_ConnectedToSlot(NodeSlotWeak vSlot)
 				{
 					Del_VisualLink(lid);
 				}
+			}
+			else
+			{
+				CTOOL_DEBUG_BREAK;
 			}
 		}
 	}
@@ -2049,6 +2051,10 @@ void BaseNode::Break_VisualLink_ConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWea
 				{
 					Del_VisualLink(foundId);
 				}
+			}
+			else
+			{
+				CTOOL_DEBUG_BREAK;
 			}
 
 			// averti le parent que les slot on changé leur statut de connection

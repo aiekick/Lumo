@@ -230,8 +230,6 @@ namespace ImGui
 	IMGUI_API bool ClickableTextUrl(const char* label, const char* url, bool vOnlined = true);
 	IMGUI_API bool ClickableTextFile(const char* label, const char* file, bool vOnlined = true);
 
-	IMGUI_API bool ColorEdit3Default(float vWidth, const char* vName, float* vCol, float* vDefault);
-	IMGUI_API bool ColorEdit4Default(float vWidth, const char* vName, float* vCol, float* vDefault);
 	IMGUI_API void Header(const char* vName, float width = -1);
 	/*template<typename T>
 	IMGUI_API bool CheckBoxBitWize(const char* vLabel, const char* vHelp, T* vContainer, T vFlag, bool vDef)
@@ -258,10 +256,10 @@ namespace ImGui
 		const ImVec2& uv0 = ImVec2(0, 0), const ImVec2& uv1 = ImVec2(1, 1),
 		const ImVec4& tint_col = ImVec4(1, 1, 1, 1), const ImVec4& border_col = ImVec4(0, 0, 0, 0));
 
-#ifdef USE_NODEGRPAH
-	IMGUI_API bool ColorEdit3ForNode(const char* label, float col[3], ImGuiColorEditFlags flags = 0);
-	IMGUI_API bool ColorEdit4ForNode(const char* label, float col[4], ImGuiColorEditFlags flags = 0);
-#endif // USE_NODEGRPAH
+	IMGUI_API bool ColorEdit3Default(float vWidth, const char* vName, float* vCol, float* vDefault);
+	IMGUI_API bool ColorEdit4Default(float vWidth, const char* vName, float* vCol, float* vDefault);
+	IMGUI_API bool ColorEdit3DefaultForNode(float vWidth, const char* vName, float* vCol, float* vDefault);
+	IMGUI_API bool ColorEdit4DefaultForNode(float vWidth, const char* vName, float* vCol, float* vDefault);
 
 	IMGUI_API void Spacing(float vSpace);
 	IMGUI_API ImGuiWindow* GetHoveredWindow();

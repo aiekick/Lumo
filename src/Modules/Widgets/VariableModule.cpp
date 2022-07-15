@@ -131,11 +131,13 @@ void VariableModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 
 bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	assert(vContext);
+
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (m_VariablePtr)
 		{
-			if (m_VariablePtr->GetType() == "TYPE_BOOLEAN")
+			if (m_VariablePtr->GetType() == "WIDGET_BOOLEAN")
 			{
 				if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Boolean, false))
 				{
@@ -146,7 +148,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 					}
 				}
 			}
-			else if (m_VariablePtr->GetType() == "TYPE_FLOAT")
+			else if (m_VariablePtr->GetType() == "WIDGET_FLOAT")
 			{
 				/*if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Float, false))
 				{
@@ -157,7 +159,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 					}
 				}*/
 			}
-			else if (m_VariablePtr->GetType() == "TYPE_INT")
+			else if (m_VariablePtr->GetType() == "WIDGET_INT")
 			{
 				/*if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Boolean, false))
 				{
@@ -168,7 +170,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 					}
 				}*/
 			}
-			else if (m_VariablePtr->GetType() == "TYPE_UINT")
+			else if (m_VariablePtr->GetType() == "WIDGET_UINT")
 			{
 				/*if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Boolean, false))
 				{

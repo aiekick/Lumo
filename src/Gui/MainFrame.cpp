@@ -89,6 +89,9 @@ void MainFrame::Init()
 #ifdef USE_PROFILER
 	LayoutManager::Instance()->AddPane(ProfilerPane::Instance(), "Profiler", (1 << 7), PaneDisposal::BOTTOM, true, false);
 #endif
+
+	using namespace std::placeholders;
+	BaseNode::sSelectCallback = std::bind(&MainFrame::SelectNode, this, _1);
 }
 
 void MainFrame::Unit()
@@ -106,6 +109,12 @@ void MainFrame::Unit()
 #ifdef USE_PROFILER
 	ProfilerPane::Instance()->Unit();
 #endif
+}
+
+void MainFrame::SelectNode(const BaseNodeWeak& vNode)
+{
+	TuningPane::Instance()->Select(vNode);
+	DebugPane::Instance()->Select(vNode);
 }
 
 void MainFrame::NeedToNewProject(const std::string& vFilePathName)

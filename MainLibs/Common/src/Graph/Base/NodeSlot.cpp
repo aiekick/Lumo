@@ -375,6 +375,14 @@ void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlo
 	}
 }
 
+void NodeSlot::DrawDebugInfos()
+{
+	ImGui::Text("--------------------");
+	ImGui::Text("Slot %s", name.c_str());
+	ImGui::Text(IsAnInput() ? "Input" : "Output");
+	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+}
+
 //////////////////////////////////////////////////////////////
 //// PRIVATE /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
