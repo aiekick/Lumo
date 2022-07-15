@@ -42,6 +42,7 @@ enum class NodeSlotTypeEnum : uint8_t
 	MERGED,
 	TEXTURE_2D,
 	TEXTURE_2D_GROUP,
+	TEXTURE_3D,
 	MIXED,
 	TYPE_BOOLEAN,
 	TYPE_UINT,
@@ -62,6 +63,7 @@ inline static std::string GetStringFromNodeSlotTypeEnum(const NodeSlotTypeEnum& 
 		"MERGED",
 		"TEXTURE_2D",
 		"TEXTURE_2D_GROUP",
+		"TEXTURE_3D",
 		"MIXED",
 		"TYPE_BOOLEAN",
 		"TYPE_UINT",
@@ -85,6 +87,7 @@ inline static NodeSlotTypeEnum GetNodeSlotTypeEnumFromString(const std::string& 
 	else if (vNodeSlotTypeString == "MERGED") return NodeSlotTypeEnum::MERGED;
 	else if (vNodeSlotTypeString == "TEXTURE_2D") return NodeSlotTypeEnum::TEXTURE_2D;
 	else if (vNodeSlotTypeString == "TEXTURE_2D_GROUP") return NodeSlotTypeEnum::TEXTURE_2D_GROUP;
+	else if (vNodeSlotTypeString == "TEXTURE_3D") return NodeSlotTypeEnum::TEXTURE_3D;
 	else if (vNodeSlotTypeString == "MIXED") return NodeSlotTypeEnum::MIXED;
 	else if (vNodeSlotTypeString == "TYPE_BOOLEAN") return NodeSlotTypeEnum::TYPE_BOOLEAN;
 	else if (vNodeSlotTypeString == "TYPE_UINT") return NodeSlotTypeEnum::TYPE_UINT;

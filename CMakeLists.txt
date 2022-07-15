@@ -15,6 +15,7 @@ if (USE_PLUGINS)
 	option(USE_PLUGIN_MORPHOGENESIS "Enable the plugin MorphoGenesis" OFF)
 	option(USE_PLUGIN_RTX "Enable the plugin RTX" OFF)
 	option(USE_PLUGIN_PARTICLES "Enable the plugin Particles" OFF)
+	option(USE_PLUGIN_SMOKE "Enable the plugin Smoke" OFF)
 endif()
 
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)

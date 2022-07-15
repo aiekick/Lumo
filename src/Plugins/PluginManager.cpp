@@ -44,6 +44,9 @@ namespace fs = std::filesystem;
 #ifdef USE_PLUGIN_PARTICLES
 #include <Particles.h>
 #endif
+#ifdef USE_PLUGIN_SMOKE
+#include <Smoke.h>
+#endif
 #endif // USE_STATIC_LINKING_OF_PLUGINS
 
 //////////////////////////////////////////////////////////////////////////////
@@ -224,6 +227,9 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #endif
 #ifdef USE_PLUGIN_PARTICLES
 	AddPlugin("Particles", std::make_shared<Particles>(), vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_SMOKE
+	AddPlugin("Smoke", std::make_shared<Smoke>(), vVulkanCoreWeak);
 #endif
 #endif // USE_STATIC_LINKING_OF_PLUGINS
 }
