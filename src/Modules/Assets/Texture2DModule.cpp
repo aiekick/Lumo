@@ -32,6 +32,7 @@ std::shared_ptr<Texture2DModule> Texture2DModule::Create(vkApi::VulkanCorePtr vV
 {
 	ZoneScoped;
 
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<Texture2DModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);

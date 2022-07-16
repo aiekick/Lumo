@@ -44,6 +44,7 @@ using namespace vkApi;
 std::shared_ptr<SmoothNormalModule> SmoothNormalModule::Create(
 	vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<SmoothNormalModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);

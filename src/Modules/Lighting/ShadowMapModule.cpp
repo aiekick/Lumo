@@ -42,6 +42,7 @@ using namespace vkApi;
 
 std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<ShadowMapModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

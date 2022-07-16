@@ -43,6 +43,7 @@ using namespace vkApi;
 
 FrameBufferPtr FrameBuffer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<FrameBuffer>(vVulkanCorePtr);
 
 	return res;

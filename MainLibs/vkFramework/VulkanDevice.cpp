@@ -135,10 +135,11 @@ namespace vkApi
 		const std::string& vAppName,
 		const int& vAppVersion,
 		const std::string& vEngineName,
-		const int& vEngineVersion)
+		const int& vEngineVersion,
+		const bool& vUseRTX)
 	{
 		auto res = std::make_shared<VulkanDevice>();
-		if (!res->Init(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion))
+		if (!res->Init(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion, vUseRTX))
 		{
 			res.reset();
 		}
@@ -232,11 +233,14 @@ namespace vkApi
 		const std::string& vAppName,
 		const int& vAppVersion,
 		const std::string& vEngineName,
-		const int& vEngineVersion)
+		const int& vEngineVersion,
+		const bool& vUseRTX)
 	{
 		ZoneScoped;
 
 		bool res = true;
+
+		SetUseRTX(vUseRTX);
 
 		res &= CreateVulkanInstance(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion);
 		res &= CreatePhysicalDevice();
@@ -424,6 +428,21 @@ namespace vkApi
 		auto vkWindowPtr = vVulkanWindow.getValidShared();
 		if (vkWindowPtr)
 		{
+			m_ApiVersion = VK_API_VERSION_1_1; // needed for RTX
+			if (vk::enumerateInstanceVersion(&m_ApiVersion) != vk::Result::eSuccess)
+			{
+				m_ApiVersion = VK_API_VERSION_1_0;
+				SetUseRTX(false);
+			}
+			else
+			{
+				printf("-----------\n");
+				printf("Vulkan api version is : %u.%u.%u.%u\n-----------",
+					VK_API_VERSION_VARIANT(m_ApiVersion),
+					VK_API_VERSION_MAJOR(m_ApiVersion),
+					VK_API_VERSION_MINOR(m_ApiVersion),
+					VK_API_VERSION_PATCH(m_ApiVersion));
+			}
 
 #ifdef _DEBUG
 			CheckValidationLayerSupport();
@@ -443,6 +462,11 @@ namespace vkApi
 			wantedExtensions.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 			wantedExtensions.emplace_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 #endif
+			// for RTX
+			if (m_Use_RTX && m_ApiVersion != VK_API_VERSION_1_0)
+			{
+				wantedExtensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+			}
 
 #if ENABLE_CALIBRATED_CONTEXT
 			wantedExtensions.emplace_back(VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
@@ -458,22 +482,7 @@ namespace vkApi
 			std::vector<const char*> layers = {};
 			findBestLayers(installedLayers, wantedLayers, layers);
 
-			uint32_t apiVersion = VK_API_VERSION_1_0;
-			if (vk::enumerateInstanceVersion(&apiVersion) != vk::Result::eSuccess)
-			{
-				apiVersion = VK_API_VERSION_1_0;
-			}
-			else
-			{
-				printf("-----------\n");
-				printf("Vulkan api version is : %u.%u.%u.%u\n-----------",
-					VK_API_VERSION_VARIANT(apiVersion),
-					VK_API_VERSION_MAJOR(apiVersion),
-					VK_API_VERSION_MINOR(apiVersion),
-					VK_API_VERSION_PATCH(apiVersion));
-			}
-
-			vk::ApplicationInfo appInfo(vAppName.c_str(), vAppVersion, vEngineName.c_str(), vEngineVersion);
+			vk::ApplicationInfo appInfo(vAppName.c_str(), vAppVersion, vEngineName.c_str(), vEngineVersion, m_ApiVersion);
 
 			m_Debug_Utils_Supported = false;
 			for (auto ext : extensions)
@@ -574,6 +583,24 @@ namespace vkApi
 		m_Queues[vk::QueueFlagBits::eCompute].familyQueueIndex = getQueueIndex(m_PhysDevice, vk::QueueFlagBits::eCompute, false);
 		m_Queues[vk::QueueFlagBits::eTransfer].familyQueueIndex = getQueueIndex(m_PhysDevice, vk::QueueFlagBits::eTransfer, false);
 
+		if (m_Use_RTX && m_ApiVersion != VK_API_VERSION_1_0)
+		{
+			VkPhysicalDeviceProperties2 prop2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
+			prop2.pNext = &m_RayTracingDeviceProperties;
+			vkGetPhysicalDeviceProperties2(m_PhysDevice, reinterpret_cast<VkPhysicalDeviceProperties2*>(&prop2));
+
+			printf("-----------\n");
+			printf("Ray Tracing Device Properties :\n");
+			printf(" - Shader Group Handle Size : %u\n", m_RayTracingDeviceProperties.shaderGroupHandleSize);
+			printf(" - Max Ray Recursion Depth : %u\n", m_RayTracingDeviceProperties.maxRayRecursionDepth);
+			printf(" - Max Shader Group Stride : %u\n", m_RayTracingDeviceProperties.maxShaderGroupStride);
+			printf(" - Shader Group Base Alignment : %u\n", m_RayTracingDeviceProperties.shaderGroupBaseAlignment);
+			printf(" - Shader Group Handle Capture Replay Size : %u\n", m_RayTracingDeviceProperties.shaderGroupHandleCaptureReplaySize);
+			printf(" - Max Ray Dispatch Invocation Count : %u\n", m_RayTracingDeviceProperties.maxRayDispatchInvocationCount);
+			printf(" - Shader Group Handle Alignment : %u\n", m_RayTracingDeviceProperties.shaderGroupHandleAlignment);
+			printf(" - Max Ray Hit Attribute Size : %u\n", m_RayTracingDeviceProperties.maxRayHitAttributeSize);
+		}
+
 		//auto limits = m_PhysDevice.getProperties().limits;
 		//limits.maxDescriptorSetUniformBuffers;
 
@@ -613,7 +640,32 @@ namespace vkApi
 
 		// Logical VulkanCore
 		std::vector<vk::ExtensionProperties> installedDeviceExtensions = m_PhysDevice.enumerateDeviceExtensionProperties();
-		std::vector<const char*> wantedDeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_EXT_ROBUSTNESS_2_EXTENSION_NAME };
+		std::vector<const char*> wantedDeviceExtensions = { 
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
+			VK_EXT_ROBUSTNESS_2_EXTENSION_NAME,
+		};
+
+		// RTX
+		if (m_Use_RTX && m_ApiVersion != VK_API_VERSION_1_0)
+		{
+			// needed by VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
+			wantedDeviceExtensions.push_back(VK_KHR_MAINTENANCE_3_EXTENSION_NAME);
+
+			// needed by VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
+			wantedDeviceExtensions.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
+			wantedDeviceExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
+			wantedDeviceExtensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
+
+			// needed by VK_KHR_SPIRV_1_4_EXTENSION_NAME
+			wantedDeviceExtensions.push_back(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME);
+
+			// needed by VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME
+			wantedDeviceExtensions.push_back(VK_KHR_SPIRV_1_4_EXTENSION_NAME);
+			wantedDeviceExtensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
+
+			wantedDeviceExtensions.push_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
+		}
+
 		std::vector<const char*> deviceExtensions = {};
 		findBestExtensions("Device", installedDeviceExtensions, wantedDeviceExtensions, deviceExtensions);
 
@@ -621,24 +673,37 @@ namespace vkApi
 		printf("Device Features :\n");
 		
 		// enabled features
-		printf("Feature : wideLines\n");
-		m_PhysDeviceFeatures.wideLines = true;			// pour changer la taille des lignes
+		printf("Feature : wide Lines\n");
+		m_PhysDeviceFeatures.setWideLines(true);			// pour changer la taille des lignes
 
-		printf("Feature : sampleRateShading\n");
-		m_PhysDeviceFeatures.sampleRateShading = true;	// pour anti aliaser les textures
+		printf("Feature : sample Rate Shading\n");
+		m_PhysDeviceFeatures.setSampleRateShading(true);	// pour anti aliaser les textures
 
-		printf("Feature : geometryShader\n");
-		m_PhysDeviceFeatures.geometryShader = true;		// pour utiliser les shader de geometrie
+		printf("Feature : geometry Shader\n");
+		m_PhysDeviceFeatures.setGeometryShader(true);		// pour utiliser les shader de geometrie
 
-		printf("Feature : tessellationShader\n");
-		m_PhysDeviceFeatures.tessellationShader = true;	// pour utiliser les shaders de tesselation
+		printf("Feature : tessellation Shader\n");
+		m_PhysDeviceFeatures.setTessellationShader(true);	// pour utiliser les shaders de tesselation
 		
-		printf("Feature : nullDescriptor\n");
-		m_Robustness2Feature.nullDescriptor = true;		// null descriptor feature
-		
+		m_PhysDeviceFeatures2.setFeatures(m_PhysDeviceFeatures);
+
+		printf("Feature : null Descriptor\n");
+		m_Robustness2Feature.setNullDescriptor(true);		// null descriptor feature
+		m_PhysDeviceFeatures2.setPNext(&m_Robustness2Feature);
+
+		if (m_Use_RTX)
+		{
+			printf("Feature : (RTX) Acceleration Structure\n");
+			m_AccelerationStructureFeature.setAccelerationStructure(true);
+			m_Robustness2Feature.setPNext(&m_AccelerationStructureFeature);
+
+			printf("Feature : (RTX) Ray Tracing Pipeline\n");
+			m_RayTracingPipelineFeature.setRayTracingPipeline(true);
+			m_AccelerationStructureFeature.setPNext(&m_RayTracingPipelineFeature);
+		}
+
 		vk::DeviceCreateInfo dinfo;
-		dinfo.setPNext(&m_Robustness2Feature);
-		dinfo.setPEnabledFeatures(&m_PhysDeviceFeatures);
+		dinfo.setPNext(&m_PhysDeviceFeatures2);
 		dinfo.setPQueueCreateInfos(qcinfo.data());
 		dinfo.setQueueCreateInfoCount(static_cast<uint32_t>(qcinfo.size()));
 		dinfo.setPpEnabledExtensionNames(deviceExtensions.data());

@@ -43,6 +43,7 @@ using namespace vkApi;
 
 std::shared_ptr<LaplacianModule> LaplacianModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<LaplacianModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

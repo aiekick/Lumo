@@ -125,6 +125,7 @@ Texture2DPtr Texture2D::CreateFromFile(vkApi::VulkanCorePtr vVulkanCorePtr, std:
 {
 	ZoneScoped;
 
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
 
 	if (!res->LoadFile(vFilePathName))
@@ -139,6 +140,7 @@ Texture2DPtr Texture2D::CreateFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, ui
 {
 	ZoneScoped;
 
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
 
 	if (!res->LoadMemory(buffer, width, height, channels))
@@ -153,6 +155,7 @@ Texture2DPtr Texture2D::CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCorePtr, 
 {
 	ZoneScoped;
 
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
 
 	if (!res->LoadEmptyTexture(vSize, vFormat))
@@ -167,6 +170,7 @@ Texture2DPtr Texture2D::CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr, ct
 {
 	ZoneScoped;
 
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
 
 	if (!res->LoadEmptyImage(vSize, vFormat))

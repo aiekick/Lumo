@@ -8,9 +8,6 @@
 
 class RTX : public PluginInterface
 {
-private:
-	vkApi::VulkanCoreWeak m_VulkanCoreWeak;
-
 public:
 	RTX();
 	uint32_t GetVersionMajor() const override;

@@ -29,6 +29,7 @@ using namespace vkApi;
 
 std::shared_ptr<GridModule> GridModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<GridModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

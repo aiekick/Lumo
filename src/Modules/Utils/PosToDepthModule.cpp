@@ -37,6 +37,7 @@ using namespace vkApi;
 
 std::shared_ptr<PosToDepthModule> PosToDepthModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<PosToDepthModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

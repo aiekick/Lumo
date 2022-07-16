@@ -54,7 +54,8 @@ namespace vkApi
 			const int& vAppVersion,
 			const std::string& vEngineName,
 			const int& vEngineVersion,
-			const bool& vCreateSwapChain);
+			const bool& vCreateSwapChain,
+			const bool& vUseRTX);
 
 	protected:
 		VulkanCoreWeak m_This;
@@ -86,7 +87,8 @@ namespace vkApi
 			const int& vAppVersion,
 			const std::string& vEngineName,
 			const int& vEngineVersion,
-			const bool& vCreateSwapChain);
+			const bool& vCreateSwapChain,
+			const bool& vUseRTX);
 		void Unit();
 
 	public: // get

@@ -42,6 +42,7 @@ using namespace vkApi;
 
 std::shared_ptr<SpecularModule> SpecularModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<SpecularModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

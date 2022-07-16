@@ -8,9 +8,6 @@
 
 class Particles : public PluginInterface
 {
-private:
-	vkApi::VulkanCoreWeak m_VulkanCoreWeak;
-
 public:
 	Particles();
 	uint32_t GetVersionMajor() const override;

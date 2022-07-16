@@ -43,6 +43,7 @@ using namespace vkApi;
 
 ComputeBufferPtr ComputeBuffer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<ComputeBuffer>(vVulkanCorePtr);
 
 	return res;

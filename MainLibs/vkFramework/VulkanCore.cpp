@@ -73,11 +73,12 @@ namespace vkApi
 		const int& vAppVersion,
 		const std::string& vEngineName,
 		const int& vEngineVersion,
-		const bool& vCreateSwapChain)
+		const bool& vCreateSwapChain,
+		const bool& vUseRTX)
 	{
 		auto res = std::make_shared<VulkanCore>();
 		res->m_This = res;
-		if (!res->Init(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion, vCreateSwapChain))
+		if (!res->Init(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion, vCreateSwapChain, vUseRTX))
 		{
 			res.reset();
 		}
@@ -125,7 +126,8 @@ namespace vkApi
 		const int& vAppVersion,
 		const std::string& vEngineName,
 		const int& vEngineVersion,
-		const bool& vCreateSwapChain)
+		const bool& vCreateSwapChain,
+		const bool& vUseRTX)
 	{
 		ZoneScoped;
 
@@ -133,7 +135,7 @@ namespace vkApi
 
 		glfwSetWindowFocusCallback(vVulkanWindow->getWindowPtr(), window_focus_callback);
 
-		m_VulkanDevicePtr = VulkanDevice::Create(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion);
+		m_VulkanDevicePtr = VulkanDevice::Create(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion, vUseRTX);
 		if (m_VulkanDevicePtr)
 		{
 			setupMemoryAllocator();

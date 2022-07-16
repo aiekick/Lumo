@@ -30,6 +30,7 @@ limitations under the License.
 
 LightGroupModulePtr LightGroupModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<LightGroupModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);

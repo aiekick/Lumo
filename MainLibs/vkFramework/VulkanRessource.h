@@ -22,6 +22,17 @@ limitations under the License.
 
 #include <vector>
 
+//#ifdef USE_RTX
+struct VulkanAccelStructObject
+{
+	vk::AccelerationStructureKHR handle;
+	vk::Buffer buffer;
+	VmaAllocation alloc_meta;
+	VmaMemoryUsage alloc_usage;
+};
+typedef std::shared_ptr<VulkanAccelStructObject> VulkanAccelStructObjectPtr;
+//#endif
+
 struct VulkanRessourceObject
 {
 	vk::Image image;
@@ -79,15 +90,19 @@ public: // buffers
 	static VulkanBufferObjectPtr createSharedBufferObject(VulkanCorePtr vVulkanCorePtr, const vk::BufferCreateInfo& bufferinfo, const VmaAllocationCreateInfo& alloc_info);
 	static VulkanBufferObjectPtr createUniformBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize);
 	static VulkanBufferObjectPtr createStagingBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize);
+	static VulkanBufferObjectPtr createStorageBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, vk::BufferUsageFlags vBufferUsageFlags, VmaMemoryUsage vMemoryUsage);
 	static VulkanBufferObjectPtr createStorageBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage);
 	static VulkanBufferObjectPtr createGPUOnlyStorageBufferObject(VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize);
 
-	template<class T> static VulkanBufferObjectPtr createVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false);
-	template<class T> static VulkanBufferObjectPtr createIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false);
+	template<class T> static VulkanBufferObjectPtr createVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);
+	template<class T> static VulkanBufferObjectPtr createIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);
+
+public: // RTX Accel Structure
+	static VulkanAccelStructObjectPtr createAccelStructureBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage);
 };
 
 template<class T>
-VulkanBufferObjectPtr VulkanRessource::createVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO, bool vUseTransformFeedback)
+VulkanBufferObjectPtr VulkanRessource::createVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO, bool vUseTransformFeedback, bool vUseRTX)
 {
 	vk::BufferCreateInfo stagingBufferInfo = {};
 	VmaAllocationCreateInfo stagingAllocInfo = {};
@@ -101,8 +116,14 @@ VulkanBufferObjectPtr VulkanRessource::createVertexBufferObject(VulkanCorePtr vV
 	VmaAllocationCreateInfo vboAllocInfo = {};
 	vboInfo.size = data.size() * sizeof(T);
 	vboInfo.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-	if (vUseSSBO) vboInfo.usage = vboInfo.usage | vk::BufferUsageFlagBits::eStorageBuffer;
-	if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage | vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+	if (vUseSSBO) vboInfo.usage = vboInfo.usage | 
+		vk::BufferUsageFlagBits::eStorageBuffer;
+	if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage | 
+		vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+	if (vUseRTX) vboInfo.usage = vboInfo.usage | 
+		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
+		vk::BufferUsageFlagBits::eStorageBuffer |
+		vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
 
 	vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 	auto vbo = createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);
@@ -115,7 +136,7 @@ VulkanBufferObjectPtr VulkanRessource::createVertexBufferObject(VulkanCorePtr vV
 }
 
 template<class T>
-VulkanBufferObjectPtr VulkanRessource::createIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO, bool vUseTransformFeedback)
+VulkanBufferObjectPtr VulkanRessource::createIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO, bool vUseTransformFeedback, bool vUseRTX)
 {
 	vk::BufferCreateInfo stagingBufferInfo = {};
 	VmaAllocationCreateInfo stagingAllocInfo = {};
@@ -129,8 +150,14 @@ VulkanBufferObjectPtr VulkanRessource::createIndexBufferObject(VulkanCorePtr vVu
 	VmaAllocationCreateInfo vboAllocInfo = {};
 	vboInfo.size = data.size() * sizeof(T);
 	vboInfo.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-	if (vUseSSBO) vboInfo.usage = vboInfo.usage | vk::BufferUsageFlagBits::eStorageBuffer;
-	if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage | vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+	if (vUseSSBO) vboInfo.usage = vboInfo.usage | 
+		vk::BufferUsageFlagBits::eStorageBuffer;
+	if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage | 
+		vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+	if (vUseRTX) vboInfo.usage = vboInfo.usage |
+		//vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | => not needed for index
+		vk::BufferUsageFlagBits::eStorageBuffer |
+		vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
 
 	vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 	auto vbo = createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);

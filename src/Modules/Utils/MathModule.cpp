@@ -42,6 +42,7 @@ using namespace vkApi;
 
 std::shared_ptr<MathModule> MathModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<MathModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

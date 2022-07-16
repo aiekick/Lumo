@@ -28,6 +28,7 @@ limitations under the License.
 
 Output2DModulePtr Output2DModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<Output2DModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);

@@ -36,6 +36,7 @@ using namespace vkApi;
 
 std::shared_ptr<ChannelRenderer> ChannelRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<ChannelRenderer>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

@@ -11,6 +11,8 @@
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanWindow.h>
 
+#include <Nodes/RtxPbrRendererNode.h>
+
 #ifndef USE_STATIC_LINKING_OF_PLUGINS
 // needed for plugin creating / destroying
 extern "C" // needed for avoid renaming of funcs by the compiler
@@ -75,10 +77,7 @@ std::vector<std::string> RTX::GetNodes() const
 {
 	return
 	{
-		/*
-		"MESH_SIM_RENDERER",
-		"COMPUTE_MESH_SIM"
-		*/
+		"RTX_PBR_RENDERER"
 	};
 }
 
@@ -86,25 +85,14 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	/*
-	LibraryEntry entry_MESH_SIM_RENDERER;
-	entry_MESH_SIM_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_MESH_SIM_RENDERER.first = "plugins";
-	entry_MESH_SIM_RENDERER.second.nodeLabel = "Mesh Simulation";
-	entry_MESH_SIM_RENDERER.second.nodeType = "MESH_SIM_RENDERER";
-	entry_MESH_SIM_RENDERER.second.color = ct::fvec4(0.0f);
-	entry_MESH_SIM_RENDERER.second.categoryPath = "RTX/Renderers";
-	res.push_back(entry_MESH_SIM_RENDERER);
-
-	LibraryEntry entry_COMPUTE_MESH_SIM;
-	entry_COMPUTE_MESH_SIM.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_COMPUTE_MESH_SIM.first = "plugins";
-	entry_COMPUTE_MESH_SIM.second.nodeLabel = "Mesh Simulation";
-	entry_COMPUTE_MESH_SIM.second.nodeType = "COMPUTE_MESH_SIM";
-	entry_COMPUTE_MESH_SIM.second.color = ct::fvec4(0.0f);
-	entry_COMPUTE_MESH_SIM.second.categoryPath = "RTX/Generators";
-	res.push_back(entry_COMPUTE_MESH_SIM);
-	*/
+	LibraryEntry entry_RTX_PBR_RENDERER;
+	entry_RTX_PBR_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+	entry_RTX_PBR_RENDERER.first = "plugins";
+	entry_RTX_PBR_RENDERER.second.nodeLabel = "RTX PBR";
+	entry_RTX_PBR_RENDERER.second.nodeType = "RTX_PBR_RENDERER";
+	entry_RTX_PBR_RENDERER.second.color = ct::fvec4(0.0f);
+	entry_RTX_PBR_RENDERER.second.categoryPath = "RTX";
+	res.push_back(entry_RTX_PBR_RENDERER);
 
 	return res;
 }
@@ -113,12 +101,10 @@ BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
 {
 	BaseNodePtr res = nullptr;
 
-	/*
-	if (vPluginNodeName == "MESH_SIM_RENDERER")
-		res = RTXRendererNode::Create(m_VulkanCorePtr);
-	else if (vPluginNodeName == "COMPUTE_MESH_SIM")
-		res = ComputeRTXNode::Create(m_VulkanCorePtr);
-	*/
+	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
+
+	if (vPluginNodeName == "RTX_PBR_RENDERER")
+		res = RtxPbrRendererNode::Create(vkCorePtr);
 
 	return res;
 }

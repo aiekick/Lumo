@@ -34,6 +34,7 @@ using namespace vkApi;
 
 std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<HeatmapRenderer>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

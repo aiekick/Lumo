@@ -44,6 +44,7 @@ using namespace vkApi;
 
 std::shared_ptr<MeshAttributesModule> MeshAttributesModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<MeshAttributesModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

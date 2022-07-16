@@ -35,6 +35,7 @@ std::shared_ptr<MeshModule> MeshModule::Create(vkApi::VulkanCorePtr vVulkanCoreP
 {
 	ZoneScoped;
 
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<MeshModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);

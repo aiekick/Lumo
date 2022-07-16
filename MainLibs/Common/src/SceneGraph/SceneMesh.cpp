@@ -23,6 +23,7 @@ using namespace vkApi;
 
 SceneMeshPtr SceneMesh::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	SceneMeshPtr res = std::make_shared<SceneMesh>(vVulkanCorePtr);
 	res->m_This = res;
 	return res;

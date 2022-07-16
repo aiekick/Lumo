@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "DiffuseModule.h"
+#include "RtxPbrRenderer.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -27,10 +27,7 @@ limitations under the License.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
-#include <cinttypes>
-#include <Base/FrameBuffer.h>
-
-#include <Modules/Lighting/Pass/DiffuseModule_Pass.h>
+#include <Modules/Pass/RtxPbrRenderer_Pass.h>
 
 using namespace vkApi;
 
@@ -40,10 +37,10 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DiffuseModule> DiffuseModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RtxPbrRenderer> RtxPbrRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<DiffuseModule>(vVulkanCorePtr);
+	auto res = std::make_shared<RtxPbrRenderer>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -56,13 +53,13 @@ std::shared_ptr<DiffuseModule> DiffuseModule::Create(vkApi::VulkanCorePtr vVulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DiffuseModule::DiffuseModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+RtxPbrRenderer::RtxPbrRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
 
-DiffuseModule::~DiffuseModule()
+RtxPbrRenderer::~RtxPbrRenderer()
 {
 	Unit();
 }
@@ -71,27 +68,27 @@ DiffuseModule::~DiffuseModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DiffuseModule::Init()
+bool RtxPbrRenderer::Init()
 {
 	ZoneScoped;
 
 	ct::uvec2 map_size = 512;
 
-	m_Loaded = false;
+	m_Loaded = true;
 
-	if (BaseRenderer::InitCompute2D(map_size))
+	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_DiffuseModule_Pass_Ptr = std::make_shared<DiffuseModule_Pass>(m_VulkanCorePtr);
-		if (m_DiffuseModule_Pass_Ptr)
+		m_RtxPbrRenderer_Pass_Ptr = std::make_shared<RtxPbrRenderer_Pass>(m_VulkanCorePtr);
+		if (m_RtxPbrRenderer_Pass_Ptr)
 		{
-			if (m_DiffuseModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			if (m_RtxPbrRenderer_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_DiffuseModule_Pass_Ptr);
+				AddGenericPass(m_RtxPbrRenderer_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
 	}
-
 	return m_Loaded;
 }
 
@@ -99,38 +96,34 @@ bool DiffuseModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DiffuseModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool RtxPbrRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Diffuse", vCmd);
+	BaseRenderer::Render("PBR Renderer", vCmd);
 
 	return true;
 }
 
-bool DiffuseModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool RtxPbrRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("Diffuse", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("PBR Renderer", -1.0f, true, true, &m_CanWeRender))
 		{
-			bool change = false;
-
-			if (m_DiffuseModule_Pass_Ptr)
+			if (m_RtxPbrRenderer_Pass_Ptr)
 			{
-				change |= m_DiffuseModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_RtxPbrRenderer_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
-
-			return change;
 		}
 	}
 
 	return false;
 }
 
-void DiffuseModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void RtxPbrRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext);
 
@@ -140,7 +133,7 @@ void DiffuseModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect&
 	}
 }
 
-void DiffuseModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void RtxPbrRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
 
@@ -150,38 +143,42 @@ void DiffuseModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const
 	}
 }
 
-void DiffuseModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void RtxPbrRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void DiffuseModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void RtxPbrRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	ZoneScoped;
-
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_RtxPbrRenderer_Pass_Ptr)
 	{
-		m_DiffuseModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_RtxPbrRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* DiffuseModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* RtxPbrRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	ZoneScoped;
-
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_RtxPbrRenderer_Pass_Ptr)
 	{
-		return m_DiffuseModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_RtxPbrRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-void DiffuseModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void RtxPbrRenderer::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_RtxPbrRenderer_Pass_Ptr)
 	{
-		return m_DiffuseModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+		m_RtxPbrRenderer_Pass_Ptr->SetTextures(vBinding, vImageInfos, vOutSizes);
+	}
+}
+
+void RtxPbrRenderer::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{
+	if (m_RtxPbrRenderer_Pass_Ptr)
+	{
+		m_RtxPbrRenderer_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -189,25 +186,25 @@ void DiffuseModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string DiffuseModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string RtxPbrRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
-	str += vOffset + "<diffuse_module>\n";
+	str += vOffset + "<pbr_renderer_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_RtxPbrRenderer_Pass_Ptr)
 	{
-		str += m_DiffuseModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_RtxPbrRenderer_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</diffuse_module>\n";
+	str += vOffset + "</pbr_renderer_module>\n";
 
 	return str;
 }
 
-bool DiffuseModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool RtxPbrRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -220,15 +217,15 @@ bool DiffuseModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "diffuse_module")
+	if (strParentName == "pbr_renderer_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_RtxPbrRenderer_Pass_Ptr)
 	{
-		m_DiffuseModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_RtxPbrRenderer_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

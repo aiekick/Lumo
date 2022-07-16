@@ -6,6 +6,7 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
+option(USE_RTX "Enable the support of RTX" OFF)
 option(USE_PLUGINS "Enable the plugins building" OFF)
 if (USE_PLUGINS)
 	option(USE_STATIC_LINKING_OF_PLUGINS "Enable the static linking of plugins for easy dev" OFF)
@@ -37,6 +38,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 if (USE_STATIC_LINKING_OF_PLUGINS)
 	add_definitions(-DUSE_STATIC_LINKING_OF_PLUGINS)
+endif()
+
+if (USE_RTX)
+	add_definitions(-DUSE_RTX)
 endif()
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows

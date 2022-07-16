@@ -28,6 +28,7 @@ limitations under the License.
 
 Output3DModulePtr Output3DModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<Output3DModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);

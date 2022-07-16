@@ -632,6 +632,26 @@ VulkanBufferObjectPtr VulkanRessource::createStagingBufferObject(vkApi::VulkanCo
 	return createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
 }
 
+
+VulkanBufferObjectPtr VulkanRessource::createStorageBufferObject(
+	vkApi::VulkanCorePtr vVulkanCorePtr, 
+	uint64_t vSize, 
+	vk::BufferUsageFlags vBufferUsageFlags, 
+	VmaMemoryUsage vMemoryUsage)
+{
+	ZoneScoped;
+
+	vk::BufferCreateInfo storageBufferInfo = {};
+	storageBufferInfo.size = vSize;
+	storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
+	storageBufferInfo.usage = vBufferUsageFlags;
+
+	VmaAllocationCreateInfo storageAllocInfo = {};
+	storageAllocInfo.usage = vMemoryUsage;
+
+	return createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, storageAllocInfo);
+}
+
 VulkanBufferObjectPtr VulkanRessource::createStorageBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage)
 {
 	ZoneScoped;
@@ -689,5 +709,48 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//// RTX / ACCEL STRUCTURE ///////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
+VulkanAccelStructObjectPtr VulkanRessource::createAccelStructureBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage)
+{
+	ZoneScoped;
+
+	vk::BufferCreateInfo storageBufferInfo = {};
+	storageBufferInfo.size = vSize;
+	storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
+
+	if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY)
+	{
+		storageBufferInfo.usage = vk::BufferUsageFlagBits::eAccelerationStructureStorageKHR;
+	}
+	
+	VmaAllocationCreateInfo storageAllocInfo = {};
+	storageAllocInfo.usage = vMemoryUsage;
+
+	auto dataPtr = VulkanAccelStructObjectPtr(new VulkanAccelStructObject, [](VulkanAccelStructObject* obj)
+	{
+		vmaDestroyBuffer(vkApi::VulkanCore::sAllocator, (VkBuffer)obj->buffer, obj->alloc_meta);
+	});
+	dataPtr->alloc_usage = storageAllocInfo.usage;
+
+	VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&storageBufferInfo, &storageAllocInfo,
+		(VkBuffer*)&dataPtr->buffer, &dataPtr->alloc_meta, nullptr));
+
+	if (dataPtr && dataPtr->buffer)
+	{
+		//dataPtr->bufferInfo.buffer = dataPtr->buffer;
+		//dataPtr->bufferInfo.range = bufferinfo.size;
+		//dataPtr->bufferInfo.offset = 0;
+	}
+	else
+	{
+		dataPtr.reset();
+	}
+
+	return dataPtr;
 }
 }

@@ -39,6 +39,7 @@ using namespace vkApi;
 
 std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<DeferredRenderer>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())

@@ -43,7 +43,8 @@ namespace vkApi
 			const std::string& vAppName,
 			const int& vAppVersion,
 			const std::string& vEngineName,
-			const int& vEngineVersion);
+			const int& vEngineVersion,
+			const bool& vUseRTX);
 	public:
 		std::unordered_map<vk::QueueFlagBits, VulkanQueue> m_Queues;
 
@@ -52,9 +53,17 @@ namespace vkApi
 		vk::DispatchLoaderDynamic m_Dldy;
 		vk::DebugReportCallbackEXT m_DebugReport;
 		vk::PhysicalDeviceRobustness2FeaturesEXT m_Robustness2Feature;
+		vk::PhysicalDeviceAccelerationStructureFeaturesKHR m_AccelerationStructureFeature;
+		vk::PhysicalDeviceRayTracingPipelineFeaturesKHR m_RayTracingPipelineFeature;
+		vk::PhysicalDeviceRayTracingPipelinePropertiesKHR m_RayTracingDeviceProperties;
 		vk::PhysicalDeviceFeatures m_PhysDeviceFeatures;
+		vk::PhysicalDeviceFeatures2 m_PhysDeviceFeatures2;
 		vk::PhysicalDevice m_PhysDevice;
 		vk::Device m_LogDevice;
+		uint32_t m_ApiVersion = VK_API_VERSION_1_0;
+
+	public:
+		bool m_Use_RTX = false;
 
 	private: // debug extention must use dynamic loader m_Dldy ( not part of vulkan core), so we let it here
 		vk::DebugUtilsLabelEXT markerInfo;		// marker info for vkCmdBeginDebugUtilsLabelEXT
@@ -74,7 +83,8 @@ namespace vkApi
 			const std::string& vAppName, 
 			const int& vAppVersion, 
 			const std::string& vEngineName,
-			const int& vEngineVersion);
+			const int& vEngineVersion,
+			const bool& vUseRTX);
 		void Unit();
 
 		void WaitIdle();
@@ -84,6 +94,8 @@ namespace vkApi
 		// debug extention must use dynamic loader m_Dldy ( not part of vulkan core), so we let it here
 		void BeginDebugLabel(vk::CommandBuffer *vCmd, const char* vLabel, ct::fvec4 vColor = 0.0f);
 		void EndDebugLabel(vk::CommandBuffer *vCmd);
+
+		void SetUseRTX(const bool& vFlag) { m_Use_RTX = vFlag; }
 
 	private:
 		bool CreateVulkanInstance(
