@@ -71,73 +71,6 @@ bool RtxShaderPass::BuildModel()
 {
 	ZoneScoped;
 
-	// is a model is here
-
-	/*
-	struct ObjBuffers
-	{
-		VkDeviceAddress vertices;
-		VkDeviceAddress indices;
-		VkDeviceAddress materials;
-		VkDeviceAddress materialIndices;
-	} obj_buffers;
-
-	void RaytracingReflection::create_buffer_references()
-	{
-		// For each model that was created, we retrieved the address of buffers
-		// used by them. So in the shader, we have direct access to the data
-		std::vector<ObjBuffers> obj_data;
-		auto                    nbObj = static_cast<uint32_t>(obj_models.size());
-		for (uint32_t i = 0; i < nbObj; ++i)
-		{
-			ObjBuffers data;
-			data.vertices        = obj_models[i].vertex_buffer->get_device_address();
-			data.indices         = obj_models[i].index_buffer->get_device_address();
-			data.materials       = obj_models[i].mat_color_buffer->get_device_address();
-			data.materialIndices = obj_models[i].mat_index_buffer->get_device_address();
-			obj_data.emplace_back(data);
-		}
-		VkBufferUsageFlags buffer_usage_flags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
-		scene_desc                            = std::make_unique<vkb::core::Buffer>(get_device(), nbObj * sizeof(ObjBuffers), buffer_usage_flags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		scene_desc->update(obj_data.data(), nbObj * sizeof(ObjBuffers));
-	}
-	*/
-
-	/*
-	// Create a buffer holding the address of model buffers (buffer reference)
-	create_buffer_references();
-
-	// Create as many bottom acceleration structures (blas) as there are geometries/models
-	create_bottom_level_acceleration_structure(obj_models[0]);
-	create_bottom_level_acceleration_structure(obj_models[1]);
-	create_bottom_level_acceleration_structure(obj_models[2]);
-
-	// Matrices to position the instances
-	glm::mat4 m_mirror_back  = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -7.0f)), glm::vec3(5.0f, 5.0f, 0.1f));
-	glm::mat4 m_mirror_front = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, 7.0f)), glm::vec3(5.0f, 5.0f, 0.1f));
-	glm::mat4 m_plane        = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(15.0f, 15.0f, 15.0f));
-	glm::mat4 m_cube_left    = glm::translate(glm::mat4(1.f), glm::vec3(-1.0f, 0.0f, 0.0f));
-	glm::mat4 m_cube_right   = glm::translate(glm::mat4(1.f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-	// Creating instances of the blas to the top level acceleration structure
-	std::vector<VkAccelerationStructureInstanceKHR> blas_instances;
-	blas_instances.push_back(create_blas_instance(0, m_cube_left));
-	blas_instances.push_back(create_blas_instance(0, m_cube_right));
-	blas_instances.push_back(create_blas_instance(1, m_plane));
-	blas_instances.push_back(create_blas_instance(2, m_mirror_back));
-	blas_instances.push_back(create_blas_instance(2, m_mirror_front));
-
-	// Building the TLAS
-	create_top_level_acceleration_structure(blas_instances);
-	*/
-
-	// the creation order is 
-	/*
-	create_scene(); // accel struct build
-	create_ray_tracing_pipeline();
-	create_shader_binding_tables();
-	*/
-
 	return true;
 }
 
@@ -157,7 +90,7 @@ bool RtxShaderPass::CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak 
 	{
 		auto buffer_usage_flags =
 			vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
-			vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
+			vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
 		vk::TransformMatrixKHR transform_matrix =
 			std::array<std::array<float, 4>, 3>
@@ -217,7 +150,7 @@ bool RtxShaderPass::CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak 
 		// Create a scratch buffer as a temporary storage for the acceleration structure build
 		auto scratchBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr,
 			accelStructureBuildSizeInfo.accelerationStructureSize,
-			vk::BufferUsageFlagBits::eShaderDeviceAddressKHR | vk::BufferUsageFlagBits::eStorageBuffer,
+			vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer,
 			VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 		vk::BufferDeviceAddressInfoKHR scratchBufferDeviceAddressInfo{};
@@ -264,7 +197,9 @@ void RtxShaderPass::DestroyBottomLevelAccelerationStructureForMesh()
 	for (auto& accelPtr : m_AccelStructure_Bottom_Ptrs)
 	{
 		if (accelPtr)
+		{
 			m_Device.destroyAccelerationStructureKHR(accelPtr->handle);
+		}
 	}
 
 	m_AccelStructure_Bottom_Ptrs.clear();
@@ -274,7 +209,7 @@ bool RtxShaderPass::CreateTopLevelAccelerationStructure(std::vector<vk::Accelera
 {
 	auto instancesBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr,
 		sizeof(vk::AccelerationStructureInstanceKHR) * vBlasInstances.size(),
-		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eShaderDeviceAddressKHR,
+		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eShaderDeviceAddress,
 		VMA_MEMORY_USAGE_CPU_TO_GPU);
 	VulkanRessource::upload(m_VulkanCorePtr, *instancesBufferPtr,
 		vBlasInstances.data(), sizeof(vk::AccelerationStructureInstanceKHR) * vBlasInstances.size());
@@ -286,6 +221,7 @@ bool RtxShaderPass::CreateTopLevelAccelerationStructure(std::vector<vk::Accelera
 	vk::AccelerationStructureGeometryKHR accelStructureGeometry;
 	accelStructureGeometry.geometryType = vk::GeometryTypeKHR::eInstances;
 	accelStructureGeometry.flags = vk::GeometryFlagBitsKHR::eOpaque;
+	accelStructureGeometry.geometry.instances = vk::AccelerationStructureGeometryInstancesDataKHR{};
 	accelStructureGeometry.geometry.instances.arrayOfPointers = VK_FALSE;
 	accelStructureGeometry.geometry.instances.data = instance_data_device_address;
 
@@ -314,12 +250,17 @@ bool RtxShaderPass::CreateTopLevelAccelerationStructure(std::vector<vk::Accelera
 	accelStructureCreateInfo.type = vk::AccelerationStructureTypeKHR::eTopLevel;
 	m_AccelStructure_Top_Ptr->handle = m_Device.createAccelerationStructureKHR(accelStructureCreateInfo);
 
+	// for the writeDescriptorSets
+	m_AccelStructureTopDescriptorInfo = vk::WriteDescriptorSetAccelerationStructureKHR{};
+	m_AccelStructureTopDescriptorInfo.accelerationStructureCount = 1;
+	m_AccelStructureTopDescriptorInfo.pAccelerationStructures = &m_AccelStructure_Top_Ptr->handle;
+
 	// The actual build process starts here
 
 	// Create a scratch buffer as a temporary storage for the acceleration structure build
 	auto scratchBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr,
 		accelStructureBuildSizeInfo.accelerationStructureSize,
-		vk::BufferUsageFlagBits::eShaderDeviceAddressKHR | vk::BufferUsageFlagBits::eStorageBuffer,
+		vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer,
 		VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	vk::BufferDeviceAddressInfoKHR scratchBufferDeviceAddressInfo{};
@@ -357,7 +298,10 @@ bool RtxShaderPass::CreateTopLevelAccelerationStructure(std::vector<vk::Accelera
 void RtxShaderPass::DestroyTopLevelAccelerationStructure()
 {
 	m_Device.waitIdle();
-	m_Device.destroyAccelerationStructureKHR(m_AccelStructure_Top_Ptr->handle);
+	if (m_AccelStructure_Top_Ptr)
+	{
+		m_Device.destroyAccelerationStructureKHR(m_AccelStructure_Top_Ptr->handle);
+	}
 	m_AccelStructure_Top_Ptr.reset();
 }
 
@@ -404,8 +348,7 @@ bool RtxShaderPass::CreateRtxPipeline()
 
 	for (const auto& shaderId : m_ShaderIds)
 	{
-		if (shaderId.first != eRtxRayInt && // becasue is optionnal
-			m_ShaderCodes[shaderId.first].m_Used &&
+		if (m_ShaderCodes[shaderId.first].m_Used &&
 			m_ShaderCodes[shaderId.first].m_SPIRV.empty())
 			return false;
 	}
@@ -424,6 +367,7 @@ bool RtxShaderPass::CreateRtxPipeline()
 		));
 
 	m_ShaderCreateInfos.clear();
+	m_RayTracingShaderGroups.clear();
 	for (const auto& shaderId : m_ShaderIds)
 	{
 		if (m_ShaderCodes[shaderId.first].m_Used)
@@ -434,6 +378,51 @@ bool RtxShaderPass::CreateRtxPipeline()
 
 			if (m_ShaderCodes[shaderId.first].m_ShaderModule)
 			{
+				auto shaderIndex = static_cast<uint32_t>(m_ShaderCreateInfos.size());
+
+				if (shaderId.first == ShaderId::eRtxRayGen ||
+					shaderId.first == ShaderId::eRtxRayMiss)
+				{
+					vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
+					shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
+					shaderGroup.generalShader = shaderIndex;
+					shaderGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
+					shaderGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
+					shaderGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+					m_RayTracingShaderGroups.push_back(shaderGroup);
+				}
+				else if (shaderId.first == ShaderId::eRtxRayClosestHit ||
+					shaderId.first == ShaderId::eRtxRayAnyHit)
+				{
+					vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
+					shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
+					if (shaderId.first == ShaderId::eRtxRayAnyHit)
+					{
+						shaderGroup.generalShader = VK_SHADER_UNUSED_KHR;
+						shaderGroup.anyHitShader = shaderIndex;
+						shaderGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
+						shaderGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+					}
+					else //if (shaderId.first == ShaderId::eRtxRayClosestHit)
+					{
+						shaderGroup.generalShader = VK_SHADER_UNUSED_KHR;
+						shaderGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
+						shaderGroup.closestHitShader = shaderIndex;
+						shaderGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+					}
+					m_RayTracingShaderGroups.push_back(shaderGroup);
+				}
+				else if (shaderId.first == ShaderId::eRtxRayInt)
+				{
+					vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
+					shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eProceduralHitGroup;
+					shaderGroup.generalShader = VK_SHADER_UNUSED_KHR;
+					shaderGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
+					shaderGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
+					shaderGroup.intersectionShader = shaderIndex;
+					m_RayTracingShaderGroups.push_back(shaderGroup);
+				}
+
 				m_ShaderCreateInfos.push_back(
 					vk::PipelineShaderStageCreateInfo(
 						vk::PipelineShaderStageCreateFlags(),
@@ -443,41 +432,6 @@ bool RtxShaderPass::CreateRtxPipeline()
 				);
 			}
 		}
-	}
-
-	m_RayTracingShaderGroups.clear();
-	uint32_t idx = 0U;
-	for (const auto& shaderId : m_ShaderIds)
-	{
-		if (m_ShaderCodes[shaderId.first].m_Used)
-		{
-			if (shaderId.first == ShaderId::eRtxRayGen ||
-				shaderId.first == ShaderId::eRtxRayMiss)
-			{
-				vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
-				shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
-				shaderGroup.generalShader = idx;
-				m_RayTracingShaderGroups.push_back(shaderGroup);
-			}
-			else if (shaderId.first == ShaderId::eRtxRayClosestHit ||
-				shaderId.first == ShaderId::eRtxRayAnyHit)
-			{
-				vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
-				shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
-				if (shaderId.first == ShaderId::eRtxRayAnyHit) { shaderGroup.anyHitShader = idx; }
-				else { shaderGroup.closestHitShader = idx; }
-				m_RayTracingShaderGroups.push_back(shaderGroup);
-			}
-			else if (shaderId.first == ShaderId::eRtxRayInt)
-			{
-				vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
-				shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eProceduralHitGroup;
-				shaderGroup.intersectionShader = idx;
-				m_RayTracingShaderGroups.push_back(shaderGroup);
-			}
-		}
-
-		++idx;
 	}
 
 	vk::RayTracingPipelineCreateInfoKHR rayTracingPipeInfo = vk::RayTracingPipelineCreateInfoKHR();
@@ -493,11 +447,17 @@ bool RtxShaderPass::CreateRtxPipeline()
 	// destroy modules
 	for (const auto& shaderId : m_ShaderIds)
 	{
-		if (m_ShaderCodes[shaderId.first].m_Used)
+		if (m_ShaderCodes[shaderId.first].m_Used &&
+			m_ShaderCodes[shaderId.first].m_ShaderModule)
 		{
 			vkApi::VulkanCore::sVulkanShader->DestroyShaderModule(
 				(vk::Device)m_Device, m_ShaderCodes[shaderId.first].m_ShaderModule);
 		}
+	}
+
+	if (m_Pipeline && m_PipelineLayout)
+	{
+		return true;
 	}
 
 	return false;
@@ -519,7 +479,7 @@ bool RtxShaderPass::CreateShaderBindingTable()
 	const auto bufferUsageFlags =
 		vk::BufferUsageFlagBits::eShaderBindingTableKHR | 
 		vk::BufferUsageFlagBits::eTransferSrc | 
-		vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
+		vk::BufferUsageFlagBits::eShaderDeviceAddress;
 	m_RayGenShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * rgen_index.size(),
 		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
 	m_RayMissShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * miss_index.size(),
@@ -536,7 +496,8 @@ bool RtxShaderPass::CreateShaderBindingTable()
 		const auto           sbt_size = group_count * handle_size_aligned;
 		std::vector<uint8_t> shader_handle_storage(sbt_size);
 
-		if (vkGetRayTracingShaderGroupHandlesKHR(m_Device, m_Pipeline, 0, group_count, sbt_size, shader_handle_storage.data()) == VkResult::VK_SUCCESS)
+		if (VULKAN_HPP_DEFAULT_DISPATCHER.vkGetRayTracingShaderGroupHandlesKHR(
+			m_Device, m_Pipeline, 0, group_count, sbt_size, shader_handle_storage.data()) == VkResult::VK_SUCCESS)
 		{
 			// Write the handles in the SBT buffer
 			auto copyHandles = [&](VulkanBufferObjectPtr vBufferPtr, std::vector<uint32_t>& indices, uint32_t stride)

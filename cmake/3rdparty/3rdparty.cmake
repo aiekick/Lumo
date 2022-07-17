@@ -8,6 +8,12 @@ endif ()
 find_package(Vulkan REQUIRED)
 add_definitions(-DVULKAN)
 
+## Vulkan HPP, default dispatcher
+add_definitions(-DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
+
+## for prevent cast issues betwwen vk:: and VK if compiling a 32 bits version
+add_definitions(-DVULKAN_HPP_TYPESAFE_CONVERSION=1) 
+
 set(DEPENDS_PATH 
 	${Vulkan_INCLUDE_DIRS}
 	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty

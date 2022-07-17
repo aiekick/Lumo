@@ -94,6 +94,8 @@ void RtxPbrRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
 	ZoneScoped;
 
 	m_SceneModel = vSceneModel;
+
+	NeedNewModelUpdate();
 }
 
 void RtxPbrRenderer_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
@@ -152,6 +154,17 @@ bool RtxPbrRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool RtxPbrRenderer_Pass::CanUpdateDescriptors()
+{
+	if (!m_SceneModel.expired() &&
+		m_AccelStructure_Top_Ptr)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 bool RtxPbrRenderer_Pass::BuildModel()
 {
 	m_ModelAdressesBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
@@ -171,7 +184,7 @@ bool RtxPbrRenderer_Pass::BuildModel()
 			CreateBottomLevelAccelerationStructureForMesh(meshPtr);
 		}
 
-		vk::BufferUsageFlags bufferUsageFlags = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
+		vk::BufferUsageFlags bufferUsageFlags = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
 		auto sizeInBytes = modelPtr->size() * sizeof(SceneMesh::SceneMeshBuffers);
 		m_ModelAdressesPtr = VulkanRessource::createStorageBufferObject(
@@ -193,6 +206,10 @@ bool RtxPbrRenderer_Pass::BuildModel()
 
 		return true;
 	}
+	else
+	{
+		return true;
+	}
 
 	return false;
 }
@@ -201,7 +218,6 @@ void RtxPbrRenderer_Pass::DestroyModel(const bool& vReleaseDatas)
 {
 	DestroyBottomLevelAccelerationStructureForMesh();
 	DestroyTopLevelAccelerationStructure();
-	m_SceneModel.reset();
 	m_ModelAdressesPtr.reset();
 	m_ModelAdressesBufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 
@@ -231,21 +247,27 @@ bool RtxPbrRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
 		m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR, 
-		nullptr, CommonSystem::Instance()->GetBufferInfo()); // accel struct
+	// The acceleration structure descriptor has to be chained via pNext
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR,
+		nullptr, nullptr, nullptr, &m_AccelStructureTopDescriptorInfo); // accel struct
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, 
 		nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
 		nullptr, &m_ModelAdressesBufferInfo); // model device address
 
-	return true;
+	if (!m_SceneModel.expired() && m_AccelStructure_Top_Ptr)
+	{
+		return true; // pas de maj si pas de structure acceleratrice
+	}
+	
+	return false;
 }
 
 std::string RtxPbrRenderer_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
+	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"(
-#version 450
+#version 460
 #extension GL_EXT_ray_tracing : enable
 
 layout(binding = 0, rgba32f) uniform writeonly image2D out_color;
@@ -314,15 +336,15 @@ void main()
 
 std::string RtxPbrRenderer_Pass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
+	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"()";
 }
 
 std::string RtxPbrRenderer_Pass::GetRayMissShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
+	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"(
-#version 450
+#version 460
 #extension GL_EXT_ray_tracing : enable
 
 struct hitPayload
@@ -343,15 +365,15 @@ void main()
 
 std::string RtxPbrRenderer_Pass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
+	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"()";
 }
 
 std::string RtxPbrRenderer_Pass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
+	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"(
-#version 450
+#version 460
 #extension GL_EXT_ray_tracing : enable
 #extension GL_EXT_scalar_block_layout : enable
 #extension GL_EXT_nonuniform_qualifier : enable

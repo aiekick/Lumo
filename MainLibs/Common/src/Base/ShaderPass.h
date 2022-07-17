@@ -236,6 +236,7 @@ public:
 	virtual void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 	virtual void TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 
+	virtual bool CanUpdateDescriptors();
 	virtual void UpdateRessourceDescriptor();
 
 	// shader update from file

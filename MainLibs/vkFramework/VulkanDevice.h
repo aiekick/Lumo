@@ -50,12 +50,14 @@ namespace vkApi
 
 	public:
 		vk::Instance m_Instance;
-		vk::DispatchLoaderDynamic m_Dldy;
+
+		vk::DynamicLoader m_DynamicLoader;
 		vk::DebugReportCallbackEXT m_DebugReport;
 		vk::PhysicalDeviceRobustness2FeaturesEXT m_Robustness2Feature;
 		vk::PhysicalDeviceAccelerationStructureFeaturesKHR m_AccelerationStructureFeature;
 		vk::PhysicalDeviceRayTracingPipelineFeaturesKHR m_RayTracingPipelineFeature;
 		vk::PhysicalDeviceRayTracingPipelinePropertiesKHR m_RayTracingDeviceProperties;
+		vk::PhysicalDeviceBufferDeviceAddressFeatures m_BufferDeviceAddress;
 		vk::PhysicalDeviceFeatures m_PhysDeviceFeatures;
 		vk::PhysicalDeviceFeatures2 m_PhysDeviceFeatures2;
 		vk::PhysicalDevice m_PhysDevice;

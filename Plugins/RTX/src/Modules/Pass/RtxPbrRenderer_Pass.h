@@ -61,6 +61,8 @@ class RtxPbrRenderer_Pass :
 private:
 	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+	const vk::WriteDescriptorSetAccelerationStructureKHR m_EmptyAccelStructureTopDescriptorInfo = { 1U, VK_NULL_HANDLE };
+
 	VulkanBufferObjectPtr m_ModelAdressesPtr = nullptr;
 	vk::DescriptorBufferInfo m_ModelAdressesBufferInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 
@@ -78,6 +80,8 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 private:
+	bool CanUpdateDescriptors() override;
+
 	bool BuildModel() override;
 	void DestroyModel(const bool& vReleaseDatas = false) override;
 

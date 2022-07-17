@@ -495,7 +495,12 @@ void App::UpdateFiles(const std::set<std::string>& vFiles) const
 			file.find(".geom") != std::string::npos ||
 			file.find(".scen") != std::string::npos ||
 			file.find(".blue") != std::string::npos ||
-			file.find(".comp") != std::string::npos)
+			file.find(".comp") != std::string::npos ||
+			file.find(".rgen") != std::string::npos ||
+			file.find(".rint") != std::string::npos ||
+			file.find(".miss") != std::string::npos ||
+			file.find(".ahit") != std::string::npos ||
+			file.find(".chit") != std::string::npos)
 		{
 			ct::replaceString(file, "\\", "/");
 			res.emplace(file);

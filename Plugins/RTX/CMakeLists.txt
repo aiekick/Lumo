@@ -31,6 +31,12 @@ set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 
 find_package(Vulkan REQUIRED)
 
+## Vulkan HPP, default dispatcher
+add_definitions(-DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
+
+## for prevent cast issues betwwen vk:: and VK if compiling a 32 bits version
+add_definitions(-DVULKAN_HPP_TYPESAFE_CONVERSION=1) 
+
 ## other define
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
 add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)

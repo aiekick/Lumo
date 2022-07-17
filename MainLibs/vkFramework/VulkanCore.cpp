@@ -223,7 +223,6 @@ namespace vkApi
 	vk::PhysicalDevice VulkanCore::getPhysicalDevice() const { return m_VulkanDevicePtr->m_PhysDevice; }
 	vk::Device VulkanCore::getDevice() const { return m_VulkanDevicePtr->m_LogDevice; }
 	VulkanDeviceWeak VulkanCore::getFrameworkDevice() { return m_VulkanDevicePtr; }
-	vk::DispatchLoaderDynamic VulkanCore::GetDynamicLoader() const { return m_VulkanDevicePtr->m_Dldy; }
 	vk::DescriptorPool VulkanCore::getDescriptorPool() const { return m_DescriptorPool; }
 	vk::CommandBuffer VulkanCore::getComputeCommandBuffer() const { return m_ComputeCommandBuffers[0]; }
 	VulkanQueue VulkanCore::getQueue(vk::QueueFlagBits vQueueType) { return m_VulkanDevicePtr->getQueue(vQueueType); }
@@ -591,6 +590,7 @@ namespace vkApi
 		ZoneScoped;
 
 		VmaAllocatorCreateInfo allocatorInfo = {};
+		allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;  // VK_API_VERSION_1_2
 		allocatorInfo.physicalDevice = (VkPhysicalDevice)m_VulkanDevicePtr->m_PhysDevice;
 		allocatorInfo.device = (VkDevice)m_VulkanDevicePtr->m_LogDevice;
 		allocatorInfo.instance = (VkInstance)m_VulkanDevicePtr->m_Instance;

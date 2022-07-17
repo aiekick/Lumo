@@ -14,6 +14,72 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include <vulkan/vulkan.hpp>
+
+VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
+
+/* 
+	==== ABOUT DYNAMIC DISPATCHER ====
+
+https://github.com/KhronosGroup/Vulkan-Hpp/blob/master/README.md#extensions--per-device-function-pointers
+
+The Vulkan loader exposes only the Vulkan core functions and a limited number of extensions. 
+To use Vulkan-Hpp with extensions it's required to have either a library which provides stubs to 
+all used Vulkan functions or to tell Vulkan-Hpp to dispatch those functions pointers. 
+Vulkan-Hpp provides a per-function dispatch mechanism by accepting a dispatch class as last parameter 
+in each function call. The dispatch class must provide a callable type for each used Vulkan function. 
+Vulkan-Hpp provides one implementation, DispatchLoaderDynamic, which fetches all function pointers known to the library.
+
+// Providing a function pointer resolving vkGetInstanceProcAddr, just the few functions not depending an an instance or a device are fetched
+vk::DispatchLoaderDynamic dld( getInstanceProcAddr );
+
+// Providing an already created VkInstance and a function pointer resolving vkGetInstanceProcAddr, all functions are fetched
+vk::DispatchLoaderDynamic dldi( instance, getInstanceProcAddr );
+
+// Providing also an already created VkDevice and optionally a function pointer resolving vkGetDeviceProcAddr, 
+all functions are fetched as well, but now device-specific functions are fetched via vkDeviceGetProcAddr.
+vk::DispatchLoaderDynamic dldid( instance, getInstanceProcAddr, device );
+
+// Pass dispatch class to function call as last parameter
+device.getQueue(graphics_queue_family_index, 0, &graphics_queue, dldid);
+
+To use the DispatchLoaderDynamic as the default dispatcher (means: you don't need to explicitly add it to every function call), 
+you need to #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1, and have the macro VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE 
+exactly once in your source code to provide storage for that default dispatcher. Then you can use it by the macro VULKAN_HPP_DEFAULT_DISPATCHER, 
+as is shown in the code snippets below. To ease creating such a DispatchLoaderDynamic, there is a little helper class DynamicLoader. 
+Creating a full featured DispatchLoaderDynamic is a two- to three-step process:
+
+	initialize it with a function pointer of type PFN_vkGetInstanceProcAddr, to get the instance independent function pointers:
+
+	vk::DynamicLoader dl;
+	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
+
+	initialize it with a vk::Instance to get all the other function pointers:
+
+	vk::Instance instance = vk::createInstance({}, nullptr);
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(instance);
+
+	optionally initialize it with a vk::Device to get device-specific function pointers
+
+	std::vector<vk::PhysicalDevice> physicalDevices = instance.enumeratePhysicalDevices();
+	assert(!physicalDevices.empty());
+	vk::Device device = physicalDevices[0].createDevice({}, nullptr);
+	VULKAN_HPP_DEFAULT_DISPATCHER.init(device);
+
+After the second step above, the dispatcher is fully functional.
+Adding the third step can potentially result in more efficient code.
+
+In some cases the storage for the DispatchLoaderDynamic should be embedded in a DLL. 
+For those cases you need to define VULKAN_HPP_STORAGE_SHARED to tell Vulkan-Hpp that the storage resides in a DLL. 
+When compiling the DLL with the storage it is also required to define VULKAN_HPP_STORAGE_SHARED_EXPORT to export the required symbols.
+
+For all functions, that VULKAN_HPP_DEFAULT_DISPATCHER is the default for the last argument to that function. 
+In case you want to explicitly provide the dispatcher for each and every function call (when you have multiple dispatchers 
+for different devices, for example) and you want to make sure, that you don't accidentally miss any function call, 
+you can define VULKAN_HPP_NO_DEFAULT_DISPATCHER before you include vulkan.hpp to remove that default argument.
+*/
+
 #include "VulkanDevice.h"
 #include "VulkanWindow.h"
 #include <ctools/Logger.h>
@@ -238,6 +304,12 @@ namespace vkApi
 	{
 		ZoneScoped;
 
+		PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = m_DynamicLoader.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+		VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
+
+		/*VULKAN_HPP_DEFAULT_DISPATCHER.vkGetRayTracingShaderGroupHandlesKHR =
+			m_DynamicLoader.getProcAddress<PFN_vkGetRayTracingShaderGroupHandlesKHR>("vkGetRayTracingShaderGroupHandlesKHR");*/
+
 		bool res = true;
 
 		SetUseRTX(vUseRTX);
@@ -281,7 +353,7 @@ namespace vkApi
 			markerInfo.color[1] = vColor.y;
 			markerInfo.color[2] = vColor.z;
 			markerInfo.color[3] = vColor.w;
-			vCmd->beginDebugUtilsLabelEXT(markerInfo, m_Dldy);
+			vCmd->beginDebugUtilsLabelEXT(markerInfo, VULKAN_HPP_DEFAULT_DISPATCHER);
 		}
 #endif
 	}
@@ -291,7 +363,7 @@ namespace vkApi
 #ifdef VULKAN_DEBUG
 		if (m_Debug_Utils_Supported && vCmd)
 		{
-			vCmd->endDebugUtilsLabelEXT(m_Dldy);
+			vCmd->endDebugUtilsLabelEXT(VULKAN_HPP_DEFAULT_DISPATCHER);
 		}
 #endif
 	}
@@ -428,21 +500,23 @@ namespace vkApi
 		auto vkWindowPtr = vVulkanWindow.getValidShared();
 		if (vkWindowPtr)
 		{
-			m_ApiVersion = VK_API_VERSION_1_1; // needed for RTX
+			m_ApiVersion = VK_API_VERSION_1_2; // needed for RTX
 			if (vk::enumerateInstanceVersion(&m_ApiVersion) != vk::Result::eSuccess)
 			{
-				m_ApiVersion = VK_API_VERSION_1_0;
+				m_ApiVersion = VK_API_VERSION_1_1;
 				SetUseRTX(false);
+				if (vk::enumerateInstanceVersion(&m_ApiVersion) != vk::Result::eSuccess)
+				{
+					m_ApiVersion = VK_API_VERSION_1_0;
+				}
 			}
-			else
-			{
-				printf("-----------\n");
-				printf("Vulkan api version is : %u.%u.%u.%u\n-----------",
-					VK_API_VERSION_VARIANT(m_ApiVersion),
-					VK_API_VERSION_MAJOR(m_ApiVersion),
-					VK_API_VERSION_MINOR(m_ApiVersion),
-					VK_API_VERSION_PATCH(m_ApiVersion));
-			}
+			
+			printf("-----------\n");
+			printf("Vulkan api version is : %u.%u.%u.%u\n-----------",
+				VK_API_VERSION_VARIANT(m_ApiVersion),
+				VK_API_VERSION_MAJOR(m_ApiVersion),
+				VK_API_VERSION_MINOR(m_ApiVersion),
+				VK_API_VERSION_PATCH(m_ApiVersion));
 
 #ifdef _DEBUG
 			CheckValidationLayerSupport();
@@ -463,7 +537,9 @@ namespace vkApi
 			wantedExtensions.emplace_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 #endif
 			// for RTX
-			if (m_Use_RTX && m_ApiVersion != VK_API_VERSION_1_0)
+			if (m_Use_RTX && 
+				m_ApiVersion != VK_API_VERSION_1_0 &&
+				m_ApiVersion != VK_API_VERSION_1_1)
 			{
 				wantedExtensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 			}
@@ -514,9 +590,9 @@ namespace vkApi
 
 			m_Instance = vk::createInstance(chain.get<vk::InstanceCreateInfo>());
 
-#if VULKAN_DEBUG
-			m_Dldy.init((VkInstance)m_Instance, vkGetInstanceProcAddr);
+			VULKAN_HPP_DEFAULT_DISPATCHER.init(m_Instance, vkGetInstanceProcAddr);
 
+#if VULKAN_DEBUG
 			VkDebugReportCallbackEXT handle_debug_report_callback;
 
 			// Setup the debug report callback
@@ -532,7 +608,7 @@ namespace vkApi
 			debug_report_ci.pfnCallback = debug_report;
 			debug_report_ci.pUserData = NULL;
 
-			auto creat_func = m_Dldy.vkCreateDebugReportCallbackEXT;
+			auto creat_func = VULKAN_HPP_DEFAULT_DISPATCHER.vkCreateDebugReportCallbackEXT;
 			if (creat_func)
 			{
 				creat_func((VkInstance)m_Instance, &debug_report_ci, nullptr, &handle_debug_report_callback);
@@ -557,7 +633,7 @@ namespace vkApi
 
 #if VULKAN_DEBUG
 		if (m_DebugReport)
-			m_Dldy.vkDestroyDebugReportCallbackEXT((VkInstance)m_Instance, (VkDebugReportCallbackEXT)m_DebugReport, nullptr);
+			VULKAN_HPP_DEFAULT_DISPATCHER.vkDestroyDebugReportCallbackEXT((VkInstance)m_Instance, (VkDebugReportCallbackEXT)m_DebugReport, nullptr);
 #endif
 		m_Instance.destroy();
 	}
@@ -583,7 +659,9 @@ namespace vkApi
 		m_Queues[vk::QueueFlagBits::eCompute].familyQueueIndex = getQueueIndex(m_PhysDevice, vk::QueueFlagBits::eCompute, false);
 		m_Queues[vk::QueueFlagBits::eTransfer].familyQueueIndex = getQueueIndex(m_PhysDevice, vk::QueueFlagBits::eTransfer, false);
 
-		if (m_Use_RTX && m_ApiVersion != VK_API_VERSION_1_0)
+		if (m_Use_RTX && 
+			m_ApiVersion != VK_API_VERSION_1_0 &&
+			m_ApiVersion != VK_API_VERSION_1_1)
 		{
 			VkPhysicalDeviceProperties2 prop2{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2 };
 			prop2.pNext = &m_RayTracingDeviceProperties;
@@ -646,8 +724,12 @@ namespace vkApi
 		};
 
 		// RTX
-		if (m_Use_RTX && m_ApiVersion != VK_API_VERSION_1_0)
+		if (m_Use_RTX && 
+			m_ApiVersion != VK_API_VERSION_1_0 &&
+			m_ApiVersion != VK_API_VERSION_1_1)
 		{
+			wantedDeviceExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME); // VK_API_VERSION_1_2
+
 			// needed by VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
 			wantedDeviceExtensions.push_back(VK_KHR_MAINTENANCE_3_EXTENSION_NAME);
 
@@ -673,31 +755,41 @@ namespace vkApi
 		printf("Device Features :\n");
 		
 		// enabled features
-		printf("Feature : wide Lines\n");
+		printf("Feature vk 1.0 : wide Lines\n");
 		m_PhysDeviceFeatures.setWideLines(true);			// pour changer la taille des lignes
 
-		printf("Feature : sample Rate Shading\n");
+		printf("Feature vk 1.0 : sample Rate Shading\n");
 		m_PhysDeviceFeatures.setSampleRateShading(true);	// pour anti aliaser les textures
 
-		printf("Feature : geometry Shader\n");
+		printf("Feature vk 1.0 : geometry Shader\n");
 		m_PhysDeviceFeatures.setGeometryShader(true);		// pour utiliser les shader de geometrie
 
-		printf("Feature : tessellation Shader\n");
+		printf("Feature vk 1.0 : tessellation Shader\n");
 		m_PhysDeviceFeatures.setTessellationShader(true);	// pour utiliser les shaders de tesselation
 		
+		// for using int64_t and uint64_t in a sahder code
+		// need to add in a shader :
+		// #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+		printf("Feature vk 1.0 : int64 in a Shader\n");
+		m_PhysDeviceFeatures.setShaderInt64(true);
+
 		m_PhysDeviceFeatures2.setFeatures(m_PhysDeviceFeatures);
 
-		printf("Feature : null Descriptor\n");
+		printf("Feature vk 1.0 : null Descriptor\n");
 		m_Robustness2Feature.setNullDescriptor(true);		// null descriptor feature
 		m_PhysDeviceFeatures2.setPNext(&m_Robustness2Feature);
 
+		printf("Feature vk 1.2 : Buffer Device Address\n");
+		m_BufferDeviceAddress.setBufferDeviceAddress(true);
+		m_Robustness2Feature.setPNext(&m_BufferDeviceAddress);
+
 		if (m_Use_RTX)
 		{
-			printf("Feature : (RTX) Acceleration Structure\n");
+			printf("Feature vk 1.2 : (RTX) Acceleration Structure\n");
 			m_AccelerationStructureFeature.setAccelerationStructure(true);
-			m_Robustness2Feature.setPNext(&m_AccelerationStructureFeature);
+			m_BufferDeviceAddress.setPNext(&m_AccelerationStructureFeature);
 
-			printf("Feature : (RTX) Ray Tracing Pipeline\n");
+			printf("Feature vk 1.2 : (RTX) Ray Tracing Pipeline\n");
 			m_RayTracingPipelineFeature.setRayTracingPipeline(true);
 			m_AccelerationStructureFeature.setPNext(&m_RayTracingPipelineFeature);
 		}
@@ -709,6 +801,8 @@ namespace vkApi
 		dinfo.setPpEnabledExtensionNames(deviceExtensions.data());
 		dinfo.setEnabledExtensionCount(static_cast<uint32_t>(deviceExtensions.size()));
 		m_LogDevice = m_PhysDevice.createDevice(dinfo);
+
+		VULKAN_HPP_DEFAULT_DISPATCHER.init(m_LogDevice);
 
 		uint32_t familyQueueIndex = m_Queues[vk::QueueFlagBits::eGraphics].familyQueueIndex;
 		m_Queues[vk::QueueFlagBits::eGraphics].vkQueue = m_LogDevice.getQueue(familyQueueIndex, 0);

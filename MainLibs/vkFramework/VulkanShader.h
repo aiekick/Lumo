@@ -31,6 +31,10 @@ limitations under the License.
 #include <list>
 #include <array>
 
+/*
+todo : to Refactoa and Convert for use of Vulkan.hpp
+*/
+
 class VulkanShader
 {
 public:

@@ -252,8 +252,13 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 
 		//Set up Vulkan/SpirV Environment
 		int ClientInputSemanticsVersion = 100; // maps to, say, #define VULKAN 100
-		glslang::EShTargetClientVersion VulkanClientVersion = glslang::EShTargetVulkan_1_0;  // would map to, say, Vulkan 1.0
-		glslang::EShTargetLanguageVersion TargetVersion = glslang::EShTargetSpv_1_0;    // maps to, say, SPIR-V 1.0
+		//glslang::EShTargetClientVersion VulkanClientVersion = glslang::EShTargetVulkan_1_0;  // would map to, say, Vulkan 1.0
+		//glslang::EShTargetLanguageVersion TargetVersion = glslang::EShTargetSpv_1_0;    // maps to, say, SPIR-V 1.0
+
+		// RTX SUpport
+		glslang::EShTargetClientVersion VulkanClientVersion = glslang::EShTargetVulkan_1_2;  // would map to, say, Vulkan 1.0
+		glslang::EShTargetLanguageVersion TargetVersion = glslang::EShTargetSpv_1_4;    // maps to, say, SPIR-V 1.0
+
 
 		Shader.setEnvInput(glslang::EShSourceGlsl, shaderType, glslang::EShClientVulkan, ClientInputSemanticsVersion);
 		Shader.setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
@@ -681,7 +686,10 @@ void VulkanShader::DestroyShaderModule(VkDevice vLogicalDevice, VkShaderModule v
 {
 	ZoneScoped;
 
-	vkDestroyShaderModule(vLogicalDevice, vVkShaderModule, nullptr);
+	if (vLogicalDevice && vVkShaderModule)
+	{
+		vkDestroyShaderModule(vLogicalDevice, vVkShaderModule, nullptr);
+	}
 }
 
 std::unordered_map<std::string, bool> VulkanShader::CollectUniformInfosFromIR(const glslang::TIntermediate& intermediate)

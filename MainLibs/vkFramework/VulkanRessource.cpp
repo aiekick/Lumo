@@ -581,7 +581,9 @@ void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, 
 
 void VulkanRessource::SetDeviceAddress(const vk::Device& vDevice, VulkanBufferObjectPtr vVulkanBufferObjectPtr)
 {
-	if (vDevice && vVulkanBufferObjectPtr)
+	if (vDevice &&
+		vVulkanBufferObjectPtr &&
+		(vVulkanBufferObjectPtr->buffer_usage & vk::BufferUsageFlagBits::eShaderDeviceAddress))
 	{
 		vk::BufferDeviceAddressInfoKHR bufferDeviceAddressInfo{};
 		bufferDeviceAddressInfo.buffer = vVulkanBufferObjectPtr->buffer;
@@ -599,6 +601,7 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 			//obj->bufferInfo = vk::DescriptorBufferInfo{};
 		});
 	dataPtr->alloc_usage = alloc_info.usage;
+	dataPtr->buffer_usage = bufferinfo.usage;
 	VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&bufferinfo, &alloc_info,
 		(VkBuffer*)&dataPtr->buffer, &dataPtr->alloc_meta, nullptr));
 
@@ -725,7 +728,9 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 
 void VulkanRessource::SetDeviceAddress(const vk::Device& vDevice, VulkanAccelStructObjectPtr vVulkanAccelStructObjectPtr)
 {
-	if (vDevice && vVulkanAccelStructObjectPtr)
+	if (vDevice && 
+		vVulkanAccelStructObjectPtr && 
+		(vVulkanAccelStructObjectPtr->buffer_usage & vk::BufferUsageFlagBits::eShaderDeviceAddress))
 	{
 		vk::BufferDeviceAddressInfoKHR bufferDeviceAddressInfo{};
 		bufferDeviceAddressInfo.buffer = vVulkanAccelStructObjectPtr->buffer;
@@ -754,6 +759,7 @@ VulkanAccelStructObjectPtr VulkanRessource::createAccelStructureBufferObject(Vul
 		vmaDestroyBuffer(vkApi::VulkanCore::sAllocator, (VkBuffer)obj->buffer, obj->alloc_meta);
 	});
 	dataPtr->alloc_usage = storageAllocInfo.usage;
+	dataPtr->buffer_usage = storageBufferInfo.usage;
 
 	VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&storageBufferInfo, &storageAllocInfo,
 		(VkBuffer*)&dataPtr->buffer, &dataPtr->alloc_meta, nullptr));

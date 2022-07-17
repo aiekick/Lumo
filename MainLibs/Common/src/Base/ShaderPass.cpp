@@ -355,7 +355,7 @@ bool ShaderPass::InitRtx(
 
 	m_DispatchSize = ct::uvec3(vDispatchSize.x, vDispatchSize.y, 1U);
 
-	// ca peut ne pas compiler, masi c'est plus bloquant
+	// ca peut ne pas compiler, mais c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	CompilRtx();
 
@@ -367,13 +367,16 @@ bool ShaderPass::InitRtx(
 		if (BuildModel()) {
 			if (CreateSBO()) {
 				if (CreateUBO()) {
-					if (CreateRessourceDescriptor()) {
-						// si ca compile pas
-						// c'est pas bon mais on renvoi true car on va afficher 
-						// l'erreur dans le node et on pourra le corriger en editant le shader
-						CreateRtxPipeline();
-						m_Loaded = true;
-					}
+					// ca peut foirer, mais ici, si on a pas de mode
+					// on a pas d'accel struct et ca va planter
+					// on finira d'updater les descriptors quand on aura bindé un model
+					CreateRessourceDescriptor();
+					// si ca compile pas
+					// c'est pas bon mais on renvoi true car on va afficher 
+					// l'erreur dans le node et on pourra le corriger en editant le shader
+					CreateRtxPipeline();
+					m_Loaded = true;
+					
 				}
 			}
 		}
@@ -652,6 +655,8 @@ void ShaderPass::TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationN
 bool ShaderPass::BuildModel()
 {
 	ZoneScoped;
+
+	CTOOL_DEBUG_BREAK;
 
 	return true;
 }
@@ -1011,45 +1016,42 @@ bool ShaderPass::CompilRtx()
 
 	m_UsedUniforms.clear();
 	
-	m_ShaderCodes[ShaderId::eRtxRayGen] = CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR);
-	m_ShaderCodes[ShaderId::eRtxRayInt] = CompilShaderCode(vk::ShaderStageFlagBits::eIntersectionKHR);
-	m_ShaderCodes[ShaderId::eRtxRayMiss] = CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR);
-	m_ShaderCodes[ShaderId::eRtxRayAnyHit] = CompilShaderCode(vk::ShaderStageFlagBits::eAnyHitKHR);
-	m_ShaderCodes[ShaderId::eRtxRayClosestHit] = CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR);
-
-	if (!m_ShaderCodes[ShaderId::eRtxRayGen].m_Code.empty() &&
-		!m_ShaderCodes[ShaderId::eRtxRayInt].m_Code.empty() &&
-		!m_ShaderCodes[ShaderId::eRtxRayMiss].m_Code.empty() &&
-		!m_ShaderCodes[ShaderId::eRtxRayAnyHit].m_Code.empty() &&
-		!m_ShaderCodes[ShaderId::eRtxRayClosestHit].m_Code.empty())
+	std::vector<std::pair<ShaderId, vk::ShaderStageFlagBits>> m_PossiblesShaderIds =
 	{
-		if (vkApi::VulkanCore::sVulkanShader)
-		{
-			m_IsShaderCompiled = 
-				!m_ShaderCodes[ShaderId::eRtxRayGen].m_SPIRV.empty() &&
-				!m_ShaderCodes[ShaderId::eRtxRayInt].m_SPIRV.empty() &&
-				!m_ShaderCodes[ShaderId::eRtxRayMiss].m_SPIRV.empty() &&
-				!m_ShaderCodes[ShaderId::eRtxRayAnyHit].m_SPIRV.empty() &&
-				!m_ShaderCodes[ShaderId::eRtxRayClosestHit].m_SPIRV.empty();
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayGen, vk::ShaderStageFlagBits::eRaygenKHR),
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayInt, vk::ShaderStageFlagBits::eIntersectionKHR),
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayMiss, vk::ShaderStageFlagBits::eMissKHR),
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayAnyHit, vk::ShaderStageFlagBits::eAnyHitKHR),
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayClosestHit, vk::ShaderStageFlagBits::eClosestHitKHR)
+	};
 
-			if (!m_Loaded)
-			{
-				res = true;
-			}
-			else if (m_IsShaderCompiled)
-			{
-				m_Device.waitIdle();
-				DestroyPipeline();
-				DestroyRessourceDescriptor();
-				DestroyUBO();
-				DestroySBO();
-				CreateSBO();
-				CreateUBO();
-				CreateRessourceDescriptor();
-				CreateRtxPipeline();
-				res = true;
-			}
+	m_IsShaderCompiled = true;
+	for (auto shaderId : m_PossiblesShaderIds)
+	{
+		m_ShaderCodes[shaderId.first] = CompilShaderCode(shaderId.second);
+		if (m_ShaderCodes[shaderId.first].m_Used &&
+			m_ShaderCodes[shaderId.first].m_SPIRV.empty())
+		{
+			m_IsShaderCompiled = false;
 		}
+	}
+
+	if (!m_Loaded)
+	{
+		res = true;
+	}
+	else if (m_IsShaderCompiled)
+	{
+		m_Device.waitIdle();
+		DestroyPipeline();
+		DestroyRessourceDescriptor();
+		DestroyUBO();
+		DestroySBO();
+		CreateSBO();
+		CreateUBO();
+		CreateRessourceDescriptor();
+		CreateRtxPipeline();
+		res = true;
 	}
 
 	ActionAfterCompilation();
@@ -1227,6 +1229,11 @@ bool ShaderPass::CreateRessourceDescriptor()
 	return false;
 }
 
+bool ShaderPass::CanUpdateDescriptors()
+{
+	return true;
+}
+
 void ShaderPass::UpdateRessourceDescriptor()
 {
 	ZoneScoped;
@@ -1268,8 +1275,11 @@ void ShaderPass::UpdateRessourceDescriptor()
 		SwapOutputDescriptors();
 	}
 
-	// update descriptor
-	m_Device.updateDescriptorSets(writeDescriptorSets, nullptr);
+	if (CanUpdateDescriptors())
+	{
+		// update descriptor
+		m_Device.updateDescriptorSets(writeDescriptorSets, nullptr);
+	}
 
 	// on le met la avant le rendu plutot qu'apres sinon au reload la 1ere
 	// frame vaut 0 et ca peut reset le shader selon ce qu'on a mis dedans
@@ -1295,10 +1305,22 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
 
+	// tofix : c'est nimp cette focntion, on utilise meme pas vFiles...
+
 	for (auto shaderCode : m_ShaderCodes)
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + shaderCode.m_FilePathName;
-		needReCompil |= FileHelper::Instance()->IsFileExist(shader_path);
+		if (shaderCode.m_Used &&
+			!shaderCode.m_FilePathName.empty())
+		{
+			for (auto filePathNameToUpdate : vFiles)
+			{
+				if (filePathNameToUpdate == shaderCode.m_FilePathName)
+				{
+					auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + shaderCode.m_FilePathName;
+					needReCompil |= FileHelper::Instance()->IsFileExist(shader_path);
+				}
+			}
+		}
 	}
 
 	if (needReCompil)

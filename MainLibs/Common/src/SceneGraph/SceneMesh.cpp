@@ -237,7 +237,7 @@ bool SceneMesh::BuildVBO(bool vUseSBO)
 {
 	DestroyVBO();
 
-	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO);
+	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO, false, true); // the last true is for RTX
 	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 
 	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
@@ -261,7 +261,7 @@ void SceneMesh::BuildIBO(bool vUseSBO)
 {
 	DestroyIBO();
 
-	m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array, vUseSBO);
+	m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array, vUseSBO, false, true); // the last true is for RTX
 	m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 
 	m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;

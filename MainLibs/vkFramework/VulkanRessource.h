@@ -29,6 +29,7 @@ struct VulkanAccelStructObject
 	vk::Buffer buffer = nullptr;
 	VmaAllocation alloc_meta = nullptr;
 	VmaMemoryUsage alloc_usage = VMA_MEMORY_USAGE_UNKNOWN;
+	vk::BufferUsageFlags buffer_usage;
 	uint64_t device_address = 0U;
 };
 typedef std::shared_ptr<VulkanAccelStructObject> VulkanAccelStructObjectPtr;
@@ -47,6 +48,7 @@ public:
 	vk::Buffer buffer = nullptr;
 	VmaAllocation alloc_meta = nullptr;
 	VmaMemoryUsage alloc_usage = VMA_MEMORY_USAGE_UNKNOWN;
+	vk::BufferUsageFlags buffer_usage;
 	uint64_t device_address = 0U;	
 };
 typedef std::shared_ptr<VulkanBufferObject> VulkanBufferObjectPtr;
@@ -129,7 +131,7 @@ VulkanBufferObjectPtr VulkanRessource::createVertexBufferObject(VulkanCorePtr vV
 	if (vUseRTX) vboInfo.usage = vboInfo.usage | 
 		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
 		vk::BufferUsageFlagBits::eStorageBuffer |
-		vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
+		vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
 	vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 	auto vbo = createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);
@@ -161,9 +163,9 @@ VulkanBufferObjectPtr VulkanRessource::createIndexBufferObject(VulkanCorePtr vVu
 	if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage | 
 		vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
 	if (vUseRTX) vboInfo.usage = vboInfo.usage |
-		//vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | => not needed for index
+		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
 		vk::BufferUsageFlagBits::eStorageBuffer |
-		vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
+		vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
 	vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 	auto vbo = createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);

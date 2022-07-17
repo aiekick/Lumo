@@ -61,9 +61,11 @@ limitations under the License.
 */
 class RtxShaderPass : public ShaderPass
 {
-private:
+protected:
 	std::vector<VulkanAccelStructObjectPtr> m_AccelStructure_Bottom_Ptrs;
 	VulkanAccelStructObjectPtr m_AccelStructure_Top_Ptr = nullptr;
+	vk::WriteDescriptorSetAccelerationStructureKHR m_AccelStructureTopDescriptorInfo;
+
 	vk::PhysicalDeviceRayTracingPipelinePropertiesKHR m_RayTracingPipelineProperties;
 	VulkanBufferObjectPtr m_RayGenShaderBindingTablePtr = nullptr;
 	VulkanBufferObjectPtr m_RayMissShaderBindingTablePtr = nullptr;
