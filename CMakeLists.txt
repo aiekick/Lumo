@@ -6,7 +6,6 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(USE_RTX "Enable the support of RTX" OFF)
 option(USE_PLUGINS "Enable the plugins building" OFF)
 if (USE_PLUGINS)
 	option(USE_STATIC_LINKING_OF_PLUGINS "Enable the static linking of plugins for easy dev" OFF)

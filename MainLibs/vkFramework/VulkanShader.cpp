@@ -104,10 +104,10 @@ EShLanguage GetShaderStage(const std::string& stage)
 	if (stage == "vert") {
 		return EShLangVertex;
 	}
-	else if (stage == "tesc") {
+	else if (stage == "ctrl") {
 		return EShLangTessControl;
 	}
-	else if (stage == "tese") {
+	else if (stage == "eval") {
 		return EShLangTessEvaluation;
 	}
 	else if (stage == "geom") {
@@ -118,6 +118,21 @@ EShLanguage GetShaderStage(const std::string& stage)
 	}
 	else if (stage == "comp") {
 		return EShLangCompute;
+	}
+	else if (stage == "rgen") {
+		return EShLangRayGen;
+	}
+	else if (stage == "rint") {
+		return EShLangIntersect;
+	}
+	else if (stage == "miss") {
+		return EShLangMiss;
+	}
+	else if (stage == "ahit") {
+		return EShLangAnyHit;
+	}
+	else if (stage == "chit") {
+		return EShLangClosestHit;
 	}
 	else {
 		assert(0 && "Unknown shader stage");
@@ -132,11 +147,16 @@ std::string GetShaderStageString(const EShLanguage& stage)
 	switch (stage)
 	{
 	case EShLangVertex: return "vert";
-	case EShLangTessControl: return "tesc";
-	case EShLangTessEvaluation: return "tese";
+	case EShLangTessControl: return "ctrl";
+	case EShLangTessEvaluation: return "eval";
 	case EShLangGeometry: return "geom";
 	case EShLangFragment: return "frag";
 	case EShLangCompute: return "comp";
+	case EShLangRayGen: return "rgen";
+	case EShLangIntersect: return "rint";
+	case EShLangMiss: return "miss";
+	case EShLangAnyHit: return "ahit";
+	case EShLangClosestHit: return "chit";
 	}
 	return "";
 }
@@ -153,6 +173,11 @@ std::string GetFullShaderStageString(const EShLanguage& stage)
 	case EShLangGeometry: return "Geometry";
 	case EShLangFragment: return "Fragment";
 	case EShLangCompute: return "Compute";
+	case EShLangRayGen: return "Ray Generation";
+	case EShLangIntersect: return "Ray Intersection";
+	case EShLangMiss: return "Miss";
+	case EShLangAnyHit: return "Any Hit";
+	case EShLangClosestHit: return "Closest Hit";
 	}
 	return "";
 }

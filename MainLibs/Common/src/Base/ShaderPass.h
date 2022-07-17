@@ -32,7 +32,7 @@ limitations under the License.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 #include <Base/ComputeBuffer.h>
-
+#include <SceneGraph/SceneModel.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
 #include <Utils/Mesh/VertexStruct.h>
@@ -42,9 +42,10 @@ limitations under the License.
 enum class GenericType : uint8_t
 {
 	NONE = 0,
-	PIXEL,				// vertex + fragment (shader + m_Pipeline + ubo + fbo)
-	COMPUTE_2D,			// compute (shader + m_Pipeline + ubo + compute image)
-	COMPUTE_3D,			// compute (shader + m_Pipeline + ubo)
+	PIXEL,				// vertex + fragment
+	COMPUTE_2D,			// compute image
+	COMPUTE_3D,			// compute free
+	RTX,				// compute free
 	Count
 };
 
@@ -64,6 +65,21 @@ protected: // internal struct
 		std::vector<unsigned int> m_SPIRV;	// SPIRV Bytes
 		std::string m_Code;					// Shader Code (in clear)
 		std::string m_FilePathName;			// file path name on disk drive
+	};
+
+	enum ShaderId : uint8_t
+	{
+		eVertex = 0,
+		eFragment,
+		eGeometry,
+		eTessEval,
+		eTessCtrl,
+		eCompute,
+		eRtxRayGen,
+		eRtxRayInt,
+		eRtxRayMiss,
+		eRtxRayAnyHit,
+		eRtxRayClosestHit
 	};
 
 private:
@@ -101,10 +117,9 @@ protected:
 	ct::fvec2 m_OutputSize;
 	float m_OutputRatio = 1.0f;
 
-	ShaderCode m_VertexShaderCode;		// Vertex Shader Code
-	ShaderCode m_FragmentShaderCode;	// Fragment Shader Code
-	ShaderCode m_ComputeShaderCode;		// Compute Shader Code
-	
+
+	std::array<ShaderCode, 11U> m_ShaderCodes;
+
 	bool m_IsShaderCompiled = false;
 
 	// ressources
@@ -172,6 +187,7 @@ public:
 		const bool& vMultiPassMode,
 		const vk::Format& vFormat);
 	virtual bool InitCompute3D(const ct::uvec3& vDispatchSize);
+	virtual bool InitRtx(const ct::uvec2& vDispatchSize);
 	virtual void Unit();
 
 	void SetFrameBuffer(FrameBufferWeak vFrameBufferWeak);
@@ -188,6 +204,7 @@ public:
 	bool IsPixelRenderer();
 	bool IsCompute2DRenderer();
 	bool IsCompute3DRenderer();
+	bool IsRtxRenderer();
 
 	// FBO
 	FrameBufferWeak GetFrameBuffer() { return m_FrameBufferPtr; }
@@ -225,12 +242,22 @@ protected:
 	virtual void ActionAfterCompilation();
 
 	// Get Shaders
-	virtual std::string GetComputeShaderCode(std::string& vOutShaderName);
 	virtual std::string GetVertexShaderCode(std::string& vOutShaderName);
 	virtual std::string GetFragmentShaderCode(std::string& vOutShaderName);
+	virtual std::string GetGeometryShaderCode(std::string& vOutShaderName);
+	virtual std::string GetTesselationEvaluationShaderCode(std::string& vOutShaderName);
+	virtual std::string GetTesselationControlShaderCode(std::string& vOutShaderName);
+	virtual std::string GetComputeShaderCode(std::string& vOutShaderName);
+	virtual std::string GetRayGenerationShaderCode(std::string& vOutShaderName);
+	virtual std::string GetRayIntersectionShaderCode(std::string& vOutShaderName);
+	virtual std::string GetRayMissShaderCode(std::string& vOutShaderName);
+	virtual std::string GetRayAnyHitShaderCode(std::string& vOutShaderName);
+	virtual std::string GetRayClosestHitShaderCode(std::string& vOutShaderName);
 
+	ShaderCode CompilShaderCode(const vk::ShaderStageFlagBits& vShaderType);
 	virtual bool CompilPixel();
 	virtual bool CompilCompute();
+	virtual bool CompilRtx();
 	virtual bool ReCompil();
 
 	virtual bool BuildModel();
@@ -263,5 +290,6 @@ protected:
 	virtual void SetInputStateBeforePipelineCreation(); // for doing this kind of thing VertexStruct::P2_T2::GetInputState(m_InputState);
 	virtual bool CreateComputePipeline();
 	virtual bool CreatePixelPipeline();
+	virtual bool CreateRtxPipeline();
 	void DestroyPipeline();
 };

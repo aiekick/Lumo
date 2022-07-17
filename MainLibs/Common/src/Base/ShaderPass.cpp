@@ -26,9 +26,9 @@ limitations under the License.
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
 #include <vkFramework/VulkanSubmitter.h>
-
+#include <vkFramework/VulkanCommandBuffer.h>
 #include <FontIcons/CustomFont.h>
-
+#include <glm/gtc/type_ptr.hpp>
 #include <Base/FrameBuffer.h>
 
 #define TRACE_MEMORY
@@ -314,6 +314,51 @@ bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize)
 					// c'est pas bon mais on renvoi true car on va afficher 
 					// l'erreur dans le node et on pourra le corriger en editant le shader
 					CreateComputePipeline();
+					m_Loaded = true;
+				}
+			}
+		}
+	}
+
+	if (m_Loaded)
+	{
+		ActionAfterInitSucceed();
+	}
+	else
+	{
+		ActionAfterInitFail();
+	}
+
+	return m_Loaded;
+}
+
+bool ShaderPass::InitRtx(const ct::uvec2& vDispatchSize)
+{
+	m_RendererType = GenericType::RTX;
+
+	ActionBeforeInit();
+
+	m_Loaded = false;
+
+	m_Device = m_VulkanCorePtr->getDevice();
+	m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+	m_CommandPool = m_Queue.cmdPools;
+
+	m_DispatchSize = ct::uvec3(vDispatchSize, 0U);
+
+	// ca peut ne pas compiler, masi c'est plus bloquant
+	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
+	CompilRtx();
+
+	if (BuildModel()) {
+		if (CreateSBO()) {
+			if (CreateUBO()) {
+				if (CreateRessourceDescriptor()) {
+					// si ca compile pas
+					// c'est pas bon mais on renvoi true car on va afficher 
+					// l'erreur dans le node et on pourra le corriger en editant le shader
+					CreateRtxPipeline();
 					m_Loaded = true;
 				}
 			}
@@ -649,22 +694,71 @@ void ShaderPass::SetLineWidth(const float& vLineWidth)
 //// PUBLIC / SHADER ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ShaderPass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "ShaderPass_Compute";
-	return m_ComputeShaderCode.m_Code;
-}
-
 std::string ShaderPass::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Vertex";
-	return m_VertexShaderCode.m_Code;
+	return m_ShaderCodes[ShaderId::eVertex].m_Code;
 }
 
 std::string ShaderPass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Fragment";
-	return m_FragmentShaderCode.m_Code;
+	return m_ShaderCodes[ShaderId::eFragment].m_Code;
+}
+
+std::string ShaderPass::GetGeometryShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "ShaderPass_Vertex";
+	return m_ShaderCodes[ShaderId::eGeometry].m_Code;
+}
+
+std::string ShaderPass::GetTesselationEvaluationShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "ShaderPass_Tesselation_Evaluation";
+	return m_ShaderCodes[ShaderId::eTessEval].m_Code;
+}
+
+std::string ShaderPass::GetTesselationControlShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "ShaderPass_Tesselation_Control";
+	return m_ShaderCodes[ShaderId::eTessCtrl].m_Code;
+}
+
+std::string ShaderPass::GetComputeShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "ShaderPass_Compute";
+	return m_ShaderCodes[ShaderId::eCompute].m_Code;
+}
+
+std::string ShaderPass::GetRayGenerationShaderCode(std::string& vOutShaderName)
+{
+
+	vOutShaderName = "ShaderPass_Ray_Generation";
+	return m_ShaderCodes[ShaderId::eRtxRayGen].m_Code;
+}
+
+std::string ShaderPass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "ShaderPass_Ray_Intersection";
+	return m_ShaderCodes[ShaderId::eRtxRayInt].m_Code;
+}
+
+std::string ShaderPass::GetRayMissShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "ShaderPass_Ray_Miss";
+	return m_ShaderCodes[ShaderId::eRtxRayMiss].m_Code;
+}
+
+std::string ShaderPass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "ShaderPass_Ray_AnyHit";
+	return m_ShaderCodes[ShaderId::eRtxRayAnyHit].m_Code;
+}
+
+std::string ShaderPass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "ShaderPass_Ray_ClosestHit";
+	return m_ShaderCodes[ShaderId::eRtxRayClosestHit].m_Code;
 }
 
 bool ShaderPass::IsPixelRenderer()
@@ -682,9 +776,83 @@ bool ShaderPass::IsCompute3DRenderer()
 	return (m_RendererType == GenericType::COMPUTE_3D);
 }
 
+bool ShaderPass::IsRtxRenderer()
+{
+	return (m_RendererType == GenericType::RTX);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE / SPECIFIC UPDATE CODE ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ShaderPass::ShaderCode ShaderPass::CompilShaderCode(const vk::ShaderStageFlagBits& vShaderType)
+{
+	ShaderCode shaderCode;
+
+	if (!m_DontUseShaderFilesOnDisk)
+	{
+
+		std::string shader_name;
+		std::string ext;
+		switch (vShaderType)
+		{
+		case vk::ShaderStageFlagBits::eVertex:
+			shaderCode.m_Code = GetVertexShaderCode(shader_name);
+			ext = "vert";
+		case vk::ShaderStageFlagBits::eFragment:
+			shaderCode.m_Code = GetFragmentShaderCode(shader_name);
+			ext = "frag";
+		case vk::ShaderStageFlagBits::eGeometry:
+			shaderCode.m_Code = GetGeometryShaderCode(shader_name);
+			ext = "geom";
+		case vk::ShaderStageFlagBits::eTessellationEvaluation:
+			shaderCode.m_Code = GetTesselationEvaluationShaderCode(shader_name);
+			ext = "eval";
+		case vk::ShaderStageFlagBits::eTessellationControl:
+			shaderCode.m_Code = GetTesselationControlShaderCode(shader_name);
+			ext = "ctrl";
+		case vk::ShaderStageFlagBits::eCompute:
+			shaderCode.m_Code = GetComputeShaderCode(shader_name);
+			ext = "comp";
+		case vk::ShaderStageFlagBits::eRaygenKHR:
+			shaderCode.m_Code = GetRayGenerationShaderCode(shader_name);
+			ext = "rgen";
+		case vk::ShaderStageFlagBits::eIntersectionKHR:
+			shaderCode.m_Code = GetRayIntersectionShaderCode(shader_name);
+			ext = "rint";
+		case vk::ShaderStageFlagBits::eMissKHR:
+			shaderCode.m_Code = GetRayMissShaderCode(shader_name);
+			ext = "miss";
+		case vk::ShaderStageFlagBits::eAnyHitKHR:
+			shaderCode.m_Code = GetRayAnyHitShaderCode(shader_name);
+			ext = "ahit";
+		case vk::ShaderStageFlagBits::eClosestHitKHR:
+			shaderCode.m_Code = GetRayClosestHitShaderCode(shader_name);
+			ext = "chit";
+		default:
+			break;
+		}
+		assert(!shader_name.empty());
+		
+		shaderCode.m_FilePathName = "shaders/" + shader_name + "." + ext;
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + shaderCode.m_FilePathName;
+		if (FileHelper::Instance()->IsFileExist(shader_path, true))
+		{
+			shaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path, true);
+		}
+		else
+		{
+			FileHelper::Instance()->SaveStringToFile(shaderCode.m_Code, shader_path);
+		}
+
+		if (vkApi::VulkanCore::sVulkanShader)
+		{
+			shaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(shaderCode.m_Code, ext, shader_name);
+		}
+	}
+
+	return shaderCode;
+}
 
 bool ShaderPass::CompilPixel()
 {
@@ -694,62 +862,22 @@ bool ShaderPass::CompilPixel()
 
 	ActionBeforeCompilation();
 
-	// VERTEX CODE
+	m_UsedUniforms.clear();
+	m_ShaderCodes[ShaderId::eVertex] = CompilShaderCode(vk::ShaderStageFlagBits::eVertex);
+	m_ShaderCodes[ShaderId::eFragment] = CompilShaderCode(vk::ShaderStageFlagBits::eFragment);
 
-	std::string vertex_name;
-	m_VertexShaderCode.m_Code = GetVertexShaderCode(vertex_name);
-	assert(!vertex_name.empty());
-	if (!m_DontUseShaderFilesOnDisk)
-	{
-		m_VertexShaderCode.m_FilePathName = "shaders/" + vertex_name + ".vert";
-		auto vert_path = FileHelper::Instance()->GetAppPath() + "/" + m_VertexShaderCode.m_FilePathName;
-		if (FileHelper::Instance()->IsFileExist(vert_path, true))
-		{
-			m_VertexShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(vert_path, true);
-		}
-		else
-		{
-			FileHelper::Instance()->SaveStringToFile(m_VertexShaderCode.m_Code, vert_path);
-		}
-	}
-
-	// FRAGMENT CODE
-
-	std::string fragment_name;
-	m_FragmentShaderCode.m_Code = GetFragmentShaderCode(fragment_name);
-	assert(!fragment_name.empty());
-	if (!m_DontUseShaderFilesOnDisk)
-	{
-		m_FragmentShaderCode.m_FilePathName = "shaders/" + fragment_name + ".frag";
-		auto frag_path = FileHelper::Instance()->GetAppPath() + "/" + m_FragmentShaderCode.m_FilePathName;
-		if (FileHelper::Instance()->IsFileExist(frag_path, true))
-		{
-			m_FragmentShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(frag_path, true);
-		}
-		else
-		{
-			FileHelper::Instance()->SaveStringToFile(m_FragmentShaderCode.m_Code, frag_path);
-		}
-	}
-
-	// COMPILATION
-
-	if (!m_VertexShaderCode.m_Code.empty() && 
-		!m_FragmentShaderCode.m_Code.empty())
+	if (!m_ShaderCodes[ShaderId::eVertex].m_Code.empty() &&
+		!m_ShaderCodes[ShaderId::eFragment].m_Code.empty())
 	{
 		if (vkApi::VulkanCore::sVulkanShader)
 		{
-			m_UsedUniforms.clear();
-			m_VertexShaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(m_VertexShaderCode.m_Code, "vert", vertex_name);
-			m_FragmentShaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(m_FragmentShaderCode.m_Code, "frag", fragment_name);
-
-			m_IsShaderCompiled = !m_VertexShaderCode.m_SPIRV.empty() && !m_FragmentShaderCode.m_SPIRV.empty();
+			m_IsShaderCompiled = !m_ShaderCodes[ShaderId::eVertex].m_SPIRV.empty() && !m_ShaderCodes[ShaderId::eFragment].m_SPIRV.empty();
 
 			if (!m_Loaded)
 			{
 				res = true;
 			}
-			else if (!m_FragmentShaderCode.m_SPIRV.empty() && !m_VertexShaderCode.m_SPIRV.empty())
+			else if (m_IsShaderCompiled)
 			{
 				m_Device.waitIdle();
 				DestroyPipeline();
@@ -778,42 +906,20 @@ bool ShaderPass::CompilCompute()
 
 	ActionBeforeCompilation();
 
-	// COMPUTE CODE
+	m_UsedUniforms.clear();
+	m_ShaderCodes[ShaderId::eCompute] = CompilShaderCode(vk::ShaderStageFlagBits::eCompute);
 
-	std::string compute_name;
-	m_ComputeShaderCode.m_Code = GetComputeShaderCode(compute_name);
-	assert(!compute_name.empty());
-	if (!m_DontUseShaderFilesOnDisk)
-	{
-		m_ComputeShaderCode.m_FilePathName = "shaders/" + compute_name + ".comp";
-		auto comp_path = FileHelper::Instance()->GetAppPath() + "/" + m_ComputeShaderCode.m_FilePathName;
-		if (FileHelper::Instance()->IsFileExist(comp_path, true))
-		{
-			m_ComputeShaderCode.m_Code = FileHelper::Instance()->LoadFileToString(comp_path, true);
-		}
-		else
-		{
-
-			FileHelper::Instance()->SaveStringToFile(m_ComputeShaderCode.m_Code, comp_path);
-		}
-	}
-
-	// COMPILATION
-
-	if (!m_ComputeShaderCode.m_Code.empty())
+	if (!m_ShaderCodes[ShaderId::eCompute].m_Code.empty())
 	{
 		if (vkApi::VulkanCore::sVulkanShader)
 		{
-			m_UsedUniforms.clear();
-			m_ComputeShaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(m_ComputeShaderCode.m_Code, "comp", compute_name);
-
-			m_IsShaderCompiled = !m_ComputeShaderCode.m_SPIRV.empty();
+			m_IsShaderCompiled = !m_ShaderCodes[ShaderId::eCompute].m_SPIRV.empty();
 
 			if (!m_Loaded)
 			{
 				res = true;
 			}
-			else if (!m_ComputeShaderCode.m_SPIRV.empty())
+			else if (m_IsShaderCompiled)
 			{
 				m_Device.waitIdle();
 				DestroyPipeline();
@@ -824,6 +930,62 @@ bool ShaderPass::CompilCompute()
 				CreateUBO();
 				CreateRessourceDescriptor();
 				CreateComputePipeline();
+				res = true;
+			}
+		}
+	}
+
+	ActionAfterCompilation();
+
+	return res;
+}
+
+bool ShaderPass::CompilRtx()
+{
+	ZoneScoped;
+
+	bool res = false;
+
+	ActionBeforeCompilation();
+
+	m_UsedUniforms.clear();
+	
+	m_ShaderCodes[ShaderId::eRtxRayGen] = CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR);
+	m_ShaderCodes[ShaderId::eRtxRayInt] = CompilShaderCode(vk::ShaderStageFlagBits::eIntersectionKHR);
+	m_ShaderCodes[ShaderId::eRtxRayMiss] = CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR);
+	m_ShaderCodes[ShaderId::eRtxRayAnyHit] = CompilShaderCode(vk::ShaderStageFlagBits::eAnyHitKHR);
+	m_ShaderCodes[ShaderId::eRtxRayClosestHit] = CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR);
+
+	if (!m_ShaderCodes[ShaderId::eRtxRayGen].m_Code.empty() &&
+		!m_ShaderCodes[ShaderId::eRtxRayInt].m_Code.empty() &&
+		!m_ShaderCodes[ShaderId::eRtxRayMiss].m_Code.empty() &&
+		!m_ShaderCodes[ShaderId::eRtxRayAnyHit].m_Code.empty() &&
+		!m_ShaderCodes[ShaderId::eRtxRayClosestHit].m_Code.empty())
+	{
+		if (vkApi::VulkanCore::sVulkanShader)
+		{
+			m_IsShaderCompiled = 
+				!m_ShaderCodes[ShaderId::eRtxRayGen].m_SPIRV.empty() &&
+				!m_ShaderCodes[ShaderId::eRtxRayInt].m_SPIRV.empty() &&
+				!m_ShaderCodes[ShaderId::eRtxRayMiss].m_SPIRV.empty() &&
+				!m_ShaderCodes[ShaderId::eRtxRayAnyHit].m_SPIRV.empty() &&
+				!m_ShaderCodes[ShaderId::eRtxRayClosestHit].m_SPIRV.empty();
+
+			if (!m_Loaded)
+			{
+				res = true;
+			}
+			else if (m_IsShaderCompiled)
+			{
+				m_Device.waitIdle();
+				DestroyPipeline();
+				DestroyRessourceDescriptor();
+				DestroyUBO();
+				DestroySBO();
+				CreateSBO();
+				CreateUBO();
+				CreateRessourceDescriptor();
+				CreateRtxPipeline();
 				res = true;
 			}
 		}
@@ -846,6 +1008,10 @@ bool ShaderPass::ReCompil()
 	else if (m_RendererType == GenericType::PIXEL)
 	{
 		res = CompilPixel();
+	}
+	else if (m_RendererType == GenericType::RTX)
+	{
+		res = CompilRtx();
 	}
 
 	return res;
@@ -1068,30 +1234,10 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
 
-	if (vFiles.find(m_VertexShaderCode.m_FilePathName) != vFiles.end())
+	for (auto shaderCode : m_ShaderCodes)
 	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + m_VertexShaderCode.m_FilePathName;
-		if (FileHelper::Instance()->IsFileExist(shader_path))
-		{
-			needReCompil = true;
-		}
-
-	}
-	else if (vFiles.find(m_FragmentShaderCode.m_FilePathName) != vFiles.end())
-	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + m_FragmentShaderCode.m_FilePathName;
-		if (FileHelper::Instance()->IsFileExist(shader_path))
-		{
-			needReCompil = true;
-		}
-	}
-	else if (vFiles.find(m_ComputeShaderCode.m_FilePathName) != vFiles.end())
-	{
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + m_ComputeShaderCode.m_FilePathName;
-		if (FileHelper::Instance()->IsFileExist(shader_path))
-		{
-			needReCompil = true;
-		}
+		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + shaderCode.m_FilePathName;
+		needReCompil |= FileHelper::Instance()->IsFileExist(shader_path);
 	}
 
 	if (needReCompil)
@@ -1123,7 +1269,7 @@ bool ShaderPass::CreateComputePipeline()
 {
 	ZoneScoped;
 
-	if (m_ComputeShaderCode.m_SPIRV.empty()) return false;
+	if (m_ShaderCodes[ShaderId::eCompute].m_SPIRV.empty()) return false;
 
 	std::vector<vk::PushConstantRange> push_constants;
 	if (m_Internal_PushConstants.size)
@@ -1138,7 +1284,7 @@ bool ShaderPass::CreateComputePipeline()
 			(uint32_t)push_constants.size(), push_constants.data()
 		));
 	
-	auto cs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ComputeShaderCode.m_SPIRV);
+	auto cs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[ShaderId::eCompute].m_SPIRV);
 
 	m_ShaderCreateInfos.clear();
 	m_ShaderCreateInfos.resize(1);
@@ -1175,8 +1321,8 @@ bool ShaderPass::CreatePixelPipeline()
 	ZoneScoped;
 
 	if (!m_RenderPassPtr) return false;
-	if (m_VertexShaderCode.m_SPIRV.empty()) return false;
-	if (m_FragmentShaderCode.m_SPIRV.empty()) return false;
+	if (m_ShaderCodes[ShaderId::eVertex].m_SPIRV.empty()) return false;
+	if (m_ShaderCodes[ShaderId::eFragment].m_SPIRV.empty()) return false;
 	
 	std::vector<vk::PushConstantRange> push_constants;
 	if (m_Internal_PushConstants.size)
@@ -1191,8 +1337,8 @@ bool ShaderPass::CreatePixelPipeline()
 			(uint32_t)push_constants.size(), push_constants.data()
 		));
 
-	auto vs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_VertexShaderCode.m_SPIRV);
-	auto fs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_FragmentShaderCode.m_SPIRV);
+	auto vs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[ShaderId::eVertex].m_SPIRV);
+	auto fs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[ShaderId::eFragment].m_SPIRV);
 
 	m_ShaderCreateInfos = {
 		vk::PipelineShaderStageCreateInfo(
@@ -1346,6 +1492,13 @@ bool ShaderPass::CreatePixelPipeline()
 	return true;
 }
 
+bool ShaderPass::CreateRtxPipeline()
+{
+	CTOOL_DEBUG_BREAK;
+
+	return false;
+}
+
 void ShaderPass::DestroyPipeline()
 {
 	ZoneScoped;
@@ -1360,3 +1513,7 @@ void ShaderPass::DestroyPipeline()
 	m_Pipeline = vk::Pipeline {};
 	m_PipelineCache = vk::PipelineCache {};
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PRIVATE / RTX /////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
