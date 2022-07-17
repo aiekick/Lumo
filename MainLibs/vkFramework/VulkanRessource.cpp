@@ -579,6 +579,16 @@ void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, 
 	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true, vCommandPool);
 }
 
+void VulkanRessource::SetDeviceAddress(const vk::Device& vDevice, VulkanBufferObjectPtr vVulkanBufferObjectPtr)
+{
+	if (vDevice && vVulkanBufferObjectPtr)
+	{
+		vk::BufferDeviceAddressInfoKHR bufferDeviceAddressInfo{};
+		bufferDeviceAddressInfo.buffer = vVulkanBufferObjectPtr->buffer;
+		vVulkanBufferObjectPtr->device_address = vDevice.getBufferAddressKHR(&bufferDeviceAddressInfo);
+	}
+}
+
 VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, const vk::BufferCreateInfo& bufferinfo, const VmaAllocationCreateInfo& alloc_info)
 {
 	ZoneScoped;
@@ -594,9 +604,7 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 
 	if (dataPtr && dataPtr->buffer)
 	{
-		//dataPtr->bufferInfo.buffer = dataPtr->buffer;
-		//dataPtr->bufferInfo.range = bufferinfo.size;
-		//dataPtr->bufferInfo.offset = 0;
+		SetDeviceAddress(vVulkanCorePtr->getDevice(), dataPtr);
 	}
 	else
 	{
@@ -715,6 +723,16 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 //// RTX / ACCEL STRUCTURE ///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+void VulkanRessource::SetDeviceAddress(const vk::Device& vDevice, VulkanAccelStructObjectPtr vVulkanAccelStructObjectPtr)
+{
+	if (vDevice && vVulkanAccelStructObjectPtr)
+	{
+		vk::BufferDeviceAddressInfoKHR bufferDeviceAddressInfo{};
+		bufferDeviceAddressInfo.buffer = vVulkanAccelStructObjectPtr->buffer;
+		vVulkanAccelStructObjectPtr->device_address = vDevice.getBufferAddressKHR(&bufferDeviceAddressInfo);
+	}
+}
+
 VulkanAccelStructObjectPtr VulkanRessource::createAccelStructureBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage)
 {
 	ZoneScoped;
@@ -742,9 +760,7 @@ VulkanAccelStructObjectPtr VulkanRessource::createAccelStructureBufferObject(Vul
 
 	if (dataPtr && dataPtr->buffer)
 	{
-		//dataPtr->bufferInfo.buffer = dataPtr->buffer;
-		//dataPtr->bufferInfo.range = bufferinfo.size;
-		//dataPtr->bufferInfo.offset = 0;
+		SetDeviceAddress(vVulkanCorePtr->getDevice(), dataPtr);
 	}
 	else
 	{

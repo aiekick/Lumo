@@ -17,7 +17,7 @@ limitations under the License.
 #include "RtxPbrRendererNode.h"
 #include <Modules/RtxPbrRenderer.h>
 #include <Interfaces/LightGroupOutputInterface.h>
-#include <Interfaces/TextureGroupOutputInterface.h>
+#include <Interfaces/ModelOutputInterface.h>
 
 std::shared_ptr<RtxPbrRendererNode> RtxPbrRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -46,38 +46,12 @@ bool RtxPbrRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
+	slot.slotType = NodeSlotTypeEnum::MESH;
+	slot.name = "Model";
+	AddInput(slot, true, false);
+
 	slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
 	slot.name = "Lights";
-	AddInput(slot, true, false);
-
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
-	slot.name = "Position";
-	slot.descriptorBinding = 0U;
-	AddInput(slot, true, false);
-
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
-	slot.name = "Normal";
-	slot.descriptorBinding = 1U;
-	AddInput(slot, true, false);
-
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
-	slot.name = "Albedo";
-	slot.descriptorBinding = 2U;
-	AddInput(slot, true, false);
-
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
-	slot.name = "Mask";
-	slot.descriptorBinding = 3U;
-	AddInput(slot, true, false);
-
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
-	slot.name = "AO";
-	slot.descriptorBinding = 4U;
-	AddInput(slot, true, false);
-
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D_GROUP;
-	slot.name = "Shadow Maps";
-	slot.descriptorBinding = 0U; // target a texture group input
 	AddInput(slot, true, false);
 
 	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
@@ -104,9 +78,6 @@ void RtxPbrRendererNode::Unit()
 bool RtxPbrRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
-
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_RtxPbrRendererPtr)
 	{
@@ -166,14 +137,6 @@ void RtxPbrRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountC
 	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void RtxPbrRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	if (m_RtxPbrRendererPtr)
-	{
-		m_RtxPbrRendererPtr->SetTexture(vBinding, vImageInfo, vTextureSize);
-	}
-}
-
 vk::DescriptorImageInfo* RtxPbrRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_RtxPbrRendererPtr)
@@ -184,13 +147,14 @@ vk::DescriptorImageInfo* RtxPbrRendererNode::GetDescriptorImageInfo(const uint32
 	return nullptr;
 }
 
-void RtxPbrRendererNode::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+void RtxPbrRendererNode::SetModel(SceneModelWeak vSceneModel)
 {
 	if (m_RtxPbrRendererPtr)
 	{
-		m_RtxPbrRendererPtr->SetTextures(vBinding, vImageInfos, vOutSizes);
+		return m_RtxPbrRendererPtr->SetModel(vSceneModel);
 	}
 }
+
 
 void RtxPbrRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
@@ -209,14 +173,12 @@ void RtxPbrRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == NodeSlotTypeEnum::MESH)
 			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
+				auto otherModelNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherModelNodePtr)
 				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
+					SetModel(otherModelNodePtr->GetModel());
 				}
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
@@ -225,16 +187,6 @@ void RtxPbrRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 				if (otherLightGroupNodePtr)
 				{
 					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
-				}
-			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP)
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					fvec2Vector arr;
-					auto descsPtr = otherTextureNodePtr->GetDescriptorImageInfos(endSlotPtr->descriptorBinding, &arr);
-					SetTextures(startSlotPtr->descriptorBinding, descsPtr, &arr);
 				}
 			}
 		}
@@ -250,17 +202,13 @@ void RtxPbrRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 	{
 		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == NodeSlotTypeEnum::MESH)
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
+				SetModel();
 			}
 			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
 			{
 				SetLightGroup();
-			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP)
-			{
-				SetTextures(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
@@ -270,50 +218,20 @@ void RtxPbrRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& v
 {
 	switch (vEvent)
 	{
-	case NotifyEvent::TextureUpdateDone:
+	case NotifyEvent::ModelUpdateDone:
 	{
 		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
 				if (otherNodePtr)
 				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
+					SetModel(otherNodePtr->GetModel());
 				}
 			}
 		}
-		break;
-	}
-	case NotifyEvent::TextureGroupUpdateDone:
-	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						fvec2Vector arr; // tofix : je sens les emmerdes a ce transfert de pointeurs dans un scope court 
-						auto descsPtr = otherNodePtr->GetDescriptorImageInfos(emiterSlotPtr->descriptorBinding, &arr);
-						SetTextures(receiverSlotPtr->descriptorBinding, descsPtr, &arr);
-					}
-				}
-			}
-		}
-
-		//todo emit notification
 		break;
 	}
 	case NotifyEvent::LightGroupUpdateDone:

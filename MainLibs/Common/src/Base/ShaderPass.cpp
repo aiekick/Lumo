@@ -249,7 +249,7 @@ bool ShaderPass::InitCompute2D(
 
 	m_CountColorBuffers = vCountColorBuffers;
 
-	m_DispatchSize = ct::uvec3(vDispatchSize.x, vDispatchSize.y, 1);
+	m_DispatchSize = ct::uvec3(vDispatchSize.x, vDispatchSize.y, 1U);
 
 	// ca peut ne pas compiler, masi c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
@@ -332,9 +332,15 @@ bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize)
 	return m_Loaded;
 }
 
-bool ShaderPass::InitRtx(const ct::uvec2& vDispatchSize)
+bool ShaderPass::InitRtx(
+	const ct::uvec2& vDispatchSize,
+	const uint32_t& vCountColorBuffers,
+	const bool& vMultiPassMode,
+	const vk::Format& vFormat)
 {
 	m_RendererType = GenericType::RTX;
+
+	Resize(vDispatchSize); // will update m_RenderArea and m_Viewport
 
 	ActionBeforeInit();
 
@@ -345,21 +351,29 @@ bool ShaderPass::InitRtx(const ct::uvec2& vDispatchSize)
 	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 	m_CommandPool = m_Queue.cmdPools;
 
-	m_DispatchSize = ct::uvec3(vDispatchSize, 0U);
+	m_CountColorBuffers = vCountColorBuffers;
+
+	m_DispatchSize = ct::uvec3(vDispatchSize.x, vDispatchSize.y, 1U);
 
 	// ca peut ne pas compiler, masi c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	CompilRtx();
 
-	if (BuildModel()) {
-		if (CreateSBO()) {
-			if (CreateUBO()) {
-				if (CreateRessourceDescriptor()) {
-					// si ca compile pas
-					// c'est pas bon mais on renvoi true car on va afficher 
-					// l'erreur dans le node et on pourra le corriger en editant le shader
-					CreateRtxPipeline();
-					m_Loaded = true;
+	m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
+	if (m_ComputeBufferPtr &&
+		m_ComputeBufferPtr->Init(
+		vDispatchSize, vCountColorBuffers,
+		vMultiPassMode, vFormat)) {
+		if (BuildModel()) {
+			if (CreateSBO()) {
+				if (CreateUBO()) {
+					if (CreateRessourceDescriptor()) {
+						// si ca compile pas
+						// c'est pas bon mais on renvoi true car on va afficher 
+						// l'erreur dans le node et on pourra le corriger en editant le shader
+						CreateRtxPipeline();
+						m_Loaded = true;
+					}
 				}
 			}
 		}
@@ -535,9 +549,10 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 			devicePtr->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
 		}
 
-		if (IsPixelRenderer() && m_FrameBufferPtr)
+		if (IsPixelRenderer())
 		{
-			if (m_FrameBufferPtr->Begin(vCmdBuffer))
+			if (m_FrameBufferPtr && 
+				m_FrameBufferPtr->Begin(vCmdBuffer))
 			{
 				m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBuffer, m_ForceFBOClearing);
 				m_ForceFBOClearing = false;
@@ -546,26 +561,27 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 
 				m_FrameBufferPtr->End(vCmdBuffer);
 			}
-		}
-		else if (IsPixelRenderer() && !m_FrameBufferWeak.expired())
-		{
-			auto fboPtr = m_FrameBufferWeak.getValidShared();
-			if (fboPtr)
+			else if (!m_FrameBufferWeak.expired())
 			{
-				if (fboPtr->Begin(vCmdBuffer))
+				auto fboPtr = m_FrameBufferWeak.getValidShared();
+				if (fboPtr)
 				{
-					fboPtr->ClearAttachmentsIfNeeded(vCmdBuffer, m_ForceFBOClearing);
-					m_ForceFBOClearing = false;
+					if (fboPtr->Begin(vCmdBuffer))
+					{
+						fboPtr->ClearAttachmentsIfNeeded(vCmdBuffer, m_ForceFBOClearing);
+						m_ForceFBOClearing = false;
 
-					DrawModel(vCmdBuffer, vIterationNumber);
+						DrawModel(vCmdBuffer, vIterationNumber);
 
-					fboPtr->End(vCmdBuffer);
+						fboPtr->End(vCmdBuffer);
+					}
 				}
 			}
 		}
-		else if (IsCompute2DRenderer() && m_ComputeBufferPtr)
+		else if (IsCompute2DRenderer())
 		{
-			if (m_ComputeBufferPtr->Begin(vCmdBuffer))
+			if (m_ComputeBufferPtr && 
+				m_ComputeBufferPtr->Begin(vCmdBuffer))
 			{
 				Compute(vCmdBuffer, vIterationNumber);
 
@@ -575,6 +591,10 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 		else if (IsCompute3DRenderer())
 		{
 			Compute(vCmdBuffer, vIterationNumber);
+		}
+		else if (IsRtxRenderer())
+		{
+			TraceRays(vCmdBuffer, vIterationNumber);
 		}
 
 		if (devicePtr)
@@ -600,6 +620,21 @@ void ShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationN
 }
 
 void ShaderPass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+{
+	UNUSED(vIterationNumber);
+
+	ZoneScoped;
+
+	if (!m_Loaded) return;
+	if (!m_IsShaderCompiled) return;
+
+	if (vCmdBuffer)
+	{
+		CTOOL_DEBUG_BREAK;
+	}
+}
+
+void ShaderPass::TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	UNUSED(vIterationNumber);
 
@@ -694,72 +729,83 @@ void ShaderPass::SetLineWidth(const float& vLineWidth)
 //// PUBLIC / SHADER ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// will set if a sahder is used or not
+// must be called before the compilation
+void ShaderPass::SetShaderUse(ShaderId vShaderId, bool vUsed)
+{
+	m_ShaderCodes[vShaderId].m_Used = vUsed;
+}
+
 std::string ShaderPass::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Vertex";
-	return m_ShaderCodes[ShaderId::eVertex].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Fragment";
-	return m_ShaderCodes[ShaderId::eFragment].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetGeometryShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Vertex";
-	return m_ShaderCodes[ShaderId::eGeometry].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetTesselationEvaluationShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Tesselation_Evaluation";
-	return m_ShaderCodes[ShaderId::eTessEval].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetTesselationControlShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Tesselation_Control";
-	return m_ShaderCodes[ShaderId::eTessCtrl].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Compute";
-	return m_ShaderCodes[ShaderId::eCompute].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetRayGenerationShaderCode(std::string& vOutShaderName)
 {
 
 	vOutShaderName = "ShaderPass_Ray_Generation";
-	return m_ShaderCodes[ShaderId::eRtxRayGen].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Ray_Intersection";
-	return m_ShaderCodes[ShaderId::eRtxRayInt].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetRayMissShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Ray_Miss";
-	return m_ShaderCodes[ShaderId::eRtxRayMiss].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Ray_AnyHit";
-	return m_ShaderCodes[ShaderId::eRtxRayAnyHit].m_Code;
+	return "";
 }
 
 std::string ShaderPass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Ray_ClosestHit";
-	return m_ShaderCodes[ShaderId::eRtxRayClosestHit].m_Code;
+	return "";
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PRIVATE / RENDERER TYPE ///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool ShaderPass::IsPixelRenderer()
 {
@@ -842,23 +888,28 @@ ShaderPass::ShaderCode ShaderPass::CompilShaderCode(const vk::ShaderStageFlagBit
 	}
 	assert(!shader_name.empty());
 
-	if (!m_DontUseShaderFilesOnDisk)
-	{
-		shaderCode.m_FilePathName = "shaders/" + shader_name + "." + ext;
-		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + shaderCode.m_FilePathName;
-		if (FileHelper::Instance()->IsFileExist(shader_path, true))
-		{
-			shaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path, true);
-		}
-		else
-		{
-			FileHelper::Instance()->SaveStringToFile(shaderCode.m_Code, shader_path);
-		}
-	}
+	shaderCode.m_Used = !shaderCode.m_Code.empty();
 
-	if (vkApi::VulkanCore::sVulkanShader)
+	if (shaderCode.m_Used)
 	{
-		shaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(shaderCode.m_Code, ext, shader_name);
+		if (!m_DontUseShaderFilesOnDisk)
+		{
+			shaderCode.m_FilePathName = "shaders/" + shader_name + "." + ext;
+			auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + shaderCode.m_FilePathName;
+			if (FileHelper::Instance()->IsFileExist(shader_path, true))
+			{
+				shaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path, true);
+			}
+			else
+			{
+				FileHelper::Instance()->SaveStringToFile(shaderCode.m_Code, shader_path);
+			}
+		}
+
+		if (vkApi::VulkanCore::sVulkanShader)
+		{
+			shaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(shaderCode.m_Code, ext, shader_name);
+		}
 	}
 
 	return shaderCode;
@@ -1296,13 +1347,13 @@ bool ShaderPass::CreateComputePipeline()
 	
 	auto cs = vkApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[ShaderId::eCompute].m_SPIRV);
 
-	m_ShaderCreateInfos.clear();
-	m_ShaderCreateInfos.resize(1);
-	m_ShaderCreateInfos[0] = vk::PipelineShaderStageCreateInfo(
-		vk::PipelineShaderStageCreateFlags(),
-		vk::ShaderStageFlagBits::eCompute,
-		cs, "main"
-	);
+	m_ShaderCreateInfos = {
+	   vk::PipelineShaderStageCreateInfo(
+		   vk::PipelineShaderStageCreateFlags(),
+		   vk::ShaderStageFlagBits::eCompute,
+		   cs, "main"
+	   )
+	};
 
 	vk::ComputePipelineCreateInfo computePipeInfo = vk::ComputePipelineCreateInfo()
 		.setStage(m_ShaderCreateInfos[0]).setLayout(m_PipelineLayout);

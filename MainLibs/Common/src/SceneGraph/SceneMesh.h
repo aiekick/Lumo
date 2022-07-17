@@ -29,6 +29,7 @@ typedef ct::cWeak<SceneMesh> SceneMeshWeak;
 typedef std::vector<VertexStruct::P3_N3_TA3_BTA3_T2_C4> VerticeArray;
 typedef std::vector<VertexStruct::I1> IndiceArray;
 
+
 template<typename T>
 class MeshInfo
 {
@@ -53,11 +54,21 @@ public:
 	static SceneMeshPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray vVerticeArray, IndiceArray vIndiceArray);
 	static SceneMeshPtr Copy(SceneMeshWeak vSceneMeshToCopy);
 
+public:
+	class SceneMeshBuffers
+	{
+	public:
+		vk::DeviceAddress vertices_address;
+		vk::DeviceAddress indices_address;
+	};
+
 private:
 	SceneMeshWeak m_This;
 
 	MeshInfo<VertexStruct::P3_N3_TA3_BTA3_T2_C4> m_Vertices;
 	MeshInfo<VertexStruct::I1> m_Indices;
+
+	SceneMeshBuffers m_SceneMeshBuffers;
 
 	bool m_HaveNormals = false;
 	bool m_HaveTangeants = false;
@@ -86,11 +97,13 @@ public:
 	
 	vk::Buffer GetVerticesBuffer();
 	vk::DescriptorBufferInfo* GetVerticesBufferInfo();
+	uint64_t GetVerticesDeviceAddress();
 	VerticeArray* GetVertices();
 	uint32_t GetVerticesCount();
 
 	vk::Buffer GetIndicesBuffer();
 	vk::DescriptorBufferInfo* GetIndicesBufferInfo();
+	uint64_t GetIndiceDeviceAddress();
 	IndiceArray* GetIndices();
 	uint32_t GetIndicesCount();
 

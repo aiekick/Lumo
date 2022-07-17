@@ -25,27 +25,29 @@ limitations under the License.
 //#ifdef USE_RTX
 struct VulkanAccelStructObject
 {
-	vk::AccelerationStructureKHR handle;
-	vk::Buffer buffer;
-	VmaAllocation alloc_meta;
-	VmaMemoryUsage alloc_usage;
+	vk::AccelerationStructureKHR handle = nullptr;
+	vk::Buffer buffer = nullptr;
+	VmaAllocation alloc_meta = nullptr;
+	VmaMemoryUsage alloc_usage = VMA_MEMORY_USAGE_UNKNOWN;
+	uint64_t device_address = 0U;
 };
 typedef std::shared_ptr<VulkanAccelStructObject> VulkanAccelStructObjectPtr;
 //#endif
 
 struct VulkanRessourceObject
 {
-	vk::Image image;
-	VmaAllocation alloc_meta;
+	vk::Image image = nullptr;
+	VmaAllocation alloc_meta = nullptr;
 };
 typedef std::shared_ptr<VulkanRessourceObject> VulkanRessourceObjectPtr;
 
 class VulkanBufferObject
 {
 public:
-	vk::Buffer buffer;
-	VmaAllocation alloc_meta;
-	VmaMemoryUsage alloc_usage;
+	vk::Buffer buffer = nullptr;
+	VmaAllocation alloc_meta = nullptr;
+	VmaMemoryUsage alloc_usage = VMA_MEMORY_USAGE_UNKNOWN;
+	uint64_t device_address = 0U;	
 };
 typedef std::shared_ptr<VulkanBufferObject> VulkanBufferObjectPtr;
 
@@ -87,6 +89,8 @@ public: // buffers
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const std::vector<vk::BufferCopy>& regions, vk::CommandPool* vCommandPool = 0);
 	static void upload(VulkanCorePtr vVulkanCorePtr, VulkanBufferObject& dst_hostVisable, void* src_host, size_t size_bytes, size_t dst_offset = 0);
 
+	// will set deveic adress of buffer in vVulkanBufferObjectPtr
+	static void SetDeviceAddress(const vk::Device& vDevice, VulkanBufferObjectPtr vVulkanBufferObjectPtr);
 	static VulkanBufferObjectPtr createSharedBufferObject(VulkanCorePtr vVulkanCorePtr, const vk::BufferCreateInfo& bufferinfo, const VmaAllocationCreateInfo& alloc_info);
 	static VulkanBufferObjectPtr createUniformBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize);
 	static VulkanBufferObjectPtr createStagingBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize);
@@ -98,6 +102,8 @@ public: // buffers
 	template<class T> static VulkanBufferObjectPtr createIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);
 
 public: // RTX Accel Structure
+	// will set deveic adress of buffer in vVulkanBufferObjectPtr
+	static void SetDeviceAddress(const vk::Device& vDevice, VulkanAccelStructObjectPtr vVulkanAccelStructObjectPtr);
 	static VulkanAccelStructObjectPtr createAccelStructureBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage);
 };
 

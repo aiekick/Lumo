@@ -263,6 +263,54 @@ bool BaseRenderer::InitCompute3D(const ct::uvec3& vSize)
 	return m_Loaded;
 }
 
+bool BaseRenderer::InitRtx(const ct::uvec2& vSize)
+{
+	ZoneScoped;
+
+	ActionBeforeInit();
+
+	m_Loaded = false;
+
+	m_Device = m_VulkanCorePtr->getDevice();
+	ct::uvec2 size = ct::clamp(vSize, 1u, 8192u);
+	if (!size.emptyOR())
+	{
+		m_UniformSectionToShow = { "RTX" }; // pour afficher les uniforms
+
+		m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+		m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+		m_CommandPool = m_Queue.cmdPools;
+
+		m_OutputSize = ct::uvec3(size.x, size.y, 1);
+		m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(m_OutputSize.x, m_OutputSize.y));
+		m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(m_OutputSize.x), static_cast<float>(m_OutputSize.y), 0, 1.0f);
+		m_OutputRatio = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>();
+
+		if (CreateCommanBuffer()) {
+			if (CreateSyncObjects()) {
+				m_Loaded = true;
+			}
+		}
+	}
+
+	if (m_Loaded)
+	{
+		m_TracyContext = TracyVkContext(
+			m_VulkanCorePtr->getPhysicalDevice(),
+			m_Device,
+			m_Queue.vkQueue,
+			m_CommandBuffers[0]);
+
+		ActionAfterInitSucceed();
+	}
+	else
+	{
+		ActionAfterInitFail();
+	}
+
+	return m_Loaded;
+}
+
 void BaseRenderer::Unit()
 {
 	ZoneScoped;

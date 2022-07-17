@@ -36,10 +36,12 @@ using namespace vkApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
+#define RTX_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.6f, 0.2f, 0.9f, 0.5f)
+
 RtxPbrRenderer_Pass::RtxPbrRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
+	: RtxShaderPass(vVulkanCorePtr)
 {
-	SetRenderDocDebugName("Quad Pass 1 : PBR", QUAD_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Rtx Pass : PBR", RTX_SHADER_PASS_DEBUG_COLOR);
 
 	//m_DontUseShaderFilesOnDisk = true;
 }
@@ -57,16 +59,6 @@ bool RtxPbrRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 {
 	assert(vContext);
 
-	/*DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Normal", 1U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Albedo", 2U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Diffuse", 3U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Specular", 4U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Attenuation", 5U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Mask", 6U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Ao", 7U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "shadow", 8U, m_OutputRatio);*/
-
 	return false;
 }
 
@@ -82,96 +74,32 @@ void RtxPbrRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame,
 
 }
 
-void RtxPbrRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
-
-	if (m_Loaded)
-	{
-		if (vBinding < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				m_ImageInfos[vBinding] = *vImageInfo;
-
-				if ((&m_UBOFrag.use_sampler_position)[vBinding] < 1.0f)
-				{
-					(&m_UBOFrag.use_sampler_position)[vBinding] = 1.0f;
-					NeedNewUBOUpload();
-				}
-			}
-			else
-			{
-				if ((&m_UBOFrag.use_sampler_position)[vBinding] > 0.0f)
-				{
-					(&m_UBOFrag.use_sampler_position)[vBinding] = 0.0f;
-					NeedNewUBOUpload();
-				}
-				
-				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
-			}
-		}
-	}
-}
-
 vk::DescriptorImageInfo* RtxPbrRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_FrameBufferPtr)
+	if (m_ComputeBufferPtr)
 	{
 		if (vOutSize)
 		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
 		}
 
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 
 	return nullptr;
 }
 
-void RtxPbrRenderer_Pass::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+void RtxPbrRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBinding == 0U)
-		{
-			if (vImageInfos &&
-				vImageInfos->size() == m_ImageGroupInfos.size())
-			{
-				for (size_t i = 0U; i < vImageInfos->size(); ++i)
-				{
-					m_ImageGroupInfos[i] = vImageInfos->at(i);
-				}
-
-				if (m_UBOFrag.use_sampler_position < 1.0f)
-				{
-					m_UBOFrag.use_sampler_shadow_maps = 1.0f;
-
-					NeedNewUBOUpload();
-				}
-			}
-			else
-			{
-				for (auto& info : m_ImageGroupInfos)
-				{
-					info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
-				}
-
-				if (m_UBOFrag.use_sampler_position > 0.0f)
-				{
-					m_UBOFrag.use_sampler_position = 0.0f;
-
-					NeedNewUBOUpload();
-				}
-			}
-		}
-	}
+	m_SceneModel = vSceneModel;
 }
 
 void RtxPbrRenderer_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
+	ZoneScoped;
+
 	m_SceneLightGroup = vSceneLightGroup;
 
 	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
@@ -194,11 +122,6 @@ std::string RtxPbrRenderer_Pass::getXml(const std::string& vOffset, const std::s
 {
 	std::string str;
 
-	str += vOffset + "<bias>" + ct::toStr(m_UBOFrag.u_bias) + "</bias>\n";
-	str += vOffset + "<strength>" + ct::toStr(m_UBOFrag.u_shadow_strength) + "</strength>\n";
-	str += vOffset + "<noise_scale>" + ct::toStr(m_UBOFrag.u_poisson_scale) + "</noise_scale>\n";
-	str += vOffset + "<use_pcf>" + (m_UBOFrag.u_use_pcf > 0.5f ? "true" : "false") + "</use_pcf>\n";
-
 	return str;
 }
 
@@ -215,16 +138,9 @@ bool RtxPbrRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "pbr_renderer_module")
+	if (strParentName == "rtx_pbr_renderer_module")
 	{
-		if (strName == "bias")
-			m_UBOFrag.u_bias = ct::fvariant(strValue).GetF();
-		else if (strName == "strength")
-			m_UBOFrag.u_shadow_strength = ct::fvariant(strValue).GetF();
-		else if (strName == "noise_scale")
-			m_UBOFrag.u_poisson_scale = ct::fvariant(strValue).GetF();
-		else if (strName == "use_pcf")
-			m_UBOFrag.u_use_pcf = ct::ivariant(strValue).GetB() ? 1.0f : 0.0f;
+		
 
 		NeedNewUBOUpload();
 	}
@@ -238,94 +154,57 @@ bool RtxPbrRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
 
 bool RtxPbrRenderer_Pass::BuildModel()
 {
-	// Materials
-	ObjMaterial mat_red = { {1, 0, 0}, {1, 1, 1}, 0.0f };
-	ObjMaterial mat_green = { {0, 1, 0}, {1, 1, 1}, 0.0f };
-	ObjMaterial mat_blue = { {0, 0, 1}, {1, 1, 1}, 0.0f };
-	ObjMaterial mat_yellow = { {1, 1, 0}, {1, 1, 1}, 0.0f };
-	ObjMaterial mat_cyan = { {0, 1, 1}, {1, 1, 1}, 0.0f };
-	ObjMaterial mat_magenta = { {1, 0, 1}, {1, 1, 1}, 0.0f };
-	ObjMaterial mat_grey = { {0.7f, 0.7f, 0.7f}, {0.9f, 0.9f, 0.9f}, 0.1f };        // Slightly reflective
-	ObjMaterial mat_mirror = { {0.3f, 0.9f, 1.0f}, {0.9f, 0.9f, 0.9f}, 0.9f };        // Mirror Slightly blue
+	m_ModelAdressesBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 
-	// Geometries
-	auto cube = ObjCube();
-	auto plane = ObjPlane();
-
-	// Upload geometries to GPU
-	create_model(cube, { mat_red, mat_green, mat_blue, mat_yellow, mat_cyan, mat_magenta });        // 6 color faces
-	create_model(plane, { mat_grey });
-	create_model(cube, { mat_mirror });
-
-	// Create a buffer holding the address of model buffers (buffer reference)
-	create_buffer_references();
-
-	// Create as many bottom acceleration structures (blas) as there are geometries/models
-	create_bottom_level_acceleration_structure(obj_models[0]);
-	create_bottom_level_acceleration_structure(obj_models[1]);
-	create_bottom_level_acceleration_structure(obj_models[2]);
-
-	// Matrices to position the instances
-	glm::mat4 m_mirror_back = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -7.0f)), glm::vec3(5.0f, 5.0f, 0.1f));
-	glm::mat4 m_mirror_front = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, 7.0f)), glm::vec3(5.0f, 5.0f, 0.1f));
-	glm::mat4 m_plane = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(15.0f, 15.0f, 15.0f));
-	glm::mat4 m_cube_left = glm::translate(glm::mat4(1.f), glm::vec3(-1.0f, 0.0f, 0.0f));
-	glm::mat4 m_cube_right = glm::translate(glm::mat4(1.f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-	// Creating instances of the blas to the top level acceleration structure
-	std::vector<VkAccelerationStructureInstanceKHR> blas_instances;
-	blas_instances.push_back(create_blas_instance(0, m_cube_left));
-	blas_instances.push_back(create_blas_instance(0, m_cube_right));
-	blas_instances.push_back(create_blas_instance(1, m_plane));
-	blas_instances.push_back(create_blas_instance(2, m_mirror_back));
-	blas_instances.push_back(create_blas_instance(2, m_mirror_front));
-
-	// Building the TLAS
-	create_top_level_acceleration_structure(blas_instances);
-}
-
-void RtxPbrRenderer_Pass::DestroyModel(const bool& vReleaseDatas = false)
-{
-
-}
-
-bool RtxPbrRenderer_Pass::CreateUBO()
-{
-	ZoneScoped;
-
-	auto size_in_bytes = sizeof(UBOFrag);
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
-	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
-	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
-	m_DescriptorBufferInfo_Frag.offset = 0;
-
-	for (auto& info : m_ImageInfos)
+	auto modelPtr = m_SceneModel.getValidShared();
+	if (modelPtr)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		std::vector<SceneMesh::SceneMeshBuffers> modelBufferAddresses;
+
+		for (auto meshPtr : *modelPtr)
+		{
+			SceneMesh::SceneMeshBuffers buffer;
+			buffer.vertices_address = meshPtr->GetVerticesDeviceAddress();
+			buffer.indices_address = meshPtr->GetIndiceDeviceAddress();
+			modelBufferAddresses.push_back(buffer);
+
+			CreateBottomLevelAccelerationStructureForMesh(meshPtr);
+		}
+
+		vk::BufferUsageFlags bufferUsageFlags = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
+
+		auto sizeInBytes = modelPtr->size() * sizeof(SceneMesh::SceneMeshBuffers);
+		m_ModelAdressesPtr = VulkanRessource::createStorageBufferObject(
+			m_VulkanCorePtr, sizeInBytes,
+			bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		VulkanRessource::upload(m_VulkanCorePtr, *m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
+
+		m_ModelAdressesBufferInfo.buffer = m_ModelAdressesPtr->buffer;
+		m_ModelAdressesBufferInfo.offset = 0U;
+		m_ModelAdressesBufferInfo.range = sizeInBytes;
+
+		vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
+		glm::mat4 m_model_pos = glm::mat4(1.0f);
+
+		std::vector<vk::AccelerationStructureInstanceKHR> blas_instances;
+		blas_instances.push_back(CreateBlasInstance(0, m_model_pos));
+
+		CreateTopLevelAccelerationStructure(blas_instances);
+
+		return true;
 	}
 
-	for (auto& info : m_ImageGroupInfos)
-	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
-	}
-
-	NeedNewUBOUpload();
-
-	return true;
+	return false;
 }
 
-void RtxPbrRenderer_Pass::UploadUBO()
+void RtxPbrRenderer_Pass::DestroyModel(const bool& vReleaseDatas)
 {
-	ZoneScoped;
+	DestroyBottomLevelAccelerationStructureForMesh();
+	DestroyTopLevelAccelerationStructure();
+	m_SceneModel.reset();
+	m_ModelAdressesPtr.reset();
+	m_ModelAdressesBufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
-}
-
-void RtxPbrRenderer_Pass::DestroyUBO()
-{
-	ZoneScoped;
-
-	m_UBO_Frag.reset();
 }
 
 bool RtxPbrRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -333,18 +212,14 @@ bool RtxPbrRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(6U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(7U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eFragment);
-
-	// the shadow maps
-	m_LayoutBindings.emplace_back(8U, vk::DescriptorType::eCombinedImageSampler,
-		(uint32_t)m_ImageGroupInfos.size(), vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, 
+		vk::ShaderStageFlagBits::eRaygenKHR); // output
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eAccelerationStructureKHR, 1, 
+		vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, 
+		vk::ShaderStageFlagBits::eRaygenKHR); // camera
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1,
+		vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
 
 	return true;
 }
@@ -354,236 +229,210 @@ bool RtxPbrRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // position
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr); // normal
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2], nullptr); // albedo
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[3], nullptr); // mask
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 6U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[4], nullptr); // ssaao
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 7U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
-
-	// the shadow maps
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 8U, 0,
-		(uint32_t)m_ImageGroupInfos.size(), vk::DescriptorType::eCombinedImageSampler, m_ImageGroupInfos.data(), nullptr);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
+		m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR, 
+		nullptr, CommonSystem::Instance()->GetBufferInfo()); // accel struct
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, 
+		nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		nullptr, &m_ModelAdressesBufferInfo); // model device address
 
 	return true;
 }
 
-std::string RtxPbrRenderer_Pass::GetVertexShaderCode(std::string& vOutShaderName)
+std::string RtxPbrRenderer_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
-
-	return u8R"(#version 450
-#extension GL_ARB_separate_shader_objects : enable
-
-layout(location = 0) in vec2 vertPosition;
-layout(location = 1) in vec2 vertUv;
-layout(location = 0) out vec2 v_uv;
-
-void main() 
-{
-	v_uv = vertUv;
-	gl_Position = vec4(vertPosition, 0.0, 1.0);
-}
-)";
-}
-
-std::string RtxPbrRenderer_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "RtxPbrRenderer_Pass_Fragment";
-
 	return u8R"(
 #version 450
-#extension GL_ARB_separate_shader_objects : enable
+#extension GL_EXT_ray_tracing : enable
 
-layout(location = 0) out vec4 fragColor;
-layout(location = 0) in vec2 v_uv;
+layout(binding = 0, rgba32f) uniform writeonly image2D out_color;
+layout(binding = 1) uniform accelerationStructureEXT tlas;
 )"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
++ CommonSystem::GetBufferObjectStructureHeader(2U) +
 u8R"(
-layout (std140, binding = 1) uniform UBO_Frag 
-{ 
-	float u_shadow_strength;
-	float u_bias;
-	float u_poisson_scale;
-	float u_use_pcf;
-	float use_sampler_position;		// position
-	float use_sampler_normal;		// normal
-	float use_sampler_albedo;		// albedo
-	float use_sampler_mask;			// mask
-	float use_sampler_ssao;			// ssao
-	float use_sampler_shadow_maps;	// shadow maps
+struct hitPayload
+{
+	vec4 color;
+	vec3 ro;
+	vec3 rd;
 };
 
-layout(binding = 2) uniform sampler2D position_map_sampler;
-layout(binding = 3) uniform sampler2D normal_map_sampler;
-layout(binding = 4) uniform sampler2D albedo_map_sampler;
-layout(binding = 5) uniform sampler2D mask_map_sampler;
-layout(binding = 6) uniform sampler2D ssao_map_sampler;
-)"
-+
-SceneLightGroup::GetBufferObjectStructureHeader(7U)
-+
-u8R"(
-layout(binding = 8) uniform sampler2D light_shadow_map_samplers[8]; // binding 8 + 8 => the next binding is 16
-
-const vec2 poissonDisk[16] = vec2[]
-( 
-   vec2( -0.94201624, -0.39906216 ), 
-   vec2( 0.94558609, -0.76890725 ), 
-   vec2( -0.094184101, -0.92938870 ), 
-   vec2( 0.34495938, 0.29387760 ), 
-   vec2( -0.91588581, 0.45771432 ), 
-   vec2( -0.81544232, -0.87912464 ), 
-   vec2( -0.38277543, 0.27676845 ), 
-   vec2( 0.97484398, 0.75648379 ), 
-   vec2( 0.44323325, -0.97511554 ), 
-   vec2( 0.53742981, -0.47373420 ), 
-   vec2( -0.26496911, -0.41893023 ), 
-   vec2( 0.79197514, 0.19090188 ), 
-   vec2( -0.24188840, 0.99706507 ), 
-   vec2( -0.81409955, 0.91437590 ), 
-   vec2( 0.19984126, 0.78641367 ), 
-   vec2( 0.14383161, -0.14100790 ) 
-);
-
-float random(vec3 seed, int i)
-{
-	vec4 seed4 = vec4(seed, i);
-	float dot_product = dot(seed4, vec4(12.9898, 78.233, 45.164, 94.673));
-	return fract(sin(dot_product) * 43758.5453);
-}
-
-float getShadowPCF(uint lid, vec3 pos, vec3 nor)
-{
-	if (lightDatas[lid].lightActive > 0.5)
-	{
-		vec4 shadowCoord = lightDatas[lid].lightView * vec4(pos, 1.0);
-		shadowCoord.xyz /= shadowCoord.w;
-		shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
-
-		const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
-		const float bias = u_bias * 0.01;
-
-		float sha_vis = 0.0;
-		float sha_step = 1.0 / 16.0;
-		for (int i=0;i<16;i++)
-		{
-			int index = int(16.0 * random(gl_FragCoord.xyy, i)) % 16;
-			float sha = texture(light_shadow_map_samplers[lid], shadowCoord.xy + poissonDisk[index] / poisson_scale, 0.0).r;// * cam_far;
-			if (sha < (shadowCoord.z - bias)/shadowCoord.w)
-			{
-				sha_vis += sha_step * (1.0 - sha);
-			}
-		}
-		
-		vec3 ld = normalize(lightDatas[lid].lightGizmo[3].xyz);
-		float li = dot(ld, nor) * lightDatas[lid].lightIntensity * u_shadow_strength;
-				
-		return (sha_vis) * li;
-	}
-
-	return 0.0;
-}
-
-float getShadowSimple(uint lid, vec3 pos, vec3 nor)
-{
-	if (lightDatas[lid].lightActive > 0.5)
-	{
-		vec4 shadowCoord = lightDatas[lid].lightView * vec4(pos, 1.0);
-		shadowCoord.xyz /= shadowCoord.w;
-		shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
-
-		const float poisson_scale = max(u_poisson_scale, 1.0); // for div by zero
-		const float bias = u_bias * 0.01;
-		
-		float sha = texture(light_shadow_map_samplers[lid], shadowCoord.xy, 0.0).r;
-		if (sha < shadowCoord.z - bias)
-		{
-			vec3 ld = normalize(lightDatas[lid].lightGizmo[3].xyz);
-			float li = dot(ld, nor) * lightDatas[lid].lightIntensity * u_shadow_strength;
-			return (1.0 - sha) * li;
-		}
-	}
-	
-	return 0.0;
-}
+layout(location = 0) rayPayloadEXT hitPayload prd;
 
 vec3 getRayOrigin()
 {
 	vec3 ro = view[3].xyz + model[3].xyz;
-	ro *= mat3(view * model);
+	ro *= mat3(model);
 	return -ro;
 }
 
-void main() 
+vec3 getRayDirection(vec2 uv)
 {
-	fragColor = vec4(0);
-	
-	vec3 pos = vec3(0);
-	vec3 nor = vec3(0);
-	vec4 col = vec4(1);
-	float ssao = 1.0;
-	
-	if (use_sampler_position > 0.5)
-		pos = texture(position_map_sampler, v_uv).xyz;
-	
-	if (dot(pos, pos) > 0.0)
-	{
-		if (use_sampler_normal > 0.5)
-			nor = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
-		if (use_sampler_albedo > 0.5)
-			col = texture(albedo_map_sampler, v_uv);
-		if (use_sampler_ssao > 0.5)
-			ssao = texture(ssao_map_sampler, v_uv).r;
-		
-		// ray pos, ray dir
-		vec3 ro = getRayOrigin();
-		vec3 rd = normalize(ro - pos);
-				
-		uint count = uint(lightDatas.length() + 1) % 8; // maxi 8 lights in this system
-		for (uint lid = 0 ; lid < count ; ++lid)
-		{
-			if (lightDatas[lid].lightActive > 0.5)
-			{
-				// light
-				vec3 light_pos = lightDatas[lid].lightGizmo[3].xyz;
-				float light_intensity = lightDatas[lid].lightIntensity;
-				vec4 light_col = lightDatas[lid].lightColor;
-				vec3 light_dir = normalize(light_pos - pos);
-				
-				// diffuse
-				vec4 diff = min(max(dot(nor, light_dir), 0.0) * light_intensity, 1.0) * light_col;
-				
-				// specular
-				vec3 refl = reflect(-light_dir, nor);  
-				vec4 spec = min(pow(max(dot(rd, refl), 0.0), 8.0) * light_intensity, 1.0) * light_col;
-				
-				// shadow
-				float sha = 1.0;
-				if (u_use_pcf > 0.5) sha -= getShadowPCF(lid, pos, nor);
-				else sha -= getShadowSimple(lid, pos, nor);
-				
-				fragColor += (col * diff * ssao + spec) * sha;
-			}
-		}
+	uv = uv * 2.0 - 1.0;
+	vec4 ray_clip = vec4(uv.x, uv.y, -1.0, 0.0);
+	vec4 ray_eye = inverse(proj) * ray_clip;
+	vec3 rd = normalize(vec3(ray_eye.x, ray_eye.y, -1.0));
+	rd *= mat3(view * model);
+	return rd;
+}
 
-		if (use_sampler_mask > 0.5)
-		{
-			float mask =  texture(mask_map_sampler, v_uv).r;
-			if (mask < 0.5)
-			{
-				discard; // a faire en dernier
-			}
-		}
-	}
-	else
-	{
-		discard;
-	}		
+void main()
+{
+	const vec2 p = vec2(gl_LaunchIDEXT.xy);
+	const vec2 s = vec2(gl_LaunchSizeEXT.xy);
+
+	const vec2 pc = p + 0.5; // pixel center
+	const vec2 uv = pc / s;
+	const vec2 uvc = uv * 2.0 - 1.0;
+	
+	mat4 imv = inverse(model * view);
+	mat4 ip = inverse(proj);
+
+	vec4 origin    = imv * vec4(0, 0, 0, 1);
+	vec4 target    = ip * vec4(uvc.x, uvc.y, 1, 1);
+	vec4 direction = imv * vec4(normalize(target.xyz), 0);
+
+	origin = getRayOrigin();
+	direction = getRayDirection(uv);
+
+	float tmin = 0.001;
+	float tmax = 1e32;
+
+	prd.ro = origin.xyz;
+	prd.rd = direction.xyz;
+	prd.color = vec4(0.0);
+
+	traceRayEXT(tlas, gl_RayFlagsOpaqueEXT, 0xff, 0, 0, 0, prd.rayOrigin, tmin, prd.rayDir, tmax, 0);
+	
+	imageStore(out_color, ivec2(gl_LaunchIDEXT.xy), prd.color);
 }
 )";
 }
 
+std::string RtxPbrRenderer_Pass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
+	return u8R"()";
+}
+
+std::string RtxPbrRenderer_Pass::GetRayMissShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
+	return u8R"(
+#version 450
+#extension GL_EXT_ray_tracing : enable
+
+struct hitPayload
+{
+	vec4 color;
+	vec3 ro;
+	vec3 rd;
+};
+
+layout(location = 0) rayPayloadInEXT hitPayload prd;
+
+void main()
+{
+	prd.color = vec4(0.0);
+}
+)";
+}
+
+std::string RtxPbrRenderer_Pass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
+	return u8R"()";
+}
+
+std::string RtxPbrRenderer_Pass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "RtxPbrRenderer_Pass_Vertex";
+	return u8R"(
+#version 450
+#extension GL_EXT_ray_tracing : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_EXT_nonuniform_qualifier : enable
+
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference2 : require
+
+struct hitPayload
+{
+	vec4 color;
+	vec3 ro;
+	vec3 rd;
+};
+
+layout(location = 0) rayPayloadInEXT hitPayload prd;
+
+hitAttributeEXT vec3 attribs;
+
+struct V3N3T3B3T2C4 
+{
+	float px, py, pz;
+	float nx, ny, nz;
+	float tax, tay, taz;
+	float btax, btay, btaz;
+	float tx, ty;
+	float cx, cy, cz, cw;
+};
+
+layout(buffer_reference, , scalar) readonly buffer Vertices
+{
+	V3N3T3B3T2C4 vdatas[];
+};
+
+layout(buffer_reference, scalar) readonly buffer Indices
+{
+	uint idatas[];
+};
+
+layout(binding = 1) uniform accelerationStructureEXT tlas; // same as raygen shader
+
+struct ModelAddresses
+{
+	uint64_t vertices;
+	uint64_t indices;
+};
+
+layout(binding = 3) buffer ModelAddresses 
+{ 
+	SceneMeshBuffers datas[]; 
+} sceneMeshBuffers;
+
+void main()
+{
+	// When contructing the TLAS, we stored the model id in InstanceCustomIndexEXT, so the
+	// the instance can quickly have access to the data
+
+	// Object data
+	SceneMeshBuffers meshRes = sceneMeshBuffers.datas[gl_InstanceCustomIndexEXT];
+	Indices indices = Indices(objResource.indices);
+	Vertices vertices = Vertices(objResource.vertices);
+
+	// Indices of the triangle
+	uint ind = indices.idatas[gl_PrimitiveID];
+
+	// Vertex of the triangle
+	Vertex v0 = vertices.vdatas[ind * 3 + 0];
+	Vertex v1 = vertices.vdatas[ind * 3 + 1];
+	Vertex v2 = vertices.vdatas[ind * 3 + 2];
+
+	// Barycentric coordinates of the triangle
+	const vec3 barycentrics = vec3(1.0f - attribs.x - attribs.y, attribs.x, attribs.y);
+
+	vec3 pos = v0.px * barycentrics.x + v1.py * barycentrics.y + v2.pz * barycentrics.z;
+	vec3 normal = v0.nx * barycentrics.x + v1.ny * barycentrics.y + v2.nz * barycentrics.z;
+    
+	// Transforming the normal to world space
+	normal = normalize(vec3(normal * gl_WorldToObjectEXT)); 
+
+	//prd.color = vec4(pos, 1.0); // return pos
+	//prd.color = vec4(normal * 0.5 + 0.5, 1.0); // return normal
+	prd.color = vec4(0.5, 0.2, 0.8, 1.0); // return simple color for hit
+}
+)";
 }

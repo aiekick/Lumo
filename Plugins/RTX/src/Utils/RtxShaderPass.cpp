@@ -14,116 +14,143 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "QuadShaderPass.h"
+#include "RtxShaderPass.h"
 
 #include <vkFramework/VulkanRessource.h>
+#include <vkFramework/VulkanCommandBuffer.h>
+#include <glm/gtc/type_ptr.hpp>
+#include <vulkan/vulkan.hpp>
+#include <map>
 
-QuadShaderPass::QuadShaderPass(
-	vkApi::VulkanCorePtr vVulkanCorePtr,
-	const MeshShaderPassType& vMeshShaderPassType)
-	: MeshShaderPass<VertexStruct::P2_T2>(
-		vVulkanCorePtr,
-		vMeshShaderPassType)
+using namespace vkApi;
+
+RtxShaderPass::RtxShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: ShaderPass(vVulkanCorePtr, GenericType::RTX)
 {
 
 }
 
-QuadShaderPass::QuadShaderPass(
-	vkApi::VulkanCorePtr vVulkanCorePtr,
-	const MeshShaderPassType& vMeshShaderPassType,
-	vk::CommandPool* vCommandPool,
-	vk::DescriptorPool* vDescriptorPool)
-	: MeshShaderPass<VertexStruct::P2_T2>(
-		vVulkanCorePtr,
-		vMeshShaderPassType,
-		vCommandPool,
-		vDescriptorPool)
+RtxShaderPass::RtxShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
+	: ShaderPass(vVulkanCorePtr, GenericType::RTX, vCommandPool, vDescriptorPool)
 {
-
+	
 }
 
-bool QuadShaderPass::BuildModel()
+void RtxShaderPass::ActionBeforeInit()
+{
+	auto devPtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+	if (devPtr)
+	{
+		m_RayTracingPipelineProperties = devPtr->m_RayTracingDeviceProperties;
+	}
+}
+
+uint32_t RtxShaderPass::GetAlignedSize(uint32_t value, uint32_t alignment)
+{
+	return (value + alignment - 1) & ~(alignment - 1);
+}
+
+void RtxShaderPass::TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+{
+	if (m_Pipeline && m_PipelineLayout)
+	{
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eRayTracingKHR, m_Pipeline);
+		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eRayTracingKHR, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+		vCmdBuffer->traceRaysKHR(
+			m_RayGenShaderSbtEntry,
+			m_MissShaderSbtEntry,
+			m_HitShaderSbtEntry,
+			m_CallableShaderSbtEntry,
+			m_DispatchSize.x,
+			m_DispatchSize.y,
+			1);
+	}
+}
+
+bool RtxShaderPass::BuildModel()
 {
 	ZoneScoped;
 
-	m_Vertices.m_Array = {
-		VertexStruct::P2_T2(ct::fvec2(-1.0f, -1.0f), ct::fvec2(0.0f, 0.0f)),
-		VertexStruct::P2_T2(ct::fvec2(1.0f, -1.0f), ct::fvec2(1.0f, 0.0f)),
-		VertexStruct::P2_T2(ct::fvec2(1.0f, 1.0f), ct::fvec2(1.0f, 1.0f)),
-		VertexStruct::P2_T2(ct::fvec2(-1.0f, 1.0f), ct::fvec2(0.0f, 1.0f)),
-	};
-	m_Indices.m_Array = {
-		0U, 1U, 2U, 0U, 2U, 3U
-	};
+	// is a model is here
 
-	m_Vertices.m_Buffer = vkApi::VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array);
-	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
-	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
-	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
-	m_Vertices.m_BufferInfo.offset = 0;
+	/*
+	struct ObjBuffers
+	{
+		VkDeviceAddress vertices;
+		VkDeviceAddress indices;
+		VkDeviceAddress materials;
+		VkDeviceAddress materialIndices;
+	} obj_buffers;
 
-	m_Indices.m_Buffer = vkApi::VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array);
-	m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
-	m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
-	m_Indices.m_BufferInfo.range = m_Indices.m_Count * sizeof(uint32_t);
-	m_Indices.m_BufferInfo.offset = 0;
+	void RaytracingReflection::create_buffer_references()
+	{
+		// For each model that was created, we retrieved the address of buffers
+		// used by them. So in the shader, we have direct access to the data
+		std::vector<ObjBuffers> obj_data;
+		auto                    nbObj = static_cast<uint32_t>(obj_models.size());
+		for (uint32_t i = 0; i < nbObj; ++i)
+		{
+			ObjBuffers data;
+			data.vertices        = obj_models[i].vertex_buffer->get_device_address();
+			data.indices         = obj_models[i].index_buffer->get_device_address();
+			data.materials       = obj_models[i].mat_color_buffer->get_device_address();
+			data.materialIndices = obj_models[i].mat_index_buffer->get_device_address();
+			obj_data.emplace_back(data);
+		}
+		VkBufferUsageFlags buffer_usage_flags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+		scene_desc                            = std::make_unique<vkb::core::Buffer>(get_device(), nbObj * sizeof(ObjBuffers), buffer_usage_flags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		scene_desc->update(obj_data.data(), nbObj * sizeof(ObjBuffers));
+	}
+	*/
+
+	/*
+	// Create a buffer holding the address of model buffers (buffer reference)
+	create_buffer_references();
+
+	// Create as many bottom acceleration structures (blas) as there are geometries/models
+	create_bottom_level_acceleration_structure(obj_models[0]);
+	create_bottom_level_acceleration_structure(obj_models[1]);
+	create_bottom_level_acceleration_structure(obj_models[2]);
+
+	// Matrices to position the instances
+	glm::mat4 m_mirror_back  = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, -7.0f)), glm::vec3(5.0f, 5.0f, 0.1f));
+	glm::mat4 m_mirror_front = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(0.0f, 0.0f, 7.0f)), glm::vec3(5.0f, 5.0f, 0.1f));
+	glm::mat4 m_plane        = glm::scale(glm::translate(glm::mat4(1.f), glm::vec3(0.0f, -1.0f, 0.0f)), glm::vec3(15.0f, 15.0f, 15.0f));
+	glm::mat4 m_cube_left    = glm::translate(glm::mat4(1.f), glm::vec3(-1.0f, 0.0f, 0.0f));
+	glm::mat4 m_cube_right   = glm::translate(glm::mat4(1.f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	// Creating instances of the blas to the top level acceleration structure
+	std::vector<VkAccelerationStructureInstanceKHR> blas_instances;
+	blas_instances.push_back(create_blas_instance(0, m_cube_left));
+	blas_instances.push_back(create_blas_instance(0, m_cube_right));
+	blas_instances.push_back(create_blas_instance(1, m_plane));
+	blas_instances.push_back(create_blas_instance(2, m_mirror_back));
+	blas_instances.push_back(create_blas_instance(2, m_mirror_front));
+
+	// Building the TLAS
+	create_top_level_acceleration_structure(blas_instances);
+	*/
+
+	// the creation order is 
+	/*
+	create_scene(); // accel struct build
+	create_ray_tracing_pipeline();
+	create_shader_binding_tables();
+	*/
 
 	return true;
 }
 
-void QuadShaderPass::DestroyModel(const bool& vReleaseDatas)
+void RtxShaderPass::DestroyModel(const bool& vReleaseDatas)
 {
 	ZoneScoped;
 
 	m_VulkanCorePtr->getDevice().waitIdle();
-
-	m_Vertices.m_Buffer.reset();
-	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo{};
-
-	m_Indices.m_Buffer.reset();
-	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo{};
 }
 
-std::string QuadShaderPass::GetVertexShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "QuadShaderPass_Vertex";
-
-	return u8R"(#version 450
-#extension GL_ARB_separate_shader_objects : enable
-
-layout(location = 0) in vec2 vertPosition;
-layout(location = 1) in vec2 vertUv;
-
-layout(location = 0) out vec2 uv_map;
-
-void main() 
-{
-	uv_map = vertUv;
-	gl_Position = vec4(vertPosition, 0.0, 1.0);
-}
-)";
-}
-
-std::string QuadShaderPass::GetFragmentShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "QuadShaderPass_Fragment";
-
-	return u8R"(#version 450
-#extension GL_ARB_separate_shader_objects : enable
-
-layout(location = 0) out vec4 fragColor;
-
-layout(location = 0) in vec2 uv_map;
-
-void main() 
-{
-	fragColor = vec4(uv_map, 0.0, 1.0);
-}
-)";
-}
 
 // will convert model in accel struct
-bool ShaderPass::CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak vMesh)
+bool RtxShaderPass::CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak vMesh)
 {
 	auto meshPtr = vMesh.getValidShared();
 	if (meshPtr)
@@ -132,7 +159,6 @@ bool ShaderPass::CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak vMe
 			vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
 			vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
 
-		/*
 		vk::TransformMatrixKHR transform_matrix =
 			std::array<std::array<float, 4>, 3>
 		{
@@ -140,26 +166,20 @@ bool ShaderPass::CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak vMe
 				0.0f, 1.0f, 0.0f, 0.0f,
 				0.0f, 0.0f, 1.0f, 0.0f
 		};
-		std::unique_ptr<vkb::core::Buffer> transform_matrix_buffer = std::make_unique<vkb::core::Buffer>(get_device(), sizeof(transform_matrix), buffer_usage_flags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		transform_matrix_buffer->update(&transform_matrix, sizeof(transform_matrix));
-		*/
 
-		vk::BufferDeviceAddressInfoKHR vertex_buffer_device_address_info{};
-		vertex_buffer_device_address_info.buffer = meshPtr->GetVerticesBuffer();
-		auto vertex_address = m_Device.getBufferAddressKHR(&vertex_buffer_device_address_info);
-
-		vk::BufferDeviceAddressInfoKHR index_buffer_device_address_info{};
-		index_buffer_device_address_info.buffer = meshPtr->GetIndicesBuffer();
-		auto index_address = m_Device.getBufferAddressKHR(&index_buffer_device_address_info);
+		auto transformMatrixBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeof(transform_matrix),
+			vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eShaderDeviceAddress,
+			VMA_MEMORY_USAGE_CPU_TO_GPU);
+		VulkanRessource::upload(m_VulkanCorePtr, *transformMatrixBufferPtr, &transform_matrix, sizeof(transform_matrix));
 
 		vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
 		triangles.vertexFormat = vk::Format::eR32G32B32Sfloat;
-		triangles.vertexData = vertex_address;
+		triangles.vertexData = meshPtr->GetVerticesDeviceAddress();
 		triangles.maxVertex = meshPtr->GetVerticesCount();
 		triangles.vertexStride = sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
 		triangles.indexType = vk::IndexType::eUint32;
-		triangles.indexData = index_address;
-		//triangles.transformData = transform_matrix_device_address;
+		triangles.indexData = meshPtr->GetIndiceDeviceAddress();
+		triangles.transformData = transformMatrixBufferPtr->device_address;
 
 		// The bottom level acceleration structure contains one set of triangles as the input geometry
 		vk::AccelerationStructureGeometryKHR accelStructureGeometry;
@@ -237,7 +257,7 @@ bool ShaderPass::CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak vMe
 	return false;
 }
 
-void ShaderPass::DestroyBottomLevelAccelerationStructureForMesh()
+void RtxShaderPass::DestroyBottomLevelAccelerationStructureForMesh()
 {
 	m_Device.waitIdle();
 
@@ -246,10 +266,11 @@ void ShaderPass::DestroyBottomLevelAccelerationStructureForMesh()
 		if (accelPtr)
 			m_Device.destroyAccelerationStructureKHR(accelPtr->handle);
 	}
+
 	m_AccelStructure_Bottom_Ptrs.clear();
 }
 
-bool ShaderPass::CreateTopLevelAccelerationStructure(std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances)
+bool RtxShaderPass::CreateTopLevelAccelerationStructure(std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances)
 {
 	auto instancesBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr,
 		sizeof(vk::AccelerationStructureInstanceKHR) * vBlasInstances.size(),
@@ -258,12 +279,8 @@ bool ShaderPass::CreateTopLevelAccelerationStructure(std::vector<vk::Acceleratio
 	VulkanRessource::upload(m_VulkanCorePtr, *instancesBufferPtr,
 		vBlasInstances.data(), sizeof(vk::AccelerationStructureInstanceKHR) * vBlasInstances.size());
 
-	vk::BufferDeviceAddressInfoKHR instancesBufferDeviceAddressInfo{};
-	instancesBufferDeviceAddressInfo.buffer = instancesBufferPtr->buffer;
-	auto instancesBufferAddress = m_Device.getBufferAddressKHR(&instancesBufferDeviceAddressInfo);
-
 	vk::DeviceOrHostAddressConstKHR instance_data_device_address{};
-	instance_data_device_address.deviceAddress = instancesBufferAddress;
+	instance_data_device_address.deviceAddress = instancesBufferPtr->device_address;
 
 	// The top level acceleration structure contains (bottom level) instance as the input geometry
 	vk::AccelerationStructureGeometryKHR accelStructureGeometry;
@@ -337,18 +354,18 @@ bool ShaderPass::CreateTopLevelAccelerationStructure(std::vector<vk::Acceleratio
 	return true;
 }
 
-void ShaderPass::DestroyTopLevelAccelerationStructure()
+void RtxShaderPass::DestroyTopLevelAccelerationStructure()
 {
 	m_Device.waitIdle();
 	m_Device.destroyAccelerationStructureKHR(m_AccelStructure_Top_Ptr->handle);
 	m_AccelStructure_Top_Ptr.reset();
 }
 
-vk::AccelerationStructureInstanceKHR ShaderPass::CreateBlasInstance(const uint32_t& blas_id, glm::mat4& mat)
+vk::AccelerationStructureInstanceKHR RtxShaderPass::CreateBlasInstance(const uint32_t& blas_id, glm::mat4& mat)
 {
-	VkTransformMatrixKHR transform_matrix;
+	vk::TransformMatrixKHR transform_matrix;
 	glm::mat3x4          rtxT = glm::transpose(mat);
-	memcpy(&transform_matrix, glm::value_ptr(rtxT), sizeof(VkTransformMatrixKHR));
+	memcpy(&transform_matrix, glm::value_ptr(rtxT), sizeof(vk::TransformMatrixKHR));
 
 	auto blasPtr = m_AccelStructure_Bottom_Ptrs[blas_id];
 	if (blasPtr)
@@ -372,196 +389,212 @@ vk::AccelerationStructureInstanceKHR ShaderPass::CreateBlasInstance(const uint32
 	return vk::AccelerationStructureInstanceKHR{};
 }
 
-bool ShaderPass::CreateRtxPipeline()
+bool RtxShaderPass::CreateRtxPipeline()
 {
-	// Slot for binding top level acceleration structures to the ray generation shader
-	VkDescriptorSetLayoutBinding acceleration_structure_layout_binding{};
-	acceleration_structure_layout_binding.binding = 0;
-	acceleration_structure_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
-	acceleration_structure_layout_binding.descriptorCount = 1;
-	acceleration_structure_layout_binding.stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+	ZoneScoped;
 
-	VkDescriptorSetLayoutBinding result_image_layout_binding{};
-	result_image_layout_binding.binding = 1;
-	result_image_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-	result_image_layout_binding.descriptorCount = 1;
-	result_image_layout_binding.stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
-
-	VkDescriptorSetLayoutBinding uniform_buffer_binding{};
-	uniform_buffer_binding.binding = 2;
-	uniform_buffer_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uniform_buffer_binding.descriptorCount = 1;
-	uniform_buffer_binding.stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
-
-	// Scene description
-	VkDescriptorSetLayoutBinding scene_buffer_binding{};
-	scene_buffer_binding.binding = 3;
-	scene_buffer_binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-	scene_buffer_binding.descriptorCount = 1;
-	scene_buffer_binding.stageFlags = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
-
-	std::vector<VkDescriptorSetLayoutBinding> bindings = {
-		acceleration_structure_layout_binding,
-		result_image_layout_binding,
-		uniform_buffer_binding,
-		scene_buffer_binding,
+	std::vector<std::pair<ShaderId, vk::ShaderStageFlagBits>> m_ShaderIds =
+	{
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayGen, vk::ShaderStageFlagBits::eRaygenKHR),
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayInt, vk::ShaderStageFlagBits::eIntersectionKHR),
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayMiss, vk::ShaderStageFlagBits::eMissKHR),
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayAnyHit, vk::ShaderStageFlagBits::eAnyHitKHR),
+		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayClosestHit, vk::ShaderStageFlagBits::eClosestHitKHR)
 	};
 
-	VkDescriptorSetLayoutCreateInfo layout_info{ VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO };
-	layout_info.bindingCount = static_cast<uint32_t>(bindings.size());
-	layout_info.pBindings = bindings.data();
-	VK_CHECK(vkCreateDescriptorSetLayout(get_device().get_handle(), &layout_info, nullptr, &descriptor_set_layout));
-
-	VkPipelineLayoutCreateInfo pipeline_layout_create_info{ VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO };
-	pipeline_layout_create_info.setLayoutCount = 1;
-	pipeline_layout_create_info.pSetLayouts = &descriptor_set_layout;
-
-	VK_CHECK(vkCreatePipelineLayout(get_device().get_handle(), &pipeline_layout_create_info, nullptr, &pipeline_layout));
-
-	// Ray tracing shaders + buffer reference require SPIR-V 1.5, so we need to set the appropriate target environment for the glslang compiler
-	vkb::GLSLCompiler::set_target_environment(glslang::EShTargetSpv, glslang::EShTargetSpv_1_5);
-
-	/*
-		Setup ray tracing shader groups
-		Each shader group points at the corresponding shader in the pipeline
-	*/
-	std::vector<VkPipelineShaderStageCreateInfo> shader_stages;
-
-	// Ray generation group
+	for (const auto& shaderId : m_ShaderIds)
 	{
-		shader_stages.push_back(load_shader("ray_tracing_reflection/raygen.rgen", VK_SHADER_STAGE_RAYGEN_BIT_KHR));
-		VkRayTracingShaderGroupCreateInfoKHR raygen_group_ci{ VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR };
-		raygen_group_ci.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
-		raygen_group_ci.generalShader = static_cast<uint32_t>(shader_stages.size()) - 1;
-		raygen_group_ci.closestHitShader = VK_SHADER_UNUSED_KHR;
-		raygen_group_ci.anyHitShader = VK_SHADER_UNUSED_KHR;
-		raygen_group_ci.intersectionShader = VK_SHADER_UNUSED_KHR;
-		shader_groups.push_back(raygen_group_ci);
+		if (shaderId.first != eRtxRayInt && // becasue is optionnal
+			m_ShaderCodes[shaderId.first].m_Used &&
+			m_ShaderCodes[shaderId.first].m_SPIRV.empty())
+			return false;
 	}
 
-	// Ray miss group
+	std::vector<vk::PushConstantRange> push_constants;
+	if (m_Internal_PushConstants.size)
 	{
-		shader_stages.push_back(load_shader("ray_tracing_reflection/miss.rmiss", VK_SHADER_STAGE_MISS_BIT_KHR));
-		VkRayTracingShaderGroupCreateInfoKHR miss_group_ci{ VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR };
-		miss_group_ci.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
-		miss_group_ci.generalShader = static_cast<uint32_t>(shader_stages.size()) - 1;
-		miss_group_ci.closestHitShader = VK_SHADER_UNUSED_KHR;
-		miss_group_ci.anyHitShader = VK_SHADER_UNUSED_KHR;
-		miss_group_ci.intersectionShader = VK_SHADER_UNUSED_KHR;
-		shader_groups.push_back(miss_group_ci);
+		push_constants.push_back(m_Internal_PushConstants);
 	}
 
-	// Ray miss (shadow) group
+	m_PipelineLayout =
+		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
+			vk::PipelineLayoutCreateFlags(),
+			1, &m_DescriptorSetLayout,
+			(uint32_t)push_constants.size(), push_constants.data()
+		));
+
+	m_ShaderCreateInfos.clear();
+	for (const auto& shaderId : m_ShaderIds)
 	{
-		shader_stages.push_back(load_shader("ray_tracing_reflection/missShadow.rmiss", VK_SHADER_STAGE_MISS_BIT_KHR));
-		VkRayTracingShaderGroupCreateInfoKHR miss_group_ci{ VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR };
-		miss_group_ci.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
-		miss_group_ci.generalShader = static_cast<uint32_t>(shader_stages.size()) - 1;
-		miss_group_ci.closestHitShader = VK_SHADER_UNUSED_KHR;
-		miss_group_ci.anyHitShader = VK_SHADER_UNUSED_KHR;
-		miss_group_ci.intersectionShader = VK_SHADER_UNUSED_KHR;
-		shader_groups.push_back(miss_group_ci);
+		if (m_ShaderCodes[shaderId.first].m_Used)
+		{
+			m_ShaderCodes[shaderId.first].m_ShaderModule =
+				vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+					(vk::Device)m_Device, m_ShaderCodes[shaderId.first].m_SPIRV);
+
+			if (m_ShaderCodes[shaderId.first].m_ShaderModule)
+			{
+				m_ShaderCreateInfos.push_back(
+					vk::PipelineShaderStageCreateInfo(
+						vk::PipelineShaderStageCreateFlags(),
+						shaderId.second,
+						m_ShaderCodes[shaderId.first].m_ShaderModule, "main"
+					)
+				);
+			}
+		}
 	}
 
-	// Ray closest hit group
+	m_RayTracingShaderGroups.clear();
+	uint32_t idx = 0U;
+	for (const auto& shaderId : m_ShaderIds)
 	{
-		shader_stages.push_back(load_shader("ray_tracing_reflection/closesthit.rchit", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR));
-		VkRayTracingShaderGroupCreateInfoKHR closes_hit_group_ci{ VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR };
-		closes_hit_group_ci.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
-		closes_hit_group_ci.generalShader = VK_SHADER_UNUSED_KHR;
-		closes_hit_group_ci.closestHitShader = static_cast<uint32_t>(shader_stages.size()) - 1;
-		closes_hit_group_ci.anyHitShader = VK_SHADER_UNUSED_KHR;
-		closes_hit_group_ci.intersectionShader = VK_SHADER_UNUSED_KHR;
-		shader_groups.push_back(closes_hit_group_ci);
+		if (m_ShaderCodes[shaderId.first].m_Used)
+		{
+			if (shaderId.first == ShaderId::eRtxRayGen ||
+				shaderId.first == ShaderId::eRtxRayMiss)
+			{
+				vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
+				shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
+				shaderGroup.generalShader = idx;
+				m_RayTracingShaderGroups.push_back(shaderGroup);
+			}
+			else if (shaderId.first == ShaderId::eRtxRayClosestHit ||
+				shaderId.first == ShaderId::eRtxRayAnyHit)
+			{
+				vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
+				shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
+				if (shaderId.first == ShaderId::eRtxRayAnyHit) { shaderGroup.anyHitShader = idx; }
+				else { shaderGroup.closestHitShader = idx; }
+				m_RayTracingShaderGroups.push_back(shaderGroup);
+			}
+			else if (shaderId.first == ShaderId::eRtxRayInt)
+			{
+				vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
+				shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eProceduralHitGroup;
+				shaderGroup.intersectionShader = idx;
+				m_RayTracingShaderGroups.push_back(shaderGroup);
+			}
+		}
+
+		++idx;
 	}
 
-	/*
-		Create the ray tracing pipeline
-	*/
-	VkRayTracingPipelineCreateInfoKHR raytracing_pipeline_create_info{ VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR };
-	raytracing_pipeline_create_info.stageCount = static_cast<uint32_t>(shader_stages.size());
-	raytracing_pipeline_create_info.pStages = shader_stages.data();
-	raytracing_pipeline_create_info.groupCount = static_cast<uint32_t>(shader_groups.size());
-	raytracing_pipeline_create_info.pGroups = shader_groups.data();
-	raytracing_pipeline_create_info.maxPipelineRayRecursionDepth = 2;
-	raytracing_pipeline_create_info.layout = pipeline_layout;
-	VK_CHECK(vkCreateRayTracingPipelinesKHR(get_device().get_handle(), VK_NULL_HANDLE, VK_NULL_HANDLE, 1, &raytracing_pipeline_create_info, nullptr, &pipeline));
+	vk::RayTracingPipelineCreateInfoKHR rayTracingPipeInfo = vk::RayTracingPipelineCreateInfoKHR();
+	rayTracingPipeInfo.stageCount = static_cast<uint32_t>(m_ShaderCreateInfos.size());
+	rayTracingPipeInfo.pStages = m_ShaderCreateInfos.data();
+	rayTracingPipeInfo.groupCount = static_cast<uint32_t>(m_RayTracingShaderGroups.size());
+	rayTracingPipeInfo.pGroups = m_RayTracingShaderGroups.data();
+	rayTracingPipeInfo.maxPipelineRayRecursionDepth = 2;
+	rayTracingPipeInfo.layout = m_PipelineLayout;
+
+	m_Pipeline = m_Device.createRayTracingPipelineKHR(nullptr, m_PipelineCache, rayTracingPipeInfo).value;
+
+	// destroy modules
+	for (const auto& shaderId : m_ShaderIds)
+	{
+		if (m_ShaderCodes[shaderId.first].m_Used)
+		{
+			vkApi::VulkanCore::sVulkanShader->DestroyShaderModule(
+				(vk::Device)m_Device, m_ShaderCodes[shaderId.first].m_ShaderModule);
+		}
+	}
 
 	return false;
 }
 
-void ShaderPass::DestroyRtxPipeline()
-{
-	vkDestroyPipeline(get_device().get_handle(), pipeline, nullptr);
-	vkDestroyPipelineLayout(get_device().get_handle(), pipeline_layout, nullptr);
-	vkDestroyDescriptorSetLayout(get_device().get_handle(), descriptor_set_layout, nullptr);
-	vkDestroyImageView(get_device().get_handle(), storage_image.view, nullptr);
-	vkDestroyImage(get_device().get_handle(), storage_image.image, nullptr);
-	vkFreeMemory(get_device().get_handle(), storage_image.memory, nullptr);
-	delete_acceleration_structure(top_level_acceleration_structure);
-	for (auto& b : bottom_level_acceleration_structure)
-	{
-		delete_acceleration_structure(b);
-	}
-
-	for (auto& obj : obj_models)
-	{
-		obj.vertex_buffer.reset();
-		obj.index_buffer.reset();
-		obj.mat_color_buffer.reset();
-		obj.mat_index_buffer.reset();
-	}
-
-	ubo.reset();
-}
-
-bool ShaderPass::CreateShaderBindingTable()
+bool RtxShaderPass::CreateShaderBindingTable()
 {
 	// Index position of the groups in the generated ray tracing pipeline
 	// To be generic, this should be pass in parameters
 	std::vector<uint32_t> rgen_index{ 0 };
-	std::vector<uint32_t> miss_index{ 1, 2 };
-	std::vector<uint32_t> hit_index{ 3 };
+	std::vector<uint32_t> miss_index{ 1 };
+	std::vector<uint32_t> hit_index{ 2 };
 
-	const uint32_t handle_size = ray_tracing_pipeline_properties.shaderGroupHandleSize;
-	const uint32_t handle_alignment = ray_tracing_pipeline_properties.shaderGroupHandleAlignment;
-	const uint32_t handle_size_aligned = aligned_size(handle_size, handle_alignment);
-
-	const VkBufferUsageFlags sbt_buffer_usage_flags = VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
-	const VmaMemoryUsage     sbt_memory_usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+	const uint32_t handle_size = m_RayTracingPipelineProperties.shaderGroupHandleSize;
+	const uint32_t handle_alignment = m_RayTracingPipelineProperties.shaderGroupHandleAlignment;
+	const uint32_t handle_size_aligned = GetAlignedSize(handle_size, handle_alignment);
 
 	// Create binding table buffers for each shader type
-	raygen_shader_binding_table = std::make_unique<vkb::core::Buffer>(get_device(), handle_size_aligned * rgen_index.size(), sbt_buffer_usage_flags, sbt_memory_usage, 0);
-	miss_shader_binding_table = std::make_unique<vkb::core::Buffer>(get_device(), handle_size_aligned * miss_index.size(), sbt_buffer_usage_flags, sbt_memory_usage, 0);
-	hit_shader_binding_table = std::make_unique<vkb::core::Buffer>(get_device(), handle_size_aligned * hit_index.size(), sbt_buffer_usage_flags, sbt_memory_usage, 0);
+	const auto bufferUsageFlags =
+		vk::BufferUsageFlagBits::eShaderBindingTableKHR | 
+		vk::BufferUsageFlagBits::eTransferSrc | 
+		vk::BufferUsageFlagBits::eShaderDeviceAddressKHR;
+	m_RayGenShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * rgen_index.size(),
+		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	m_RayMissShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * miss_index.size(),
+		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+	m_RayHitShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * hit_index.size(),
+		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-	// Copy the pipeline's shader handles into a host buffer
-	const auto           group_count = static_cast<uint32_t>(rgen_index.size() + miss_index.size() + hit_index.size());
-	const auto           sbt_size = group_count * handle_size_aligned;
-	std::vector<uint8_t> shader_handle_storage(sbt_size);
-	VK_CHECK(vkGetRayTracingShaderGroupHandlesKHR(get_device().get_handle(), pipeline, 0, group_count, sbt_size, shader_handle_storage.data()));
+	if (m_RayGenShaderBindingTablePtr && 
+		m_RayMissShaderBindingTablePtr && 
+		m_RayHitShaderBindingTablePtr)
+	{
+		// Copy the pipeline's shader handles into a host buffer
+		const auto           group_count = static_cast<uint32_t>(rgen_index.size() + miss_index.size() + hit_index.size());
+		const auto           sbt_size = group_count * handle_size_aligned;
+		std::vector<uint8_t> shader_handle_storage(sbt_size);
 
-	// Write the handles in the SBT buffer
-	auto copyHandles = [&](auto& buffer, std::vector<uint32_t>& indices, uint32_t stride) {
-		auto* pBuffer = static_cast<uint8_t*>(buffer->map());
-		for (uint32_t index = 0; index < static_cast<uint32_t>(indices.size()); index++)
+		if (vkGetRayTracingShaderGroupHandlesKHR(m_Device, m_Pipeline, 0, group_count, sbt_size, shader_handle_storage.data()) == VkResult::VK_SUCCESS)
 		{
-			auto* pStart = pBuffer;
-			// Copy the handle
-			memcpy(pBuffer, shader_handle_storage.data() + (indices[index] * handle_size), handle_size);
-			pBuffer = pStart + stride;        // Jumping to next group
-		}
-		buffer->unmap();
-	};
+			// Write the handles in the SBT buffer
+			auto copyHandles = [&](VulkanBufferObjectPtr vBufferPtr, std::vector<uint32_t>& indices, uint32_t stride)
+			{
+				if (vBufferPtr)
+				{
+					void* mapped_dst = nullptr;
+					VulkanCore::check_error(vmaMapMemory(vkApi::VulkanCore::sAllocator, vBufferPtr->alloc_meta, &mapped_dst));
 
-	copyHandles(raygen_shader_binding_table, rgen_index, handle_size_aligned);
-	copyHandles(miss_shader_binding_table, miss_index, handle_size_aligned);
-	copyHandles(hit_shader_binding_table, hit_index, handle_size_aligned);
+					auto* pBuffer = static_cast<uint8_t*>(mapped_dst);
+					for (uint32_t index = 0; index < static_cast<uint32_t>(indices.size()); index++)
+					{
+						auto* pStart = pBuffer;
+						// Copy the handle
+						memcpy(pBuffer, shader_handle_storage.data() + (indices[index] * handle_size), handle_size);
+						pBuffer = pStart + stride;        // Jumping to next group
+					}
+
+					vmaUnmapMemory(vkApi::VulkanCore::sAllocator, vBufferPtr->alloc_meta);
+				}
+			};
+
+			copyHandles(m_RayGenShaderBindingTablePtr, rgen_index, handle_size_aligned);
+			copyHandles(m_RayMissShaderBindingTablePtr, miss_index, handle_size_aligned);
+			copyHandles(m_RayHitShaderBindingTablePtr, hit_index, handle_size_aligned);
+
+			const uint32_t handle_size_aligned = GetAlignedSize(
+				m_RayTracingPipelineProperties.shaderGroupHandleSize,
+				m_RayTracingPipelineProperties.shaderGroupHandleAlignment);
+
+			m_RayGenShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
+			m_RayGenShaderSbtEntry.deviceAddress = m_RayGenShaderBindingTablePtr->device_address;
+			m_RayGenShaderSbtEntry.stride = handle_size_aligned;
+			m_RayGenShaderSbtEntry.size = handle_size_aligned; // * the count of shaders ion this category
+
+			m_MissShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
+			m_MissShaderSbtEntry.deviceAddress = m_RayMissShaderBindingTablePtr->device_address;
+			m_MissShaderSbtEntry.stride = handle_size_aligned;
+			m_MissShaderSbtEntry.size = handle_size_aligned; // * the count of shaders ion this category
+
+			m_HitShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
+			m_HitShaderSbtEntry.deviceAddress = m_RayHitShaderBindingTablePtr->device_address;
+			m_HitShaderSbtEntry.stride = handle_size_aligned;
+			m_HitShaderSbtEntry.size = handle_size_aligned; // * the count of shaders ion this category
+
+			m_CallableShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
+			//m_CallableShaderSbtEntry.deviceAddress = ?? ->device_address;
+			//m_CallableShaderSbtEntry.stride = handle_size_aligned;
+			//m_CallableShaderSbtEntry.size = handle_size_aligned; // * the count of shaders ion this category
+
+			return true;
+		}
+	}	
 
 	return false;
 }
 
-void ShaderPass::DestroyShaderBindingTable()
+void RtxShaderPass::DestroyShaderBindingTable()
 {
 
 }

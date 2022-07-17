@@ -122,6 +122,7 @@ public: // contructor
 	bool InitPixel(const ct::uvec2& vSize);
 	bool InitCompute2D(const ct::uvec2& vSize);
 	bool InitCompute3D(const ct::uvec3& vSize);
+	bool InitRtx(const ct::uvec2& vSize);
 	void Unit();
 
 	// resize

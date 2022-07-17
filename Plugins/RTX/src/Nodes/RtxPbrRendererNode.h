@@ -26,14 +26,14 @@ limitations under the License.
 #include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/ModelInputInterface.h>
 
 class RtxPbrRenderer;
 class RtxPbrRendererNode : 
 	public BaseNode, 
-	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
-	public TextureGroupInputInterface<0U>,
 	public LightGroupInputInterface,
+	public ModelInputInterface,
 	public ShaderUpdateInterface
 {
 public:
@@ -55,9 +55,8 @@ public:
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	void SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) override;
+	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;

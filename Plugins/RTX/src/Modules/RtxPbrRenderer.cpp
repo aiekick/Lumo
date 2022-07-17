@@ -76,13 +76,13 @@ bool RtxPbrRenderer::Init()
 
 	m_Loaded = true;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitRtx(map_size))
 	{
 		m_RtxPbrRenderer_Pass_Ptr = std::make_shared<RtxPbrRenderer_Pass>(m_VulkanCorePtr);
 		if (m_RtxPbrRenderer_Pass_Ptr)
 		{
-			if (m_RtxPbrRenderer_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+			if (m_RtxPbrRenderer_Pass_Ptr->InitRtx(map_size, 
+				1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_RtxPbrRenderer_Pass_Ptr);
 				m_Loaded = true;
@@ -148,11 +148,11 @@ void RtxPbrRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColor
 	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void RtxPbrRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void RtxPbrRenderer::SetModel(SceneModelWeak vSceneModel)
 {
 	if (m_RtxPbrRenderer_Pass_Ptr)
 	{
-		return m_RtxPbrRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_RtxPbrRenderer_Pass_Ptr->SetModel(vSceneModel);
 	}
 }
 
@@ -164,14 +164,6 @@ vk::DescriptorImageInfo* RtxPbrRenderer::GetDescriptorImageInfo(const uint32_t& 
 	}
 
 	return nullptr;
-}
-
-void RtxPbrRenderer::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
-{
-	if (m_RtxPbrRenderer_Pass_Ptr)
-	{
-		m_RtxPbrRenderer_Pass_Ptr->SetTextures(vBinding, vImageInfos, vOutSizes);
-	}
 }
 
 void RtxPbrRenderer::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)

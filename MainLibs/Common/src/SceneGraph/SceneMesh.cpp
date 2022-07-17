@@ -108,6 +108,11 @@ vk::DescriptorBufferInfo* SceneMesh::GetVerticesBufferInfo()
 	return &m_Vertices.m_BufferInfo;
 }
 
+uint64_t SceneMesh::GetVerticesDeviceAddress()
+{
+	return m_Vertices.m_Buffer->device_address;
+}
+
 VerticeArray* SceneMesh::GetVertices()
 {
 	return &m_Vertices.m_Array;
@@ -126,6 +131,11 @@ vk::Buffer SceneMesh::GetIndicesBuffer()
 vk::DescriptorBufferInfo* SceneMesh::GetIndicesBufferInfo()
 {
 	return &m_Indices.m_BufferInfo;
+}
+
+uint64_t SceneMesh::GetIndiceDeviceAddress()
+{
+	return m_Indices.m_Buffer->device_address;
 }
 
 IndiceArray* SceneMesh::GetIndices()
@@ -234,6 +244,8 @@ bool SceneMesh::BuildVBO(bool vUseSBO)
 	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
 	m_Vertices.m_BufferInfo.offset = 0;
 
+	m_SceneMeshBuffers.vertices_address = m_Vertices.m_Buffer->device_address;
+
 	return true;
 }
 
@@ -255,6 +267,8 @@ void SceneMesh::BuildIBO(bool vUseSBO)
 	m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
 	m_Indices.m_BufferInfo.range = m_Indices.m_Count * sizeof(uint32_t);
 	m_Indices.m_BufferInfo.offset = 0;
+
+	m_SceneMeshBuffers.vertices_address = m_Indices.m_Buffer->device_address;
 }
 
 void SceneMesh::DestroyIBO()

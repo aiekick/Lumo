@@ -65,6 +65,8 @@ protected: // internal struct
 		std::vector<unsigned int> m_SPIRV;	// SPIRV Bytes
 		std::string m_Code;					// Shader Code (in clear)
 		std::string m_FilePathName;			// file path name on disk drive
+		vk::ShaderModule m_ShaderModule = nullptr;
+		bool m_Used = false;				// say if a sahder mut be take into account
 	};
 
 	enum ShaderId : uint8_t
@@ -117,7 +119,6 @@ protected:
 	ct::fvec2 m_OutputSize;
 	float m_OutputRatio = 1.0f;
 
-
 	std::array<ShaderCode, 11U> m_ShaderCodes;
 
 	bool m_IsShaderCompiled = false;
@@ -134,6 +135,7 @@ protected:
 	vk::PipelineCache m_PipelineCache = {};
 	std::vector<vk::PipelineShaderStageCreateInfo> m_ShaderCreateInfos;
 	std::vector<vk::PipelineColorBlendAttachmentState> m_BlendAttachmentStates;
+	std::vector<vk::RayTracingShaderGroupCreateInfoKHR> m_RayTracingShaderGroups;        // Shader groups
 
 	ct::uvec3 m_DispatchSize = 1U;									// COMPUTE dispatch size
 
@@ -151,7 +153,6 @@ protected:
 
 	VertexStruct::PipelineVertexInputState m_InputState;
 
-private:
 	vk::PushConstantRange m_Internal_PushConstants;
 
 public:
@@ -187,7 +188,11 @@ public:
 		const bool& vMultiPassMode,
 		const vk::Format& vFormat);
 	virtual bool InitCompute3D(const ct::uvec3& vDispatchSize);
-	virtual bool InitRtx(const ct::uvec2& vDispatchSize);
+	virtual bool InitRtx( // similar to InitCompute2D
+		const ct::uvec2& vDispatchSize,
+		const uint32_t& vCountColorBuffers,
+		const bool& vMultiPassMode,
+		const vk::Format& vFormat);
 	virtual void Unit();
 
 	void SetFrameBuffer(FrameBufferWeak vFrameBufferWeak);
@@ -229,6 +234,7 @@ public:
 	// draw primitives
 	virtual void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 	virtual void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
+	virtual void TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 
 	virtual void UpdateRessourceDescriptor();
 
@@ -240,6 +246,8 @@ public:
 protected:
 	virtual void ActionBeforeCompilation();
 	virtual void ActionAfterCompilation();
+
+	void SetShaderUse(ShaderId vShaderId, bool vUsed);
 
 	// Get Shaders
 	virtual std::string GetVertexShaderCode(std::string& vOutShaderName);
