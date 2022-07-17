@@ -788,52 +788,62 @@ bool ShaderPass::IsRtxRenderer()
 ShaderPass::ShaderCode ShaderPass::CompilShaderCode(const vk::ShaderStageFlagBits& vShaderType)
 {
 	ShaderCode shaderCode;
+	
+	std::string shader_name;
+	std::string ext;
+	switch (vShaderType)
+	{
+	case vk::ShaderStageFlagBits::eVertex:
+		shaderCode.m_Code = GetVertexShaderCode(shader_name);
+		ext = "vert";
+		break;
+	case vk::ShaderStageFlagBits::eFragment:
+		shaderCode.m_Code = GetFragmentShaderCode(shader_name);
+		ext = "frag";
+		break;
+	case vk::ShaderStageFlagBits::eGeometry:
+		shaderCode.m_Code = GetGeometryShaderCode(shader_name);
+		ext = "geom";
+		break;
+	case vk::ShaderStageFlagBits::eTessellationEvaluation:
+		shaderCode.m_Code = GetTesselationEvaluationShaderCode(shader_name);
+		ext = "eval";
+		break;
+	case vk::ShaderStageFlagBits::eTessellationControl:
+		shaderCode.m_Code = GetTesselationControlShaderCode(shader_name);
+		ext = "ctrl";
+		break;
+	case vk::ShaderStageFlagBits::eCompute:
+		shaderCode.m_Code = GetComputeShaderCode(shader_name);
+		ext = "comp";
+		break;
+	case vk::ShaderStageFlagBits::eRaygenKHR:
+		shaderCode.m_Code = GetRayGenerationShaderCode(shader_name);
+		ext = "rgen";
+		break;
+	case vk::ShaderStageFlagBits::eIntersectionKHR:
+		shaderCode.m_Code = GetRayIntersectionShaderCode(shader_name);
+		ext = "rint";
+		break;
+	case vk::ShaderStageFlagBits::eMissKHR:
+		shaderCode.m_Code = GetRayMissShaderCode(shader_name);
+		ext = "miss";
+		break;
+	case vk::ShaderStageFlagBits::eAnyHitKHR:
+		shaderCode.m_Code = GetRayAnyHitShaderCode(shader_name);
+		ext = "ahit";
+		break;
+	case vk::ShaderStageFlagBits::eClosestHitKHR:
+		shaderCode.m_Code = GetRayClosestHitShaderCode(shader_name);
+		ext = "chit";
+		break;
+	default:
+		break;
+	}
+	assert(!shader_name.empty());
 
 	if (!m_DontUseShaderFilesOnDisk)
 	{
-
-		std::string shader_name;
-		std::string ext;
-		switch (vShaderType)
-		{
-		case vk::ShaderStageFlagBits::eVertex:
-			shaderCode.m_Code = GetVertexShaderCode(shader_name);
-			ext = "vert";
-		case vk::ShaderStageFlagBits::eFragment:
-			shaderCode.m_Code = GetFragmentShaderCode(shader_name);
-			ext = "frag";
-		case vk::ShaderStageFlagBits::eGeometry:
-			shaderCode.m_Code = GetGeometryShaderCode(shader_name);
-			ext = "geom";
-		case vk::ShaderStageFlagBits::eTessellationEvaluation:
-			shaderCode.m_Code = GetTesselationEvaluationShaderCode(shader_name);
-			ext = "eval";
-		case vk::ShaderStageFlagBits::eTessellationControl:
-			shaderCode.m_Code = GetTesselationControlShaderCode(shader_name);
-			ext = "ctrl";
-		case vk::ShaderStageFlagBits::eCompute:
-			shaderCode.m_Code = GetComputeShaderCode(shader_name);
-			ext = "comp";
-		case vk::ShaderStageFlagBits::eRaygenKHR:
-			shaderCode.m_Code = GetRayGenerationShaderCode(shader_name);
-			ext = "rgen";
-		case vk::ShaderStageFlagBits::eIntersectionKHR:
-			shaderCode.m_Code = GetRayIntersectionShaderCode(shader_name);
-			ext = "rint";
-		case vk::ShaderStageFlagBits::eMissKHR:
-			shaderCode.m_Code = GetRayMissShaderCode(shader_name);
-			ext = "miss";
-		case vk::ShaderStageFlagBits::eAnyHitKHR:
-			shaderCode.m_Code = GetRayAnyHitShaderCode(shader_name);
-			ext = "ahit";
-		case vk::ShaderStageFlagBits::eClosestHitKHR:
-			shaderCode.m_Code = GetRayClosestHitShaderCode(shader_name);
-			ext = "chit";
-		default:
-			break;
-		}
-		assert(!shader_name.empty());
-		
 		shaderCode.m_FilePathName = "shaders/" + shader_name + "." + ext;
 		auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + shaderCode.m_FilePathName;
 		if (FileHelper::Instance()->IsFileExist(shader_path, true))
@@ -844,11 +854,11 @@ ShaderPass::ShaderCode ShaderPass::CompilShaderCode(const vk::ShaderStageFlagBit
 		{
 			FileHelper::Instance()->SaveStringToFile(shaderCode.m_Code, shader_path);
 		}
+	}
 
-		if (vkApi::VulkanCore::sVulkanShader)
-		{
-			shaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(shaderCode.m_Code, ext, shader_name);
-		}
+	if (vkApi::VulkanCore::sVulkanShader)
+	{
+		shaderCode.m_SPIRV = vkApi::VulkanCore::sVulkanShader->CompileGLSLString(shaderCode.m_Code, ext, shader_name);
 	}
 
 	return shaderCode;
