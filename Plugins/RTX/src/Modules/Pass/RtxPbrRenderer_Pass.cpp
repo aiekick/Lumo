@@ -275,6 +275,7 @@ layout(binding = 1) uniform accelerationStructureEXT tlas;
 )"
 + CommonSystem::GetBufferObjectStructureHeader(2U) +
 u8R"(
+
 struct hitPayload
 {
 	vec4 color;
@@ -317,20 +318,18 @@ void main()
 	vec4 target    = ip * vec4(uvc.x, uvc.y, 1, 1);
 	vec4 direction = imv * vec4(normalize(target.xyz), 0);
 
-	origin = getRayOrigin();
-	direction = getRayDirection(uv);
-
 	float tmin = 0.001;
 	float tmax = 1e32;
 
-	prd.ro = origin.xyz;
-	prd.rd = direction.xyz;
+	prd.ro = getRayOrigin();		// origin.xyz;
+	prd.rd = getRayDirection(uv);	// direction.xyz;
 	prd.color = vec4(0.0);
 
-	traceRayEXT(tlas, gl_RayFlagsOpaqueEXT, 0xff, 0, 0, 0, prd.rayOrigin, tmin, prd.rayDir, tmax, 0);
+	traceRayEXT(tlas, gl_RayFlagsOpaqueEXT, 0xff, 0, 0, 0, prd.ro, tmin, prd.rd, tmax, 0);
 	
 	imageStore(out_color, ivec2(gl_LaunchIDEXT.xy), prd.color);
 }
+
 )";
 }
 
@@ -373,6 +372,7 @@ std::string RtxPbrRenderer_Pass::GetRayClosestHitShaderCode(std::string& vOutSha
 {
 	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"(
+
 #version 460
 #extension GL_EXT_ray_tracing : enable
 #extension GL_EXT_scalar_block_layout : enable
@@ -402,19 +402,19 @@ struct V3N3T3B3T2C4
 	float cx, cy, cz, cw;
 };
 
-layout(buffer_reference, , scalar) readonly buffer Vertices
+layout(buffer_reference, scalar) readonly buffer Vertices
 {
 	V3N3T3B3T2C4 vdatas[];
 };
 
-layout(buffer_reference, scalar) readonly buffer Indices
+layout(buffer_reference, scalar, buffer_reference_align = 4) readonly buffer Indices
 {
-	uint idatas[];
+	uvec3 idatas[];
 };
 
 layout(binding = 1) uniform accelerationStructureEXT tlas; // same as raygen shader
 
-struct ModelAddresses
+struct SceneMeshBuffers
 {
 	uint64_t vertices;
 	uint64_t indices;
@@ -432,29 +432,35 @@ void main()
 
 	// Object data
 	SceneMeshBuffers meshRes = sceneMeshBuffers.datas[gl_InstanceCustomIndexEXT];
-	Indices indices = Indices(objResource.indices);
-	Vertices vertices = Vertices(objResource.vertices);
+	Indices indices = Indices(meshRes.indices);
+	Vertices vertices = Vertices(meshRes.vertices);
 
 	// Indices of the triangle
-	uint ind = indices.idatas[gl_PrimitiveID];
+	uvec3 ind = indices.idatas[gl_PrimitiveID];
 
 	// Vertex of the triangle
-	Vertex v0 = vertices.vdatas[ind * 3 + 0];
-	Vertex v1 = vertices.vdatas[ind * 3 + 1];
-	Vertex v2 = vertices.vdatas[ind * 3 + 2];
+	V3N3T3B3T2C4 v0 = vertices.vdatas[ind.x];
+	V3N3T3B3T2C4 v1 = vertices.vdatas[ind.y];
+	V3N3T3B3T2C4 v2 = vertices.vdatas[ind.z];
 
 	// Barycentric coordinates of the triangle
 	const vec3 barycentrics = vec3(1.0f - attribs.x - attribs.y, attribs.x, attribs.y);
 
-	vec3 pos = v0.px * barycentrics.x + v1.py * barycentrics.y + v2.pz * barycentrics.z;
-	vec3 normal = v0.nx * barycentrics.x + v1.ny * barycentrics.y + v2.nz * barycentrics.z;
+	vec3 pos = 
+		vec3(v0.px, v0.py, v0.pz) * barycentrics.x + 
+		vec3(v1.px, v1.py, v1.pz) * barycentrics.y + 
+		vec3(v2.px, v2.py, v2.pz) * barycentrics.z;
+	vec3 normal = 
+		vec3(v0.nx, v0.ny, v0.nz) * barycentrics.x + 
+		vec3(v1.nx, v1.ny, v1.nz) * barycentrics.y + 
+		vec3(v2.nx, v2.ny, v2.nz) * barycentrics.z;
     
 	// Transforming the normal to world space
 	normal = normalize(vec3(normal * gl_WorldToObjectEXT)); 
 
 	//prd.color = vec4(pos, 1.0); // return pos
-	//prd.color = vec4(normal * 0.5 + 0.5, 1.0); // return normal
-	prd.color = vec4(0.5, 0.2, 0.8, 1.0); // return simple color for hit
+	prd.color = vec4(normal * 0.5 + 0.5, 1.0); // return normal
+	//prd.color = vec4(0.5, 0.2, 0.8, 1.0); // return simple color for hit
 }
 )";
 }

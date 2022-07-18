@@ -42,7 +42,7 @@ RtxPbrRendererNode::~RtxPbrRendererNode()
 
 bool RtxPbrRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "PBR Renderer";
+	name = "RTX PBR Renderer";
 
 	NodeSlot slot;
 
