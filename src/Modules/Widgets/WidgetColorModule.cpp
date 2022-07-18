@@ -99,6 +99,9 @@ bool WidgetColorModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
+// todo : to put the rendering in when needed, so when the suer chnage the color only
+// so use ExecuteWhenNeeded
+
 bool WidgetColorModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;

@@ -467,6 +467,8 @@ bool RtxShaderPass::CreateShaderBindingTable()
 {
 	// Index position of the groups in the generated ray tracing pipeline
 	// To be generic, this should be pass in parameters
+	// todo, faire attention a correler ces ids avec ce qui est fait dans CreateRtxPipeline
+	// sion le driver peut crasher le pc apres la commande de rendu traceRaysKHR
 	std::vector<uint32_t> rgen_index{ 0 };
 	std::vector<uint32_t> miss_index{ 1 };
 	std::vector<uint32_t> hit_index{ 2 };

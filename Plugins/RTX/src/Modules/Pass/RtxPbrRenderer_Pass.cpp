@@ -154,6 +154,17 @@ bool RtxPbrRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool RtxPbrRenderer_Pass::CanRender()
+{
+	if (!m_SceneModel.expired() &&
+		m_AccelStructure_Top_Ptr)
+	{
+		return true;
+	}
+
+	return false;
+}
+
 bool RtxPbrRenderer_Pass::CanUpdateDescriptors()
 {
 	if (!m_SceneModel.expired() &&
@@ -170,41 +181,48 @@ bool RtxPbrRenderer_Pass::BuildModel()
 	m_ModelAdressesBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 
 	auto modelPtr = m_SceneModel.getValidShared();
-	if (modelPtr)
+	if (modelPtr && 
+		!modelPtr->empty())
 	{
 		std::vector<SceneMesh::SceneMeshBuffers> modelBufferAddresses;
 
 		for (auto meshPtr : *modelPtr)
 		{
-			SceneMesh::SceneMeshBuffers buffer;
-			buffer.vertices_address = meshPtr->GetVerticesDeviceAddress();
-			buffer.indices_address = meshPtr->GetIndiceDeviceAddress();
-			modelBufferAddresses.push_back(buffer);
+			if (meshPtr)
+			{
+				SceneMesh::SceneMeshBuffers buffer;
+				buffer.vertices_address = meshPtr->GetVerticesDeviceAddress();
+				buffer.indices_address = meshPtr->GetIndiceDeviceAddress();
+				modelBufferAddresses.push_back(buffer);
 
-			CreateBottomLevelAccelerationStructureForMesh(meshPtr);
+				CreateBottomLevelAccelerationStructureForMesh(meshPtr);
+			}
 		}
 
-		vk::BufferUsageFlags bufferUsageFlags = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
+		if (!m_AccelStructure_Bottom_Ptrs.empty())
+		{
+			vk::BufferUsageFlags bufferUsageFlags = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
-		auto sizeInBytes = modelPtr->size() * sizeof(SceneMesh::SceneMeshBuffers);
-		m_ModelAdressesPtr = VulkanRessource::createStorageBufferObject(
-			m_VulkanCorePtr, sizeInBytes,
-			bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-		VulkanRessource::upload(m_VulkanCorePtr, *m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
+			auto sizeInBytes = modelPtr->size() * sizeof(SceneMesh::SceneMeshBuffers);
+			m_ModelAdressesPtr = VulkanRessource::createStorageBufferObject(
+				m_VulkanCorePtr, sizeInBytes,
+				bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+			VulkanRessource::upload(m_VulkanCorePtr, *m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
 
-		m_ModelAdressesBufferInfo.buffer = m_ModelAdressesPtr->buffer;
-		m_ModelAdressesBufferInfo.offset = 0U;
-		m_ModelAdressesBufferInfo.range = sizeInBytes;
+			m_ModelAdressesBufferInfo.buffer = m_ModelAdressesPtr->buffer;
+			m_ModelAdressesBufferInfo.offset = 0U;
+			m_ModelAdressesBufferInfo.range = sizeInBytes;
 
-		vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
-		glm::mat4 m_model_pos = glm::mat4(1.0f);
+			vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
+			glm::mat4 m_model_pos = glm::mat4(1.0f);
 
-		std::vector<vk::AccelerationStructureInstanceKHR> blas_instances;
-		blas_instances.push_back(CreateBlasInstance(0, m_model_pos));
+			std::vector<vk::AccelerationStructureInstanceKHR> blas_instances;
+			blas_instances.push_back(CreateBlasInstance(0, m_model_pos));
 
-		CreateTopLevelAccelerationStructure(blas_instances);
+			CreateTopLevelAccelerationStructure(blas_instances);
 
-		return true;
+			return true;
+		}
 	}
 	else
 	{

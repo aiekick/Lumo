@@ -80,6 +80,7 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 private:
+	bool CanRender() override;
 	bool CanUpdateDescriptors() override;
 
 	bool BuildModel() override;

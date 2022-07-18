@@ -232,6 +232,7 @@ public:
 	void DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber = 1U);
 
 	// draw primitives
+	virtual bool CanRender();
 	virtual void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 	virtual void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 	virtual void TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);

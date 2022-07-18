@@ -544,7 +544,7 @@ void ShaderPass::SwapOutputDescriptors()
 
 void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
-	if (m_IsShaderCompiled && m_Pipeline && m_PipelineLayout)
+	if (m_IsShaderCompiled && m_Pipeline && m_PipelineLayout && CanRender())
 	{
 		auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
 		if (devicePtr)
@@ -605,6 +605,11 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 			devicePtr->EndDebugLabel(vCmdBuffer);
 		}
 	}
+}
+
+bool ShaderPass::CanRender()
+{
+	return true;
 }
 
 void ShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
