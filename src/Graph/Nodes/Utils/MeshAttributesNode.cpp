@@ -45,46 +45,46 @@ bool MeshAttributesNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 	
-	slot.slotType = NodeSlotTypeEnum::MESH;
+	slot.slotType = "MESH";
 	slot.name = "Mesh";
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Mask";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Position";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Normal";
 	slot.descriptorBinding = 1U;
 	AddOutput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Tangeant";
 	slot.descriptorBinding = 2U;
 	AddOutput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "BiTangeant";
 	slot.descriptorBinding = 3U;
 	AddOutput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "UV";
 	slot.descriptorBinding = 4U;
 	AddOutput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Color";
 	slot.descriptorBinding = 5U;
 	AddOutput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::DEPTH;
+	slot.slotType = "DEPTH";
 	slot.name = "Depth";
 	slot.descriptorBinding = 6U;
 	AddOutput(slot, true, false);
@@ -204,7 +204,7 @@ void MeshAttributesNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::MESH)
+			if (startSlotPtr->slotType == "MESH")
 			{
 				auto otherModelNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherModelNodePtr)
@@ -212,7 +212,7 @@ void MeshAttributesNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 					SetModel(otherModelNodePtr->GetModel());
 				}
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			else if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
@@ -235,11 +235,11 @@ void MeshAttributesNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 	{
 		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::MESH)
+			if (startSlotPtr->slotType == "MESH")
 			{
 				SetModel();
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			else if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}

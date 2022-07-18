@@ -776,7 +776,7 @@ bool BaseNode::DrawDebugInfos(BaseNodeState *vBaseNodeState)
 			for (auto & uni : m_Inputs) // input calls
 			{
 				ImGui::Text("Name : %s", uni.second->name.c_str());
-				ImGui::Text("Type : %s", GetStringFromNodeSlotTypeEnum(uni.second->slotType).c_str());
+				ImGui::Text("Type : %s", uni.second->slotType.c_str());
 				ImGui::Text("Count connections : %u", (uint32_t)uni.second->linkedSlots.size());
 				ImGui::Indent();
 				for (auto lslot : uni.second->linkedSlots)
@@ -808,7 +808,7 @@ bool BaseNode::DrawDebugInfos(BaseNodeState *vBaseNodeState)
 			for (auto & uni : m_Outputs) // input calls
 			{
 				ImGui::Text("Name : %s", uni.second->name.c_str());
-				ImGui::Text("Type : %s", GetStringFromNodeSlotTypeEnum(uni.second->slotType).c_str());
+				ImGui::Text("Type : %s", uni.second->slotType.c_str());
 				ImGui::Text("Count connections : %u", (uint32_t)uni.second->linkedSlots.size());
 				ImGui::Indent();
 				for (auto lslot : uni.second->linkedSlots)
@@ -1269,7 +1269,7 @@ NodeSlotWeak BaseNode::FindNodeSlotById(nd::NodeId vNodeId, nd::PinId vSlotId)
 	return NodeSlotWeak();
 }
 
-std::vector<NodeSlotWeak> BaseNode::GetSlotsOfType(NodeSlotPlaceEnum vPlace, NodeSlotTypeEnum vType)
+std::vector<NodeSlotWeak> BaseNode::GetSlotsOfType(NodeSlotPlaceEnum vPlace, std::string vType)
 {
 	std::vector<NodeSlotWeak> slots;
 
@@ -1297,12 +1297,12 @@ std::vector<NodeSlotWeak> BaseNode::GetSlotsOfType(NodeSlotPlaceEnum vPlace, Nod
 	return slots;
 }
 
-std::vector<NodeSlotWeak> BaseNode::GetInputSlotsOfType(NodeSlotTypeEnum vType)
+std::vector<NodeSlotWeak> BaseNode::GetInputSlotsOfType(std::string vType)
 {
 	return GetSlotsOfType(NodeSlotPlaceEnum::INPUT, vType);
 }
 
-std::vector<NodeSlotWeak> BaseNode::GetOutputSlotsOfType(NodeSlotTypeEnum vType)
+std::vector<NodeSlotWeak> BaseNode::GetOutputSlotsOfType(std::string vType)
 {
 	return GetSlotsOfType(NodeSlotPlaceEnum::OUTPUT , vType);
 }
@@ -2593,7 +2593,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 				else if (attName == "name")
 					slot.name = attValue;
 				else if (attName == "type")
-					slot.slotType = GetNodeSlotTypeEnumFromString(attValue);
+					slot.slotType = attValue;
 				else if (attName == "place")
 					slot.slotPlace = GetNodeSlotPlaceEnumFromString(attValue);
 				else if (attName == "id")

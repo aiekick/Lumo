@@ -535,7 +535,6 @@ namespace vkApi
 		//Descriptor Pool
 		std::vector<vk::DescriptorPoolSize> descriptorPoolSizes =
 		{
-			vk::DescriptorPoolSize(vk::DescriptorType::eAccelerationStructureKHR, 1000), // RTX
 			vk::DescriptorPoolSize(vk::DescriptorType::eSampler, 1000),
 			vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, 1000),
 			//vk::DescriptorPoolSize(vk::DescriptorType::eSampledImage, 1000),
@@ -548,6 +547,11 @@ namespace vkApi
 			//vk::DescriptorPoolSize(vk::DescriptorType::eStorageBufferDynamic, 1000),
 			//vk::DescriptorPoolSize(vk::DescriptorType::eInputAttachment, 1000)
 		};
+
+		if (m_VulkanDevicePtr->m_Use_RTX)
+		{
+			descriptorPoolSizes.push_back(vk::DescriptorPoolSize(vk::DescriptorType::eAccelerationStructureKHR, 1000));
+		}
 
 		m_DescriptorPool = m_VulkanDevicePtr->m_LogDevice.createDescriptorPool(
 			vk::DescriptorPoolCreateInfo(
@@ -591,7 +595,12 @@ namespace vkApi
 		ZoneScoped;
 
 		VmaAllocatorCreateInfo allocatorInfo = {};
-		allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;  // VK_API_VERSION_1_2
+
+		if (m_VulkanDevicePtr->m_Use_RTX)
+		{
+			allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;  // VK_API_VERSION_1_2
+		}
+
 		allocatorInfo.physicalDevice = (VkPhysicalDevice)m_VulkanDevicePtr->m_PhysDevice;
 		allocatorInfo.device = (VkDevice)m_VulkanDevicePtr->m_LogDevice;
 		allocatorInfo.instance = (VkInstance)m_VulkanDevicePtr->m_Instance;

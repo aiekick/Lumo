@@ -340,17 +340,17 @@ public:
 	/// <summary>
 	/// ca retourner la liste des slots d'un type particulier et d'une place particuliere
 	/// </summary>
-	std::vector<NodeSlotWeak> GetSlotsOfType(NodeSlotPlaceEnum vPlace, NodeSlotTypeEnum vType);
+	std::vector<NodeSlotWeak> GetSlotsOfType(NodeSlotPlaceEnum vPlace, std::string vType);
 
 	/// <summary>
 	/// va retourne la liste des input slot d'un type particulier
 	/// </summary>
-	std::vector<NodeSlotWeak> GetInputSlotsOfType(NodeSlotTypeEnum vType);
+	std::vector<NodeSlotWeak> GetInputSlotsOfType(std::string vType);
 
 	/// <summary>
 	/// va retourne la liste des output slot d'un type particulier
 	/// </summary>
-	std::vector<NodeSlotWeak> GetOutputSlotsOfType(NodeSlotTypeEnum vType);
+	std::vector<NodeSlotWeak> GetOutputSlotsOfType(std::string vType);
 
 	// Add slots
 	NodeSlotWeak AddInput(NodeSlot vFlow, bool vIncSlotId = false, bool vHideName = true);

@@ -43,7 +43,7 @@ bool MeshNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Model";
 
 	NodeSlot slot;
-	slot.slotType = NodeSlotTypeEnum::MESH;
+	slot.slotType = "MESH";
 	slot.name = "Output";
 	slot.showWidget = true;
 	AddOutput(slot, true, true);
@@ -94,7 +94,7 @@ void MeshNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlo
 	{
 	case NotifyEvent::ModelUpdateDone:
 	{
-		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::MESH);
+		auto slots = GetOutputSlotsOfType("MESH");
 		for (const auto& slot : slots)
 		{
 			auto slotPtr = slot.getValidShared();

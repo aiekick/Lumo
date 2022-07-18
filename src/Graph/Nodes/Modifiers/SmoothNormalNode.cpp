@@ -43,11 +43,11 @@ bool SmoothNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Smooth Normal";
 
 	NodeSlot slot;
-	slot.slotType = NodeSlotTypeEnum::MESH;
+	slot.slotType = "MESH";
 	slot.showWidget = true;
 	AddInput(slot, true, true);
 
-	slot.slotType = NodeSlotTypeEnum::MESH;
+	slot.slotType = "MESH";
 	slot.name = "Output";
 	slot.showWidget = true;
 	AddOutput(slot, true, true);
@@ -190,7 +190,7 @@ void SmoothNormalNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEm
 		}
 
 		// notify on outputs than the mesh have changed
-		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::MESH);
+		auto slots = GetOutputSlotsOfType("MESH");
 		for (const auto& slot : slots)
 		{
 			auto slotPtr = slot.getValidShared();

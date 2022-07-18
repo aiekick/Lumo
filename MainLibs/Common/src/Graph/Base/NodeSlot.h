@@ -32,71 +32,6 @@ limitations under the License.
 
 namespace nd = ax::NodeEditor;
 
-enum class NodeSlotTypeEnum : uint8_t
-{
-	NONE = 0,
-	MESH,
-	MESH_GROUP,
-	LIGHT_GROUP,
-	ENVIRONMENT,
-	MERGED,
-	TEXTURE_2D,
-	TEXTURE_2D_GROUP,
-	TEXTURE_3D,
-	MIXED,
-	TYPE_BOOLEAN,
-	TYPE_UINT,
-	TYPE_INT,
-	TYPE_FLOAT,
-	DEPTH,
-	Count
-};
-
-inline static std::string GetStringFromNodeSlotTypeEnum(const NodeSlotTypeEnum& vNodeSlotTypeEnum)
-{
-	static std::array<std::string, (uint32_t)NodeSlotTypeEnum::Count> NodeSlotTypeString = {
-		"NONE",
-		"MESH",
-		"MESH_GROUP",
-		"LIGHT_GROUP",
-		"ENVIRONMENT",
-		"MERGED",
-		"TEXTURE_2D",
-		"TEXTURE_2D_GROUP",
-		"TEXTURE_3D",
-		"MIXED",
-		"TYPE_BOOLEAN",
-		"TYPE_UINT",
-		"TYPE_INT",
-		"TYPE_FLOAT",
-		"DEPTH",
-	};
-	if (vNodeSlotTypeEnum != NodeSlotTypeEnum::Count)
-		return NodeSlotTypeString[(int)vNodeSlotTypeEnum];
-	LogVarDebug("Error, one NodeSlotTypeEnum have no corresponding string, return \"None\"");
-	return "NONE";
-}
-
-inline static NodeSlotTypeEnum GetNodeSlotTypeEnumFromString(const std::string& vNodeSlotTypeString)
-{
-	if (vNodeSlotTypeString == "NONE") return NodeSlotTypeEnum::NONE;
-	else if (vNodeSlotTypeString == "MESH") return NodeSlotTypeEnum::MESH;
-	else if (vNodeSlotTypeString == "MESH_GROUP") return NodeSlotTypeEnum::MESH;
-	else if (vNodeSlotTypeString == "LIGHT_GROUP") return NodeSlotTypeEnum::LIGHT_GROUP;
-	else if (vNodeSlotTypeString == "ENVIRONMENT") return NodeSlotTypeEnum::ENVIRONMENT;
-	else if (vNodeSlotTypeString == "MERGED") return NodeSlotTypeEnum::MERGED;
-	else if (vNodeSlotTypeString == "TEXTURE_2D") return NodeSlotTypeEnum::TEXTURE_2D;
-	else if (vNodeSlotTypeString == "TEXTURE_2D_GROUP") return NodeSlotTypeEnum::TEXTURE_2D_GROUP;
-	else if (vNodeSlotTypeString == "TEXTURE_3D") return NodeSlotTypeEnum::TEXTURE_3D;
-	else if (vNodeSlotTypeString == "MIXED") return NodeSlotTypeEnum::MIXED;
-	else if (vNodeSlotTypeString == "TYPE_BOOLEAN") return NodeSlotTypeEnum::TYPE_BOOLEAN;
-	else if (vNodeSlotTypeString == "TYPE_UINT") return NodeSlotTypeEnum::TYPE_UINT;
-	else if (vNodeSlotTypeString == "TYPE_INT") return NodeSlotTypeEnum::TYPE_INT;
-	else if (vNodeSlotTypeString == "TYPE_FLOAT") return NodeSlotTypeEnum::TYPE_FLOAT;
-	else if (vNodeSlotTypeString == "DEPTH") return NodeSlotTypeEnum::DEPTH;
-	return NodeSlotTypeEnum::NONE;
-}
-
 enum class NodeSlotPlaceEnum : uint8_t
 {
 	NONE = 0,
@@ -136,14 +71,14 @@ class NodeSlot :
 {
 public:
 	static size_t GetNewSlotId();
-	static ImVec4 GetSlotColorAccordingToType(const NodeSlotTypeEnum& vNodeSlotType);
+	static ImVec4 GetSlotColorAccordingToType(const std::string& vNodeSlotType);
 	static NodeSlotPtr Create(NodeSlot vSlot);
 
 public:
 	NodeSlotWeak m_This;
 
 public:
-	NodeSlotTypeEnum slotType = NodeSlotTypeEnum::NONE;
+	std::string slotType = "NONE";
 	NodeSlotPlaceEnum slotPlace = NodeSlotPlaceEnum::INPUT;
 
 public:
@@ -195,9 +130,9 @@ public:
 public:
 	explicit NodeSlot();
 	explicit NodeSlot(std::string vName);
-	explicit NodeSlot(std::string vName, NodeSlotTypeEnum vType);
-	explicit NodeSlot(std::string vName, NodeSlotTypeEnum vType, bool vHideName);
-	explicit NodeSlot(std::string vName, NodeSlotTypeEnum vType, bool vHideName, bool vShowWidget);
+	explicit NodeSlot(std::string vName, std::string vType);
+	explicit NodeSlot(std::string vName, std::string vType, bool vHideName);
+	explicit NodeSlot(std::string vName, std::string vType, bool vHideName, bool vShowWidget);
 	~NodeSlot();
 
 	void Init();

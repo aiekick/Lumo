@@ -44,52 +44,52 @@ bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Position";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Normal";
 	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Albedo";
 	slot.descriptorBinding = 2U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Diffuse";
 	slot.descriptorBinding = 3U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Specular";
 	slot.descriptorBinding = 4U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Attenuation";
 	slot.descriptorBinding = 5U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Mask";
 	slot.descriptorBinding = 6U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "AO";
 	slot.descriptorBinding = 7U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Shadow";
 	slot.descriptorBinding = 8U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
@@ -202,7 +202,7 @@ void DeferredRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlo
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
@@ -225,7 +225,7 @@ void DeferredRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, Node
 	{
 		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}

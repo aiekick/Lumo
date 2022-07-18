@@ -33,53 +33,60 @@ size_t NodeSlot::GetNewSlotId()
 	return SLOT_ID_OFFSET + (++BaseNode::freeNodeId);
 }
 
-ImVec4 NodeSlot::GetSlotColorAccordingToType(const NodeSlotTypeEnum& vNodeSlotType)
+ImVec4 NodeSlot::GetSlotColorAccordingToType(const std::string& vNodeSlotType)
 {
 	ImVec4 res = ImVec4(0.8f, 0.8f, 0.0f, 1.0f);
 
-	switch (vNodeSlotType)
+	if (vNodeSlotType == "NONE")
 	{
-	case NodeSlotTypeEnum::NONE:
 		res = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::MESH:
+	}
+	else if (vNodeSlotType == "MESH")
+	{
 		res = ImVec4(0.5f, 0.5f, 0.9f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::MESH_GROUP:
+	}
+	else if (vNodeSlotType == "MESH_GROUP")
+	{
 		res = ImVec4(0.1f, 0.1f, 0.8f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::LIGHT_GROUP:
+	}
+	else if (vNodeSlotType == "LIGHT_GROUP")
+	{
 		res = ImVec4(0.9f, 0.9f, 0.1f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::ENVIRONMENT:
+	}
+	else if (vNodeSlotType == "ENVIRONMENT")
+	{
 		res = ImVec4(0.1f, 0.9f, 0.1f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::MERGED:
+	}
+	else if (vNodeSlotType == "MERGED")
+	{
 		res = ImVec4(0.1f, 0.5f, 0.9f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::TEXTURE_2D:
+	}
+	else if (vNodeSlotType == "TEXTURE_2D")
+	{
 		res = ImVec4(0.9f, 0.5f, 0.1f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::TEXTURE_2D_GROUP:
+	}
+	else if (vNodeSlotType == "TEXTURE_2D_GROUP")
+	{
 		res = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::TEXTURE_3D:
+	}
+	else if (vNodeSlotType == "TEXTURE_3D")
+	{
 		res = ImVec4(0.9f, 0.8f, 0.3f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::MIXED:
+	}
+	else if (vNodeSlotType == "MIXED")
+	{
 		res = ImVec4(0.3f, 0.5f, 0.1f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::TYPE_BOOLEAN:
-	case NodeSlotTypeEnum::TYPE_UINT:
-	case NodeSlotTypeEnum::TYPE_INT:
-	case NodeSlotTypeEnum::TYPE_FLOAT:
+	}
+	else if (vNodeSlotType == "TYPE_BOOLEAN" ||
+		vNodeSlotType == "TYPE_UINT" ||
+		vNodeSlotType == "TYPE_INT" ||
+		vNodeSlotType == "TYPE_FLOAT")
+	{
 		res = ImVec4(0.8f, 0.7f, 0.6f, 1.0f);
-		break;
-	case NodeSlotTypeEnum::DEPTH:
+	}
+	else if (vNodeSlotType == "DEPTH")
+	{
 		res = ImVec4(0.2f, 0.7f, 0.6f, 1.0f);
-		break;
-	default:
-		break;
 	}
 
 	return res;
@@ -107,7 +114,7 @@ NodeSlot::NodeSlot(std::string vName)
 	name = vName;
 }
 
-NodeSlot::NodeSlot(std::string vName, NodeSlotTypeEnum vType)
+NodeSlot::NodeSlot(std::string vName, std::string vType)
 {
 	pinID = GetNewSlotId();
 	name = vName;
@@ -117,7 +124,7 @@ NodeSlot::NodeSlot(std::string vName, NodeSlotTypeEnum vType)
 	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
 }
 
-NodeSlot::NodeSlot(std::string vName, NodeSlotTypeEnum vType, bool vHideName)
+NodeSlot::NodeSlot(std::string vName, std::string vType, bool vHideName)
 {
 	pinID = GetNewSlotId();
 	name = vName;
@@ -128,7 +135,7 @@ NodeSlot::NodeSlot(std::string vName, NodeSlotTypeEnum vType, bool vHideName)
 	hideName = vHideName;
 }
 
-NodeSlot::NodeSlot(std::string vName, NodeSlotTypeEnum vType, bool vHideName, bool vShowWidget)
+NodeSlot::NodeSlot(std::string vName, std::string vType, bool vHideName, bool vShowWidget)
 {
 	pinID = GetNewSlotId();
 	name = vName;
@@ -430,7 +437,7 @@ void NodeSlot::DrawSlotText(BaseNodeState *vBaseNodeState)
 			{
 				//slotName = stamp.typeStamp; // valable seulement en mode blueprint
 
-				slotName = GetStringFromNodeSlotTypeEnum(slotType);
+				slotName = slotType;
 
 				if (vBaseNodeState->debug_mode)
 				{
@@ -475,7 +482,7 @@ void NodeSlot::DrawSlotText(BaseNodeState *vBaseNodeState)
 			{
 				//slotName = stamp.typeStamp; // valable seulement en mode blueprint
 
-				slotName = GetStringFromNodeSlotTypeEnum(slotType);
+				slotName = slotType;
 
 				if (vBaseNodeState->debug_mode)
 				{
@@ -520,7 +527,7 @@ std::string NodeSlot::getXml(const std::string& vOffset, const std::string& /*vU
 	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\"/>\n",
 		index,
 		name.c_str(),
-		GetStringFromNodeSlotTypeEnum(slotType).c_str(),
+		slotType.c_str(),
 		GetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
 		(uint32_t)pinID.Get());
 
@@ -544,7 +551,7 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 	{
 		uint32_t _index = 0U;
 		std::string _name;
-		NodeSlotTypeEnum _type = NodeSlotTypeEnum::NONE;
+		std::string _type = "NONE";
 		NodeSlotPlaceEnum _place = NodeSlotPlaceEnum::NONE;
 		uint32_t _pinId = 0U;
 
@@ -558,7 +565,7 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			else if (attName == "name")
 				_name = attValue;
 			else if (attName == "type")
-				_type = GetNodeSlotTypeEnumFromString(attValue);
+				_type = attValue;
 			else if (attName == "place")
 				_place = GetNodeSlotPlaceEnumFromString(attValue);
 			else if (attName == "id")

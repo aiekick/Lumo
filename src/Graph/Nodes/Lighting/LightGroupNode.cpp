@@ -43,7 +43,7 @@ bool LightGroupNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Lights";
 
 	NodeSlot slot;
-	slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
+	slot.slotType = "LIGHT_GROUP";
 	slot.name = "Output";
 	AddOutput(slot, true, true);
 
@@ -105,7 +105,7 @@ void LightGroupNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmi
 	{
 	case NotifyEvent::LightGroupUpdateDone:
 	{
-		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::LIGHT_GROUP);
+		auto slots = GetOutputSlotsOfType("LIGHT_GROUP");
 		for (const auto& slot : slots)
 		{
 			auto slotPtr = slot.getValidShared();

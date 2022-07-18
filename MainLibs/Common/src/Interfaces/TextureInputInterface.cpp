@@ -28,11 +28,11 @@ void TextureInputFunctions::UpdateTextureInputDescriptorImageInfos(const std::ma
 {
 	ct::fvec2 texSize;
 	for (const auto& input : vInputs) {
-		if (input.second && input.second->slotType == NodeSlotTypeEnum::TEXTURE_2D) {
+		if (input.second && input.second->slotType == "TEXTURE_2D") {
 			for (auto slot : input.second->linkedSlots) {
 				auto otherSLotPtr = slot.getValidShared();
 				if (otherSLotPtr) {
-					if (otherSLotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D) {
+					if (otherSLotPtr->slotType == "TEXTURE_2D") {
 						auto otherParentPtr = otherSLotPtr->parentNode.getValidShared();
 						if (otherParentPtr) {
 							auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(otherParentPtr);

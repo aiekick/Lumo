@@ -44,7 +44,7 @@ bool Output3DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Scene Output 3D";
 
 	NodeSlot slot;
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Output";
 	m_InputSlot = AddInput(slot, true, true);
 

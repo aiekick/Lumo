@@ -45,13 +45,13 @@ bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	NodeSlot slot;
 
 	if (m_NodeTypeString == "WIDGET_BOOLEAN")
-		slot.slotType = NodeSlotTypeEnum::TYPE_BOOLEAN;
+		slot.slotType = "TYPE_BOOLEAN";
 	else if (m_NodeTypeString == "WIDGET_FLOAT")
-		slot.slotType = NodeSlotTypeEnum::TYPE_FLOAT;
+		slot.slotType = "TYPE_FLOAT";
 	else if (m_NodeTypeString == "WIDGET_INT")
-		slot.slotType = NodeSlotTypeEnum::TYPE_INT;
+		slot.slotType = "TYPE_INT";
 	else if (m_NodeTypeString == "WIDGET_UINT")
-		slot.slotType = NodeSlotTypeEnum::TYPE_UINT;
+		slot.slotType = "TYPE_UINT";
 
 	slot.showWidget = true;
 	AddOutput(slot, true, false);
@@ -121,7 +121,7 @@ void VariableNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmite
 	{
 	case NotifyEvent::VariableUpdateDone:
 	{
-		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::TYPE_BOOLEAN);
+		auto slots = GetOutputSlotsOfType("TYPE_BOOLEAN");
 		for (const auto& slot : slots)
 		{
 			auto slotPtr = slot.getValidShared();

@@ -43,7 +43,7 @@ bool Texture2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Texture 2D";
 
 	NodeSlot slot;
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Output";
 	slot.showWidget = true;
 	AddOutput(slot, true, true);
@@ -94,7 +94,7 @@ void Texture2DNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmit
 	{
 	case NotifyEvent::TextureUpdateDone:
 	{
-		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::TEXTURE_2D);
+		auto slots = GetOutputSlotsOfType("TEXTURE_2D");
 		for (const auto& slot : slots)
 		{
 			auto slotPtr = slot.getValidShared();

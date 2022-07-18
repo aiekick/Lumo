@@ -46,15 +46,15 @@ bool RtxPbrRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::MESH;
+	slot.slotType = "MESH";
 	slot.name = "Model";
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
+	slot.slotType = "LIGHT_GROUP";
 	slot.name = "Lights";
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
@@ -173,7 +173,7 @@ void RtxPbrRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::MESH)
+			if (startSlotPtr->slotType == "MESH")
 			{
 				auto otherModelNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherModelNodePtr)
@@ -181,7 +181,7 @@ void RtxPbrRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 					SetModel(otherModelNodePtr->GetModel());
 				}
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
+			else if (startSlotPtr->slotType == "LIGHT_GROUP")
 			{
 				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherLightGroupNodePtr)
@@ -202,11 +202,11 @@ void RtxPbrRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 	{
 		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::MESH)
+			if (startSlotPtr->slotType == "MESH")
 			{
 				SetModel();
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
+			else if (startSlotPtr->slotType == "LIGHT_GROUP")
 			{
 				SetLightGroup();
 			}

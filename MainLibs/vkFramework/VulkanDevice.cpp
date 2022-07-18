@@ -770,7 +770,7 @@ namespace vkApi
 		// for using int64_t and uint64_t in a sahder code
 		// need to add in a shader :
 		// #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
-		printf("Feature vk 1.0 : int64 in a Shader\n");
+		printf("Feature vk 1.0 : int64/uint64 in a Shader\n");
 		m_PhysDeviceFeatures.setShaderInt64(true);
 
 		m_PhysDeviceFeatures2.setFeatures(m_PhysDeviceFeatures);

@@ -44,7 +44,7 @@ bool BreakTexturesGroupNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Break Tex2D Group";
 
 	NodeSlot slot;
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D_GROUP;
+	slot.slotType = "TEXTURE_2D_GROUP";
 	slot.name = "Textures";
 	slot.descriptorBinding = 0U; // target a texture input
 	AddInput(slot, true, false);
@@ -117,7 +117,7 @@ void BreakTexturesGroupNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeS
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP)
+			if (startSlotPtr->slotType == "TEXTURE_2D_GROUP")
 			{
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
@@ -141,7 +141,7 @@ void BreakTexturesGroupNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, No
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP)
+			if (startSlotPtr->slotType == "TEXTURE_2D_GROUP")
 			{
 				SetTextures(startSlotPtr->descriptorBinding, nullptr, nullptr);
 				ReorganizeSlots();
@@ -245,7 +245,7 @@ void BreakTexturesGroupNode::ReorganizeSlots()
 	for (auto& info : m_Textures)
 	{
 		NodeSlot slot;
-		slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+		slot.slotType = "TEXTURE_2D";
 		slot.name = ct::toStr("Output %u", idx);
 		slot.descriptorBinding = idx;
 		AddOutput(slot, true, true);

@@ -44,12 +44,12 @@ bool DepthToPosNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::DEPTH;
+	slot.slotType = "DEPTH";
 	slot.name = "Depth";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Pos";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, false);
@@ -138,7 +138,7 @@ void DepthToPosNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak 
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
@@ -161,7 +161,7 @@ void DepthToPosNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWe
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}

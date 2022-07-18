@@ -44,12 +44,12 @@ bool BlurNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Input";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
@@ -138,7 +138,7 @@ void BlurNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSl
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
@@ -161,7 +161,7 @@ void BlurNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEn
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}

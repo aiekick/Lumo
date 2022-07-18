@@ -27,11 +27,11 @@ limitations under the License.
 void TextureGroupInputFunctions::UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs)
 {
 	for (const auto& input : vInputs) {
-		if (input.second && input.second->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP) {
+		if (input.second && input.second->slotType == "TEXTURE_2D_GROUP") {
 			for (auto slot : input.second->linkedSlots) {
 				auto otherSLotPtr = slot.getValidShared();
 				if (otherSLotPtr) {
-					if (otherSLotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP) {
+					if (otherSLotPtr->slotType == "TEXTURE_2D_GROUP") {
 						auto otherParentPtr = otherSLotPtr->parentNode.getValidShared();
 						if (otherParentPtr) {
 							auto otherNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(otherParentPtr);

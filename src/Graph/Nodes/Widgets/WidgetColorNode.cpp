@@ -44,7 +44,7 @@ bool WidgetColorNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 	
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Color";
 	slot.showWidget = true;
 	AddOutput(slot, true, true);
@@ -159,7 +159,7 @@ void WidgetColorNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 	{
 	case NotifyEvent::TextureUpdateDone:
 	{
-		auto slots = GetOutputSlotsOfType(NodeSlotTypeEnum::TEXTURE_2D);
+		auto slots = GetOutputSlotsOfType("TEXTURE_2D");
 		for (const auto& slot : slots)
 		{
 			auto slotPtr = slot.getValidShared();

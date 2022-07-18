@@ -44,7 +44,7 @@ bool GridNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Grid / Axis";
 
 	NodeSlot slot;
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Output";
 	AddOutput(slot, true, true);
 

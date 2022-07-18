@@ -46,41 +46,41 @@ bool PBRRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = NodeSlotTypeEnum::LIGHT_GROUP;
+	slot.slotType = "LIGHT_GROUP";
 	slot.name = "Lights";
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Position";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Normal";
 	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Albedo";
 	slot.descriptorBinding = 2U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Mask";
 	slot.descriptorBinding = 3U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "AO";
 	slot.descriptorBinding = 4U;
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D_GROUP;
+	slot.slotType = "TEXTURE_2D_GROUP";
 	slot.name = "Shadow Maps";
 	slot.descriptorBinding = 0U; // target a texture group input
 	AddInput(slot, true, false);
 
-	slot.slotType = NodeSlotTypeEnum::TEXTURE_2D;
+	slot.slotType = "TEXTURE_2D";
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
@@ -209,7 +209,7 @@ void PBRRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
@@ -219,7 +219,7 @@ void PBRRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
 				}
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
+			else if (startSlotPtr->slotType == "LIGHT_GROUP")
 			{
 				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherLightGroupNodePtr)
@@ -227,7 +227,7 @@ void PBRRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak
 					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
 				}
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP)
+			else if (startSlotPtr->slotType == "TEXTURE_2D_GROUP")
 			{
 				auto otherTextureNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
@@ -250,15 +250,15 @@ void PBRRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 	{
 		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
 		{
-			if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D)
+			if (startSlotPtr->slotType == "TEXTURE_2D")
 			{
 				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::LIGHT_GROUP)
+			else if (startSlotPtr->slotType == "LIGHT_GROUP")
 			{
 				SetLightGroup();
 			}
-			else if (startSlotPtr->slotType == NodeSlotTypeEnum::TEXTURE_2D_GROUP)
+			else if (startSlotPtr->slotType == "TEXTURE_2D_GROUP")
 			{
 				SetTextures(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}

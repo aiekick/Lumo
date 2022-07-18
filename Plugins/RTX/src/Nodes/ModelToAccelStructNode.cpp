@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "MatcapRendererNode.h"
-#include <Modules/Renderers/MatcapRenderer.h>
+#include "ModelToAccelStructNode.h"
+#include <Modules/RtxPbrRenderer.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-std::shared_ptr<MatcapRendererNode> MatcapRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ModelToAccelStructNode> ModelToAccelStructNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<MatcapRendererNode>();
+	auto res = std::make_shared<ModelToAccelStructNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -29,29 +29,28 @@ std::shared_ptr<MatcapRendererNode> MatcapRendererNode::Create(vkApi::VulkanCore
 	return res;
 }
 
-MatcapRendererNode::MatcapRendererNode() : BaseNode()
+ModelToAccelStructNode::ModelToAccelStructNode() : BaseNode()
 {
-	m_NodeTypeString = "MATCAP_RENDERER";
+	m_NodeTypeString = "RTX_MODEL_TO_ACCELERATION_STRUCTURE";
 }
 
-MatcapRendererNode::~MatcapRendererNode()
+ModelToAccelStructNode::~ModelToAccelStructNode()
 {
 	Unit();
 }
 
-bool MatcapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ModelToAccelStructNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Matcap";
+	name = "Model to Accel Struct";
 
 	NodeSlot slot;
 
 	slot.slotType = "MESH";
-	slot.name = "3D Model";
+	slot.name = "Model";
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
-	slot.name = "2D Texture";
-	slot.descriptorBinding = 0U;
+	slot.slotType = "LIGHT_GROUP";
+	slot.name = "Lights";
 	AddInput(slot, true, false);
 
 	slot.slotType = "TEXTURE_2D";
@@ -61,8 +60,8 @@ bool MatcapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_MatcapRenderer = MatcapRenderer::Create(vVulkanCorePtr);
-	if (m_MatcapRenderer)
+	m_RtxPbrRendererPtr = RtxPbrRenderer::Create(vVulkanCorePtr);
+	if (m_RtxPbrRendererPtr)
 	{
 		res = true;
 	}
@@ -70,48 +69,46 @@ bool MatcapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-void MatcapRendererNode::Unit()
+void ModelToAccelStructNode::Unit()
 {
-	m_MatcapRenderer.reset();
+	m_RtxPbrRendererPtr.reset();
 }
 
-bool MatcapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ModelToAccelStructNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
-
-	if (m_MatcapRenderer)
+	if (m_RtxPbrRendererPtr)
 	{
-		return m_MatcapRenderer->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-	}
-	return false;
-}
-
-bool MatcapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
-{
-	assert(vContext);
-
-	if (m_MatcapRenderer)
-	{
-		return m_MatcapRenderer->DrawWidgets(vCurrentFrame, vContext);
+		return m_RtxPbrRendererPtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return false;
 }
 
-void MatcapRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool ModelToAccelStructNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	if (m_MatcapRenderer)
+	if (m_RtxPbrRendererPtr)
 	{
-		m_MatcapRenderer->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		return m_RtxPbrRendererPtr->DrawWidgets(vCurrentFrame, vContext);
+	}
+
+	return false;
+}
+
+void ModelToAccelStructNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+{
+	assert(vContext);
+
+	if (m_RtxPbrRendererPtr)
+	{
+		m_RtxPbrRendererPtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void MatcapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void ModelToAccelStructNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
@@ -128,49 +125,50 @@ void MatcapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeStat
 	}
 }
 
-void MatcapRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ModelToAccelStructNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	if (m_MatcapRenderer)
+	if (m_RtxPbrRendererPtr)
 	{
-		m_MatcapRenderer->NeedResize(vNewSize, vCountColorBuffers);
+		m_RtxPbrRendererPtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
 	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void MatcapRendererNode::SetModel(SceneModelWeak vSceneModel)
+vk::DescriptorImageInfo* ModelToAccelStructNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_MatcapRenderer)
+	if (m_RtxPbrRendererPtr)
 	{
-		m_MatcapRenderer->SetModel(vSceneModel);
-	}
-}
-
-void MatcapRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	if (m_MatcapRenderer)
-	{
-		m_MatcapRenderer->SetTexture(vBinding, vImageInfo, vTextureSize);
-	}
-}
-
-vk::DescriptorImageInfo* MatcapRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_MatcapRenderer)
-	{
-		return m_MatcapRenderer->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_RtxPbrRendererPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
+void ModelToAccelStructNode::SetModel(SceneModelWeak vSceneModel)
+{
+	if (m_RtxPbrRendererPtr)
+	{
+		return m_RtxPbrRendererPtr->SetModel(vSceneModel);
+	}
+}
+
+
+void ModelToAccelStructNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{
+	if (m_RtxPbrRendererPtr)
+	{
+		m_RtxPbrRendererPtr->SetLightGroup(vSceneLightGroup);
+	}
+}
+
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MatcapRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void ModelToAccelStructNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MatcapRenderer)
+	if (startSlotPtr && endSlotPtr && m_RtxPbrRendererPtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
@@ -182,14 +180,12 @@ void MatcapRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 					SetModel(otherModelNodePtr->GetModel());
 				}
 			}
-			else if (startSlotPtr->slotType == "TEXTURE_2D")
+			else if (startSlotPtr->slotType == "LIGHT_GROUP")
 			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
+				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherLightGroupNodePtr)
 				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
+					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
 				}
 			}
 		}
@@ -197,27 +193,27 @@ void MatcapRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MatcapRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void ModelToAccelStructNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MatcapRenderer)
+	if (startSlotPtr && endSlotPtr && m_RtxPbrRendererPtr)
 	{
-		if (startSlotPtr->IsAnInput())
+		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
 		{
 			if (startSlotPtr->slotType == "MESH")
 			{
 				SetModel();
 			}
-			else if (startSlotPtr->slotType == "TEXTURE_2D")
+			else if (startSlotPtr->slotType == "LIGHT_GROUP")
 			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
+				SetLightGroup();
 			}
 		}
 	}
 }
 
-void MatcapRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void ModelToAccelStructNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
@@ -237,23 +233,17 @@ void MatcapRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& v
 		}
 		break;
 	}
-	case NotifyEvent::TextureUpdateDone:
+	case NotifyEvent::LightGroupUpdateDone:
 	{
 		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
 				if (otherNodePtr)
 				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
+					SetLightGroup(otherNodePtr->GetLightGroup());
 				}
 			}
 		}
@@ -268,7 +258,7 @@ void MatcapRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& v
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string MatcapRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string ModelToAccelStructNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -288,15 +278,15 @@ std::string MatcapRendererNode::getXml(const std::string& vOffset, const std::st
 		{
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
-
+			
 		for (auto slot : m_Outputs)
 		{
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_MatcapRenderer)
+		if (m_RtxPbrRendererPtr)
 		{
-			res += m_MatcapRenderer->getXml(vOffset + "\t", vUserDatas);
+			res += m_RtxPbrRendererPtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -305,7 +295,7 @@ std::string MatcapRendererNode::getXml(const std::string& vOffset, const std::st
 	return res;
 }
 
-bool MatcapRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool ModelToAccelStructNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -320,10 +310,18 @@ bool MatcapRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_MatcapRenderer)
+	if (m_RtxPbrRendererPtr)
 	{
-		m_MatcapRenderer->setFromXml(vElem, vParent, vUserDatas);
+		m_RtxPbrRendererPtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
+}
+
+void ModelToAccelStructNode::UpdateShaders(const std::set<std::string>& vFiles)
+{
+	if (m_RtxPbrRendererPtr)
+	{
+		m_RtxPbrRendererPtr->UpdateShaders(vFiles);
+	}
 }
