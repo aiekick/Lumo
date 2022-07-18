@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 #include "ModelToAccelStructNode.h"
-#include <Modules/RtxPbrRenderer.h>
 #include <Interfaces/ModelOutputInterface.h>
 
 std::shared_ptr<ModelToAccelStructNode> ModelToAccelStructNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
@@ -49,19 +48,15 @@ bool ModelToAccelStructNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	slot.name = "Model";
 	AddInput(slot, true, false);
 
-	slot.slotType = "LIGHT_GROUP";
-	slot.name = "Lights";
-	AddInput(slot, true, false);
-
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = "RTX_ACCEL_STRUCTURE";
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
 
 	bool res = false;
 
-	m_RtxPbrRendererPtr = RtxPbrRenderer::Create(vVulkanCorePtr);
-	if (m_RtxPbrRendererPtr)
+	m_SceneAccelStructurePtr = SceneAccelStructure::Create(vVulkanCorePtr);
+	if (m_SceneAccelStructurePtr)
 	{
 		res = true;
 	}
@@ -71,41 +66,7 @@ bool ModelToAccelStructNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 void ModelToAccelStructNode::Unit()
 {
-	m_RtxPbrRendererPtr.reset();
-}
-
-bool ModelToAccelStructNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
-
-	if (m_RtxPbrRendererPtr)
-	{
-		return m_RtxPbrRendererPtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-	}
-
-	return false;
-}
-
-bool ModelToAccelStructNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
-{
-	assert(vContext);
-
-	if (m_RtxPbrRendererPtr)
-	{
-		return m_RtxPbrRendererPtr->DrawWidgets(vCurrentFrame, vContext);
-	}
-
-	return false;
-}
-
-void ModelToAccelStructNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	assert(vContext);
-
-	if (m_RtxPbrRendererPtr)
-	{
-		m_RtxPbrRendererPtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+	m_SceneAccelStructurePtr.reset();
 }
 
 void ModelToAccelStructNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
@@ -125,42 +86,29 @@ void ModelToAccelStructNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNode
 	}
 }
 
-void ModelToAccelStructNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ModelToAccelStructNode::SetModel(SceneModelWeak vSceneModel)
 {
-	if (m_RtxPbrRendererPtr)
-	{
-		m_RtxPbrRendererPtr->NeedResize(vNewSize, vCountColorBuffers);
-	}
+	m_SceneModel = vSceneModel;
 
-	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	if (m_SceneAccelStructurePtr)
+	{
+		m_SceneAccelStructurePtr->BuildForModel(m_SceneModel);
+		if (m_SceneAccelStructurePtr->IsOk())
+		{
+			Notify(NotifyEvent::AccelStructureUpdateDone);
+		}
+	}
 }
 
-vk::DescriptorImageInfo* ModelToAccelStructNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::WriteDescriptorSetAccelerationStructureKHR* ModelToAccelStructNode::GetTLASInfo()
 {
-	if (m_RtxPbrRendererPtr)
+	if (m_SceneAccelStructurePtr && 
+		m_SceneAccelStructurePtr->IsOk())
 	{
-		return m_RtxPbrRendererPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_SceneAccelStructurePtr->GetTLASInfo();
 	}
 
 	return nullptr;
-}
-
-void ModelToAccelStructNode::SetModel(SceneModelWeak vSceneModel)
-{
-	if (m_RtxPbrRendererPtr)
-	{
-		return m_RtxPbrRendererPtr->SetModel(vSceneModel);
-	}
-}
-
-
-void ModelToAccelStructNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
-{
-	if (m_RtxPbrRendererPtr)
-	{
-		m_RtxPbrRendererPtr->SetLightGroup(vSceneLightGroup);
-	}
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
@@ -168,7 +116,7 @@ void ModelToAccelStructNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeS
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_RtxPbrRendererPtr)
+	if (startSlotPtr && endSlotPtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
@@ -180,14 +128,6 @@ void ModelToAccelStructNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeS
 					SetModel(otherModelNodePtr->GetModel());
 				}
 			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherLightGroupNodePtr)
-				{
-					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
-				}
-			}
 		}
 	}
 }
@@ -197,17 +137,13 @@ void ModelToAccelStructNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, No
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_RtxPbrRendererPtr)
+	if (startSlotPtr && endSlotPtr)
 	{
 		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
 		{
 			if (startSlotPtr->slotType == "MESH")
 			{
 				SetModel();
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				SetLightGroup();
 			}
 		}
 	}
@@ -217,7 +153,7 @@ void ModelToAccelStructNode::Notify(const NotifyEvent& vEvent, const NodeSlotWea
 {
 	switch (vEvent)
 	{
-	case NotifyEvent::ModelUpdateDone:
+	case NotifyEvent::ModelUpdateDone: // input
 	{
 		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
 		if (emiterSlotPtr)
@@ -233,18 +169,15 @@ void ModelToAccelStructNode::Notify(const NotifyEvent& vEvent, const NodeSlotWea
 		}
 		break;
 	}
-	case NotifyEvent::LightGroupUpdateDone:
+	case NotifyEvent::AccelStructureUpdateDone: // output
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
-		if (emiterSlotPtr)
+		auto slots = GetOutputSlotsOfType("RTX_ACCEL_STRUCTURE");
+		for (const auto& slot : slots)
 		{
-			if (emiterSlotPtr->IsAnOutput())
+			auto slotPtr = slot.getValidShared();
+			if (slotPtr)
 			{
-				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetLightGroup(otherNodePtr->GetLightGroup());
-				}
+				slotPtr->Notify(NotifyEvent::AccelStructureUpdateDone, slot);
 			}
 		}
 		break;
@@ -284,11 +217,6 @@ std::string ModelToAccelStructNode::getXml(const std::string& vOffset, const std
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_RtxPbrRendererPtr)
-		{
-			res += m_RtxPbrRendererPtr->getXml(vOffset + "\t", vUserDatas);
-		}
-
 		res += vOffset + "</node>\n";
 	}
 
@@ -310,18 +238,5 @@ bool ModelToAccelStructNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_RtxPbrRendererPtr)
-	{
-		m_RtxPbrRendererPtr->setFromXml(vElem, vParent, vUserDatas);
-	}
-
 	return true;
-}
-
-void ModelToAccelStructNode::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	if (m_RtxPbrRendererPtr)
-	{
-		m_RtxPbrRendererPtr->UpdateShaders(vFiles);
-	}
 }

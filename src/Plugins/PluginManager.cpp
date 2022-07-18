@@ -78,6 +78,7 @@ bool PluginInstance::Init(vkApi::VulkanCoreWeak vVulkanCoreWeak, const std::stri
 				FileHelper::Instance(), 
 				CommonSystem::Instance(),
 				ImGui::GetCurrentContext(),
+				NodeSlot::GetSlotColors(),
 				ImGui::CustomStyle::Instance()))
 			{
 				m_PluginInstance.reset();
@@ -344,6 +345,7 @@ void PluginManager::AddPlugin(
 {
 	if (!vPluginPtr->Init(
 		vVulkanCoreWeak,
+		nullptr,
 		nullptr,
 		nullptr,
 		nullptr,

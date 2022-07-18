@@ -23,6 +23,42 @@ limitations under the License.
 #include "BaseNode.h"
 static const float slotIconSize = 15.0f;
 
+SlotColor::SlotColor()
+{
+	AddSlotColor("NONE", ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+	AddSlotColor("MESH", ImVec4(0.5f, 0.5f, 0.9f, 1.0f));
+	AddSlotColor("MESH_GROUP", ImVec4(0.1f, 0.1f, 0.8f, 1.0f));
+	AddSlotColor("LIGHT_GROUP", ImVec4(0.9f, 0.9f, 0.1f, 1.0f));
+	AddSlotColor("ENVIRONMENT", ImVec4(0.1f, 0.9f, 0.1f, 1.0f));
+	AddSlotColor("MERGED", ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
+	AddSlotColor("TEXTURE_2D", ImVec4(0.9f, 0.5f, 0.1f, 1.0f));
+	AddSlotColor("TEXTURE_2D_GROUP", ImVec4(0.2f, 0.9f, 0.2f, 1.0f));
+	AddSlotColor("TEXTURE_3D", ImVec4(0.9f, 0.8f, 0.3f, 1.0f));
+	AddSlotColor("MIXED", ImVec4(0.3f, 0.5f, 0.1f, 1.0f));
+	AddSlotColor("TYPE_BOOLEAN", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+	AddSlotColor("TYPE_UINT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+	AddSlotColor("TYPE_INT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+	AddSlotColor("TYPE_FLOAT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+	AddSlotColor("DEPTH", ImVec4(0.2f, 0.7f, 0.6f, 1.0f));
+}
+
+ImVec4 SlotColor::GetSlotColor(const std::string& vNodeSlotType)
+{
+	ImVec4 res = ImVec4(0.8f, 0.8f, 0.0f, 1.0f);
+
+	if (m_ColorSlots.find(vNodeSlotType) != m_ColorSlots.end())
+	{
+		res = m_ColorSlots.at(vNodeSlotType);
+	}
+
+	return res;
+}
+
+void SlotColor::AddSlotColor(const std::string& vNodeSlotType, const ImVec4& vSlotColor)
+{
+	m_ColorSlots[vNodeSlotType] = vSlotColor;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,63 +69,16 @@ size_t NodeSlot::GetNewSlotId()
 	return SLOT_ID_OFFSET + (++BaseNode::freeNodeId);
 }
 
-ImVec4 NodeSlot::GetSlotColorAccordingToType(const std::string& vNodeSlotType)
+// static are null when a plugin is loaded
+SlotColor* NodeSlot::GetSlotColors(SlotColor* vCopy, bool vForce)
 {
-	ImVec4 res = ImVec4(0.8f, 0.8f, 0.0f, 1.0f);
-
-	if (vNodeSlotType == "NONE")
-	{
-		res = ImVec4(0.5f, 0.5f, 0.5f, 1.0f);
-	}
-	else if (vNodeSlotType == "MESH")
-	{
-		res = ImVec4(0.5f, 0.5f, 0.9f, 1.0f);
-	}
-	else if (vNodeSlotType == "MESH_GROUP")
-	{
-		res = ImVec4(0.1f, 0.1f, 0.8f, 1.0f);
-	}
-	else if (vNodeSlotType == "LIGHT_GROUP")
-	{
-		res = ImVec4(0.9f, 0.9f, 0.1f, 1.0f);
-	}
-	else if (vNodeSlotType == "ENVIRONMENT")
-	{
-		res = ImVec4(0.1f, 0.9f, 0.1f, 1.0f);
-	}
-	else if (vNodeSlotType == "MERGED")
-	{
-		res = ImVec4(0.1f, 0.5f, 0.9f, 1.0f);
-	}
-	else if (vNodeSlotType == "TEXTURE_2D")
-	{
-		res = ImVec4(0.9f, 0.5f, 0.1f, 1.0f);
-	}
-	else if (vNodeSlotType == "TEXTURE_2D_GROUP")
-	{
-		res = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
-	}
-	else if (vNodeSlotType == "TEXTURE_3D")
-	{
-		res = ImVec4(0.9f, 0.8f, 0.3f, 1.0f);
-	}
-	else if (vNodeSlotType == "MIXED")
-	{
-		res = ImVec4(0.3f, 0.5f, 0.1f, 1.0f);
-	}
-	else if (vNodeSlotType == "TYPE_BOOLEAN" ||
-		vNodeSlotType == "TYPE_UINT" ||
-		vNodeSlotType == "TYPE_INT" ||
-		vNodeSlotType == "TYPE_FLOAT")
-	{
-		res = ImVec4(0.8f, 0.7f, 0.6f, 1.0f);
-	}
-	else if (vNodeSlotType == "DEPTH")
-	{
-		res = ImVec4(0.2f, 0.7f, 0.6f, 1.0f);
-	}
-
-	return res;
+	static SlotColor _SlotColor;
+	static SlotColor* _SlotColor_copy = nullptr;
+	if (vCopy || vForce)
+		_SlotColor_copy = vCopy;
+	if (_SlotColor_copy)
+		return _SlotColor_copy;
+	return &_SlotColor;
 }
 
 NodeSlotPtr NodeSlot::Create(NodeSlot vSlot)
@@ -119,7 +108,7 @@ NodeSlot::NodeSlot(std::string vName, std::string vType)
 	pinID = GetNewSlotId();
 	name = vName;
 	slotType = vType;
-	color = GetSlotColorAccordingToType(slotType);
+	color = GetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
 }
@@ -129,7 +118,7 @@ NodeSlot::NodeSlot(std::string vName, std::string vType, bool vHideName)
 	pinID = GetNewSlotId();
 	name = vName;
 	slotType = vType;
-	color = GetSlotColorAccordingToType(slotType);
+	color = GetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
 	hideName = vHideName;
@@ -140,7 +129,7 @@ NodeSlot::NodeSlot(std::string vName, std::string vType, bool vHideName, bool vS
 	pinID = GetNewSlotId();
 	name = vName;
 	slotType = vType;
-	color = GetSlotColorAccordingToType(slotType);
+	color = GetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
 	hideName = vHideName;
@@ -330,7 +319,7 @@ void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 			{
 				if (!colorIsSet)
 				{
-					color = GetSlotColorAccordingToType(slotType);
+					color = GetSlotColors()->GetSlotColor(slotType);
 					colorIsSet = true;
 				}
 

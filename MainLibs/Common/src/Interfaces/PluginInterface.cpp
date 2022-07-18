@@ -7,6 +7,7 @@
 #include <Systems/CommonSystem.h>
 #include <ImWidgets/ImWidgets.h>
 #include <vkFramework/VulkanWindow.h>
+#include <Graph/Base/NodeSlot.h>
 
 PluginInterface::~PluginInterface()
 {
@@ -18,6 +19,7 @@ bool PluginInterface::Init(
 	FileHelper* vFileHelper, 
 	CommonSystem* vCommonSystem,
 	ImGuiContext* vContext,
+	SlotColor *vSlotColor,
 	ImGui::CustomStyle* vCustomStyle)
 {
 	// on transfere les singleton dans l'espace memoire static de la dll
@@ -34,6 +36,7 @@ bool PluginInterface::Init(
 			assert(vFileHelper);
 			assert(vCommonSystem);
 			assert(vContext);
+			assert(vSlotColor);
 			assert(vCustomStyle);
 
 			iSinAPlugin = true;
@@ -41,6 +44,7 @@ bool PluginInterface::Init(
 			FileHelper::Instance(vFileHelper);
 			CommonSystem::Instance(vCommonSystem);
 			ImGui::SetCurrentContext(vContext);
+			NodeSlot::GetSlotColors(vSlotColor);
 			ImGui::CustomStyle::Instance(vCustomStyle);
 			vkApi::VulkanCore::sVulkanShader = VulkanShader::Create();
 		}
@@ -52,6 +56,8 @@ bool PluginInterface::Init(
 			// a tien ? ca a changé ?
 #endif // USE_STATIC_LINKING_OF_PLUGINS
 		}
+
+		ActionAfterInit();
 
 		return true;
 	}
@@ -72,6 +78,7 @@ void PluginInterface::Unit()
 		if (iSinAPlugin)
 		{
 			ImGui::CustomStyle::Instance(nullptr, true);
+			NodeSlot::GetSlotColors(nullptr, true);
 			CommonSystem::Instance(nullptr, true);
 			FileHelper::Instance(nullptr, true);
 
@@ -84,4 +91,9 @@ void PluginInterface::Unit()
 		}
 #endif
 	}
+}
+
+void  PluginInterface::ActionAfterInit()
+{
+
 }

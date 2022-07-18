@@ -27,6 +27,7 @@ class PluginInterface;
 typedef ct::cWeak<PluginInterface> PluginInterfaceWeak;
 typedef std::shared_ptr<PluginInterface> PluginInterfacePtr;
 
+class SlotColor;
 class FileHelper;
 class VulkanShader;
 class CommonSystem;
@@ -46,8 +47,11 @@ public:
 		FileHelper* vFileHelper, 
 		CommonSystem* vCommonSystem,
 		ImGuiContext* vContext,
+		SlotColor* vSlotColor,
 		ImGui::CustomStyle* vCustomStyle);
 	virtual void Unit();
+
+	virtual void ActionAfterInit();
 
 	virtual uint32_t GetVersionMajor() const = 0;
 	virtual uint32_t GetVersionMinor() const = 0;

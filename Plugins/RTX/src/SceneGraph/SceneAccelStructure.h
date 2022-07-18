@@ -23,16 +23,16 @@ limitations under the License.
 #include <SceneGraph/SceneModel.h>
 
 class SceneAccelStructure;
-typedef std::shared_ptr<SceneAccelStructure> AccelStructurePtr;
-typedef ct::cWeak<SceneAccelStructure> AccelStructureWeak;
+typedef std::shared_ptr<SceneAccelStructure> SceneAccelStructurePtr;
+typedef ct::cWeak<SceneAccelStructure> SceneAccelStructureWeak;
 
 class SceneAccelStructure
 {
 public:
-	static AccelStructurePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static SceneAccelStructurePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	AccelStructureWeak m_This;
+	SceneAccelStructureWeak m_This;
 	vk::Device m_Device = nullptr;
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 	std::vector<VulkanAccelStructObjectPtr> m_AccelStructure_Bottom_Ptrs;
@@ -41,10 +41,15 @@ private:
 	VulkanBufferObjectPtr m_ModelAdressesPtr = nullptr;
 	vk::DescriptorBufferInfo m_ModelAdressesBufferInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 
+	bool m_SuccessfullyBuilt = false;
+
 public:
 	SceneAccelStructure(vkApi::VulkanCorePtr vVulkanCorePtr);
 	void Clear();
 	bool BuildForModel(SceneModelWeak vSceneModelWeak);
+	bool IsOk() const { return m_SuccessfullyBuilt; }
+	vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo();
+	vk::DescriptorBufferInfo* GetBufferAddressInfo();
 
 private:
 	bool CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak vMesh);

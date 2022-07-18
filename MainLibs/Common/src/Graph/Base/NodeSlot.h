@@ -61,17 +61,29 @@ inline static NodeSlotPlaceEnum GetNodeSlotPlaceEnumFromString(const std::string
 	return NodeSlotPlaceEnum::NONE;
 }
 
+
+class SlotColor
+{
+private:
+	std::map<std::string, ImVec4> m_ColorSlots;
+
+public:
+	SlotColor();
+	ImVec4 GetSlotColor(const std::string& vNodeSlotType);
+	void AddSlotColor(const std::string& vNodeSlotType, const ImVec4& vSlotColor);
+};
+
 struct ImRect;
 class BaseNode;
 class UniformWidgetBase;
 struct BaseNodeState;
-class NodeSlot : 
+class NodeSlot :
 	public conf::ConfigAbstract,
 	public NotifyInterface
 {
 public:
 	static size_t GetNewSlotId();
-	static ImVec4 GetSlotColorAccordingToType(const std::string& vNodeSlotType);
+	static SlotColor* GetSlotColors(SlotColor* vCopy = nullptr, bool vForce = false); // static are null when a plugin is loaded
 	static NodeSlotPtr Create(NodeSlot vSlot);
 
 public:

@@ -16,11 +16,12 @@ limitations under the License.
 
 #pragma once
 
-#include <SceneGraph/SceneModel.h>
+#include <SceneGraph/SceneAccelStructure.h>
 
 class AccelStructureOutputInterface
 {
 public:
 	// return a model composed of many mesh
-	virtual SceneModelWeak GetAccelStruct() = 0;
+	virtual vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() = 0;
+	virtual vk::DescriptorBufferInfo* GetBufferAddressInfo() = 0;
 };

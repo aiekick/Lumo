@@ -23,7 +23,7 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-AccelStructurePtr SceneAccelStructure::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+SceneAccelStructurePtr SceneAccelStructure::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (vVulkanCorePtr && vVulkanCorePtr->getDevice())
 	{
@@ -89,9 +89,9 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 			std::vector<vk::AccelerationStructureInstanceKHR> blas_instances;
 			blas_instances.push_back(CreateBlasInstance(0, m_model_pos));
 
-			CreateTopLevelAccelerationStructure(blas_instances);
+			m_SuccessfullyBuilt = CreateTopLevelAccelerationStructure(blas_instances);
 
-			return true;
+			return m_SuccessfullyBuilt;
 		}
 	}
 
@@ -102,6 +102,27 @@ void SceneAccelStructure::Clear()
 {
 	DestroyBottomLevelAccelerationStructureForMesh();
 	DestroyTopLevelAccelerationStructure();
+	m_SuccessfullyBuilt = false;
+}
+
+vk::WriteDescriptorSetAccelerationStructureKHR* SceneAccelStructure::GetTLASInfo()
+{
+	if (IsOk())
+	{
+		return &m_AccelStructureTopDescriptorInfo;
+	}
+
+	return nullptr;
+}
+
+vk::DescriptorBufferInfo* SceneAccelStructure::GetBufferAddressInfo()
+{
+	if (IsOk())
+	{
+		return &m_ModelAdressesBufferInfo;
+	}
+
+	return nullptr;
 }
 
 //////////////////////////////////////////////////////////////

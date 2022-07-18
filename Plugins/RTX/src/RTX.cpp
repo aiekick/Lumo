@@ -10,8 +10,10 @@
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanWindow.h>
+#include <Graph/Base/NodeSlot.h>
 
 #include <Nodes/RtxPbrRendererNode.h>
+#include <Nodes/ModelToAccelStructNode.h>
 
 #ifndef USE_STATIC_LINKING_OF_PLUGINS
 // needed for plugin creating / destroying
@@ -41,6 +43,11 @@ RTX::RTX()
 	// active memory leak detector
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+}
+
+void RTX::ActionAfterInit()
+{
+	NodeSlot::GetSlotColors()->AddSlotColor("RTX_ACCEL_STRUCTURE", ImVec4(0.8f, 0.5f, 0.8f, 1.0f));
 }
 
 uint32_t RTX::GetVersionMajor() const
@@ -77,7 +84,8 @@ std::vector<std::string> RTX::GetNodes() const
 {
 	return
 	{
-		"RTX_PBR_RENDERER"
+		"RTX_PBR_RENDERER",
+		"RTX_MODEL_TO_ACCELERATION_STRUCTURE"
 	};
 }
 
@@ -94,6 +102,16 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 	entry_RTX_PBR_RENDERER.second.categoryPath = "RTX";
 	res.push_back(entry_RTX_PBR_RENDERER);
 
+
+	LibraryEntry entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE;
+	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.first = "plugins";
+	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.nodeLabel = "RTX Mode to AccelStruct";
+	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.nodeType = "RTX_MODEL_TO_ACCELERATION_STRUCTURE";
+	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.color = ct::fvec4(0.0f);
+	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.categoryPath = "RTX";
+	res.push_back(entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE);
+
 	return res;
 }
 
@@ -105,6 +123,8 @@ BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
 
 	if (vPluginNodeName == "RTX_PBR_RENDERER")
 		res = RtxPbrRendererNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "RTX_MODEL_TO_ACCELERATION_STRUCTURE")
+		res = ModelToAccelStructNode::Create(vkCorePtr);
 
 	return res;
 }

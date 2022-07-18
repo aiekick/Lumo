@@ -38,6 +38,8 @@ enum class NotifyEvent
 	GraphIsLoaded,
 	// a new frame is available
 	NewFrameAvailable,
+	// a accel structure (tofix : for use in pluginand defin our own notify)
+	AccelStructureUpdateDone,
 	// count of notification message
 	CountEvents
 };
