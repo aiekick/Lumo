@@ -34,7 +34,7 @@ at least, support all rendering features and result of the SketchFab Renderer
 - [x] Shadow Mapping
 - [x] Deferred Rendering
 - [ ] GLTF Rendering
-- [ ] RTX Rendering
+- [X] RTX Rendering
 - [ ] Normal Mapping
 - [ ] Parallax Mapping
 - [ ] Alpha Mapping
