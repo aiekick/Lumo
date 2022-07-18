@@ -535,12 +535,13 @@ namespace vkApi
 		//Descriptor Pool
 		std::vector<vk::DescriptorPoolSize> descriptorPoolSizes =
 		{
+			vk::DescriptorPoolSize(vk::DescriptorType::eAccelerationStructureKHR, 1000), // RTX
 			vk::DescriptorPoolSize(vk::DescriptorType::eSampler, 1000),
 			vk::DescriptorPoolSize(vk::DescriptorType::eCombinedImageSampler, 1000),
 			//vk::DescriptorPoolSize(vk::DescriptorType::eSampledImage, 1000),
 			vk::DescriptorPoolSize(vk::DescriptorType::eStorageImage, 1000),
-			//vk::DescriptorPoolSize(vk::DescriptorType::eUniformTexelBuffer, 1000),
-			//vk::DescriptorPoolSize(vk::DescriptorType::eStorageTexelBuffer, 1000),
+			vk::DescriptorPoolSize(vk::DescriptorType::eUniformTexelBuffer, 1000),
+			vk::DescriptorPoolSize(vk::DescriptorType::eStorageTexelBuffer, 1000),
 			vk::DescriptorPoolSize(vk::DescriptorType::eUniformBuffer, 1000),
 			vk::DescriptorPoolSize(vk::DescriptorType::eStorageBuffer, 1000),
 			//vk::DescriptorPoolSize(vk::DescriptorType::eUniformBufferDynamic, 1000),

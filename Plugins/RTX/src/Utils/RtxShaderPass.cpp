@@ -457,7 +457,7 @@ bool RtxShaderPass::CreateRtxPipeline()
 
 	if (m_Pipeline && m_PipelineLayout)
 	{
-		return true;
+		return CreateShaderBindingTable();
 	}
 
 	return false;
