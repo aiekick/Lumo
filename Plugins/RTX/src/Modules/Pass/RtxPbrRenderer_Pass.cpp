@@ -41,6 +41,8 @@ using namespace vkApi;
 RtxPbrRenderer_Pass::RtxPbrRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: RtxShaderPass(vVulkanCorePtr)
 {
+	ZoneScoped;
+
 	SetRenderDocDebugName("Rtx Pass : PBR", RTX_SHADER_PASS_DEBUG_COLOR);
 
 	//m_DontUseShaderFilesOnDisk = true;
@@ -48,6 +50,8 @@ RtxPbrRenderer_Pass::RtxPbrRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 RtxPbrRenderer_Pass::~RtxPbrRenderer_Pass()
 {
+	ZoneScoped;
+
 	Unit();
 }
 
@@ -57,6 +61,8 @@ RtxPbrRenderer_Pass::~RtxPbrRenderer_Pass()
 
 bool RtxPbrRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext);
 
 	return false;
@@ -64,18 +70,24 @@ bool RtxPbrRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 
 void RtxPbrRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext);
 
 }
 
 void RtxPbrRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext);
 
 }
 
 vk::DescriptorImageInfo* RtxPbrRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
+	ZoneScoped;
+
 	if (m_ComputeBufferPtr)
 	{
 		if (vOutSize)
@@ -89,11 +101,11 @@ vk::DescriptorImageInfo* RtxPbrRenderer_Pass::GetDescriptorImageInfo(const uint3
 	return nullptr;
 }
 
-void RtxPbrRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
+void RtxPbrRenderer_Pass::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
 {
 	ZoneScoped;
 
-	m_SceneModel = vSceneModel;
+	m_SceneAccelStructure = vSceneAccelStructure;
 
 	NeedNewModelUpdate();
 }
@@ -122,6 +134,8 @@ void RtxPbrRenderer_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 
 std::string RtxPbrRenderer_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
+	ZoneScoped;
+
 	std::string str;
 
 	return str;
@@ -129,6 +143,8 @@ std::string RtxPbrRenderer_Pass::getXml(const std::string& vOffset, const std::s
 
 bool RtxPbrRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
+	ZoneScoped;
+
 	// The value of this child identifies the name of this element
 	std::string strName;
 	std::string strValue;
@@ -156,8 +172,9 @@ bool RtxPbrRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
 
 bool RtxPbrRenderer_Pass::CanRender()
 {
-	if (!m_SceneModel.expired() &&
-		m_AccelStructure_Top_Ptr)
+	ZoneScoped;
+
+	if (!m_SceneAccelStructure.expired())
 	{
 		return true;
 	}
@@ -167,78 +184,18 @@ bool RtxPbrRenderer_Pass::CanRender()
 
 bool RtxPbrRenderer_Pass::CanUpdateDescriptors()
 {
-	if (!m_SceneModel.expired() &&
-		m_AccelStructure_Top_Ptr)
+	ZoneScoped;
+
+	if (!m_SceneAccelStructure.expired())
 	{
-		return true;
+		auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+		if (accelStructurePtr)
+		{
+			return accelStructurePtr->IsOk();
+		}
 	}
 
 	return false;
-}
-
-bool RtxPbrRenderer_Pass::BuildModel()
-{
-	m_ModelAdressesBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
-
-	auto modelPtr = m_SceneModel.getValidShared();
-	if (modelPtr && 
-		!modelPtr->empty())
-	{
-		std::vector<SceneMesh::SceneMeshBuffers> modelBufferAddresses;
-
-		for (auto meshPtr : *modelPtr)
-		{
-			if (meshPtr)
-			{
-				SceneMesh::SceneMeshBuffers buffer;
-				buffer.vertices_address = meshPtr->GetVerticesDeviceAddress();
-				buffer.indices_address = meshPtr->GetIndiceDeviceAddress();
-				modelBufferAddresses.push_back(buffer);
-
-				CreateBottomLevelAccelerationStructureForMesh(meshPtr);
-			}
-		}
-
-		if (!m_AccelStructure_Bottom_Ptrs.empty())
-		{
-			vk::BufferUsageFlags bufferUsageFlags = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
-
-			auto sizeInBytes = modelPtr->size() * sizeof(SceneMesh::SceneMeshBuffers);
-			m_ModelAdressesPtr = VulkanRessource::createStorageBufferObject(
-				m_VulkanCorePtr, sizeInBytes,
-				bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-			VulkanRessource::upload(m_VulkanCorePtr, *m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
-
-			m_ModelAdressesBufferInfo.buffer = m_ModelAdressesPtr->buffer;
-			m_ModelAdressesBufferInfo.offset = 0U;
-			m_ModelAdressesBufferInfo.range = sizeInBytes;
-
-			vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
-			glm::mat4 m_model_pos = glm::mat4(1.0f);
-
-			std::vector<vk::AccelerationStructureInstanceKHR> blas_instances;
-			blas_instances.push_back(CreateBlasInstance(0, m_model_pos));
-
-			CreateTopLevelAccelerationStructure(blas_instances);
-
-			return true;
-		}
-	}
-	else
-	{
-		return true;
-	}
-
-	return false;
-}
-
-void RtxPbrRenderer_Pass::DestroyModel(const bool& vReleaseDatas)
-{
-	DestroyBottomLevelAccelerationStructureForMesh();
-	DestroyTopLevelAccelerationStructure();
-	m_ModelAdressesPtr.reset();
-	m_ModelAdressesBufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
-
 }
 
 bool RtxPbrRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -263,18 +220,21 @@ bool RtxPbrRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
-		m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
-	// The acceleration structure descriptor has to be chained via pNext
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR,
-		nullptr, nullptr, nullptr, &m_AccelStructureTopDescriptorInfo); // accel struct
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, 
-		nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
-		nullptr, &m_ModelAdressesBufferInfo); // model device address
-
-	if (!m_SceneModel.expired() && m_AccelStructure_Top_Ptr)
+	auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+	if (accelStructurePtr && 
+		accelStructurePtr->GetTLASInfo() && 
+		accelStructurePtr->GetBufferAddressInfo())
 	{
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
+			m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+		// The acceleration structure descriptor has to be chained via pNext
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR,
+			nullptr, nullptr, nullptr, accelStructurePtr->GetTLASInfo()); // accel struct
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer,
+			nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
+			nullptr, accelStructurePtr->GetBufferAddressInfo()); // model device address
+
 		return true; // pas de maj si pas de structure acceleratrice
 	}
 	
@@ -283,6 +243,8 @@ bool RtxPbrRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 std::string RtxPbrRenderer_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName)
 {
+	ZoneScoped;
+
 	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"(
 #version 460
@@ -353,12 +315,16 @@ void main()
 
 std::string RtxPbrRenderer_Pass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
 {
+	ZoneScoped;
+
 	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"()";
 }
 
 std::string RtxPbrRenderer_Pass::GetRayMissShaderCode(std::string& vOutShaderName)
 {
+	ZoneScoped;
+
 	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"(
 #version 460
@@ -388,6 +354,8 @@ std::string RtxPbrRenderer_Pass::GetRayAnyHitShaderCode(std::string& vOutShaderN
 
 std::string RtxPbrRenderer_Pass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
 {
+	ZoneScoped;
+
 	vOutShaderName = "RtxPbrRenderer_Pass";
 	return u8R"(
 

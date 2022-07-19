@@ -143,16 +143,11 @@ void RtxPbrRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 	}
 }
 
-void RtxPbrRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
-}
-
-void RtxPbrRenderer::SetModel(SceneModelWeak vSceneModel)
+void RtxPbrRenderer::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
 {
 	if (m_RtxPbrRenderer_Pass_Ptr)
 	{
-		return m_RtxPbrRenderer_Pass_Ptr->SetModel(vSceneModel);
+		m_RtxPbrRenderer_Pass_Ptr->SetAccelStruct(vSceneAccelStructure);
 	}
 }
 

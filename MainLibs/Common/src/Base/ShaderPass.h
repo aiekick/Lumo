@@ -122,6 +122,7 @@ protected:
 	std::array<ShaderCode, 11U> m_ShaderCodes;
 
 	bool m_IsShaderCompiled = false;
+	bool m_DescriptorWasUpdated = false;
 
 	// ressources
 	std::vector<vk::DescriptorSetLayoutBinding> m_LayoutBindings;

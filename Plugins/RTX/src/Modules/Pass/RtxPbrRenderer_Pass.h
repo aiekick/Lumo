@@ -50,13 +50,14 @@ limitations under the License.
 #include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 #include <Interfaces/ModelInputInterface.h>
+#include <Interfaces/AccelStructureInputInterface.h>
 
 class RtxPbrRenderer_Pass :
 	public RtxShaderPass,
 	public GuiInterface,
 	public LightGroupInputInterface,
-	public ModelInputInterface,
-	public TextureOutputInterface
+	public TextureOutputInterface,
+	public AccelStructureInputInterface
 {
 private:
 	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
@@ -73,18 +74,18 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	void SetModel(SceneModelWeak vSceneModel) override;
+	
+	void SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
+
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 private:
 	bool CanRender() override;
 	bool CanUpdateDescriptors() override;
-
-	bool BuildModel() override;
-	void DestroyModel(const bool& vReleaseDatas = false) override;
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;

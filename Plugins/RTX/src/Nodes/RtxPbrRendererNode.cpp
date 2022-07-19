@@ -17,7 +17,7 @@ limitations under the License.
 #include "RtxPbrRendererNode.h"
 #include <Modules/RtxPbrRenderer.h>
 #include <Interfaces/LightGroupOutputInterface.h>
-#include <Interfaces/ModelOutputInterface.h>
+#include <Interfaces/AccelStructureOutputInterface.h>
 
 std::shared_ptr<RtxPbrRendererNode> RtxPbrRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -42,12 +42,12 @@ RtxPbrRendererNode::~RtxPbrRendererNode()
 
 bool RtxPbrRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "RTX PBR Renderer";
+	name = "PBR Renderer";
 
 	NodeSlot slot;
 
-	slot.slotType = "MESH";
-	slot.name = "Model";
+	slot.slotType = "RTX_ACCEL_STRUCTURE";
+	slot.name = "Accel Struct";
 	AddInput(slot, true, false);
 
 	slot.slotType = "LIGHT_GROUP";
@@ -147,14 +147,13 @@ vk::DescriptorImageInfo* RtxPbrRendererNode::GetDescriptorImageInfo(const uint32
 	return nullptr;
 }
 
-void RtxPbrRendererNode::SetModel(SceneModelWeak vSceneModel)
+void RtxPbrRendererNode::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
 {
 	if (m_RtxPbrRendererPtr)
 	{
-		return m_RtxPbrRendererPtr->SetModel(vSceneModel);
+		m_RtxPbrRendererPtr->SetAccelStruct(vSceneAccelStructure);
 	}
 }
-
 
 void RtxPbrRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
@@ -173,12 +172,12 @@ void RtxPbrRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == "MESH")
+			if (startSlotPtr->slotType == "RTX_ACCEL_STRUCTURE")
 			{
-				auto otherModelNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				auto otherModelNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherModelNodePtr)
 				{
-					SetModel(otherModelNodePtr->GetModel());
+					SetAccelStruct(otherModelNodePtr->GetAccelStruct());
 				}
 			}
 			else if (startSlotPtr->slotType == "LIGHT_GROUP")
@@ -202,9 +201,9 @@ void RtxPbrRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 	{
 		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
 		{
-			if (startSlotPtr->slotType == "MESH")
+			if (startSlotPtr->slotType == "RTX_ACCEL_STRUCTURE")
 			{
-				SetModel();
+				SetAccelStruct();
 			}
 			else if (startSlotPtr->slotType == "LIGHT_GROUP")
 			{
@@ -218,17 +217,17 @@ void RtxPbrRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& v
 {
 	switch (vEvent)
 	{
-	case NotifyEvent::ModelUpdateDone:
+	case NotifyEvent::AccelStructureUpdateDone:
 	{
 		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				auto otherNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
 				if (otherNodePtr)
 				{
-					SetModel(otherNodePtr->GetModel());
+					SetAccelStruct(otherNodePtr->GetAccelStruct());
 				}
 			}
 		}

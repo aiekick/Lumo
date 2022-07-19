@@ -46,6 +46,8 @@ SceneAccelStructure::SceneAccelStructure(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 {
+	Clear();
+
 	m_ModelAdressesBufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 
 	auto modelPtr = vSceneModelWeak.getValidShared();
@@ -53,6 +55,8 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 		!modelPtr->empty())
 	{
 		std::vector<SceneMesh::SceneMeshBuffers> modelBufferAddresses;
+
+		m_SuccessfullyBuilt = true;
 
 		for (auto meshPtr : *modelPtr)
 		{
@@ -63,11 +67,12 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 				buffer.indices_address = meshPtr->GetIndiceDeviceAddress();
 				modelBufferAddresses.push_back(buffer);
 
-				CreateBottomLevelAccelerationStructureForMesh(meshPtr);
+				m_SuccessfullyBuilt &= CreateBottomLevelAccelerationStructureForMesh(meshPtr);
 			}
 		}
 
-		if (!m_AccelStructure_Bottom_Ptrs.empty())
+		if (m_SuccessfullyBuilt && 
+			!m_AccelStructure_Bottom_Ptrs.empty())
 		{
 			vk::BufferUsageFlags bufferUsageFlags = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
@@ -75,23 +80,26 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 			m_ModelAdressesPtr = VulkanRessource::createStorageBufferObject(
 				m_VulkanCorePtr, sizeInBytes,
 				bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-			VulkanRessource::upload(m_VulkanCorePtr, *m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
+			if (m_ModelAdressesPtr)
+			{
+				VulkanRessource::upload(m_VulkanCorePtr, *m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
 
-			m_ModelAdressesBufferInfo.buffer = m_ModelAdressesPtr->buffer;
-			m_ModelAdressesBufferInfo.offset = 0U;
-			m_ModelAdressesBufferInfo.range = sizeInBytes;
+				m_ModelAdressesBufferInfo.buffer = m_ModelAdressesPtr->buffer;
+				m_ModelAdressesBufferInfo.offset = 0U;
+				m_ModelAdressesBufferInfo.range = sizeInBytes;
 
-			vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
-			glm::mat4 m_model_pos = glm::mat4(1.0f);
+				vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
+				glm::mat4 m_model_pos = glm::mat4(1.0f);
 
-			// we could create in few time a sepcila input for create instance of some model (transformed)
-			// but for the moment only one
-			std::vector<vk::AccelerationStructureInstanceKHR> blas_instances;
-			blas_instances.push_back(CreateBlasInstance(0, m_model_pos));
+				// we could create in few time a sepcila input for create instance of some model (transformed)
+				// but for the moment only one
+				std::vector<vk::AccelerationStructureInstanceKHR> blas_instances;
+				blas_instances.push_back(CreateBlasInstance(0, m_model_pos));
 
-			m_SuccessfullyBuilt = CreateTopLevelAccelerationStructure(blas_instances);
+				m_SuccessfullyBuilt &= CreateTopLevelAccelerationStructure(blas_instances);
 
-			return m_SuccessfullyBuilt;
+				return m_SuccessfullyBuilt;
+			}
 		}
 	}
 

@@ -51,6 +51,7 @@ limitations under the License.
 #include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 #include <Interfaces/ModelInputInterface.h>
+#include <Interfaces/AccelStructureInputInterface.h>
 
 class RtxPbrRenderer_Pass;
 class RtxPbrRenderer : 
@@ -59,8 +60,7 @@ class RtxPbrRenderer :
 	public TaskInterface,
 	public TextureOutputInterface,
 	public LightGroupInputInterface,
-	public ModelInputInterface,
-	public ResizerInterface
+	public AccelStructureInputInterface
 {
 public:
 	static std::shared_ptr<RtxPbrRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -78,9 +78,8 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	void SetModel(SceneModelWeak vSceneModel) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	void SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

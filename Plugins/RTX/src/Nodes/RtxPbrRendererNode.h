@@ -21,20 +21,21 @@ limitations under the License.
 #include <ctools/cTools.h>
 
 #include <Graph/Base/BaseNode.h>
+#include <Interfaces/ModelInputInterface.h>
+#include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
-#include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
-#include <Interfaces/ModelInputInterface.h>
+#include <Interfaces/TextureGroupInputInterface.h>
+#include <Interfaces/AccelStructureInputInterface.h>
 
 class RtxPbrRenderer;
 class RtxPbrRendererNode : 
-	public BaseNode, 
+	public BaseNode,
+	public ShaderUpdateInterface,
 	public TextureOutputInterface,
 	public LightGroupInputInterface,
-	public ModelInputInterface,
-	public ShaderUpdateInterface
+	public AccelStructureInputInterface
 {
 public:
 	static std::shared_ptr<RtxPbrRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -64,7 +65,7 @@ public:
 	
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	
-	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+	void SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure = SceneAccelStructureWeak()) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

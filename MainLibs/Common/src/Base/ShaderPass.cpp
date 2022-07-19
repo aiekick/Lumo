@@ -544,7 +544,11 @@ void ShaderPass::SwapOutputDescriptors()
 
 void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
-	if (m_IsShaderCompiled && m_Pipeline && m_PipelineLayout && CanRender())
+	if (m_IsShaderCompiled && 
+		m_Pipeline && 
+		m_PipelineLayout && 
+		m_DescriptorWasUpdated && 
+		CanRender())
 	{
 		auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
 		if (devicePtr)
@@ -1280,10 +1284,12 @@ void ShaderPass::UpdateRessourceDescriptor()
 		SwapOutputDescriptors();
 	}
 
+	m_DescriptorWasUpdated = false;
 	if (CanUpdateDescriptors())
 	{
 		// update descriptor
 		m_Device.updateDescriptorSets(writeDescriptorSets, nullptr);
+		m_DescriptorWasUpdated = true;
 	}
 
 	// on le met la avant le rendu plutot qu'apres sinon au reload la 1ere

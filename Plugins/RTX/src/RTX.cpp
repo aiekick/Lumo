@@ -96,7 +96,7 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 	LibraryEntry entry_RTX_PBR_RENDERER;
 	entry_RTX_PBR_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
 	entry_RTX_PBR_RENDERER.first = "plugins";
-	entry_RTX_PBR_RENDERER.second.nodeLabel = "RTX PBR";
+	entry_RTX_PBR_RENDERER.second.nodeLabel = "PBR";
 	entry_RTX_PBR_RENDERER.second.nodeType = "RTX_PBR_RENDERER";
 	entry_RTX_PBR_RENDERER.second.color = ct::fvec4(0.0f);
 	entry_RTX_PBR_RENDERER.second.categoryPath = "RTX";
@@ -106,7 +106,7 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 	LibraryEntry entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE;
 	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
 	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.first = "plugins";
-	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.nodeLabel = "RTX Mode to AccelStruct";
+	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.nodeLabel = "AccelStruct Builder" ;
 	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.nodeType = "RTX_MODEL_TO_ACCELERATION_STRUCTURE";
 	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.color = ct::fvec4(0.0f);
 	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.categoryPath = "RTX";

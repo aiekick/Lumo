@@ -40,7 +40,7 @@ ModelToAccelStructNode::~ModelToAccelStructNode()
 
 bool ModelToAccelStructNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Model to Accel Struct";
+	name = "Accel Struct Builder";
 
 	NodeSlot slot;
 
@@ -100,12 +100,28 @@ void ModelToAccelStructNode::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
+SceneAccelStructureWeak ModelToAccelStructNode::GetAccelStruct()
+{
+	return m_SceneAccelStructurePtr;
+}
+
 vk::WriteDescriptorSetAccelerationStructureKHR* ModelToAccelStructNode::GetTLASInfo()
 {
 	if (m_SceneAccelStructurePtr && 
 		m_SceneAccelStructurePtr->IsOk())
 	{
 		return m_SceneAccelStructurePtr->GetTLASInfo();
+	}
+
+	return nullptr;
+}
+
+vk::DescriptorBufferInfo* ModelToAccelStructNode::GetBufferAddressInfo()
+{
+	if (m_SceneAccelStructurePtr &&
+		m_SceneAccelStructurePtr->IsOk())
+	{
+		return m_SceneAccelStructurePtr->GetBufferAddressInfo();
 	}
 
 	return nullptr;

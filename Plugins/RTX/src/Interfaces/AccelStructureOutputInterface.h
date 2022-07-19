@@ -21,7 +21,7 @@ limitations under the License.
 class AccelStructureOutputInterface
 {
 public:
-	// return a model composed of many mesh
+	virtual SceneAccelStructureWeak GetAccelStruct() = 0;
 	virtual vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() = 0;
 	virtual vk::DescriptorBufferInfo* GetBufferAddressInfo() = 0;
 };
