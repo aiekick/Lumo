@@ -665,8 +665,6 @@ bool ShaderPass::BuildModel()
 {
 	ZoneScoped;
 
-	CTOOL_DEBUG_BREAK;
-
 	return true;
 }
 

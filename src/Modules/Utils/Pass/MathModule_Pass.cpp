@@ -99,6 +99,11 @@ void MathModule_Pass::ActionBeforeInit()
 	m_Functions.push_back(MathModuleEntry("exp", 1U, "v", "", ""));
 	m_Functions.push_back(MathModuleEntry("exp2", 1U, "v", "", ""));
 
+	m_Functions.push_back(MathModuleEntry("mask xxxx", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("mask yyyy", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("mask zzzz", 1U, "v", "", ""));
+	m_Functions.push_back(MathModuleEntry("mask wwww", 1U, "v", "", ""));
+
 	// binary
 	m_Functions.push_back(MathModuleEntry("atan 2", 1U, "x", "y", ""));
 	m_Functions.push_back(MathModuleEntry("cross", 2U, "x", "y", ""));
@@ -366,13 +371,18 @@ void main()
 		case 30: fragColor = exp(input_0); break;
 		case 31: fragColor = exp2(input_0); break;
 
+		case 32: fragColor = input_0.xxxx; break;
+		case 33: fragColor = input_0.yyyy; break;
+		case 34: fragColor = input_0.zzzz; break;
+		case 35: fragColor = input_0.wwww; break;
+
 		// binary
-		case 32: fragColor = atan(input_0, input_1); break;
-		case 33: fragColor = vec4(cross(input_0.xyz, input_1.xyz), 1.0); break;
-		case 34: fragColor = vec4(dot(input_0, input_1)); break;
-		case 35: fragColor = vec4(distance(input_0, input_1)); break;
-		case 36: fragColor = reflect(input_0, input_1); break;
-		case 37: 
+		case 36: fragColor = atan(input_0, input_1); break;
+		case 37: fragColor = vec4(cross(input_0.xyz, input_1.xyz), 1.0); break;
+		case 38: fragColor = vec4(dot(input_0, input_1)); break;
+		case 39: fragColor = vec4(distance(input_0, input_1)); break;
+		case 40: fragColor = reflect(input_0, input_1); break;
+		case 41: 
 		{
 			if (input_0.x > 0.0f && 
 				input_0.y > 0.0f && 
@@ -387,13 +397,13 @@ void main()
 			}
 			break;
 		}		
-		case 38: fragColor = mod(input_0, input_1); break;
-		case 39: fragColor = step(input_0, input_1); break;
+		case 42: fragColor = mod(input_0, input_1); break;
+		case 43: fragColor = step(input_0, input_1); break;
 
-		case 40: fragColor = input_0 + input_1; break;
-		case 41: fragColor = input_0 - input_1; break;
-		case 42: fragColor = input_0 * input_1; break;
-		case 43:
+		case 44: fragColor = input_0 + input_1; break;
+		case 45: fragColor = input_0 - input_1; break;
+		case 46: fragColor = input_0 * input_1; break;
+		case 47:
 		{
 			if (input_1.x != 0.0f &&
 				input_1.y != 0.0f &&
@@ -404,17 +414,17 @@ void main()
 			}
 			break;
 		}		
-		case 44: fragColor = min(input_0, input_1); break;
-		case 45: fragColor = max(input_0, input_1); break;
+		case 48: fragColor = min(input_0, input_1); break;
+		case 49: fragColor = max(input_0, input_1); break;
 
-		case 46: fragColor = sqrt(input_0 * input_0 + abs(input_1)); break;
+		case 50: fragColor = sqrt(input_0 * input_0 + abs(input_1)); break;
 
 		// ternary
-		case 47: fragColor = clamp(input_0, input_1, input_2); break;
-		case 48: fragColor = mix(input_0, input_1, input_2); break;
-		case 49: fragColor = smoothstep(input_0, input_1, input_2); break;
-		case 50: fragColor = vec4(refract(input_0.xyz, input_1.xyz, input_2.x), 1.0); break;
-		case 51: fragColor = vec4(faceforward(input_0.xyz, input_1.xyz, input_2.xyz), 1.0); break;
+		case 51: fragColor = clamp(input_0, input_1, input_2); break;
+		case 52: fragColor = mix(input_0, input_1, input_2); break;
+		case 53: fragColor = smoothstep(input_0, input_1, input_2); break;
+		case 54: fragColor = vec4(refract(input_0.xyz, input_1.xyz, input_2.x), 1.0); break;
+		case 55: fragColor = vec4(faceforward(input_0.xyz, input_1.xyz, input_2.xyz), 1.0); break;
 	}
 }
 )";

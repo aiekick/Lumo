@@ -211,6 +211,8 @@ bool RtxPbrRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 		vk::ShaderStageFlagBits::eRaygenKHR); // camera
 	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1,
 		vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, 
+		vk::ShaderStageFlagBits::eClosestHitKHR);
 
 	return true;
 }
@@ -234,6 +236,8 @@ bool RtxPbrRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 			nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
 		writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, accelStructurePtr->GetBufferAddressInfo()); // model device address
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+			nullptr, m_SceneLightGroupDescriptorInfoPtr);
 
 		return true; // pas de maj si pas de structure acceleratrice
 	}
@@ -410,7 +414,11 @@ layout(binding = 3) buffer ModelAddresses
 { 
 	SceneMeshBuffers datas[]; 
 } sceneMeshBuffers;
-
+)"
++
+SceneLightGroup::GetBufferObjectStructureHeader(4U)
++
+u8R"(
 void main()
 {
 	// When contructing the TLAS, we stored the model id in InstanceCustomIndexEXT, so the
