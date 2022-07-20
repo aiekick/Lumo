@@ -351,8 +351,12 @@ void MathNode::ReorganizeSlots()
 		{
 			if (input.second)
 			{
-				input.second->hidden = true;
-				if (count > idx)
+				if (idx >= count)
+				{
+					input.second->hidden = true;
+					DisConnectSlot(input.second);
+				}
+				else
 				{
 					input.second->hidden = false;
 					input.second->name = m_MathModulePtr->GetInputName(idx);
