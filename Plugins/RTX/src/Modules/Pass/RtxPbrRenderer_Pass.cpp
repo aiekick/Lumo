@@ -59,6 +59,13 @@ RtxPbrRenderer_Pass::~RtxPbrRenderer_Pass()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
+void RtxPbrRenderer_Pass::ActionBeforeCompilation()
+{
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR));
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR));
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR));
+}
+
 bool RtxPbrRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
@@ -419,6 +426,35 @@ layout(binding = 3) buffer ModelAddresses
 SceneLightGroup::GetBufferObjectStructureHeader(4U)
 +
 u8R"(
+float ShadowTest(vec3 p, vec3 n, vec3 ld)
+{
+	if (dot(n, ld) > 0.0)
+	{
+		p += n * 0.1;
+		uint flags  = 
+			gl_RayFlagsTerminateOnFirstHitEXT | 
+			gl_RayFlagsOpaqueEXT | 
+			gl_RayFlagsSkipClosestHitShaderEXT;
+		isShadowed = true; 
+		traceRayEXT(tlas,        // acceleration structure
+		            flags,             // rayFlags
+		            0xFF,              // cullMask
+		            0,                 // sbtRecordOffset
+		            0,                 // sbtRecordStride
+		            0,                 // missIndex
+		            p,            	   // ray origin
+		            0.1,              // ray min range
+		            ld,            // ray direction
+		            1e32,              // ray max range
+		            1                  // payload (location = 1)
+		);
+		if (isShadowed)
+			return 0.5;
+	}
+	
+	return 1.0;
+}
+
 void main()
 {
 	// When contructing the TLAS, we stored the model id in InstanceCustomIndexEXT, so the
@@ -448,12 +484,48 @@ void main()
 		vec3(v0.nx, v0.ny, v0.nz) * barycentrics.x + 
 		vec3(v1.nx, v1.ny, v1.nz) * barycentrics.y + 
 		vec3(v2.nx, v2.ny, v2.nz) * barycentrics.z;
+    vec3 color = 
+		vec3(v0.cx, v0.cy, v0.cz) * barycentrics.x + 
+		vec3(v1.cx, v1.cy, v1.cz) * barycentrics.y + 
+		vec3(v2.cx, v2.cy, v2.cz) * barycentrics.z;
     
 	// Transforming the normal to world space
 	normal = normalize(vec3(normal * gl_WorldToObjectEXT)); 
-
+	
+	prd.color = vec4(0.0);
+	
+	uint count = uint(lightDatas.length() + 1) % 8; // maxi 8 lights in this system
+	for (uint lid = 0 ; lid < count ; ++lid)
+	{
+		if (lightDatas[lid].lightActive > 0.5)
+		{
+			// light
+			vec3 light_pos = lightDatas[lid].lightGizmo[3].xyz;
+			float light_intensity = lightDatas[lid].lightIntensity;
+			vec4 light_col = lightDatas[lid].lightColor;
+			vec3 light_dir = normalize(light_pos - pos);
+			float len = length(light_pos - pos);
+			float atten = 1.0 / (len * len);
+			
+			// diffuse
+			prd.diff = min(max(dot(normal, light_dir), 0.0) * light_intensity, 1.0);
+			
+			// specular
+			vec3 refl = reflect(-light_dir, normal);  
+			prd.spec = min(pow(max(dot(prd.rd, refl), 0.0), 8.0) * light_intensity, 1.0);
+			
+			prd.sha = ShadowTest(pos, normal, light_dir);
+			
+			vec4 color = light_col;
+			color *= prd.sha;
+			//color += prd.spec * (1.0 - prd.sha);
+			
+			prd.color += color;
+		}
+	}
+		
 	//prd.color = vec4(pos, 1.0); // return pos
-	prd.color = vec4(normal * 0.5 + 0.5, 1.0); // return normal
+	//prd.color = vec4(normal * 0.5 + 0.5, 1.0); // return normal
 	//prd.color = vec4(0.5, 0.2, 0.8, 1.0); // return simple color for hit
 }
 )";

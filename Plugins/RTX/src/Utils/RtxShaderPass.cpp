@@ -85,20 +85,14 @@ bool RtxShaderPass::CreateRtxPipeline()
 {
 	ZoneScoped;
 
-	std::vector<std::pair<ShaderId, vk::ShaderStageFlagBits>> m_ShaderIds =
+	for (const auto& shaders : m_ShaderCodes)
 	{
-		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayGen, vk::ShaderStageFlagBits::eRaygenKHR),
-		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayInt, vk::ShaderStageFlagBits::eIntersectionKHR),
-		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayMiss, vk::ShaderStageFlagBits::eMissKHR),
-		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayAnyHit, vk::ShaderStageFlagBits::eAnyHitKHR),
-		std::pair<ShaderId, vk::ShaderStageFlagBits>(ShaderId::eRtxRayClosestHit, vk::ShaderStageFlagBits::eClosestHitKHR)
-	};
-
-	for (const auto& shaderId : m_ShaderIds)
-	{
-		if (m_ShaderCodes[shaderId.first].m_Used &&
-			m_ShaderCodes[shaderId.first].m_SPIRV.empty())
-			return false;
+		for (auto& shader : shaders.second)
+		{
+			if (shader.m_Used &&
+				shader.m_SPIRV.empty())
+				return false;
+		}
 	}
 
 	std::vector<vk::PushConstantRange> push_constants;
@@ -116,68 +110,71 @@ bool RtxShaderPass::CreateRtxPipeline()
 
 	m_ShaderCreateInfos.clear();
 	m_RayTracingShaderGroups.clear();
-	for (const auto& shaderId : m_ShaderIds)
+	for (auto& shaders : m_ShaderCodes)
 	{
-		if (m_ShaderCodes[shaderId.first].m_Used)
+		for (auto& shader : shaders.second)
 		{
-			m_ShaderCodes[shaderId.first].m_ShaderModule =
-				vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
-					(vk::Device)m_Device, m_ShaderCodes[shaderId.first].m_SPIRV);
-
-			if (m_ShaderCodes[shaderId.first].m_ShaderModule)
+			if (shader.m_Used)
 			{
-				auto shaderIndex = static_cast<uint32_t>(m_ShaderCreateInfos.size());
+				shader.m_ShaderModule =
+					vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+						(vk::Device)m_Device, shader.m_SPIRV);
 
-				if (shaderId.first == ShaderId::eRtxRayGen ||
-					shaderId.first == ShaderId::eRtxRayMiss)
+				if (shader.m_ShaderModule)
 				{
-					vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
-					shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
-					shaderGroup.generalShader = shaderIndex;
-					shaderGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
-					shaderGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
-					shaderGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
-					m_RayTracingShaderGroups.push_back(shaderGroup);
-				}
-				else if (shaderId.first == ShaderId::eRtxRayClosestHit ||
-					shaderId.first == ShaderId::eRtxRayAnyHit)
-				{
-					vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
-					shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
-					if (shaderId.first == ShaderId::eRtxRayAnyHit)
+					auto shaderIndex = static_cast<uint32_t>(m_ShaderCreateInfos.size());
+
+					if (shader.m_ShaderId == vk::ShaderStageFlagBits::eRaygenKHR ||
+						shader.m_ShaderId == vk::ShaderStageFlagBits::eMissKHR)
 					{
-						shaderGroup.generalShader = VK_SHADER_UNUSED_KHR;
-						shaderGroup.anyHitShader = shaderIndex;
+						vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
+						shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eGeneral;
+						shaderGroup.generalShader = shaderIndex;
+						shaderGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
 						shaderGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
 						shaderGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+						m_RayTracingShaderGroups.push_back(shaderGroup);
 					}
-					else //if (shaderId.first == ShaderId::eRtxRayClosestHit)
+					else if (shader.m_ShaderId == vk::ShaderStageFlagBits::eClosestHitKHR ||
+						shader.m_ShaderId == vk::ShaderStageFlagBits::eAnyHitKHR)
 					{
+						vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
+						shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eTrianglesHitGroup;
+						if (shader.m_ShaderId == vk::ShaderStageFlagBits::eAnyHitKHR)
+						{
+							shaderGroup.generalShader = VK_SHADER_UNUSED_KHR;
+							shaderGroup.anyHitShader = shaderIndex;
+							shaderGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
+							shaderGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+						}
+						else //if (shader.m_ShaderId == vk::ShaderStageFlagBits::eClosestHitKHR)
+						{
+							shaderGroup.generalShader = VK_SHADER_UNUSED_KHR;
+							shaderGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
+							shaderGroup.closestHitShader = shaderIndex;
+							shaderGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+						}
+						m_RayTracingShaderGroups.push_back(shaderGroup);
+					}
+					else if (shader.m_ShaderId == vk::ShaderStageFlagBits::eIntersectionKHR)
+					{
+						vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
+						shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eProceduralHitGroup;
 						shaderGroup.generalShader = VK_SHADER_UNUSED_KHR;
 						shaderGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
-						shaderGroup.closestHitShader = shaderIndex;
-						shaderGroup.intersectionShader = VK_SHADER_UNUSED_KHR;
+						shaderGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
+						shaderGroup.intersectionShader = shaderIndex;
+						m_RayTracingShaderGroups.push_back(shaderGroup);
 					}
-					m_RayTracingShaderGroups.push_back(shaderGroup);
-				}
-				else if (shaderId.first == ShaderId::eRtxRayInt)
-				{
-					vk::RayTracingShaderGroupCreateInfoKHR shaderGroup;
-					shaderGroup.type = vk::RayTracingShaderGroupTypeKHR::eProceduralHitGroup;
-					shaderGroup.generalShader = VK_SHADER_UNUSED_KHR;
-					shaderGroup.anyHitShader = VK_SHADER_UNUSED_KHR;
-					shaderGroup.closestHitShader = VK_SHADER_UNUSED_KHR;
-					shaderGroup.intersectionShader = shaderIndex;
-					m_RayTracingShaderGroups.push_back(shaderGroup);
-				}
 
-				m_ShaderCreateInfos.push_back(
-					vk::PipelineShaderStageCreateInfo(
-						vk::PipelineShaderStageCreateFlags(),
-						shaderId.second,
-						m_ShaderCodes[shaderId.first].m_ShaderModule, "main"
-					)
-				);
+					m_ShaderCreateInfos.push_back(
+						vk::PipelineShaderStageCreateInfo(
+							vk::PipelineShaderStageCreateFlags(),
+							shader.m_ShaderId,
+							shader.m_ShaderModule, "main"
+						)
+					);
+				}
 			}
 		}
 	}
@@ -193,13 +190,16 @@ bool RtxShaderPass::CreateRtxPipeline()
 	m_Pipeline = m_Device.createRayTracingPipelineKHR(nullptr, m_PipelineCache, rayTracingPipeInfo).value;
 
 	// destroy modules
-	for (const auto& shaderId : m_ShaderIds)
+	for (const auto& shaders : m_ShaderCodes)
 	{
-		if (m_ShaderCodes[shaderId.first].m_Used &&
-			m_ShaderCodes[shaderId.first].m_ShaderModule)
+		for (auto& shader : shaders.second)
 		{
-			vkApi::VulkanCore::sVulkanShader->DestroyShaderModule(
-				(vk::Device)m_Device, m_ShaderCodes[shaderId.first].m_ShaderModule);
+			if (shader.m_Used &&
+				shader.m_ShaderModule)
+			{
+				vkApi::VulkanCore::sVulkanShader->DestroyShaderModule(
+					(vk::Device)m_Device, shader.m_ShaderModule);
+			}
 		}
 	}
 
@@ -217,10 +217,32 @@ bool RtxShaderPass::CreateShaderBindingTable()
 	// To be generic, this should be pass in parameters
 	// todo, faire attention a correler ces ids avec ce qui est fait dans CreateRtxPipeline
 	// sion le driver peut crasher le pc apres la commande de rendu traceRaysKHR
-	std::vector<uint32_t> rgen_index{ 0 };
-	std::vector<uint32_t> miss_index{ 1 };
-	std::vector<uint32_t> hit_index{ 2 };
+	
+	std::vector<uint32_t> rgen_index;
+	std::vector<uint32_t> miss_index;
+	std::vector<uint32_t> hit_index;
 
+	uint32_t idx = 0U;
+	for (const auto& shaders : m_ShaderCodes)
+	{
+		for (auto& shader : shaders.second)
+		{
+			if (shader.m_ShaderId == vk::ShaderStageFlagBits::eRaygenKHR)
+			{
+				rgen_index.push_back(idx++);
+			}
+			else if (shader.m_ShaderId == vk::ShaderStageFlagBits::eMissKHR)
+			{
+				miss_index.push_back(idx++);
+			}
+			else if (shader.m_ShaderId == vk::ShaderStageFlagBits::eAnyHitKHR ||
+				shader.m_ShaderId == vk::ShaderStageFlagBits::eClosestHitKHR)
+			{
+				hit_index.push_back(idx++);
+			}
+		}
+	}
+	
 	const uint32_t handle_size = m_RayTracingPipelineProperties.shaderGroupHandleSize;
 	const uint32_t handle_alignment = m_RayTracingPipelineProperties.shaderGroupHandleAlignment;
 	const uint32_t handle_size_aligned = GetAlignedSize(handle_size, handle_alignment);
@@ -281,17 +303,17 @@ bool RtxShaderPass::CreateShaderBindingTable()
 			m_RayGenShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
 			m_RayGenShaderSbtEntry.deviceAddress = m_RayGenShaderBindingTablePtr->device_address;
 			m_RayGenShaderSbtEntry.stride = handle_size_aligned;
-			m_RayGenShaderSbtEntry.size = handle_size_aligned; // * the count of shaders ion this category
+			m_RayGenShaderSbtEntry.size = handle_size_aligned * rgen_index.size(); // * the count of shaders ion this category
 
 			m_MissShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
 			m_MissShaderSbtEntry.deviceAddress = m_RayMissShaderBindingTablePtr->device_address;
 			m_MissShaderSbtEntry.stride = handle_size_aligned;
-			m_MissShaderSbtEntry.size = handle_size_aligned; // * the count of shaders ion this category
+			m_MissShaderSbtEntry.size = handle_size_aligned * miss_index.size(); // * the count of shaders ion this category
 
 			m_HitShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
 			m_HitShaderSbtEntry.deviceAddress = m_RayHitShaderBindingTablePtr->device_address;
 			m_HitShaderSbtEntry.stride = handle_size_aligned;
-			m_HitShaderSbtEntry.size = handle_size_aligned; // * the count of shaders ion this category
+			m_HitShaderSbtEntry.size = handle_size_aligned * hit_index.size(); // * the count of shaders ion this category
 
 			m_CallableShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
 			//m_CallableShaderSbtEntry.deviceAddress = ?? ->device_address;

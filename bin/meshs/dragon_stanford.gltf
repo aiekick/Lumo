@@ -1,0 +1,88 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v3.2.43",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "dragon_vrip"
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "dragon_vrip",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1
+                    },
+                    "indices" : 2
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 437645,
+            "max" : [
+                6.512614727020264,
+                5.649133682250977,
+                3.0256423950195312
+            ],
+            "min" : [
+                -5.780797004699707,
+                -3.0174765586853027,
+                -2.471665859222412
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 437645,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5125,
+            "count" : 2614242,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 5251740,
+            "byteOffset" : 0
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 5251740,
+            "byteOffset" : 5251740
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 10456968,
+            "byteOffset" : 10503480
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 20960448,
+            "uri" : "dragon_stanford.bin"
+        }
+    ]
+}

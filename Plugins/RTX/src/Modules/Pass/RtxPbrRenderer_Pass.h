@@ -71,6 +71,8 @@ public:
 	RtxPbrRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~RtxPbrRenderer_Pass() override;
 
+	void ActionBeforeCompilation() override;
+
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;

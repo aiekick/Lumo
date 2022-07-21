@@ -17,6 +17,7 @@ limitations under the License.
 #pragma once
 
 #include <set>
+#include <map>
 #include <string>
 
 #include <ctools/cTools.h>
@@ -67,21 +68,7 @@ protected: // internal struct
 		std::string m_FilePathName;			// file path name on disk drive
 		vk::ShaderModule m_ShaderModule = nullptr;
 		bool m_Used = false;				// say if a sahder mut be take into account
-	};
-
-	enum ShaderId : uint8_t
-	{
-		eVertex = 0,
-		eFragment,
-		eGeometry,
-		eTessEval,
-		eTessCtrl,
-		eCompute,
-		eRtxRayGen,
-		eRtxRayInt,
-		eRtxRayMiss,
-		eRtxRayAnyHit,
-		eRtxRayClosestHit
+		vk::ShaderStageFlagBits m_ShaderId = vk::ShaderStageFlagBits::eVertex;
 	};
 
 private:
@@ -119,7 +106,7 @@ protected:
 	ct::fvec2 m_OutputSize;
 	float m_OutputRatio = 1.0f;
 
-	std::array<ShaderCode, 11U> m_ShaderCodes;
+	std::map<vk::ShaderStageFlagBits, std::vector<ShaderCode>> m_ShaderCodes;
 
 	bool m_IsShaderCompiled = false;
 	bool m_DescriptorWasUpdated = false;
@@ -250,7 +237,7 @@ protected:
 	virtual void ActionBeforeCompilation();
 	virtual void ActionAfterCompilation();
 
-	void SetShaderUse(ShaderId vShaderId, bool vUsed);
+	void SetShaderUse(vk::ShaderStageFlagBits vShaderId, bool vUsed);
 
 	// Get Shaders
 	virtual std::string GetVertexShaderCode(std::string& vOutShaderName);
@@ -265,7 +252,13 @@ protected:
 	virtual std::string GetRayAnyHitShaderCode(std::string& vOutShaderName);
 	virtual std::string GetRayClosestHitShaderCode(std::string& vOutShaderName);
 
-	ShaderCode CompilShaderCode(const vk::ShaderStageFlagBits& vShaderType);
+	ShaderCode& AddShaderCode(const ShaderCode& vShaderCode);
+	ShaderCode CompilShaderCode(
+		const vk::ShaderStageFlagBits& vShaderType,
+		const std::string& vCode,
+		const std::string& vShaderName);
+	ShaderCode CompilShaderCode(
+		const vk::ShaderStageFlagBits& vShaderType);
 	virtual bool CompilPixel();
 	virtual bool CompilCompute();
 	virtual bool CompilRtx();

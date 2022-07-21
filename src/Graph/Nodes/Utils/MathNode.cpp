@@ -350,7 +350,7 @@ void MathNode::ReorganizeSlots()
 		for (auto& input : m_Inputs)
 		{
 			if (input.second)
-			{
+			{ 
 				if (idx >= count)
 				{
 					input.second->hidden = true;

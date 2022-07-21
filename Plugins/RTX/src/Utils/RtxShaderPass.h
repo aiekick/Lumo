@@ -77,7 +77,6 @@ public:
 	RtxShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
-
 protected:
 	// https://developer.nvidia.com/blog/vulkan-raytracing/
 
@@ -91,14 +90,6 @@ protected:
 	void DestroyModel(const bool& vReleaseDatas = false) override;
 
 	bool CreateRtxPipeline() override;
-
-	bool CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak vMesh);
-	void DestroyBottomLevelAccelerationStructureForMesh();
-
-	bool CreateTopLevelAccelerationStructure(std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances);
-	void DestroyTopLevelAccelerationStructure();
-
-	vk::AccelerationStructureInstanceKHR CreateBlasInstance(const uint32_t& blas_id, glm::mat4& mat);
 
 	bool CreateShaderBindingTable();
 	void DestroyShaderBindingTable();
