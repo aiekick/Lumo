@@ -17,7 +17,6 @@ limitations under the License.
 #pragma once
 
 #include <Base/ShaderPass.h>
-#include <SceneGraph/SceneModel.h>
 
 /*
 	https://www.gsn-lib.org/docs/nodes/raytracing.php

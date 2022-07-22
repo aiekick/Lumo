@@ -45,6 +45,7 @@ private:
 
 public:
 	SceneAccelStructure(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~SceneAccelStructure();
 	void Clear();
 	bool BuildForModel(SceneModelWeak vSceneModelWeak);
 	bool IsOk() const { return m_SuccessfullyBuilt; }

@@ -296,10 +296,6 @@ bool RtxShaderPass::CreateShaderBindingTable()
 			copyHandles(m_RayMissShaderBindingTablePtr, miss_index, handle_size_aligned);
 			copyHandles(m_RayHitShaderBindingTablePtr, hit_index, handle_size_aligned);
 
-			const uint32_t handle_size_aligned = GetAlignedSize(
-				m_RayTracingPipelineProperties.shaderGroupHandleSize,
-				m_RayTracingPipelineProperties.shaderGroupHandleAlignment);
-
 			m_RayGenShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
 			m_RayGenShaderSbtEntry.deviceAddress = m_RayGenShaderBindingTablePtr->device_address;
 			m_RayGenShaderSbtEntry.stride = handle_size_aligned;

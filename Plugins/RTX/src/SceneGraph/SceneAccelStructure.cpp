@@ -44,6 +44,11 @@ SceneAccelStructure::SceneAccelStructure(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 }
 
+SceneAccelStructure::~SceneAccelStructure()
+{
+	Clear();
+}
+
 bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 {
 	Clear();

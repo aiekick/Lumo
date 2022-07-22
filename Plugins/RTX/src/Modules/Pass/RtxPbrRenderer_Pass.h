@@ -28,7 +28,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Utils/RtxShaderPass.h>
+#include <Base/RtxShaderPass.h>
 
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
