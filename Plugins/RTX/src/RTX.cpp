@@ -13,6 +13,7 @@
 #include <Graph/Base/NodeSlot.h>
 
 #include <Nodes/RtxPbrRendererNode.h>
+#include <Nodes/RtxSSSRendererNode.h>
 #include <Nodes/ModelToAccelStructNode.h>
 
 #ifndef USE_STATIC_LINKING_OF_PLUGINS
@@ -85,6 +86,7 @@ std::vector<std::string> RTX::GetNodes() const
 	return
 	{
 		"RTX_PBR_RENDERER",
+		"RTX_SSS_RENDERER",
 		"RTX_MODEL_TO_ACCELERATION_STRUCTURE"
 	};
 }
@@ -101,6 +103,15 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 	entry_RTX_PBR_RENDERER.second.color = ct::fvec4(0.0f);
 	entry_RTX_PBR_RENDERER.second.categoryPath = "RTX";
 	res.push_back(entry_RTX_PBR_RENDERER);
+
+	LibraryEntry entry_RTX_SSS_RENDERER;
+	entry_RTX_SSS_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+	entry_RTX_SSS_RENDERER.first = "plugins";
+	entry_RTX_SSS_RENDERER.second.nodeLabel = "SSS";
+	entry_RTX_SSS_RENDERER.second.nodeType = "RTX_SSS_RENDERER";
+	entry_RTX_SSS_RENDERER.second.color = ct::fvec4(0.0f);
+	entry_RTX_SSS_RENDERER.second.categoryPath = "RTX";
+	res.push_back(entry_RTX_SSS_RENDERER);
 
 
 	LibraryEntry entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE;
@@ -123,6 +134,8 @@ BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
 
 	if (vPluginNodeName == "RTX_PBR_RENDERER")
 		res = RtxPbrRendererNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "RTX_SSS_RENDERER")
+		res = RtxSSSRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "RTX_MODEL_TO_ACCELERATION_STRUCTURE")
 		res = ModelToAccelStructNode::Create(vkCorePtr);
 

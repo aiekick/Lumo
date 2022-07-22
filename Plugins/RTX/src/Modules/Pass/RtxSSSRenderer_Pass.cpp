@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "RtxPbrRenderer_Pass.h"
+#include "RtxSSSRenderer_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -38,7 +38,7 @@ using namespace vkApi;
 
 #define RTX_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.6f, 0.2f, 0.9f, 0.5f)
 
-RtxPbrRenderer_Pass::RtxPbrRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+RtxSSSRenderer_Pass::RtxSSSRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: RtxShaderPass(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -48,7 +48,7 @@ RtxPbrRenderer_Pass::RtxPbrRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	//m_DontUseShaderFilesOnDisk = true;
 }
 
-RtxPbrRenderer_Pass::~RtxPbrRenderer_Pass()
+RtxSSSRenderer_Pass::~RtxSSSRenderer_Pass()
 {
 	ZoneScoped;
 
@@ -59,14 +59,14 @@ RtxPbrRenderer_Pass::~RtxPbrRenderer_Pass()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void RtxPbrRenderer_Pass::ActionBeforeCompilation()
+void RtxSSSRenderer_Pass::ActionBeforeCompilation()
 {
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR));
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR));
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR));
 }
 
-bool RtxPbrRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool RtxSSSRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -75,7 +75,7 @@ bool RtxPbrRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 	return false;
 }
 
-void RtxPbrRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void RtxSSSRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -83,7 +83,7 @@ void RtxPbrRenderer_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::
 
 }
 
-void RtxPbrRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void RtxSSSRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -91,7 +91,7 @@ void RtxPbrRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame,
 
 }
 
-vk::DescriptorImageInfo* RtxPbrRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* RtxSSSRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
@@ -108,7 +108,7 @@ vk::DescriptorImageInfo* RtxPbrRenderer_Pass::GetDescriptorImageInfo(const uint3
 	return nullptr;
 }
 
-void RtxPbrRenderer_Pass::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
+void RtxSSSRenderer_Pass::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
 {
 	ZoneScoped;
 
@@ -117,7 +117,7 @@ void RtxPbrRenderer_Pass::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStru
 	NeedNewModelUpdate();
 }
 
-void RtxPbrRenderer_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void RtxSSSRenderer_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	ZoneScoped;
 
@@ -139,7 +139,7 @@ void RtxPbrRenderer_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string RtxPbrRenderer_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string RtxSSSRenderer_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -148,7 +148,7 @@ std::string RtxPbrRenderer_Pass::getXml(const std::string& vOffset, const std::s
 	return str;
 }
 
-bool RtxPbrRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool RtxSSSRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -177,7 +177,7 @@ bool RtxPbrRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RtxPbrRenderer_Pass::CanRender()
+bool RtxSSSRenderer_Pass::CanRender()
 {
 	ZoneScoped;
 
@@ -189,7 +189,7 @@ bool RtxPbrRenderer_Pass::CanRender()
 	return false;
 }
 
-bool RtxPbrRenderer_Pass::CanUpdateDescriptors()
+bool RtxSSSRenderer_Pass::CanUpdateDescriptors()
 {
 	ZoneScoped;
 
@@ -205,7 +205,7 @@ bool RtxPbrRenderer_Pass::CanUpdateDescriptors()
 	return false;
 }
 
-bool RtxPbrRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool RtxSSSRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -224,7 +224,7 @@ bool RtxPbrRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool RtxPbrRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool RtxSSSRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -252,11 +252,11 @@ bool RtxPbrRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 	return false;
 }
 
-std::string RtxPbrRenderer_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName)
+std::string RtxSSSRenderer_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName)
 {
 	ZoneScoped;
 
-	vOutShaderName = "RtxPbrRenderer_Pass";
+	vOutShaderName = "RtxSSSRenderer_Pass";
 	return u8R"(
 #version 460
 #extension GL_EXT_ray_tracing : enable
@@ -324,23 +324,22 @@ void main()
 	
 	imageStore(out_color, ivec2(gl_LaunchIDEXT.xy), prd.color);
 }
-
 )";
 }
 
-std::string RtxPbrRenderer_Pass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
+std::string RtxSSSRenderer_Pass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
 {
 	ZoneScoped;
 
-	vOutShaderName = "RtxPbrRenderer_Pass";
+	vOutShaderName = "RtxSSSRenderer_Pass";
 	return u8R"()";
 }
 
-std::string RtxPbrRenderer_Pass::GetRayMissShaderCode(std::string& vOutShaderName)
+std::string RtxSSSRenderer_Pass::GetRayMissShaderCode(std::string& vOutShaderName)
 {
 	ZoneScoped;
 
-	vOutShaderName = "RtxPbrRenderer_Pass";
+	vOutShaderName = "RtxSSSRenderer_Pass";
 	return u8R"(
 #version 460
 #extension GL_EXT_ray_tracing : enable
@@ -370,17 +369,17 @@ void main()
 )";
 }
 
-std::string RtxPbrRenderer_Pass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
+std::string RtxSSSRenderer_Pass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "RtxPbrRenderer_Pass";
+	vOutShaderName = "RtxSSSRenderer_Pass";
 	return u8R"()";
 }
 
-std::string RtxPbrRenderer_Pass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
+std::string RtxSSSRenderer_Pass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
 {
 	ZoneScoped;
 
-	vOutShaderName = "RtxPbrRenderer_Pass";
+	vOutShaderName = "RtxSSSRenderer_Pass";
 	return u8R"(
 
 #version 460
