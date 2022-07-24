@@ -45,7 +45,7 @@ using namespace vkApi;
 MathModule_Pass::MathModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Frag Pass : Math", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Quad Pass : Math", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
 	m_DontUseShaderFilesOnDisk = true;
 }

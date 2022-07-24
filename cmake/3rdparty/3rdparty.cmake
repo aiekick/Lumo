@@ -23,7 +23,6 @@ set(DEPENDS_PATH
 )
 
 ## contrib
-include(cmake/3rdparty/googletest.cmake) ## the content will be added only if 'USE_TEST' is set
 include(cmake/3rdparty/glslang.cmake)
 ##include(cmake/3rdparty/spirv_headers.cmake)
 ##include(cmake/3rdparty/spirv_tools.cmake)
