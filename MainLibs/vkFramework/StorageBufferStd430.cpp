@@ -20,7 +20,7 @@ limitations under the License.
 #include "StorageBufferStd430.h"
 
 #define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 
 using namespace vkApi;
 

@@ -314,37 +314,29 @@ namespace Geometry
 	{
 		GeometryDataStruct res;
 
-		if (m_GeometryType == GeometryTypeEnum::GEOMETRY_FROM_FILE)
+		ct::fvec3 e3; // empty fvec3
+		ct::fvec2 e2; // empty fvec2
+		for (auto& v : vertices)
 		{
-			res.vertexs = MeshLoader::Instance()->GetMeshDatas()->GetVertexs();
-			res.indexs = MeshLoader::Instance()->GetMeshDatas()->GetIndexs();
+			res.vertexs.emplace_back(VertexStruct::P3_N3_TA3_BTA3_T2_C4(v.p, v.n, e3, e3, e2, v.c));
 		}
-		else
+
+		for (auto& f : faces)
 		{
-			ct::fvec3 e3; // empty fvec3
-			ct::fvec2 e2; // empty fvec2
-			for (auto& v : vertices)
-			{
-				res.vertexs.emplace_back(VertexStruct::P3_N3_TA3_BTA3_T2_C4(v.p, v.n, e3, e3, e2, v.c));
-			}
+			res.indexs.push_back(VertexStruct::I1(f.v1));
+			res.indexs.push_back(VertexStruct::I1(f.v2));
+			res.indexs.push_back(VertexStruct::I1(f.v3));
 
-			for (auto& f : faces)
-			{
-				res.indexs.push_back(VertexStruct::I1(f.v1));
-				res.indexs.push_back(VertexStruct::I1(f.v2));
-				res.indexs.push_back(VertexStruct::I1(f.v3));
+			VertexStruct::P3_N3_TA3_BTA3_T2_C4& v0 = res.vertexs.at(f.v1);
+			VertexStruct::P3_N3_TA3_BTA3_T2_C4& v1 = res.vertexs.at(f.v2);
+			VertexStruct::P3_N3_TA3_BTA3_T2_C4& v2 = res.vertexs.at(f.v3);
 
-				VertexStruct::P3_N3_TA3_BTA3_T2_C4& v0 = res.vertexs.at(f.v1);
-				VertexStruct::P3_N3_TA3_BTA3_T2_C4& v1 = res.vertexs.at(f.v2);
-				VertexStruct::P3_N3_TA3_BTA3_T2_C4& v2 = res.vertexs.at(f.v3);
+			CalcNormal(v0, v1, v2);
+		}
 
-				CalcNormal(v0, v1, v2);
-			}
-
-			for (auto& v : res.vertexs)
-			{
-				v.n = v.n.GetNormalized();
-			}
+		for (auto& v : res.vertexs)
+		{
+			v.n = v.n.GetNormalized();
 		}
 
 		return res;
@@ -495,11 +487,9 @@ namespace Geometry
 		return change;
 	}
 
-	bool Geometry::DrawDialogsAndPopups(const ct::ivec2& vScreenSize)
+	bool Geometry::DrawDialogsAndPopups(const ct::ivec2& /*vScreenSize*/)
 	{
 		bool change = false;
-
-		MeshLoader::Instance()->ShowDialog(vScreenSize);
 
 		return change;
 	}

@@ -34,7 +34,7 @@ limitations under the License.
 #include <Graph/Factory/NodeFactory.h>
 
 #define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 
 using namespace vkApi;
 

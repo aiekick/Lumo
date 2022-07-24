@@ -32,7 +32,7 @@ limitations under the License.
 #include <cinttypes> // printf zu
 
 #define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 
 static int SourcePane_WidgetId = 0;
 

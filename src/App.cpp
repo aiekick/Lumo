@@ -60,8 +60,7 @@ limitations under the License.
 
 #include <Graph/Manager/NodeManager.h>
 #include <Systems/CommonSystem.h>
-#include <Utils/Mesh/MeshLoader.h>
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 #include <Profiler/vkProfiler.hpp>
 
 #include <Plugins/PluginManager.h>
@@ -162,7 +161,7 @@ bool App::Init(GLFWwindow* vWindow)
 							vThumbnail_Info->textureFileDatas)
 						{
 							std::shared_ptr<FileDialogAsset> res = std::shared_ptr<FileDialogAsset>(new FileDialogAsset,
-								[this](FileDialogAsset* obj)
+								[](FileDialogAsset* obj)
 								{
 									delete obj;
 								}
@@ -265,9 +264,6 @@ void App::MainLoop(GLFWwindow* vWindow)
 		ImGuiFileDialog::Instance()->ManageGPUThumbnails();
 #endif
 
-		//even if without UI
-		MeshLoader::Instance()->FinishIfRequired();
-
 		// delete imgui nodes now
 		// like that => no issue with imgui descriptors because after imgui render and before next node computing
 		GraphPane::Instance()->DeleteNodesIfAnys();
@@ -294,10 +290,11 @@ bool App::BeginRender(bool& vNeedResize)
 		auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
 		if (devicePtr)
 		{
-			devicePtr->BeginDebugLabel(&m_VulkanCorePtr->getGraphicCommandBuffer(), "ImGui", IMGUI_RENDERER_DEBUG_COLOR);
+			auto cmd = m_VulkanCorePtr->getGraphicCommandBuffer();
+			devicePtr->BeginDebugLabel(&cmd, "ImGui", IMGUI_RENDERER_DEBUG_COLOR);
 
 			{
-				TracyVkZone(m_VulkanCorePtr->getTracyContext(), m_VulkanCorePtr->getGraphicCommandBuffer(), "Record Renderer Command buffer");
+				TracyVkZone(m_VulkanCorePtr->getTracyContext(), cmd, "Record Renderer Command buffer");
 			}
 
 			m_VulkanCorePtr->beginMainRenderPass();
@@ -319,18 +316,20 @@ void App::EndRender()
 
 	m_VulkanCorePtr->endMainRenderPass();
 
+	auto cmd = m_VulkanCorePtr->getGraphicCommandBuffer();
+	
 	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
 	if (devicePtr)
 	{
-		devicePtr->EndDebugLabel(&m_VulkanCorePtr->getGraphicCommandBuffer());
+		devicePtr->EndDebugLabel(&cmd);
 	}
 
 	{
-		TracyVkCollect(m_VulkanCorePtr->getTracyContext(), m_VulkanCorePtr->getGraphicCommandBuffer());
+		TracyVkCollect(m_VulkanCorePtr->getTracyContext(), cmd);
 	}
 
 	{
-		vkprof::vkProfiler::Instance()->Collect(m_VulkanCorePtr->getGraphicCommandBuffer());
+		vkprof::vkProfiler::Instance()->Collect(cmd);
 	}
 
 	m_VulkanCorePtr->frameEnd();

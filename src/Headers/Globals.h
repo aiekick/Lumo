@@ -37,6 +37,8 @@ static inline const char* GetModelRenderModeEnumString(ModelRenderModeEnum vMode
 	case ModelRenderModeEnum::MODEL_RENDER_MODE_TRIANGLE_FAN:	return "TRIANGLE_FAN";
 	case ModelRenderModeEnum::MODEL_RENDER_MODE_TRIANGLES:		return "TRIANGLES";
 	case ModelRenderModeEnum::MODEL_RENDER_MODE_PATCHES:		return "PATCHES";
+	case ModelRenderModeEnum::MODEL_RENDER_MODE_NONE:			
+	case ModelRenderModeEnum::MODEL_RENDER_MODE_Count:			return "";
 	}
 	return "";
 }
@@ -57,6 +59,8 @@ static inline const char* GetModelTypeEnumString(BaseMeshEnum vBaseMeshEnum)
 	case BaseMeshEnum::BASE_MESH_QUAD:		return "QUAD";
 	case BaseMeshEnum::BASE_MESH_POINTS:	return "POINTS";
 	case BaseMeshEnum::BASE_MESH_MESH:		return "MESH";
+	case BaseMeshEnum::BASE_MESH_NONE:		
+	case BaseMeshEnum::BASE_MESH_Count:		return "";
 	}
 	return "";
 }

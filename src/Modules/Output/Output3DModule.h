@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
 
@@ -13,8 +15,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
-#pragma once
 
 #include <array>
 #include <memory>
@@ -65,7 +65,7 @@ public:
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState);
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) override;
 
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

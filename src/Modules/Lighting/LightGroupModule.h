@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
 
@@ -14,7 +16,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#pragma once
 
 #include <array>
 #include <string>
@@ -69,8 +70,7 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-
-	SceneLightGroupWeak GetLightGroup();
+	SceneLightGroupWeak GetLightGroup() override;
 
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

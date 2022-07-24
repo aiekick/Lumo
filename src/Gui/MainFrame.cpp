@@ -32,7 +32,6 @@ limitations under the License.
 #include <Project/ProjectFile.h>
 #include <FontIcons/CustomFont.h>
 #include <FontIcons/CustomFont.h>
-#include <Utils/Mesh/MeshLoader.h>
 #include <Graph/Manager/NodeManager.h>
 
 #include <Panes/DebugPane.h>

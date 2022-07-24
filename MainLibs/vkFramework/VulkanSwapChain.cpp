@@ -27,7 +27,7 @@ limitations under the License.
 #include <GLFW/glfw3.h>
 
 #define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 
 namespace vkApi
 {

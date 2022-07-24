@@ -29,7 +29,7 @@ limitations under the License.
 #include "stb/stb_image_resize.h"
 
 #define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 
 using namespace vkApi;
 

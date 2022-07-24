@@ -89,11 +89,9 @@ void BreakTexturesGroupNode::SetTextures(
 
 	if (vImageInfos)
 	{
-		uint32_t idx = 0U;
 		for (auto& info : *vImageInfos)
 		{
-			m_Textures.push_back(vImageInfos->at(idx));
-			++idx;
+			m_Textures.push_back(info);
 		}
 	}
 }
@@ -241,15 +239,12 @@ void BreakTexturesGroupNode::ReorganizeSlots()
 {
 	m_Outputs.clear();
 	
-	uint32_t idx = 0U;
-	for (auto& info : m_Textures)
+	for (size_t idx = 0U ; idx < m_Textures.size() ; ++idx)
 	{
 		NodeSlot slot;
 		slot.slotType = "TEXTURE_2D";
 		slot.name = ct::toStr("Output %u", idx);
 		slot.descriptorBinding = idx;
 		AddOutput(slot, true, true);
-
-		++idx;
 	}
 }

@@ -36,7 +36,7 @@ limitations under the License.
 #include <list>
 #include <array>
 
-#include <vkProfiler/Profiler.h> // for TracyVkCtx
+#include <vkprofiler/Profiler.h> // for TracyVkCtx
 
 class VulkanImGuiRenderer;
 class VulkanShader;

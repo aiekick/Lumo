@@ -21,7 +21,7 @@ limitations under the License.
 #include <ctools/Logger.h>
 
 #define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 
 ImGuiTexturePtr ImGuiTexture::Create()
 {

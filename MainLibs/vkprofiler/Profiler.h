@@ -20,7 +20,7 @@ limitations under the License.
 #include <tracy/TracyVulkan.hpp>
 
 /* code a inserer dans le main pour tracer la memoire dans tracy
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 void* operator new(std::size_t count)
 {
 	auto ptr = malloc(count);

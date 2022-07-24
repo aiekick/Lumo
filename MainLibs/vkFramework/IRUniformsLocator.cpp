@@ -20,7 +20,7 @@ limitations under the License.
 #include "IRUniformsLocator.h"
 
 #define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 
 TIRUniformsLocator::TIRUniformsLocator()
 {

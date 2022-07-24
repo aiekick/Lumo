@@ -54,11 +54,11 @@ namespace vkprof
         class ScopedZone
         {
         private:
-            char buffer[255 + 1] = "";
-            VkQueryPool m_QueryPool;
-            VkCommandBuffer m_Command;
-            vkProfiler::QueryZone* m_QueryZonePtr = nullptr;
-            uint32_t* currentDepthPtr = nullptr;
+            //char buffer[255 + 1] = "";
+            //VkQueryPool m_QueryPool;
+            //VkCommandBuffer m_Command;
+            //vkProfiler::QueryZone* m_QueryZonePtr = nullptr;
+            //uint32_t* currentDepthPtr = nullptr;
 
         public:
             ScopedZone(const VkCommandBuffer& vCmd, const std::string& vSection, 

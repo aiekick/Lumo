@@ -19,7 +19,7 @@ limitations under the License.
 #include <cstdint>
 #include <memory>
 #include <ctools/cTools.h>
-#include <graph/graph.h>
+#include <Graph/Graph.h>
 
 class SceneVariable;
 typedef std::shared_ptr<SceneVariable> SceneVariablePtr;

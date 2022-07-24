@@ -58,7 +58,7 @@ limitations under the License.
 #include "vk_mem_alloc.h"
 
 #define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#include <vkprofiler/Profiler.h>
 
 static bool sGainFocus = false;
 

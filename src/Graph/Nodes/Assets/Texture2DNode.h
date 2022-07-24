@@ -31,7 +31,6 @@ public:
 private:
 	std::shared_ptr<Texture2DModule> m_Texture2DModule = nullptr;
 	BaseNodeWeak m_ConnectedNode;
-	uint32_t m_ConnectedSlotId = 0U;
 
 public:
 	Texture2DNode();

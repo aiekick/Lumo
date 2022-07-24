@@ -164,7 +164,6 @@ BaseNodeWeak UserNodeLibrary::CreateNode(BaseNodeWeak vNodeGraph, const LibraryE
 	if (vNodeGraph.expired()) return BaseNodeWeak();
 	if (vLibraryEntry.first.empty()) return BaseNodeWeak();
 
-	bool isOutput3DNode = false;
 	BaseNodePtr nodePtr = nullptr;
 
 	if (vLibraryEntry.first == "internal")
