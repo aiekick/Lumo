@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "SimulationNode.h"
-#include <Modules/SimulationModule.h>
+#include "ParticlesSimulationNode.h"
+#include <Modules/ParticlesSimulationModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 
-std::shared_ptr<SimulationNode> SimulationNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParticlesSimulationNode> ParticlesSimulationNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<SimulationNode>();
+	auto res = std::make_shared<ParticlesSimulationNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -29,46 +29,31 @@ std::shared_ptr<SimulationNode> SimulationNode::Create(vkApi::VulkanCorePtr vVul
 	return res;
 }
 
-SimulationNode::SimulationNode() : BaseNode()
+ParticlesSimulationNode::ParticlesSimulationNode() : BaseNode()
 {
-	m_NodeTypeString = "DIFFUSE";
+	m_NodeTypeString = "PARTICLES_SIMULATION";
 }
 
-SimulationNode::~SimulationNode()
+ParticlesSimulationNode::~ParticlesSimulationNode()
 {
 	Unit();
 }
 
-bool SimulationNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ParticlesSimulationNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Simulation";
 
 	NodeSlot slot;
 
-	slot.slotType = "LIGHT_GROUP";
-	slot.name = "Lights";
-	slot.descriptorBinding = 0U;
-	AddInput(slot, true, false);
-
-	slot.slotType = "TEXTURE_2D";
-	slot.name = "Position";
-	slot.descriptorBinding = 0U;
-	AddInput(slot, true, false);
-
-	slot.slotType = "TEXTURE_2D";
-	slot.name = "Normal";
-	slot.descriptorBinding = 1U;
-	AddInput(slot, true, false);
-
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = "PARTICLES";
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
 
 	bool res = false;
 
-	m_SimulationModulePtr = SimulationModule::Create(vVulkanCorePtr);
-	if (m_SimulationModulePtr)
+	m_ParticlesSimulationModulePtr = ParticlesSimulationModule::Create(vVulkanCorePtr);
+	if (m_ParticlesSimulationModulePtr)
 	{
 		res = true;
 	}
@@ -76,43 +61,43 @@ bool SimulationNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool SimulationNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ParticlesSimulationNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
-	if (m_SimulationModulePtr)
+	if (m_ParticlesSimulationModulePtr)
 	{
-		return m_SimulationModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		return m_ParticlesSimulationModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
 
-bool SimulationNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ParticlesSimulationNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	if (m_SimulationModulePtr)
+	if (m_ParticlesSimulationModulePtr)
 	{
-		return m_SimulationModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_ParticlesSimulationModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void SimulationNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ParticlesSimulationNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	if (m_SimulationModulePtr)
+	if (m_ParticlesSimulationModulePtr)
 	{
-		m_SimulationModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_ParticlesSimulationModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void SimulationNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void ParticlesSimulationNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
@@ -129,11 +114,11 @@ void SimulationNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void SimulationNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ParticlesSimulationNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	if (m_SimulationModulePtr)
+	if (m_ParticlesSimulationModulePtr)
 	{
-		m_SimulationModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_ParticlesSimulationModulePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
@@ -141,11 +126,11 @@ void SimulationNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColor
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void SimulationNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void ParticlesSimulationNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_SimulationModulePtr)
+	if (startSlotPtr && endSlotPtr && m_ParticlesSimulationModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
@@ -172,11 +157,11 @@ void SimulationNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak 
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void SimulationNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void ParticlesSimulationNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_SimulationModulePtr)
+	if (startSlotPtr && endSlotPtr && m_ParticlesSimulationModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
@@ -192,33 +177,33 @@ void SimulationNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWe
 	}
 }
 
-void SimulationNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void ParticlesSimulationNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	if (m_SimulationModulePtr)
+	if (m_ParticlesSimulationModulePtr)
 	{
-		m_SimulationModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_ParticlesSimulationModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* SimulationNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* ParticlesSimulationNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_SimulationModulePtr)
+	if (m_ParticlesSimulationModulePtr)
 	{
-		return m_SimulationModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ParticlesSimulationModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-void SimulationNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void ParticlesSimulationNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	if (m_SimulationModulePtr)
+	if (m_ParticlesSimulationModulePtr)
 	{
-		return m_SimulationModulePtr->SetLightGroup(vSceneLightGroup);
+		return m_ParticlesSimulationModulePtr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
-void SimulationNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void ParticlesSimulationNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
@@ -273,7 +258,7 @@ void SimulationNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmi
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SimulationNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string ParticlesSimulationNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -299,9 +284,9 @@ std::string SimulationNode::getXml(const std::string& vOffset, const std::string
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_SimulationModulePtr)
+		if (m_ParticlesSimulationModulePtr)
 		{
-			res += m_SimulationModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_ParticlesSimulationModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -310,7 +295,7 @@ std::string SimulationNode::getXml(const std::string& vOffset, const std::string
 	return res;
 }
 
-bool SimulationNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool ParticlesSimulationNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -325,18 +310,18 @@ bool SimulationNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_SimulationModulePtr)
+	if (m_ParticlesSimulationModulePtr)
 	{
-		m_SimulationModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_ParticlesSimulationModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
 }
 
-void SimulationNode::UpdateShaders(const std::set<std::string>& vFiles)
+void ParticlesSimulationNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
-	if (m_SimulationModulePtr)
+	if (m_ParticlesSimulationModulePtr)
 	{
-		m_SimulationModulePtr->UpdateShaders(vFiles);
+		m_ParticlesSimulationModulePtr->UpdateShaders(vFiles);
 	}
 }

@@ -1,3 +1,6 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #include "PluginInterface.h"
 
 #include <Graph/Base/BaseNode.h>
@@ -27,7 +30,6 @@ bool PluginInterface::Init(
 	// car les statics contenus dans ces classes sont null quand ils arrivent ici
 	
 	m_VulkanCoreWeak = vVulkanCoreWeak;
-	
 	auto corePtr = m_VulkanCoreWeak.getValidShared();
 	if (corePtr)
 	{

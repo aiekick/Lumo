@@ -32,26 +32,35 @@ namespace VertexStruct
 		// P3_N3_C4
 		vInputState.attributes.resize(3);
 
-		// vertex pos vec3
-		vInputState.attributes[0].binding = 0;
-		vInputState.attributes[0].location = 0;
-		vInputState.attributes[0].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[0].offset = 0;
-		offset += sizeof(ct::fvec3);
+		{
+			// vertex pos vec3
+			auto& attrib = vInputState.attributes[0];
+			attrib.binding = 0;
+			attrib.location = 0;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = 0;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// vertex normal vec3
-		vInputState.attributes[1].binding = 0;
-		vInputState.attributes[1].location = 1;
-		vInputState.attributes[1].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[1].offset = offset;
-		offset += sizeof(ct::fvec3);
+		{
+			// vertex normal vec3
+			auto& attrib = vInputState.attributes[1];
+			attrib.binding = 0;
+			attrib.location = 1;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// vertex color vec4
-		vInputState.attributes[2].binding = 0;
-		vInputState.attributes[2].location = 2;
-		vInputState.attributes[2].format = vk::Format::eR32G32B32A32Sfloat;
-		vInputState.attributes[2].offset = offset;
-		offset += sizeof(ct::fvec4);
+		{
+			// vertex color vec4
+			auto& attrib = vInputState.attributes[2];
+			attrib.binding = 0;
+			attrib.location = 2;
+			attrib.format = vk::Format::eR32G32B32A32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec4);
+		}
 
 		vInputState.state = vk::PipelineVertexInputStateCreateInfo(
 			vk::PipelineVertexInputStateCreateFlags(),
@@ -61,7 +70,7 @@ namespace VertexStruct
 			vInputState.attributes.data()
 		);
 	}
-	P3_N3_C4::P3_N3_C4() {}
+	P3_N3_C4::P3_N3_C4() = default;
 	P3_N3_C4::P3_N3_C4(ct::fvec3 vp) { p = vp; }
 	P3_N3_C4::P3_N3_C4(ct::fvec3 vp, ct::fvec3 vn) { p = vp; n = vn; }
 	P3_N3_C4::P3_N3_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec4 vc) { p = vp; n = vn; c = vc; }
@@ -77,33 +86,45 @@ namespace VertexStruct
 		// P3_N3_C4_D1
 		vInputState.attributes.resize(4);
 
-		// vertex pos vec3
-		vInputState.attributes[0].binding = 0;
-		vInputState.attributes[0].location = 0;
-		vInputState.attributes[0].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[0].offset = 0;
-		offset += sizeof(ct::fvec3);
+		{
+			// vertex pos vec3
+			auto& attrib = vInputState.attributes[0];
+			attrib.binding = 0;
+			attrib.location = 0;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = 0;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// vertex normal vec3
-		vInputState.attributes[1].binding = 0;
-		vInputState.attributes[1].location = 1;
-		vInputState.attributes[1].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[1].offset = offset;
-		offset += sizeof(ct::fvec3);
+		{
+			// vertex normal vec3
+			auto& attrib = vInputState.attributes[1];
+			attrib.binding = 0;
+			attrib.location = 1;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// vertex color vec4
-		vInputState.attributes[2].binding = 0;
-		vInputState.attributes[2].location = 2;
-		vInputState.attributes[2].format = vk::Format::eR32G32B32A32Sfloat;
-		vInputState.attributes[2].offset = offset;
-		offset += sizeof(ct::fvec4);
+		{
+			// vertex color vec4
+			auto& attrib = vInputState.attributes[2];
+			attrib.binding = 0;
+			attrib.location = 2;
+			attrib.format = vk::Format::eR32G32B32A32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec4);
+		}
 
-		// vertex df
-		vInputState.attributes[3].binding = 0;
-		vInputState.attributes[3].location = 3;
-		vInputState.attributes[3].format = vk::Format::eR32Sfloat;
-		vInputState.attributes[3].offset = offset;
-		offset += sizeof(float);
+		{
+			// vertex df
+			auto& attrib = vInputState.attributes[3];
+			attrib.binding = 0;
+			attrib.location = 3;
+			attrib.format = vk::Format::eR32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(float);
+		}
 
 		vInputState.state = vk::PipelineVertexInputStateCreateInfo(
 			vk::PipelineVertexInputStateCreateFlags(),
@@ -113,7 +134,7 @@ namespace VertexStruct
 			vInputState.attributes.data()
 		);
 	}
-	P3_N3_C4_D1::P3_N3_C4_D1() {}
+	P3_N3_C4_D1::P3_N3_C4_D1() = default;
 	P3_N3_C4_D1::P3_N3_C4_D1(ct::fvec3 vp) { p = vp; }
 	P3_N3_C4_D1::P3_N3_C4_D1(ct::fvec3 vp, ct::fvec3 vn) { p = vp; n = vn; }
 	P3_N3_C4_D1::P3_N3_C4_D1(ct::fvec3 vp, ct::fvec3 vn, ct::fvec4 vc) { p = vp; n = vn; c = vc; }
@@ -130,19 +151,25 @@ namespace VertexStruct
 		// P2_T2
 		vInputState.attributes.resize(2);
 
-		// vertex pos vec2
-		vInputState.attributes[0].binding = 0;
-		vInputState.attributes[0].location = 0;
-		vInputState.attributes[0].format = vk::Format::eR32G32Sfloat;
-		vInputState.attributes[0].offset = 0;
-		offset += sizeof(ct::fvec2);
+		{
+			// vertex pos vec2
+			auto& attrib = vInputState.attributes[0];
+			attrib.binding = 0;
+			attrib.location = 0;
+			attrib.format = vk::Format::eR32G32Sfloat;
+			attrib.offset = 0;
+			offset += sizeof(ct::fvec2);
+		}
 
-		// texture coordinate vec2
-		vInputState.attributes[1].binding = 0;
-		vInputState.attributes[1].location = 1;
-		vInputState.attributes[1].format = vk::Format::eR32G32Sfloat;
-		vInputState.attributes[1].offset = offset;
-		offset += sizeof(ct::fvec2);
+		{
+			// texture coordinate vec2
+			auto& attrib = vInputState.attributes[1];
+			attrib.binding = 0;
+			attrib.location = 1;
+			attrib.format = vk::Format::eR32G32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec2);
+		}
 
 		vInputState.state = vk::PipelineVertexInputStateCreateInfo(
 			vk::PipelineVertexInputStateCreateFlags(),
@@ -152,7 +179,7 @@ namespace VertexStruct
 			vInputState.attributes.data()
 		);
 	}
-	P2_T2::P2_T2() {}
+	P2_T2::P2_T2() = default;
 	P2_T2::P2_T2(ct::fvec2 vp) { p = vp; }
 	P2_T2::P2_T2(ct::fvec2 vp, ct::fvec2 vt) { p = vp; t = vt; }
 
@@ -167,26 +194,35 @@ namespace VertexStruct
 		// P3_N3_T2
 		vInputState.attributes.resize(3);
 
-		// vertex pos vec3
-		vInputState.attributes[0].binding = 0;
-		vInputState.attributes[0].location = 0;
-		vInputState.attributes[0].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[0].offset = 0;
-		offset += sizeof(ct::fvec3);
+		{
+			// vertex pos vec3
+			auto& attrib = vInputState.attributes[0];
+			attrib.binding = 0;
+			attrib.location = 0;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = 0;
+			offset += sizeof(ct::fvec3);
+		}
+		
+		{
+			// vertex normal vec3
+			auto& attrib = vInputState.attributes[1];
+			attrib.binding = 0;
+			attrib.location = 1;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// vertex normal vec3
-		vInputState.attributes[1].binding = 0;
-		vInputState.attributes[1].location = 1;
-		vInputState.attributes[1].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[1].offset = offset;
-		offset += sizeof(ct::fvec3);
-
-		// texture coordinate vec2
-		vInputState.attributes[2].binding = 0;
-		vInputState.attributes[2].location = 2;
-		vInputState.attributes[2].format = vk::Format::eR32G32Sfloat;
-		vInputState.attributes[2].offset = offset;
-		offset += sizeof(ct::fvec2);
+		{
+			// texture coordinate vec2
+			auto& attrib = vInputState.attributes[2];
+			attrib.binding = 0;
+			attrib.location = 2;
+			attrib.format = vk::Format::eR32G32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec2);
+		}
 
 		vInputState.state = vk::PipelineVertexInputStateCreateInfo(
 			vk::PipelineVertexInputStateCreateFlags(),
@@ -196,7 +232,7 @@ namespace VertexStruct
 			vInputState.attributes.data()
 		);
 	}
-	P3_N3_T2::P3_N3_T2() {}
+	P3_N3_T2::P3_N3_T2() = default;
 	P3_N3_T2::P3_N3_T2(ct::fvec3 vp) { p = vp; }
 	P3_N3_T2::P3_N3_T2(ct::fvec3 vp, ct::fvec3 vn) { p = vp; n = vn; }
 	P3_N3_T2::P3_N3_T2(ct::fvec3 vp, ct::fvec3 vn, ct::fvec2 vt) { p = vp; n = vn; t = vt; }
@@ -212,33 +248,45 @@ namespace VertexStruct
 		// P3_N3_T2_C4
 		vInputState.attributes.resize(4);
 
-		// vertex pos vec3
-		vInputState.attributes[0].binding = 0;
-		vInputState.attributes[0].location = 0;
-		vInputState.attributes[0].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[0].offset = 0;
-		offset += sizeof(ct::fvec3);
+		{
+			// vertex pos vec3
+			auto& attrib = vInputState.attributes[0];
+			attrib.binding = 0;
+			attrib.location = 0;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = 0;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// vertex normal vec3
-		vInputState.attributes[1].binding = 0;
-		vInputState.attributes[1].location = 1;
-		vInputState.attributes[1].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[1].offset = offset;
-		offset += sizeof(ct::fvec3);
+		{
+			// vertex normal vec3
+			auto& attrib = vInputState.attributes[1];
+			attrib.binding = 0;
+			attrib.location = 1;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// texture coordinate vec2
-		vInputState.attributes[2].binding = 0;
-		vInputState.attributes[2].location = 2;
-		vInputState.attributes[2].format = vk::Format::eR32G32Sfloat;
-		vInputState.attributes[2].offset = offset;
-		offset += sizeof(ct::fvec2);
+		{
+			// texture coordinate vec2
+			auto& attrib = vInputState.attributes[2];
+			attrib.binding = 0;
+			attrib.location = 2;
+			attrib.format = vk::Format::eR32G32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec2);
+		}
 
-		// vertex color vec4
-		vInputState.attributes[3].binding = 0;
-		vInputState.attributes[3].location = 3;
-		vInputState.attributes[3].format = vk::Format::eR32G32B32A32Sfloat;
-		vInputState.attributes[3].offset = offset;
-		offset += sizeof(ct::fvec4);
+		{
+			// vertex color vec4
+			auto& attrib = vInputState.attributes[3];
+			attrib.binding = 0;
+			attrib.location = 3;
+			attrib.format = vk::Format::eR32G32B32A32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec4);
+		}
 
 		vInputState.state = vk::PipelineVertexInputStateCreateInfo(
 			vk::PipelineVertexInputStateCreateFlags(),
@@ -248,7 +296,7 @@ namespace VertexStruct
 			vInputState.attributes.data()
 		);
 	}
-	P3_N3_T2_C4::P3_N3_T2_C4() {}
+	P3_N3_T2_C4::P3_N3_T2_C4() = default;
 	P3_N3_T2_C4::P3_N3_T2_C4(ct::fvec3 vp) { p = vp; }
 	P3_N3_T2_C4::P3_N3_T2_C4(ct::fvec3 vp, ct::fvec3 vn) { p = vp; n = vn; }
 	P3_N3_T2_C4::P3_N3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec2 vt) { p = vp; n = vn; t = vt; }
@@ -265,47 +313,65 @@ namespace VertexStruct
 		// P3_N3_TA3_BTA3_T2_C4
 		vInputState.attributes.resize(6);
 
-		// vertex pos vec3
-		vInputState.attributes[0].binding = 0;
-		vInputState.attributes[0].location = 0;
-		vInputState.attributes[0].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[0].offset = 0;
-		offset += sizeof(ct::fvec3);
+		{
+			// vertex pos vec3
+			auto& attrib = vInputState.attributes[0];
+			attrib.binding = 0;
+			attrib.location = 0;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = 0;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// vertex normal vec3
-		vInputState.attributes[1].binding = 0;
-		vInputState.attributes[1].location = 1;
-		vInputState.attributes[1].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[1].offset = offset;
-		offset += sizeof(ct::fvec3);
+		{
+			// vertex normal vec3
+			auto& attrib = vInputState.attributes[1];
+			attrib.binding = 0;
+			attrib.location = 1;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// tangant vec3
-		vInputState.attributes[2].binding = 0;
-		vInputState.attributes[2].location = 2;
-		vInputState.attributes[2].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[2].offset = offset;
-		offset += sizeof(ct::fvec3);
+		{
+			// tangant vec3
+			auto& attrib = vInputState.attributes[2];
+			attrib.binding = 0;
+			attrib.location = 2;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// bi-tangant vec3
-		vInputState.attributes[3].binding = 0;
-		vInputState.attributes[3].location = 3;
-		vInputState.attributes[3].format = vk::Format::eR32G32B32Sfloat;
-		vInputState.attributes[3].offset = offset;
-		offset += sizeof(ct::fvec3);
+		{
+			// bi-tangant vec3
+			auto& attrib = vInputState.attributes[3];
+			attrib.binding = 0;
+			attrib.location = 3;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec3);
+		}
 
-		// texture coordinate vec2
-		vInputState.attributes[4].binding = 0;
-		vInputState.attributes[4].location = 4;
-		vInputState.attributes[4].format = vk::Format::eR32G32Sfloat;
-		vInputState.attributes[4].offset = offset;
-		offset += sizeof(ct::fvec2);
+		{
+			// texture coordinate vec2
+			auto& attrib = vInputState.attributes[4];
+			attrib.binding = 0;
+			attrib.location = 4;
+			attrib.format = vk::Format::eR32G32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec2);
+		}
 
-		// vertex color vec4
-		vInputState.attributes[5].binding = 0;
-		vInputState.attributes[5].location = 5;
-		vInputState.attributes[5].format = vk::Format::eR32G32B32A32Sfloat;
-		vInputState.attributes[5].offset = offset;
-		offset += sizeof(ct::fvec4);
+		{
+			// vertex color vec4
+			auto& attrib = vInputState.attributes[5];
+			attrib.binding = 0;
+			attrib.location = 5;
+			attrib.format = vk::Format::eR32G32B32A32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec4);
+		}
 
 		vInputState.state = vk::PipelineVertexInputStateCreateInfo(
 			vk::PipelineVertexInputStateCreateFlags(),
@@ -315,7 +381,7 @@ namespace VertexStruct
 			vInputState.attributes.data()
 		);
 	}
-	P3_N3_TA3_BTA3_T2_C4::P3_N3_TA3_BTA3_T2_C4() {}
+	P3_N3_TA3_BTA3_T2_C4::P3_N3_TA3_BTA3_T2_C4() = default;
 	P3_N3_TA3_BTA3_T2_C4::P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp) { p = vp; }
 	P3_N3_TA3_BTA3_T2_C4::P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn) { p = vp; n = vn; }
 	P3_N3_TA3_BTA3_T2_C4::P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec3 vtan) { p = vp; n = vn; tan = vtan; }

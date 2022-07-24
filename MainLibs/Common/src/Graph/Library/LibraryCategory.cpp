@@ -43,15 +43,9 @@ limitations under the License.
 //// INIT ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-LibraryCategory::LibraryCategory()
-{
-	
-}
+LibraryCategory::LibraryCategory() = default;
 
-LibraryCategory::~LibraryCategory()
-{
-	
-}
+LibraryCategory::~LibraryCategory() = default;
 
 void LibraryCategory::Clear()
 {

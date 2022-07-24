@@ -48,8 +48,8 @@ limitations under the License.
 
 
 
-class SimulationModule_Pass;
-class SimulationModule :
+class ParticlesSimulationModule_Pass;
+class ParticlesSimulationModule :
 	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
@@ -59,15 +59,15 @@ class SimulationModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<SimulationModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ParticlesSimulationModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	ct::cWeak<SimulationModule> m_This;
-	std::shared_ptr<SimulationModule_Pass> m_SimulationModule_Pass_Ptr = nullptr;
+	ct::cWeak<ParticlesSimulationModule> m_This;
+	std::shared_ptr<ParticlesSimulationModule_Pass> m_ParticlesSimulationModule_Pass_Ptr = nullptr;
 
 public:
-	SimulationModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~SimulationModule() override;
+	ParticlesSimulationModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~ParticlesSimulationModule() override;
 
 	bool Init();
 

@@ -31,7 +31,7 @@ std::shared_ptr<ParticlesRendererNode> ParticlesRendererNode::Create(vkApi::Vulk
 
 ParticlesRendererNode::ParticlesRendererNode() : BaseNode()
 {
-	m_NodeTypeString = "HEATMAP_RENDERER";
+	m_NodeTypeString = "PARTICLES_RENDERER";
 }
 
 ParticlesRendererNode::~ParticlesRendererNode()
@@ -41,12 +41,12 @@ ParticlesRendererNode::~ParticlesRendererNode()
 
 bool ParticlesRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Particles";
+	name = "Renderer";
 
 	NodeSlot slot;
 	
-	slot.slotType = "MESH";
-	slot.name = "3D Model";
+	slot.slotType = "PARTICLES";
+	slot.name = "Particles";
 	AddInput(slot, true, false);
 
 	slot.slotType = "TEXTURE_2D";
@@ -72,6 +72,9 @@ void ParticlesRendererNode::Unit()
 bool ParticlesRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+
+	// for update input texture buffer infos => avoid vk crash
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_ParticlesRenderer)
 	{
@@ -135,6 +138,14 @@ void ParticlesRendererNode::SetModel(SceneModelWeak vSceneModel)
 	if (m_ParticlesRenderer)
 	{
 		m_ParticlesRenderer->SetModel(vSceneModel);
+	}
+}
+
+void ParticlesRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+{
+	if (m_ParticlesRenderer)
+	{
+		m_ParticlesRenderer->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

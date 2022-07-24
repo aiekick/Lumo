@@ -21,12 +21,15 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/TextureInputInterface.h>
 
 class ParticlesRenderer;
 class ParticlesRendererNode : 
 	public BaseNode, 
 	public ModelInputInterface,
-	public TextureOutputInterface
+	public TextureInputInterface<0U>,
+	public TextureOutputInterface,
+	public ShaderUpdateInterface
 {
 public:
 	static std::shared_ptr<ParticlesRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -48,6 +51,7 @@ public:
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
+	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;

@@ -1,3 +1,6 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 /*
 Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
 
@@ -99,7 +102,7 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 				// we could create in few time a sepcila input for create instance of some model (transformed)
 				// but for the moment only one
 				std::vector<vk::AccelerationStructureInstanceKHR> blas_instances;
-				blas_instances.push_back(CreateBlasInstance(0, m_model_pos));
+				blas_instances.emplace_back(CreateBlasInstance(0, m_model_pos));
 
 				m_SuccessfullyBuilt &= CreateTopLevelAccelerationStructure(blas_instances);
 
@@ -143,7 +146,7 @@ vk::DescriptorBufferInfo* SceneAccelStructure::GetBufferAddressInfo()
 //////////////////////////////////////////////////////////////
 
 // will convert model in accel struct
-bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak vMesh)
+bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(const SceneMeshWeak& vMesh)
 {
 	auto meshPtr = vMesh.getValidShared();
 	if (meshPtr)
@@ -244,7 +247,7 @@ bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(SceneMes
 
 		m_AccelStructure_Bottom_Ptrs.push_back(accelStructure_Bottom_Ptr);
 
-		return !m_AccelStructure_Bottom_Ptrs.empty();
+		return (accelStructure_Bottom_Ptr != nullptr);
 	}
 
 	return false;
@@ -265,14 +268,16 @@ void SceneAccelStructure::DestroyBottomLevelAccelerationStructureForMesh()
 	m_AccelStructure_Bottom_Ptrs.clear();
 }
 
-bool SceneAccelStructure::CreateTopLevelAccelerationStructure(std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances)
+bool SceneAccelStructure::CreateTopLevelAccelerationStructure(const std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances)
 {
+	auto blasInstances = vBlasInstances;
+
 	auto instancesBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr,
-		sizeof(vk::AccelerationStructureInstanceKHR) * vBlasInstances.size(),
+		sizeof(vk::AccelerationStructureInstanceKHR) * blasInstances.size(),
 		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eShaderDeviceAddress,
 		VMA_MEMORY_USAGE_CPU_TO_GPU);
 	VulkanRessource::upload(m_VulkanCorePtr, *instancesBufferPtr,
-		vBlasInstances.data(), sizeof(vk::AccelerationStructureInstanceKHR) * vBlasInstances.size());
+		blasInstances.data(), sizeof(vk::AccelerationStructureInstanceKHR) * blasInstances.size());
 
 	vk::DeviceOrHostAddressConstKHR instance_data_device_address{};
 	instance_data_device_address.deviceAddress = instancesBufferPtr->device_address;
@@ -292,7 +297,7 @@ bool SceneAccelStructure::CreateTopLevelAccelerationStructure(std::vector<vk::Ac
 	accelStructureBuildGeometryInfo.geometryCount = 1;
 	accelStructureBuildGeometryInfo.pGeometries = &accelStructureGeometry;
 
-	const auto primitive_count = static_cast<uint32_t>(vBlasInstances.size());
+	const auto primitive_count = static_cast<uint32_t>(blasInstances.size());
 
 	auto accelStructureBuildSizeInfo = m_Device.getAccelerationStructureBuildSizesKHR(
 		vk::AccelerationStructureBuildTypeKHR::eDevice,
@@ -371,7 +376,7 @@ vk::AccelerationStructureInstanceKHR SceneAccelStructure::CreateBlasInstance(con
 	glm::mat3x4          rtxT = glm::transpose(mat);
 	memcpy(&transform_matrix, glm::value_ptr(rtxT), sizeof(vk::TransformMatrixKHR));
 
-	auto blasPtr = m_AccelStructure_Bottom_Ptrs[blas_id];
+	auto blasPtr = m_AccelStructure_Bottom_Ptrs[(size_t)blas_id];
 	if (blasPtr)
 	{
 		// Get the bottom acceleration structure's handle, which will be used during the top level acceleration build

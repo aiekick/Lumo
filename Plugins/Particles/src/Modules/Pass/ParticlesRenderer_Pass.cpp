@@ -51,13 +51,7 @@ ParticlesRenderer_Pass::~ParticlesRenderer_Pass()
 
 void ParticlesRenderer_Pass::ActionBeforeInit()
 {
-	ClearColorBuffer();
-	AddColorToBuffer(ct::fvec4(0.32f, 0.00f, 0.32f, 1.00f));
-	AddColorToBuffer(ct::fvec4(0.00f, 0.00f, 1.00f, 1.00f));
-	AddColorToBuffer(ct::fvec4(0.00f, 1.00f, 0.00f, 1.00f));
-	AddColorToBuffer(ct::fvec4(1.00f, 1.00f, 0.00f, 1.00f));
-	AddColorToBuffer(ct::fvec4(1.00f, 0.60f, 0.00f, 1.00f));
-	AddColorToBuffer(ct::fvec4(1.00f, 0.00f, 0.00f, 1.00f));
+	
 }
 
 //////////////////////////////////////////////////////////////
@@ -152,6 +146,11 @@ void ParticlesRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
 	ZoneScoped;
 
 	m_SceneModel = vSceneModel;
+}
+
+void ParticlesRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+{
+	CTOOL_DEBUG_BREAK;
 }
 
 vk::DescriptorImageInfo* ParticlesRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)

@@ -20,18 +20,9 @@ limitations under the License.
 #include "NodeStamp.h"
 #include <imgui/imgui.h>
 
+NodeStamp::NodeStamp() = default;
 
-
-
-NodeStamp::NodeStamp()
-{
-	
-}
-
-NodeStamp::~NodeStamp()
-{
-	
-}
+NodeStamp::~NodeStamp() = default;
 
 void NodeStamp::DrawImGui()
 {

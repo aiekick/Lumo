@@ -44,7 +44,7 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 
-class SimulationModule_Pass :
+class ParticlesSimulationModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
 	public LightGroupInputInterface,
@@ -56,8 +56,8 @@ private:
 	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
 
 public:
-	SimulationModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~SimulationModule_Pass() override;
+	ParticlesSimulationModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~ParticlesSimulationModule_Pass() override;
 
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

@@ -50,9 +50,9 @@ namespace vkApi
 		GLFWwindow* getWindowPtr() const;
 
 	public:
-		VulkanWindow() {} // Prevent construction
-		VulkanWindow(const VulkanWindow&) {}; // Prevent construction by copying
+		VulkanWindow() = default; // Prevent construction
+		VulkanWindow(const VulkanWindow&) = default; // Prevent construction by copying
 		VulkanWindow& operator =(const VulkanWindow&) { return *this; }; // Prevent assignment
-		~VulkanWindow() {} // Prevent unwanted destruction
+		~VulkanWindow() = default; // Prevent unwanted destruction
 	};
 }

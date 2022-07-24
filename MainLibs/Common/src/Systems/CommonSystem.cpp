@@ -889,8 +889,10 @@ glm::mat4 CommonSystem::ComputeProjectionMatrix(const ct::uvec2& vScreenSize)
 			const ct::fvec2 s = ct::fvec2(m_CameraSettings.m_Zoom, m_CameraSettings.m_Zoom * camSize.y / camSize.x) * 0.5f;
 			res = glm::ortho(-s.x, s.x, -s.y, s.y, m_UBOCamera.cam_near, m_UBOCamera.cam_far);
 		}
-
-		res = glm::perspective(glm::radians(m_CameraSettings.m_PerspAngle), camSize.x / camSize.y, m_UBOCamera.cam_near, m_UBOCamera.cam_far);
+		else if (m_CameraSettings.m_CameraType == CAMERA_TYPE_Enum::CAMERA_TYPE_PERSPECTIVE)
+		{
+			res = glm::perspective(glm::radians(m_CameraSettings.m_PerspAngle), camSize.x / camSize.y, m_UBOCamera.cam_near, m_UBOCamera.cam_far);
+		}
 	}
 
 	res[1][1] *= -1;

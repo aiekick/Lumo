@@ -227,10 +227,10 @@ vk::DescriptorImageInfo* ComputeBuffer::GetFrontDescriptorImageInfo(const uint32
 {
 	if (vBindingPoint < m_CountBuffers)
 	{
-		auto &buffers = m_ComputeBuffers[m_CurrentFrame];
+		auto &buffers = m_ComputeBuffers[(size_t)m_CurrentFrame];
 		if (vBindingPoint < buffers.size())
 		{
-			return &buffers[vBindingPoint]->m_DescriptorImageInfo;
+			return &buffers[(size_t)vBindingPoint]->m_DescriptorImageInfo;
 		}
 
 		LogVarError("return nullptr for frame %u", (uint32_t)m_CurrentFrame);
@@ -249,10 +249,10 @@ vk::DescriptorImageInfo* ComputeBuffer::GetBackDescriptorImageInfo(const uint32_
 		if (m_MultiPassMode)
 			frame = 1U - frame;
 
-		auto& buffers = m_ComputeBuffers[frame];
+		auto& buffers = m_ComputeBuffers[(size_t)frame];
 		if (vBindingPoint < buffers.size())
 		{
-			return &buffers[vBindingPoint]->m_DescriptorImageInfo;
+			return &buffers[(size_t)vBindingPoint]->m_DescriptorImageInfo;
 		}
 
 		LogVarError("return nullptr for frame %u", (uint32_t)frame);
@@ -292,7 +292,7 @@ bool ComputeBuffer::CreateComputeBuffers(
 			res = true;
 
 			m_ComputeBuffers.clear();
-			m_ComputeBuffers.push_back(std::vector<Texture2DPtr>{});
+			m_ComputeBuffers.emplace_back(std::vector<Texture2DPtr>{});
 			m_ComputeBuffers[0U].resize(m_CountBuffers);
 			for (auto& bufferPtr : m_ComputeBuffers[0U])
 			{
@@ -302,7 +302,7 @@ bool ComputeBuffer::CreateComputeBuffers(
 
 			if (m_MultiPassMode)
 			{
-				m_ComputeBuffers.push_back(std::vector<Texture2DPtr>{});
+				m_ComputeBuffers.emplace_back(std::vector<Texture2DPtr>{});
 				m_ComputeBuffers[1U].resize(m_CountBuffers);
 				for (auto& bufferPtr : m_ComputeBuffers[1U])
 				{

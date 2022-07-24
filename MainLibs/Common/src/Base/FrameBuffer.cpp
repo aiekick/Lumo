@@ -549,14 +549,14 @@ bool FrameBuffer::CreateFrameBuffers(
 
 			res = true;
 			
-			m_FrameBuffers.push_back(vkApi::VulkanFrameBuffer{});
+			m_FrameBuffers.emplace_back(vkApi::VulkanFrameBuffer{});
 			res &= m_FrameBuffers[0U].Init(
 				m_VulkanCorePtr, size, m_CountBuffers, m_RenderPass, vCreateRenderPass,
 				vUseDepth, vNeedToClear, vClearColor, vFormat, vSampleCount);
 			
 			if (m_MultiPassMode)
 			{
-				m_FrameBuffers.push_back(vkApi::VulkanFrameBuffer{});
+				m_FrameBuffers.emplace_back(vkApi::VulkanFrameBuffer{});
 				res &= m_FrameBuffers[1U].Init(
 					m_VulkanCorePtr, size, m_CountBuffers, m_RenderPass, false, // this one will re use the same Renderpass as first one
 					vUseDepth, vNeedToClear, vClearColor, vFormat, vSampleCount);

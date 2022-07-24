@@ -10,6 +10,7 @@ class Particles : public PluginInterface
 {
 public:
 	Particles();
+	void ActionAfterInit() override;
 	uint32_t GetVersionMajor() const override;
 	uint32_t GetVersionMinor() const override;
 	uint32_t GetVersionBuild() const override;

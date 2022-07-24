@@ -136,10 +136,7 @@ NodeSlot::NodeSlot(std::string vName, std::string vType, bool vHideName, bool vS
 	showWidget = vShowWidget;
 }
 
-NodeSlot::~NodeSlot()
-{
-	//Unit();
-}
+NodeSlot::~NodeSlot() = default;
 
 void NodeSlot::Init()
 {
@@ -323,8 +320,9 @@ void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 					colorIsSet = true;
 				}
 
+				auto u_color = ImGui::GetColorU32(color);
 				DrawNodeSlot(draw_list, slotCenter, vBaseNodeState->graphStyle.SLOT_RADIUS,
-					connected, ImGui::GetColorU32(color), ImGui::GetColorU32(color));
+					connected, u_color, u_color);
 			}
 
 			if (ImGui::IsItemHovered())

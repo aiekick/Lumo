@@ -27,14 +27,15 @@ limitations under the License.
 #include <Interfaces/NodeInterface.h>
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/CameraInterface.h>
+#include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/MergedInterface.h>
-
 
 class ParticlesRenderer_Pass :
 	public ShaderPass,
 	public GuiInterface,
 	public ModelInputInterface,
+	public TextureInputInterface<1U>,
 	public TextureOutputInterface
 {
 private:
@@ -57,7 +58,6 @@ private:
 	std::vector<ct::fvec4> m_DefaultColors;
 	VulkanBufferObjectPtr m_SBO_Colors = nullptr;
 	vk::DescriptorBufferInfo m_SBO_ColorsDescriptorBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	//VulkanBufferObjectPtr m_SBO_Empty_Colors = nullptr;
 
 public:
 	ParticlesRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -69,15 +69,13 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 private:
-	void ClearColorBuffer();
-	void AddColorToBuffer(const ct::fvec4& vColor);
-
 	void DestroyModel(const bool& vReleaseDatas = false) override;
 
 	bool CreateSBO() override;

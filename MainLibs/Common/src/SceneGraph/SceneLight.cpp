@@ -1,3 +1,6 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 /*
 Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
 
@@ -22,10 +25,6 @@ SceneLightPtr SceneLight::Create()
 	auto res = std::make_shared<SceneLight>();
 	res->m_This = res;
 	res->name = "Light";
-
-	auto s = sizeof(LightDatasStruct);
-	s = sizeof(res->lightDatas);
-
 	res->AdaptIconColor();
 
 	return res;

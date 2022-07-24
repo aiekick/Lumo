@@ -50,16 +50,16 @@ protected: // internal use
 template<size_t size_of_array>
 void TextureInputInterface<size_of_array>::DrawInputTexture(vkApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio)
 {
-	if (vVKCore && vLabel && vIdx <= size_of_array) {
+	if (vVKCore && vLabel && vIdx <= (uint32_t)size_of_array) {
 		auto imguiRendererPtr = vVKCore->GetVulkanImGuiRenderer().getValidShared();
 		if (imguiRendererPtr) {
 			if (ImGui::CollapsingHeader(vLabel)) {
-				m_ImGuiTextures[vIdx].SetDescriptor(imguiRendererPtr,
-					&m_ImageInfos[vIdx], vRatio);
-				if (m_ImGuiTextures[vIdx].canDisplayPreview) {
+				m_ImGuiTextures[(size_t)vIdx].SetDescriptor(imguiRendererPtr,
+					&m_ImageInfos[(size_t)vIdx], vRatio);
+				if (m_ImGuiTextures[(size_t)vIdx].canDisplayPreview) {
 					int w = (int)ImGui::GetContentRegionAvail().x;
-					auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTextures[vIdx].ratio, ct::ivec2(w, w), false);
-					ImGui::ImageRect((ImTextureID)&m_ImGuiTextures[vIdx].descriptor,
+					auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTextures[(size_t)vIdx].ratio, ct::ivec2(w, w), false);
+					ImGui::ImageRect((ImTextureID)&m_ImGuiTextures[(size_t)vIdx].descriptor,
 						ImVec2((float)rect.x, (float)rect.y),
 						ImVec2((float)rect.w, (float)rect.h));
 				}

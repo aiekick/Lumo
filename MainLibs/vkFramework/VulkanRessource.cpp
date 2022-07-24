@@ -722,6 +722,72 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 	return nullptr;
 }
 
+VulkanBufferObjectPtr VulkanRessource::createStorageTexelBuffer(
+	vkApi::VulkanCorePtr vVulkanCorePtr,
+	void* vData, uint64_t vSize,
+	VmaMemoryUsage vMemoryUsage)
+{
+	if (vData && vSize)
+	{
+		vk::BufferCreateInfo stagingBufferInfo = {};
+		stagingBufferInfo.size = vSize;
+		stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
+		VmaAllocationCreateInfo stagingAllocInfo = {};
+		stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
+		auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+		upload(vVulkanCorePtr, *stagebuffer, vData, vSize);
+
+		vk::BufferCreateInfo storageBufferInfo = {};
+		storageBufferInfo.size = vSize;
+		storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageTexelBuffer | vk::BufferUsageFlagBits::eTransferDst;
+		storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
+		VmaAllocationCreateInfo vboAllocInfo = {};
+		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+		auto vboPtr = createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, vboAllocInfo);
+
+		vk::BufferCopy region = {};
+		region.size = vSize;
+		copy(vVulkanCorePtr, vboPtr->buffer, stagebuffer->buffer, region);
+
+		return vboPtr;
+	}
+
+	return nullptr;
+}
+
+VulkanBufferObjectPtr VulkanRessource::createUniformTexelBuffer(
+	vkApi::VulkanCorePtr vVulkanCorePtr,
+	void* vData, uint64_t vSize,
+	VmaMemoryUsage vMemoryUsage)
+{
+	if (vData && vSize)
+	{
+		vk::BufferCreateInfo stagingBufferInfo = {};
+		stagingBufferInfo.size = vSize;
+		stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
+		VmaAllocationCreateInfo stagingAllocInfo = {};
+		stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
+		auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+		upload(vVulkanCorePtr, *stagebuffer, vData, vSize);
+
+		vk::BufferCreateInfo storageBufferInfo = {};
+		storageBufferInfo.size = vSize;
+		storageBufferInfo.usage = vk::BufferUsageFlagBits::eUniformTexelBuffer | vk::BufferUsageFlagBits::eTransferDst;
+		storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
+		VmaAllocationCreateInfo vboAllocInfo = {};
+		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+		auto vboPtr = createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, vboAllocInfo);
+
+		vk::BufferCopy region = {};
+		region.size = vSize;
+		copy(vVulkanCorePtr, vboPtr->buffer, stagebuffer->buffer, region);
+
+		return vboPtr;
+	}
+
+	return nullptr;
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 //// RTX / ACCEL STRUCTURE ///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////

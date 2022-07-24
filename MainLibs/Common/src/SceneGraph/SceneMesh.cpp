@@ -1,3 +1,6 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 /*
 Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
 
@@ -24,25 +27,25 @@ using namespace vkApi;
 SceneMeshPtr SceneMesh::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
-	SceneMeshPtr res = std::make_shared<SceneMesh>(vVulkanCorePtr);
+	auto res = std::make_shared<SceneMesh>(vVulkanCorePtr);
 	res->m_This = res;
 	return res;
 }
 SceneMeshPtr SceneMesh::Create(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray vVerticeArray, IndiceArray vIndiceArray)
 {
-	SceneMeshPtr res = std::make_shared<SceneMesh>(vVulkanCorePtr, vVerticeArray, vIndiceArray);
+	auto res = std::make_shared<SceneMesh>(vVulkanCorePtr, vVerticeArray, vIndiceArray);
 	res->m_This = res;
 	if (!res->Init())
 		res.reset();
 	return res;
 }
 
-SceneMeshPtr SceneMesh::Copy(SceneMeshWeak vSceneMeshToCopy)
+SceneMeshPtr SceneMesh::Copy(const SceneMeshWeak& vSceneMeshToCopy)
 {
 	auto fromPtr = vSceneMeshToCopy.getValidShared();
 	if (fromPtr)
 	{
-		SceneMeshPtr res = std::make_shared<SceneMesh>(*fromPtr);
+		auto res = std::make_shared<SceneMesh>(*fromPtr);
 		res->m_This = res;
 		return res;
 	}
@@ -241,7 +244,7 @@ bool SceneMesh::BuildVBO(bool vUseSBO)
 	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 
 	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
-	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
+	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * (uint32_t)sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
 	m_Vertices.m_BufferInfo.offset = 0;
 
 	m_SceneMeshBuffers.vertices_address = m_Vertices.m_Buffer->device_address;
@@ -265,7 +268,7 @@ void SceneMesh::BuildIBO(bool vUseSBO)
 	m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 
 	m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
-	m_Indices.m_BufferInfo.range = m_Indices.m_Count * sizeof(uint32_t);
+	m_Indices.m_BufferInfo.range = m_Indices.m_Count * (uint32_t)sizeof(uint32_t);
 	m_Indices.m_BufferInfo.offset = 0;
 
 	m_SceneMeshBuffers.vertices_address = m_Indices.m_Buffer->device_address;

@@ -19,12 +19,6 @@ limitations under the License.
 
 #include "NodeLink.h"
 
-NodeLink::NodeLink()
-{
-	
-}
+NodeLink::NodeLink() = default;
 
-NodeLink::~NodeLink()
-{
-	
-}
+NodeLink::~NodeLink() = default;

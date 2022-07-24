@@ -52,14 +52,14 @@ class SceneMesh
 public:
 	static SceneMeshPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 	static SceneMeshPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray vVerticeArray, IndiceArray vIndiceArray);
-	static SceneMeshPtr Copy(SceneMeshWeak vSceneMeshToCopy);
+	static SceneMeshPtr Copy(const SceneMeshWeak& vSceneMeshToCopy);
 
 public:
 	class SceneMeshBuffers
 	{
 	public:
-		vk::DeviceAddress vertices_address;
-		vk::DeviceAddress indices_address;
+		vk::DeviceAddress vertices_address = vk::DeviceAddress {};
+		vk::DeviceAddress indices_address = vk::DeviceAddress {};
 	};
 
 private:
@@ -68,7 +68,7 @@ private:
 	MeshInfo<VertexStruct::P3_N3_TA3_BTA3_T2_C4> m_Vertices;
 	MeshInfo<VertexStruct::I1> m_Indices;
 
-	SceneMeshBuffers m_SceneMeshBuffers;
+	SceneMeshBuffers m_SceneMeshBuffers = {};
 
 	bool m_HaveNormals = false;
 	bool m_HaveTangeants = false;

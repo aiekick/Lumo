@@ -19,11 +19,10 @@ limitations under the License.
 
 #include "Geometry.h"
 #include <ImWidgets/ImWidgets.h>
-#include <Utils/Mesh/MeshLoader.h>
 
 namespace Geometry
 {
-	size_t Geometry::GetMiddlePoint_Icosaedre(size_t p1, size_t p2, std::vector<Vertex>* vVertices, std::map<std::tuple<size_t, size_t>, size_t>* vCache, float vRadius)
+	size_t Geometry::GetMiddlePoint_Icosaedre(const size_t& p1, const size_t& p2, std::vector<Vertex>* vVertices, std::map<std::tuple<size_t, size_t>, size_t>* vCache, const float& vRadius)
 	{
 		std::tuple<size_t, size_t> key(ct::mini(p1, p2), ct::maxi(p1, p2));
 
@@ -47,7 +46,7 @@ namespace Geometry
 		return i;
 	}
 
-	size_t Geometry::GetMiddlePoint_Plane(size_t p1, size_t p2, std::vector<Vertex>* vVertices, std::map<std::tuple<size_t, size_t>, size_t>* vCache, ct::fvec3 vNormal)
+	size_t Geometry::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, std::vector<Vertex>* vVertices, std::map<std::tuple<size_t, size_t>, size_t>* vCache, const ct::fvec3& vNormal)
 	{
 		std::tuple<size_t, size_t> key(ct::mini(p1, p2), ct::maxi(p1, p2));
 
@@ -73,20 +72,16 @@ namespace Geometry
 
 	////////////////////////////////////////////////////////////
 
-	Geometry::Geometry()
-	{
-	}
+	Geometry::Geometry() = default;
 
-	Geometry::~Geometry()
-	{
-	}
+	Geometry::~Geometry() = default;
 
-	void Geometry::AddVertex(ct::fvec3 vP, ct::fvec3 vTarget)
+	void Geometry::AddVertex(const ct::fvec3& vP, const ct::fvec3& vTarget)
 	{
 		vertices.emplace_back(vP, (vP - vTarget).GetNormalized());
 	}
 
-	void Geometry::CreateGeometry(bool vGenerateCellNetWork)
+	void Geometry::CreateGeometry(const bool& vGenerateCellNetWork)
 	{
 		if (m_GeometryType == GeometryTypeEnum::GEOMETRY_TYPE_ICOSAEDRE)
 		{
@@ -112,12 +107,12 @@ namespace Geometry
 		Subdivide(m_GeometryGeneral.subdivisionLvl, vGenerateCellNetWork);
 	}
 
-	void Geometry::CreateGeometryAsync(bool vGenerateCellNetWork) // version threadé
+	void Geometry::CreateGeometryAsync(const bool& vGenerateCellNetWork) // version threadé
 	{
 		UNUSED(vGenerateCellNetWork);
 	}
 
-	void Geometry::CreateIcosaedre(float vRadius, int vSubdivLevel, bool vGenerateCellNetWork)
+	void Geometry::CreateIcosaedre(const float& vRadius, const int& vSubdivLevel, const bool& vGenerateCellNetWork)
 	{
 		vertices.clear();
 		faces.clear();
@@ -147,38 +142,38 @@ namespace Geometry
 		// create 20 triangles of the icosahedron
 
 		// 5 faces around point 0
-		AddFace(0, 11, 5, &faces, vGenerateCellNetWork);
-		AddFace(0, 5, 1, &faces, vGenerateCellNetWork);
-		AddFace(0, 1, 7, &faces, vGenerateCellNetWork);
-		AddFace(0, 7, 10, &faces, vGenerateCellNetWork);
-		AddFace(0, 10, 11, &faces, vGenerateCellNetWork);
+		AddFace(0, 11, 5, &faces, vGenerateCellNetWork); //-V112
+		AddFace(0, 5, 1, &faces, vGenerateCellNetWork); //-V112
+		AddFace(0, 1, 7, &faces, vGenerateCellNetWork); //-V112
+		AddFace(0, 7, 10, &faces, vGenerateCellNetWork); //-V112
+		AddFace(0, 10, 11, &faces, vGenerateCellNetWork); //-V112
 
 		// 5 adjacent faces
-		AddFace(1, 5, 9, &faces, vGenerateCellNetWork);
-		AddFace(5, 11, 4, &faces, vGenerateCellNetWork);
-		AddFace(11, 10, 2, &faces, vGenerateCellNetWork);
-		AddFace(10, 7, 6, &faces, vGenerateCellNetWork);
-		AddFace(7, 1, 8, &faces, vGenerateCellNetWork);
+		AddFace(1, 5, 9, &faces, vGenerateCellNetWork); //-V112
+		AddFace(5, 11, 4, &faces, vGenerateCellNetWork); //-V112
+		AddFace(11, 10, 2, &faces, vGenerateCellNetWork); //-V112
+		AddFace(10, 7, 6, &faces, vGenerateCellNetWork); //-V112
+		AddFace(7, 1, 8, &faces, vGenerateCellNetWork); //-V112
 
 		// 5 faces around point 3
-		AddFace(3, 9, 4, &faces, vGenerateCellNetWork);
-		AddFace(3, 4, 2, &faces, vGenerateCellNetWork);
-		AddFace(3, 2, 6, &faces, vGenerateCellNetWork);
-		AddFace(3, 6, 8, &faces, vGenerateCellNetWork);
-		AddFace(3, 8, 9, &faces, vGenerateCellNetWork);
+		AddFace(3, 9, 4, &faces, vGenerateCellNetWork); //-V112
+		AddFace(3, 4, 2, &faces, vGenerateCellNetWork); //-V112
+		AddFace(3, 2, 6, &faces, vGenerateCellNetWork); //-V112
+		AddFace(3, 6, 8, &faces, vGenerateCellNetWork); //-V112
+		AddFace(3, 8, 9, &faces, vGenerateCellNetWork); //-V112
 
 		// 5 adjacent faces
-		AddFace(4, 9, 5, &faces, vGenerateCellNetWork);
-		AddFace(2, 4, 11, &faces, vGenerateCellNetWork);
-		AddFace(6, 2, 10, &faces, vGenerateCellNetWork);
-		AddFace(8, 6, 7, &faces, vGenerateCellNetWork);
-		AddFace(9, 8, 1, &faces, vGenerateCellNetWork);
+		AddFace(4, 9, 5, &faces, vGenerateCellNetWork); //-V112
+		AddFace(2, 4, 11, &faces, vGenerateCellNetWork); //-V112
+		AddFace(6, 2, 10, &faces, vGenerateCellNetWork); //-V112
+		AddFace(8, 6, 7, &faces, vGenerateCellNetWork); //-V112
+		AddFace(9, 8, 1, &faces, vGenerateCellNetWork); //-V112
 
 		// subdivide if needed (needed == (vSubdivLevel > 0))
 		Subdivide(vSubdivLevel, vGenerateCellNetWork);
 	}
 
-	void Geometry::CreatePlane(ct::fvec3 vOrigin, ct::fvec3 vTarget, ct::fvec2 vSize, int vSubdivLevel, bool vGenerateCellNetWork)
+	void Geometry::CreatePlane(const ct::fvec3& vOrigin, const ct::fvec3& vTarget, const ct::fvec2& vSize, const int& vSubdivLevel, const bool& vGenerateCellNetWork)
 	{
 		vertices.clear();
 		faces.clear();
@@ -205,7 +200,7 @@ namespace Geometry
 		Subdivide(vSubdivLevel, vGenerateCellNetWork);
 	}
 
-	void Geometry::Subdivide(int vSubdivLevel, bool vGenerateCellNetWork)
+	void Geometry::Subdivide(const int& vSubdivLevel, const bool& vGenerateCellNetWork)
 	{
 		if (vSubdivLevel > 0)
 		{
@@ -293,7 +288,7 @@ namespace Geometry
 		v2.n.z += (float)(nor.z * d2);
 	}
 
-	void Geometry::AddFace(size_t vV0, size_t vV1, size_t vV2, std::vector<Face>* vFaces, bool vGenerateCellNetWork)
+	void Geometry::AddFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, std::vector<Face>* vFaces, const bool& vGenerateCellNetWork)
 	{
 		//size_t faceId = vFaces->size();
 
@@ -310,7 +305,7 @@ namespace Geometry
 		}
 	}
 
-	void Geometry::AddEdge(size_t vV0, size_t vV1)
+	void Geometry::AddEdge(const size_t& vV0, const size_t& vV1)
 	{
 		fixedEdges[vV0][vV1] = false;
 	}
@@ -330,7 +325,7 @@ namespace Geometry
 			ct::fvec2 e2; // empty fvec2
 			for (auto& v : vertices)
 			{
-				res.vertexs.push_back(VertexStruct::P3_N3_TA3_BTA3_T2_C4(v.p, v.n, e3, e3, e2, v.c));
+				res.vertexs.emplace_back(VertexStruct::P3_N3_TA3_BTA3_T2_C4(v.p, v.n, e3, e3, e2, v.c));
 			}
 
 			for (auto& f : faces)
@@ -368,7 +363,7 @@ namespace Geometry
 		}
 	}
 
-	void Geometry::AddTimeFrameToFile(float vTimeFrame, std::string vPrefix, int vFrame)
+	void Geometry::AddTimeFrameToFile(const float& vTimeFrame, const std::string& vPrefix, const int& vFrame)
 	{
 		FILE* fp = nullptr;
 		errno_t lastError = fopen_s(&fp, "sketchfab.timeframe", "at"); // append to end of file mode text
@@ -386,7 +381,7 @@ namespace Geometry
 		}
 	}
 
-	void Geometry::SaveToObjFile(std::string vPrefix, int vFrame)
+	void Geometry::SaveToObjFile(const std::string& vPrefix, const int& vFrame)
 	{
 		FILE* fp = nullptr;
 		char fileNameBuffer[1024];
@@ -435,7 +430,7 @@ namespace Geometry
 		}
 	}
 
-	MeshFrameStruct	Geometry::GetMeshFrame(int vFrame)
+	MeshFrameStruct	Geometry::GetMeshFrame(const int& vFrame)
 	{
 		MeshFrameStruct frame;
 
@@ -475,22 +470,15 @@ namespace Geometry
 		}
 		else if (m_GeometryType == Geometry::Geometry::GeometryTypeEnum::GEOMETRY_TYPE_CYLINDER)
 		{
+
 		}
 		else if (m_GeometryType == Geometry::Geometry::GeometryTypeEnum::GEOMETRY_TYPE_CUBE)
 		{
+
 		}
 		else if (m_GeometryType == Geometry::Geometry::GeometryTypeEnum::GEOMETRY_TYPE_TORUS)
 		{
-		}
-		else if (m_GeometryType == GeometryTypeEnum::GEOMETRY_FROM_FILE)
-		{
-			if (ImGui::ContrastedButton("Open Model 3D"))
-			{
-				//MeshLoader::Instance()->OpenDialog();
-			}
-			float aw = ImGui::GetContentRegionAvail().x - ImGui::GetStyle().FramePadding.x;
-			MeshLoader::Instance()->DrawImGuiProgress(aw);
-			MeshLoader::Instance()->DrawImGuiInfos(aw);
+
 		}
 
 		ImGui::Separator();
@@ -507,7 +495,7 @@ namespace Geometry
 		return change;
 	}
 
-	bool Geometry::DrawDialogsAndPopups(ct::ivec2 vScreenSize)
+	bool Geometry::DrawDialogsAndPopups(const ct::ivec2& vScreenSize)
 	{
 		bool change = false;
 

@@ -21,8 +21,8 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
-class SimulationModule;
-class SimulationNode :
+class ParticlesSimulationModule;
+class ParticlesSimulationNode :
 	public BaseNode,
 	public TextureInputInterface<2U>,
 	public TextureOutputInterface, 
@@ -30,14 +30,14 @@ class SimulationNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<SimulationNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ParticlesSimulationNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<SimulationModule> m_SimulationModulePtr = nullptr;
+	std::shared_ptr<ParticlesSimulationModule> m_ParticlesSimulationModulePtr = nullptr;
 
 public:
-	SimulationNode();
-	~SimulationNode() override;
+	ParticlesSimulationNode();
+	~ParticlesSimulationNode() override;
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

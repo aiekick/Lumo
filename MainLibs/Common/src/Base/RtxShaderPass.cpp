@@ -1,3 +1,6 @@
+// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 /*
 Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
 
@@ -167,7 +170,7 @@ bool RtxShaderPass::CreateRtxPipeline()
 						m_RayTracingShaderGroups.push_back(shaderGroup);
 					}
 
-					m_ShaderCreateInfos.push_back(
+					m_ShaderCreateInfos.emplace_back(
 						vk::PipelineShaderStageCreateInfo(
 							vk::PipelineShaderStageCreateFlags(),
 							shader.m_ShaderId,
@@ -252,11 +255,11 @@ bool RtxShaderPass::CreateShaderBindingTable()
 		vk::BufferUsageFlagBits::eShaderBindingTableKHR | 
 		vk::BufferUsageFlagBits::eTransferSrc | 
 		vk::BufferUsageFlagBits::eShaderDeviceAddress;
-	m_RayGenShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * rgen_index.size(),
+	m_RayGenShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * (uint32_t)rgen_index.size(),
 		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	m_RayMissShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * miss_index.size(),
+	m_RayMissShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * (uint32_t)miss_index.size(),
 		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	m_RayHitShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * hit_index.size(),
+	m_RayHitShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * (uint32_t)hit_index.size(),
 		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
 	if (m_RayGenShaderBindingTablePtr && 
@@ -284,7 +287,7 @@ bool RtxShaderPass::CreateShaderBindingTable()
 					{
 						auto* pStart = pBuffer;
 						// Copy the handle
-						memcpy(pBuffer, shader_handle_storage.data() + (indices[index] * handle_size), handle_size);
+						memcpy(pBuffer, shader_handle_storage.data() + (indices[(size_t)index] * handle_size), handle_size);
 						pBuffer = pStart + stride;        // Jumping to next group
 					}
 
@@ -299,17 +302,17 @@ bool RtxShaderPass::CreateShaderBindingTable()
 			m_RayGenShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
 			m_RayGenShaderSbtEntry.deviceAddress = m_RayGenShaderBindingTablePtr->device_address;
 			m_RayGenShaderSbtEntry.stride = handle_size_aligned;
-			m_RayGenShaderSbtEntry.size = handle_size_aligned * rgen_index.size(); // * the count of shaders ion this category
+			m_RayGenShaderSbtEntry.size = handle_size_aligned * (uint32_t)rgen_index.size(); // * the count of shaders ion this category
 
 			m_MissShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
 			m_MissShaderSbtEntry.deviceAddress = m_RayMissShaderBindingTablePtr->device_address;
 			m_MissShaderSbtEntry.stride = handle_size_aligned;
-			m_MissShaderSbtEntry.size = handle_size_aligned * miss_index.size(); // * the count of shaders ion this category
+			m_MissShaderSbtEntry.size = handle_size_aligned * (uint32_t)miss_index.size(); // * the count of shaders ion this category
 
 			m_HitShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
 			m_HitShaderSbtEntry.deviceAddress = m_RayHitShaderBindingTablePtr->device_address;
 			m_HitShaderSbtEntry.stride = handle_size_aligned;
-			m_HitShaderSbtEntry.size = handle_size_aligned * hit_index.size(); // * the count of shaders ion this category
+			m_HitShaderSbtEntry.size = handle_size_aligned * (uint32_t)hit_index.size(); // * the count of shaders ion this category
 
 			m_CallableShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
 			//m_CallableShaderSbtEntry.deviceAddress = ?? ->device_address;

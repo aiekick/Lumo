@@ -156,6 +156,14 @@ void ParticlesRenderer::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
+void ParticlesRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+{
+	if (m_ParticlesRenderer_Pass_Ptr)
+	{
+		m_ParticlesRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+	}
+}
+
 vk::DescriptorImageInfo* ParticlesRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ParticlesRenderer_Pass_Ptr)

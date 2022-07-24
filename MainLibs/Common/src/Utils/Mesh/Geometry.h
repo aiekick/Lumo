@@ -122,7 +122,7 @@ namespace Geometry
 
 	private:
 		int m_VaccumGeometryTypeArrayIndex = 0;
-		const char* m_VaccumGeometryTypeComboString = "ICOSAEDRE\0PLANE\0CYLINDER\0CUBE\0TORUS\0FROM FILE\0\0";
+		const char* m_VaccumGeometryTypeComboString = "ICOSAEDRE\0PLANE\0CYLINDER\0CUBE\0TORUS\0\0";
 
 	private:
 		std::vector<VertexStruct::P3_N3_TA3_BTA3_T2_C4> vtxs;
@@ -134,35 +134,45 @@ namespace Geometry
 		std::map<size_t, std::map<size_t, bool>> fixedEdges;
 
 	public:
-		static size_t GetMiddlePoint_Icosaedre(size_t p1, size_t p2, std::vector<Vertex>* vVertices, std::map<std::tuple<size_t, size_t>, size_t>* vCache, float vRadius);
-		static size_t GetMiddlePoint_Plane(size_t p1, size_t p2, std::vector<Vertex>* vVertices, std::map<std::tuple<size_t, size_t>, size_t>* vCache, ct::fvec3 vNormal);
+		static size_t GetMiddlePoint_Icosaedre(
+			const size_t& p1, 
+			const size_t& p2, 
+			std::vector<Vertex>* vVertices, 
+			std::map<std::tuple<size_t, size_t>, size_t>* vCache, 
+			const float& vRadius);
+		static size_t GetMiddlePoint_Plane(
+			const size_t& p1,
+			const size_t& p2,
+			std::vector<Vertex>* vVertices, 
+			std::map<std::tuple<size_t, size_t>, size_t>* vCache, 
+			const ct::fvec3& vNormal);
 
 	public:
 		Geometry();
 		~Geometry();
 
 	public:
-		void CreateGeometry(bool vGenerateCellNetWork = false);
-		void CreateGeometryAsync(bool vGenerateCellNetWork = false);
-		void CreateIcosaedre(float vRadius, int vSubdivLevel = 0, bool vGenerateCellNetWork = false);
-		void CreatePlane(ct::fvec3 vOrigin, ct::fvec3 vTarget, ct::fvec2 vSize, int vSubdivLevel = 0, bool vGenerateCellNetWork = false);
-		void Subdivide(int vSubdivLevel, bool vGenerateCellNetWork);
+		void CreateGeometry(const bool& vGenerateCellNetWork = false);
+		void CreateGeometryAsync(const bool& vGenerateCellNetWork = false);
+		void CreateIcosaedre(const float& vRadius, const int& vSubdivLevel = 0, const bool& vGenerateCellNetWork = false);
+		void CreatePlane(const ct::fvec3& vOrigin, const ct::fvec3& vTarget, const ct::fvec2& vSize, const int& vSubdivLevel = 0, const bool& vGenerateCellNetWork = false);
+		void Subdivide(const int& vSubdivLevel, const bool& vGenerateCellNetWork);
 		GeometryDataStruct GetDatas();
-		bool DrawDialogsAndPopups(ct::ivec2 vScreenSize);
+		bool DrawDialogsAndPopups(const ct::ivec2& vScreenSize);
 
 	public: // animated sketchfab model
 		void ResetTimeFrameFile();
-		void AddTimeFrameToFile(float vTimeFrame, std::string vPrefix, int vFrame);
-		void SaveToObjFile(std::string vPrefix, int vFrame);
-		MeshFrameStruct GetMeshFrame(int vFrame);
+		void AddTimeFrameToFile(const float& vTimeFrame, const std::string& vPrefix, const int& vFrame);
+		void SaveToObjFile(const std::string& vPrefix, const int& vFrame);
+		MeshFrameStruct GetMeshFrame(const int& vFrame);
 
 	public: // imgui
 		bool drawImGui();
 
 	private:
-		void AddVertex(ct::fvec3 vP, ct::fvec3 vTarget);
-		void AddFace(size_t vV0, size_t vV1, size_t vV2, std::vector<Face>* vFaces, bool vGenerateCellNetWork);
-		void AddEdge(size_t vV0, size_t vV1);
+		void AddVertex(const ct::fvec3& vP, const ct::fvec3& vTarget);
+		void AddFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, std::vector<Face>* vFaces, const bool& vGenerateCellNetWork);
+		void AddEdge(const size_t& vV0, const size_t& vV1);
 		void CalcNormal(
 			VertexStruct::P3_N3_TA3_BTA3_T2_C4& v0,
 			VertexStruct::P3_N3_TA3_BTA3_T2_C4& v1,

@@ -11,6 +11,9 @@
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanWindow.h>
 
+#include <Nodes/ParticlesRendererNode.h>
+#include <Nodes/ParticlesSimulationNode.h>
+
 #ifndef USE_STATIC_LINKING_OF_PLUGINS
 // needed for plugin creating / destroying
 extern "C" // needed for avoid renaming of funcs by the compiler
@@ -39,6 +42,11 @@ Particles::Particles()
 	// active memory leak detector
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+}
+
+void Particles::ActionAfterInit()
+{
+	NodeSlot::GetSlotColors()->AddSlotColor("PARTICLES", ImVec4(0.2f, 0.5f, 0.8f, 1.0f));
 }
 
 uint32_t Particles::GetVersionMajor() const
@@ -75,10 +83,8 @@ std::vector<std::string> Particles::GetNodes() const
 {
 	return
 	{
-		/*
-		"MESH_SIM_RENDERER",
-		"COMPUTE_MESH_SIM"
-		*/
+		"PARTICLES_SIMULATION",
+		"PARTICLES_RENDERER"
 	};
 }
 
@@ -86,25 +92,23 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	/*
-	LibraryEntry entry_MESH_SIM_RENDERER;
-	entry_MESH_SIM_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_MESH_SIM_RENDERER.first = "plugins";
-	entry_MESH_SIM_RENDERER.second.nodeLabel = "Mesh Simulation";
-	entry_MESH_SIM_RENDERER.second.nodeType = "MESH_SIM_RENDERER";
-	entry_MESH_SIM_RENDERER.second.color = ct::fvec4(0.0f);
-	entry_MESH_SIM_RENDERER.second.categoryPath = "Particles/Renderers";
-	res.push_back(entry_MESH_SIM_RENDERER);
+	LibraryEntry entry_PARTICLES_SIMULATION;
+	entry_PARTICLES_SIMULATION.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+	entry_PARTICLES_SIMULATION.first = "plugins";
+	entry_PARTICLES_SIMULATION.second.nodeLabel = "Simulation";
+	entry_PARTICLES_SIMULATION.second.nodeType = "PARTICLES_SIMULATION";
+	entry_PARTICLES_SIMULATION.second.color = ct::fvec4(0.0f);
+	entry_PARTICLES_SIMULATION.second.categoryPath = "Particles";
+	res.push_back(entry_PARTICLES_SIMULATION);
 
-	LibraryEntry entry_COMPUTE_MESH_SIM;
-	entry_COMPUTE_MESH_SIM.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_COMPUTE_MESH_SIM.first = "plugins";
-	entry_COMPUTE_MESH_SIM.second.nodeLabel = "Mesh Simulation";
-	entry_COMPUTE_MESH_SIM.second.nodeType = "COMPUTE_MESH_SIM";
-	entry_COMPUTE_MESH_SIM.second.color = ct::fvec4(0.0f);
-	entry_COMPUTE_MESH_SIM.second.categoryPath = "Particles/Generators";
-	res.push_back(entry_COMPUTE_MESH_SIM);
-	*/
+	LibraryEntry entry_PARTICLES_RENDERER;
+	entry_PARTICLES_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+	entry_PARTICLES_RENDERER.first = "plugins";
+	entry_PARTICLES_RENDERER.second.nodeLabel = "Renderer";
+	entry_PARTICLES_RENDERER.second.nodeType = "PARTICLES_RENDERER";
+	entry_PARTICLES_RENDERER.second.color = ct::fvec4(0.0f);
+	entry_PARTICLES_RENDERER.second.categoryPath = "Particles";
+	res.push_back(entry_PARTICLES_RENDERER);
 
 	return res;
 }
@@ -113,12 +117,10 @@ BaseNodePtr Particles::CreatePluginNode(const std::string& vPluginNodeName)
 {
 	BaseNodePtr res = nullptr;
 
-	/*
-	if (vPluginNodeName == "MESH_SIM_RENDERER")
-		res = ParticlesRendererNode::Create(m_VulkanCorePtr);
-	else if (vPluginNodeName == "COMPUTE_MESH_SIM")
-		res = ComputeParticlesNode::Create(m_VulkanCorePtr);
-	*/
+	if (vPluginNodeName == "PARTICLES_SIMULATION")
+		res = ParticlesSimulationNode::Create(m_VulkanCoreWeak.getValidShared());
+	else if (vPluginNodeName == "PARTICLES_RENDERER")
+		res = ParticlesRendererNode::Create(m_VulkanCoreWeak.getValidShared());
 
 	return res;
 }

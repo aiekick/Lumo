@@ -1390,8 +1390,7 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 				auto newLinkSlotPtr = newNodeLinkSlot.lock();
 				if (newLinkSlotPtr)
 				{
-					if (newLinkSlotPtr)
-						showLabel("Add node", ImColor(32, 45, 32, 180));
+					showLabel("Add node", ImColor(32, 45, 32, 180));
 				}
 			}
 
@@ -2578,8 +2577,6 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 	}
 	else if (strParentName == "node")
 	{
-		std::string _name = this->name;
-
 		NodeSlot slot;
 		if (strName == "slot")
 		{

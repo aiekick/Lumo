@@ -53,10 +53,10 @@ public:
 	vk::DescriptorBufferInfo* GetBufferAddressInfo();
 
 private:
-	bool CreateBottomLevelAccelerationStructureForMesh(SceneMeshWeak vMesh);
+	bool CreateBottomLevelAccelerationStructureForMesh(const SceneMeshWeak& vMesh);
 	void DestroyBottomLevelAccelerationStructureForMesh();
 
-	bool CreateTopLevelAccelerationStructure(std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances);
+	bool CreateTopLevelAccelerationStructure(const std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances);
 	void DestroyTopLevelAccelerationStructure();
 
 	vk::AccelerationStructureInstanceKHR CreateBlasInstance(const uint32_t& blas_id, glm::mat4& mat);
