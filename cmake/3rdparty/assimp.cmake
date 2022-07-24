@@ -26,7 +26,7 @@ set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF CACHE BOOL "")
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp EXCLUDE_FROM_ALL)
 
-set_target_properties(assimp PROPERTIES FOLDER 3rdparty)
+set_target_properties(assimp PROPERTIES FOLDER 3rdparty/assimp)
 
 message("assimp => ${FINAL_BIN_DIR}")
 set_target_properties(assimp PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
