@@ -259,7 +259,6 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 		glslang::EShTargetClientVersion VulkanClientVersion = glslang::EShTargetVulkan_1_2;  // would map to, say, Vulkan 1.0
 		glslang::EShTargetLanguageVersion TargetVersion = glslang::EShTargetSpv_1_4;    // maps to, say, SPIR-V 1.0
 
-
 		Shader.setEnvInput(glslang::EShSourceGlsl, shaderType, glslang::EShClientVulkan, ClientInputSemanticsVersion);
 		Shader.setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 		Shader.setEnvTarget(glslang::EShTargetSpv, TargetVersion);
@@ -464,7 +463,9 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 		spv::SpvBuildLogger logger;
 		glslang::SpvOptions spvOptions;
 		spvOptions.optimizeSize = true;
+#ifdef _DEBUG
 		spvOptions.stripDebugInfo = true;
+#endif
 		glslang::GlslangToSpv(*Program.getIntermediate(shaderType), SpirV, &logger, &spvOptions);
 
 		if (logger.getAllMessages().length() > 0)
@@ -649,29 +650,28 @@ void VulkanShader::ParseGLSLString(
 	}
 }
 
-VkShaderModule VulkanShader::CreateShaderModule(VkDevice vLogicalDevice, std::vector<unsigned int> vSPIRVCode)
+vk::ShaderModule VulkanShader::CreateShaderModule(vk::Device vLogicalDevice, std::vector<unsigned int> vSPIRVCode)
 {
 	ZoneScoped;
 
-	VkShaderModule shaderModule = 0;
+	vk::ShaderModule shaderModule = vk::ShaderModule{};
 
 	if (!vSPIRVCode.empty())
 	{
-		VkShaderModuleCreateInfo createInfo{};
-		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		vk::ShaderModuleCreateInfo createInfo{};
 		createInfo.codeSize = vSPIRVCode.size() * sizeof(unsigned int);
 		createInfo.pCode = vSPIRVCode.data();
 
-		if (vkCreateShaderModule(vLogicalDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+		if (vLogicalDevice.createShaderModule(&createInfo, nullptr, &shaderModule) != vk::Result::eSuccess)
 		{
 			LogVarDebug("Debug : fail to create shader module !");
-			shaderModule = 0;
+			return vk::ShaderModule{};
 		}
 	}
 	else
 	{
 		LogVarDebug("Debug : SPIRV Code is empty. Fail to create shader module !");
-		shaderModule = 0;
+		return vk::ShaderModule{};
 	}
 
 	if (shaderModule)
@@ -682,13 +682,13 @@ VkShaderModule VulkanShader::CreateShaderModule(VkDevice vLogicalDevice, std::ve
 	return shaderModule;
 }
 
-void VulkanShader::DestroyShaderModule(VkDevice vLogicalDevice, VkShaderModule vVkShaderModule)
+void VulkanShader::DestroyShaderModule(vk::Device vLogicalDevice, vk::ShaderModule vShaderModule)
 {
 	ZoneScoped;
 
-	if (vLogicalDevice && vVkShaderModule)
+	if (vLogicalDevice && vShaderModule)
 	{
-		vkDestroyShaderModule(vLogicalDevice, vVkShaderModule, nullptr);
+		vLogicalDevice.destroyShaderModule(vShaderModule, nullptr);
 	}
 }
 

@@ -16,7 +16,7 @@ limitations under the License.
 
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 #include <glm/glm.hpp>
 
 #include <vkFramework/vkFramework.h>
@@ -32,7 +32,7 @@ limitations under the License.
 #include <array>
 
 /*
-todo : to Refactoa and Convert for use of Vulkan.hpp
+todo : to Refactor and Convert for use of Vulkan.hpp
 */
 
 class VulkanShader
@@ -68,8 +68,8 @@ public:
 		std::string vEntryPoint,
 		ShaderMessagingFunction vMessagingFunction,
 		TraverserFunction vTraverser);
-	VkShaderModule CreateShaderModule(VkDevice vLogicalDevice, std::vector<unsigned int> vSPIRVCode);
-	void DestroyShaderModule(VkDevice vLogicalDevice, VkShaderModule vVkShaderModule);
+	vk::ShaderModule CreateShaderModule(vk::Device vLogicalDevice, std::vector<unsigned int> vSPIRVCode);
+	void DestroyShaderModule(vk::Device vLogicalDevice, vk::ShaderModule vShaderModule);
 	std::unordered_map<std::string, bool> CollectUniformInfosFromIR(const glslang::TIntermediate& intermediate);
 
 public:
