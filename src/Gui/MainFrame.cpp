@@ -355,8 +355,8 @@ void MainFrame::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame)
 	{
 		LayoutManager::Instance()->DrawDialogsAndPopups(vCurrentFrame);
 
-		ImVec2 min = MainFrame::Instance()->m_DisplaySize * 0.5f;
-		ImVec2 max = MainFrame::Instance()->m_DisplaySize;
+		//ImVec2 min = MainFrame::Instance()->m_DisplaySize * 0.5f;
+		//ImVec2 max = MainFrame::Instance()->m_DisplaySize;
 	}
 
 	if (m_ShowImGui)

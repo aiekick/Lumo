@@ -103,8 +103,8 @@ public: // contructor
 	void End(vk::CommandBuffer* vCmdBuffer);
 
 	// get sampler / image / buffer
-	vk::DescriptorImageInfo* ComputeBuffer::GetBackDescriptorImageInfo(const uint32_t& vBindingPoint);
-	vk::DescriptorImageInfo* ComputeBuffer::GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint);
+	vk::DescriptorImageInfo* GetBackDescriptorImageInfo(const uint32_t& vBindingPoint);
+	vk::DescriptorImageInfo* GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint);
 	
 	float GetOutputRatio() const;
 	ct::fvec2 GetOutputSize() const;
