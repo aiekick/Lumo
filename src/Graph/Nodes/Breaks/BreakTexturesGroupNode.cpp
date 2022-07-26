@@ -244,7 +244,7 @@ void BreakTexturesGroupNode::ReorganizeSlots()
 		NodeSlot slot;
 		slot.slotType = "TEXTURE_2D";
 		slot.name = ct::toStr("Output %u", idx);
-		slot.descriptorBinding = idx;
+		slot.descriptorBinding = (uint32_t)idx;
 		AddOutput(slot, true, true);
 	}
 }

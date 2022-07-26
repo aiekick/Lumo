@@ -218,6 +218,7 @@ namespace vkApi
 
 	// when the NullDescriptor Feature is enabled
 	vk::DescriptorBufferInfo* VulkanCore::getEmptyDescriptorBufferInfo() { return &m_EmptyDescriptorBufferInfo; }
+	vk::BufferView* VulkanCore::getEmptyBufferView() { return &m_EmptyBufferView; }
 
 	vk::Instance VulkanCore::getInstance() const { return m_VulkanDevicePtr->m_Instance; }
 	vk::PhysicalDevice VulkanCore::getPhysicalDevice() const { return m_VulkanDevicePtr->m_PhysDevice; }

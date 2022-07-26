@@ -90,11 +90,11 @@ void MeshShaderPass<T_VertexType>::DrawModel(vk::CommandBuffer* vCmdBuffer, cons
 		if (m_Indices.m_Count)
 		{
 			vCmdBuffer->bindIndexBuffer(m_Indices.m_Buffer->buffer, 0, vk::IndexType::eUint32);
-			vCmdBuffer->drawIndexed(m_Indices.m_Count, 1, 0, 0, 0);
+			vCmdBuffer->drawIndexed(m_Indices.m_Count, m_CountInstances.w, 0, 0, 0);
 		}
 		else
 		{
-			vCmdBuffer->draw(m_Vertices.m_Count, 1, 0, 0);
+			vCmdBuffer->draw(m_Vertices.m_Count, m_CountInstances.w, 0, 0);
 		}
 	}
 }

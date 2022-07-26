@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "ParticlesRendererNode.h"
 #include <Modules/ParticlesRenderer.h>
-#include <Interfaces/ModelOutputInterface.h>
+#include <Interfaces/TexelBufferOutputInterface.h>
 
 std::shared_ptr<ParticlesRendererNode> ParticlesRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -73,13 +73,11 @@ bool ParticlesRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Co
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
-
 	if (m_ParticlesRenderer)
 	{
 		return m_ParticlesRenderer->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
+
 	return false;
 }
 
@@ -133,30 +131,26 @@ void ParticlesRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCou
 	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void ParticlesRendererNode::SetModel(SceneModelWeak vSceneModel)
+void ParticlesRendererNode::SetTexelBuffer(const uint32_t& vBinding, vk::BufferView* vTexelBufferInfo, ct::fvec2* vTextureSize)
 {
-	if (m_ParticlesRenderer)
-	{
-		m_ParticlesRenderer->SetModel(vSceneModel);
-	}
-}
+	ZoneScoped;
 
-void ParticlesRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
 	if (m_ParticlesRenderer)
 	{
-		m_ParticlesRenderer->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_ParticlesRenderer->SetTexelBuffer(vBinding, vTexelBufferInfo, vTextureSize);
 	}
 }
 
 vk::DescriptorImageInfo* ParticlesRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
+	ZoneScoped;
+
 	if (m_ParticlesRenderer)
 	{
 		return m_ParticlesRenderer->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
-	return nullptr;
+	return VK_NULL_HANDLE;
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
@@ -168,10 +162,15 @@ void ParticlesRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
-			if (otherNodePtr)
+			if (startSlotPtr->slotType == "PARTICLES")
 			{
-				SetModel(otherNodePtr->GetModel());
+				auto otherTextureNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherTextureNodePtr)
+				{
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetTexelBufferView(endSlotPtr->descriptorBinding, &textureSize);
+					SetTexelBuffer(startSlotPtr->descriptorBinding, descPtr, &textureSize);
+				}
 			}
 		}
 	}
@@ -186,9 +185,9 @@ void ParticlesRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, Nod
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == "MESH")
+			if (startSlotPtr->slotType == "PARTICLES")
 			{
-				SetModel();
+				SetTexelBuffer(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
@@ -198,22 +197,43 @@ void ParticlesRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak
 {
 	switch (vEvent)
 	{
-	case NotifyEvent::ModelUpdateDone:
+	case NotifyEvent::TexelBufferUpdateDone:
 	{
 		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				auto otherNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
 				if (otherNodePtr)
 				{
-					SetModel(otherNodePtr->GetModel());
+					auto receiverSlotPtr = vReceiverSlot.getValidShared();
+					if (receiverSlotPtr)
+					{
+						ct::fvec2 textureSize;
+						auto descPtr = otherNodePtr->GetTexelBufferView(emiterSlotPtr->descriptorBinding, &textureSize);
+						SetTexelBuffer(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
+					}
 				}
 			}
 		}
 		break;
 	}
+	/*
+	case NotifyEvent::TextureUpdateDone:
+	{
+		auto slots = GetOutputSlotsOfType("TEXTURE_2D");
+		for (const auto& slot : slots)
+		{
+			auto slotPtr = slot.getValidShared();
+			if (slotPtr)
+			{
+				slotPtr->Notify(NotifyEvent::TextureUpdateDone, slot);
+			}
+		}
+		break;
+	}
+	*/
 	default:
 		break;
 	}
@@ -281,4 +301,12 @@ bool ParticlesRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XM
 	}
 
 	return true;
+}
+
+void ParticlesRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
+{
+	if (m_ParticlesRenderer)
+	{
+		m_ParticlesRenderer->UpdateShaders(vFiles);
+	}
 }

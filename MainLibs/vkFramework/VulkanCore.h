@@ -66,6 +66,7 @@ namespace vkApi
 		Texture2DPtr m_EmptyTexturePtr = nullptr;
 		vk::DescriptorBufferInfo m_EmptyDescriptorBufferInfo = 
 			vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+		vk::BufferView m_EmptyBufferView = VK_NULL_HANDLE;
 
 	protected:
 		std::vector<vk::CommandBuffer> m_CommandBuffers;
@@ -116,6 +117,7 @@ namespace vkApi
 		
 		// when the NullDescriptor Feature is enabled
 		vk::DescriptorBufferInfo* getEmptyDescriptorBufferInfo();
+		vk::BufferView* getEmptyBufferView();
 
 		void SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanShader);
 		VulkanImGuiRendererWeak GetVulkanImGuiRenderer();

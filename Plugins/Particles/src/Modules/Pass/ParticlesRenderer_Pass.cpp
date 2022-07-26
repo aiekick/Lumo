@@ -33,11 +33,11 @@ using namespace vkApi;
 //////////////////////////////////////////////////////////////
 
 ParticlesRenderer_Pass::ParticlesRenderer_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Mesh Pass 1 : Particles", MESH_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Quad Pass 1 : Particles", MESH_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+	//m_DontUseShaderFilesOnDisk = true;
 }
 
 ParticlesRenderer_Pass::~ParticlesRenderer_Pass()
@@ -51,75 +51,18 @@ ParticlesRenderer_Pass::~ParticlesRenderer_Pass()
 
 void ParticlesRenderer_Pass::ActionBeforeInit()
 {
-	
+	m_TexelBufferInfos[0] = VK_NULL_HANDLE;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void ParticlesRenderer_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
-{
-	ZoneScoped;
-
-	if (!m_Loaded) return;
-
-	if (vCmdBuffer)
-	{
-		auto modelPtr = m_SceneModel.getValidShared();
-		if (!modelPtr || modelPtr->empty()) return;
-
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
-		{
-			VKFPScoped(*vCmdBuffer, "ParticlesRenderer", "DrawModel");
-
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-
-			for (auto meshPtr : *modelPtr)
-			{
-				if (meshPtr)
-				{
-					vk::DeviceSize offsets = 0;
-					vCmdBuffer->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
-
-					if (meshPtr->GetIndicesCount())
-					{
-						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
-						vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
-					}
-					else
-					{
-						vCmdBuffer->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
-					}
-				}
-			}
-		}
-	}
-}
-
 bool ParticlesRenderer_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
 	bool change = false;
-
-	ImGui::Text("Component : ");
-	ImGui::SameLine();
-	if (ImGui::RadioButtonLabeled(0.0f, "R", m_UBOFrag.channel_idx == 0, false)) { change = true; m_UBOFrag.channel_idx = 0; }
-	ImGui::SameLine();
-	if (ImGui::RadioButtonLabeled(0.0f, "G", m_UBOFrag.channel_idx == 1, false)) { change = true; m_UBOFrag.channel_idx = 1; }
-	ImGui::SameLine();
-	if (ImGui::RadioButtonLabeled(0.0f, "B", m_UBOFrag.channel_idx == 2, false)) { change = true; m_UBOFrag.channel_idx = 2; }
-	ImGui::SameLine();
-	if (ImGui::RadioButtonLabeled(0.0f, "A", m_UBOFrag.channel_idx == 3, false)) { change = true; m_UBOFrag.channel_idx = 3; }
-
-	uint32_t idx = 0;
-	for (uint32_t i = 0; i < m_UBOFrag.count_colors; ++i)
-	{
-		ImGui::PushID(ImGui::IncPUSHID());
-		change |= ImGui::ColorEdit4Default(0.0f, ct::toStr("Color %u", i).c_str(), &m_Colors[i].x, &m_DefaultColors[i].x);
-		ImGui::PopID();
-	}
 
 	if (change)
 	{
@@ -141,16 +84,26 @@ void ParticlesRenderer_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFra
 
 }
 
-void ParticlesRenderer_Pass::SetModel(SceneModelWeak vSceneModel)
+void ParticlesRenderer_Pass::SetTexelBuffer(const uint32_t& vBinding, vk::BufferView* vTexelBufferInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
-	m_SceneModel = vSceneModel;
-}
+	if (m_Loaded && vBinding < m_TexelBufferInfos.size())
+	{
+		if (vTexelBufferInfo)
+		{
+			m_TexelBufferInfos[vBinding] = *vTexelBufferInfo;
 
-void ParticlesRenderer_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	CTOOL_DEBUG_BREAK;
+			if (vTextureSize)
+			{
+				m_TexelBufferInfosSize[vBinding] = *vTextureSize;
+			}
+		}
+		else
+		{
+			m_TexelBufferInfos[vBinding] = VK_NULL_HANDLE;
+		}
+	}
 }
 
 vk::DescriptorImageInfo* ParticlesRenderer_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
@@ -165,93 +118,16 @@ vk::DescriptorImageInfo* ParticlesRenderer_Pass::GetDescriptorImageInfo(const ui
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 
-	return nullptr;
+	return &m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParticlesRenderer_Pass::ClearColorBuffer()
-{
-	m_Colors.clear();
-	m_DefaultColors.clear();
-}
-
-void ParticlesRenderer_Pass::AddColorToBuffer(const ct::fvec4& vColor)
-{
-	m_Colors.push_back(vColor);
-	m_DefaultColors.push_back(vColor);
-	m_UBOFrag.count_colors = (int32_t)m_Colors.size();
-}
-
-void ParticlesRenderer_Pass::DestroyModel(const bool& vReleaseDatas)
-{
-	ZoneScoped;
-
-	if (vReleaseDatas)
-	{
-		m_SceneModel.reset();
-	}
-}
-
-bool ParticlesRenderer_Pass::CreateSBO()
-{
-	ZoneScoped;
-
-	m_SBO_Colors.reset();
-
-	const auto sizeInBytes = sizeof(ct::fvec4) * m_Colors.size();
-	m_SBO_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
-	if (m_SBO_Colors->buffer)
-	{
-		m_SBO_ColorsDescriptorBufferInfo = vk::DescriptorBufferInfo{ m_SBO_Colors->buffer, 0, sizeInBytes };
-	}
-	else
-	{
-		m_SBO_ColorsDescriptorBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	}
-
-	NeedNewSBOUpload();
-
-	return true;
-}
-
-void ParticlesRenderer_Pass::UploadSBO()
-{
-	if (m_SBO_Colors)
-	{
-		const auto sizeInBytes = sizeof(ct::fvec4) * m_Colors.size();
-		VulkanRessource::upload(m_VulkanCorePtr, *m_SBO_Colors, m_Colors.data(), sizeInBytes);
-	}
-}
-
-void ParticlesRenderer_Pass::DestroySBO()
-{
-	ZoneScoped;
-
-	m_SBO_Colors.reset();
-}
-
 bool ParticlesRenderer_Pass::CreateUBO()
 {
 	ZoneScoped;
-
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
-	if (m_UBO_Vert)
-	{
-		m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
-		m_DescriptorBufferInfo_Vert.range = sizeof(UBOVert);
-		m_DescriptorBufferInfo_Vert.offset = 0;
-	}
-
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
-	if (m_UBO_Frag)
-	{
-		m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
-		m_DescriptorBufferInfo_Frag.range = sizeof(UBOFrag);
-		m_DescriptorBufferInfo_Frag.offset = 0;
-	}
 
 	NeedNewUBOUpload();
 
@@ -261,17 +137,11 @@ bool ParticlesRenderer_Pass::CreateUBO()
 void ParticlesRenderer_Pass::UploadUBO()
 {
 	ZoneScoped;
-
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void ParticlesRenderer_Pass::DestroyUBO()
 {
 	ZoneScoped;
-
-	m_UBO_Vert.reset();
-	m_UBO_Frag.reset();
 }
 
 bool ParticlesRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -279,10 +149,8 @@ bool ParticlesRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageTexelBuffer, 1, vk::ShaderStageFlagBits::eVertex);
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
@@ -292,95 +160,62 @@ bool ParticlesRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Vert);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_ColorsDescriptorBufferInfo);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageTexelBuffer, nullptr, nullptr, &m_TexelBufferInfos[0]);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 
 	return true;
 }
 
-void ParticlesRenderer_Pass::SetInputStateBeforePipelineCreation()
-{
-	VertexStruct::P3_N3_TA3_BTA3_T2_C4::GetInputState(m_InputState);
-}
-
 std::string ParticlesRenderer_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ParticlesRenderer_Pass_Vertex";
+	vOutShaderName = "ParticlesRenderer_Vertex";
 
-	return u8R"(#version 450
+	return u8R"(
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) in vec3 aPosition;
-layout(location = 1) in vec3 aNormal;
-layout(location = 2) in vec3 aTangent;
-layout(location = 3) in vec3 aBiTangent;
-layout(location = 4) in vec2 aUv;
-layout(location = 5) in vec4 aColor;
+layout(location = 0) in vec2 vertPosition;
+layout(location = 1) in vec2 vertUv;
 
-layout(location = 0) out vec4 vertColor;
+layout(binding = 0, rgba32f) uniform imageBuffer posTexelBuffer;
 )"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
++ CommonSystem::GetBufferObjectStructureHeader(1U) +
 u8R"(
-layout (std140, binding = 1) uniform UBO_Vert 
-{ 
-	mat4 transform;
-};
+
+layout(location = 0) out vec2 uv_map;
+layout(location = 1) out vec4 particleColor;
 
 void main() 
 {
-	vertColor = aColor;
-	gl_Position = cam * transform * vec4(aPosition, 1.0);
+	uv_map = vertUv;
+
+	vec4 particle_pos_alpha = texelFetch(posTexelBuffer, ivec2(gl_InstanceID, 0), 0);
+
+	vec4 pos = cam * vec4(particle_pos_alpha.xyz, 1.0);
+	vec4 quad = proj * view * vec4(vertPositionn 0.0, 1.0);
+
+	particleColor = vec4(particle_pos_alpha.w);
+	gl_Position = vec4(pos.xyz + quad.xyz, 1.0);
 }
 )";
 }
 
 std::string ParticlesRenderer_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ParticlesRenderer_Pass_Fragment";
+	vOutShaderName = "ParticlesRenderer_Fragment";
 
-	return u8R"(#version 450
+	return u8R"(
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
 
-layout(location = 0) in vec4 vertColor;
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
-u8R"(
-layout(std140, binding = 2) uniform UBO_Frag 
-{ 
-	uint channel_idx;	// 0..3
-	uint color_count;	// 0..N
-};
-
-layout(std140, binding = 3) readonly buffer SBO_Frag 
-{ 
-	vec4 colors[];		// N Colors
-};
-
-vec4 HeatMapColor(float value, float minValue, float maxValue)
-{
-    float ratio = (color_count-1.0) * clamp((value-minValue) / (maxValue-minValue), 0.0, 1.0);
-    uint indexMin = uint(floor(ratio));
-    uint indexMax = min(indexMin+1,color_count-1);
-    return mix(colors[indexMin], colors[indexMax], ratio-indexMin);
-}
+layout(location = 0) in vec2 uv_map;
+layout(location = 1) in vec4 particleColor;
 
 void main() 
 {
-	fragColor = vec4(0);
-
-	if (vertColor[channel_idx] > 0.0)
-	{
-		fragColor = HeatMapColor(vertColor[channel_idx], 0.0, 1.0);
-		fragColor.a = 1.0;
-	}
-	else
-	{
-		//discard;
-	}
+	fragColor = vec4(uv_map, 0.0, 1.0);
 }
 )";
 }
@@ -392,14 +227,6 @@ void main()
 std::string ParticlesRenderer_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
-
-	str += vOffset + ct::toStr("<component>%u</component>\n", m_UBOFrag.channel_idx);
-	str += vOffset + "<color_levels>\n";
-	for (auto color : m_Colors)
-	{
-		str += vOffset + ct::toStr("\t<color>%s</color>\n", color.string().c_str());
-	}
-	str += vOffset + "</color_levels>\n";
 
 	return str;
 }
@@ -416,24 +243,6 @@ bool ParticlesRenderer_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 		strValue = vElem->GetText();
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
-
-	if (strParentName == "heatmap_renderer")
-	{
-		if (strName == "color_levels")
-			m_Colors.clear();
-		else if (strName == "component")
-			m_UBOFrag.channel_idx = ct::ivariant(strValue).GetI();
-
-		NeedNewUBOUpload();
-	}
-
-	if (strParentName == "color_levels")
-	{
-		if (strName == "color")
-			m_Colors.push_back(ct::fvariant(strValue).GetV4());
-
-		NeedNewSBOUpload();
-	}
 
 	return true;
 }

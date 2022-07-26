@@ -146,32 +146,26 @@ void ParticlesRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 	}
 }
 
-void ParticlesRenderer::SetModel(SceneModelWeak vSceneModel)
+void ParticlesRenderer::SetTexelBuffer(const uint32_t& vBinding, vk::BufferView* vTexelBufferInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_ParticlesRenderer_Pass_Ptr)
 	{
-		return m_ParticlesRenderer_Pass_Ptr->SetModel(vSceneModel);
-	}
-}
-
-void ParticlesRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	if (m_ParticlesRenderer_Pass_Ptr)
-	{
-		m_ParticlesRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_ParticlesRenderer_Pass_Ptr->SetTexelBuffer(vBinding, vTexelBufferInfo, vTextureSize);
 	}
 }
 
 vk::DescriptorImageInfo* ParticlesRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
+	ZoneScoped;
+
 	if (m_ParticlesRenderer_Pass_Ptr)
 	{
 		return m_ParticlesRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
-	return nullptr;
+	return VK_NULL_HANDLE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
