@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "ParticlesSimulationModule_Pass.h"
+#include "PrimitiveFibonacciModule_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -39,7 +39,7 @@ using namespace vkApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ParticlesSimulationModule_Pass::ParticlesSimulationModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+PrimitiveFibonacciModule_Pass::PrimitiveFibonacciModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Particles Simulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -47,12 +47,12 @@ ParticlesSimulationModule_Pass::ParticlesSimulationModule_Pass(vkApi::VulkanCore
 	//m_DontUseShaderFilesOnDisk = true;
 }
 
-ParticlesSimulationModule_Pass::~ParticlesSimulationModule_Pass()
+PrimitiveFibonacciModule_Pass::~PrimitiveFibonacciModule_Pass()
 {
 	Unit();
 }
 
-void ParticlesSimulationModule_Pass::ActionBeforeInit()
+void PrimitiveFibonacciModule_Pass::ActionBeforeInit()
 {
 	vk::PushConstantRange push_constant;
 	push_constant.offset = 0;
@@ -62,47 +62,53 @@ void ParticlesSimulationModule_Pass::ActionBeforeInit()
 	SetPushConstantRange(push_constant);
 }
 
-void ParticlesSimulationModule_Pass::ActionAfterInitSucceed()
+void PrimitiveFibonacciModule_Pass::ActionAfterInitSucceed()
 {
-	m_PushConstants.DeltaTime = ct::GetTimeInterval();
 	m_PushConstants.count = PARTICLES_COUNT;
-	m_PushConstants.reset = 1.0f;
-	m_PushConstants.type = 0U;
+	m_PushConstants.radius = 1.0f;
+	m_PushConstants.scale = 0.0f;
+	m_PushConstants.max_life = 1.0f;
+	m_PushConstants.dir = ct::fvec3(0.0f, 0.0f, 1.0f);
+	m_PushConstants.speed = 1.0f;
 
 	m_DispatchSize.x = PARTICLES_COUNT / 8U;
 	m_DispatchSize.y = 1U;
 	m_DispatchSize.z = 1U;
 }
 
-bool ParticlesSimulationModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PrimitiveFibonacciModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
 	bool change = false;
 
-	if (ImGui::ContrastedButton("Reset"))
+	if (ImGui::SliderUIntDefaultCompact(0.0f, "Particle Count", &m_PushConstants.count, 1U, 2000000U, 2000U))
 	{
-		m_PushConstants.reset = 1.0f;
+		CTOOL_DEBUG_BREAK;
 
-		change = true;
+		NeedNewModelUpdate();
 	}
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Partilce Life", &m_PushConstants.max_life, 0.1f, 100.0f, 1.0f);
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Partilce Speed", &m_PushConstants.speed, 0.1f, 100.0f, 1.0f);
+
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Ball Radius", &m_PushConstants.radius, 0.001f, 100.0f, 1.0f);
 
 	return change;
 }
 
-void ParticlesSimulationModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void PrimitiveFibonacciModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext);
 
 }
 
-void ParticlesSimulationModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void PrimitiveFibonacciModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
 
 }
 
-void ParticlesSimulationModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void PrimitiveFibonacciModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
@@ -122,11 +128,12 @@ void ParticlesSimulationModule_Pass::SetTexture(const uint32_t& vBinding, vk::De
 	}
 }
 
-vk::Buffer* ParticlesSimulationModule_Pass::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
+vk::Buffer* PrimitiveFibonacciModule_Pass::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_ParticleTexelBufferPtr)
+	if (m_Particle_pos_life_Ptr && 
+		m_Particle_dir_speed_Ptr)
 	{
 		if (vOutSize)
 		{
@@ -134,17 +141,24 @@ vk::Buffer* ParticlesSimulationModule_Pass::GetTexelBuffer(const uint32_t& vBind
 			vOutSize->y = 0U;
 		}
 
-		return &m_ParticleTexelBufferPtr->buffer;
+		if (vBindingPoint == 0U)
+		{
+			return &m_Particle_pos_life_Ptr->buffer;
+		}
+		else if (vBindingPoint == 1U)
+		{
+			return &m_Particle_dir_speed_Ptr->buffer;
+		}
 	}
 
 	return nullptr;
 }
 
-vk::BufferView* ParticlesSimulationModule_Pass::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
+vk::BufferView* PrimitiveFibonacciModule_Pass::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
-
-	if (m_ParticleTexelBufferPtr)
+	if (m_Particle_pos_life_Ptr &&
+		m_Particle_dir_speed_Ptr)
 	{
 		if (vOutSize)
 		{
@@ -152,13 +166,20 @@ vk::BufferView* ParticlesSimulationModule_Pass::GetTexelBufferView(const uint32_
 			vOutSize->y = 0U;
 		}
 
-		return &m_ParticleTexelBufferPtr->bufferView;
+		if (vBindingPoint == 0U)
+		{
+			return &m_Particle_pos_life_Ptr->bufferView;
+		}
+		else if (vBindingPoint == 1U)
+		{
+			return &m_Particle_dir_speed_Ptr->bufferView;
+		}
 	}
 
 	return nullptr;
 }
 
-void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void PrimitiveFibonacciModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (vCmdBuffer)
 	{
@@ -174,7 +195,6 @@ void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, cons
 
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 		
-		m_PushConstants.DeltaTime = ct::GetTimeInterval();
 		vCmdBuffer->pushConstants(m_PipelineLayout,
 			vk::ShaderStageFlagBits::eCompute,
 			0, sizeof(PushConstants), &m_PushConstants);
@@ -188,12 +208,10 @@ void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, cons
 			nullptr,
 			nullptr,
 			nullptr);
-
-		m_PushConstants.reset = 0.0f;
 	}
 }
 
-bool ParticlesSimulationModule_Pass::BuildModel()
+bool PrimitiveFibonacciModule_Pass::BuildModel()
 {
 	ZoneScoped;
 
@@ -202,18 +220,20 @@ bool ParticlesSimulationModule_Pass::BuildModel()
 		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 	}
 
+	m_Particle_pos_life_Ptr.reset();
+
 	std::vector<ct::fvec4> particles;
 	particles.resize(PARTICLES_COUNT);
-
-	m_ParticleTexelBufferPtr.reset();
-
 	auto sizeInBytes = particles.size() * sizeof(ct::fvec4);
-	m_ParticleTexelBufferPtr = VulkanRessource::createTexelBuffer(
-		m_VulkanCorePtr,
-		particles.data(),
-		sizeInBytes,
-		vk::Format::eR32G32B32A32Sfloat);
 
+	m_Particle_pos_life_Ptr = VulkanRessource::createTexelBuffer(
+		m_VulkanCorePtr, particles.data(), sizeInBytes, vk::Format::eR32G32B32A32Sfloat);
+
+	m_Particle_dir_speed_Ptr = VulkanRessource::createTexelBuffer(
+		m_VulkanCorePtr, particles.data(), sizeInBytes, vk::Format::eR32G32B32A32Sfloat);
+
+	// vec4 => xyz:pos, w:life
+	// vec4 => xyz:dir, w:speed
 	// inform observer than a new model is ready
 	auto parentNodePtr = GetParentNode().getValidShared();
 	if (parentNodePtr)
@@ -224,83 +244,85 @@ bool ParticlesSimulationModule_Pass::BuildModel()
 	return true;
 }
 
-void ParticlesSimulationModule_Pass::DestroyModel(const bool& vReleaseDatas)
+void PrimitiveFibonacciModule_Pass::DestroyModel(const bool& vReleaseDatas)
 {
-	m_ParticleTexelBufferPtr.reset();
+	m_Particle_pos_life_Ptr.reset();
+	m_Particle_dir_speed_Ptr.reset();
 }
 
-bool ParticlesSimulationModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool PrimitiveFibonacciModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageTexelBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageTexelBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
 }
 
-bool ParticlesSimulationModule_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool PrimitiveFibonacciModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageTexelBuffer,
-		nullptr, nullptr, &m_ParticleTexelBufferPtr->bufferView);
+		nullptr, nullptr, &m_Particle_pos_life_Ptr->bufferView);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageTexelBuffer,
+		nullptr, nullptr, &m_Particle_dir_speed_Ptr->bufferView);
 	
 	return true;
 }
 
-std::string ParticlesSimulationModule_Pass::GetComputeShaderCode(std::string& vOutShaderName)
+std::string PrimitiveFibonacciModule_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "ParticlesSimulationModule_Pass";
+	vOutShaderName = "PrimitiveFibonacciModule_Pass";
 
 	return u8R"(
 #version 450
 
 layout(local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
 
-layout(binding = 0, rgba32f) uniform imageBuffer posBuffer;
+layout(binding = 0, rgba32f) uniform imageBuffer pos_life_buffer;
+layout(binding = 1, rgba32f) uniform imageBuffer dir_speed_buffer;
 
-layout(push_constant) uniform TimeState 
+layout(push_constant) uniform push_datas 
 {
-	float DeltaTime;
-	float reset;
 	uint count;
-	uint type;
+	float radius;
+	vec3 scale; 
+	float max_life;
+	vec3 dir;
+	float speed;
 };
 
 void main() 
 {
-	if( gl_GlobalInvocationID.x < count ) 
-	{
-		vec4 position = imageLoad(posBuffer, int(gl_GlobalInvocationID.x));
-			
-		if (reset > 0.5)
-		{
-			if (type == 0) // fibonacci sphere
-			{
-				const float radius = 10.0;
-				const float index = float(gl_GlobalInvocationID.x);
-				const float golden_ratio = (1.0 + sqrt(5.0)) * 0.5;
-				const float theta = index * 6.28318 / golden_ratio;
-				const float phi = acos(1.0 - 2.0 * (index + 0.5) / count);
-				position.x = cos(theta) * sin(phi) * radius;
-				position.y = sin(theta) * sin(phi) * radius;
-				position.z = cos(phi) * radius;
-				position.w = 1.0;
-			}
-		}
-		else
-		{
-			float speed_factor = 1.0;
+	const int i_global_index = int(gl_GlobalInvocationID.x);
+	const float f_global_index = float(gl_GlobalInvocationID.x);
+	
+	vec4 pos_life = imageLoad(pos_life_buffer, i_global_index);
+	vec4 dir_speed = imageLoad(dir_speed_buffer, i_global_index);
+		
+	const float golden_ratio = 6.28318 / ((1.0 + sqrt(5.0)) * 0.5);
+	const float theta = f_global_index * golden_ratio;
+	const float phi = acos(1.0 - 2.0 * (f_global_index + 0.5) / float(count));
 
-			// rotation around y axis
-			position.xyz += normalize( cross( vec3( 0.0, 1.0, 0.0 ), position.xyz ) ) * speed_factor * DeltaTime;
-		}
+	// xyz:pos, w:life
+	pos_life.x = cos(theta) * sin(phi) * radius * scale.x;
+	pos_life.y = sin(theta) * sin(phi) * radius * scale.y;
+	pos_life.z = cos(phi) * radius * scale.z;
+	pos_life.w = max_life;
+
+	// xyz:dir, w:speed
+	dir_speed.x = dir.x;
+	dir_speed.y = dir.y;
+	dir_speed.z = dir.z;
+	dir_speed.w = speed;
     
-		imageStore(posBuffer, int(gl_GlobalInvocationID.x), position);
-	}
+	imageStore(pos_life_buffer, i_global_index, pos_life);
+	imageStore(dir_speed_buffer, i_global_index, dir_speed);
 }
 )";
 }
@@ -309,7 +331,7 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ParticlesSimulationModule_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string PrimitiveFibonacciModule_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
@@ -318,7 +340,7 @@ std::string ParticlesSimulationModule_Pass::getXml(const std::string& vOffset, c
 	return str;
 }
 
-bool ParticlesSimulationModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool PrimitiveFibonacciModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;

@@ -260,7 +260,7 @@ void main()
 {
 	gl_PointSize = 5.0;
 
-	particleColor = normalize(particle_position) * 0.5 + 0.5;
+	particleColor = particle_position;
 	gl_Position = cam * particle_position;
 }
 )";

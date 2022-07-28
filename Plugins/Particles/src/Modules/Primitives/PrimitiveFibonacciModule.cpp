@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "ParticlesSimulationModule.h"
+#include "PrimitiveFibonacciModule.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -30,20 +30,18 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Pass/ParticlesSimulationModule_Pass.h>
+#include <Modules/Primitives/Pass/PrimitiveFibonacciModule_Pass.h>
 
 using namespace vkApi;
-
-#define COUNT_BUFFERS 2
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParticlesSimulationModule> ParticlesSimulationModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<PrimitiveFibonacciModule> PrimitiveFibonacciModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ParticlesSimulationModule>(vVulkanCorePtr);
+	auto res = std::make_shared<PrimitiveFibonacciModule>(vVulkanCorePtr);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -57,13 +55,13 @@ std::shared_ptr<ParticlesSimulationModule> ParticlesSimulationModule::Create(vkA
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ParticlesSimulationModule::ParticlesSimulationModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+PrimitiveFibonacciModule::PrimitiveFibonacciModule(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
 
-ParticlesSimulationModule::~ParticlesSimulationModule()
+PrimitiveFibonacciModule::~PrimitiveFibonacciModule()
 {
 	Unit();
 }
@@ -72,7 +70,7 @@ ParticlesSimulationModule::~ParticlesSimulationModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ParticlesSimulationModule::Init()
+bool PrimitiveFibonacciModule::Init()
 {
 	ZoneScoped;
 
@@ -82,13 +80,13 @@ bool ParticlesSimulationModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_ParticlesSimulationModule_Pass_Ptr = std::make_shared<ParticlesSimulationModule_Pass>(m_VulkanCorePtr);
-		if (m_ParticlesSimulationModule_Pass_Ptr)
+		m_PrimitiveFibonacciModule_Pass_Ptr = std::make_shared<PrimitiveFibonacciModule_Pass>(m_VulkanCorePtr);
+		if (m_PrimitiveFibonacciModule_Pass_Ptr)
 		{
-			m_ParticlesSimulationModule_Pass_Ptr->SetParentNode(GetParentNode());
-			if (m_ParticlesSimulationModule_Pass_Ptr->InitCompute2D(map_size / 8U, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			m_PrimitiveFibonacciModule_Pass_Ptr->SetParentNode(GetParentNode());
+			if (m_PrimitiveFibonacciModule_Pass_Ptr->InitCompute2D(map_size / 8U, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
-				AddGenericPass(m_ParticlesSimulationModule_Pass_Ptr);
+				AddGenericPass(m_PrimitiveFibonacciModule_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -101,28 +99,33 @@ bool ParticlesSimulationModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ParticlesSimulationModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool PrimitiveFibonacciModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("ParticlesSimulation", vCmd);
+	BaseRenderer::Render("Primitve Fibonacci", vCmd);
 
 	return true;
 }
 
-bool ParticlesSimulationModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PrimitiveFibonacciModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("ParticlesSimulation", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("PrimitiveFibonacci", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 
-			if (m_ParticlesSimulationModule_Pass_Ptr)
+			if (m_PrimitiveFibonacciModule_Pass_Ptr)
 			{
-				change |= m_ParticlesSimulationModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_PrimitiveFibonacciModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+			}
+
+			if (change)
+			{
+				NeedNewExecution();
 			}
 
 			return change;
@@ -132,7 +135,7 @@ bool ParticlesSimulationModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 	return false;
 }
 
-void ParticlesSimulationModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void PrimitiveFibonacciModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext);
 
@@ -142,7 +145,7 @@ void ParticlesSimulationModule::DrawOverlays(const uint32_t& vCurrentFrame, cons
 	}
 }
 
-void ParticlesSimulationModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void PrimitiveFibonacciModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
 
@@ -152,35 +155,35 @@ void ParticlesSimulationModule::DisplayDialogsAndPopups(const uint32_t& vCurrent
 	}
 }
 
-void ParticlesSimulationModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void PrimitiveFibonacciModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
-	if (m_ParticlesSimulationModule_Pass_Ptr)
+	if (m_PrimitiveFibonacciModule_Pass_Ptr)
 	{
-		m_ParticlesSimulationModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_PrimitiveFibonacciModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
-vk::Buffer* ParticlesSimulationModule::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
+vk::Buffer* PrimitiveFibonacciModule::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_ParticlesSimulationModule_Pass_Ptr)
+	if (m_PrimitiveFibonacciModule_Pass_Ptr)
 	{
-		return m_ParticlesSimulationModule_Pass_Ptr->GetTexelBuffer(vBindingPoint, vOutSize);
+		return m_PrimitiveFibonacciModule_Pass_Ptr->GetTexelBuffer(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-vk::BufferView* ParticlesSimulationModule::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
+vk::BufferView* PrimitiveFibonacciModule::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_ParticlesSimulationModule_Pass_Ptr)
+	if (m_PrimitiveFibonacciModule_Pass_Ptr)
 	{
-		return m_ParticlesSimulationModule_Pass_Ptr->GetTexelBufferView(vBindingPoint, vOutSize);
+		return m_PrimitiveFibonacciModule_Pass_Ptr->GetTexelBufferView(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -190,7 +193,7 @@ vk::BufferView* ParticlesSimulationModule::GetTexelBufferView(const uint32_t& vB
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ParticlesSimulationModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string PrimitiveFibonacciModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
@@ -198,9 +201,9 @@ std::string ParticlesSimulationModule::getXml(const std::string& vOffset, const 
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_ParticlesSimulationModule_Pass_Ptr)
+	if (m_PrimitiveFibonacciModule_Pass_Ptr)
 	{
-		str += m_ParticlesSimulationModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_PrimitiveFibonacciModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</diffuse_module>\n";
@@ -208,7 +211,7 @@ std::string ParticlesSimulationModule::getXml(const std::string& vOffset, const 
 	return str;
 }
 
-bool ParticlesSimulationModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool PrimitiveFibonacciModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -227,9 +230,9 @@ bool ParticlesSimulationModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_ParticlesSimulationModule_Pass_Ptr)
+	if (m_PrimitiveFibonacciModule_Pass_Ptr)
 	{
-		m_ParticlesSimulationModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_PrimitiveFibonacciModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

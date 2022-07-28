@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 #include "ParticlesSimulationNode.h"
-#include <Modules/ParticlesSimulationModule.h>
+#include <Modules/Simulation/ParticlesSimulationModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 
 std::shared_ptr<ParticlesSimulationNode> ParticlesSimulationNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)

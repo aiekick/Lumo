@@ -25,7 +25,7 @@ limitations under the License.
 #include <Profiler/vkProfiler.hpp>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
-#include <Modules/Pass/ParticlesPointRenderer_Pass.h>
+#include <Modules/Renderers/Pass/ParticlesPointRenderer_Pass.h>
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////

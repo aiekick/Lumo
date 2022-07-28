@@ -11,9 +11,10 @@
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanWindow.h>
 
-#include <Nodes/ParticlesPointRendererNode.h>
-#include <Nodes/ParticlesSpriteRendererNode.h>
-#include <Nodes/ParticlesSimulationNode.h>
+#include <Nodes/Renderers/ParticlesPointRendererNode.h>
+#include <Nodes/Renderers/ParticlesSpriteRendererNode.h>
+#include <Nodes/Simulation/ParticlesSimulationNode.h>
+#include <Nodes/Primitives/PrimitiveFibonacciNode.h>
 
 #ifndef USE_STATIC_LINKING_OF_PLUGINS
 // needed for plugin creating / destroying
@@ -93,32 +94,49 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	LibraryEntry entry_PARTICLES_SIMULATION;
-	entry_PARTICLES_SIMULATION.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_PARTICLES_SIMULATION.first = "plugins";
-	entry_PARTICLES_SIMULATION.second.nodeLabel = "Simulation";
-	entry_PARTICLES_SIMULATION.second.nodeType = "PARTICLES_SIMULATION";
-	entry_PARTICLES_SIMULATION.second.color = ct::fvec4(0.0f);
-	entry_PARTICLES_SIMULATION.second.categoryPath = "Particles";
-	res.push_back(entry_PARTICLES_SIMULATION);
+	{
+		LibraryEntry entry;
+		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+		entry.first = "plugins";
+		entry.second.nodeLabel = "Simulation";
+		entry.second.nodeType = "PARTICLES_SIMULATION";
+		entry.second.color = ct::fvec4(0.0f);
+		entry.second.categoryPath = "Particles";
+		res.push_back(entry);
+	}
 
-	LibraryEntry entry_PARTICLES_POINT_RENDERER;
-	entry_PARTICLES_POINT_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_PARTICLES_POINT_RENDERER.first = "plugins";
-	entry_PARTICLES_POINT_RENDERER.second.nodeLabel = "Point Renderer";
-	entry_PARTICLES_POINT_RENDERER.second.nodeType = "PARTICLES_POINT_RENDERER";
-	entry_PARTICLES_POINT_RENDERER.second.color = ct::fvec4(0.0f);
-	entry_PARTICLES_POINT_RENDERER.second.categoryPath = "Particles";
-	res.push_back(entry_PARTICLES_POINT_RENDERER);
+	{
+		LibraryEntry entry;
+		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+		entry.first = "plugins";
+		entry.second.nodeLabel = "Point Renderer";
+		entry.second.nodeType = "PARTICLES_POINT_RENDERER";
+		entry.second.color = ct::fvec4(0.0f);
+		entry.second.categoryPath = "Particles";
+		res.push_back(entry);
+	}
 
-	LibraryEntry entry_PARTICLES_SPRITE_RENDERER;
-	entry_PARTICLES_SPRITE_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_PARTICLES_SPRITE_RENDERER.first = "plugins";
-	entry_PARTICLES_SPRITE_RENDERER.second.nodeLabel = "Sprite Renderer";
-	entry_PARTICLES_SPRITE_RENDERER.second.nodeType = "PARTICLES_SPRITE_RENDERER";
-	entry_PARTICLES_SPRITE_RENDERER.second.color = ct::fvec4(0.0f);
-	entry_PARTICLES_SPRITE_RENDERER.second.categoryPath = "Particles";
-	res.push_back(entry_PARTICLES_SPRITE_RENDERER);
+	{
+		LibraryEntry entry;
+		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+		entry.first = "plugins";
+		entry.second.nodeLabel = "Sprite Renderer";
+		entry.second.nodeType = "PARTICLES_SPRITE_RENDERER";
+		entry.second.color = ct::fvec4(0.0f);
+		entry.second.categoryPath = "Particles";
+		res.push_back(entry);
+	}
+
+	{
+		LibraryEntry entry;
+		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+		entry.first = "plugins";
+		entry.second.nodeLabel = "Fibonacci Ball";
+		entry.second.nodeType = "PRIMITIVE_FIBONACCI";
+		entry.second.color = ct::fvec4(0.0f);
+		entry.second.categoryPath = "Particles";
+		res.push_back(entry);
+	}
 
 	return res;
 }
@@ -133,6 +151,8 @@ BaseNodePtr Particles::CreatePluginNode(const std::string& vPluginNodeName)
 		res = ParticlesPointRendererNode::Create(m_VulkanCoreWeak.getValidShared());
 	else if (vPluginNodeName == "PARTICLES_SPRITE_RENDERER")
 		res = ParticlesSpriteRendererNode::Create(m_VulkanCoreWeak.getValidShared());
+	else if (vPluginNodeName == "PRIMITIVE_FIBONACCI")
+		res = PrimitiveFibonacciNode::Create(m_VulkanCoreWeak.getValidShared());
 
 	return res;
 }
