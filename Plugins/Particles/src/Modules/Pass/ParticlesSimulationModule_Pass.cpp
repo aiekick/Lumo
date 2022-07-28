@@ -29,11 +29,11 @@ limitations under the License.
 #include <utils/Mesh/VertexStruct.h>
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
+#include <Graph/Base/BaseNode.h>
 
 using namespace vkApi;
 
-#define COUNT_BUFFERS 2
-#define PARTICLES_COUNT 2000
+#define PARTICLES_COUNT 20000
 
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
@@ -42,7 +42,7 @@ using namespace vkApi;
 ParticlesSimulationModule_Pass::ParticlesSimulationModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
-	SetRenderDocDebugName("Comp Pass : ParticlesSimulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Comp Pass : Particles Simulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
 	//m_DontUseShaderFilesOnDisk = true;
 }
@@ -60,10 +60,17 @@ void ParticlesSimulationModule_Pass::ActionBeforeInit()
 	push_constant.stageFlags = vk::ShaderStageFlagBits::eCompute;
 
 	SetPushConstantRange(push_constant);
+}
 
-	m_DispatchSize.x = 2000U;
+void ParticlesSimulationModule_Pass::ActionAfterInitSucceed()
+{
+	m_PushConstants.particlesCount = PARTICLES_COUNT;
+
+	m_DispatchSize.x = PARTICLES_COUNT / 8U;
 	m_DispatchSize.y = 1U;
 	m_DispatchSize.z = 1U;
+
+	m_PushConstants.DeltaTime = ct::GetTimeInterval();
 }
 
 bool ParticlesSimulationModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -181,7 +188,7 @@ void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, cons
 	}
 }
 
-bool ParticlesSimulationModule_Pass::CreateSBO()
+bool ParticlesSimulationModule_Pass::BuildModel()
 {
 	ZoneScoped;
 
@@ -194,15 +201,21 @@ bool ParticlesSimulationModule_Pass::CreateSBO()
 	particles.resize(PARTICLES_COUNT);
 
 	uint32_t idx = 0U;
-	float astep = 3.14159f * 2.0f / 70.0f;
+
+	// FIBONACCI BALL
+	//http://extremelearning.com.au/how-to-evenly-distribute-points-on-a-sphere-more-effectively-than-the-canonical-fibonacci-lattice/
+	const double golden_ratio = 2.0 * M_PI / ((1.0 + sqrt(5.0)) * 0.5);
+	double radius = 10.0;
 	for (auto& p : particles)
 	{
-		float a = astep * float(idx++);
-		ct::fvec2 d = a * ct::fvec2(cos(a), sin(a));
-		p.x = d.x;
-		p.y = d.y;
-		p.z = 0.0f;
+		double theta = idx * golden_ratio;
+		double phi = acos(1.0 - 2.0 * (idx + 0.5) / (double)PARTICLES_COUNT);
+		p.x = (float)(cos(theta) * sin(phi) * radius);
+		p.y = (float)(sin(theta) * sin(phi) * radius);
+		p.z = (float)(cos(phi) * radius);
 		p.w = 1.0f;
+
+		++idx;
 	}
 
 	m_ParticleTexelBufferPtr.reset();
@@ -211,15 +224,20 @@ bool ParticlesSimulationModule_Pass::CreateSBO()
 	m_ParticleTexelBufferPtr = VulkanRessource::createTexelBuffer(
 		m_VulkanCorePtr,
 		particles.data(),
-		sizeInBytes, 
+		sizeInBytes,
 		vk::Format::eR32G32B32A32Sfloat);
-	
-	NeedNewSBOUpload();
+
+	// inform observer than a new model is ready
+	auto parentNodePtr = GetParentNode().getValidShared();
+	if (parentNodePtr)
+	{
+		parentNodePtr->Notify(NotifyEvent::TexelBufferUpdateDone);
+	}
 
 	return true;
 }
 
-void ParticlesSimulationModule_Pass::DestroySBO()
+void ParticlesSimulationModule_Pass::DestroyModel(const bool& vReleaseDatas)
 {
 	m_ParticleTexelBufferPtr.reset();
 }

@@ -58,7 +58,7 @@ bool ParticlesSimulationNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_ParticlesSimulationModulePtr = ParticlesSimulationModule::Create(vVulkanCorePtr);
+	m_ParticlesSimulationModulePtr = ParticlesSimulationModule::Create(vVulkanCorePtr, m_This);
 	if (m_ParticlesSimulationModulePtr)
 	{
 		res = true;
@@ -126,19 +126,6 @@ void ParticlesSimulationNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNod
 			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
 		}
 	}
-}
-
-void ParticlesSimulationNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
-
-	if (m_ParticlesSimulationModulePtr)
-	{
-		m_ParticlesSimulationModulePtr->NeedResize(vNewSize, vCountColorBuffers);
-	}
-
-	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté

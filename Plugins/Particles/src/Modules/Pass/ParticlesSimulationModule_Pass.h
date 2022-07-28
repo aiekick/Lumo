@@ -40,6 +40,7 @@ limitations under the License.
 #include <vkFramework/VulkanFrameBuffer.h>
 
 #include <Interfaces/GuiInterface.h>
+#include <Interfaces/NodeInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
@@ -47,6 +48,7 @@ limitations under the License.
 class ParticlesSimulationModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
+	public NodeInterface,
 	public TextureInputInterface<2U>,
 	public TexelBufferOutputInterface
 {
@@ -64,6 +66,7 @@ public:
 	~ParticlesSimulationModule_Pass() override;
 
 	void ActionBeforeInit() override;
+	void ActionAfterInitSucceed() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
@@ -75,8 +78,8 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
-	bool CreateSBO() override;
-	void DestroySBO() override;
+	bool BuildModel() override;
+	void DestroyModel(const bool& vReleaseDatas = false) override;
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;

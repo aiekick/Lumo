@@ -41,19 +41,21 @@ limitations under the License.
 
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
+#include <Interfaces/NodeInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
 
 class ParticlesSimulationModule_Pass;
 class ParticlesSimulationModule :
 	public BaseRenderer,
+	public NodeInterface,
 	public GuiInterface,
 	public TaskInterface,
 	public TextureInputInterface<2U>,
 	public TexelBufferOutputInterface
 {
 public:
-	static std::shared_ptr<ParticlesSimulationModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ParticlesSimulationModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
 	ct::cWeak<ParticlesSimulationModule> m_This;

@@ -40,11 +40,12 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParticlesSimulationModule> ParticlesSimulationModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParticlesSimulationModule> ParticlesSimulationModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<ParticlesSimulationModule>(vVulkanCorePtr);
 	res->m_This = res;
+	res->SetParentNode(vParentNode);
 	if (!res->Init())
 	{
 		res.reset();
@@ -84,6 +85,7 @@ bool ParticlesSimulationModule::Init()
 		m_ParticlesSimulationModule_Pass_Ptr = std::make_shared<ParticlesSimulationModule_Pass>(m_VulkanCorePtr);
 		if (m_ParticlesSimulationModule_Pass_Ptr)
 		{
+			m_ParticlesSimulationModule_Pass_Ptr->SetParentNode(GetParentNode());
 			if (m_ParticlesSimulationModule_Pass_Ptr->InitCompute2D(map_size / 8U, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_ParticlesSimulationModule_Pass_Ptr);
