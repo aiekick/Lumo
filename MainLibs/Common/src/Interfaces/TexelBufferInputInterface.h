@@ -29,9 +29,11 @@ template<size_t size_of_array>
 class TexelBufferInputInterface
 {
 protected:
-	std::array<vk::BufferView, size_of_array> m_TexelBufferInfos;
-	std::array<ct::fvec2, size_of_array> m_TexelBufferInfosSize;
+	std::array<vk::Buffer, size_of_array> m_TexelBuffers;
+	std::array<vk::BufferView, size_of_array> m_TexelBufferViews;
+	std::array<ct::uvec2, size_of_array> m_TexelBufferViewsSize;
 
 public:
-	virtual void SetTexelBuffer(const uint32_t& vBinding, vk::BufferView* vTexelBufferInfo, ct::fvec2* vTextureSize) = 0;
+	virtual void SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize) = 0;
+	virtual void SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize) = 0;
 };

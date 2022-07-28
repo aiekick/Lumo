@@ -29,11 +29,11 @@ limitations under the License.
 #include <utils/Mesh/VertexStruct.h>
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
-#include <Modules/Lighting/LightGroupModule.h>
 
 using namespace vkApi;
 
 #define COUNT_BUFFERS 2
+#define PARTICLES_COUNT 2000
 
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
@@ -44,7 +44,7 @@ ParticlesSimulationModule_Pass::ParticlesSimulationModule_Pass(vkApi::VulkanCore
 {
 	SetRenderDocDebugName("Comp Pass : ParticlesSimulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+	//m_DontUseShaderFilesOnDisk = true;
 }
 
 ParticlesSimulationModule_Pass::~ParticlesSimulationModule_Pass()
@@ -52,11 +52,32 @@ ParticlesSimulationModule_Pass::~ParticlesSimulationModule_Pass()
 	Unit();
 }
 
+void ParticlesSimulationModule_Pass::ActionBeforeInit()
+{
+	vk::PushConstantRange push_constant;
+	push_constant.offset = 0;
+	push_constant.size = sizeof(PushConstants);
+	push_constant.stageFlags = vk::ShaderStageFlagBits::eCompute;
+
+	SetPushConstantRange(push_constant);
+
+	m_DispatchSize.x = 2000U;
+	m_DispatchSize.y = 1U;
+	m_DispatchSize.z = 1U;
+}
+
 bool ParticlesSimulationModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	return false;
+	bool change = false;
+
+	if (ImGui::ContrastedButton("Reset"))
+	{
+		change = true;
+	}
+
+	return change;
 }
 
 void ParticlesSimulationModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
@@ -91,35 +112,40 @@ void ParticlesSimulationModule_Pass::SetTexture(const uint32_t& vBinding, vk::De
 	}
 }
 
-vk::DescriptorImageInfo* ParticlesSimulationModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::Buffer* ParticlesSimulationModule_Pass::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
-	if (m_ComputeBufferPtr)
+	ZoneScoped;
+
+	if (m_ParticleTexelBufferPtr)
 	{
 		if (vOutSize)
 		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
+			vOutSize->x = PARTICLES_COUNT;
+			vOutSize->y = 0U;
 		}
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+		return &m_ParticleTexelBufferPtr->buffer;
 	}
 
 	return nullptr;
 }
 
-void ParticlesSimulationModule_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+vk::BufferView* ParticlesSimulationModule_Pass::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
-	m_SceneLightGroup = vSceneLightGroup;
+	ZoneScoped;
 
-	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
-
-	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
-	if (lightGroupPtr && 
-		lightGroupPtr->GetBufferInfo())
+	if (m_ParticleTexelBufferPtr)
 	{
-		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
+		if (vOutSize)
+		{
+			vOutSize->x = PARTICLES_COUNT;
+			vOutSize->y = 0U;
+		}
+
+		return &m_ParticleTexelBufferPtr->bufferView;
 	}
 
-	UpdateBufferInfoInRessourceDescriptor();
+	return nullptr;
 }
 
 void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
@@ -127,12 +153,35 @@ void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, cons
 	if (vCmdBuffer)
 	{
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
+
+		vCmdBuffer->pipelineBarrier(
+			vk::PipelineStageFlagBits::eVertexInput,
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::DependencyFlags(),
+			nullptr,
+			nullptr,
+			nullptr);
+
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+		
+		m_PushConstants.DeltaTime = ct::GetTimeInterval();
+		vCmdBuffer->pushConstants(m_PipelineLayout,
+			vk::ShaderStageFlagBits::eCompute,
+			0, sizeof(PushConstants), &m_PushConstants);
+
 		vCmdBuffer->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
+
+		vCmdBuffer->pipelineBarrier(
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::PipelineStageFlagBits::eVertexInput,
+			vk::DependencyFlags(),
+			nullptr,
+			nullptr,
+			nullptr);
 	}
 }
 
-bool ParticlesSimulationModule_Pass::CreateUBO()
+bool ParticlesSimulationModule_Pass::CreateSBO()
 {
 	ZoneScoped;
 
@@ -141,9 +190,38 @@ bool ParticlesSimulationModule_Pass::CreateUBO()
 		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 	}
 
-	NeedNewUBOUpload();
+	std::vector<ct::fvec4> particles;
+	particles.resize(PARTICLES_COUNT);
+
+	uint32_t idx = 0U;
+	float astep = 3.14159f * 2.0f / 70.0f;
+	for (auto& p : particles)
+	{
+		float a = astep * float(idx++);
+		ct::fvec2 d = a * ct::fvec2(cos(a), sin(a));
+		p.x = d.x;
+		p.y = d.y;
+		p.z = 0.0f;
+		p.w = 1.0f;
+	}
+
+	m_ParticleTexelBufferPtr.reset();
+
+	auto sizeInBytes = particles.size() * sizeof(ct::fvec4);
+	m_ParticleTexelBufferPtr = VulkanRessource::createTexelBuffer(
+		m_VulkanCorePtr,
+		particles.data(),
+		sizeInBytes, 
+		vk::Format::eR32G32B32A32Sfloat);
+	
+	NeedNewSBOUpload();
 
 	return true;
+}
+
+void ParticlesSimulationModule_Pass::DestroySBO()
+{
+	m_ParticleTexelBufferPtr.reset();
 }
 
 bool ParticlesSimulationModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -151,10 +229,7 @@ bool ParticlesSimulationModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageTexelBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
 }
@@ -165,19 +240,9 @@ bool ParticlesSimulationModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	writeDescriptorSets.clear();
 
-	assert(m_ComputeBufferPtr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, 
-		m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
-
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
-		nullptr, m_SceneLightGroupDescriptorInfoPtr);
-
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, 
-		&m_ImageInfos[0], nullptr); // pos
-
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler,
-		&m_ImageInfos[1], nullptr); // nor
-
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageTexelBuffer,
+		nullptr, nullptr, &m_ParticleTexelBufferPtr->bufferView);
+	
 	return true;
 }
 
@@ -190,27 +255,26 @@ std::string ParticlesSimulationModule_Pass::GetComputeShaderCode(std::string& vO
 
 layout(local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
 
-layout(inding = 0, rgba32f) uniform imageBuffer storageTexelBuffer;
+layout(binding = 0, rgba32f) uniform imageBuffer posBuffer;
 
 layout(push_constant) uniform TimeState 
 {
 	float DeltaTime;
+	uint particlesCount;
 };
-
-#define PARTICLES_COUNT 2000
 
 void main() 
 {
-	if( gl_GlobalInvocationID.x < PARTICLES_COUNT ) 
+	if( gl_GlobalInvocationID.x < particlesCount ) 
 	{
-		vec4 position = imageLoad( storageTexelBuffer, int(gl_GlobalInvocationID.x * 2) );
-		vec4 color = imageLoad( storageTexelBuffer, int(gl_GlobalInvocationID.x * 2 + 1) );
+		vec4 position = imageLoad(posBuffer, int(gl_GlobalInvocationID.x));
+		position.w = 1.0;
 
-		vec3 speed = normalize( cross( vec3( 0.0, 1.0, 0.0 ), position.xyz ) ) * color.w;
+		vec3 speed = normalize( cross( vec3( 0.0, 1.0, 0.0 ), position.xyz ) ) * 1.0;
     
-		position.xyz += speed * PushConstant.DeltaTime;
+		position.xyz += speed * DeltaTime;
     
-		imageStore( StorageTexelBuffer, int(gl_GlobalInvocationID.x * 2), position );
+		imageStore(posBuffer, int(gl_GlobalInvocationID.x), position);
 	}
 }
 )";

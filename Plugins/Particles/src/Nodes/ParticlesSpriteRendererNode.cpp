@@ -14,13 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "ParticlesRendererNode.h"
-#include <Modules/ParticlesRenderer.h>
+#include "ParticlesSpriteRendererNode.h"
+#include <Modules/ParticlesSpriteRenderer.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
 
-std::shared_ptr<ParticlesRendererNode> ParticlesRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParticlesSpriteRendererNode> ParticlesSpriteRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<ParticlesRendererNode>();
+	auto res = std::make_shared<ParticlesSpriteRendererNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -29,19 +29,19 @@ std::shared_ptr<ParticlesRendererNode> ParticlesRendererNode::Create(vkApi::Vulk
 	return res;
 }
 
-ParticlesRendererNode::ParticlesRendererNode() : BaseNode()
+ParticlesSpriteRendererNode::ParticlesSpriteRendererNode() : BaseNode()
 {
-	m_NodeTypeString = "PARTICLES_RENDERER";
+	m_NodeTypeString = "PARTICLES_SPRITE_RENDERER";
 }
 
-ParticlesRendererNode::~ParticlesRendererNode()
+ParticlesSpriteRendererNode::~ParticlesSpriteRendererNode()
 {
 	Unit();
 }
 
-bool ParticlesRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ParticlesSpriteRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Renderer";
+	name = "Sprite Renderer";
 
 	NodeSlot slot;
 	
@@ -55,8 +55,8 @@ bool ParticlesRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_ParticlesRenderer = ParticlesRenderer::Create(vVulkanCorePtr);
-	if (m_ParticlesRenderer)
+	m_ParticlesSpriteRenderer = ParticlesSpriteRenderer::Create(vVulkanCorePtr);
+	if (m_ParticlesSpriteRenderer)
 	{
 		res = true;
 	}
@@ -64,46 +64,46 @@ bool ParticlesRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-void ParticlesRendererNode::Unit()
+void ParticlesSpriteRendererNode::Unit()
 {
-	m_ParticlesRenderer.reset();
+	m_ParticlesSpriteRenderer.reset();
 }
 
-bool ParticlesRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ParticlesSpriteRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
-	if (m_ParticlesRenderer)
+	if (m_ParticlesSpriteRenderer)
 	{
-		return m_ParticlesRenderer->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		return m_ParticlesSpriteRenderer->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return false;
 }
 
-bool ParticlesRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ParticlesSpriteRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	if (m_ParticlesRenderer)
+	if (m_ParticlesSpriteRenderer)
 	{
-		return m_ParticlesRenderer->DrawWidgets(vCurrentFrame, vContext);
+		return m_ParticlesSpriteRenderer->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void ParticlesRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ParticlesSpriteRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	if (m_ParticlesRenderer)
+	if (m_ParticlesSpriteRenderer)
 	{
-		m_ParticlesRenderer->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_ParticlesSpriteRenderer->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void ParticlesRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void ParticlesSpriteRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
@@ -120,45 +120,55 @@ void ParticlesRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeS
 	}
 }
 
-void ParticlesRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ParticlesSpriteRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	if (m_ParticlesRenderer)
+	if (m_ParticlesSpriteRenderer)
 	{
-		m_ParticlesRenderer->NeedResize(vNewSize, vCountColorBuffers);
+		m_ParticlesSpriteRenderer->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
 	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void ParticlesRendererNode::SetTexelBuffer(const uint32_t& vBinding, vk::BufferView* vTexelBufferInfo, ct::fvec2* vTextureSize)
+void ParticlesSpriteRendererNode::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
 {
 	ZoneScoped;
 
-	if (m_ParticlesRenderer)
+	if (m_ParticlesSpriteRenderer)
 	{
-		return m_ParticlesRenderer->SetTexelBuffer(vBinding, vTexelBufferInfo, vTextureSize);
+		return m_ParticlesSpriteRenderer->SetTexelBuffer(vBinding, vTexelBuffer, vTexelBufferSize);
 	}
 }
 
-vk::DescriptorImageInfo* ParticlesRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+void ParticlesSpriteRendererNode::SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
 {
 	ZoneScoped;
 
-	if (m_ParticlesRenderer)
+	if (m_ParticlesSpriteRenderer)
 	{
-		return m_ParticlesRenderer->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ParticlesSpriteRenderer->SetTexelBufferView(vBinding, vTexelBufferView, vTexelBufferSize);
+	}
+}
+
+vk::DescriptorImageInfo* ParticlesSpriteRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+{
+	ZoneScoped;
+
+	if (m_ParticlesSpriteRenderer)
+	{
+		return m_ParticlesSpriteRenderer->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return VK_NULL_HANDLE;
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ParticlesRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void ParticlesSpriteRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ParticlesRenderer)
+	if (startSlotPtr && endSlotPtr && m_ParticlesSpriteRenderer)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
@@ -167,9 +177,11 @@ void ParticlesRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 				auto otherTextureNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherTextureNodePtr)
 				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetTexelBufferView(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexelBuffer(startSlotPtr->descriptorBinding, descPtr, &textureSize);
+					ct::uvec2 texelBufferSize;
+					auto bufferPtr = otherTextureNodePtr->GetTexelBuffer(endSlotPtr->descriptorBinding, &texelBufferSize);
+					SetTexelBuffer(startSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
+					auto bufferViewPtr = otherTextureNodePtr->GetTexelBufferView(endSlotPtr->descriptorBinding, &texelBufferSize);
+					SetTexelBufferView(startSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
 				}
 			}
 		}
@@ -177,23 +189,24 @@ void ParticlesRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ParticlesRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void ParticlesSpriteRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ParticlesRenderer)
+	if (startSlotPtr && endSlotPtr && m_ParticlesSpriteRenderer)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
 			if (startSlotPtr->slotType == "PARTICLES")
 			{
 				SetTexelBuffer(startSlotPtr->descriptorBinding, nullptr, nullptr);
+				SetTexelBufferView(startSlotPtr->descriptorBinding, nullptr, nullptr);
 			}
 		}
 	}
 }
 
-void ParticlesRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void ParticlesSpriteRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
@@ -210,9 +223,11 @@ void ParticlesRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak
 					auto receiverSlotPtr = vReceiverSlot.getValidShared();
 					if (receiverSlotPtr)
 					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetTexelBufferView(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexelBuffer(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
+						ct::uvec2 texelBufferSize;
+						auto bufferPtr = otherNodePtr->GetTexelBuffer(emiterSlotPtr->descriptorBinding, &texelBufferSize);
+						SetTexelBuffer(receiverSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
+						auto bufferViewPtr = otherNodePtr->GetTexelBufferView(emiterSlotPtr->descriptorBinding, &texelBufferSize);
+						SetTexelBufferView(receiverSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
 					}
 				}
 			}
@@ -243,7 +258,7 @@ void ParticlesRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ParticlesRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string ParticlesSpriteRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -269,9 +284,9 @@ std::string ParticlesRendererNode::getXml(const std::string& vOffset, const std:
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_ParticlesRenderer)
+		if (m_ParticlesSpriteRenderer)
 		{
-			res += m_ParticlesRenderer->getXml(vOffset + "\t", vUserDatas);
+			res += m_ParticlesSpriteRenderer->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -280,7 +295,7 @@ std::string ParticlesRendererNode::getXml(const std::string& vOffset, const std:
 	return res;
 }
 
-bool ParticlesRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool ParticlesSpriteRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -295,18 +310,18 @@ bool ParticlesRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XM
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_ParticlesRenderer)
+	if (m_ParticlesSpriteRenderer)
 	{
-		m_ParticlesRenderer->setFromXml(vElem, vParent, vUserDatas);
+		m_ParticlesSpriteRenderer->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
 }
 
-void ParticlesRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
+void ParticlesSpriteRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
-	if (m_ParticlesRenderer)
+	if (m_ParticlesSpriteRenderer)
 	{
-		m_ParticlesRenderer->UpdateShaders(vFiles);
+		m_ParticlesSpriteRenderer->UpdateShaders(vFiles);
 	}
 }

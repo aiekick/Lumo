@@ -49,7 +49,8 @@ public:
 	VmaAllocation alloc_meta = nullptr;
 	VmaMemoryUsage alloc_usage = VMA_MEMORY_USAGE_UNKNOWN;
 	vk::BufferUsageFlags buffer_usage;
-	uint64_t device_address = 0U;	
+	uint64_t device_address = 0U;
+	vk::BufferView bufferView = VK_NULL_HANDLE;
 };
 typedef std::shared_ptr<VulkanBufferObject> VulkanBufferObjectPtr;
 
@@ -99,8 +100,9 @@ public: // buffers
 	static VulkanBufferObjectPtr createStorageBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, vk::BufferUsageFlags vBufferUsageFlags, VmaMemoryUsage vMemoryUsage);
 	static VulkanBufferObjectPtr createStorageBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage);
 	static VulkanBufferObjectPtr createGPUOnlyStorageBufferObject(VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize);
-	static VulkanBufferObjectPtr createStorageTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize, VmaMemoryUsage vMemoryUsage);
-	static VulkanBufferObjectPtr createUniformTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize, VmaMemoryUsage vMemoryUsage);
+	static VulkanBufferObjectPtr createStorageTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize, vk::Format vFormat, VmaMemoryUsage vMemoryUsage);
+	static VulkanBufferObjectPtr createUniformTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize, vk::Format vFormat, VmaMemoryUsage vMemoryUsage);
+	static VulkanBufferObjectPtr createTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize, vk::Format vFormat);
 
 	template<class T> static VulkanBufferObjectPtr createVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);
 	template<class T> static VulkanBufferObjectPtr createIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);

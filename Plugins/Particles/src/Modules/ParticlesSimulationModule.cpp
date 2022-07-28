@@ -150,11 +150,6 @@ void ParticlesSimulationModule::DisplayDialogsAndPopups(const uint32_t& vCurrent
 	}
 }
 
-void ParticlesSimulationModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
-}
-
 void ParticlesSimulationModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
@@ -165,24 +160,28 @@ void ParticlesSimulationModule::SetTexture(const uint32_t& vBinding, vk::Descrip
 	}
 }
 
-vk::DescriptorImageInfo* ParticlesSimulationModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::Buffer* ParticlesSimulationModule::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
 
 	if (m_ParticlesSimulationModule_Pass_Ptr)
 	{
-		return m_ParticlesSimulationModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ParticlesSimulationModule_Pass_Ptr->GetTexelBuffer(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-void ParticlesSimulationModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+vk::BufferView* ParticlesSimulationModule::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
+	ZoneScoped;
+
 	if (m_ParticlesSimulationModule_Pass_Ptr)
 	{
-		return m_ParticlesSimulationModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+		return m_ParticlesSimulationModule_Pass_Ptr->GetTexelBufferView(vBindingPoint, vOutSize);
 	}
+
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

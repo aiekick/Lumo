@@ -595,9 +595,12 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 {
 	ZoneScoped;
 
-	auto dataPtr = VulkanBufferObjectPtr(new VulkanBufferObject, [](VulkanBufferObject* obj)
+	auto dataPtr = VulkanBufferObjectPtr(new VulkanBufferObject, [vVulkanCorePtr](VulkanBufferObject* obj)
 		{
-			vmaDestroyBuffer(vkApi::VulkanCore::sAllocator, (VkBuffer)obj->buffer, obj->alloc_meta);
+			vmaDestroyBuffer(vkApi::VulkanCore::sAllocator, (VkBuffer)obj->buffer, obj->alloc_meta); 
+			if (obj->bufferView)
+				vVulkanCorePtr->getDevice().destroyBufferView(obj->bufferView);
+
 			//obj->bufferInfo = vk::DescriptorBufferInfo{};
 		});
 	dataPtr->alloc_usage = alloc_info.usage;
@@ -724,7 +727,8 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 
 VulkanBufferObjectPtr VulkanRessource::createStorageTexelBuffer(
 	vkApi::VulkanCorePtr vVulkanCorePtr,
-	void* vData, uint64_t vSize,
+	void* vData, uint64_t vSize, 
+	vk::Format vFormat,
 	VmaMemoryUsage vMemoryUsage)
 {
 	if (vData && vSize)
@@ -739,7 +743,10 @@ VulkanBufferObjectPtr VulkanRessource::createStorageTexelBuffer(
 
 		vk::BufferCreateInfo storageBufferInfo = {};
 		storageBufferInfo.size = vSize;
-		storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageTexelBuffer | vk::BufferUsageFlagBits::eTransferDst;
+		storageBufferInfo.usage =
+			vk::BufferUsageFlagBits::eStorageTexelBuffer |
+			vk::BufferUsageFlagBits::eVertexBuffer |
+			vk::BufferUsageFlagBits::eTransferDst;
 		storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
 		VmaAllocationCreateInfo vboAllocInfo = {};
 		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
@@ -748,6 +755,16 @@ VulkanBufferObjectPtr VulkanRessource::createStorageTexelBuffer(
 		vk::BufferCopy region = {};
 		region.size = vSize;
 		copy(vVulkanCorePtr, vboPtr->buffer, stagebuffer->buffer, region);
+
+		stagebuffer.reset();
+
+		vk::BufferViewCreateInfo buffer_view_create_info;
+		buffer_view_create_info.buffer = vboPtr->buffer;
+		buffer_view_create_info.offset = 0U;
+		buffer_view_create_info.format = vFormat;
+		buffer_view_create_info.range = vSize;
+
+		vboPtr->bufferView = vVulkanCorePtr->getDevice().createBufferView(buffer_view_create_info);
 
 		return vboPtr;
 	}
@@ -758,6 +775,7 @@ VulkanBufferObjectPtr VulkanRessource::createStorageTexelBuffer(
 VulkanBufferObjectPtr VulkanRessource::createUniformTexelBuffer(
 	vkApi::VulkanCorePtr vVulkanCorePtr,
 	void* vData, uint64_t vSize,
+	vk::Format vFormat,
 	VmaMemoryUsage vMemoryUsage)
 {
 	if (vData && vSize)
@@ -772,7 +790,10 @@ VulkanBufferObjectPtr VulkanRessource::createUniformTexelBuffer(
 
 		vk::BufferCreateInfo storageBufferInfo = {};
 		storageBufferInfo.size = vSize;
-		storageBufferInfo.usage = vk::BufferUsageFlagBits::eUniformTexelBuffer | vk::BufferUsageFlagBits::eTransferDst;
+		storageBufferInfo.usage = 
+			vk::BufferUsageFlagBits::eUniformTexelBuffer | 
+			vk::BufferUsageFlagBits::eVertexBuffer | 
+			vk::BufferUsageFlagBits::eTransferDst;
 		storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
 		VmaAllocationCreateInfo vboAllocInfo = {};
 		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
@@ -781,6 +802,63 @@ VulkanBufferObjectPtr VulkanRessource::createUniformTexelBuffer(
 		vk::BufferCopy region = {};
 		region.size = vSize;
 		copy(vVulkanCorePtr, vboPtr->buffer, stagebuffer->buffer, region);
+
+		stagebuffer.reset();
+
+		vk::BufferViewCreateInfo buffer_view_create_info;
+		buffer_view_create_info.buffer = vboPtr->buffer;
+		buffer_view_create_info.offset = 0U;
+		buffer_view_create_info.format = vFormat;
+		buffer_view_create_info.range = vSize;
+
+		vboPtr->bufferView = vVulkanCorePtr->getDevice().createBufferView(buffer_view_create_info);
+
+		return vboPtr;
+	}
+
+	return nullptr;
+}
+
+VulkanBufferObjectPtr VulkanRessource::createTexelBuffer(
+	vkApi::VulkanCorePtr vVulkanCorePtr,
+	void* vData, uint64_t vSize,
+	vk::Format vFormat)
+{
+	if (vData && vSize)
+	{
+		vk::BufferCreateInfo stagingBufferInfo = {};
+		stagingBufferInfo.size = vSize;
+		stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
+		VmaAllocationCreateInfo stagingAllocInfo = {};
+		stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
+		auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+		upload(vVulkanCorePtr, *stagebuffer, vData, vSize);
+
+		vk::BufferCreateInfo storageBufferInfo = {};
+		storageBufferInfo.size = vSize;
+		storageBufferInfo.usage =
+			vk::BufferUsageFlagBits::eUniformTexelBuffer |
+			vk::BufferUsageFlagBits::eStorageTexelBuffer |
+			vk::BufferUsageFlagBits::eVertexBuffer |
+			vk::BufferUsageFlagBits::eTransferDst;
+		storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
+		VmaAllocationCreateInfo vboAllocInfo = {};
+		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+		auto vboPtr = createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, vboAllocInfo);
+
+		vk::BufferCopy region = {};
+		region.size = vSize;
+		copy(vVulkanCorePtr, vboPtr->buffer, stagebuffer->buffer, region);
+
+		stagebuffer.reset();
+
+		vk::BufferViewCreateInfo buffer_view_create_info;
+		buffer_view_create_info.buffer = vboPtr->buffer;
+		buffer_view_create_info.offset = 0U;
+		buffer_view_create_info.format = vFormat;
+		buffer_view_create_info.range = vSize;
+
+		vboPtr->bufferView = vVulkanCorePtr->getDevice().createBufferView(buffer_view_create_info);
 
 		return vboPtr;
 	}

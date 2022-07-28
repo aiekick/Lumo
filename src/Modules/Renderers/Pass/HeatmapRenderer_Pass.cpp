@@ -204,7 +204,7 @@ bool HeatmapRenderer_Pass::CreateSBO()
 
 	const auto sizeInBytes = sizeof(ct::fvec4) * m_Colors.size();
 	m_SBO_Colors = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
-	if (m_SBO_Colors->buffer)
+	if (m_SBO_Colors && m_SBO_Colors->buffer)
 	{
 		m_SBO_ColorsDescriptorBufferInfo = vk::DescriptorBufferInfo{ m_SBO_Colors->buffer, 0, sizeInBytes };
 	}

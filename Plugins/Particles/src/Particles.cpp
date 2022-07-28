@@ -11,7 +11,8 @@
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanWindow.h>
 
-#include <Nodes/ParticlesRendererNode.h>
+#include <Nodes/ParticlesPointRendererNode.h>
+#include <Nodes/ParticlesSpriteRendererNode.h>
 #include <Nodes/ParticlesSimulationNode.h>
 
 #ifndef USE_STATIC_LINKING_OF_PLUGINS
@@ -101,14 +102,23 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 	entry_PARTICLES_SIMULATION.second.categoryPath = "Particles";
 	res.push_back(entry_PARTICLES_SIMULATION);
 
-	LibraryEntry entry_PARTICLES_RENDERER;
-	entry_PARTICLES_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_PARTICLES_RENDERER.first = "plugins";
-	entry_PARTICLES_RENDERER.second.nodeLabel = "Renderer";
-	entry_PARTICLES_RENDERER.second.nodeType = "PARTICLES_RENDERER";
-	entry_PARTICLES_RENDERER.second.color = ct::fvec4(0.0f);
-	entry_PARTICLES_RENDERER.second.categoryPath = "Particles";
-	res.push_back(entry_PARTICLES_RENDERER);
+	LibraryEntry entry_PARTICLES_POINT_RENDERER;
+	entry_PARTICLES_POINT_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+	entry_PARTICLES_POINT_RENDERER.first = "plugins";
+	entry_PARTICLES_POINT_RENDERER.second.nodeLabel = "Point Renderer";
+	entry_PARTICLES_POINT_RENDERER.second.nodeType = "PARTICLES_POINT_RENDERER";
+	entry_PARTICLES_POINT_RENDERER.second.color = ct::fvec4(0.0f);
+	entry_PARTICLES_POINT_RENDERER.second.categoryPath = "Particles";
+	res.push_back(entry_PARTICLES_POINT_RENDERER);
+
+	LibraryEntry entry_PARTICLES_SPRITE_RENDERER;
+	entry_PARTICLES_SPRITE_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+	entry_PARTICLES_SPRITE_RENDERER.first = "plugins";
+	entry_PARTICLES_SPRITE_RENDERER.second.nodeLabel = "Sprite Renderer";
+	entry_PARTICLES_SPRITE_RENDERER.second.nodeType = "PARTICLES_SPRITE_RENDERER";
+	entry_PARTICLES_SPRITE_RENDERER.second.color = ct::fvec4(0.0f);
+	entry_PARTICLES_SPRITE_RENDERER.second.categoryPath = "Particles";
+	res.push_back(entry_PARTICLES_SPRITE_RENDERER);
 
 	return res;
 }
@@ -119,8 +129,10 @@ BaseNodePtr Particles::CreatePluginNode(const std::string& vPluginNodeName)
 
 	if (vPluginNodeName == "PARTICLES_SIMULATION")
 		res = ParticlesSimulationNode::Create(m_VulkanCoreWeak.getValidShared());
-	else if (vPluginNodeName == "PARTICLES_RENDERER")
-		res = ParticlesRendererNode::Create(m_VulkanCoreWeak.getValidShared());
+	else if (vPluginNodeName == "PARTICLES_POINT_RENDERER")
+		res = ParticlesPointRendererNode::Create(m_VulkanCoreWeak.getValidShared());
+	else if (vPluginNodeName == "PARTICLES_SPRITE_RENDERER")
+		res = ParticlesSpriteRendererNode::Create(m_VulkanCoreWeak.getValidShared());
 
 	return res;
 }

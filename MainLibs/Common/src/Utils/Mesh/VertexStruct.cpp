@@ -21,6 +21,49 @@ limitations under the License.
 
 namespace VertexStruct
 {
+	void P3_C4::GetInputState(PipelineVertexInputState& vInputState)
+	{
+		vInputState.binding.binding = 0;
+		vInputState.binding.stride = sizeof(P3_C4);
+		vInputState.binding.inputRate = vk::VertexInputRate::eVertex;
+
+		uint32_t offset = 0;
+
+		// P3_N3_C4
+		vInputState.attributes.resize(2);
+
+		{
+			// vertex pos vec3
+			auto& attrib = vInputState.attributes[0];
+			attrib.binding = 0;
+			attrib.location = 0;
+			attrib.format = vk::Format::eR32G32B32Sfloat;
+			attrib.offset = 0;
+			offset += sizeof(ct::fvec3);
+		}
+
+		{
+			// vertex color vec4
+			auto& attrib = vInputState.attributes[1];
+			attrib.binding = 0;
+			attrib.location = 1;
+			attrib.format = vk::Format::eR32G32B32A32Sfloat;
+			attrib.offset = offset;
+			offset += sizeof(ct::fvec4);
+		}
+
+		vInputState.state = vk::PipelineVertexInputStateCreateInfo(
+			vk::PipelineVertexInputStateCreateFlags(),
+			1,
+			&vInputState.binding,
+			static_cast<uint32_t>(vInputState.attributes.size()),
+			vInputState.attributes.data()
+		);
+	}
+	P3_C4::P3_C4() = default;
+	P3_C4::P3_C4(ct::fvec3 vp) { p = vp; }
+	P3_C4::P3_C4(ct::fvec3 vp, ct::fvec4 vc) { p = vp; c = vc; }
+
 	void P3_N3_C4::GetInputState(PipelineVertexInputState& vInputState)
 	{
 		vInputState.binding.binding = 0;

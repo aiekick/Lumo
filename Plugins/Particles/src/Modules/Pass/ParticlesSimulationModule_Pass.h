@@ -41,36 +41,42 @@ limitations under the License.
 
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/TexelBufferOutputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 
 class ParticlesSimulationModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
-	public LightGroupInputInterface,
 	public TextureInputInterface<2U>,
-	public TextureOutputInterface
+	public TexelBufferOutputInterface
 {
 private:
-	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
-	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+	VulkanBufferObjectPtr m_ParticleTexelBufferPtr = nullptr;
+	vk::DescriptorBufferInfo m_ParticleTexelBufferBufferInfo = vk::DescriptorBufferInfo{};
+
+	struct PushConstants {
+		float DeltaTime = 0.0f;
+		uint32_t particlesCount = 2000U;
+	} m_PushConstants;
 
 public:
 	ParticlesSimulationModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ParticlesSimulationModule_Pass() override;
 
+	void ActionBeforeInit() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
+	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
+	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
-	bool CreateUBO() override;
+	bool CreateSBO() override;
+	void DestroySBO() override;
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;

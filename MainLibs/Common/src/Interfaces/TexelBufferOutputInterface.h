@@ -26,5 +26,6 @@ limitations under the License.
 class TexelBufferOutputInterface
 {
 public:
-	virtual vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) = 0;
+	virtual vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) = 0;
+	virtual vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) = 0;
 };

@@ -31,16 +31,22 @@ std::shared_ptr<ParticlesSimulationNode> ParticlesSimulationNode::Create(vkApi::
 
 ParticlesSimulationNode::ParticlesSimulationNode() : BaseNode()
 {
+	ZoneScoped;
+
 	m_NodeTypeString = "PARTICLES_SIMULATION";
 }
 
 ParticlesSimulationNode::~ParticlesSimulationNode()
 {
+	ZoneScoped;
+
 	Unit();
 }
 
 bool ParticlesSimulationNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	ZoneScoped;
+
 	name = "Simulation";
 
 	NodeSlot slot;
@@ -63,6 +69,8 @@ bool ParticlesSimulationNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 bool ParticlesSimulationNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
+	ZoneScoped;
+
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
@@ -77,6 +85,8 @@ bool ParticlesSimulationNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::
 
 bool ParticlesSimulationNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext);
 
 	if (m_ParticlesSimulationModulePtr)
@@ -89,6 +99,8 @@ bool ParticlesSimulationNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 
 void ParticlesSimulationNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext);
 
 	if (m_ParticlesSimulationModulePtr)
@@ -99,6 +111,8 @@ void ParticlesSimulationNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFr
 
 void ParticlesSimulationNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
+	ZoneScoped;
+
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
@@ -116,6 +130,8 @@ void ParticlesSimulationNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNod
 
 void ParticlesSimulationNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
+	ZoneScoped;
+
 	if (m_ParticlesSimulationModulePtr)
 	{
 		m_ParticlesSimulationModulePtr->NeedResize(vNewSize, vCountColorBuffers);
@@ -128,30 +144,15 @@ void ParticlesSimulationNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vC
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
 void ParticlesSimulationNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
+	ZoneScoped;
+
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
 	if (startSlotPtr && endSlotPtr && m_ParticlesSimulationModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
-				}
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					SetLightGroup(otherTextureNodePtr->GetLightGroup());
-				}
-			}
+			
 		}
 	}
 }
@@ -159,92 +160,68 @@ void ParticlesSimulationNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, Node
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
 void ParticlesSimulationNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
+	ZoneScoped;
+
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
 	if (startSlotPtr && endSlotPtr && m_ParticlesSimulationModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				SetLightGroup();
-			}
+			
 		}
 	}
 }
 
 void ParticlesSimulationNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
+	ZoneScoped;
+
 	if (m_ParticlesSimulationModulePtr)
 	{
 		m_ParticlesSimulationModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* ParticlesSimulationNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::Buffer* ParticlesSimulationNode::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
+	ZoneScoped;
+
 	if (m_ParticlesSimulationModulePtr)
 	{
-		return m_ParticlesSimulationModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ParticlesSimulationModulePtr->GetTexelBuffer(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-void ParticlesSimulationNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+vk::BufferView* ParticlesSimulationNode::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
+	ZoneScoped;
+
 	if (m_ParticlesSimulationModulePtr)
 	{
-		return m_ParticlesSimulationModulePtr->SetLightGroup(vSceneLightGroup);
+		return m_ParticlesSimulationModulePtr->GetTexelBufferView(vBindingPoint, vOutSize);
 	}
+
+	return nullptr;
 }
 
 void ParticlesSimulationNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
+	ZoneScoped;
+
 	switch (vEvent)
 	{
-	case NotifyEvent::TextureUpdateDone:
+	case NotifyEvent::TexelBufferUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
-		if (emiterSlotPtr)
+		auto slots = GetOutputSlotsOfType("PARTICLES");
+		for (const auto& slot : slots)
 		{
-			if (emiterSlotPtr->IsAnOutput())
+			auto slotPtr = slot.getValidShared();
+			if (slotPtr)
 			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
-				}
-			}
-		}
-		break;
-	}
-	case NotifyEvent::LightGroupUpdateDone:
-	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						SetLightGroup(otherNodePtr->GetLightGroup());
-					}
-				}
+				slotPtr->Notify(NotifyEvent::TexelBufferUpdateDone, slot);
 			}
 		}
 		break;

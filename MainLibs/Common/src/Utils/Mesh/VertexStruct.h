@@ -38,6 +38,21 @@ namespace VertexStruct
 	// a tester sur x64. vk::DeviceSize est un uint64_t curieusement, mais peut etre que un indexBuffer ne peut supporter ce format
 	typedef uint32_t I1;
 
+	class P3_C4
+	{
+	public:
+		static void GetInputState(PipelineVertexInputState& vInputState);
+
+	public:
+		ct::fvec3 p;// pos
+		ct::fvec4 c;// color
+
+	public:
+		P3_C4();
+		P3_C4(ct::fvec3 vp);
+		P3_C4(ct::fvec3 vp, ct::fvec4 vc);
+	};
+
 	class P3_N3_C4
 	{
 	public:

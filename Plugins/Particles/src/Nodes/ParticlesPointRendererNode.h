@@ -24,22 +24,22 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
-class ParticlesRenderer;
-class ParticlesRendererNode : 
+class ParticlesPointRenderer;
+class ParticlesPointRendererNode : 
 	public BaseNode, 
 	public TexelBufferInputInterface<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<ParticlesRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ParticlesPointRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<ParticlesRenderer> m_ParticlesRenderer = nullptr;
+	std::shared_ptr<ParticlesPointRenderer> m_ParticlesPointRenderer = nullptr;
 
 public:
-	ParticlesRendererNode();
-	~ParticlesRendererNode() override;
+	ParticlesPointRendererNode();
+	~ParticlesPointRendererNode() override;
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
@@ -50,7 +50,8 @@ public:
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
 	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
-	void SetTexelBuffer(const uint32_t& vBinding, vk::BufferView* vTexelBufferInfo, ct::fvec2* vTextureSize) override;
+	void SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize) override;
+	void SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;

@@ -16,52 +16,43 @@ limitations under the License.
 
 #pragma once
 
-#include <set>
 #include <array>
-#include <string>
 #include <memory>
-
-#include <Headers/Globals.h>
-
-#include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
-
 #include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
-
-#include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
 #include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
-
+#include <vkFramework/VulkanDevice.h>
+#include <Interfaces/ModelInputInterface.h>
+#include <Interfaces/NodeInterface.h>
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TexelBufferOutputInterface.h>
+#include <Interfaces/CameraInterface.h>
+#include <Interfaces/TexelBufferInputInterface.h>
+#include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/ResizerInterface.h>
+#include <Interfaces/MergedInterface.h>
 
-class ParticlesSimulationModule_Pass;
-class ParticlesSimulationModule :
+
+class ParticlesPointRenderer_Pass;
+class ParticlesPointRenderer :
 	public BaseRenderer,
+	public NodeInterface,
 	public GuiInterface,
 	public TaskInterface,
-	public TextureInputInterface<2U>,
-	public TexelBufferOutputInterface
+	public ResizerInterface,
+	public TexelBufferInputInterface<0U>,
+	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<ParticlesSimulationModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ParticlesPointRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	ct::cWeak<ParticlesSimulationModule> m_This;
-	std::shared_ptr<ParticlesSimulationModule_Pass> m_ParticlesSimulationModule_Pass_Ptr = nullptr;
+	std::shared_ptr<ParticlesPointRenderer_Pass> m_ParticlesPointRenderer_Pass_Ptr = nullptr;
 
 public:
-	ParticlesSimulationModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~ParticlesSimulationModule() override;
+	ParticlesPointRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~ParticlesPointRenderer() override;
 
 	bool Init();
 
@@ -69,9 +60,10 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
-	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;
+	void SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize) override;
+	void SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize) override;
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };
