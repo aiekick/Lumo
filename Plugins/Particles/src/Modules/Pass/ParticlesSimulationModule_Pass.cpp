@@ -64,13 +64,14 @@ void ParticlesSimulationModule_Pass::ActionBeforeInit()
 
 void ParticlesSimulationModule_Pass::ActionAfterInitSucceed()
 {
-	m_PushConstants.particlesCount = PARTICLES_COUNT;
+	m_PushConstants.DeltaTime = ct::GetTimeInterval();
+	m_PushConstants.count = PARTICLES_COUNT;
+	m_PushConstants.reset = 1.0f;
+	m_PushConstants.type = 0U;
 
 	m_DispatchSize.x = PARTICLES_COUNT / 8U;
 	m_DispatchSize.y = 1U;
 	m_DispatchSize.z = 1U;
-
-	m_PushConstants.DeltaTime = ct::GetTimeInterval();
 }
 
 bool ParticlesSimulationModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -81,6 +82,8 @@ bool ParticlesSimulationModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, 
 
 	if (ImGui::ContrastedButton("Reset"))
 	{
+		m_PushConstants.reset = 1.0f;
+
 		change = true;
 	}
 
@@ -185,6 +188,8 @@ void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, cons
 			nullptr,
 			nullptr,
 			nullptr);
+
+		m_PushConstants.reset = 0.0f;
 	}
 }
 
@@ -199,24 +204,6 @@ bool ParticlesSimulationModule_Pass::BuildModel()
 
 	std::vector<ct::fvec4> particles;
 	particles.resize(PARTICLES_COUNT);
-
-	uint32_t idx = 0U;
-
-	// FIBONACCI BALL
-	//http://extremelearning.com.au/how-to-evenly-distribute-points-on-a-sphere-more-effectively-than-the-canonical-fibonacci-lattice/
-	const double golden_ratio = 2.0 * M_PI / ((1.0 + sqrt(5.0)) * 0.5);
-	double radius = 10.0;
-	for (auto& p : particles)
-	{
-		double theta = idx * golden_ratio;
-		double phi = acos(1.0 - 2.0 * (idx + 0.5) / (double)PARTICLES_COUNT);
-		p.x = (float)(cos(theta) * sin(phi) * radius);
-		p.y = (float)(sin(theta) * sin(phi) * radius);
-		p.z = (float)(cos(phi) * radius);
-		p.w = 1.0f;
-
-		++idx;
-	}
 
 	m_ParticleTexelBufferPtr.reset();
 
@@ -278,19 +265,39 @@ layout(binding = 0, rgba32f) uniform imageBuffer posBuffer;
 layout(push_constant) uniform TimeState 
 {
 	float DeltaTime;
-	uint particlesCount;
+	float reset;
+	uint count;
+	uint type;
 };
 
 void main() 
 {
-	if( gl_GlobalInvocationID.x < particlesCount ) 
+	if( gl_GlobalInvocationID.x < count ) 
 	{
 		vec4 position = imageLoad(posBuffer, int(gl_GlobalInvocationID.x));
-		position.w = 1.0;
+			
+		if (reset > 0.5)
+		{
+			if (type == 0) // fibonacci sphere
+			{
+				const float radius = 10.0;
+				const float index = float(gl_GlobalInvocationID.x);
+				const float golden_ratio = (1.0 + sqrt(5.0)) * 0.5;
+				const float theta = index * 6.28318 / golden_ratio;
+				const float phi = acos(1.0 - 2.0 * (index + 0.5) / count);
+				position.x = cos(theta) * sin(phi) * radius;
+				position.y = sin(theta) * sin(phi) * radius;
+				position.z = cos(phi) * radius;
+				position.w = 1.0;
+			}
+		}
+		else
+		{
+			float speed_factor = 1.0;
 
-		vec3 speed = normalize( cross( vec3( 0.0, 1.0, 0.0 ), position.xyz ) ) * 1.0;
-    
-		position.xyz += speed * DeltaTime;
+			// rotation around y axis
+			position.xyz += normalize( cross( vec3( 0.0, 1.0, 0.0 ), position.xyz ) ) * speed_factor * DeltaTime;
+		}
     
 		imageStore(posBuffer, int(gl_GlobalInvocationID.x), position);
 	}

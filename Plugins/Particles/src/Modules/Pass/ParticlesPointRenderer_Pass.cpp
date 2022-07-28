@@ -258,7 +258,7 @@ layout(location = 1) out flat vec4 particleColor;
 
 void main() 
 {
-	gl_PointSize = 1.0;
+	gl_PointSize = 5.0;
 
 	particleColor = normalize(particle_position) * 0.5 + 0.5;
 	gl_Position = cam * particle_position;

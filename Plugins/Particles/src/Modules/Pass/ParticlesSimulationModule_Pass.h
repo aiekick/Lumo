@@ -58,7 +58,9 @@ private:
 
 	struct PushConstants {
 		float DeltaTime = 0.0f;
-		uint32_t particlesCount = 2000U;
+		float reset = 1.0f;
+		uint32_t count = 0U;
+		uint32_t type = 0U;
 	} m_PushConstants;
 
 public:
