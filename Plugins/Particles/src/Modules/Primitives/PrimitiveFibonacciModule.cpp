@@ -78,6 +78,8 @@ bool PrimitiveFibonacciModule::Init()
 
 	m_Loaded = false;
 
+	SetExecutionWhenNeededOnly(true);
+
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
 		m_PrimitiveFibonacciModule_Pass_Ptr = std::make_shared<PrimitiveFibonacciModule_Pass>(m_VulkanCorePtr);
@@ -91,6 +93,8 @@ bool PrimitiveFibonacciModule::Init()
 			}
 		}
 	}
+
+	NeedNewExecution();
 
 	return m_Loaded;
 }
@@ -112,9 +116,9 @@ bool PrimitiveFibonacciModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 {
 	assert(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("PrimitiveFibonacci", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("Primitive Fibonacci", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 
@@ -155,16 +159,6 @@ void PrimitiveFibonacciModule::DisplayDialogsAndPopups(const uint32_t& vCurrentF
 	}
 }
 
-void PrimitiveFibonacciModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
-
-	if (m_PrimitiveFibonacciModule_Pass_Ptr)
-	{
-		m_PrimitiveFibonacciModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
-	}
-}
-
 vk::Buffer* PrimitiveFibonacciModule::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
@@ -197,7 +191,7 @@ std::string PrimitiveFibonacciModule::getXml(const std::string& vOffset, const s
 {
 	std::string str;
 
-	str += vOffset + "<diffuse_module>\n";
+	str += vOffset + "<primitive_fibonacci_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
@@ -206,7 +200,7 @@ std::string PrimitiveFibonacciModule::getXml(const std::string& vOffset, const s
 		str += m_PrimitiveFibonacciModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</diffuse_module>\n";
+	str += vOffset + "</primitive_fibonacci_module>\n";
 
 	return str;
 }
@@ -224,7 +218,7 @@ bool PrimitiveFibonacciModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "diffuse_module")
+	if (strParentName == "primitive_fibonacci_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();

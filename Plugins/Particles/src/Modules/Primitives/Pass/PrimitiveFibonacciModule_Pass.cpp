@@ -33,8 +33,6 @@ limitations under the License.
 
 using namespace vkApi;
 
-#define PARTICLES_COUNT 20000
-
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -52,26 +50,9 @@ PrimitiveFibonacciModule_Pass::~PrimitiveFibonacciModule_Pass()
 	Unit();
 }
 
-void PrimitiveFibonacciModule_Pass::ActionBeforeInit()
-{
-	vk::PushConstantRange push_constant;
-	push_constant.offset = 0;
-	push_constant.size = sizeof(PushConstants);
-	push_constant.stageFlags = vk::ShaderStageFlagBits::eCompute;
-
-	SetPushConstantRange(push_constant);
-}
-
 void PrimitiveFibonacciModule_Pass::ActionAfterInitSucceed()
 {
-	m_PushConstants.count = PARTICLES_COUNT;
-	m_PushConstants.radius = 1.0f;
-	m_PushConstants.scale = 0.0f;
-	m_PushConstants.max_life = 1.0f;
-	m_PushConstants.dir = ct::fvec3(0.0f, 0.0f, 1.0f);
-	m_PushConstants.speed = 1.0f;
-
-	m_DispatchSize.x = PARTICLES_COUNT / 8U;
+	m_DispatchSize.x = (m_UBOComp.count * 3U) / 8U;;
 	m_DispatchSize.y = 1U;
 	m_DispatchSize.z = 1U;
 }
@@ -80,75 +61,56 @@ bool PrimitiveFibonacciModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 {
 	assert(vContext);
 
-	bool change = false;
+	bool change_model = false;
+	bool change_ubo = false;
 
-	if (ImGui::SliderUIntDefaultCompact(0.0f, "Particle Count", &m_PushConstants.count, 1U, 2000000U, 2000U))
+	if (ImGui::ContrastedButton("Reset", nullptr, nullptr, ImGui::GetContentRegionAvail().x))
 	{
-		CTOOL_DEBUG_BREAK;
+		m_UBOComp = UBOComp();
+		change_model = true;
+	}
+	change_model |= ImGui::SliderUIntDefaultCompact(0.0f, "Particle Count", &m_UBOComp.count, 1U, 50000U, 2000U);
+	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Particle Life", &m_UBOComp.life, 0.1f, 100.0f, 1.0f);
+	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Particle Speed", &m_UBOComp.speed, 0.1f, 100.0f, 1.0f);
+	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Ball Radius", &m_UBOComp.radius, 0.001f, 100.0f, 1.0f);
 
+	if (change_model)
+	{
+		NeedNewUBOUpload();
 		NeedNewModelUpdate();
 	}
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Partilce Life", &m_PushConstants.max_life, 0.1f, 100.0f, 1.0f);
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Partilce Speed", &m_PushConstants.speed, 0.1f, 100.0f, 1.0f);
+	
+	if (change_ubo)
+	{
+		NeedNewUBOUpload();
+	}
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Ball Radius", &m_PushConstants.radius, 0.001f, 100.0f, 1.0f);
-
-	return change;
+	return change_model || change_ubo;
 }
 
 void PrimitiveFibonacciModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext);
-
 }
 
 void PrimitiveFibonacciModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
-
-}
-
-void PrimitiveFibonacciModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
-
-	if (m_Loaded)
-	{
-		if (vBinding < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				m_ImageInfos[vBinding] = *vImageInfo;
-			}
-			else
-			{
-				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
-			}
-		}
-	}
 }
 
 vk::Buffer* PrimitiveFibonacciModule_Pass::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_Particle_pos_life_Ptr && 
-		m_Particle_dir_speed_Ptr)
+	if (m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr)
 	{
 		if (vOutSize)
 		{
-			vOutSize->x = PARTICLES_COUNT;
-			vOutSize->y = 0U;
+			vOutSize->x = m_UBOComp.count;
+			vOutSize->y = 1U;
 		}
 
-		if (vBindingPoint == 0U)
-		{
-			return &m_Particle_pos_life_Ptr->buffer;
-		}
-		else if (vBindingPoint == 1U)
-		{
-			return &m_Particle_dir_speed_Ptr->buffer;
-		}
+		return &m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr->buffer;
 	}
 
 	return nullptr;
@@ -157,23 +119,16 @@ vk::Buffer* PrimitiveFibonacciModule_Pass::GetTexelBuffer(const uint32_t& vBindi
 vk::BufferView* PrimitiveFibonacciModule_Pass::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
-	if (m_Particle_pos_life_Ptr &&
-		m_Particle_dir_speed_Ptr)
+
+	if (m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr)
 	{
 		if (vOutSize)
 		{
-			vOutSize->x = PARTICLES_COUNT;
-			vOutSize->y = 0U;
+			vOutSize->x = m_UBOComp.count;
+			vOutSize->y = 1U;
 		}
 
-		if (vBindingPoint == 0U)
-		{
-			return &m_Particle_pos_life_Ptr->bufferView;
-		}
-		else if (vBindingPoint == 1U)
-		{
-			return &m_Particle_dir_speed_Ptr->bufferView;
-		}
+		return &m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr->bufferView;
 	}
 
 	return nullptr;
@@ -195,10 +150,6 @@ void PrimitiveFibonacciModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const
 
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 		
-		vCmdBuffer->pushConstants(m_PipelineLayout,
-			vk::ShaderStageFlagBits::eCompute,
-			0, sizeof(PushConstants), &m_PushConstants);
-
 		vCmdBuffer->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
 
 		vCmdBuffer->pipelineBarrier(
@@ -215,22 +166,16 @@ bool PrimitiveFibonacciModule_Pass::BuildModel()
 {
 	ZoneScoped;
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
-	}
-
-	m_Particle_pos_life_Ptr.reset();
+	m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr.reset();
 
 	std::vector<ct::fvec4> particles;
-	particles.resize(PARTICLES_COUNT);
+	particles.resize(m_UBOComp.count * 3U);
 	auto sizeInBytes = particles.size() * sizeof(ct::fvec4);
 
-	m_Particle_pos_life_Ptr = VulkanRessource::createTexelBuffer(
+	m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr = VulkanRessource::createTexelBuffer(
 		m_VulkanCorePtr, particles.data(), sizeInBytes, vk::Format::eR32G32B32A32Sfloat);
 
-	m_Particle_dir_speed_Ptr = VulkanRessource::createTexelBuffer(
-		m_VulkanCorePtr, particles.data(), sizeInBytes, vk::Format::eR32G32B32A32Sfloat);
+	m_DispatchSize.x = (m_UBOComp.count * 3U) / 8U;
 
 	// vec4 => xyz:pos, w:life
 	// vec4 => xyz:dir, w:speed
@@ -246,8 +191,38 @@ bool PrimitiveFibonacciModule_Pass::BuildModel()
 
 void PrimitiveFibonacciModule_Pass::DestroyModel(const bool& vReleaseDatas)
 {
-	m_Particle_pos_life_Ptr.reset();
-	m_Particle_dir_speed_Ptr.reset();
+	m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr.reset();
+}
+
+bool PrimitiveFibonacciModule_Pass::CreateUBO()
+{
+	ZoneScoped;
+
+	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	if (m_UBO_Comp)
+	{
+		m_DescriptorBufferInfo_Comp.buffer = m_UBO_Comp->buffer;
+		m_DescriptorBufferInfo_Comp.range = sizeof(UBOComp);
+		m_DescriptorBufferInfo_Comp.offset = 0;
+	}
+
+	NeedNewUBOUpload();
+
+	return true;
+}
+
+void PrimitiveFibonacciModule_Pass::UploadUBO()
+{
+	ZoneScoped;
+
+	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
+}
+
+void PrimitiveFibonacciModule_Pass::DestroyUBO()
+{
+	ZoneScoped;
+
+	m_UBO_Comp.reset();
 }
 
 bool PrimitiveFibonacciModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -256,7 +231,7 @@ bool PrimitiveFibonacciModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
 
 	m_LayoutBindings.clear();
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageTexelBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageTexelBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
 }
@@ -268,9 +243,9 @@ bool PrimitiveFibonacciModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageTexelBuffer,
-		nullptr, nullptr, &m_Particle_pos_life_Ptr->bufferView);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageTexelBuffer,
-		nullptr, nullptr, &m_Particle_dir_speed_Ptr->bufferView);
+		nullptr, nullptr, &m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr->bufferView);
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer,
+		nullptr, &m_DescriptorBufferInfo_Comp);
 	
 	return true;
 }
@@ -282,18 +257,17 @@ std::string PrimitiveFibonacciModule_Pass::GetComputeShaderCode(std::string& vOu
 	return u8R"(
 #version 450
 
-layout(local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 8, local_size_y = 1, local_size_z = 1) in;
 
-layout(binding = 0, rgba32f) uniform imageBuffer pos_life_buffer;
-layout(binding = 1, rgba32f) uniform imageBuffer dir_speed_buffer;
+layout(binding = 0, rgba32f) uniform imageBuffer pos3_life1_dir3_speed4_color4_buffer;
 
-layout(push_constant) uniform push_datas 
+layout (std140, binding = 1) uniform UBO_Comp 
 {
+	vec3 scale; 
+	vec3 dir;
 	uint count;
 	float radius;
-	vec3 scale; 
-	float max_life;
-	vec3 dir;
+	float life;
 	float speed;
 };
 
@@ -302,27 +276,36 @@ void main()
 	const int i_global_index = int(gl_GlobalInvocationID.x);
 	const float f_global_index = float(gl_GlobalInvocationID.x);
 	
-	vec4 pos_life = imageLoad(pos_life_buffer, i_global_index);
-	vec4 dir_speed = imageLoad(dir_speed_buffer, i_global_index);
-		
-	const float golden_ratio = 6.28318 / ((1.0 + sqrt(5.0)) * 0.5);
+	vec4 pos_life = imageLoad(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 0);
+	vec4 dir_speed = imageLoad(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 1);
+	vec4 color = imageLoad(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 2);
+	
+	const float golden_ratio = radians(360.0) / ((1.0 + sqrt(5.0)) * 0.5);
 	const float theta = f_global_index * golden_ratio;
 	const float phi = acos(1.0 - 2.0 * (f_global_index + 0.5) / float(count));
-
+	
 	// xyz:pos, w:life
 	pos_life.x = cos(theta) * sin(phi) * radius * scale.x;
 	pos_life.y = sin(theta) * sin(phi) * radius * scale.y;
 	pos_life.z = cos(phi) * radius * scale.z;
-	pos_life.w = max_life;
-
+	pos_life.w = life;
+	
 	// xyz:dir, w:speed
 	dir_speed.x = dir.x;
 	dir_speed.y = dir.y;
 	dir_speed.z = dir.z;
 	dir_speed.w = speed;
-    
-	imageStore(pos_life_buffer, i_global_index, pos_life);
-	imageStore(dir_speed_buffer, i_global_index, dir_speed);
+	
+	// rgba:color
+	vec3 nor = normalize(pos_life.xyz) * 0.5 + 0.5;
+	color.r = nor.x;
+	color.g = nor.y;
+	color.b = nor.z;
+	color.a = 1.0;
+	
+	imageStore(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 0, pos_life);
+	imageStore(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 1, dir_speed);
+	imageStore(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 2, color);
 }
 )";
 }
@@ -335,8 +318,11 @@ std::string PrimitiveFibonacciModule_Pass::getXml(const std::string& vOffset, co
 {
 	std::string str;
 
-	//str += vOffset + "<blur_radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</blur_radius>\n";
-	
+	str += vOffset + "<count>" + ct::toStr(m_UBOComp.count) + "</count>\n";
+	str += vOffset + "<radius>" + ct::toStr(m_UBOComp.radius) + "</radius>\n";
+	str += vOffset + "<life>" + ct::toStr(m_UBOComp.life) + "</life>\n";
+	str += vOffset + "<speed>" + ct::toStr(m_UBOComp.speed) + "</speed>\n";
+
 	return str;
 }
 
@@ -353,12 +339,21 @@ bool PrimitiveFibonacciModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tiny
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "diffuse_module")
+	if (strParentName == "primitive_fibonacci_module")
 	{
-		//if (strName == "blur_radius")
-		//	m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
+		if (strName == "count")
+		{
+			m_UBOComp.count = ct::uvariant(strValue).GetU();
 
-		NeedNewUBOUpload();
+			NeedNewModelUpdate();
+		}
+		else if (strName == "radius")
+			m_UBOComp.radius = ct::fvariant(strValue).GetF();
+		else if (strName == "life")
+			m_UBOComp.life = ct::fvariant(strValue).GetF();
+		else if (strName == "speed")
+			m_UBOComp.speed = ct::fvariant(strValue).GetF();
+
 	}
 
 	return true;

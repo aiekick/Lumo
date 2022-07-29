@@ -42,7 +42,7 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/NodeInterface.h>
-#include <Interfaces/TextureInputInterface.h>
+#include <Interfaces/TexelBufferInputInterface.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
 
 class ParticlesSimulationModule_Pass;
@@ -51,7 +51,7 @@ class ParticlesSimulationModule :
 	public NodeInterface,
 	public GuiInterface,
 	public TaskInterface,
-	public TextureInputInterface<2U>,
+	public TexelBufferInputInterface<1U>,
 	public TexelBufferOutputInterface
 {
 public:
@@ -71,7 +71,8 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+	void SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize) override;
+	void SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize) override;
 	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
 	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

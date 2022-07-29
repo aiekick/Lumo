@@ -193,8 +193,7 @@ bool ParticlesPointRenderer_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformTexelBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
 
 	return true;
 }
@@ -204,8 +203,7 @@ bool ParticlesPointRenderer_Pass::UpdateBufferInfoInRessourceDescriptor()
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformTexelBuffer, nullptr, nullptr, &m_TexelBufferViews[0]);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 
 	return true;
 }
@@ -215,21 +213,41 @@ void ParticlesPointRenderer_Pass::SetInputStateBeforePipelineCreation()
 	ZoneScoped;
 
 	m_InputState.binding.binding = 0;
-	m_InputState.binding.stride = sizeof(ct::fvec4);
+	m_InputState.binding.stride = sizeof(ct::fvec4) * 3U;;
 	m_InputState.binding.inputRate = vk::VertexInputRate::eVertex;
 
 	uint32_t offset = 0;
 
-	// P3
-	m_InputState.attributes.resize(1);
+	// xyz:pos, w:life, xyz:dir, w:speed, rgba:color
+	m_InputState.attributes.resize(3);
 
 	{
-		// vertex pos vec3
+		// xyz:pos, w:life
 		auto& attrib = m_InputState.attributes[0];
 		attrib.binding = 0;
 		attrib.location = 0;
 		attrib.format = vk::Format::eR32G32B32A32Sfloat;
 		attrib.offset = 0;
+		offset += sizeof(ct::fvec4);
+	}
+
+	{
+		// xyz:dir, w:speed
+		auto& attrib = m_InputState.attributes[1];
+		attrib.binding = 0;
+		attrib.location = 1;
+		attrib.format = vk::Format::eR32G32B32A32Sfloat;
+		attrib.offset = offset;
+		offset += sizeof(ct::fvec4);
+	}
+
+	{
+		// rgba:color
+		auto& attrib = m_InputState.attributes[2];
+		attrib.binding = 0;
+		attrib.location = 2;
+		attrib.format = vk::Format::eR32G32B32A32Sfloat;
+		attrib.offset = offset;
 		offset += sizeof(ct::fvec4);
 	}
 
@@ -250,18 +268,34 @@ std::string ParticlesPointRenderer_Pass::GetVertexShaderCode(std::string& vOutSh
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(location = 0) in vec4 particle_position;
+layout(location = 0) in vec4 particle_pos_life;
+layout(location = 1) in vec4 particle_dir_speed;
+layout(location = 2) in vec4 particle_color;
 )"
-+ CommonSystem::GetBufferObjectStructureHeader(1U) +
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
-layout(location = 1) out flat vec4 particleColor;
+layout(location = 1) out flat vec4 out_particle_color;
 
 void main() 
 {
 	gl_PointSize = 5.0;
 
-	particleColor = particle_position;
-	gl_Position = cam * particle_position;
+	if (particle_pos_life.w > 0.0)
+	{
+		out_particle_color = particle_color;
+		
+		if (particle_pos_life.w < 1.0)
+		{
+			out_particle_color *= particle_pos_life.w;
+		}
+		
+		gl_Position = cam * vec4(particle_pos_life.xyz, 1.0);
+	}
+	else
+	{
+		out_particle_color = vec4(0.0);
+		gl_Position = vec4(0.0);
+	}
 }
 )";
 }
@@ -276,11 +310,11 @@ std::string ParticlesPointRenderer_Pass::GetFragmentShaderCode(std::string& vOut
 
 layout(location = 0) out vec4 fragColor;
 
-layout(location = 1) in flat vec4 particleColor;
+layout(location = 1) in flat vec4 in_particle_color;
 
 void main() 
 {
-	fragColor = particleColor;
+	fragColor = in_particle_color;
 }
 )";
 }

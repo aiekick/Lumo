@@ -49,35 +49,33 @@ class PrimitiveFibonacciModule_Pass :
 	public ShaderPass,
 	public GuiInterface,
 	public NodeInterface,
-	public TextureInputInterface<2U>,
 	public TexelBufferOutputInterface
 {
 private:
-	// vec4 => xyz:pos, w:life
-	VulkanBufferObjectPtr m_Particle_pos_life_Ptr = nullptr;
-	// vec4 => xyz:dir, w:speed
-	VulkanBufferObjectPtr m_Particle_dir_speed_Ptr = nullptr;
+	// xyz:pos, w:life, xyz:dir, w:speed, rgba:color
+	VulkanBufferObjectPtr m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr = nullptr;
 
-	struct PushConstants {
-		uint32_t count = 0U;
-		float radius = 1.0f;
-		ct::fvec3 scale = 0.0f;
-		float max_life = 1.0f;
-		ct::fvec3 dir = ct::fvec3(0.0f, 0.0f, 1.0f);
-		float speed = 1.0f;
-	} m_PushConstants;
+	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
+	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
+
+	struct UBOComp {
+		alignas(16) ct::fvec3 scale = 1.0f;
+		alignas(16) ct::fvec3 dir = ct::fvec3(0.0f, 0.0f, 1.0f);
+		alignas(4) uint32_t count = 100000U;
+		alignas(4) float radius = 1.0f;
+		alignas(4) float life = 10.0f;
+		alignas(4) float speed = 1.0f;
+	} m_UBOComp;
 
 public:
 	PrimitiveFibonacciModule_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~PrimitiveFibonacciModule_Pass() override;
 
-	void ActionBeforeInit() override;
 	void ActionAfterInitSucceed() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
 	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
@@ -86,6 +84,10 @@ public:
 protected:
 	bool BuildModel() override;
 	void DestroyModel(const bool& vReleaseDatas = false) override;
+
+	bool CreateUBO();
+	void UploadUBO();
+	void DestroyUBO();
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;

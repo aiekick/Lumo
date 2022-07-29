@@ -52,6 +52,11 @@ bool ParticlesSimulationNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	NodeSlot slot;
 
 	slot.slotType = "PARTICLES";
+	slot.name = "Particles";
+	slot.descriptorBinding = 0U;
+	AddInput(slot, true, false);
+
+	slot.slotType = "PARTICLES";
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
@@ -72,9 +77,6 @@ bool ParticlesSimulationNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::
 	ZoneScoped;
 
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
-
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_ParticlesSimulationModulePtr)
 	{
@@ -139,7 +141,18 @@ void ParticlesSimulationNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, Node
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			
+			if (startSlotPtr->slotType == "PARTICLES")
+			{
+				auto otherTextureNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherTextureNodePtr)
+				{
+					ct::uvec2 texelBufferSize;
+					auto bufferPtr = otherTextureNodePtr->GetTexelBuffer(endSlotPtr->descriptorBinding, &texelBufferSize);
+					SetTexelBuffer(startSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
+					auto bufferViewPtr = otherTextureNodePtr->GetTexelBufferView(endSlotPtr->descriptorBinding, &texelBufferSize);
+					SetTexelBufferView(startSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
+				}
+			}
 		}
 	}
 }
@@ -155,18 +168,32 @@ void ParticlesSimulationNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, N
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			
+			if (startSlotPtr->slotType == "PARTICLES")
+			{
+				SetTexelBuffer(startSlotPtr->descriptorBinding, nullptr, nullptr);
+				SetTexelBufferView(startSlotPtr->descriptorBinding, nullptr, nullptr);
+			}
 		}
 	}
 }
 
-void ParticlesSimulationNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void ParticlesSimulationNode::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
 {
 	ZoneScoped;
 
 	if (m_ParticlesSimulationModulePtr)
 	{
-		m_ParticlesSimulationModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_ParticlesSimulationModulePtr->SetTexelBuffer(vBinding, vTexelBuffer, vTexelBufferSize);
+	}
+}
+
+void ParticlesSimulationNode::SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
+{
+	ZoneScoped;
+
+	if (m_ParticlesSimulationModulePtr)
+	{
+		m_ParticlesSimulationModulePtr->SetTexelBufferView(vBinding, vTexelBufferView, vTexelBufferSize);
 	}
 }
 
@@ -202,6 +229,27 @@ void ParticlesSimulationNode::Notify(const NotifyEvent& vEvent, const NodeSlotWe
 	{
 	case NotifyEvent::TexelBufferUpdateDone:
 	{
+		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		if (emiterSlotPtr)
+		{
+			if (emiterSlotPtr->IsAnOutput())
+			{
+				auto otherNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				if (otherNodePtr)
+				{
+					auto receiverSlotPtr = vReceiverSlot.getValidShared();
+					if (receiverSlotPtr)
+					{
+						ct::uvec2 texelBufferSize;
+						auto bufferPtr = otherNodePtr->GetTexelBuffer(emiterSlotPtr->descriptorBinding, &texelBufferSize);
+						SetTexelBuffer(receiverSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
+						auto bufferViewPtr = otherNodePtr->GetTexelBufferView(emiterSlotPtr->descriptorBinding, &texelBufferSize);
+						SetTexelBufferView(receiverSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
+					}
+				}
+			}
+		}
+	
 		auto slots = GetOutputSlotsOfType("PARTICLES");
 		for (const auto& slot : slots)
 		{

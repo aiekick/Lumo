@@ -34,8 +34,6 @@ PrimitiveFibonacciNode::PrimitiveFibonacciNode() : BaseNode()
 	ZoneScoped;
 
 	m_NodeTypeString = "PRIMITIVE_FIBONACCI";
-
-	m_ExecutionWhenNeededOnly = true;
 }
 
 PrimitiveFibonacciNode::~PrimitiveFibonacciNode()
@@ -54,34 +52,24 @@ bool PrimitiveFibonacciNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	NodeSlot slot;
 
 	slot.slotType = "PARTICLES";
-	slot.name = "Position + life";
+	slot.name = "particles";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, false);
-
-	slot.slotType = "PARTICLES";
-	slot.name = "Velocity";
-	slot.descriptorBinding = 1U;
-	AddOutput(slot, true, false);
-
-	bool res = false;
 
 	m_PrimitiveFibonacciModulePtr = PrimitiveFibonacciModule::Create(vVulkanCorePtr, m_This);
 	if (m_PrimitiveFibonacciModulePtr)
 	{
-		res = true;
+		return true;
 	}
 
-	return res;
+	return false;
 }
 
-bool PrimitiveFibonacciNode::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool PrimitiveFibonacciNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
-
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_PrimitiveFibonacciModulePtr)
 	{
@@ -164,16 +152,6 @@ void PrimitiveFibonacciNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, No
 		{
 			
 		}
-	}
-}
-
-void PrimitiveFibonacciNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
-
-	if (m_PrimitiveFibonacciModulePtr)
-	{
-		m_PrimitiveFibonacciModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 

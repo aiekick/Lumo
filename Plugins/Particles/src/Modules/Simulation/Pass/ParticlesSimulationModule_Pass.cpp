@@ -33,8 +33,6 @@ limitations under the License.
 
 using namespace vkApi;
 
-#define PARTICLES_COUNT 20000
-
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -44,7 +42,7 @@ ParticlesSimulationModule_Pass::ParticlesSimulationModule_Pass(vkApi::VulkanCore
 {
 	SetRenderDocDebugName("Comp Pass : Particles Simulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+	//m_DontUseShaderFilesOnDisk = true;
 }
 
 ParticlesSimulationModule_Pass::~ParticlesSimulationModule_Pass()
@@ -65,11 +63,8 @@ void ParticlesSimulationModule_Pass::ActionBeforeInit()
 void ParticlesSimulationModule_Pass::ActionAfterInitSucceed()
 {
 	m_PushConstants.DeltaTime = ct::GetTimeInterval();
-	m_PushConstants.count = PARTICLES_COUNT;
-	m_PushConstants.reset = 1.0f;
-	m_PushConstants.type = 0U;
 
-	m_DispatchSize.x = PARTICLES_COUNT / 8U;
+	m_DispatchSize.x = 1U;
 	m_DispatchSize.y = 1U;
 	m_DispatchSize.z = 1U;
 }
@@ -80,61 +75,75 @@ bool ParticlesSimulationModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, 
 
 	bool change = false;
 
-	if (ImGui::ContrastedButton("Reset"))
-	{
-		m_PushConstants.reset = 1.0f;
-
-		change = true;
-	}
-
 	return change;
 }
 
 void ParticlesSimulationModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext);
-
 }
 
 void ParticlesSimulationModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
-
 }
 
-void ParticlesSimulationModule_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void ParticlesSimulationModule_Pass::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
 {
 	ZoneScoped;
 
-	if (m_Loaded)
+	if (m_Loaded &&
+		vTexelBuffer &&
+		vBinding < m_TexelBuffers.size())
 	{
-		if (vBinding < m_ImageInfos.size())
+		m_TexelBuffers[vBinding] = *vTexelBuffer;
+
+		if (vTexelBufferSize)
 		{
-			if (vImageInfo)
-			{
-				m_ImageInfos[vBinding] = *vImageInfo;
-			}
-			else
-			{
-				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
-			}
+			m_TexelBufferViewsSize[vBinding] = *vTexelBufferSize;
+			m_DispatchSize.x = vTexelBufferSize->x * 3U;
 		}
+	}
+	else
+	{
+		m_TexelBuffers[vBinding] = VK_NULL_HANDLE;
 	}
 }
 
+void ParticlesSimulationModule_Pass::SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
+{
+	ZoneScoped;
+
+	if (m_Loaded &&
+		vTexelBufferView &&
+		vBinding < m_TexelBufferViews.size())
+	{
+		m_TexelBufferViews[vBinding] = *vTexelBufferView;
+
+		if (vTexelBufferSize)
+		{
+			m_TexelBufferViewsSize[vBinding] = *vTexelBufferSize;
+			m_DispatchSize.x = vTexelBufferSize->x * 3U;
+		}
+	}
+	else
+	{
+		m_TexelBufferViews[vBinding] = VK_NULL_HANDLE;
+	}
+}
 vk::Buffer* ParticlesSimulationModule_Pass::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_ParticleTexelBufferPtr)
+	if (m_TexelBuffers[0])
 	{
 		if (vOutSize)
 		{
-			vOutSize->x = PARTICLES_COUNT;
+			vOutSize->x = m_TexelBufferViewsSize[0].x;
 			vOutSize->y = 0U;
 		}
 
-		return &m_ParticleTexelBufferPtr->buffer;
+		return &m_TexelBuffers[0];
 	}
 
 	return nullptr;
@@ -144,15 +153,15 @@ vk::BufferView* ParticlesSimulationModule_Pass::GetTexelBufferView(const uint32_
 {
 	ZoneScoped;
 
-	if (m_ParticleTexelBufferPtr)
+	if (m_TexelBufferViews[0])
 	{
 		if (vOutSize)
 		{
-			vOutSize->x = PARTICLES_COUNT;
+			vOutSize->x = m_TexelBufferViewsSize[0].x;
 			vOutSize->y = 0U;
 		}
 
-		return &m_ParticleTexelBufferPtr->bufferView;
+		return &m_TexelBufferViews[0];
 	}
 
 	return nullptr;
@@ -188,45 +197,7 @@ void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, cons
 			nullptr,
 			nullptr,
 			nullptr);
-
-		m_PushConstants.reset = 0.0f;
 	}
-}
-
-bool ParticlesSimulationModule_Pass::BuildModel()
-{
-	ZoneScoped;
-
-	for (auto& info : m_ImageInfos)
-	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
-	}
-
-	std::vector<ct::fvec4> particles;
-	particles.resize(PARTICLES_COUNT);
-
-	m_ParticleTexelBufferPtr.reset();
-
-	auto sizeInBytes = particles.size() * sizeof(ct::fvec4);
-	m_ParticleTexelBufferPtr = VulkanRessource::createTexelBuffer(
-		m_VulkanCorePtr,
-		particles.data(),
-		sizeInBytes,
-		vk::Format::eR32G32B32A32Sfloat);
-
-	// inform observer than a new model is ready
-	auto parentNodePtr = GetParentNode().getValidShared();
-	if (parentNodePtr)
-	{
-		parentNodePtr->Notify(NotifyEvent::TexelBufferUpdateDone);
-	}
-
-	return true;
-}
-
-void ParticlesSimulationModule_Pass::DestroyModel(const bool& vReleaseDatas)
-{
-	m_ParticleTexelBufferPtr.reset();
 }
 
 bool ParticlesSimulationModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -246,7 +217,7 @@ bool ParticlesSimulationModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.clear();
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageTexelBuffer,
-		nullptr, nullptr, &m_ParticleTexelBufferPtr->bufferView);
+		nullptr, nullptr, &m_TexelBufferViews[0]);
 	
 	return true;
 }
@@ -260,50 +231,31 @@ std::string ParticlesSimulationModule_Pass::GetComputeShaderCode(std::string& vO
 
 layout(local_size_x = 8, local_size_y = 1, local_size_z = 1) in;
 
-layout(binding = 0, rgba32f) uniform imageBuffer posBuffer;
+layout(binding = 0, rgba32f) uniform imageBuffer pos3_life1_dir3_speed4_color4_buffer;
 
 layout(push_constant) uniform TimeState 
 {
 	float DeltaTime;
-	float reset;
-	uint count;
-	uint type;
 };
 
 void main() 
 {
-	if( gl_GlobalInvocationID.x < count ) 
-	{
-		vec4 p0 = imageLoad(posBuffer, int(gl_GlobalInvocationID.x));
+	const int i_global_index = int(gl_GlobalInvocationID.x);
+	const float f_global_index = float(gl_GlobalInvocationID.x);
+	
+	vec4 pos_life = imageLoad(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 0);
+	vec4 dir_speed = imageLoad(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 1);
+	//vec4 color = imageLoad(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 2);
 			
-		if (reset > 0.5)
-		{
-			if (type == 0) // fibonacci sphere
-			{
-				const float radius = 1.0;
-				const float index = float(gl_GlobalInvocationID.x);
-				const float golden_ratio = (1.0 + sqrt(5.0)) * 0.5;
-				const float theta = index * 6.28318 / golden_ratio;
-				const float phi = acos(1.0 - 2.0 * (index + 0.5) / count);
-				p0.x = cos(theta) * sin(phi) * radius;
-				p0.y = sin(theta) * sin(phi) * radius;
-				p0.z = cos(phi) * radius;
-				p0.w = 1.0;
-				
-				float l = length(p0.xy);
-				p0.z += sin(l * 20.0) * 0.2;
-				p0.z *= 0.2;
-			}
-		}
-		else
-		{
-			// rotation around y axis
-			float speed_factor = 0.1;
-			p0.xyz += normalize(normalize(cross( vec3( 0.0, 1.0, 0.0 ), normalize(p0.xyz)))) * speed_factor * DeltaTime;
-		}
-    
-		imageStore(posBuffer, int(gl_GlobalInvocationID.x), p0);
-	}
+	// rotation around y axis
+	dir_speed.xyz = normalize(normalize(cross(vec3( 0.0, 1.0, 0.2 ), normalize(pos_life.xyz))) + normalize(dir_speed.xyz));
+	
+	pos_life.xyz += dir_speed.xyz * dir_speed.w;
+	pos_life.w -= DeltaTime;
+	
+	imageStore(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 0, pos_life);
+	imageStore(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 1, dir_speed);
+	//imageStore(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 2, color);
 }
 )";
 }

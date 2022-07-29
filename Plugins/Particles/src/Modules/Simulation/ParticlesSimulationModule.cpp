@@ -152,13 +152,23 @@ void ParticlesSimulationModule::DisplayDialogsAndPopups(const uint32_t& vCurrent
 	}
 }
 
-void ParticlesSimulationModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void ParticlesSimulationModule::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
 {
 	ZoneScoped;
 
 	if (m_ParticlesSimulationModule_Pass_Ptr)
 	{
-		m_ParticlesSimulationModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_ParticlesSimulationModule_Pass_Ptr->SetTexelBuffer(vBinding, vTexelBuffer, vTexelBufferSize);
+	}
+}
+
+void ParticlesSimulationModule::SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
+{
+	ZoneScoped;
+
+	if (m_ParticlesSimulationModule_Pass_Ptr)
+	{
+		m_ParticlesSimulationModule_Pass_Ptr->SetTexelBufferView(vBinding, vTexelBufferView, vTexelBufferSize);
 	}
 }
 
