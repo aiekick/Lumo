@@ -35,12 +35,12 @@ at least, support all rendering features and result of the SketchFab Renderer
 - [x] Deferred Rendering
 - [ ] GLTF Rendering
 - [X] RTX Rendering
--- [X] Raygen Shader
--- [X] Any hit Shader
--- [X] Closest hit Shader
--- [X] Miss Shader
--- [ ] Intersection Shader
--- [ ] Callable Shader
+ - [X] Raygen Shader
+ - [X] Any hit Shader
+ - [X] Closest hit Shader
+ - [X] Miss Shader
+ - [ ] Intersection Shader
+ - [ ] Callable Shader
 - [ ] Normal Mapping
 - [ ] Parallax Mapping
 - [ ] Alpha Mapping
