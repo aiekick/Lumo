@@ -35,7 +35,7 @@ limitations under the License.
 
 
 
-class ChannelRenderer_Pass;
+class ChannelRenderer_Mesh_Pass;
 class ChannelRenderer :
 	public BaseRenderer,
 	public NodeInterface,
@@ -49,7 +49,7 @@ public:
 	static std::shared_ptr<ChannelRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<ChannelRenderer_Pass> m_ChannelRenderer_Pass_Ptr = nullptr;
+	std::shared_ptr<ChannelRenderer_Mesh_Pass> m_ChannelRenderer_Mesh_Pass_Ptr = nullptr;
 
 public:
 	ChannelRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);

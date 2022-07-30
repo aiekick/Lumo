@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Lighting/Pass/DiffuseModule_Pass.h>
+#include <Modules/Lighting/Pass/DiffuseModule_Comp_Pass.h>
 
 using namespace vkApi;
 
@@ -81,12 +81,12 @@ bool DiffuseModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_DiffuseModule_Pass_Ptr = std::make_shared<DiffuseModule_Pass>(m_VulkanCorePtr);
-		if (m_DiffuseModule_Pass_Ptr)
+		m_DiffuseModule_Comp_Pass_Ptr = std::make_shared<DiffuseModule_Comp_Pass>(m_VulkanCorePtr);
+		if (m_DiffuseModule_Comp_Pass_Ptr)
 		{
-			if (m_DiffuseModule_Pass_Ptr->InitCompute2D(map_size / 8U, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			if (m_DiffuseModule_Comp_Pass_Ptr->InitCompute2D(map_size / 8U, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
-				AddGenericPass(m_DiffuseModule_Pass_Ptr);
+				AddGenericPass(m_DiffuseModule_Comp_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -118,9 +118,9 @@ bool DiffuseModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 		{
 			bool change = false;
 
-			if (m_DiffuseModule_Pass_Ptr)
+			if (m_DiffuseModule_Comp_Pass_Ptr)
 			{
-				change |= m_DiffuseModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_DiffuseModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 
 			return change;
@@ -159,9 +159,9 @@ void DiffuseModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo
 {
 	ZoneScoped;
 
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_DiffuseModule_Comp_Pass_Ptr)
 	{
-		m_DiffuseModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_DiffuseModule_Comp_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -169,9 +169,9 @@ vk::DescriptorImageInfo* DiffuseModule::GetDescriptorImageInfo(const uint32_t& v
 {
 	ZoneScoped;
 
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_DiffuseModule_Comp_Pass_Ptr)
 	{
-		return m_DiffuseModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_DiffuseModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -179,9 +179,9 @@ vk::DescriptorImageInfo* DiffuseModule::GetDescriptorImageInfo(const uint32_t& v
 
 void DiffuseModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_DiffuseModule_Comp_Pass_Ptr)
 	{
-		return m_DiffuseModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+		return m_DiffuseModule_Comp_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -197,9 +197,9 @@ std::string DiffuseModule::getXml(const std::string& vOffset, const std::string&
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_DiffuseModule_Comp_Pass_Ptr)
 	{
-		str += m_DiffuseModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_DiffuseModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</diffuse_module>\n";
@@ -226,9 +226,9 @@ bool DiffuseModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_DiffuseModule_Pass_Ptr)
+	if (m_DiffuseModule_Comp_Pass_Ptr)
 	{
-		m_DiffuseModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_DiffuseModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

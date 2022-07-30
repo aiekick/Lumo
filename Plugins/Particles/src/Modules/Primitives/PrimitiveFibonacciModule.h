@@ -45,7 +45,7 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
 
-class PrimitiveFibonacciModule_Pass;
+class PrimitiveFibonacciModule_Comp_Pass;
 class PrimitiveFibonacciModule :
 	public BaseRenderer,
 	public NodeInterface,
@@ -58,7 +58,7 @@ public:
 
 private:
 	ct::cWeak<PrimitiveFibonacciModule> m_This;
-	std::shared_ptr<PrimitiveFibonacciModule_Pass> m_PrimitiveFibonacciModule_Pass_Ptr = nullptr;
+	std::shared_ptr<PrimitiveFibonacciModule_Comp_Pass> m_PrimitiveFibonacciModule_Comp_Pass_Ptr = nullptr;
 
 public:
 	PrimitiveFibonacciModule(vkApi::VulkanCorePtr vVulkanCorePtr);

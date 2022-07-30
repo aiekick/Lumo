@@ -63,10 +63,6 @@ void ParticlesSimulationModule_Pass::ActionBeforeInit()
 void ParticlesSimulationModule_Pass::ActionAfterInitSucceed()
 {
 	m_PushConstants.DeltaTime = ct::GetTimeInterval();
-
-	m_DispatchSize.x = 1U;
-	m_DispatchSize.y = 1U;
-	m_DispatchSize.z = 1U;
 }
 
 bool ParticlesSimulationModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -101,7 +97,7 @@ void ParticlesSimulationModule_Pass::SetTexelBuffer(const uint32_t& vBinding, vk
 		if (vTexelBufferSize)
 		{
 			m_TexelBufferViewsSize[vBinding] = *vTexelBufferSize;
-			m_DispatchSize.x = vTexelBufferSize->x * 3U;
+			SetDispatchSize1D(vTexelBufferSize->x);
 		}
 	}
 	else
@@ -123,7 +119,7 @@ void ParticlesSimulationModule_Pass::SetTexelBufferView(const uint32_t& vBinding
 		if (vTexelBufferSize)
 		{
 			m_TexelBufferViewsSize[vBinding] = *vTexelBufferSize;
-			m_DispatchSize.x = vTexelBufferSize->x * 3U;
+			SetDispatchSize1D(vTexelBufferSize->x);
 		}
 	}
 	else
@@ -188,7 +184,7 @@ void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, cons
 			vk::ShaderStageFlagBits::eCompute,
 			0, sizeof(PushConstants), &m_PushConstants);
 
-		vCmdBuffer->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
+		Dispatch(vCmdBuffer);
 
 		vCmdBuffer->pipelineBarrier(
 			vk::PipelineStageFlagBits::eComputeShader,
@@ -225,6 +221,8 @@ bool ParticlesSimulationModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 std::string ParticlesSimulationModule_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ParticlesSimulationModule_Pass";
+
+	SetLocalGroupSize(ct::uvec3(8U, 1U, 1U));
 
 	return u8R"(
 #version 450

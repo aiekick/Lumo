@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Simulation/Pass/GrayScottModule_Pass.h>
+#include <Modules/Simulation/Pass/GrayScottModule_Quad_Pass.h>
 
 using namespace vkApi;
 
@@ -81,17 +81,17 @@ bool GrayScottModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_GrayScottModule_Pass_Ptr = std::make_shared<GrayScottModule_Pass>(m_VulkanCorePtr);
-		if (m_GrayScottModule_Pass_Ptr)
+		m_GrayScottModule_Quad_Pass_Ptr = std::make_shared<GrayScottModule_Quad_Pass>(m_VulkanCorePtr);
+		if (m_GrayScottModule_Quad_Pass_Ptr)
 		{
 			// eR8G8B8A8Unorm is used for have nice white and black display
 			// unfortunatly not for perf, but the main purpose is for nice widget display
 			// or maybe there is a way in glsl to know the component count of a texture
 			// so i could modify in this way the shader of imgui
-			if (m_GrayScottModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_GrayScottModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_GrayScottModule_Pass_Ptr);
+				AddGenericPass(m_GrayScottModule_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -168,9 +168,9 @@ void GrayScottModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 {
 	ZoneScoped;
 
-	if (m_GrayScottModule_Pass_Ptr)
+	if (m_GrayScottModule_Quad_Pass_Ptr)
 	{
-		m_GrayScottModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_GrayScottModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -178,9 +178,9 @@ vk::DescriptorImageInfo* GrayScottModule::GetDescriptorImageInfo(const uint32_t&
 {
 	ZoneScoped;
 
-	if (m_GrayScottModule_Pass_Ptr)
+	if (m_GrayScottModule_Quad_Pass_Ptr)
 	{
-		return m_GrayScottModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_GrayScottModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

@@ -25,7 +25,7 @@ limitations under the License.
 #include <Profiler/vkProfiler.hpp>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
-#include <Modules/Renderers/Pass/ParticlesPointRenderer_Pass.h>
+#include <Modules/Renderers/Pass/ParticlesPointRenderer_Mesh_Pass.h>
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////
@@ -73,13 +73,13 @@ bool ParticlesPointRenderer::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_ParticlesPointRenderer_Pass_Ptr = std::make_shared<ParticlesPointRenderer_Pass>(m_VulkanCorePtr);
-		if (m_ParticlesPointRenderer_Pass_Ptr)
+		m_ParticlesPointRenderer_Mesh_Pass_Ptr = std::make_shared<ParticlesPointRenderer_Mesh_Pass>(m_VulkanCorePtr);
+		if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
 		{
-			if (m_ParticlesPointRenderer_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_ParticlesPointRenderer_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_ParticlesPointRenderer_Pass_Ptr);
+				AddGenericPass(m_ParticlesPointRenderer_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -116,9 +116,9 @@ bool ParticlesPointRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 		{
 			bool change = false;
 
-			if (m_ParticlesPointRenderer_Pass_Ptr)
+			if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
 			{
-				return m_ParticlesPointRenderer_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_ParticlesPointRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 		}
 	}
@@ -150,9 +150,9 @@ void ParticlesPointRenderer::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer
 {
 	ZoneScoped;
 
-	if (m_ParticlesPointRenderer_Pass_Ptr)
+	if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
 	{
-		m_ParticlesPointRenderer_Pass_Ptr->SetTexelBuffer(vBinding, vTexelBuffer, vTexelBufferSize);
+		m_ParticlesPointRenderer_Mesh_Pass_Ptr->SetTexelBuffer(vBinding, vTexelBuffer, vTexelBufferSize);
 	}
 }
 
@@ -160,9 +160,9 @@ void ParticlesPointRenderer::SetTexelBufferView(const uint32_t& vBinding, vk::Bu
 {
 	ZoneScoped;
 
-	if (m_ParticlesPointRenderer_Pass_Ptr)
+	if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
 	{
-		m_ParticlesPointRenderer_Pass_Ptr->SetTexelBufferView(vBinding, vTexelBufferView, vTexelBufferSize);
+		m_ParticlesPointRenderer_Mesh_Pass_Ptr->SetTexelBufferView(vBinding, vTexelBufferView, vTexelBufferSize);
 	}
 }
 
@@ -170,9 +170,9 @@ vk::DescriptorImageInfo* ParticlesPointRenderer::GetDescriptorImageInfo(const ui
 {
 	ZoneScoped;
 
-	if (m_ParticlesPointRenderer_Pass_Ptr)
+	if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
 	{
-		return m_ParticlesPointRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ParticlesPointRenderer_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return VK_NULL_HANDLE;
@@ -189,9 +189,9 @@ std::string ParticlesPointRenderer::getXml(const std::string& vOffset, const std
 	str += vOffset + "<heatmap_renderer>\n";
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_ParticlesPointRenderer_Pass_Ptr)
+	if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
 	{
-		str += m_ParticlesPointRenderer_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_ParticlesPointRenderer_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</heatmap_renderer>\n";
@@ -218,9 +218,9 @@ bool ParticlesPointRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_ParticlesPointRenderer_Pass_Ptr)
+	if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
 	{
-		m_ParticlesPointRenderer_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_ParticlesPointRenderer_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

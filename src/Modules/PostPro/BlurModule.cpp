@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/PostPro/Pass/BlurModule_Pass.h>
+#include <Modules/PostPro/Pass/BlurModule_Comp_Pass.h>
 
 using namespace vkApi;
 
@@ -81,12 +81,12 @@ bool BlurModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_BlurModule_Pass_Ptr = std::make_shared<BlurModule_Pass>(m_VulkanCorePtr);
-		if (m_BlurModule_Pass_Ptr)
+		m_BlurModule_Comp_Pass_Ptr = std::make_shared<BlurModule_Comp_Pass>(m_VulkanCorePtr);
+		if (m_BlurModule_Comp_Pass_Ptr)
 		{
-			if (m_BlurModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			if (m_BlurModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
-				AddGenericPass(m_BlurModule_Pass_Ptr);
+				AddGenericPass(m_BlurModule_Comp_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -163,9 +163,9 @@ void BlurModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* v
 {
 	ZoneScoped;
 
-	if (m_BlurModule_Pass_Ptr)
+	if (m_BlurModule_Comp_Pass_Ptr)
 	{
-		m_BlurModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_BlurModule_Comp_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -173,9 +173,9 @@ vk::DescriptorImageInfo* BlurModule::GetDescriptorImageInfo(const uint32_t& vBin
 {
 	ZoneScoped;
 
-	if (m_BlurModule_Pass_Ptr)
+	if (m_BlurModule_Comp_Pass_Ptr)
 	{
-		return m_BlurModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_BlurModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

@@ -47,8 +47,8 @@ limitations under the License.
 
 
 
-class LaplacianModule_Pass;
-class BlurModule_Pass;
+class LaplacianModule_Quad_Pass;
+class BlurModule_Comp_Pass;
 class LaplacianModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -63,7 +63,7 @@ public:
 private:
 	ct::cWeak<LaplacianModule> m_This;
 
-	std::shared_ptr<LaplacianModule_Pass> m_LaplacianModule_Pass_Ptr = nullptr;
+	std::shared_ptr<LaplacianModule_Quad_Pass> m_LaplacianModule_Quad_Pass_Ptr = nullptr;
 
 public:
 	LaplacianModule(vkApi::VulkanCorePtr vVulkanCorePtr);

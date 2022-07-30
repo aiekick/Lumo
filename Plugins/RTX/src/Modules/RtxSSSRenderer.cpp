@@ -27,7 +27,7 @@ limitations under the License.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
-#include <Modules/Pass/RtxSSSRenderer_Pass.h>
+#include <Modules/Pass/SssRenderer_Rtx_Pass.h>
 
 using namespace vkApi;
 
@@ -78,13 +78,13 @@ bool RtxSSSRenderer::Init()
 
 	if (BaseRenderer::InitRtx(map_size))
 	{
-		m_RtxSSSRenderer_Pass_Ptr = std::make_shared<RtxSSSRenderer_Pass>(m_VulkanCorePtr);
-		if (m_RtxSSSRenderer_Pass_Ptr)
+		m_SssRenderer_Rtx_Pass_Ptr = std::make_shared<SssRenderer_Rtx_Pass>(m_VulkanCorePtr);
+		if (m_SssRenderer_Rtx_Pass_Ptr)
 		{
-			if (m_RtxSSSRenderer_Pass_Ptr->InitRtx(map_size, 
+			if (m_SssRenderer_Rtx_Pass_Ptr->InitRtx(map_size, 
 				1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
-				AddGenericPass(m_RtxSSSRenderer_Pass_Ptr);
+				AddGenericPass(m_SssRenderer_Rtx_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -113,9 +113,9 @@ bool RtxSSSRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 	{
 		if (ImGui::CollapsingHeader_CheckBox("PBR Renderer", -1.0f, true, true, &m_CanWeRender))
 		{
-			if (m_RtxSSSRenderer_Pass_Ptr)
+			if (m_SssRenderer_Rtx_Pass_Ptr)
 			{
-				return m_RtxSSSRenderer_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_SssRenderer_Rtx_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 		}
 	}
@@ -145,17 +145,17 @@ void RtxSSSRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 
 void RtxSSSRenderer::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
 {
-	if (m_RtxSSSRenderer_Pass_Ptr)
+	if (m_SssRenderer_Rtx_Pass_Ptr)
 	{
-		m_RtxSSSRenderer_Pass_Ptr->SetAccelStruct(vSceneAccelStructure);
+		m_SssRenderer_Rtx_Pass_Ptr->SetAccelStruct(vSceneAccelStructure);
 	}
 }
 
 vk::DescriptorImageInfo* RtxSSSRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_RtxSSSRenderer_Pass_Ptr)
+	if (m_SssRenderer_Rtx_Pass_Ptr)
 	{
-		return m_RtxSSSRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_SssRenderer_Rtx_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -163,9 +163,9 @@ vk::DescriptorImageInfo* RtxSSSRenderer::GetDescriptorImageInfo(const uint32_t& 
 
 void RtxSSSRenderer::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	if (m_RtxSSSRenderer_Pass_Ptr)
+	if (m_SssRenderer_Rtx_Pass_Ptr)
 	{
-		m_RtxSSSRenderer_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+		m_SssRenderer_Rtx_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -181,9 +181,9 @@ std::string RtxSSSRenderer::getXml(const std::string& vOffset, const std::string
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_RtxSSSRenderer_Pass_Ptr)
+	if (m_SssRenderer_Rtx_Pass_Ptr)
 	{
-		str += m_RtxSSSRenderer_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_SssRenderer_Rtx_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</pbr_renderer_module>\n";
@@ -210,9 +210,9 @@ bool RtxSSSRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_RtxSSSRenderer_Pass_Ptr)
+	if (m_SssRenderer_Rtx_Pass_Ptr)
 	{
-		m_RtxSSSRenderer_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_SssRenderer_Rtx_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

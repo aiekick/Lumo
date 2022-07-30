@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Lighting/Pass/ModelShadowModule_Pass.h>
+#include <Modules/Lighting/Pass/ModelShadowModule_Quad_Pass.h>
 
 using namespace vkApi;
 
@@ -81,17 +81,17 @@ bool ModelShadowModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_ModelShadowModule_Pass_Ptr = std::make_shared<ModelShadowModule_Pass>(m_VulkanCorePtr);
-		if (m_ModelShadowModule_Pass_Ptr)
+		m_ModelShadowModule_Quad_Pass_Ptr = std::make_shared<ModelShadowModule_Quad_Pass>(m_VulkanCorePtr);
+		if (m_ModelShadowModule_Quad_Pass_Ptr)
 		{
 			// eR8G8B8A8Unorm is used for have nice white and black display
 			// unfortunatly not for perf, but the main purpose is for nice widget display
 			// or maybe there is a way in glsl to know the component count of a texture
 			// so i could modify in this way the shader of imgui
-			if (m_ModelShadowModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_ModelShadowModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_ModelShadowModule_Pass_Ptr);
+				AddGenericPass(m_ModelShadowModule_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -168,9 +168,9 @@ void ModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	ZoneScoped;
 
-	if (m_ModelShadowModule_Pass_Ptr)
+	if (m_ModelShadowModule_Quad_Pass_Ptr)
 	{
-		m_ModelShadowModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+		m_ModelShadowModule_Quad_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -178,17 +178,17 @@ void ModelShadowModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImage
 {
 	ZoneScoped;
 
-	if (m_ModelShadowModule_Pass_Ptr)
+	if (m_ModelShadowModule_Quad_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_ModelShadowModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
 void ModelShadowModule::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
-	if (m_ModelShadowModule_Pass_Ptr)
+	if (m_ModelShadowModule_Quad_Pass_Ptr)
 	{
-		m_ModelShadowModule_Pass_Ptr->SetTextures(vBinding, vImageInfos, vOutSizes);
+		m_ModelShadowModule_Quad_Pass_Ptr->SetTextures(vBinding, vImageInfos, vOutSizes);
 	}
 }
 
@@ -196,9 +196,9 @@ vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_
 {
 	ZoneScoped;
 
-	if (m_ModelShadowModule_Pass_Ptr)
+	if (m_ModelShadowModule_Quad_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ModelShadowModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -216,9 +216,9 @@ std::string ModelShadowModule::getXml(const std::string& vOffset, const std::str
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_ModelShadowModule_Pass_Ptr)
+	if (m_ModelShadowModule_Quad_Pass_Ptr)
 	{
-		str += m_ModelShadowModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_ModelShadowModule_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</model_shadow_module>\n";
@@ -245,9 +245,9 @@ bool ModelShadowModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_ModelShadowModule_Pass_Ptr)
+	if (m_ModelShadowModule_Quad_Pass_Ptr)
 	{
-		m_ModelShadowModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_ModelShadowModule_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

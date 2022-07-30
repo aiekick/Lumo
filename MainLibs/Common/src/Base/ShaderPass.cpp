@@ -19,15 +19,10 @@ limitations under the License.
 
 #include "ShaderPass.h"
 
-#include <utility>
 #include <functional>
-
-#include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
 #include <vkFramework/VulkanSubmitter.h>
-#include <vkFramework/VulkanCommandBuffer.h>
-#include <FontIcons/CustomFont.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <Base/FrameBuffer.h>
 
@@ -618,47 +613,26 @@ bool ShaderPass::CanRender()
 
 void ShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
+	UNUSED(vCmdBuffer);
 	UNUSED(vIterationNumber);
 
-	ZoneScoped;
-
-	if (!m_Loaded) return;
-	if (!m_IsShaderCompiled) return;
-
-	if (vCmdBuffer)
-	{
-		CTOOL_DEBUG_BREAK;
-	}
+	CTOOL_DEBUG_BREAK;
 }
 
 void ShaderPass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
+	UNUSED(vCmdBuffer);
 	UNUSED(vIterationNumber);
 
-	ZoneScoped;
-
-	if (!m_Loaded) return;
-	if (!m_IsShaderCompiled) return;
-
-	if (vCmdBuffer)
-	{
-		CTOOL_DEBUG_BREAK;
-	}
+	CTOOL_DEBUG_BREAK;
 }
 
 void ShaderPass::TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
+	UNUSED(vCmdBuffer);
 	UNUSED(vIterationNumber);
 
-	ZoneScoped;
-
-	if (!m_Loaded) return;
-	if (!m_IsShaderCompiled) return;
-
-	if (vCmdBuffer)
-	{
-		CTOOL_DEBUG_BREAK;
-	}
+	CTOOL_DEBUG_BREAK;
 }
 
 bool ShaderPass::BuildModel()
@@ -699,6 +673,61 @@ void ShaderPass::UpdateModel(const bool& vLoaded)
 		UpdateBufferInfoInRessourceDescriptor();
 
 		m_NeedNewModelUpdate = false;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PUBLIC / COMPUTE //////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShaderPass::SetLocalGroupSize(const ct::uvec3& vLocalGroupSize)
+{
+	ZoneScoped;
+
+	auto max_group = m_VulkanCorePtr->getPhysicalDevice().getProperties().limits.maxComputeWorkGroupSize;
+	ct::uvec3 min = 1U;
+	ct::uvec3 max = ct::uvec3(max_group[0], max_group[1], max_group[2]);
+	m_LocalGroupSize = ct::clamp(vLocalGroupSize, min, max);
+}
+
+void ShaderPass::SetDispatchSize1D(const uint32_t& vDispatchSize)
+{
+	ZoneScoped;
+
+	SetDispatchSize3D(ct::uvec3(vDispatchSize, 1U, 1U));
+}
+
+void ShaderPass::SetDispatchSize2D(const ct::uvec2& vDispatchSize)
+{
+	ZoneScoped;
+
+	SetDispatchSize3D(ct::uvec3(vDispatchSize, 1U));
+}
+
+void ShaderPass::SetDispatchSize3D(const ct::uvec3& vDispatchSize)
+{
+	ZoneScoped;
+
+	m_DispatchSize = vDispatchSize / m_LocalGroupSize;
+
+	auto max_dispatch = m_VulkanCorePtr->getPhysicalDevice().getProperties().limits.maxComputeWorkGroupCount;
+	ct::uvec3 min = 1U;
+	ct::uvec3 max = ct::uvec3(max_dispatch[0], max_dispatch[1], max_dispatch[2]);
+	m_DispatchSize = ct::clamp(m_DispatchSize, min, max);
+}
+
+const ct::uvec3& ShaderPass::GetDispatchSize()
+{
+	ZoneScoped;
+
+	return m_DispatchSize;
+}
+
+void ShaderPass::Dispatch(vk::CommandBuffer* vCmdBuffer)
+{
+	if (vCmdBuffer)
+	{
+		vCmdBuffer->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
 	}
 }
 

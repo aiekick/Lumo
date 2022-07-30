@@ -76,6 +76,11 @@ private:
 	bool m_NeedNewSBOUpload = false;
 	bool m_NeedNewModelUpdate = false;
 
+private:
+	// compute stage
+	ct::uvec3 m_DispatchSize = 1U;			// COMPUTE dispatch size
+	ct::uvec3 m_LocalGroupSize = 1U;		// COMPUTE local group size
+
 protected:
 	bool m_Loaded = false;
 	bool m_DontUseShaderFilesOnDisk = false;
@@ -124,8 +129,6 @@ protected:
 	std::vector<vk::PipelineShaderStageCreateInfo> m_ShaderCreateInfos;
 	std::vector<vk::PipelineColorBlendAttachmentState> m_BlendAttachmentStates;
 	std::vector<vk::RayTracingShaderGroupCreateInfoKHR> m_RayTracingShaderGroups;        // Shader groups
-
-	ct::uvec3 m_DispatchSize = 1U;									// COMPUTE dispatch size
 
 	// x:inf, y:sup, z:defaut, w:value
 	ct::uvec4 m_CountVertexs = ct::uvec4(0U, 0U, 6U, 6U);			// count vertex to draw
@@ -201,6 +204,13 @@ public:
 
 	// FBO
 	FrameBufferWeak GetFrameBuffer() { return m_FrameBufferPtr; }
+
+	void SetLocalGroupSize(const ct::uvec3& vLocalGroupSize);
+	void SetDispatchSize1D(const uint32_t& vDispatchSize);
+	void SetDispatchSize2D(const ct::uvec2& vDispatchSize);
+	void SetDispatchSize3D(const ct::uvec3& vDispatchSize);
+	const ct::uvec3& GetDispatchSize();
+	void Dispatch(vk::CommandBuffer* vCmdBuffer);
 
 	// Set Wigdet limits
 	// vertex / count point to draw / count instances / etc..

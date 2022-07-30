@@ -53,7 +53,7 @@ limitations under the License.
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/AccelStructureInputInterface.h>
 
-class RtxPbrRenderer_Pass;
+class PbrRenderer_Rtx_Pass;
 class RtxPbrRenderer : 
 	public BaseRenderer,
 	public GuiInterface,
@@ -66,7 +66,7 @@ public:
 	static std::shared_ptr<RtxPbrRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<RtxPbrRenderer_Pass> m_RtxPbrRenderer_Pass_Ptr = nullptr;
+	std::shared_ptr<PbrRenderer_Rtx_Pass> m_PbrRenderer_Rtx_Pass_Ptr = nullptr;
 
 public:
 	RtxPbrRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);

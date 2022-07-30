@@ -34,7 +34,7 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
 
-#include <Modules/Utils/Pass/MeshAttributesModule_Pass.h>
+#include <Modules/Utils/Pass/MeshAttributesModule_Mesh_Pass.h>
 
 using namespace vkApi;
 
@@ -83,13 +83,13 @@ bool MeshAttributesModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_MeshAttributesModule_Pass_Ptr = std::make_shared<MeshAttributesModule_Pass>(m_VulkanCorePtr);
-		if (m_MeshAttributesModule_Pass_Ptr)
+		m_MeshAttributesModule_Mesh_Pass_Ptr = std::make_shared<MeshAttributesModule_Mesh_Pass>(m_VulkanCorePtr);
+		if (m_MeshAttributesModule_Mesh_Pass_Ptr)
 		{
-			if (m_MeshAttributesModule_Pass_Ptr->InitPixel(map_size, 7U, true, true, 0.0f,
+			if (m_MeshAttributesModule_Mesh_Pass_Ptr->InitPixel(map_size, 7U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_MeshAttributesModule_Pass_Ptr);
+				AddGenericPass(m_MeshAttributesModule_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -119,9 +119,9 @@ bool MeshAttributesModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Mesh Attributes", -1.0f, true, true, &m_CanWeRender))
 		{
-			if (m_MeshAttributesModule_Pass_Ptr)
+			if (m_MeshAttributesModule_Mesh_Pass_Ptr)
 			{
-				return m_MeshAttributesModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_MeshAttributesModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 		}
 	}
@@ -158,9 +158,9 @@ void MeshAttributesModule::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
-	if (m_MeshAttributesModule_Pass_Ptr)
+	if (m_MeshAttributesModule_Mesh_Pass_Ptr)
 	{
-		m_MeshAttributesModule_Pass_Ptr->SetModel(vSceneModel);
+		m_MeshAttributesModule_Mesh_Pass_Ptr->SetModel(vSceneModel);
 	}
 }
 
@@ -168,9 +168,9 @@ void MeshAttributesModule::SetTexture(const uint32_t& vBinding, vk::DescriptorIm
 {
 	ZoneScoped;
 
-	if (m_MeshAttributesModule_Pass_Ptr)
+	if (m_MeshAttributesModule_Mesh_Pass_Ptr)
 	{
-		m_MeshAttributesModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_MeshAttributesModule_Mesh_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -178,9 +178,9 @@ vk::DescriptorImageInfo* MeshAttributesModule::GetDescriptorImageInfo(const uint
 {
 	ZoneScoped;
 
-	if (m_MeshAttributesModule_Pass_Ptr)
+	if (m_MeshAttributesModule_Mesh_Pass_Ptr)
 	{
-		return m_MeshAttributesModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_MeshAttributesModule_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

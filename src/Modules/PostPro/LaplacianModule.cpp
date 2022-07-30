@@ -30,8 +30,8 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/PostPro/Pass/LaplacianModule_Pass.h>
-#include <Modules/PostPro/Pass/BlurModule_Pass.h>
+#include <Modules/PostPro/Pass/LaplacianModule_Quad_Pass.h>
+#include <Modules/PostPro/Pass/BlurModule_Comp_Pass.h>
 
 using namespace vkApi;
 
@@ -82,13 +82,13 @@ bool LaplacianModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_LaplacianModule_Pass_Ptr = std::make_shared<LaplacianModule_Pass>(m_VulkanCorePtr);
-		if (m_LaplacianModule_Pass_Ptr)
+		m_LaplacianModule_Quad_Pass_Ptr = std::make_shared<LaplacianModule_Quad_Pass>(m_VulkanCorePtr);
+		if (m_LaplacianModule_Quad_Pass_Ptr)
 		{
-			if (m_LaplacianModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_LaplacianModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_LaplacianModule_Pass_Ptr);
+				AddGenericPass(m_LaplacianModule_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -165,9 +165,9 @@ void LaplacianModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageIn
 {
 	ZoneScoped;
 
-	if (m_LaplacianModule_Pass_Ptr)
+	if (m_LaplacianModule_Quad_Pass_Ptr)
 	{
-		m_LaplacianModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_LaplacianModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -175,9 +175,9 @@ vk::DescriptorImageInfo* LaplacianModule::GetDescriptorImageInfo(const uint32_t&
 {
 	ZoneScoped;
 
-	if (m_LaplacianModule_Pass_Ptr)
+	if (m_LaplacianModule_Quad_Pass_Ptr)
 	{
-		return m_LaplacianModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_LaplacianModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

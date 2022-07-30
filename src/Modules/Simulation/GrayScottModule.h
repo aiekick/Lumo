@@ -47,7 +47,7 @@ limitations under the License.
 
 
 
-class GrayScottModule_Pass;
+class GrayScottModule_Quad_Pass;
 class GrayScottModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -62,7 +62,7 @@ public:
 private:
 	ct::cWeak<GrayScottModule> m_This;
 
-	std::shared_ptr<GrayScottModule_Pass> m_GrayScottModule_Pass_Ptr = nullptr;
+	std::shared_ptr<GrayScottModule_Quad_Pass> m_GrayScottModule_Quad_Pass_Ptr = nullptr;
 
 public:
 	GrayScottModule(vkApi::VulkanCorePtr vVulkanCorePtr);

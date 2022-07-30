@@ -53,7 +53,7 @@ limitations under the License.
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/AccelStructureInputInterface.h>
 
-class RtxSSSRenderer_Pass;
+class SssRenderer_Rtx_Pass;
 class RtxSSSRenderer : 
 	public BaseRenderer,
 	public GuiInterface,
@@ -66,7 +66,7 @@ public:
 	static std::shared_ptr<RtxSSSRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<RtxSSSRenderer_Pass> m_RtxSSSRenderer_Pass_Ptr = nullptr;
+	std::shared_ptr<SssRenderer_Rtx_Pass> m_SssRenderer_Rtx_Pass_Ptr = nullptr;
 
 public:
 	RtxSSSRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);

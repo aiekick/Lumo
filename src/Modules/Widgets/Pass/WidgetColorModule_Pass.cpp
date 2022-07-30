@@ -111,7 +111,7 @@ void WidgetColorModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& v
 	{
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-		vCmdBuffer->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
+		Dispatch(vCmdBuffer);
 	}
 }
 
@@ -178,6 +178,8 @@ bool WidgetColorModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 std::string WidgetColorModule_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "WidgetColorModule_Pass";
+
+	SetLocalGroupSize(1U);
 
 	return u8R"(
 #version 450

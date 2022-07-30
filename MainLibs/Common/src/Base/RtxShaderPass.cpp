@@ -59,13 +59,14 @@ void RtxShaderPass::TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterati
 	{
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eRayTracingKHR, m_Pipeline);
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eRayTracingKHR, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+		auto dispatch_size = GetDispatchSize();
 		vCmdBuffer->traceRaysKHR(
 			m_RayGenShaderSbtEntry,
 			m_MissShaderSbtEntry,
 			m_HitShaderSbtEntry,
 			m_CallableShaderSbtEntry,
-			m_DispatchSize.x,
-			m_DispatchSize.y,
+			dispatch_size.x,
+			dispatch_size.y,
 			1);
 	}
 }

@@ -45,7 +45,7 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/NodeInterface.h>
 
-class MathModule_Pass;
+class MathModule_Quad_Pass;
 class MathModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -60,7 +60,7 @@ public:
 private:
 	ct::cWeak<MathModule> m_This;
 
-	std::shared_ptr<MathModule_Pass> m_MathModule_Pass_Ptr = nullptr;
+	std::shared_ptr<MathModule_Quad_Pass> m_MathModule_Quad_Pass_Ptr = nullptr;
 
 public:
 	MathModule(vkApi::VulkanCorePtr vVulkanCorePtr);

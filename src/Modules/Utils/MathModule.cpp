@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Utils/Pass/MathModule_Pass.h>
+#include <Modules/Utils/Pass/MathModule_Quad_Pass.h>
 
 using namespace vkApi;
 
@@ -81,13 +81,13 @@ bool MathModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_MathModule_Pass_Ptr = std::make_shared<MathModule_Pass>(m_VulkanCorePtr);
-		if (m_MathModule_Pass_Ptr)
+		m_MathModule_Quad_Pass_Ptr = std::make_shared<MathModule_Quad_Pass>(m_VulkanCorePtr);
+		if (m_MathModule_Quad_Pass_Ptr)
 		{
-			if (m_MathModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_MathModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_MathModule_Pass_Ptr);
+				AddGenericPass(m_MathModule_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -159,9 +159,9 @@ void MathModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* v
 {
 	ZoneScoped;
 
-	if (m_MathModule_Pass_Ptr)
+	if (m_MathModule_Quad_Pass_Ptr)
 	{
-		m_MathModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_MathModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -169,9 +169,9 @@ vk::DescriptorImageInfo* MathModule::GetDescriptorImageInfo(const uint32_t& vBin
 {
 	ZoneScoped;
 
-	if (m_MathModule_Pass_Ptr)
+	if (m_MathModule_Quad_Pass_Ptr)
 	{
-		return m_MathModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_MathModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -189,9 +189,9 @@ std::string MathModule::getXml(const std::string& vOffset, const std::string& vU
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_MathModule_Pass_Ptr)
+	if (m_MathModule_Quad_Pass_Ptr)
 	{
-		str += m_MathModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_MathModule_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</math_module>\n";
@@ -218,9 +218,9 @@ bool MathModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_MathModule_Pass_Ptr)
+	if (m_MathModule_Quad_Pass_Ptr)
 	{
-		return m_MathModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		return m_MathModule_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
@@ -230,9 +230,9 @@ bool MathModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 {
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (m_MathModule_Pass_Ptr)
+		if (m_MathModule_Quad_Pass_Ptr)
 		{
-			return m_MathModule_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContext);
+			return m_MathModule_Quad_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContext);
 		}
 	}
 
@@ -241,9 +241,9 @@ bool MathModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 
 uint32_t MathModule::GetComponentCount()
 {
-	if (m_MathModule_Pass_Ptr)
+	if (m_MathModule_Quad_Pass_Ptr)
 	{
-		return m_MathModule_Pass_Ptr->GetComponentCount();
+		return m_MathModule_Quad_Pass_Ptr->GetComponentCount();
 	}
 
 	return 0U;
@@ -251,9 +251,9 @@ uint32_t MathModule::GetComponentCount()
 
 std::string MathModule::GetInputName(const uint32_t& vIdx)
 {
-	if (m_MathModule_Pass_Ptr)
+	if (m_MathModule_Quad_Pass_Ptr)
 	{
-		return m_MathModule_Pass_Ptr->GetInputName(vIdx);
+		return m_MathModule_Quad_Pass_Ptr->GetInputName(vIdx);
 	}
 
 	return "";

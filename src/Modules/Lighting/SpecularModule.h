@@ -48,7 +48,7 @@ limitations under the License.
 
 
 
-class SpecularModule_Pass;
+class SpecularModule_Comp_Pass;
 class SpecularModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -63,7 +63,7 @@ public:
 
 private:
 	ct::cWeak<SpecularModule> m_This;
-	std::shared_ptr<SpecularModule_Pass> m_SpecularModule_Pass_Ptr = nullptr;
+	std::shared_ptr<SpecularModule_Comp_Pass> m_SpecularModule_Comp_Pass_Ptr = nullptr;
 
 public:
 	SpecularModule(vkApi::VulkanCorePtr vVulkanCorePtr);

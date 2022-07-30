@@ -35,7 +35,7 @@ limitations under the License.
 #include <vkFramework/ImGuiTexture.h>
 
 
-class MatcapRenderer_Pass;
+class MatcapRenderer_Mesh_Pass;
 class MatcapRenderer :
 	public BaseRenderer,
 	public NodeInterface,
@@ -50,7 +50,7 @@ public:
 	static std::shared_ptr<MatcapRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<MatcapRenderer_Pass> m_MatcapRenderer_Pass_Ptr = nullptr;
+	std::shared_ptr<MatcapRenderer_Mesh_Pass> m_MatcapRenderer_Mesh_Pass_Ptr = nullptr;
 
 public:
 	MatcapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);

@@ -47,7 +47,7 @@ limitations under the License.
 
 
 
-class BlurModule_Pass;
+class BlurModule_Comp_Pass;
 class BlurModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -62,7 +62,7 @@ public:
 private:
 	ct::cWeak<BlurModule> m_This;
 
-	std::shared_ptr<BlurModule_Pass> m_BlurModule_Pass_Ptr = nullptr;
+	std::shared_ptr<BlurModule_Comp_Pass> m_BlurModule_Comp_Pass_Ptr = nullptr;
 
 public:
 	BlurModule(vkApi::VulkanCorePtr vVulkanCorePtr);

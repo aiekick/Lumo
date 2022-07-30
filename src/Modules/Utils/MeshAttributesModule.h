@@ -41,7 +41,7 @@ limitations under the License.
 
 
 
-class MeshAttributesModule_Pass;
+class MeshAttributesModule_Mesh_Pass;
 class MeshAttributesModule :
 	public BaseRenderer,
 	public NodeInterface,
@@ -56,7 +56,7 @@ public:
 	static std::shared_ptr<MeshAttributesModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<MeshAttributesModule_Pass> m_MeshAttributesModule_Pass_Ptr = nullptr;
+	std::shared_ptr<MeshAttributesModule_Mesh_Pass> m_MeshAttributesModule_Mesh_Pass_Ptr = nullptr;
 
 public:
 	MeshAttributesModule(vkApi::VulkanCorePtr vVulkanCorePtr);

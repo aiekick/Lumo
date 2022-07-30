@@ -48,7 +48,7 @@ limitations under the License.
 
 
 
-class DiffuseModule_Pass;
+class DiffuseModule_Comp_Pass;
 class DiffuseModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -63,7 +63,7 @@ public:
 
 private:
 	ct::cWeak<DiffuseModule> m_This;
-	std::shared_ptr<DiffuseModule_Pass> m_DiffuseModule_Pass_Ptr = nullptr;
+	std::shared_ptr<DiffuseModule_Comp_Pass> m_DiffuseModule_Comp_Pass_Ptr = nullptr;
 
 public:
 	DiffuseModule(vkApi::VulkanCorePtr vVulkanCorePtr);

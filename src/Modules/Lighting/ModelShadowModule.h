@@ -48,7 +48,7 @@ limitations under the License.
 #include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 
-class ModelShadowModule_Pass;
+class ModelShadowModule_Quad_Pass;
 class ModelShadowModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -65,7 +65,7 @@ public:
 private:
 	ct::cWeak<ModelShadowModule> m_This;
 
-	std::shared_ptr<ModelShadowModule_Pass> m_ModelShadowModule_Pass_Ptr = nullptr;
+	std::shared_ptr<ModelShadowModule_Quad_Pass> m_ModelShadowModule_Quad_Pass_Ptr = nullptr;
 
 public:
 	ModelShadowModule(vkApi::VulkanCorePtr vVulkanCorePtr);

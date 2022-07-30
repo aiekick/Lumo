@@ -50,7 +50,7 @@ limitations under the License.
 #include <Interfaces/SerializationInterface.h>
 
 
-class DeferredRenderer_Pass;
+class DeferredRenderer_Quad_Pass;
 class DeferredRenderer : 
 	public BaseRenderer,
 	public GuiInterface,
@@ -63,7 +63,7 @@ public:
 	static std::shared_ptr<DeferredRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<DeferredRenderer_Pass> m_DeferredRenderer_Pass_Ptr = nullptr;
+	std::shared_ptr<DeferredRenderer_Quad_Pass> m_DeferredRenderer_Quad_Pass_Ptr = nullptr;
 
 public:
 	DeferredRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);

@@ -33,7 +33,7 @@ limitations under the License.
 #include <Interfaces/MergedInterface.h>
 
 
-class HeatmapRenderer_Pass;
+class HeatmapRenderer_Mesh_Pass;
 class HeatmapRenderer :
 	public BaseRenderer,
 	public NodeInterface,
@@ -47,7 +47,7 @@ public:
 	static std::shared_ptr<HeatmapRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<HeatmapRenderer_Pass> m_HeatmapRenderer_Pass_Ptr = nullptr;
+	std::shared_ptr<HeatmapRenderer_Mesh_Pass> m_HeatmapRenderer_Mesh_Pass_Ptr = nullptr;
 
 public:
 	HeatmapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);

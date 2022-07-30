@@ -30,8 +30,8 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/PostPro/Pass/ToneMapModule_Pass.h>
-#include <Modules/PostPro/Pass/BlurModule_Pass.h>
+#include <Modules/PostPro/Pass/ToneMapModule_Quad_Pass.h>
+#include <Modules/PostPro/Pass/BlurModule_Comp_Pass.h>
 
 using namespace vkApi;
 
@@ -82,13 +82,13 @@ bool ToneMapModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_ToneMapModule_Pass_Ptr = std::make_shared<ToneMapModule_Pass>(m_VulkanCorePtr);
-		if (m_ToneMapModule_Pass_Ptr)
+		m_ToneMapModule_Quad_Pass_Ptr = std::make_shared<ToneMapModule_Quad_Pass>(m_VulkanCorePtr);
+		if (m_ToneMapModule_Quad_Pass_Ptr)
 		{
-			if (m_ToneMapModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_ToneMapModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_ToneMapModule_Pass_Ptr);
+				AddGenericPass(m_ToneMapModule_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -165,9 +165,9 @@ void ToneMapModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo
 {
 	ZoneScoped;
 
-	if (m_ToneMapModule_Pass_Ptr)
+	if (m_ToneMapModule_Quad_Pass_Ptr)
 	{
-		m_ToneMapModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_ToneMapModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
@@ -175,9 +175,9 @@ vk::DescriptorImageInfo* ToneMapModule::GetDescriptorImageInfo(const uint32_t& v
 {
 	ZoneScoped;
 
-	if (m_ToneMapModule_Pass_Ptr)
+	if (m_ToneMapModule_Quad_Pass_Ptr)
 	{
-		return m_ToneMapModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ToneMapModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

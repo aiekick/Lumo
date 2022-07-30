@@ -33,8 +33,7 @@ limitations under the License.
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/MergedInterface.h>
 
-
-class ParticlesSpriteRenderer_Pass;
+class ParticlesSpriteRenderer_Mesh_Pass;
 class ParticlesSpriteRenderer :
 	public BaseRenderer,
 	public NodeInterface,
@@ -48,7 +47,7 @@ public:
 	static std::shared_ptr<ParticlesSpriteRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<ParticlesSpriteRenderer_Pass> m_ParticlesSpriteRenderer_Pass_Ptr = nullptr;
+	std::shared_ptr<ParticlesSpriteRenderer_Mesh_Pass> m_ParticlesSpriteRenderer_Mesh_Pass_Ptr = nullptr;
 
 public:
 	ParticlesSpriteRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);

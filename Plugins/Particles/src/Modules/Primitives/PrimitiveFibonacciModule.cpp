@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Primitives/Pass/PrimitiveFibonacciModule_Pass.h>
+#include <Modules/Primitives/Pass/PrimitiveFibonacciModule_Comp_Pass.h>
 
 using namespace vkApi;
 
@@ -82,13 +82,13 @@ bool PrimitiveFibonacciModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_PrimitiveFibonacciModule_Pass_Ptr = std::make_shared<PrimitiveFibonacciModule_Pass>(m_VulkanCorePtr);
-		if (m_PrimitiveFibonacciModule_Pass_Ptr)
+		m_PrimitiveFibonacciModule_Comp_Pass_Ptr = std::make_shared<PrimitiveFibonacciModule_Comp_Pass>(m_VulkanCorePtr);
+		if (m_PrimitiveFibonacciModule_Comp_Pass_Ptr)
 		{
-			m_PrimitiveFibonacciModule_Pass_Ptr->SetParentNode(GetParentNode());
-			if (m_PrimitiveFibonacciModule_Pass_Ptr->InitCompute2D(map_size / 8U, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			m_PrimitiveFibonacciModule_Comp_Pass_Ptr->SetParentNode(GetParentNode());
+			if (m_PrimitiveFibonacciModule_Comp_Pass_Ptr->InitCompute2D(map_size / 8U, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
-				AddGenericPass(m_PrimitiveFibonacciModule_Pass_Ptr);
+				AddGenericPass(m_PrimitiveFibonacciModule_Comp_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -122,9 +122,9 @@ bool PrimitiveFibonacciModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 		{
 			bool change = false;
 
-			if (m_PrimitiveFibonacciModule_Pass_Ptr)
+			if (m_PrimitiveFibonacciModule_Comp_Pass_Ptr)
 			{
-				change |= m_PrimitiveFibonacciModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_PrimitiveFibonacciModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 
 			if (change)
@@ -163,9 +163,9 @@ vk::Buffer* PrimitiveFibonacciModule::GetTexelBuffer(const uint32_t& vBindingPoi
 {
 	ZoneScoped;
 
-	if (m_PrimitiveFibonacciModule_Pass_Ptr)
+	if (m_PrimitiveFibonacciModule_Comp_Pass_Ptr)
 	{
-		return m_PrimitiveFibonacciModule_Pass_Ptr->GetTexelBuffer(vBindingPoint, vOutSize);
+		return m_PrimitiveFibonacciModule_Comp_Pass_Ptr->GetTexelBuffer(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -175,9 +175,9 @@ vk::BufferView* PrimitiveFibonacciModule::GetTexelBufferView(const uint32_t& vBi
 {
 	ZoneScoped;
 
-	if (m_PrimitiveFibonacciModule_Pass_Ptr)
+	if (m_PrimitiveFibonacciModule_Comp_Pass_Ptr)
 	{
-		return m_PrimitiveFibonacciModule_Pass_Ptr->GetTexelBufferView(vBindingPoint, vOutSize);
+		return m_PrimitiveFibonacciModule_Comp_Pass_Ptr->GetTexelBufferView(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -195,9 +195,9 @@ std::string PrimitiveFibonacciModule::getXml(const std::string& vOffset, const s
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_PrimitiveFibonacciModule_Pass_Ptr)
+	if (m_PrimitiveFibonacciModule_Comp_Pass_Ptr)
 	{
-		str += m_PrimitiveFibonacciModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_PrimitiveFibonacciModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</primitive_fibonacci_module>\n";
@@ -224,9 +224,9 @@ bool PrimitiveFibonacciModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_PrimitiveFibonacciModule_Pass_Ptr)
+	if (m_PrimitiveFibonacciModule_Comp_Pass_Ptr)
 	{
-		m_PrimitiveFibonacciModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_PrimitiveFibonacciModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

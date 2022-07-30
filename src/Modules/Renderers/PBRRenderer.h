@@ -52,7 +52,7 @@ limitations under the License.
 #include <Interfaces/LightGroupInputInterface.h>
 
 
-class PBRRenderer_Pass;
+class PBRRenderer_Quad_Pass;
 class PBRRenderer : 
 	public BaseRenderer,
 	public GuiInterface,
@@ -67,7 +67,7 @@ public:
 	static std::shared_ptr<PBRRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<PBRRenderer_Pass> m_PBRRenderer_Pass_Ptr = nullptr;
+	std::shared_ptr<PBRRenderer_Quad_Pass> m_PBRRenderer_Quad_Pass_Ptr = nullptr;
 
 public:
 	PBRRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);

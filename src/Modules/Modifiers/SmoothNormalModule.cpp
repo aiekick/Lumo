@@ -31,7 +31,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Modifiers/Pass/SmoothNormalModule_Pass.h>
+#include <Modules/Modifiers/Pass/SmoothNormalModule_Comp_Pass.h>
 
 using namespace vkApi;
 
@@ -89,13 +89,13 @@ bool SmoothNormalModule::Init()
 	if (BaseRenderer::InitCompute3D(map_size))
 	{
 
-		m_SmoothNormalModule_Pass_Ptr = std::make_shared<SmoothNormalModule_Pass>(m_VulkanCorePtr);
-		if (m_SmoothNormalModule_Pass_Ptr)
+		m_SmoothNormalModule_Comp_Pass_Ptr = std::make_shared<SmoothNormalModule_Comp_Pass>(m_VulkanCorePtr);
+		if (m_SmoothNormalModule_Comp_Pass_Ptr)
 		{
 
-			if (m_SmoothNormalModule_Pass_Ptr->InitCompute3D(map_size))
+			if (m_SmoothNormalModule_Comp_Pass_Ptr->InitCompute3D(map_size))
 			{
-				AddGenericPass(m_SmoothNormalModule_Pass_Ptr);
+				AddGenericPass(m_SmoothNormalModule_Comp_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -175,18 +175,18 @@ void SmoothNormalModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, 
 
 void SmoothNormalModule::SetModel(SceneModelWeak vSceneModel)
 {
-	if (m_SmoothNormalModule_Pass_Ptr)
+	if (m_SmoothNormalModule_Comp_Pass_Ptr)
 	{
 		NeedNewExecution(); // just updated so need a normal smoothing
-		m_SmoothNormalModule_Pass_Ptr->SetModel(vSceneModel);
+		m_SmoothNormalModule_Comp_Pass_Ptr->SetModel(vSceneModel);
 	}
 }
 
 SceneModelWeak SmoothNormalModule::GetModel()
 {
-	if (m_SmoothNormalModule_Pass_Ptr)
+	if (m_SmoothNormalModule_Comp_Pass_Ptr)
 	{
-		return m_SmoothNormalModule_Pass_Ptr->GetModel();
+		return m_SmoothNormalModule_Comp_Pass_Ptr->GetModel();
 	}
 
 	return SceneModelWeak();

@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/PostPro/Pass/SSAOModule_Pass.h>
+#include <Modules/PostPro/Pass/SSAOModule_Quad_Pass.h>
 
 using namespace vkApi;
 
@@ -81,13 +81,13 @@ bool SSAOModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_SSAOModule_Pass_Ptr = std::make_shared<SSAOModule_Pass>(m_VulkanCorePtr);
-		if (m_SSAOModule_Pass_Ptr)
+		m_SSAOModule_Quad_Pass_Ptr = std::make_shared<SSAOModule_Quad_Pass>(m_VulkanCorePtr);
+		if (m_SSAOModule_Quad_Pass_Ptr)
 		{
-			if (m_SSAOModule_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_SSAOModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_SSAOModule_Pass_Ptr);
+				AddGenericPass(m_SSAOModule_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -166,9 +166,9 @@ void SSAOModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* v
 
 	if (m_Loaded)
 	{
-		if (m_SSAOModule_Pass_Ptr)
+		if (m_SSAOModule_Quad_Pass_Ptr)
 		{
-			m_SSAOModule_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+			m_SSAOModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 		}
 	}
 }
@@ -177,9 +177,9 @@ vk::DescriptorImageInfo* SSAOModule::GetDescriptorImageInfo(const uint32_t& vBin
 {
 	ZoneScoped;
 
-	if (m_SSAOModule_Pass_Ptr)
+	if (m_SSAOModule_Quad_Pass_Ptr)
 	{
-		return m_SSAOModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_SSAOModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -197,9 +197,9 @@ std::string SSAOModule::getXml(const std::string& vOffset, const std::string& vU
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_SSAOModule_Pass_Ptr)
+	if (m_SSAOModule_Quad_Pass_Ptr)
 	{
-		str += m_SSAOModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_SSAOModule_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</ssao_module>\n";
@@ -226,9 +226,9 @@ bool SSAOModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_SSAOModule_Pass_Ptr)
+	if (m_SSAOModule_Quad_Pass_Ptr)
 	{
-		m_SSAOModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_SSAOModule_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

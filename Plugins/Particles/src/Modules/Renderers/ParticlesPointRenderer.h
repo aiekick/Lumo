@@ -34,7 +34,7 @@ limitations under the License.
 #include <Interfaces/MergedInterface.h>
 
 
-class ParticlesPointRenderer_Pass;
+class ParticlesPointRenderer_Mesh_Pass;
 class ParticlesPointRenderer :
 	public BaseRenderer,
 	public NodeInterface,
@@ -48,7 +48,7 @@ public:
 	static std::shared_ptr<ParticlesPointRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<ParticlesPointRenderer_Pass> m_ParticlesPointRenderer_Pass_Ptr = nullptr;
+	std::shared_ptr<ParticlesPointRenderer_Mesh_Pass> m_ParticlesPointRenderer_Mesh_Pass_Ptr = nullptr;
 
 public:
 	ParticlesPointRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);

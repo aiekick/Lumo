@@ -45,8 +45,8 @@ limitations under the License.
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-class SmoothNormalModule_Pass;
-class BlurModule_Pass;
+class SmoothNormalModule_Comp_Pass;
+class BlurModule_Comp_Pass;
 class SmoothNormalModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -61,7 +61,7 @@ public:
 private:
 	ct::cWeak<SmoothNormalModule> m_This;
 
-	std::shared_ptr<SmoothNormalModule_Pass> m_SmoothNormalModule_Pass_Ptr = nullptr;
+	std::shared_ptr<SmoothNormalModule_Comp_Pass> m_SmoothNormalModule_Comp_Pass_Ptr = nullptr;
 
 public:
 	SmoothNormalModule(vkApi::VulkanCorePtr vVulkanCorePtr);

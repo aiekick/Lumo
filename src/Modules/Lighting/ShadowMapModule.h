@@ -47,7 +47,7 @@ limitations under the License.
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/TextureGroupOutputInterface.h>
 
-class ShadowMapModule_Pass;
+class ShadowMapModule_Mesh_Pass;
 class ShadowMapModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -65,7 +65,7 @@ private:
 	ct::cWeak<ShadowMapModule> m_This;
 	DescriptorImageInfoVector m_ImageInfos;
 	std::array<FrameBufferPtr, 8U> m_FrameBuffers; // 8 Lights
-	std::shared_ptr<ShadowMapModule_Pass> m_ShadowMapModule_Pass_Ptr = nullptr;
+	std::shared_ptr<ShadowMapModule_Mesh_Pass> m_ShadowMapModule_Mesh_Pass_Ptr = nullptr;
 	SceneLightGroupWeak m_SceneLightGroupWeak;
 
 private:

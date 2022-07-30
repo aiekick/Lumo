@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Lighting/Pass/ShadowMapModule_Pass.h>
+#include <Modules/Lighting/Pass/ShadowMapModule_Mesh_Pass.h>
 
 using namespace vkApi;
 
@@ -109,15 +109,15 @@ bool ShadowMapModule::Init()
 
 		if (res)
 		{
-			m_ShadowMapModule_Pass_Ptr = std::make_shared<ShadowMapModule_Pass>(m_VulkanCorePtr);
-			if (m_ShadowMapModule_Pass_Ptr)
+			m_ShadowMapModule_Mesh_Pass_Ptr = std::make_shared<ShadowMapModule_Mesh_Pass>(m_VulkanCorePtr);
+			if (m_ShadowMapModule_Mesh_Pass_Ptr)
 			{
-				if (m_ShadowMapModule_Pass_Ptr->InitPixelWithoutFBO(
+				if (m_ShadowMapModule_Mesh_Pass_Ptr->InitPixelWithoutFBO(
 					1024U, 1U, m_FrameBuffers[0]->GetRenderPass(),
 					vk::SampleCountFlagBits::e1))
 				{
-					m_ShadowMapModule_Pass_Ptr->AllowResize(false); // 1024 is fixed
-					AddGenericPass(m_ShadowMapModule_Pass_Ptr);
+					m_ShadowMapModule_Mesh_Pass_Ptr->AllowResize(false); // 1024 is fixed
+					AddGenericPass(m_ShadowMapModule_Mesh_Pass_Ptr);
 					m_Loaded = true;
 				}
 			}
@@ -154,7 +154,7 @@ void ShadowMapModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 	- set the light id
 	*/
 
-	if (m_ShadowMapModule_Pass_Ptr)
+	if (m_ShadowMapModule_Mesh_Pass_Ptr)
 	{
 		auto lightGroupPtr = m_SceneLightGroupWeak.getValidShared();
 		if (lightGroupPtr)
@@ -164,9 +164,9 @@ void ShadowMapModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 			{
 				if (lightPtr)
 				{
-					m_ShadowMapModule_Pass_Ptr->SetFrameBuffer(m_FrameBuffers[idx]);
-					m_ShadowMapModule_Pass_Ptr->SetLightIdToUse(idx);
-					m_ShadowMapModule_Pass_Ptr->DrawPass(vCmdBuffer);
+					m_ShadowMapModule_Mesh_Pass_Ptr->SetFrameBuffer(m_FrameBuffers[idx]);
+					m_ShadowMapModule_Mesh_Pass_Ptr->SetLightIdToUse(idx);
+					m_ShadowMapModule_Mesh_Pass_Ptr->DrawPass(vCmdBuffer);
 				}
 
 				++idx;
@@ -239,9 +239,9 @@ void ShadowMapModule::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
-	if (m_ShadowMapModule_Pass_Ptr)
+	if (m_ShadowMapModule_Mesh_Pass_Ptr)
 	{
-		m_ShadowMapModule_Pass_Ptr->SetModel(vSceneModel);
+		m_ShadowMapModule_Mesh_Pass_Ptr->SetModel(vSceneModel);
 	}
 }
 
@@ -251,9 +251,9 @@ void ShadowMapModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 
 	m_SceneLightGroupWeak = vSceneLightGroup;
 
-	if (m_ShadowMapModule_Pass_Ptr)
+	if (m_ShadowMapModule_Mesh_Pass_Ptr)
 	{
-		m_ShadowMapModule_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+		m_ShadowMapModule_Mesh_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -261,9 +261,9 @@ SceneLightGroupWeak ShadowMapModule::GetLightGroup()
 {
 	ZoneScoped;
 
-	if (m_ShadowMapModule_Pass_Ptr)
+	if (m_ShadowMapModule_Mesh_Pass_Ptr)
 	{
-		return m_ShadowMapModule_Pass_Ptr->GetLightGroup();
+		return m_ShadowMapModule_Mesh_Pass_Ptr->GetLightGroup();
 	}
 
 	return SceneLightGroupWeak();

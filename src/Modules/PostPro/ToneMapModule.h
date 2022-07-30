@@ -47,8 +47,8 @@ limitations under the License.
 
 
 
-class ToneMapModule_Pass;
-class BlurModule_Pass;
+class ToneMapModule_Quad_Pass;
+class BlurModule_Comp_Pass;
 class ToneMapModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -63,7 +63,7 @@ public:
 private:
 	ct::cWeak<ToneMapModule> m_This;
 
-	std::shared_ptr<ToneMapModule_Pass> m_ToneMapModule_Pass_Ptr = nullptr;
+	std::shared_ptr<ToneMapModule_Quad_Pass> m_ToneMapModule_Quad_Pass_Ptr = nullptr;
 
 public:
 	ToneMapModule(vkApi::VulkanCorePtr vVulkanCorePtr);

@@ -47,8 +47,8 @@ limitations under the License.
 
 
 
-class SSAOModule_Pass;
-class BlurModule_Pass;
+class SSAOModule_Quad_Pass;
+class BlurModule_Comp_Pass;
 class SSAOModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -63,7 +63,7 @@ public:
 private:
 	ct::cWeak<SSAOModule> m_This;
 
-	std::shared_ptr<SSAOModule_Pass> m_SSAOModule_Pass_Ptr = nullptr;
+	std::shared_ptr<SSAOModule_Quad_Pass> m_SSAOModule_Quad_Pass_Ptr = nullptr;
 
 public:
 	SSAOModule(vkApi::VulkanCorePtr vVulkanCorePtr);

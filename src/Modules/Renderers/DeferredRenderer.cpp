@@ -27,7 +27,7 @@ limitations under the License.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
-#include <Modules/Renderers/Pass/DeferredRenderer_Pass.h>
+#include <Modules/Renderers/Pass/DeferredRenderer_Quad_Pass.h>
 
 using namespace vkApi;
 
@@ -78,13 +78,13 @@ bool DeferredRenderer::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_DeferredRenderer_Pass_Ptr = std::make_shared<DeferredRenderer_Pass>(m_VulkanCorePtr);
-		if (m_DeferredRenderer_Pass_Ptr)
+		m_DeferredRenderer_Quad_Pass_Ptr = std::make_shared<DeferredRenderer_Quad_Pass>(m_VulkanCorePtr);
+		if (m_DeferredRenderer_Quad_Pass_Ptr)
 		{
-			if (m_DeferredRenderer_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_DeferredRenderer_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_DeferredRenderer_Pass_Ptr);
+				AddGenericPass(m_DeferredRenderer_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -114,9 +114,9 @@ bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Deferred Renderer", -1.0f, true, true, &m_CanWeRender))
 		{
-			if (m_DeferredRenderer_Pass_Ptr)
+			if (m_DeferredRenderer_Quad_Pass_Ptr)
 			{
-				return m_DeferredRenderer_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_DeferredRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 		}
 	}
@@ -151,17 +151,17 @@ void DeferredRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountCol
 
 void DeferredRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	if (m_DeferredRenderer_Pass_Ptr)
+	if (m_DeferredRenderer_Quad_Pass_Ptr)
 	{
-		return m_DeferredRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_DeferredRenderer_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
 vk::DescriptorImageInfo* DeferredRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_DeferredRenderer_Pass_Ptr)
+	if (m_DeferredRenderer_Quad_Pass_Ptr)
 	{
-		return m_DeferredRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_DeferredRenderer_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;

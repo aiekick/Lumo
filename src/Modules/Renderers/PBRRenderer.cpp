@@ -27,7 +27,7 @@ limitations under the License.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
-#include <Modules/Renderers/Pass/PBRRenderer_Pass.h>
+#include <Modules/Renderers/Pass/PBRRenderer_Quad_Pass.h>
 
 using namespace vkApi;
 
@@ -78,13 +78,13 @@ bool PBRRenderer::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_PBRRenderer_Pass_Ptr = std::make_shared<PBRRenderer_Pass>(m_VulkanCorePtr);
-		if (m_PBRRenderer_Pass_Ptr)
+		m_PBRRenderer_Quad_Pass_Ptr = std::make_shared<PBRRenderer_Quad_Pass>(m_VulkanCorePtr);
+		if (m_PBRRenderer_Quad_Pass_Ptr)
 		{
-			if (m_PBRRenderer_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_PBRRenderer_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_PBRRenderer_Pass_Ptr);
+				AddGenericPass(m_PBRRenderer_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -113,9 +113,9 @@ bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 	{
 		if (ImGui::CollapsingHeader_CheckBox("PBR Renderer", -1.0f, true, true, &m_CanWeRender))
 		{
-			if (m_PBRRenderer_Pass_Ptr)
+			if (m_PBRRenderer_Quad_Pass_Ptr)
 			{
-				return m_PBRRenderer_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_PBRRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 		}
 	}
@@ -150,17 +150,17 @@ void PBRRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuf
 
 void PBRRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	if (m_PBRRenderer_Pass_Ptr)
+	if (m_PBRRenderer_Quad_Pass_Ptr)
 	{
-		return m_PBRRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_PBRRenderer_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
 vk::DescriptorImageInfo* PBRRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_PBRRenderer_Pass_Ptr)
+	if (m_PBRRenderer_Quad_Pass_Ptr)
 	{
-		return m_PBRRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_PBRRenderer_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -168,17 +168,17 @@ vk::DescriptorImageInfo* PBRRenderer::GetDescriptorImageInfo(const uint32_t& vBi
 
 void PBRRenderer::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
-	if (m_PBRRenderer_Pass_Ptr)
+	if (m_PBRRenderer_Quad_Pass_Ptr)
 	{
-		m_PBRRenderer_Pass_Ptr->SetTextures(vBinding, vImageInfos, vOutSizes);
+		m_PBRRenderer_Quad_Pass_Ptr->SetTextures(vBinding, vImageInfos, vOutSizes);
 	}
 }
 
 void PBRRenderer::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	if (m_PBRRenderer_Pass_Ptr)
+	if (m_PBRRenderer_Quad_Pass_Ptr)
 	{
-		m_PBRRenderer_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+		m_PBRRenderer_Quad_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -194,9 +194,9 @@ std::string PBRRenderer::getXml(const std::string& vOffset, const std::string& v
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_PBRRenderer_Pass_Ptr)
+	if (m_PBRRenderer_Quad_Pass_Ptr)
 	{
-		str += m_PBRRenderer_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_PBRRenderer_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</pbr_renderer_module>\n";
@@ -223,9 +223,9 @@ bool PBRRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_PBRRenderer_Pass_Ptr)
+	if (m_PBRRenderer_Quad_Pass_Ptr)
 	{
-		m_PBRRenderer_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_PBRRenderer_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

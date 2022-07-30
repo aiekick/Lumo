@@ -50,7 +50,7 @@ limitations under the License.
 #include <Interfaces/SerializationInterface.h>
 
 
-class PosToDepthModule_Pass;
+class PosToDepthModule_Quad_Pass;
 class PosToDepthModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -63,7 +63,7 @@ public:
 	static std::shared_ptr<PosToDepthModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<PosToDepthModule_Pass> m_PosToDepthModule_Pass_Ptr = nullptr;
+	std::shared_ptr<PosToDepthModule_Quad_Pass> m_PosToDepthModule_Quad_Pass_Ptr = nullptr;
 
 public:
 	PosToDepthModule(vkApi::VulkanCorePtr vVulkanCorePtr);

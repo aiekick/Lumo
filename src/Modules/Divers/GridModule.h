@@ -28,7 +28,7 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 
 
-class GridModule_Pass;
+class GridModule_Vertex_Pass;
 class GridModule :
 	public BaseRenderer,
 	public GuiInterface,
@@ -40,7 +40,7 @@ public:
 	static std::shared_ptr<GridModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<GridModule_Pass> m_GridModule_Pass_Ptr = nullptr;
+	std::shared_ptr<GridModule_Vertex_Pass> m_GridModule_Vertex_Pass_Ptr = nullptr;
 
 private:
 	VulkanBufferObjectPtr m_UBO_Vert = nullptr;

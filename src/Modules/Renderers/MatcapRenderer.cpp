@@ -26,7 +26,7 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
 
-#include <Modules/Renderers/Pass/MatcapRenderer_Pass.h>
+#include <Modules/Renderers/Pass/MatcapRenderer_Mesh_Pass.h>
 
 using namespace vkApi;
 
@@ -75,13 +75,13 @@ bool MatcapRenderer::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_MatcapRenderer_Pass_Ptr = std::make_shared<MatcapRenderer_Pass>(m_VulkanCorePtr);
-		if (m_MatcapRenderer_Pass_Ptr)
+		m_MatcapRenderer_Mesh_Pass_Ptr = std::make_shared<MatcapRenderer_Mesh_Pass>(m_VulkanCorePtr);
+		if (m_MatcapRenderer_Mesh_Pass_Ptr)
 		{
-			if (m_MatcapRenderer_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_MatcapRenderer_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_MatcapRenderer_Pass_Ptr);
+				AddGenericPass(m_MatcapRenderer_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -116,9 +116,9 @@ bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Matcap", -1.0f, true, true, &m_CanWeRender))
 		{
-			if (m_MatcapRenderer_Pass_Ptr)
+			if (m_MatcapRenderer_Mesh_Pass_Ptr)
 			{
-				return m_MatcapRenderer_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_MatcapRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 		}
 	}
@@ -150,25 +150,25 @@ void MatcapRenderer::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
-	if (m_MatcapRenderer_Pass_Ptr)
+	if (m_MatcapRenderer_Mesh_Pass_Ptr)
 	{
-		return m_MatcapRenderer_Pass_Ptr->SetModel(vSceneModel);
+		return m_MatcapRenderer_Mesh_Pass_Ptr->SetModel(vSceneModel);
 	}
 }
 
 void MatcapRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	if (m_MatcapRenderer_Pass_Ptr)
+	if (m_MatcapRenderer_Mesh_Pass_Ptr)
 	{
-		return m_MatcapRenderer_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_MatcapRenderer_Mesh_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
 vk::DescriptorImageInfo* MatcapRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_MatcapRenderer_Pass_Ptr)
+	if (m_MatcapRenderer_Mesh_Pass_Ptr)
 	{
-		return m_MatcapRenderer_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_MatcapRenderer_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -186,9 +186,9 @@ std::string MatcapRenderer::getXml(const std::string& vOffset, const std::string
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_MatcapRenderer_Pass_Ptr)
+	if (m_MatcapRenderer_Mesh_Pass_Ptr)
 	{
-		str += m_MatcapRenderer_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_MatcapRenderer_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</matcap_renderer>\n";
@@ -215,9 +215,9 @@ bool MatcapRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_MatcapRenderer_Pass_Ptr)
+	if (m_MatcapRenderer_Mesh_Pass_Ptr)
 	{
-		m_MatcapRenderer_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_MatcapRenderer_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
