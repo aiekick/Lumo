@@ -37,7 +37,7 @@ ParticlesPointRenderer_Mesh_Pass::ParticlesPointRenderer_Mesh_Pass(vkApi::Vulkan
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Particles", MESH_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ParticlesPointRenderer_Mesh_Pass::~ParticlesPointRenderer_Mesh_Pass()

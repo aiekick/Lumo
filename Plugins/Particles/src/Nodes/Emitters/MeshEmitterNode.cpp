@@ -14,13 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "PrimitiveFibonacciNode.h"
-#include <Modules/Primitives/PrimitiveFibonacciModule.h>
+#include "MeshEmitterNode.h"
+#include <Modules/Emitters/MeshEmitterModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
+#include <Interfaces/ModelOutputInterface.h>
 
-std::shared_ptr<PrimitiveFibonacciNode> PrimitiveFibonacciNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MeshEmitterNode> MeshEmitterNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<PrimitiveFibonacciNode>();
+	auto res = std::make_shared<MeshEmitterNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -29,35 +30,39 @@ std::shared_ptr<PrimitiveFibonacciNode> PrimitiveFibonacciNode::Create(vkApi::Vu
 	return res;
 }
 
-PrimitiveFibonacciNode::PrimitiveFibonacciNode() : BaseNode()
+MeshEmitterNode::MeshEmitterNode() : BaseNode()
 {
 	ZoneScoped;
 
-	m_NodeTypeString = "PARTICLES_PRIMITIVE_FIBONACCI";
+	m_NodeTypeString = "PARTICLES_MESH_EMITTER";
 }
 
-PrimitiveFibonacciNode::~PrimitiveFibonacciNode()
+MeshEmitterNode::~MeshEmitterNode()
 {
 	ZoneScoped;
 
 	Unit();
 }
 
-bool PrimitiveFibonacciNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool MeshEmitterNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	name = "Primitive Fibonacci";
+	name = "Mesh Emitter";
 
 	NodeSlot slot;
+
+	slot.slotType = "MESH";
+	slot.name = "3D Model";
+	AddInput(slot, true, false);
 
 	slot.slotType = "PARTICLES";
 	slot.name = "particles";
 	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, false);
+	AddOutput(slot, true, true);
 
-	m_PrimitiveFibonacciModulePtr = PrimitiveFibonacciModule::Create(vVulkanCorePtr, m_This);
-	if (m_PrimitiveFibonacciModulePtr)
+	m_MeshEmitterModulePtr = MeshEmitterModule::Create(vVulkanCorePtr, m_This);
+	if (m_MeshEmitterModulePtr)
 	{
 		return true;
 	}
@@ -65,46 +70,46 @@ bool PrimitiveFibonacciNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return false;
 }
 
-bool PrimitiveFibonacciNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool MeshEmitterNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
-	if (m_PrimitiveFibonacciModulePtr)
+	if (m_MeshEmitterModulePtr)
 	{
-		return m_PrimitiveFibonacciModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		return m_MeshEmitterModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
 
-bool PrimitiveFibonacciNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MeshEmitterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
 	assert(vContext);
 
-	if (m_PrimitiveFibonacciModulePtr)
+	if (m_MeshEmitterModulePtr)
 	{
-		return m_PrimitiveFibonacciModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_MeshEmitterModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void PrimitiveFibonacciNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void MeshEmitterNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
 	assert(vContext);
 
-	if (m_PrimitiveFibonacciModulePtr)
+	if (m_MeshEmitterModulePtr)
 	{
-		m_PrimitiveFibonacciModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_MeshEmitterModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void PrimitiveFibonacciNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void MeshEmitterNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -123,63 +128,81 @@ void PrimitiveFibonacciNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNode
 	}
 }
 
+void MeshEmitterNode::SetModel(SceneModelWeak vSceneModel)
+{
+	if (m_MeshEmitterModulePtr)
+	{
+		m_MeshEmitterModulePtr->SetModel(vSceneModel);
+	}
+}
+
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void PrimitiveFibonacciNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void MeshEmitterNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	ZoneScoped;
 
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_PrimitiveFibonacciModulePtr)
+	if (startSlotPtr && endSlotPtr && m_MeshEmitterModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			
+			if (startSlotPtr->slotType == "MESH")
+			{
+				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherNodePtr)
+				{
+					SetModel(otherNodePtr->GetModel());
+				}
+			}
 		}
 	}
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
-void PrimitiveFibonacciNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void MeshEmitterNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 	ZoneScoped;
 
 	auto startSlotPtr = vStartSlot.getValidShared();
 	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_PrimitiveFibonacciModulePtr)
+	if (startSlotPtr && endSlotPtr && m_MeshEmitterModulePtr)
 	{
 		if (startSlotPtr->IsAnInput())
 		{
-			
+			if (startSlotPtr->slotType == "MESH")
+			{
+				SetModel();
+			}
 		}
 	}
 }
 
-vk::Buffer* PrimitiveFibonacciNode::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
+vk::Buffer* MeshEmitterNode::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_PrimitiveFibonacciModulePtr)
+	if (m_MeshEmitterModulePtr)
 	{
-		return m_PrimitiveFibonacciModulePtr->GetTexelBuffer(vBindingPoint, vOutSize);
+		return m_MeshEmitterModulePtr->GetTexelBuffer(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-vk::BufferView* PrimitiveFibonacciNode::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
+vk::BufferView* MeshEmitterNode::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_PrimitiveFibonacciModulePtr)
+	if (m_MeshEmitterModulePtr)
 	{
-		return m_PrimitiveFibonacciModulePtr->GetTexelBufferView(vBindingPoint, vOutSize);
+		return m_MeshEmitterModulePtr->GetTexelBufferView(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-void PrimitiveFibonacciNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void MeshEmitterNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	ZoneScoped;
 
@@ -198,6 +221,22 @@ void PrimitiveFibonacciNode::Notify(const NotifyEvent& vEvent, const NodeSlotWea
 		}
 		break;
 	}
+	case NotifyEvent::ModelUpdateDone:
+	{
+		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		if (emiterSlotPtr)
+		{
+			if (emiterSlotPtr->IsAnOutput())
+			{
+				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+				if (otherNodePtr)
+				{
+					SetModel(otherNodePtr->GetModel());
+				}
+			}
+		}
+		break;
+	}
 	default:
 		break;
 	}
@@ -207,7 +246,7 @@ void PrimitiveFibonacciNode::Notify(const NotifyEvent& vEvent, const NodeSlotWea
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string PrimitiveFibonacciNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string MeshEmitterNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -233,9 +272,9 @@ std::string PrimitiveFibonacciNode::getXml(const std::string& vOffset, const std
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_PrimitiveFibonacciModulePtr)
+		if (m_MeshEmitterModulePtr)
 		{
-			res += m_PrimitiveFibonacciModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_MeshEmitterModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -244,7 +283,7 @@ std::string PrimitiveFibonacciNode::getXml(const std::string& vOffset, const std
 	return res;
 }
 
-bool PrimitiveFibonacciNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool MeshEmitterNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -259,18 +298,18 @@ bool PrimitiveFibonacciNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_PrimitiveFibonacciModulePtr)
+	if (m_MeshEmitterModulePtr)
 	{
-		m_PrimitiveFibonacciModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_MeshEmitterModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
 }
 
-void PrimitiveFibonacciNode::UpdateShaders(const std::set<std::string>& vFiles)
+void MeshEmitterNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
-	if (m_PrimitiveFibonacciModulePtr)
+	if (m_MeshEmitterModulePtr)
 	{
-		m_PrimitiveFibonacciModulePtr->UpdateShaders(vFiles);
+		m_MeshEmitterModulePtr->UpdateShaders(vFiles);
 	}
 }

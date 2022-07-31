@@ -16,7 +16,7 @@
 #include <Nodes/RtxSSSRendererNode.h>
 #include <Nodes/ModelToAccelStructNode.h>
 
-#ifndef USE_STATIC_LINKING_OF_PLUGINS
+#ifndef USE_PLUGIN_STATIC_LINKING
 // needed for plugin creating / destroying
 extern "C" // needed for avoid renaming of funcs by the compiler
 {
@@ -36,7 +36,7 @@ extern "C" // needed for avoid renaming of funcs by the compiler
 		delete ptr;
 	}
 }
-#endif // USE_STATIC_LINKING_OF_PLUGINS
+#endif // USE_PLUGIN_STATIC_LINKING
 
 RTX::RTX()
 {

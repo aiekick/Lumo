@@ -172,6 +172,8 @@ void ParticlesSimulationNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, N
 			{
 				SetTexelBuffer(startSlotPtr->descriptorBinding, nullptr, nullptr);
 				SetTexelBufferView(startSlotPtr->descriptorBinding, nullptr, nullptr);
+
+				Notify(NotifyEvent::TexelBufferUpdateDone);
 			}
 		}
 	}

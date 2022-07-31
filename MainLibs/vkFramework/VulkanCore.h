@@ -68,7 +68,6 @@ namespace vkApi
 			vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 		vk::BufferView m_EmptyBufferView = VK_NULL_HANDLE;
 
-	protected:
 		std::vector<vk::CommandBuffer> m_CommandBuffers;
 		std::vector<vk::Semaphore> m_ComputeCompleteSemaphores;
 		std::vector<vk::Fence> m_ComputeWaitFences;
@@ -121,6 +120,10 @@ namespace vkApi
 
 		void SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanShader);
 		VulkanImGuiRendererWeak GetVulkanImGuiRenderer();
+
+		// compute delta time for this frame
+		// of return the last computed time
+		float GetDeltaTime(const uint32_t& vCurrentFrame = 0U);
 
 		// from device
 		vk::SampleCountFlagBits GetMaxUsableSampleCount();

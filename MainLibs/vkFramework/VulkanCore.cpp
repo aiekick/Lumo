@@ -231,7 +231,18 @@ namespace vkApi
 
 	void VulkanCore::SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRendererWeak) { m_VulkanImGuiRendererWeak = vVulkanImGuiRendererWeak; }
 	VulkanImGuiRendererWeak VulkanCore::GetVulkanImGuiRenderer() { return m_VulkanImGuiRendererWeak; }
-	
+
+	float VulkanCore::GetDeltaTime(const uint32_t& vCurrentFrame)
+	{
+		static uint32_t current_frame = 0U;
+		static float delta_time = 0.0f;
+		if (vCurrentFrame != current_frame)
+		{
+			delta_time = ct::GetTimeInterval();
+		}
+		return delta_time;
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	//// PUBLIC // GET INFOS /////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////////////////////

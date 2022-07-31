@@ -14,7 +14,7 @@ set_target_properties(MorphoGenesis PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MorphoGenesis/src)
 
-if (USE_STATIC_LINKING_OF_PLUGINS)
+if (USE_PLUGIN_STATIC_LINKING)
 set(PROJECT_PLUGINS ${PROJECT_PLUGINS} MorphoGenesis)
 endif()
 

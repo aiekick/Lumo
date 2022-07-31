@@ -375,6 +375,8 @@ void App::Update()
 {
 	ZoneScoped;
 
+	m_VulkanCorePtr->GetDeltaTime(m_CurrentFrame);
+
 	CommonSystem::Instance()->UploadBufferObjectIfDirty(m_VulkanCorePtr);
 
 	CheckIfTheseAreSomeFileChanges();

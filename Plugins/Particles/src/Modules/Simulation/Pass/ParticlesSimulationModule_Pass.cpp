@@ -42,7 +42,7 @@ ParticlesSimulationModule_Pass::ParticlesSimulationModule_Pass(vkApi::VulkanCore
 {
 	SetRenderDocDebugName("Comp Pass : Particles Simulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ParticlesSimulationModule_Pass::~ParticlesSimulationModule_Pass()
@@ -179,7 +179,7 @@ void ParticlesSimulationModule_Pass::Compute(vk::CommandBuffer* vCmdBuffer, cons
 
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 		
-		m_PushConstants.DeltaTime = ct::GetTimeInterval();
+		m_PushConstants.DeltaTime = m_VulkanCorePtr->GetDeltaTime();
 		vCmdBuffer->pushConstants(m_PipelineLayout,
 			vk::ShaderStageFlagBits::eCompute,
 			0, sizeof(PushConstants), &m_PushConstants);

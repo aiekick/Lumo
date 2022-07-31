@@ -463,7 +463,7 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 		spv::SpvBuildLogger logger;
 		glslang::SpvOptions spvOptions;
 		spvOptions.optimizeSize = true;
-#ifdef _DEBUG
+#ifndef _DEBUG
 		spvOptions.stripDebugInfo = true;
 #endif
 		glslang::GlslangToSpv(*Program.getIntermediate(shaderType), SpirV, &logger, &spvOptions);

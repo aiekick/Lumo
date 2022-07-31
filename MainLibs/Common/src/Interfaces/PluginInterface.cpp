@@ -52,11 +52,11 @@ bool PluginInterface::Init(
 		}
 		else
 		{
-#ifndef USE_STATIC_LINKING_OF_PLUGINS	
+#ifndef USE_PLUGIN_STATIC_LINKING	
 			CTOOL_DEBUG_BREAK;
 			LogVarInfo("le static VulkanCore::sAllocator n'est pas null..");
 			// a tien ? ca a changé ?
-#endif // USE_STATIC_LINKING_OF_PLUGINS
+#endif // USE_PLUGIN_STATIC_LINKING
 		}
 
 		ActionAfterInit();
@@ -74,7 +74,7 @@ void PluginInterface::Unit()
 	{
 		corePtr->getDevice().waitIdle();
 
-#ifndef USE_STATIC_LINKING_OF_PLUGINS	
+#ifndef USE_PLUGIN_STATIC_LINKING	
 		// for avoid issue when its a normal class 
 		// like PlugiManager who inherit from PluginInterface
 		if (iSinAPlugin)

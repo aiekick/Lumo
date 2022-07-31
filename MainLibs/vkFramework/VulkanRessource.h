@@ -100,9 +100,7 @@ public: // buffers
 	static VulkanBufferObjectPtr createStorageBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, vk::BufferUsageFlags vBufferUsageFlags, VmaMemoryUsage vMemoryUsage);
 	static VulkanBufferObjectPtr createStorageBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage);
 	static VulkanBufferObjectPtr createGPUOnlyStorageBufferObject(VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize);
-	static VulkanBufferObjectPtr createStorageTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize, vk::Format vFormat, VmaMemoryUsage vMemoryUsage);
-	static VulkanBufferObjectPtr createUniformTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize, vk::Format vFormat, VmaMemoryUsage vMemoryUsage);
-	static VulkanBufferObjectPtr createTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize, vk::Format vFormat);
+	static VulkanBufferObjectPtr createTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr,	vk::Format vFormat, uint64_t vDataSize, void* vDataPtr = nullptr);
 
 	template<class T> static VulkanBufferObjectPtr createVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);
 	template<class T> static VulkanBufferObjectPtr createIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);

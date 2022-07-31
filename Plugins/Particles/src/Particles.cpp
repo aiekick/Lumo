@@ -15,8 +15,9 @@
 #include <Nodes/Renderers/ParticlesSpriteRendererNode.h>
 #include <Nodes/Simulation/ParticlesSimulationNode.h>
 #include <Nodes/Primitives/PrimitiveFibonacciNode.h>
+#include <Nodes/Emitters/MeshEmitterNode.h>
 
-#ifndef USE_STATIC_LINKING_OF_PLUGINS
+#ifndef USE_PLUGIN_STATIC_LINKING
 // needed for plugin creating / destroying
 extern "C" // needed for avoid renaming of funcs by the compiler
 {
@@ -36,7 +37,7 @@ extern "C" // needed for avoid renaming of funcs by the compiler
 		delete ptr;
 	}
 }
-#endif // USE_STATIC_LINKING_OF_PLUGINS
+#endif // USE_PLUGIN_STATIC_LINKING
 
 Particles::Particles()
 {
@@ -86,7 +87,9 @@ std::vector<std::string> Particles::GetNodes() const
 	return
 	{
 		"PARTICLES_SIMULATION",
-		"PARTICLES_RENDERER"
+		"PARTICLES_POINT_RENDERER",
+		"PARTICLES_SPRITE_RENDERER",
+		"PARTICLES_PRIMITIVE_FIBONACCI"
 	};
 }
 
@@ -101,7 +104,7 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 		entry.second.nodeLabel = "Simulation";
 		entry.second.nodeType = "PARTICLES_SIMULATION";
 		entry.second.color = ct::fvec4(0.0f);
-		entry.second.categoryPath = "Particles";
+		entry.second.categoryPath = "Particles/Simulation";
 		res.push_back(entry);
 	}
 
@@ -112,7 +115,7 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 		entry.second.nodeLabel = "Point Renderer";
 		entry.second.nodeType = "PARTICLES_POINT_RENDERER";
 		entry.second.color = ct::fvec4(0.0f);
-		entry.second.categoryPath = "Particles";
+		entry.second.categoryPath = "Particles/Renderers";
 		res.push_back(entry);
 	}
 
@@ -123,7 +126,7 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 		entry.second.nodeLabel = "Sprite Renderer";
 		entry.second.nodeType = "PARTICLES_SPRITE_RENDERER";
 		entry.second.color = ct::fvec4(0.0f);
-		entry.second.categoryPath = "Particles";
+		entry.second.categoryPath = "Particles/Renderers";
 		res.push_back(entry);
 	}
 
@@ -132,9 +135,20 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
 		entry.first = "plugins";
 		entry.second.nodeLabel = "Fibonacci Ball";
-		entry.second.nodeType = "PRIMITIVE_FIBONACCI";
+		entry.second.nodeType = "PARTICLES_PRIMITIVE_FIBONACCI";
 		entry.second.color = ct::fvec4(0.0f);
-		entry.second.categoryPath = "Particles";
+		entry.second.categoryPath = "Particles/Primitives";
+		res.push_back(entry);
+	}
+
+	{
+		LibraryEntry entry;
+		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+		entry.first = "plugins";
+		entry.second.nodeLabel = "Mesh Emitter";
+		entry.second.nodeType = "PARTICLES_MESH_EMITTER";
+		entry.second.color = ct::fvec4(0.0f);
+		entry.second.categoryPath = "Particles/Emitters";
 		res.push_back(entry);
 	}
 
@@ -151,8 +165,10 @@ BaseNodePtr Particles::CreatePluginNode(const std::string& vPluginNodeName)
 		res = ParticlesPointRendererNode::Create(m_VulkanCoreWeak.getValidShared());
 	else if (vPluginNodeName == "PARTICLES_SPRITE_RENDERER")
 		res = ParticlesSpriteRendererNode::Create(m_VulkanCoreWeak.getValidShared());
-	else if (vPluginNodeName == "PRIMITIVE_FIBONACCI")
+	else if (vPluginNodeName == "PARTICLES_PRIMITIVE_FIBONACCI")
 		res = PrimitiveFibonacciNode::Create(m_VulkanCoreWeak.getValidShared());
+	else if (vPluginNodeName == "PARTICLES_MESH_EMITTER")
+		res = MeshEmitterNode::Create(m_VulkanCoreWeak.getValidShared());
 
 	return res;
 }

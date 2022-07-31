@@ -42,7 +42,7 @@ PrimitiveFibonacciModule_Comp_Pass::PrimitiveFibonacciModule_Comp_Pass(vkApi::Vu
 {
 	SetRenderDocDebugName("Comp Pass : Particles Simulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 PrimitiveFibonacciModule_Comp_Pass::~PrimitiveFibonacciModule_Comp_Pass()
@@ -161,12 +161,10 @@ bool PrimitiveFibonacciModule_Comp_Pass::BuildModel()
 
 	m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr.reset();
 
-	std::vector<ct::fvec4> particles;
-	particles.resize(m_UBOComp.count * 3U);
-	auto sizeInBytes = particles.size() * sizeof(ct::fvec4);
-
+	auto sizeOfStruct = sizeof(ct::fvec4) * 3U;
+	auto sizeInBytes = m_UBOComp.count * sizeOfStruct;
 	m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr = VulkanRessource::createTexelBuffer(
-		m_VulkanCorePtr, particles.data(), sizeInBytes, vk::Format::eR32G32B32A32Sfloat);
+		m_VulkanCorePtr, vk::Format::eR32G32B32A32Sfloat, sizeInBytes);
 
 	SetDispatchSize1D(m_UBOComp.count);
 

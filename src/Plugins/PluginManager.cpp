@@ -25,7 +25,7 @@ limitations under the License.
 
 namespace fs = std::filesystem;
 
-#ifdef USE_STATIC_LINKING_OF_PLUGINS
+#ifdef USE_PLUGIN_STATIC_LINKING
 #ifdef USE_PLUGIN_MESH_SIM
 #include <MeshSim.h>
 #endif
@@ -47,7 +47,7 @@ namespace fs = std::filesystem;
 #ifdef USE_PLUGIN_SMOKE
 #include <Smoke.h>
 #endif
-#endif // USE_STATIC_LINKING_OF_PLUGINS
+#endif // USE_PLUGIN_STATIC_LINKING
 
 //////////////////////////////////////////////////////////////////////////////
 ////// PluginInstance ////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 	printf("-----------\n");
 	printf("Availables Plugins :\n");
 
-#ifndef USE_STATIC_LINKING_OF_PLUGINS
+#ifndef USE_PLUGIN_STATIC_LINKING
 	auto plugin_directory = std::filesystem::path(FileHelper::Instance()->GetAppPath());
 #ifndef _DEBUG
 	plugin_directory.append("plugins");
@@ -210,7 +210,7 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 		LogVarLightInfo("Plugin directory %s not found !", plugin_directory.string().c_str());
 	}
 	printf("-----------\n");
-#else // USE_STATIC_LINKING_OF_PLUGINS
+#else // USE_PLUGIN_STATIC_LINKING
 #ifdef USE_PLUGIN_MESH_SIM
 	AddPlugin("MeshSim", std::make_shared<MeshSim>(), vVulkanCoreWeak);
 #endif
@@ -232,7 +232,7 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #ifdef USE_PLUGIN_SMOKE
 	AddPlugin("Smoke", std::make_shared<Smoke>(), vVulkanCoreWeak);
 #endif
-#endif // USE_STATIC_LINKING_OF_PLUGINS
+#endif // USE_PLUGIN_STATIC_LINKING
 }
 
 std::vector<LibraryEntry> PluginManager::GetLibraryEntrys()
@@ -243,7 +243,7 @@ std::vector<LibraryEntry> PluginManager::GetLibraryEntrys()
 	{
 		if (plugin.second)
 		{
-#ifndef USE_STATIC_LINKING_OF_PLUGINS
+#ifndef USE_PLUGIN_STATIC_LINKING
 			auto pluginInstancePtr = plugin.second->Get().getValidShared();
 			if (pluginInstancePtr)
 			{
@@ -253,13 +253,13 @@ std::vector<LibraryEntry> PluginManager::GetLibraryEntrys()
 					res.insert(res.end(), lib_entrys.begin(), lib_entrys.end());
 				}
 			}
-#else // USE_STATIC_LINKING_OF_PLUGINS
+#else // USE_PLUGIN_STATIC_LINKING
 			auto lib_entrys = plugin.second->GetLibrary();
 			if (!lib_entrys.empty())
 			{
 				res.insert(res.end(), lib_entrys.begin(), lib_entrys.end());
 			}
-#endif // USE_STATIC_LINKING_OF_PLUGINS
+#endif // USE_PLUGIN_STATIC_LINKING
 		}
 	}
 
@@ -274,7 +274,7 @@ BaseNodePtr PluginManager::CreatePluginNode(const std::string& vPluginNodeName)
 		{
 			if (plugin.second)
 			{
-#ifndef USE_STATIC_LINKING_OF_PLUGINS
+#ifndef USE_PLUGIN_STATIC_LINKING
 				auto pluginInstancePtr = plugin.second->Get().getValidShared();
 				if (pluginInstancePtr)
 				{
@@ -284,13 +284,13 @@ BaseNodePtr PluginManager::CreatePluginNode(const std::string& vPluginNodeName)
 						return nodePtr;
 					}
 				}
-#else // USE_STATIC_LINKING_OF_PLUGINS
+#else // USE_PLUGIN_STATIC_LINKING
 				auto nodePtr = plugin.second->CreatePluginNode(vPluginNodeName);
 				if (nodePtr)
 				{
 					return nodePtr;
 				}
-#endif // USE_STATIC_LINKING_OF_PLUGINS
+#endif // USE_PLUGIN_STATIC_LINKING
 			}
 		}
 	}
@@ -305,15 +305,15 @@ void PluginManager::ResetImGuiID(int vWidgetId)
 		id += 10000;
 		if (plugin.second)
 		{
-#ifndef USE_STATIC_LINKING_OF_PLUGINS
+#ifndef USE_PLUGIN_STATIC_LINKING
 			auto pluginInstancePtr = plugin.second->Get().getValidShared();
 			if (pluginInstancePtr)
 			{
 				id += pluginInstancePtr->ResetImGuiID(id);
 			}
-#else // USE_STATIC_LINKING_OF_PLUGINS
+#else // USE_PLUGIN_STATIC_LINKING
 			id += plugin.second->ResetImGuiID(id);
-#endif // USE_STATIC_LINKING_OF_PLUGINS
+#endif // USE_PLUGIN_STATIC_LINKING
 		}
 	}
 }
@@ -322,7 +322,7 @@ void PluginManager::ResetImGuiID(int vWidgetId)
 //// PRIVATE /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-#ifndef USE_STATIC_LINKING_OF_PLUGINS
+#ifndef USE_PLUGIN_STATIC_LINKING
 
 ct::cWeak<PluginInstance> PluginManager::Get(const std::string& vPluginName)
 {
@@ -336,7 +336,7 @@ ct::cWeak<PluginInstance> PluginManager::Get(const std::string& vPluginName)
 	return ct::cWeak<PluginInstance>();
 }
 
-#else // USE_STATIC_LINKING_OF_PLUGINS
+#else // USE_PLUGIN_STATIC_LINKING
 
 void PluginManager::AddPlugin(
 	const std::string& vPluginName,
@@ -395,4 +395,4 @@ void PluginManager::AddPlugin(
 	}
 }
 
-#endif // USE_STATIC_LINKING_OF_PLUGINS
+#endif // USE_PLUGIN_STATIC_LINKING
