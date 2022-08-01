@@ -202,7 +202,7 @@ vk::BufferView* MeshEmitterNode::GetTexelBufferView(const uint32_t& vBindingPoin
 	return nullptr;
 }
 
-void MeshEmitterNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void MeshEmitterNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	ZoneScoped;
 
@@ -223,7 +223,7 @@ void MeshEmitterNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 	}
 	case NotifyEvent::ModelUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())

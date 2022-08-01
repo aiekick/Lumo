@@ -1,0 +1,1 @@
+They are tools for connect one input to one output of the same type

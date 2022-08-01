@@ -187,13 +187,13 @@ vk::DescriptorImageInfo* ToneMapNode::GetDescriptorImageInfo(const uint32_t& vBi
 	return nullptr;
 }
 
-void ToneMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void ToneMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
 	case NotifyEvent::TextureUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())

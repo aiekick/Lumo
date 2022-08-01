@@ -247,13 +247,13 @@ void MeshAttributesNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSl
 	}
 }
 
-void MeshAttributesNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void MeshAttributesNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
 	case NotifyEvent::ModelUpdateDone:
 	{	
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
@@ -269,7 +269,7 @@ void MeshAttributesNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& v
 	}
 	case NotifyEvent::TextureUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())

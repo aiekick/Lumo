@@ -266,13 +266,13 @@ void PBRRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 	}
 }
 
-void PBRRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void PBRRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
 	case NotifyEvent::TextureUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
@@ -294,7 +294,7 @@ void PBRRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 	}
 	case NotifyEvent::TextureGroupUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
@@ -318,7 +318,7 @@ void PBRRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmm
 	}
 	case NotifyEvent::LightGroupUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())

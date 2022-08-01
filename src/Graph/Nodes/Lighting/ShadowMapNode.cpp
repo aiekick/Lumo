@@ -196,13 +196,13 @@ void ShadowMapNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWea
 	}
 }
 
-void ShadowMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void ShadowMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
 	case NotifyEvent::ModelUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
@@ -219,7 +219,7 @@ void ShadowMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmit
 	case NotifyEvent::LightGroupUpdateDone:
 	{
 		// maj dans ce node
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())

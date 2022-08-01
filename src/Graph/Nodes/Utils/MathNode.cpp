@@ -153,46 +153,6 @@ void MathNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer
 	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MathNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MathModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MathNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MathModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-		}
-	}
-}
-
 void MathNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_MathModulePtr)
@@ -211,30 +171,36 @@ vk::DescriptorImageInfo* MathNode::GetDescriptorImageInfo(const uint32_t& vBindi
 	return nullptr;
 }
 
-void MathNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+// le start est toujours le slot de ce node, l'autre le slot du node connecté
+void MathNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+{
+	auto startSlotPtr = vStartSlot.getValidShared();
+	auto endSlotPtr = vEndSlot.getValidShared();
+	if (startSlotPtr && endSlotPtr && m_MathModulePtr)
+	{
+		TextureConnector::Connect(startSlotPtr, endSlotPtr);
+	}
+}
+
+// le start est toujours le slot de ce node, l'autre le slot du node connecté
+void MathNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+{
+	auto startSlotPtr = vStartSlot.getValidShared();
+	auto endSlotPtr = vEndSlot.getValidShared();
+	if (startSlotPtr && endSlotPtr && m_MathModulePtr)
+	{
+		TextureConnector::DisConnect(startSlotPtr, endSlotPtr);
+	}
+}
+
+void MathNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
 	case NotifyEvent::TextureUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
-				}
-			}
-		}
+		TextureConnector::NotificationReceived(vEmitterSlot, vReceiverSlot);
+		TextureConnector::SendNotification(m_This);
 		break;
 	}
 	case NotifyEvent::GraphIsLoaded:

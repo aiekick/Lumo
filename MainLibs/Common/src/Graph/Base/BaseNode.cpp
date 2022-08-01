@@ -1823,7 +1823,7 @@ void BaseNode::SetChanged(bool vFlag)
 	}
 }
 
-void BaseNode::Notify(const NotifyEvent& /*vEvent*/, const NodeSlotWeak& /*vEmmiterSlot*/, const NodeSlotWeak& /*vReceiverSlot*/)
+void BaseNode::Notify(const NotifyEvent& /*vEvent*/, const NodeSlotWeak& /*vEmitterSlot*/, const NodeSlotWeak& /*vReceiverSlot*/)
 {
 #ifdef _DEBUG
 	LogVarInfo("BaseNode::Notify catched by the node \"%s\", some class not implement it. maybe its wanted", name.c_str());

@@ -53,7 +53,7 @@ class NotifyInterface
 public:
 	virtual void Notify(
 		const NotifyEvent& vEvent, 
-		const NodeSlotWeak& vEmmiterSlot, 
+		const NodeSlotWeak& vEmitterSlot, 
 		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) = 0;
 };
 	

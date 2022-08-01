@@ -185,6 +185,7 @@ std::string GetFullShaderStageString(const EShLanguage& stage)
 //TODO: Multithread, manage SpirV that doesn't need recompiling (only recompile when dirty)
 const std::vector<unsigned int> VulkanShader::CompileGLSLFile(
 	const std::string& filename,
+	const std::string& vEntryPoint,
 	ShaderMessagingFunction vMessagingFunction,
 	std::string* vShaderCode,
 	std::unordered_map<std::string, bool>* vUsedUniforms)
@@ -212,17 +213,17 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLFile(
 		if (vShaderCode)
 			*vShaderCode = InputGLSL;
 
-		return CompileGLSLString(InputGLSL, GetSuffix(filename), filename, vMessagingFunction, vShaderCode, vUsedUniforms);
+		return CompileGLSLString(InputGLSL, GetSuffix(filename), filename, vEntryPoint, vMessagingFunction, vShaderCode, vUsedUniforms);
 	}
 
 	return SpirV;
 }
 
-//TODO: Multithread, manage SpirV that doesn't need recompiling (only recompile when dirty)
 const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 	const std::string& vCode,
-	std::string vShaderSuffix,
+	const std::string& vShaderSuffix,
 	const std::string& vOriginalFileName,
+	const std::string& vEntryPoint,
 	ShaderMessagingFunction vMessagingFunction,
 	std::string* vShaderCode,
 	std::unordered_map<std::string, bool>* vUsedUniforms)
@@ -262,7 +263,10 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 		Shader.setEnvInput(glslang::EShSourceGlsl, shaderType, glslang::EShClientVulkan, ClientInputSemanticsVersion);
 		Shader.setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 		Shader.setEnvTarget(glslang::EShTargetSpv, TargetVersion);
-		Shader.setEntryPoint("main");
+		auto entry = vEntryPoint;
+		if (entry.empty())
+			entry = "main";
+		Shader.setEntryPoint(entry.c_str());
 
 		EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
 
@@ -491,9 +495,9 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 
 void VulkanShader::ParseGLSLString(
 	const std::string& vCode,
-	std::string vShaderSuffix,
+	const std::string& vShaderSuffix,
 	const std::string& vOriginalFileName,
-	std::string vEntryPoint,
+	const std::string& vEntryPoint,
 	ShaderMessagingFunction vMessagingFunction,
 	TraverserFunction vTraverser)
 {
@@ -518,7 +522,10 @@ void VulkanShader::ParseGLSLString(
 		Shader.setEnvInput(glslang::EShSourceGlsl, shaderType, glslang::EShClientVulkan, ClientInputSemanticsVersion);
 		Shader.setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 		Shader.setEnvTarget(glslang::EShTargetSpv, TargetVersion);
-		Shader.setEntryPoint(vEntryPoint.c_str());
+		auto entry = vEntryPoint;
+		if (entry.empty())
+			entry = "main";
+		Shader.setEntryPoint(entry.c_str());
 
 		EShMessages messages = (EShMessages)(EShMsgAST);
 

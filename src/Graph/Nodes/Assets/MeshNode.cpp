@@ -88,7 +88,7 @@ SceneModelWeak MeshNode::GetModel()
 	return SceneModelWeak();
 }
 
-void MeshNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void MeshNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{

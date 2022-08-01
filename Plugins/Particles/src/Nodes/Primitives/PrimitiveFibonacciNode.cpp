@@ -179,7 +179,7 @@ vk::BufferView* PrimitiveFibonacciNode::GetTexelBufferView(const uint32_t& vBind
 	return nullptr;
 }
 
-void PrimitiveFibonacciNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void PrimitiveFibonacciNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	ZoneScoped;
 

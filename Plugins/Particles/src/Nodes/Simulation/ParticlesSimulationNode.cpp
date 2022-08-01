@@ -223,7 +223,7 @@ vk::BufferView* ParticlesSimulationNode::GetTexelBufferView(const uint32_t& vBin
 	return nullptr;
 }
 
-void ParticlesSimulationNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void ParticlesSimulationNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	ZoneScoped;
 
@@ -231,7 +231,7 @@ void ParticlesSimulationNode::Notify(const NotifyEvent& vEvent, const NodeSlotWe
 	{
 	case NotifyEvent::TexelBufferUpdateDone:
 	{
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())

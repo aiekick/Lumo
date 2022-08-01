@@ -169,14 +169,14 @@ void SmoothNormalNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlot
 	}
 }
 
-void SmoothNormalNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void SmoothNormalNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{
 	case NotifyEvent::ModelUpdateDone:
 	{
 		// traitment on inputs
-		auto emiterSlotPtr = vEmmiterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr && m_SmoothNormalModulePtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())

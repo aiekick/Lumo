@@ -153,7 +153,7 @@ void WidgetColorNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotW
 	}
 }
 
-void WidgetColorNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void WidgetColorNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{

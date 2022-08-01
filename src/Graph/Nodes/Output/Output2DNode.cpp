@@ -173,7 +173,7 @@ vk::DescriptorImageInfo* Output2DNode::GetDescriptorImageInfo(const uint32_t& vB
 	return nullptr;
 }
 
-void Output2DNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& vReceiverSlot)
+void Output2DNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	switch (vEvent)
 	{

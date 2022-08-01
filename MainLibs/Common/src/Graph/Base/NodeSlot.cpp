@@ -345,12 +345,12 @@ bool NodeSlot::IsAnOutput()
 	return slotPlace == NodeSlotPlaceEnum::OUTPUT;
 }
 
-void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlot, const NodeSlotWeak& /*vReceiverSlot*/)
+void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& /*vReceiverSlot*/)
 {
 	// une notifcation doit toujours aller 
 	// d'un output a un input
 
-	if (vEmmiterSlot.expired() || vEmmiterSlot.getValidShared() == m_This.getValidShared())
+	if (vEmitterSlot.expired() || vEmitterSlot.getValidShared() == m_This.getValidShared())
 	{
 		for (const auto& otherSlot : linkedSlots)
 		{
@@ -367,7 +367,7 @@ void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmmiterSlo
 		auto parentPtr = parentNode.getValidShared();
 		if (parentPtr)
 		{
-			parentPtr->Notify(vEvent, vEmmiterSlot, m_This);
+			parentPtr->Notify(vEvent, vEmitterSlot, m_This);
 		}
 	}
 }

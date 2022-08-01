@@ -51,21 +51,23 @@ public: // errors
 public:
 	const std::vector<unsigned int> CompileGLSLFile(
 		const std::string& filename,
+		const std::string& vEntryPoint = "main",
 		ShaderMessagingFunction vMessagingFunction = nullptr,
 		std::string* vShaderCode = nullptr,
 		std::unordered_map<std::string, bool>* vUsedUniforms = nullptr);
 	const std::vector<unsigned int> CompileGLSLString(
 		const std::string& vCode,
-		std::string vShaderSuffix,
+		const std::string& vShaderSuffix,
 		const std::string& vOriginalFileName,
+		const std::string& vEntryPoint = "main",
 		ShaderMessagingFunction vMessagingFunction = nullptr,
 		std::string* vShaderCode = nullptr,
 		std::unordered_map<std::string, bool>* vUsedUniforms = nullptr);
 	void ParseGLSLString(
 		const std::string& vCode,
-		std::string vShaderSuffix,
+		const std::string& vShaderSuffix,
 		const std::string& vOriginalFileName,
-		std::string vEntryPoint,
+		const std::string& vEntryPoint,
 		ShaderMessagingFunction vMessagingFunction,
 		TraverserFunction vTraverser);
 	vk::ShaderModule CreateShaderModule(vk::Device vLogicalDevice, std::vector<unsigned int> vSPIRVCode);
