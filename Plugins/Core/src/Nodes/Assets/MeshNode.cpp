@@ -16,6 +16,7 @@ limitations under the License.
 
 #include "MeshNode.h"
 #include <Modules/Assets/MeshModule.h>
+#include <Connectors/ModelConnector.h>
 
 std::shared_ptr<MeshNode> MeshNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {

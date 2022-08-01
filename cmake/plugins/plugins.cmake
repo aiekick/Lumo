@@ -1,5 +1,10 @@
 ## plugins
 
+if(USE_PLUGIN_CORE)
+	include(cmake/plugins/Core.cmake)
+	add_definitions(-DUSE_PLUGIN_CORE)
+endif()
+
 if(USE_PLUGIN_MESH_SIM)
 	include(cmake/plugins/MeshSim.cmake)
 	add_definitions(-DUSE_PLUGIN_MESH_SIM)

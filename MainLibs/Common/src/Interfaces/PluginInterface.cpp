@@ -99,3 +99,25 @@ void  PluginInterface::ActionAfterInit()
 {
 
 }
+
+LibraryEntry PluginInterface::AddLibraryEntry(
+	const std::string& vCategoryPath,
+	const std::string& vNodeLabel,
+	const std::string& vNodeType,
+	const ct::fvec4& vColor = 0.0f)
+{
+	LibraryEntry entry;
+
+	assert(!vCategoryPath.empty());
+	assert(!vNodeLabel.empty());
+	assert(!vNodeType.empty());
+
+	entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
+	entry.first = "plugins";
+	entry.second.nodeLabel = vNodeLabel;
+	entry.second.nodeType = vNodeType;
+	entry.second.color = vColor;
+	entry.second.categoryPath = vCategoryPath;
+
+	return entry;
+}

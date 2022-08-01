@@ -20,7 +20,6 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/ModelOutputInterface.h>
 
-
 class MeshModule;
 class MeshNode : 
 	public BaseNode,

@@ -143,25 +143,7 @@ void ModelToAccelStructNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, No
 void ModelToAccelStructNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 	ModelConnector::TreatNotification(vEvent, m_This, vEmitterSlot, vReceiverSlot);
-	AccelStructureConnector::se
-	switch (vEvent)
-	{
-	case NotifyEvent::AccelStructureUpdateDone: // output
-	{
-		auto slots = GetOutputSlotsOfType("RTX_ACCEL_STRUCTURE");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::AccelStructureUpdateDone, slot);
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
+	AccelStructureConnector::SendNotification(m_This);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
