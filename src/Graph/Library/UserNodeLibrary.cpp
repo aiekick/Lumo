@@ -53,44 +53,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
 {
 	AnalyseRootDirectoryRecurs(LIBRARY_EFECT_ROOT_PATH, 0, &m_RootLibraryCategory);
 
-	m_RootLibraryCategory.AddCustom("Core/Assets", "3D Model", "MESH");
-	m_RootLibraryCategory.AddCustom("Core/Assets", "2D Texture", "TEXTURE_2D");
-
-	m_RootLibraryCategory.AddCustom("Core/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP");
-
-	m_RootLibraryCategory.AddCustom("Core/Divers", "Grid / Axis", "GRID_AXIS");
-	
-	m_RootLibraryCategory.AddCustom("Core/Lighting", "Lights", "LIGHT_GROUP");
-	m_RootLibraryCategory.AddCustom("Core/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING");
-	m_RootLibraryCategory.AddCustom("Core/Lighting/Shadow", "Model Shadow", "MODEL_SHADOW");
-	m_RootLibraryCategory.AddCustom("Core/Lighting", "Diffuse", "DIFFUSE");
-	m_RootLibraryCategory.AddCustom("Core/Lighting", "Specular", "SPECULAR");
-	m_RootLibraryCategory.AddCustom("Core/Lighting", "SSAO", "SSAO");
-	
-	m_RootLibraryCategory.AddCustom("Core/Modifiers", "Smooth Normals", "SMOOTH_NORMAL");
-
 	m_RootLibraryCategory.AddCustom("Core/Outputs", "Output 3D", "OUTPUT_3D");
 	m_RootLibraryCategory.AddCustom("Core/Outputs", "Output 2D", "OUTPUT_2D");
-
-	m_RootLibraryCategory.AddCustom("Core/PostPro", "Blur", "BLUR");
-	m_RootLibraryCategory.AddCustom("Core/PostPro", "Laplacian", "LAPLACIAN");
-	m_RootLibraryCategory.AddCustom("Core/PostPro", "Tone Map", "TONE_MAP");
-	
-	m_RootLibraryCategory.AddCustom("Core/Renderers", "Channels", "CHANNEL_RENDERER");
-	m_RootLibraryCategory.AddCustom("Core/Renderers", "Deferred", "DEFERRED_RENDERER");
-	m_RootLibraryCategory.AddCustom("Core/Renderers", "Heatmap", "HEATMAP_RENDERER");
-	m_RootLibraryCategory.AddCustom("Core/Renderers", "Matcap", "MATCAP_RENDERER");
-	m_RootLibraryCategory.AddCustom("Core/Renderers", "PBR", "PBR_RENDERER");
-
-	m_RootLibraryCategory.AddCustom("Core/Simulations", "Gray Scott Reaction Diffusion", "GRAY_SCOTT_SIMULATION");
-
-	m_RootLibraryCategory.AddCustom("Core/Utils", "3D Model Attributes", "MESH_ATTRIBUTES");
-	m_RootLibraryCategory.AddCustom("Core/Utils", "Depth to Pos", "DEPTH_TO_POS");
-	m_RootLibraryCategory.AddCustom("Core/Utils", "Pos to Depth", "POS_TO_DEPTH");
-	m_RootLibraryCategory.AddCustom("Core/Utils", "Math", "MATH");
-
-	m_RootLibraryCategory.AddCustom("Core/Widgets", "Boolean", "WIDGET_BOOLEAN");
-	m_RootLibraryCategory.AddCustom("Core/Widgets", "Color", "WIDGET_COLOR");
 
 	// les plugins
 	auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();

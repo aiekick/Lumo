@@ -104,18 +104,16 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 
 BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
 {
-	BaseNodePtr res = nullptr;
-
 	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
 
 	if (vPluginNodeName == "RTX_PBR_RENDERER")
-		res = RtxPbrRendererNode::Create(vkCorePtr);
+		return RtxPbrRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "RTX_SSS_RENDERER")
-		res = RtxSSSRendererNode::Create(vkCorePtr);
+		return RtxSSSRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "RTX_MODEL_TO_ACCELERATION_STRUCTURE")
-		res = ModelToAccelStructNode::Create(vkCorePtr);
+		return ModelToAccelStructNode::Create(vkCorePtr);
 
-	return res;
+	return nullptr;
 }
 
 int RTX::ResetImGuiID(const int& vWidgetId)

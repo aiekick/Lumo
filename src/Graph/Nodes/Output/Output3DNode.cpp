@@ -17,6 +17,7 @@ limitations under the License.
 #include "Output3DNode.h"
 #include <Modules/Output/Output3DModule.h>
 #include <Interfaces/MergedInterface.h>
+#include <Connectors/TextureConnector.h>
 
 std::shared_ptr<Output3DNode> Output3DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {

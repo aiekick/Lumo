@@ -17,6 +17,7 @@ limitations under the License.
 #include "Output2DNode.h"
 #include <Modules/Output/Output2DModule.h>
 #include <Interfaces/MergedInterface.h>
+#include <Connectors/TextureConnector.h>
 
 std::shared_ptr<Output2DNode> Output2DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
