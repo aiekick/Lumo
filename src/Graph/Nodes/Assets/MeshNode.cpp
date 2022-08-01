@@ -43,7 +43,7 @@ bool MeshNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Model";
 
 	NodeSlot slot;
-	slot.slotType = "MESH";
+	slot.slotType = ModelConnector::GetSlotType();
 	slot.name = "Output";
 	slot.showWidget = true;
 	AddOutput(slot, true, true);

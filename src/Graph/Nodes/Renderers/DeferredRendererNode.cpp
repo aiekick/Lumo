@@ -44,52 +44,52 @@ bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Position";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Normal";
 	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Albedo";
 	slot.descriptorBinding = 2U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Diffuse";
 	slot.descriptorBinding = 3U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Specular";
 	slot.descriptorBinding = 4U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Attenuation";
 	slot.descriptorBinding = 5U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Mask";
 	slot.descriptorBinding = 6U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "AO";
 	slot.descriptorBinding = 7U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Shadow";
 	slot.descriptorBinding = 8U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);

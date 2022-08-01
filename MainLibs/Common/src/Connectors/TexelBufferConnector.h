@@ -25,41 +25,7 @@ limitations under the License.
 template<size_t size_of_array>
 class TexelBufferConnector : public TexelBufferInputInterface<size_of_array>
 {
-public:
-	bool Connect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr, const std::string& vType)
-	{
-		if (vStartSlotPtr->IsAnInput() &&
-			vStartSlotPtr->slotType == vType)
-		{
-			auto otherTextureNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(endSlotPtr->parentNode.getValidShared());
-			if (otherTextureNodePtr)
-			{
-				ct::uvec2 texelBufferSize;
-				auto bufferPtr = otherTextureNodePtr->GetTexelBuffer(endSlotPtr->descriptorBinding, &texelBufferSize);
-				SetTexelBuffer(startSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
-				auto bufferViewPtr = otherTextureNodePtr->GetTexelBufferView(endSlotPtr->descriptorBinding, &texelBufferSize);
-				SetTexelBufferView(startSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
-			}
-
-			return true;
-		}
-
-		return false;
-	}
-
-	bool DisConnect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr, const std::string& vType)
-	{
-		if (vStartSlotPtr->IsAnInput() &&
-			vStartSlotPtr->slotType == vType)
-		{
-			SetTexelBuffer(startSlotPtr->descriptorBinding, nullptr, nullptr);
-
-			return true;
-		}
-
-		return false;
-	}
-
+private:
 	void NotificationReceived(NodeSlotWeak vEmitterSlot, NodeSlotWeak vReceiverSlot)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
@@ -84,7 +50,49 @@ public:
 		}
 	}
 
-	void SendNotification(BaseNodeWeak vNode)
+public:
+	const std::string& GetSlotType()
+	{
+		return m_TypeString;
+	}
+
+	bool Connect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr, const std::string& vType)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->IsAnInput() &&
+				startSlotPtr->slotType == vType)
+			{
+				auto otherTextureNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherTextureNodePtr)
+				{
+					ct::uvec2 texelBufferSize;
+					auto bufferPtr = otherTextureNodePtr->GetTexelBuffer(endSlotPtr->descriptorBinding, &texelBufferSize);
+					SetTexelBuffer(startSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
+					auto bufferViewPtr = otherTextureNodePtr->GetTexelBufferView(endSlotPtr->descriptorBinding, &texelBufferSize);
+					SetTexelBufferView(startSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
+				}
+			}
+		}
+	}
+
+	bool DisConnect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr, const std::string& vType)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->IsAnInput() &&
+				startSlotPtr->slotType == vType)
+			{
+				SetTexelBuffer(startSlotPtr->descriptorBinding, nullptr, nullptr);
+			}
+		}
+	}
+
+	static void SendNotification(BaseNodeWeak vNode)
 	{
 		auto nodePtr = vNode.getValidShared();
 		if (nodePtr)
@@ -98,6 +106,19 @@ public:
 					slotPtr->Notify(NotifyEvent::TexelBufferUpdateDone, slot);
 				}
 			}
+		}
+	}
+
+	void TreatNotification(
+		const NotifyEvent& vEvent,
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak())
+	{
+		if (vEvent == NotifyEvent::TexelBufferUpdateDone)
+		{
+			NotificationReceived(vEmitterSlot, vReceiverSlot);
+			SendNotification(vBaseNode);
 		}
 	}
 };

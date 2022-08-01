@@ -46,26 +46,26 @@ bool ModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = "LIGHT_GROUP";
+	slot.slotType = LightGroupConnector::GetSlotType();
 	slot.name = "Lights";
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Position";
 	slot.descriptorBinding = 0U; // target a texture input
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Normal";
 	slot.descriptorBinding = 1U; // target a texture input
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D_GROUP";
+	slot.slotType = TextureGroupConnector::GetSlotType();
 	slot.name = "Shadow Maps";
 	slot.descriptorBinding = 1U; // target a texture group input
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);

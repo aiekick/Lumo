@@ -52,7 +52,7 @@ bool MeshEmitterNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = "MESH";
+	slot.slotType = ModelConnector::GetSlotType();
 	slot.name = "3D Model";
 	AddInput(slot, true, false);
 

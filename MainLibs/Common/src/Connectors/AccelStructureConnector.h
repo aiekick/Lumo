@@ -22,40 +22,14 @@ limitations under the License.
 
 class AccelStructureConnector : public AccelStructureInputInterface
 {
-private:
-	const std::string m_TypeString = "RTX_ACCEL_STRUCTURE";
-
 public:
-	bool Connect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr)
+	static const std::string& GetSlotType()
 	{
-		if (vStartSlotPtr->IsAnInput() &&
-			vStartSlotPtr->slotType == m_TypeString)
-		{
-			auto otherModelNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(vEndSlotPtr->parentNode.getValidShared());
-			if (otherModelNodePtr)
-			{
-				SetAccelStruct(otherModelNodePtr->GetAccelStruct());
-			}
-
-			return true;
-		}
-
-		return false;
+		static std::string m_TypeString = "RTX_ACCEL_STRUCTURE";
+		return m_TypeString;
 	}
 
-	bool DisConnect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr)
-	{
-		if (vStartSlotPtr->IsAnInput() &&
-			vStartSlotPtr->slotType == m_TypeString)
-		{
-			SetAccelStruct(SceneAccelStructureWeak());
-
-			return true;
-		}
-
-		return false;
-	}
-
+private:
 	void NotificationReceived(NodeSlotWeak vEmitterSlot, NodeSlotWeak vReceiverSlot)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
@@ -72,12 +46,46 @@ public:
 		}
 	}
 
-	void SendNotification(BaseNodeWeak vNode)
+public:
+	void Connect(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->IsAnInput() &&
+				startSlotPtr->slotType == GetSlotType())
+			{
+				auto otherModelNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherModelNodePtr)
+				{
+					SetAccelStruct(otherModelNodePtr->GetAccelStruct());
+				}
+			}
+		}
+	}
+
+	void DisConnect(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->IsAnInput() &&
+				startSlotPtr->slotType == GetSlotType())
+			{
+				SetAccelStruct(SceneAccelStructureWeak());
+
+			}
+		}
+	}
+
+	static void SendNotification(BaseNodeWeak vNode)
 	{
 		auto nodePtr = vNode.getValidShared();
 		if (nodePtr)
 		{
-			auto slots = nodePtr->GetOutputSlotsOfType(m_TypeString);
+			auto slots = nodePtr->GetOutputSlotsOfType(GetSlotType());
 			for (const auto& slot : slots)
 			{
 				auto slotPtr = slot.getValidShared();
@@ -86,6 +94,19 @@ public:
 					slotPtr->Notify(NotifyEvent::AccelStructureUpdateDone, slot);
 				}
 			}
+		}
+	}
+
+	void TreatNotification(
+		const NotifyEvent& vEvent,
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak())
+	{
+		if (vEvent == NotifyEvent::AccelStructureUpdateDone)
+		{
+			NotificationReceived(vEmitterSlot, vReceiverSlot);
+			SendNotification(vBaseNode);
 		}
 	}
 };

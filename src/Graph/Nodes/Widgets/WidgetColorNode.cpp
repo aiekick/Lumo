@@ -44,7 +44,7 @@ bool WidgetColorNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 	
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Color";
 	slot.showWidget = true;
 	AddOutput(slot, true, true);

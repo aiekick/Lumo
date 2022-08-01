@@ -22,40 +22,14 @@ limitations under the License.
 
 class LightGroupConnector : public LightGroupInputInterface
 {
-private:
-	const std::string m_TypeString = "LIGHT_GROUP";
-
 public:
-	bool Connect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr)
+	static const std::string& GetSlotType()
 	{
-		if (vStartSlotPtr->IsAnInput() &&
-			vStartSlotPtr->slotType == m_TypeString)
-		{
-			auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(vEndSlotPtr->parentNode.getValidShared());
-			if (otherLightGroupNodePtr)
-			{
-				SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
-			}
-
-			return true;
-		}
-
-		return false;
+		static std::string m_TypeString = "LIGHT_GROUP";
+		return m_TypeString;
 	}
 
-	bool DisConnect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr)
-	{
-		if (vStartSlotPtr->IsAnInput() &&
-			vStartSlotPtr->slotType == m_TypeString)
-		{
-			SetLightGroup(SceneLightGroupWeak());
-
-			return true;
-		}
-
-		return false;
-	}
-
+private:
 	void NotificationReceived(NodeSlotWeak vEmitterSlot, NodeSlotWeak /*vReceiverSlot*/)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
@@ -72,12 +46,45 @@ public:
 		}
 	}
 
-	void SendNotification(BaseNodeWeak vNode)
+public:
+	void Connect(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->IsAnInput() &&
+				startSlotPtr->slotType == GetSlotType())
+			{
+				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherLightGroupNodePtr)
+				{
+					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
+				}
+			}
+		}
+	}
+
+	void DisConnect(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->IsAnInput() &&
+				startSlotPtr->slotType == GetSlotType())
+			{
+				SetLightGroup(SceneLightGroupWeak());
+			}
+		}
+	}
+
+	static void SendNotification(BaseNodeWeak vNode)
 	{
 		auto nodePtr = vNode.getValidShared();
 		if (nodePtr)
 		{
-			auto slots = nodePtr->GetOutputSlotsOfType(m_TypeString);
+			auto slots = nodePtr->GetOutputSlotsOfType(GetSlotType());
 			for (const auto& slot : slots)
 			{
 				auto slotPtr = slot.getValidShared();
@@ -86,6 +93,19 @@ public:
 					slotPtr->Notify(NotifyEvent::LightGroupUpdateDone, slot);
 				}
 			}
+		}
+	}
+
+	void TreatNotification(
+		const NotifyEvent& vEvent,
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak())
+	{
+		if (vEvent == NotifyEvent::LightGroupUpdateDone)
+		{
+			NotificationReceived(vEmitterSlot, vReceiverSlot);
+			SendNotification(vBaseNode);
 		}
 	}
 };

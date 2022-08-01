@@ -21,13 +21,13 @@ limitations under the License.
 #include <ctools/cTools.h>
 
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/ModelInputInterface.h>
+#include <Connectors/ModelConnector.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
 
 class ModelToAccelStructModule;
 class ModelToAccelStructNode : 
 	public BaseNode, 
-	public ModelInputInterface,
+	public ModelConnector,
 	public AccelStructureOutputInterface
 {
 public:

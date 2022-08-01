@@ -16,7 +16,7 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Base/NodeSlot.h>
+#include <Graph/Graph.h>
 
 enum class NotifyEvent
 {
@@ -55,5 +55,47 @@ public:
 		const NotifyEvent& vEvent, 
 		const NodeSlotWeak& vEmitterSlot, 
 		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) = 0;
+
+/*public:
+	// ModelUpdateDone
+	virtual void UpdateModel(
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+	// TextureUpdateDone
+	virtual void UpdateTexture(
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+	// TexelBufferUpdateDone
+	virtual void UpdateTexelBuffer(
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+	// TexelBufferGroupUpdateDone
+	virtual void UpdateTexelBufferGroup(
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+	// TextureGroupUpdateDone
+	virtual void UpdateTextureGroup(
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+	// LightGroupUpdateDone
+	virtual void UpdateLightGroup(
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+	// VariableUpdateDone
+	virtual void UpdateVariable(
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+	// AccelStructureUpdateDone
+	virtual void UpdateAccelStructure(
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());*/
 };
 	

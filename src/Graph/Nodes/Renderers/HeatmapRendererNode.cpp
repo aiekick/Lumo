@@ -45,11 +45,11 @@ bool HeatmapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 	
-	slot.slotType = "MESH";
+	slot.slotType = ModelConnector::GetSlotType();
 	slot.name = "3D Model";
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Output";
 	AddOutput(slot, true, true);
 

@@ -19,15 +19,15 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/TexelBufferInputInterface.h>
+#include <Connectors/ModelConnector.h>
+#include <Connectors/TexelBufferConnector.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
 class ParticlesSpriteRenderer;
 class ParticlesSpriteRendererNode : 
 	public BaseNode, 
-	public TexelBufferInputInterface<0U>,
+	public TexelBufferConnector<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {

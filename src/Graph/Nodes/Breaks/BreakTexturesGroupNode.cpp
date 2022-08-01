@@ -44,7 +44,7 @@ bool BreakTexturesGroupNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Break Tex2D Group";
 
 	NodeSlot slot;
-	slot.slotType = "TEXTURE_2D_GROUP";
+	slot.slotType = TextureGroupConnector::GetSlotType();
 	slot.name = "Textures";
 	slot.descriptorBinding = 0U; // target a texture input
 	AddInput(slot, true, false);
@@ -242,7 +242,7 @@ void BreakTexturesGroupNode::ReorganizeSlots()
 	for (size_t idx = 0U ; idx < m_Textures.size() ; ++idx)
 	{
 		NodeSlot slot;
-		slot.slotType = "TEXTURE_2D";
+		slot.slotType = TextureConnector<0U>::GetSlotType();
 		slot.name = ct::toStr("Output %u", idx);
 		slot.descriptorBinding = (uint32_t)idx;
 		AddOutput(slot, true, true);

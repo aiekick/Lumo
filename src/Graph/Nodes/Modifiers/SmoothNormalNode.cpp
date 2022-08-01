@@ -43,11 +43,11 @@ bool SmoothNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Smooth Normal";
 
 	NodeSlot slot;
-	slot.slotType = "MESH";
+	slot.slotType = ModelConnector::GetSlotType();
 	slot.showWidget = true;
 	AddInput(slot, true, true);
 
-	slot.slotType = "MESH";
+	slot.slotType = ModelConnector::GetSlotType();
 	slot.name = "Output";
 	slot.showWidget = true;
 	AddOutput(slot, true, true);

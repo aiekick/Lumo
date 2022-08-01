@@ -43,7 +43,7 @@ bool LightGroupNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Lights";
 
 	NodeSlot slot;
-	slot.slotType = "LIGHT_GROUP";
+	slot.slotType = LightGroupConnector::GetSlotType();
 	slot.name = "Output";
 	AddOutput(slot, true, true);
 

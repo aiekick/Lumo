@@ -46,41 +46,41 @@ bool PBRRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = "LIGHT_GROUP";
+	slot.slotType = LightGroupConnector::GetSlotType();
 	slot.name = "Lights";
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Position";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Normal";
 	slot.descriptorBinding = 1U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Albedo";
 	slot.descriptorBinding = 2U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Mask";
 	slot.descriptorBinding = 3U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "AO";
 	slot.descriptorBinding = 4U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D_GROUP";
+	slot.slotType = TextureGroupConnector::GetSlotType();
 	slot.name = "Shadow Maps";
 	slot.descriptorBinding = 0U; // target a texture group input
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);

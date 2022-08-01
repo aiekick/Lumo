@@ -16,15 +16,14 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/TextureInputInterface.h>
+#include <Connectors/ModelConnector.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
 
 class MeshEmitterModule;
 class MeshEmitterNode :
 	public BaseNode,
-	public ModelInputInterface,
+	public ModelConnector,
 	public ShaderUpdateInterface,
 	public TexelBufferOutputInterface
 {

@@ -17,6 +17,7 @@ limitations under the License.
 #include "ParticlesPointRendererNode.h"
 #include <Modules/Renderers/ParticlesPointRenderer.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
+#include <Connectors/TextureConnector.h>
 
 std::shared_ptr<ParticlesPointRendererNode> ParticlesPointRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -49,7 +50,7 @@ bool ParticlesPointRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	slot.name = "Particles";
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Output";
 	AddOutput(slot, true, true);
 

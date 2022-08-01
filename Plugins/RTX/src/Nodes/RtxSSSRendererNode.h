@@ -21,21 +21,21 @@ limitations under the License.
 #include <ctools/cTools.h>
 
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/ModelInputInterface.h>
+#include <Connectors/ModelConnector.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/LightGroupInputInterface.h>
+#include <Connectors/LightGroupConnector.h>
 #include <Interfaces/TextureGroupInputInterface.h>
-#include <Interfaces/AccelStructureInputInterface.h>
+#include <Connectors/AccelStructureConnector.h>
 
 class RtxSSSRenderer;
 class RtxSSSRendererNode : 
 	public BaseNode,
 	public ShaderUpdateInterface,
 	public TextureOutputInterface,
-	public LightGroupInputInterface,
-	public AccelStructureInputInterface
+	public LightGroupConnector,
+	public AccelStructureConnector
 {
 public:
 	static std::shared_ptr<RtxSSSRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

@@ -45,16 +45,16 @@ bool MatcapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = "MESH";
+	slot.slotType = ModelConnector::GetSlotType();
 	slot.name = "3D Model";
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "2D Texture";
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);

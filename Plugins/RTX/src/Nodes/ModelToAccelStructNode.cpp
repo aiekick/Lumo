@@ -16,6 +16,7 @@ limitations under the License.
 
 #include "ModelToAccelStructNode.h"
 #include <Interfaces/ModelOutputInterface.h>
+#include <Connectors/AccelStructureConnector.h>
 
 std::shared_ptr<ModelToAccelStructNode> ModelToAccelStructNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -44,11 +45,11 @@ bool ModelToAccelStructNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = "MESH";
+	slot.slotType = ModelConnector::GetSlotType();
 	slot.name = "Model";
 	AddInput(slot, true, false);
 
-	slot.slotType = "RTX_ACCEL_STRUCTURE";
+	slot.slotType = AccelStructureConnector::GetSlotType();
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
@@ -130,61 +131,21 @@ vk::DescriptorBufferInfo* ModelToAccelStructNode::GetBufferAddressInfo()
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
 void ModelToAccelStructNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "MESH")
-			{
-				auto otherModelNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherModelNodePtr)
-				{
-					SetModel(otherModelNodePtr->GetModel());
-				}
-			}
-		}
-	}
+	ModelConnector::Connect(vStartSlot, vEndSlot);
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
 void ModelToAccelStructNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr)
-	{
-		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
-		{
-			if (startSlotPtr->slotType == "MESH")
-			{
-				SetModel();
-			}
-		}
-	}
+	ModelConnector::DisConnect(vStartSlot, vEndSlot);
 }
 
 void ModelToAccelStructNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
+	ModelConnector::TreatNotification(vEvent, m_This, vEmitterSlot, vReceiverSlot);
+	AccelStructureConnector::se
 	switch (vEvent)
 	{
-	case NotifyEvent::ModelUpdateDone: // input
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetModel(otherNodePtr->GetModel());
-				}
-			}
-		}
-		break;
-	}
 	case NotifyEvent::AccelStructureUpdateDone: // output
 	{
 		auto slots = GetOutputSlotsOfType("RTX_ACCEL_STRUCTURE");

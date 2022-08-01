@@ -43,7 +43,7 @@ bool Texture2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Texture 2D";
 
 	NodeSlot slot;
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Output";
 	slot.showWidget = true;
 	AddOutput(slot, true, true);

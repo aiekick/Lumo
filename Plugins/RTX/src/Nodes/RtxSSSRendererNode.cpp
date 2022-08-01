@@ -18,6 +18,7 @@ limitations under the License.
 #include <Modules/RtxSSSRenderer.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
+#include <Connectors/TextureConnector.h>
 
 std::shared_ptr<RtxSSSRendererNode> RtxSSSRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -46,15 +47,15 @@ bool RtxSSSRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = "RTX_ACCEL_STRUCTURE";
+	slot.slotType = AccelStructureConnector::GetSlotType();
 	slot.name = "Accel Struct";
 	AddInput(slot, true, false);
 
-	slot.slotType = "LIGHT_GROUP";
+	slot.slotType = LightGroupConnector::GetSlotType();
 	slot.name = "Lights";
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Output";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
@@ -166,92 +167,21 @@ void RtxSSSRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
 void RtxSSSRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_RtxSSSRendererPtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "RTX_ACCEL_STRUCTURE")
-			{
-				auto otherModelNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherModelNodePtr)
-				{
-					SetAccelStruct(otherModelNodePtr->GetAccelStruct());
-				}
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherLightGroupNodePtr)
-				{
-					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
-				}
-			}
-		}
-	}
+	AccelStructureConnector::Connect(vStartSlot, vEndSlot);
+	LightGroupConnector::Connect(vStartSlot, vEndSlot);
 }
 
 // le start est toujours le slot de ce node, l'autre le slot du node connecté
 void RtxSSSRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_RtxSSSRendererPtr)
-	{
-		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
-		{
-			if (startSlotPtr->slotType == "RTX_ACCEL_STRUCTURE")
-			{
-				SetAccelStruct();
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				SetLightGroup();
-			}
-		}
-	}
+	AccelStructureConnector::DisConnect(vStartSlot, vEndSlot);
+	LightGroupConnector::DisConnect(vStartSlot, vEndSlot);
 }
 
 void RtxSSSRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
-	switch (vEvent)
-	{
-	case NotifyEvent::AccelStructureUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetAccelStruct(otherNodePtr->GetAccelStruct());
-				}
-			}
-		}
-		break;
-	}
-	case NotifyEvent::LightGroupUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetLightGroup(otherNodePtr->GetLightGroup());
-				}
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
+	AccelStructureConnector::TreatNotification(vEvent, m_This, vEmitterSlot, vReceiverSlot);
+	LightGroupConnector::TreatNotification(vEvent, m_This, vEmitterSlot, vReceiverSlot);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

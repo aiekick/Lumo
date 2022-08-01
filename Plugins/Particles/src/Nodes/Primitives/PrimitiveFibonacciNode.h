@@ -16,7 +16,6 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 

@@ -20,42 +20,21 @@ limitations under the License.
 #include<Interfaces/VariableInputInterface.h>
 #include<Interfaces/VariableOutputInterface.h>
 
+enum class VariableType
+{
+	BOOLEAN = 0,
+	FLAOT,
+	INT,
+	UINT
+};
+
 template<size_t size_of_array>
 class VariableConnector : public VariableInputInterface<size_of_array>
 {
 private:
 	const std::set<std::string> m_TypeStrings = { "TYPE_BOOLEAN", "TYPE_FLOAT", "TYPE_INT", "TYPE_UINT" };
 
-public:
-	bool Connect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr)
-	{
-		if (vStartSlotPtr->IsAnInput() &&
-			m_TypeStrings.find(vStartSlotPtr->slotType) != m_TypeStrings.end())
-		{
-			auto otherNodePtr = dynamic_pointer_cast<VariableOutputInterface>(vEndSlotPtr->parentNode.getValidShared());
-			if (otherNodePtr)
-			{
-				SetVariable(vStartSlotPtr->variableIndex, otherNodePtr->GetVariable(vEndSlotPtr->variableIndex));
-			}
-			return true;
-		}
-
-		return false;
-	}
-
-	bool DisConnect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr)
-	{
-		if (vStartSlotPtr->IsAnInput() &&
-			m_TypeStrings.find(vStartSlotPtr->slotType) != m_TypeStrings.end())
-		{
-			SetVariable(vStartSlotPtr->variableIndex);
-
-			return true;
-		}
-
-		return false;
-	}
-
+private:
 	void NotificationReceived(NodeSlotWeak vEmitterSlot, NodeSlotWeak vReceiverSlot)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
@@ -76,20 +55,69 @@ public:
 		}
 	}
 
-	void SendNotification(BaseNodeWeak vNode)
+public:
+	void Connect(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->IsAnInput() &&
+				m_TypeStrings.find(startSlotPtr->slotType) != m_TypeStrings.end())
+			{
+				auto otherNodePtr = dynamic_pointer_cast<VariableOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherNodePtr)
+				{
+					SetVariable(startSlotPtr->variableIndex, otherNodePtr->GetVariable(endSlotPtr->variableIndex));
+				}
+			}
+		}
+	}
+
+	void DisConnect(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->IsAnInput() &&
+				m_TypeStrings.find(startSlotPtr->slotType) != m_TypeStrings.end())
+			{
+				SetVariable(startSlotPtr->variableIndex);
+			}
+		}
+	}
+
+	static void SendNotification(BaseNodeWeak vNode)
 	{
 		auto nodePtr = vNode.getValidShared();
 		if (nodePtr)
 		{
-			auto slots = nodePtr->GetOutputSlotsOfType(m_TypeString);
-			for (const auto& slot : slots)
+			for (auto varType : m_TypeStrings)
 			{
-				auto slotPtr = slot.getValidShared();
-				if (slotPtr)
+				auto slots = nodePtr->GetOutputSlotsOfType(varType);
+				for (const auto& slot : slots)
 				{
-					slotPtr->Notify(NotifyEvent::VariableUpdateDone, slot);
+					auto slotPtr = slot.getValidShared();
+					if (slotPtr)
+					{
+						slotPtr->Notify(NotifyEvent::VariableUpdateDone, slot);
+					}
 				}
 			}
+		}
+	}
+
+	void TreatNotification(
+		const NotifyEvent& vEvent,
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak())
+	{
+		if (vEvent == NotifyEvent::VariableUpdateDone)
+		{
+			NotificationReceived(vEmitterSlot, vReceiverSlot);
+			SendNotification(vBaseNode);
 		}
 	}
 };

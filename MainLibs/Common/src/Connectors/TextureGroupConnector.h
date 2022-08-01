@@ -23,40 +23,14 @@ limitations under the License.
 template<size_t size_of_array>
 class TextureGroupConnector : public TextureGroupInputInterface<size_of_array>
 {
-private:
-	const std::string m_TypeString = "TEXTURE_2D_GROUP";
-
 public:
-	bool Connect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr)
+	static const std::string& GetSlotType()
 	{
-		if (vStartSlotPtr->slotType == m_TypeString)
-		{
-			auto otherTextureGroupNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(vEndSlotPtr->parentNode.getValidShared());
-			if (otherTextureGroupNodePtr)
-			{
-				ct::fvec2 textureSize;
-				auto descPtr = otherTextureGroupNodePtr->GetDescriptorImageInfo(vEndSlotPtr->descriptorBinding, &textureSize);
-				SetTextureGroup(vStartSlotPtr->descriptorBinding, descPtr, &textureSize);
-			}
-
-			return true;
-		}
-
-		return false;
+		static std::string m_TypeString = "TEXTURE_2D_GROUP";
+		return m_TypeString;
 	}
 
-	bool DisConnect(NodeSlotPtr vStartSlotPtr, NodeSlotPtr vEndSlotPtr)
-	{
-		if (vStartSlotPtr->slotType == m_TypeString)
-		{
-			SetTextureGroup(SceneTextureGroupWeak());
-
-			return true;
-		}
-
-		return false;
-	}
-
+private:
 	void NotificationReceived(NodeSlotWeak vEmitterSlot, NodeSlotWeak vReceiverSlot)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
@@ -79,12 +53,45 @@ public:
 		}
 	}
 
-	void SendNotification(BaseNodeWeak vNode)
+public:
+	void Connect(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->slotType == GetSlotType())
+			{
+				auto otherTextureGroupNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherTextureGroupNodePtr)
+				{
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureGroupNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					SetTextureGroup(startSlotPtr->descriptorBinding, descPtr, &textureSize);
+				}
+			}
+		}
+	}
+
+	void DisConnect(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+	{
+		auto startSlotPtr = vStartSlot.getValidShared();
+		auto endSlotPtr = vEndSlot.getValidShared();
+		if (startSlotPtr && endSlotPtr)
+		{
+			if (startSlotPtr->slotType == GetSlotType())
+			{
+				SetTextureGroup(SceneTextureGroupWeak());
+			}
+		}
+	}
+
+	static void SendNotification(BaseNodeWeak vNode)
 	{
 		auto nodePtr = vNode.getValidShared();
 		if (nodePtr)
 		{
-			auto slots = nodePtr->GetOutputSlotsOfType(m_TypeString);
+			auto slots = nodePtr->GetOutputSlotsOfType(GetSlotType());
 			for (const auto& slot : slots)
 			{
 				auto slotPtr = slot.getValidShared();
@@ -93,6 +100,19 @@ public:
 					slotPtr->Notify(NotifyEvent::TextureGroupUpdateDone, slot);
 				}
 			}
+		}
+	}
+
+	void TreatNotification(
+		const NotifyEvent& vEvent,
+		const BaseNodeWeak& vBaseNode,
+		const NodeSlotWeak& vEmitterSlot,
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak())
+	{
+		if (vEvent == NotifyEvent::TextureGroupUpdateDone)
+		{
+			NotificationReceived(vEmitterSlot, vReceiverSlot);
+			SendNotification(vBaseNode);
 		}
 	}
 };

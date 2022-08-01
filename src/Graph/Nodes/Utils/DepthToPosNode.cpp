@@ -49,7 +49,7 @@ bool DepthToPosNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	slot.descriptorBinding = 0U;
 	AddInput(slot, true, false);
 
-	slot.slotType = "TEXTURE_2D";
+	slot.slotType = TextureConnector<0U>::GetSlotType();
 	slot.name = "Pos";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, false);

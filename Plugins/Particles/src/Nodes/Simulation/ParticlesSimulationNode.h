@@ -16,14 +16,14 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/TexelBufferInputInterface.h>
+#include <Connectors/TexelBufferConnector.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
 class ParticlesSimulationModule;
 class ParticlesSimulationNode :
 	public BaseNode,
-	public TexelBufferInputInterface<1U>,
+	public TexelBufferConnector<1U>,
 	public TexelBufferOutputInterface,
 	public ShaderUpdateInterface
 {

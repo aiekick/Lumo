@@ -45,19 +45,19 @@ bool ShadowMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = "LIGHT_GROUP";
+	slot.slotType = LightGroupConnector::GetSlotType();
 	slot.name = "Lights";
 	AddInput(slot, true, false);
 
-	slot.slotType = "MESH";
+	slot.slotType = ModelConnector::GetSlotType();
 	slot.name = "Mesh";
 	AddInput(slot, true, false);
 
-	slot.slotType = "LIGHT_GROUP";
+	slot.slotType = LightGroupConnector::GetSlotType();
 	slot.name = "Lights";
 	AddOutput(slot, true, true);
 
-	slot.slotType = "TEXTURE_2D_GROUP";
+	slot.slotType = TextureGroupConnector::GetSlotType();
 	slot.name = "Outputs";
 	slot.descriptorBinding = 0U;
 	AddOutput(slot, true, true);
