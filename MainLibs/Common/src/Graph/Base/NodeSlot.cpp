@@ -63,14 +63,35 @@ void SlotColor::AddSlotColor(const std::string& vNodeSlotType, const ImVec4& vSl
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-size_t NodeSlot::GetNewSlotId()
+std::string NodeSlot::sGetStringFromNodeSlotPlaceEnum(const NodeSlot::PlaceEnum& vPlaceEnum)
+{
+	static std::array<std::string, (uint32_t)NodeSlot::PlaceEnum::Count> NodeSlotPlaceString = {
+		"NONE",
+		"INPUT",
+		"OUTPUT",
+	};
+	if (vPlaceEnum != NodeSlot::PlaceEnum::Count)
+		return NodeSlotPlaceString[(int)vPlaceEnum];
+	LogVarDebug("Error, one NodeSlotvNodeSlot::PlaceEnumEnum have no corresponding string, return \"None\"");
+	return "NONE";
+}
+
+NodeSlot::PlaceEnum NodeSlot::sGetNodeSlotPlaceEnumFromString(const std::string& vNodeSlotPlaceString)
+{
+	if (vNodeSlotPlaceString == "NONE") return NodeSlot::PlaceEnum::NONE;
+	else if (vNodeSlotPlaceString == "INPUT") return NodeSlot::PlaceEnum::INPUT;
+	else if (vNodeSlotPlaceString == "OUTPUT") return NodeSlot::PlaceEnum::OUTPUT;
+	return NodeSlot::PlaceEnum::NONE;
+}
+
+size_t NodeSlot::sGetNewSlotId()
 {
 	#define SLOT_ID_OFFSET 100000
 	return SLOT_ID_OFFSET + (++BaseNode::freeNodeId);
 }
 
 // static are null when a plugin is loaded
-SlotColor* NodeSlot::GetSlotColors(SlotColor* vCopy, bool vForce)
+SlotColor* NodeSlot::sGetSlotColors(SlotColor* vCopy, bool vForce)
 {
 	static SlotColor _SlotColor;
 	static SlotColor* _SlotColor_copy = nullptr;
@@ -94,31 +115,31 @@ NodeSlotPtr NodeSlot::Create(NodeSlot vSlot)
 
 NodeSlot::NodeSlot()
 {
-	pinID = GetNewSlotId();
+	pinID = sGetNewSlotId();
 }
 
 NodeSlot::NodeSlot(std::string vName)
 {
-	pinID = GetNewSlotId();
+	pinID = sGetNewSlotId();
 	name = vName;
 }
 
 NodeSlot::NodeSlot(std::string vName, std::string vType)
 {
-	pinID = GetNewSlotId();
+	pinID = sGetNewSlotId();
 	name = vName;
 	slotType = vType;
-	color = GetSlotColors()->GetSlotColor(slotType);
+	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
 }
 
 NodeSlot::NodeSlot(std::string vName, std::string vType, bool vHideName)
 {
-	pinID = GetNewSlotId();
+	pinID = sGetNewSlotId();
 	name = vName;
 	slotType = vType;
-	color = GetSlotColors()->GetSlotColor(slotType);
+	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
 	hideName = vHideName;
@@ -126,10 +147,10 @@ NodeSlot::NodeSlot(std::string vName, std::string vType, bool vHideName)
 
 NodeSlot::NodeSlot(std::string vName, std::string vType, bool vHideName, bool vShowWidget)
 {
-	pinID = GetNewSlotId();
+	pinID = sGetNewSlotId();
 	name = vName;
 	slotType = vType;
-	color = GetSlotColors()->GetSlotColor(slotType);
+	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
 	hideName = vHideName;
@@ -236,7 +257,7 @@ void NodeSlot::DrawContent(BaseNodeState *vBaseNodeState)
 {
 	if (vBaseNodeState && !hidden)
 	{
-		if (slotPlace == NodeSlotPlaceEnum::INPUT)
+		if (slotPlace == NodeSlot::PlaceEnum::INPUT)
 		{
 			nd::BeginPin(pinID, nd::PinKind::Input);
 			{
@@ -262,7 +283,7 @@ void NodeSlot::DrawContent(BaseNodeState *vBaseNodeState)
 			}
 			nd::EndPin();
 		}
-		else if (slotPlace == NodeSlotPlaceEnum::OUTPUT)
+		else if (slotPlace == NodeSlot::PlaceEnum::OUTPUT)
 		{
 			nd::BeginPin(pinID, nd::PinKind::Output);
 			{
@@ -316,7 +337,7 @@ void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 			{
 				if (!colorIsSet)
 				{
-					color = GetSlotColors()->GetSlotColor(slotType);
+					color = sGetSlotColors()->GetSlotColor(slotType);
 					colorIsSet = true;
 				}
 
@@ -337,12 +358,12 @@ void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 
 bool NodeSlot::IsAnInput()
 {
-	return slotPlace == NodeSlotPlaceEnum::INPUT;
+	return slotPlace == NodeSlot::PlaceEnum::INPUT;
 }
 
 bool NodeSlot::IsAnOutput()
 {
-	return slotPlace == NodeSlotPlaceEnum::OUTPUT;
+	return slotPlace == NodeSlot::PlaceEnum::OUTPUT;
 }
 
 void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& /*vReceiverSlot*/)
@@ -420,7 +441,7 @@ void NodeSlot::DrawSlotText(BaseNodeState *vBaseNodeState)
 			std::string slotUType;
 			std::string slotName;
 
-			if (slotPlace == NodeSlotPlaceEnum::INPUT)
+			if (slotPlace == NodeSlot::PlaceEnum::INPUT)
 			{
 				//slotName = stamp.typeStamp; // valable seulement en mode blueprint
 
@@ -465,7 +486,7 @@ void NodeSlot::DrawSlotText(BaseNodeState *vBaseNodeState)
 					draw_list->AddText(ImVec2(min.x, pos.y - txtSize.y * 0.55f), ImColor(200, 200, 200, 255), beg);
 				}
 			}
-			else if (slotPlace == NodeSlotPlaceEnum::OUTPUT)
+			else if (slotPlace == NodeSlot::PlaceEnum::OUTPUT)
 			{
 				//slotName = stamp.typeStamp; // valable seulement en mode blueprint
 
@@ -515,7 +536,7 @@ std::string NodeSlot::getXml(const std::string& vOffset, const std::string& /*vU
 		index,
 		name.c_str(),
 		slotType.c_str(),
-		GetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
+		sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
 		(uint32_t)pinID.Get());
 
 	return res;
@@ -539,7 +560,7 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 		uint32_t _index = 0U;
 		std::string _name;
 		std::string _type = "NONE";
-		NodeSlotPlaceEnum _place = NodeSlotPlaceEnum::NONE;
+		NodeSlot::PlaceEnum _place = NodeSlot::PlaceEnum::NONE;
 		uint32_t _pinId = 0U;
 
 		for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
@@ -554,7 +575,7 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			else if (attName == "type")
 				_type = attValue;
 			else if (attName == "place")
-				_place = GetNodeSlotPlaceEnumFromString(attValue);
+				_place = sGetNodeSlotPlaceEnumFromString(attValue);
 			else if (attName == "id")
 				_pinId = ct::ivariant(attValue).GetU();
 		}

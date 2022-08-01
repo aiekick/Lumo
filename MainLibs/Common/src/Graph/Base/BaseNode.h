@@ -340,7 +340,7 @@ public:
 	/// <summary>
 	/// ca retourner la liste des slots d'un type particulier et d'une place particuliere
 	/// </summary>
-	std::vector<NodeSlotWeak> GetSlotsOfType(NodeSlotPlaceEnum vPlace, std::string vType);
+	std::vector<NodeSlotWeak> GetSlotsOfType(NodeSlot::PlaceEnum vPlace, std::string vType);
 
 	/// <summary>
 	/// va retourne la liste des input slot d'un type particulier

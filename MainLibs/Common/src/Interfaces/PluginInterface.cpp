@@ -46,7 +46,7 @@ bool PluginInterface::Init(
 			FileHelper::Instance(vFileHelper);
 			CommonSystem::Instance(vCommonSystem);
 			ImGui::SetCurrentContext(vContext);
-			NodeSlot::GetSlotColors(vSlotColor);
+			NodeSlot::sGetSlotColors(vSlotColor);
 			ImGui::CustomStyle::Instance(vCustomStyle);
 			vkApi::VulkanCore::sVulkanShader = VulkanShader::Create();
 		}
@@ -80,7 +80,7 @@ void PluginInterface::Unit()
 		if (iSinAPlugin)
 		{
 			ImGui::CustomStyle::Instance(nullptr, true);
-			NodeSlot::GetSlotColors(nullptr, true);
+			NodeSlot::sGetSlotColors(nullptr, true);
 			CommonSystem::Instance(nullptr, true);
 			FileHelper::Instance(nullptr, true);
 
@@ -104,7 +104,7 @@ LibraryEntry PluginInterface::AddLibraryEntry(
 	const std::string& vCategoryPath,
 	const std::string& vNodeLabel,
 	const std::string& vNodeType,
-	const ct::fvec4& vColor = 0.0f)
+	const ct::fvec4& vColor) const
 {
 	LibraryEntry entry;
 

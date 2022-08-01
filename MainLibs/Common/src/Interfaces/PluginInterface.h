@@ -20,6 +20,7 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <Graph/Graph.h>
+#include <ctools/cTools.h>
 #include <Graph/Library/LibraryCategory.h>
 #include <vkFramework/vkFramework.h>
 
@@ -39,7 +40,15 @@ protected:
 	vkApi::VulkanCoreWeak m_VulkanCoreWeak;
 	bool iSinAPlugin = false;
 
+protected:
+	LibraryEntry AddLibraryEntry(
+		const std::string& vCategoryPath,
+		const std::string& vNodeLabel,
+		const std::string& vNodeType,
+		const ct::fvec4& vColor = 0.0f) const;
+
 public:
+	PluginInterface() = default;
 	virtual ~PluginInterface();
 
 	virtual bool Init(
@@ -66,10 +75,4 @@ public:
 	// will reset the ids but will return the id count pre reset
 	virtual int ResetImGuiID(const int& vWidgetId) = 0;
 
-public:
-	LibraryEntry AddLibraryEntry(
-		const std::string& vCategoryPath,
-		const std::string& vNodeLabel,
-		const std::string& vNodeType,
-		const ct::fvec4& vColor = 0.0f);
 };

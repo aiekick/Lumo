@@ -32,36 +32,6 @@ limitations under the License.
 
 namespace nd = ax::NodeEditor;
 
-enum class NodeSlotPlaceEnum : uint8_t
-{
-	NONE = 0,
-	INPUT,
-	OUTPUT,
-	Count
-};
-
-inline static std::string GetStringFromNodeSlotPlaceEnum(const NodeSlotPlaceEnum& vNodeSlotPlaceEnum)
-{
-	static std::array<std::string, (uint32_t)NodeSlotPlaceEnum::Count> NodeSlotPlaceString = {
-		"NONE",
-		"INPUT",
-		"OUTPUT",
-	};
-	if (vNodeSlotPlaceEnum != NodeSlotPlaceEnum::Count)
-		return NodeSlotPlaceString[(int)vNodeSlotPlaceEnum];
-	LogVarDebug("Error, one NodeSlotvNodeSlotPlaceEnumEnum have no corresponding string, return \"None\"");
-	return "NONE";
-}
-
-inline static NodeSlotPlaceEnum GetNodeSlotPlaceEnumFromString(const std::string& vNodeSlotPlaceString)
-{
-	if (vNodeSlotPlaceString == "NONE") return NodeSlotPlaceEnum::NONE;
-	else if (vNodeSlotPlaceString == "INPUT") return NodeSlotPlaceEnum::INPUT;
-	else if (vNodeSlotPlaceString == "OUTPUT") return NodeSlotPlaceEnum::OUTPUT;
-	return NodeSlotPlaceEnum::NONE;
-}
-
-
 class SlotColor
 {
 private:
@@ -82,8 +52,19 @@ class NodeSlot :
 	public NotifyInterface
 {
 public:
-	static size_t GetNewSlotId();
-	static SlotColor* GetSlotColors(SlotColor* vCopy = nullptr, bool vForce = false); // static are null when a plugin is loaded
+	enum class PlaceEnum : uint8_t
+	{
+		NONE = 0,
+		INPUT,
+		OUTPUT,
+		Count
+	};
+
+public:
+	static std::string sGetStringFromNodeSlotPlaceEnum(const PlaceEnum& vPlaceEnum);
+	static PlaceEnum sGetNodeSlotPlaceEnumFromString(const std::string& vNodeSlotPlaceString);
+	static size_t sGetNewSlotId();
+	static SlotColor* sGetSlotColors(SlotColor* vCopy = nullptr, bool vForce = false); // static are null when a plugin is loaded
 	static NodeSlotPtr Create(NodeSlot vSlot);
 
 public:
@@ -91,7 +72,7 @@ public:
 
 public:
 	std::string slotType = "NONE";
-	NodeSlotPlaceEnum slotPlace = NodeSlotPlaceEnum::INPUT;
+	NodeSlot::PlaceEnum slotPlace = NodeSlot::PlaceEnum::INPUT;
 
 public:
 	nd::PinId pinID = 0;

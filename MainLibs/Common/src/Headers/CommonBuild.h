@@ -1,6 +1,6 @@
 #pragma once
 
-#define Common_BuildNumber 549
+#define Common_BuildNumber 554
 #define Common_MinorNumber 1
 #define Common_MajorNumber 0
-#define Common_BuildId "0.1.549"
+#define Common_BuildId "0.1.554"

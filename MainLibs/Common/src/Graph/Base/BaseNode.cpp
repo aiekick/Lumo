@@ -871,12 +871,12 @@ NodeSlotWeak BaseNode::AddInput(NodeSlot vFlow, bool vIncSlotId, bool vHideName)
 {
 	assert(!m_This.expired());
 	vFlow.parentNode = m_This;
-	vFlow.slotPlace = NodeSlotPlaceEnum::INPUT;
+	vFlow.slotPlace = NodeSlot::PlaceEnum::INPUT;
 	vFlow.hideName = vHideName;
 	vFlow.type = uType::uTypeEnum::U_FLOW;
 	if (vIncSlotId)
 	{
-		vFlow.pinID = NodeSlot::GetNewSlotId();
+		vFlow.pinID = NodeSlot::sGetNewSlotId();
 	}
 	vFlow.index = (uint32_t)m_Inputs.size();
 	m_Inputs[(int)vFlow.pinID.Get()] = NodeSlot::Create(vFlow);
@@ -887,12 +887,12 @@ NodeSlotWeak BaseNode::AddOutput(NodeSlot vFlow, bool vIncSlotId, bool vHideName
 {
 	assert(!m_This.expired());
 	vFlow.parentNode = m_This;
-	vFlow.slotPlace = NodeSlotPlaceEnum::OUTPUT;
+	vFlow.slotPlace = NodeSlot::PlaceEnum::OUTPUT;
 	vFlow.hideName = vHideName;
 	vFlow.type = uType::uTypeEnum::U_FLOW;
 	if (vIncSlotId)
 	{
-		vFlow.pinID = NodeSlot::GetNewSlotId();
+		vFlow.pinID = NodeSlot::sGetNewSlotId();
 	}
 	vFlow.index = (uint32_t)m_Inputs.size();
 	m_Outputs[(int)vFlow.pinID.Get()] = NodeSlot::Create(vFlow);
@@ -1269,11 +1269,11 @@ NodeSlotWeak BaseNode::FindNodeSlotById(nd::NodeId vNodeId, nd::PinId vSlotId)
 	return NodeSlotWeak();
 }
 
-std::vector<NodeSlotWeak> BaseNode::GetSlotsOfType(NodeSlotPlaceEnum vPlace, std::string vType)
+std::vector<NodeSlotWeak> BaseNode::GetSlotsOfType(NodeSlot::PlaceEnum vPlace, std::string vType)
 {
 	std::vector<NodeSlotWeak> slots;
 
-	if (vPlace == NodeSlotPlaceEnum::INPUT)
+	if (vPlace == NodeSlot::PlaceEnum::INPUT)
 	{
 		for (const auto& pin : m_Inputs)
 		{
@@ -1283,7 +1283,7 @@ std::vector<NodeSlotWeak> BaseNode::GetSlotsOfType(NodeSlotPlaceEnum vPlace, std
 			}
 		}
 	}
-	else if (vPlace == NodeSlotPlaceEnum::OUTPUT)
+	else if (vPlace == NodeSlot::PlaceEnum::OUTPUT)
 	{
 		for (const auto& pin : m_Outputs)
 		{
@@ -1299,12 +1299,12 @@ std::vector<NodeSlotWeak> BaseNode::GetSlotsOfType(NodeSlotPlaceEnum vPlace, std
 
 std::vector<NodeSlotWeak> BaseNode::GetInputSlotsOfType(std::string vType)
 {
-	return GetSlotsOfType(NodeSlotPlaceEnum::INPUT, vType);
+	return GetSlotsOfType(NodeSlot::PlaceEnum::INPUT, vType);
 }
 
 std::vector<NodeSlotWeak> BaseNode::GetOutputSlotsOfType(std::string vType)
 {
-	return GetSlotsOfType(NodeSlotPlaceEnum::OUTPUT , vType);
+	return GetSlotsOfType(NodeSlot::PlaceEnum::OUTPUT , vType);
 }
 
 void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
@@ -2086,8 +2086,8 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 	if (fromPtr && toPtr)
 	{
 		// ensure that start is an output and end an input
-		if (fromPtr->slotPlace == NodeSlotPlaceEnum::INPUT &&
-			toPtr->slotPlace == NodeSlotPlaceEnum::OUTPUT)
+		if (fromPtr->slotPlace == NodeSlot::PlaceEnum::INPUT &&
+			toPtr->slotPlace == NodeSlot::PlaceEnum::OUTPUT)
 		{
 			//peu etre que std::swap merde quand c'est des shared_ptr ou weak_ptr
 			vFrom.swap(vTo); 
@@ -2211,7 +2211,7 @@ void BaseNode::NotifyConnectionChangeOfThisSlot(NodeSlotWeak vSlot, bool vConnec
 		auto ptr = vSlot.lock();
 		if (ptr)
 		{
-			if (ptr->slotPlace == NodeSlotPlaceEnum::INPUT)
+			if (ptr->slotPlace == NodeSlot::PlaceEnum::INPUT)
 			{
 				//if (!m_Code.m_Sections.empty())
 				{
@@ -2592,12 +2592,12 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 				else if (attName == "type")
 					slot.slotType = attValue;
 				else if (attName == "place")
-					slot.slotPlace = GetNodeSlotPlaceEnumFromString(attValue);
+					slot.slotPlace = NodeSlot::sGetNodeSlotPlaceEnumFromString(attValue);
 				else if (attName == "id")
 					slot.pinID = ct::ivariant(attValue).GetU();
 			}	
 
-			if (slot.slotPlace == NodeSlotPlaceEnum::INPUT)
+			if (slot.slotPlace == NodeSlot::PlaceEnum::INPUT)
 			{
 				if (!m_Inputs.empty())
 				{
@@ -2625,7 +2625,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 					}
 				}
 			}
-			else if (slot.slotPlace == NodeSlotPlaceEnum::OUTPUT)
+			else if (slot.slotPlace == NodeSlot::PlaceEnum::OUTPUT)
 			{
 				if (!m_Outputs.empty())
 				{

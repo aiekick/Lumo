@@ -29,3 +29,10 @@ class NodeSlot;
 typedef ct::cWeak<NodeSlot> NodeSlotWeak;
 typedef std::shared_ptr<NodeSlot> NodeSlotPtr;
 
+class NodeSlotInput;
+typedef ct::cWeak<NodeSlotInput> NodeSlotInputWeak;
+typedef std::shared_ptr<NodeSlotInput> NodeSlotInputPtr;
+
+class NodeSlotOutput;
+typedef ct::cWeak<NodeSlotOutput> NodeSlotOutputWeak;
+typedef std::shared_ptr<NodeSlotOutput> NodeSlotOutputPtr;

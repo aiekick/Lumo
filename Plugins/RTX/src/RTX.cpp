@@ -1,4 +1,4 @@
-// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+ // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "RTX.h"
@@ -48,7 +48,7 @@ RTX::RTX()
 
 void RTX::ActionAfterInit()
 {
-	NodeSlot::GetSlotColors()->AddSlotColor("RTX_ACCEL_STRUCTURE", ImVec4(0.8f, 0.5f, 0.8f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("RTX_ACCEL_STRUCTURE", ImVec4(0.8f, 0.5f, 0.8f, 1.0f));
 }
 
 uint32_t RTX::GetVersionMajor() const
@@ -95,33 +95,9 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	LibraryEntry entry_RTX_PBR_RENDERER;
-	entry_RTX_PBR_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_RTX_PBR_RENDERER.first = "plugins";
-	entry_RTX_PBR_RENDERER.second.nodeLabel = "PBR";
-	entry_RTX_PBR_RENDERER.second.nodeType = "RTX_PBR_RENDERER";
-	entry_RTX_PBR_RENDERER.second.color = ct::fvec4(0.0f);
-	entry_RTX_PBR_RENDERER.second.categoryPath = "RTX";
-	res.push_back(entry_RTX_PBR_RENDERER);
-
-	LibraryEntry entry_RTX_SSS_RENDERER;
-	entry_RTX_SSS_RENDERER.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_RTX_SSS_RENDERER.first = "plugins";
-	entry_RTX_SSS_RENDERER.second.nodeLabel = "SSS";
-	entry_RTX_SSS_RENDERER.second.nodeType = "RTX_SSS_RENDERER";
-	entry_RTX_SSS_RENDERER.second.color = ct::fvec4(0.0f);
-	entry_RTX_SSS_RENDERER.second.categoryPath = "RTX";
-	res.push_back(entry_RTX_SSS_RENDERER);
-
-
-	LibraryEntry entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE;
-	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.first = "plugins";
-	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.nodeLabel = "AccelStruct Builder" ;
-	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.nodeType = "RTX_MODEL_TO_ACCELERATION_STRUCTURE";
-	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.color = ct::fvec4(0.0f);
-	entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE.second.categoryPath = "RTX";
-	res.push_back(entry_RTX_MODEL_TO_ACCELERATION_STRUCTURE);
+	res.push_back(AddLibraryEntry("RTX", "PBR", "RTX_PBR_RENDERER"));
+	res.push_back(AddLibraryEntry("RTX", "SSS", "RTX_SSS_RENDERER"));
+	res.push_back(AddLibraryEntry("RTX", "AccelStruct Builder", "RTX_MODEL_TO_ACCELERATION_STRUCTURE"));
 
 	return res;
 }
