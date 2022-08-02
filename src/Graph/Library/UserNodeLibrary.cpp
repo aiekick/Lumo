@@ -57,6 +57,7 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	m_RootLibraryCategory.AddCustom("Outputs", "Output 2D", "OUTPUT_2D");
 	
 	m_RootLibraryCategory.AddCustom("Core/Simulation", "GrayScott", "GRAY_SCOTT_SIMULATION");
+	m_RootLibraryCategory.AddCustom("Core/Simulation", "Normal from texture", "NORMAL_FROM_TEXTURE_2D");
 
 	m_RootLibraryCategory.AddCustom("Core/Utils", "Math", "MATH");
 	

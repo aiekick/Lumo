@@ -53,7 +53,7 @@ GrayScottModule_Comp_Pass::~GrayScottModule_Comp_Pass()
 
 void GrayScottModule_Comp_Pass::ActionBeforeInit()
 {
-	m_CountIterations = ct::uvec4(0U, 20U, 1U, 1U);
+	m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
 	AddGrayScottConfig("Custom", 0.0f, 0.0f, 0.0f, 0.0f);
 	AddGrayScottConfig("Default", 0.210f, 0.105f, 0.026f, 0.051f);
@@ -123,10 +123,6 @@ bool GrayScottModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 
 	change |= ImGui::SliderFloatDefaultCompact(aw, "GrayScott Feed", &m_UBOComp.grayscott_feed, 0.0f, 0.2f, 0.026f);
 	change |= ImGui::SliderFloatDefaultCompact(aw, "GrayScott Kill", &m_UBOComp.grayscott_kill, 0.0f, 0.2f, 0.051f);
-
-	ImGui::Header("Displacement");
-
-	change |= ImGui::SliderFloatDefaultCompact(aw, "Displace Factor", &m_UBOComp.displacement, -1.0f, 1.0f, 0.2f, 0.1f);
 
 	ImGui::Header("Clear");
 
@@ -325,13 +321,14 @@ std::string GrayScottModule_Comp_Pass::GetComputeShaderCode(std::string& vOutSha
 {
 	vOutShaderName = "GrayScottModule_Comp_Pass";
 
-	SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
+	// with 8 i have some slow down maybe due the fact than i read an write from same image2D
+	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
 
 	return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 layout(binding = 0, rgba32f) uniform image2D colorBuffer;
 )"
@@ -346,11 +343,10 @@ layout(std140, binding = 2) uniform UBO_Comp
 	float grayscott_diffusion_v;
 	float grayscott_feed;
 	float grayscott_kill;
-	float displacement;
 	ivec2 image_size;
 };
 
-layout(binding = 3) uniform sampler2D input0;
+layout(binding = 3) uniform sampler2D input_mask;
 
 vec4 getPixel(ivec2 g, int x, int y)
 {
@@ -378,10 +374,10 @@ vec4 grayScott(ivec2 g, vec4 mo)
     c.xy += vec2(grayscott_diffusion_u, grayscott_diffusion_v) * lap.xy + 
 		vec2(grayscott_feed * (1. - c.x) - re, re - (grayscott_feed + grayscott_kill) * c.y); // grayscott formula
 	
-	if (length(vec2(g - image_size / 2)) < mouse_radius) 
+	/*if (length(vec2(g - image_size / 2)) < mouse_radius) 
 	{
 		c = vec4(0,1,0,1);
-	}
+	}*/
 
 	if (mo.z > 0.) 
 	{
@@ -431,7 +427,6 @@ std::string GrayScottModule_Comp_Pass::getXml(const std::string& vOffset, const 
 	str += vOffset + "\t<grayscott_diffusion_v>" + ct::toStr(m_UBOComp.grayscott_diffusion_v) + "</grayscott_diffusion_v>\n";
 	str += vOffset + "\t<grayscott_feed>" + ct::toStr(m_UBOComp.grayscott_feed) + "</grayscott_feed>\n";
 	str += vOffset + "\t<grayscott_kill>" + ct::toStr(m_UBOComp.grayscott_kill) + "</grayscott_kill>\n";
-	str += vOffset + "\t<displacement>" + ct::toStr(m_UBOComp.displacement) + "</displacement>\n";
 	str += vOffset + "\t<iterations_count>" + ct::toStr(m_CountIterations.w) + "</iterations_count>\n";
 	str += vOffset + "\t<simulation_config>" + ct::toStr(m_SelectedGrayScottConfig) + "</simulation_config>\n";
 
@@ -457,21 +452,19 @@ bool GrayScottModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2
 	{
 		if (strName == "mouse_radius")
 			m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
-		if (strName == "mouse_inversion")
+		else if (strName == "mouse_inversion")
 			m_UBOComp.mouse_inversion = ct::fvariant(strValue).GetF();
-		if (strName == "grayscott_diffusion_u")
+		else if (strName == "grayscott_diffusion_u")
 			m_UBOComp.grayscott_diffusion_u = ct::fvariant(strValue).GetF();
-		if (strName == "grayscott_diffusion_v")
+		else if (strName == "grayscott_diffusion_v")
 			m_UBOComp.grayscott_diffusion_v = ct::fvariant(strValue).GetF();
-		if (strName == "grayscott_feed")
+		else if (strName == "grayscott_feed")
 			m_UBOComp.grayscott_feed = ct::fvariant(strValue).GetF();
-		if (strName == "grayscott_kill")
+		else if (strName == "grayscott_kill")
 			m_UBOComp.grayscott_kill = ct::fvariant(strValue).GetF();
-		if (strName == "displacement")
-			m_UBOComp.displacement = ct::fvariant(strValue).GetF();
-		if (strName == "iterations_count")
+		else if (strName == "iterations_count")
 			m_CountIterations.w = ct::uvariant(strValue).GetU();
-		if (strName == "simulation_config")
+		else if (strName == "simulation_config")
 			m_SelectedGrayScottConfig = ct::ivariant(strValue).GetI();
 	}
 

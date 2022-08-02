@@ -19,6 +19,7 @@ limitations under the License.
 #include <Graph/Nodes/Output/Output3DNode.h>
 #include <Graph/Nodes/Output/Output2DNode.h>
 #include <Graph/Nodes/Simulation/GrayScottNode.h>
+#include <Graph/Nodes/Simulation/NormalFromTextureNode.h>
 #include <Graph/Nodes/Utils/MathNode.h>
 
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType)
@@ -35,6 +36,7 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 
 			// Simulation
 			else if (vNodeType == "GRAY_SCOTT_SIMULATION")		return GrayScottNode::Create(corePtr);
+			else if (vNodeType == "NORMAL_FROM_TEXTURE_2D")		return NormalFromTextureNode::Create(corePtr);
 
 			// Utils
 			else if (vNodeType == "MATH")						return MathNode::Create(corePtr);

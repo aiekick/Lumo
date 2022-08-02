@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "GrayScottNode.h"
-#include <Modules/Simulation/GrayScottModule.h>
+#include "NormalFromTextureNode.h"
+#include <Modules/Simulation/NormalFromTextureModule.h>
 #include <Graph/Slots/Texture/NodeSlotTextureInput.h>
 #include <Graph/Slots/Texture/NodeSlotTextureOutput.h>
 
-std::shared_ptr<GrayScottNode> GrayScottNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<NormalFromTextureNode> NormalFromTextureNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<GrayScottNode>();
+	auto res = std::make_shared<NormalFromTextureNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -30,27 +30,27 @@ std::shared_ptr<GrayScottNode> GrayScottNode::Create(vkApi::VulkanCorePtr vVulka
 	return res;
 }
 
-GrayScottNode::GrayScottNode() : BaseNode()
+NormalFromTextureNode::NormalFromTextureNode() : BaseNode()
 {
-	m_NodeTypeString = "GRAY_SCOTT_SIMULATION";
+	m_NodeTypeString = "NORMAL_FROM_TEXTURE_2D";
 }
 
-GrayScottNode::~GrayScottNode()
+NormalFromTextureNode::~NormalFromTextureNode()
 {
 	Unit();
 }
 
-bool GrayScottNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool NormalFromTextureNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "GrayScott";
+	name = "NormalFromTexture";
 
 	AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 
-	m_GrayScottModulePtr = GrayScottModule::Create(vVulkanCorePtr);
-	if (m_GrayScottModulePtr)
+	m_NormalFromTextureModulePtr = NormalFromTextureModule::Create(vVulkanCorePtr);
+	if (m_NormalFromTextureModulePtr)
 	{
 		res = true;
 	}
@@ -58,7 +58,7 @@ bool GrayScottNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool NormalFromTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	bool res = false;
 
@@ -67,9 +67,9 @@ bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
-	if (m_GrayScottModulePtr)
+	if (m_NormalFromTextureModulePtr)
 	{
-		res = m_GrayScottModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_NormalFromTextureModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 
 		//SendFrontNotification(NotifyEvent::TextureUpdateDone);
 	}
@@ -77,29 +77,29 @@ bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 	return res;
 }
 
-bool GrayScottNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool NormalFromTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	if (m_GrayScottModulePtr)
+	if (m_NormalFromTextureModulePtr)
 	{
-		return m_GrayScottModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_NormalFromTextureModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void GrayScottNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void NormalFromTextureNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	if (m_GrayScottModulePtr)
+	if (m_NormalFromTextureModulePtr)
 	{
-		m_GrayScottModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_NormalFromTextureModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void GrayScottNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void NormalFromTextureNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
@@ -116,30 +116,30 @@ void GrayScottNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void GrayScottNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void NormalFromTextureNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	if (m_GrayScottModulePtr)
+	if (m_NormalFromTextureModulePtr)
 	{
-		m_GrayScottModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_NormalFromTextureModulePtr->NeedResize(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
 	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
 }
 
-void GrayScottNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void NormalFromTextureNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	if (m_GrayScottModulePtr)
+	if (m_NormalFromTextureModulePtr)
 	{
-		m_GrayScottModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_NormalFromTextureModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* GrayScottNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* NormalFromTextureNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_GrayScottModulePtr)
+	if (m_NormalFromTextureModulePtr)
 	{
-		return m_GrayScottModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_NormalFromTextureModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -149,7 +149,7 @@ vk::DescriptorImageInfo* GrayScottNode::GetDescriptorImageInfo(const uint32_t& v
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GrayScottNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string NormalFromTextureNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -175,9 +175,9 @@ std::string GrayScottNode::getXml(const std::string& vOffset, const std::string&
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_GrayScottModulePtr)
+		if (m_NormalFromTextureModulePtr)
 		{
-			res += m_GrayScottModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_NormalFromTextureModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -186,7 +186,7 @@ std::string GrayScottNode::getXml(const std::string& vOffset, const std::string&
 	return res;
 }
 
-bool GrayScottNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool NormalFromTextureNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -201,18 +201,18 @@ bool GrayScottNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_GrayScottModulePtr)
+	if (m_NormalFromTextureModulePtr)
 	{
-		m_GrayScottModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_NormalFromTextureModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
 }
 
-void GrayScottNode::UpdateShaders(const std::set<std::string>& vFiles)
+void NormalFromTextureNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
-	if (m_GrayScottModulePtr)
+	if (m_NormalFromTextureModulePtr)
 	{
-		m_GrayScottModulePtr->UpdateShaders(vFiles);
+		m_NormalFromTextureModulePtr->UpdateShaders(vFiles);
 	}
 }

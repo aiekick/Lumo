@@ -27,7 +27,7 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-void TextureInputFunctions::UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs)
+void TextureInputFunctions::UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs)
 {
 	ct::fvec2 texSize;
 	for (const auto& input : vInputs) {

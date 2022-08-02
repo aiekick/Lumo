@@ -179,7 +179,9 @@ vk::DescriptorImageInfo* Output2DModule::GetDescriptorImageInfo(const uint32_t& 
 		}
 	}
 
-	return  &m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+	m_ImageInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+
+	return  &m_ImageInfos[vBindingPoint];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

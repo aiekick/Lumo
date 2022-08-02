@@ -87,7 +87,7 @@ int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
-				SetOrUpdateOutput(m_Output2DModule);
+				auto outputSize = SetOrUpdateOutput(m_Output2DModule);
 
 				auto outputModulePtr = m_Output2DModule.getValidShared();
 				if (outputModulePtr)
@@ -148,27 +148,26 @@ int View2DPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::s
 	return vWidgetId;
 }
 
-void View2DPane::SetOrUpdateOutput(ct::cWeak<Output2DModule> vOutput2DModule)
+ct::fvec2 View2DPane::SetOrUpdateOutput(ct::cWeak<Output2DModule> vOutput2DModule)
 {
 	ZoneScoped;
+
+	ct::fvec2 outSize;
 
 	m_Output2DModule = vOutput2DModule;
 
 	auto outputModulePtr = m_Output2DModule.getValidShared();
 	if (outputModulePtr)
 	{
-		ct::fvec2 outSize;
 		m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, outputModulePtr->GetDescriptorImageInfo(0U, &outSize));
-		m_ImGuiTexture.ratio = 1.0f;
-		if (!outSize.emptyAND())
-		{
-			m_ImGuiTexture.ratio = outSize.ratioXY<float>();
-		}
+		m_ImGuiTexture.ratio = outSize.ratioXY<float>();
 	}
 	else
 	{
 		m_ImGuiTexture.ClearDescriptor();
 	}
+
+	return outSize;
 }
 
 void View2DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer)

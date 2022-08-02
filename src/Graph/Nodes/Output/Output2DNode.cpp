@@ -66,7 +66,7 @@ bool Output2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
-	//UpdateTextureInputDescriptorImageInfos(m_Inputs);
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_Output2DModulePtr)
 	{

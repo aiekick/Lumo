@@ -44,36 +44,37 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 
-class GrayScottModule_Comp_Pass :
+class NormalFromTextureModule_Comp_Pass :
 	public ShaderPass,
 	public GuiInterface,
 	public TextureInputInterface<1U>,
 	public TextureOutputInterface
 {
 private:
-	// config name, feed, kill
-	std::vector<std::string> m_GrayScottConfigNames;
-	std::vector<ct::fvec4> m_GrayScottConfigs; // diff x, diff,y, feed, kill
-	int32_t m_SelectedGrayScottConfig = 0; // Custom
+	std::vector<std::string> m_MethodNames =
+	{ 
+		"r", 
+		"g", 
+		"b", 
+		"a", 
+		"length(rg)", 
+		"length(rgb)" , 
+		"length(rga)" , 
+		"median(rgb)"
+	};
 
 	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOComp {
-		alignas(4) float mouse_radius = 0.05f;
-		alignas(4) float mouse_inversion = 0.0f;
-		alignas(4) float reset_substances = 0.0f;
-		alignas(4) float grayscott_diffusion_u = 1.0;
-		alignas(4) float grayscott_diffusion_v = 1.0;
-		alignas(4) float grayscott_feed = 0.026f;
-		alignas(4) float grayscott_kill = 0.051f;
+		alignas(4) int32_t method = 0;
+		alignas(4) float smoothness = 0.5f;
 		alignas(8) ct::ivec2 image_size = 0;
 	} m_UBOComp;
 
 public:
-	GrayScottModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~GrayScottModule_Comp_Pass() override;
+	NormalFromTextureModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~NormalFromTextureModule_Comp_Pass() override;
 
-	void ActionBeforeInit() override;
 	void WasJustResized() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
@@ -83,10 +84,6 @@ public:
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-
-private:
-	void ClearGrayScottConfigs();
-	void AddGrayScottConfig(const std::string& vConfigName, const float& vDiffXValue, const float& vDiffYValue, const float& vFeedValue, const float& vKillValue);
 
 protected:
 	bool CreateUBO() override;

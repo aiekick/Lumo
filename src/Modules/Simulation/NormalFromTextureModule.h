@@ -27,7 +27,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/ShaderPass.h>
+#include <Base/QuadShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
@@ -40,61 +40,40 @@ limitations under the License.
 #include <vkFramework/VulkanFrameBuffer.h>
 
 #include <Interfaces/GuiInterface.h>
+#include <Interfaces/TaskInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/ResizerInterface.h>
 
-class GrayScottModule_Comp_Pass :
-	public ShaderPass,
+class NormalFromTextureModule_Comp_Pass;
+class NormalFromTextureModule :
+	public BaseRenderer,
 	public GuiInterface,
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface
+	public TaskInterface,
+	public TextureInputInterface<2U>,
+	public TextureOutputInterface,
+	public ResizerInterface
 {
-private:
-	// config name, feed, kill
-	std::vector<std::string> m_GrayScottConfigNames;
-	std::vector<ct::fvec4> m_GrayScottConfigs; // diff x, diff,y, feed, kill
-	int32_t m_SelectedGrayScottConfig = 0; // Custom
+public:
+	static std::shared_ptr<NormalFromTextureModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
-	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	struct UBOComp {
-		alignas(4) float mouse_radius = 0.05f;
-		alignas(4) float mouse_inversion = 0.0f;
-		alignas(4) float reset_substances = 0.0f;
-		alignas(4) float grayscott_diffusion_u = 1.0;
-		alignas(4) float grayscott_diffusion_v = 1.0;
-		alignas(4) float grayscott_feed = 0.026f;
-		alignas(4) float grayscott_kill = 0.051f;
-		alignas(8) ct::ivec2 image_size = 0;
-	} m_UBOComp;
+private:
+	ct::cWeak<NormalFromTextureModule> m_This;
+	std::shared_ptr<NormalFromTextureModule_Comp_Pass> m_NormalFromTextureModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	GrayScottModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~GrayScottModule_Comp_Pass() override;
+	NormalFromTextureModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~NormalFromTextureModule() override;
 
-	void ActionBeforeInit() override;
-	void WasJustResized() override;
-	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	bool Init();
+
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-
-private:
-	void ClearGrayScottConfigs();
-	void AddGrayScottConfig(const std::string& vConfigName, const float& vDiffXValue, const float& vDiffYValue, const float& vFeedValue, const float& vKillValue);
-
-protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
-
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
-
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };
