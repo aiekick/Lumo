@@ -48,8 +48,7 @@ class BaseNode;
 class UniformWidgetBase;
 struct BaseNodeState;
 class NodeSlot :
-	public conf::ConfigAbstract,
-	public NotifyInterface
+	public conf::ConfigAbstract
 {
 public:
 	enum class PlaceEnum : uint8_t
@@ -148,7 +147,40 @@ public:
 	bool IsAnInput();
 	bool IsAnOutput();
 
-	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
+	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+	void SendNotification(const std::string& vSlotType, const NotifyEvent& vEvent);
+
+	/// <summary>
+	/// When a Connect event is detected (to be herited)
+	/// </summary>
+	/// <param name="vOtherSlot">the slot to Connect to</param>
+	virtual void Connect(NodeSlotWeak vOtherSlot);
+
+	/// <summary>
+	/// When a DisConnect event is detected (to be herited)
+	/// </summary>
+	/// <param name="vOtherSlot">the slot to DisConnect to</param>
+	virtual void DisConnect(NodeSlotWeak vOtherSlot);
+
+	/// <summary>
+	/// Treat an event (to be herited)
+	/// </summary>
+	/// <param name="vEvent"></param>
+	/// <param name="vEmitterSlot"></param>
+	/// <param name="vReceiverSlot"></param>
+	virtual void TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+	
+	/// <summary>
+	/// Send a event in front (to be herited)
+	/// </summary>
+	/// <param name="vEvent"></param>
+	virtual void SendFrontNotification(const NotifyEvent& vEvent);
+
+	/// <summary>
+	/// Send a event in back (to be herited)
+	/// </summary>
+	/// <param name="vEvent"></param>
+	virtual void SendBackNotification(const NotifyEvent& vEvent);
 
 	void DrawDebugInfos();
 

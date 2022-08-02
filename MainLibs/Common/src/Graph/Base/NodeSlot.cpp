@@ -368,11 +368,14 @@ bool NodeSlot::IsAnOutput()
 
 void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& /*vReceiverSlot*/)
 {
-	// une notifcation doit toujours aller 
-	// d'un output a un input
+	// one notification can be :
+	// - from input to output : Front
+	// - from output to input : Back
+	// Front or Back will not been used in the same way
 
-	if (vEmitterSlot.expired() || vEmitterSlot.getValidShared() == m_This.getValidShared())
+	if (vEmitterSlot.expired() || vEmitterSlot.getValidShared() == m_This.getValidShared()) // Front or Back
 	{
+		// we propagate the notification to the connected slots
 		for (const auto& otherSlot : linkedSlots)
 		{
 			auto otherSlotPtr = otherSlot.getValidShared();
@@ -382,15 +385,90 @@ void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlo
 			}
 		}
 	}
-	else if (IsAnInput())
+	else // receiving notification from other slots
 	{
-		// on notify au parent
+		// we treat the notification in herited slots
+		TreatNotification(vEvent, vEmitterSlot, m_This);
+
 		auto parentPtr = parentNode.getValidShared();
 		if (parentPtr)
 		{
-			parentPtr->Notify(vEvent, vEmitterSlot, m_This);
+			// we treat the notification in parent node
+			parentPtr->TreatNotification(vEvent, vEmitterSlot, m_This);
+		}
+
+		if (IsAnInput()) // Front
+		{
+			// front propagate some particular global events
+			switch (vEvent)
+			{
+			case NotifyEvent::GraphIsLoaded:
+			case NotifyEvent::NewFrameAvailable:
+			case NotifyEvent::SomeTasksWasUpdated:
+				parentPtr->PropagateFrontNotification(vEvent);
+				break;
+			}
+		}
+		else if (IsAnOutput()) // Back
+		{
+			// back propagate some particular global events
+			switch (vEvent)
+			{
+			case NotifyEvent::GraphIsLoaded:
+			case NotifyEvent::NewFrameAvailable:
+			case NotifyEvent::SomeTasksWasUpdated:
+				parentPtr->PropagateBackNotification(vEvent);
+				break;
+			}
 		}
 	}
+}
+
+void NodeSlot::SendNotification(const std::string& vSlotType, const NotifyEvent& vEvent)
+{
+	auto nodePtr = parentNode.getValidShared();
+	if (nodePtr)
+	{
+		nodePtr->SendFrontNotification(vSlotType, vEvent);
+	}
+}
+
+void NodeSlot::Connect(NodeSlotWeak /*vOtherSlot*/)
+{
+#ifdef _DEBUG
+	LogVarInfo("NodeSlot::Connect catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+#endif
+}
+
+void NodeSlot::DisConnect(NodeSlotWeak /*vOtherSlot*/)
+{
+#ifdef _DEBUG
+	LogVarInfo("NodeSlot::DisConnect catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+#endif
+}
+
+void NodeSlot::TreatNotification(
+	const NotifyEvent& /*vEvent*/,
+	const NodeSlotWeak& /*vEmitterSlot*/,
+	const NodeSlotWeak& /*vReceiverSlot*/)
+{
+#ifdef _DEBUG
+	LogVarInfo("NodeSlot::TreatNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+#endif
+}
+
+void NodeSlot::SendFrontNotification(const NotifyEvent& /*vEvent*/)
+{
+#ifdef _DEBUG
+	LogVarInfo("NodeSlot::SendFrontNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+#endif
+}
+
+void NodeSlot::SendBackNotification(const NotifyEvent& /*vEvent*/)
+{
+#ifdef _DEBUG
+	LogVarInfo("NodeSlot::SendBackNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+#endif
 }
 
 void NodeSlot::DrawDebugInfos()

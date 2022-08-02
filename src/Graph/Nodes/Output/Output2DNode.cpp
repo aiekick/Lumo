@@ -16,8 +16,7 @@ limitations under the License.
 
 #include "Output2DNode.h"
 #include <Modules/Output/Output2DModule.h>
-#include <Interfaces/MergedInterface.h>
-#include <Connectors/TextureConnector.h>
+#include <Graph/Slots/Texture/NodeSlotTextureInput.h>
 
 std::shared_ptr<Output2DNode> Output2DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -44,10 +43,7 @@ bool Output2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Scene Output 2D";
 
-	NodeSlot slot;
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	m_InputSlot = AddInput(slot, true, true);
+	m_InputSlot = AddInput(NodeSlotTextureInput::Create("Output"), true, true);
 
 	bool res = false;
 
@@ -70,7 +66,7 @@ bool Output2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
+	//UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_Output2DModulePtr)
 	{
@@ -119,116 +115,22 @@ void Output2DNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void Output2DNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void Output2DNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_Output2DModulePtr)
+	if (m_Output2DModulePtr)
 	{
-		if (startSlotPtr->IsAnInput())
-		{
-
-		}
+		m_Output2DModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void Output2DNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			
-		}
-	}
-}
-
-void Output2DNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	
 }
 
 vk::DescriptorImageInfo* Output2DNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	auto slotPtr = m_InputSlot.getValidShared();
-	if (slotPtr)
+	if (m_Output2DModulePtr)
 	{
-		if (!slotPtr->linkedSlots.empty())
-		{
-			auto otherSLotPtr = slotPtr->linkedSlots[0].getValidShared();
-			if (otherSLotPtr)
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(otherSLotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					return otherNodePtr->GetDescriptorImageInfo(otherSLotPtr->descriptorBinding, vOutSize);
-				}
-			}
-		}
+		return m_Output2DModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
-}
-
-void Output2DNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::SomeTasksWasUpdated:
-	{
-		if (m_CanExploreTasks && m_Output2DModulePtr)
-		{
-			//m_Output3DModulePtr->ExploreTasks();
-		}
-		break;
-	}
-	case NotifyEvent::GraphIsLoaded:
-	{
-		m_CanExploreTasks = true;
-		if (m_Output2DModulePtr)
-		{
-			//m_Output3DModulePtr->ExploreTasks();
-		}
-		break;
-	}
-	default:
-		break;
-	}
-}
-
-void Output2DNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
-{
-	// one output only
-	//if (m_Output3DModulePtr)
-	{
-		//ImGui::Text("%s", m_SmoothNormal->GetFileName().c_str());
-	}
-}
-
-ct::fvec2 Output2DNode::GetOutputSize()
-{
-	auto slotPtr = m_InputSlot.getValidShared();
-	if (slotPtr)
-	{
-		if (!slotPtr->linkedSlots.empty())
-		{
-			auto otherSLotPtr = slotPtr->linkedSlots[0].getValidShared();
-			if (otherSLotPtr)
-			{
-				auto otherNodePtr = dynamic_pointer_cast<ResizerInterface>(otherSLotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					return otherNodePtr->GetOutputSize();
-				}
-			}
-		}
-	}
-
-	return 0.0f;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

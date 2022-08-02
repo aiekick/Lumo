@@ -90,7 +90,7 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
-				SetOrUpdateOutput(m_Output3DModule);
+				auto outputSize = SetOrUpdateOutput(m_Output3DModule);
 
 				auto outputModulePtr = m_Output3DModule.getValidShared();
 				if (outputModulePtr)
@@ -111,8 +111,6 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 					}
 
 					ct::ivec2 maxSize = ImGui::GetContentRegionAvail();
-
-					ct::fvec2 outputSize = outputModulePtr->GetOutputSize();
 					
 					if (m_ImGuiTexture.canDisplayPreview)
 					{
@@ -209,16 +207,17 @@ int View3DPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::s
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-void View3DPane::SetOrUpdateOutput(ct::cWeak<Output3DModule> vOutput3DModule)
+ct::fvec2 View3DPane::SetOrUpdateOutput(ct::cWeak<Output3DModule> vOutput3DModule)
 {
 	ZoneScoped;
+
+	ct::fvec2 outSize;
 
 	m_Output3DModule = vOutput3DModule;
 
 	auto outputModulePtr = m_Output3DModule.getValidShared();
 	if (outputModulePtr)
 	{
-		ct::fvec2 outSize;
 		m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, outputModulePtr->GetDescriptorImageInfo(0U, &outSize));
 		m_ImGuiTexture.ratio = outSize.ratioXY<float>();
 	}
@@ -226,6 +225,8 @@ void View3DPane::SetOrUpdateOutput(ct::cWeak<Output3DModule> vOutput3DModule)
 	{
 		m_ImGuiTexture.ClearDescriptor();
 	}
+
+	return outSize;
 }
 
 void View3DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer)

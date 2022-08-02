@@ -38,7 +38,7 @@ SceneLightGroupPtr SceneLightGroup::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// STATIC : SBO//////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-std::string SceneLightGroup::GetBufferObjectStructureHeader(const uint32_t& vBinding)
+std::string SceneLightGroup::GetBufferObjectStructureHeader(const uint32_t& vBindingPoint)
 {
 	return ct::toStr(u8R"(%s
 
@@ -46,7 +46,7 @@ layout(std430, binding = %u) readonly buffer SBO_LightGroup
 {
 	LightDatas lightDatas[];
 };
-)", SceneLight::GetStructureHeader().c_str(), vBinding);
+)", SceneLight::GetStructureHeader().c_str(), vBindingPoint);
 }
 
 // will create a empty sbo for default sbo when no slot are connected

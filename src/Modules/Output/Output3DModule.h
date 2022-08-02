@@ -38,7 +38,7 @@ class Output3DModule :
 	public GuiInterface,
 	public TaskInterface,
 	public NodeInterface,
-	public TextureInputInterface<0U>, // 0, because no need of items here
+	public TextureInputInterface<1U>, // 0, because no need of items here
 	public TextureOutputInterface, // le output n'est pas dans le graph, mais appelé par la vue, ce node conlue le graph, il est unique
 	public ResizerInterface
 {
@@ -62,7 +62,7 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 		
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) override;

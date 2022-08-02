@@ -53,9 +53,13 @@ void UserNodeLibrary::AnalyseRootDirectory()
 {
 	AnalyseRootDirectoryRecurs(LIBRARY_EFECT_ROOT_PATH, 0, &m_RootLibraryCategory);
 
-	m_RootLibraryCategory.AddCustom("Core/Outputs", "Output 3D", "OUTPUT_3D");
-	m_RootLibraryCategory.AddCustom("Core/Outputs", "Output 2D", "OUTPUT_2D");
+	m_RootLibraryCategory.AddCustom("Outputs", "Output 3D", "OUTPUT_3D");
+	m_RootLibraryCategory.AddCustom("Outputs", "Output 2D", "OUTPUT_2D");
+	
+	m_RootLibraryCategory.AddCustom("Core/Simulation", "GrayScott", "GRAY_SCOTT_SIMULATION");
 
+	m_RootLibraryCategory.AddCustom("Core/Utils", "Math", "MATH");
+	
 	// les plugins
 	auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();
 	for (auto entry : pluginEntrys)
@@ -95,7 +99,7 @@ BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeS
 			auto createdNodePtr = createdNode.getValidShared();
 			if (createdNodePtr)
 			{
-				createdNodePtr->Notify(NotifyEvent::GraphIsLoaded);
+				createdNodePtr->TreatNotification(NotifyEvent::GraphIsLoaded);
 			}
 		}
 

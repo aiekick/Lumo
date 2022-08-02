@@ -57,6 +57,7 @@ else()
 endif()
 
 include(cmake/3rdparty/3rdparty.cmake)
+include(cmake/libs/libs.cmake)
 if (USE_PLUGINS)
 	if(USE_PLUGIN_STATIC_LINKING)
 		set(PROJECT_PLUGINS)
@@ -200,7 +201,7 @@ target_link_libraries(${PROJECT} PRIVATE
 
 ## only for Debug
 add_subdirectory(3rdparty/BuildInc)
-set_target_properties(BuildInc PROPERTIES FOLDER 3rdparty/aiekick)
+set_target_properties(BuildInc PROPERTIES FOLDER libs/tools)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD

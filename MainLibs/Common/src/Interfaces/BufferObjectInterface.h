@@ -50,7 +50,7 @@ public:
 		m_DescriptorBufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	}
 
-	//virtual std::string GetBufferObjectStructureHeader(const uint32_t& vBinding) = 0;
+	//virtual std::string GetBufferObjectStructureHeader(const uint32_t& vBindingPoint) = 0;
 	virtual vk::DescriptorBufferInfo* GetBufferInfo()
 	{
 		return &m_DescriptorBufferInfo;

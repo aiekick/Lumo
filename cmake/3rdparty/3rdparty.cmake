@@ -39,18 +39,3 @@ include(cmake/3rdparty/cpp_ipc.cmake)
 include(cmake/3rdparty/imguizmo.cmake)
 include(cmake/3rdparty/imgui_node_editor.cmake)
 include(cmake/3rdparty/assimp.cmake)
-
-## aiekick
-include(cmake/3rdparty/ctools.cmake)
-include(cmake/3rdparty/imguifiledialog.cmake)
-
-message("----------------------------------- Start Messages -----------------------------------")
-
-include(cmake/3rdparty/vkframework.cmake)
-include(cmake/3rdparty/vkprofiler.cmake)
-include(cmake/3rdparty/utypes.cmake)
-include(cmake/3rdparty/imwidgets.cmake)
-include(cmake/3rdparty/fonticons.cmake)
-include(cmake/3rdparty/common.cmake)
-
-message("----------------------------------- End Messages -----------------------------------")

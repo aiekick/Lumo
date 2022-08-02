@@ -38,9 +38,9 @@ SceneTextureGroupPtr SceneTextureGroup::Create(vkApi::VulkanCorePtr vVulkanCoreP
 //// STATIC : SBO//////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-std::string SceneTextureGroup::GetBufferObjectStructureHeader(const uint32_t& vBinding, const char *vTextureName, const uint32_t& vCount)
+std::string SceneTextureGroup::GetBufferObjectStructureHeader(const uint32_t& vBindingPoint, const char *vTextureName, const uint32_t& vCount)
 {
-	return ct::toStr("layout(binding = %u) uniform sampler2D %s[%u];\n", vBinding, vTextureName, vCount);
+	return ct::toStr("layout(binding = %u) uniform sampler2D %s[%u];\n", vBindingPoint, vTextureName, vCount);
 }
 
 // will create a empty sbo for default sbo when no slot are connected

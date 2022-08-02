@@ -19,17 +19,10 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <Graph/Base/NodeSlot.h>
 
-struct ImRect;
-class BaseNode;
-class UniformWidgetBase;
-struct BaseNodeState;
 class NodeSlotInput : public NodeSlot
 {
 public:
 	static NodeSlotInputPtr Create(NodeSlotInput vSlot);
-
-public:
-	NodeSlotInputWeak m_This;
 
 public:
 	explicit NodeSlotInput();

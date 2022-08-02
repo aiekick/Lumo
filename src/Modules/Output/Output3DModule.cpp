@@ -142,30 +142,55 @@ bool Output3DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return true;
 }
 
-void Output3DModule::SetTexture(const uint32_t& /*vBinding*/, vk::DescriptorImageInfo* /*vImageInfo*/, ct::fvec2* vTextureSize)
+void Output3DModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	
+	ZoneScoped;
+
+	if (vBindingPoint < m_ImageInfos.size())
+	{
+		if (vImageInfo)
+		{
+			if (vTextureSize)
+			{
+				m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+			}
+
+			m_ImageInfos[vBindingPoint] = *vImageInfo;
+		}
+		else
+		{
+			m_ImageInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		}
+	}
 }
 
 vk::DescriptorImageInfo* Output3DModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	auto parentNodePtr = dynamic_pointer_cast<TextureOutputInterface>(GetParentNode().getValidShared());
-	if (parentNodePtr)
+	ZoneScoped;
+
+	if (vBindingPoint < m_ImageInfos.size())
 	{
-		auto desc = parentNodePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-		auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().getValidShared();
-		if (imguiRendererPtr)
+		if (vOutSize)
 		{
-			m_ImGuiTexture.SetDescriptor(imguiRendererPtr, desc);
-			m_ImGuiTexture.ratio = 1.0f;
-			if (vOutSize && !vOutSize->emptyAND())
-			{
-				m_ImGuiTexture.ratio = m_fOutputSize.ratioXY<float>();
-			}
+			*vOutSize = m_ImageInfosSize[vBindingPoint];
 		}
-		return desc;
+
+		if (m_ImageInfos[vBindingPoint].imageView)
+		{
+			auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().getValidShared();
+			if (imguiRendererPtr)
+			{
+				m_ImGuiTexture.SetDescriptor(imguiRendererPtr, &m_ImageInfos[vBindingPoint]);
+				m_ImGuiTexture.ratio = m_ImageInfosSize[vBindingPoint].ratioXY<float>();
+			}
+
+			return &m_ImageInfos[vBindingPoint];
+		}
 	}
-	return nullptr;
+
+	m_ImageInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+
+	return  &m_ImageInfos[vBindingPoint];
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

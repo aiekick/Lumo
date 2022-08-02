@@ -32,7 +32,7 @@ protected:
 	void UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs);
 
 public:
-	virtual void SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) = 0;
+	virtual void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) = 0;
 };
 
 template<size_t size_of_array>

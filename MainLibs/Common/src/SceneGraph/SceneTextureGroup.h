@@ -39,7 +39,7 @@ public:
 
 public:
 	static SceneTextureGroupPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
-	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding, const char* vTextureName, const uint32_t& vCount);
+	static std::string GetBufferObjectStructureHeader(const uint32_t& vBindingPoint, const char* vTextureName, const uint32_t& vCount);
 	static VulkanBufferObjectPtr CreateEmptyBuffer(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:

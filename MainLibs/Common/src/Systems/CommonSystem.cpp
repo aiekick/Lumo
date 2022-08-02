@@ -849,7 +849,7 @@ void CommonSystem::DestroyBufferObject()
 	m_BufferObjectPtr.reset();
 }
 
-std::string CommonSystem::GetBufferObjectStructureHeader(const uint32_t& vBinding)
+std::string CommonSystem::GetBufferObjectStructureHeader(const uint32_t& vBindingPoint)
 {
 	return ct::toStr(u8R"(
 layout(std140, binding = %u) uniform UBO_Camera 
@@ -867,7 +867,7 @@ layout(std140, binding = %u) uniform UBO_Camera
 	float cam_near;		// the cam near
 	float cam_far;		// the cam far
 };
-)", vBinding);
+)", vBindingPoint);
 }
 
 ///////////////////////////////////////////////////////

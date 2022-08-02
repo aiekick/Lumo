@@ -582,12 +582,15 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 		}
 		else if (IsCompute2DRenderer())
 		{
-			if (m_ComputeBufferPtr && 
-				m_ComputeBufferPtr->Begin(vCmdBuffer))
+			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
 			{
-				Compute(vCmdBuffer, vIterationNumber);
+				if (m_ComputeBufferPtr &&
+					m_ComputeBufferPtr->Begin(vCmdBuffer))
+				{
+					Compute(vCmdBuffer, vIterationNumber);
 
-				m_ComputeBufferPtr->End(vCmdBuffer);
+					m_ComputeBufferPtr->End(vCmdBuffer);
+				}
 			}
 		}
 		else if (IsCompute3DRenderer())

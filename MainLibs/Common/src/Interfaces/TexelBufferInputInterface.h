@@ -34,6 +34,6 @@ protected:
 	std::array<ct::uvec2, size_of_array> m_TexelBufferViewsSize;
 
 public:
-	virtual void SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize) = 0;
-	virtual void SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize) = 0;
+	virtual void SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize) = 0;
+	virtual void SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize) = 0;
 };

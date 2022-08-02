@@ -21,7 +21,8 @@ limitations under the License.
 #include <uTypes/uTypes.h>
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
-#include <Graph/Base/NodeSlot.h>
+#include <Graph/Base/NodeSlotInput.h>
+#include <Graph/Base/NodeSlotOutput.h>
 #include <Graph/Base/NodeLink.h>
 #include <ctools/ConfigAbstract.h>
 #include <Interfaces/GuiInterface.h>
@@ -173,7 +174,6 @@ struct BaseNodeState
 
 class BaseNode : 
 	public conf::ConfigAbstract, 
-	public NotifyInterface,
 	public GuiInterface,
 	public TaskInterface,
 	public ResizerInterface
@@ -262,8 +262,8 @@ public: // glslang and links
 	std::unordered_map<uint32_t, BaseNodePtr> m_ChildNodes; // node du graphn  // for query only
 	//std::string m_lastChildNodeName; // le nom du dernier node pour le layout
 	
-	std::map<uint32_t, NodeSlotPtr> m_Inputs; // for display, need order
-	std::map<uint32_t, NodeSlotPtr> m_Outputs; // for display, need order
+	std::map<uint32_t, NodeSlotInputPtr> m_Inputs; // for display, need order
+	std::map<uint32_t, NodeSlotOutputPtr> m_Outputs; // for display, need order
 
 	std::set<uint32_t> m_NodeIdToDelete; // node selected to delete
 
@@ -299,10 +299,73 @@ public:
 	void ClearGraph();
 	void ClearSlots();
 
+	/// <summary>
+	/// execute all time, each frames so
+	/// </summary>
+	/// <param name="vCurrentFrame"></param>
+	/// <param name="vCmd"></param>
+	/// <param name="vBaseNodeState"></param>
+	/// <returns></returns>
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+
+	/// <summary>
+	/// execute all input childs
+	/// </summary>
+	/// <param name="vCurrentFrame"></param>
+	/// <param name="vCmd"></param>
+	/// <param name="vBaseNodeState"></param>
+	/// <returns></returns>
 	bool ExecuteChilds(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr);
 
-	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
+	/// <summary>
+	/// apply some treatment about event, can be herited by nodes
+	/// </summary>
+	/// <param name="vEvent"></param>
+	/// <param name="vEmitterSlot"></param>
+	/// <param name="vReceiverSlot"></param>
+	virtual void TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+
+	/// <summary>
+	/// send notification in front (output to input)
+	/// </summary>
+	/// <param name="vSlotType"></param>
+	/// <param name="vEvent"></param>
+	void SendFrontNotification(const NotifyEvent& vEvent);
+
+	/// <summary>
+	/// send notification of a type in front (output to input)
+	/// </summary>
+	/// <param name="vSlotType"></param>
+	/// <param name="vEvent"></param>
+	void SendFrontNotification(const std::string& vSlotType, const NotifyEvent& vEvent);
+
+	/// <summary>
+	/// propagate notification in front (output to input)
+	/// </summary>
+	/// <param name="vSlotType"></param>
+	/// <param name="vEvent"></param>
+	void PropagateFrontNotification(const NotifyEvent& vEventt);
+
+	/// <summary>
+	/// send notification of a type in back (input to output)
+	/// </summary>
+	/// <param name="vSlotType"></param>
+	/// <param name="vEvent"></param>
+	void SendBackNotification(const NotifyEvent& vEvent);
+
+	/// <summary>
+	/// send notification of a type in back (input to output)
+	/// </summary>
+	/// <param name="vSlotType"></param>
+	/// <param name="vEvent"></param>
+	void SendBackNotification(const std::string& vSlotType, const NotifyEvent& vEvent);
+
+	/// <summary>
+	/// propagate notification in front (output to input)
+	/// </summary>
+	/// <param name="vSlotType"></param>
+	/// <param name="vEvent"></param>
+	void PropagateBackNotification(const NotifyEvent& vEvent);
 
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	ct::fvec2 GetOutputSize() override;
@@ -353,8 +416,8 @@ public:
 	std::vector<NodeSlotWeak> GetOutputSlotsOfType(std::string vType);
 
 	// Add slots
-	NodeSlotWeak AddInput(NodeSlot vFlow, bool vIncSlotId = false, bool vHideName = true);
-	NodeSlotWeak AddOutput(NodeSlot vFlow, bool vIncSlotId = false, bool vHideName = true);
+	NodeSlotWeak AddInput(NodeSlotInputPtr vSlotPtr, bool vIncSlotId = false, bool vHideName = true);
+	NodeSlotWeak AddOutput(NodeSlotOutputPtr  vSlotPtr, bool vIncSlotId = false, bool vHideName = true);
 
 	// add nodes
 	BaseNodeWeak AddChildNode(BaseNodePtr vNode, bool vIncNodeId = false);

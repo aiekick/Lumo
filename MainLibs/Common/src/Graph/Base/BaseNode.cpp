@@ -24,6 +24,9 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <imgui_node_editor/NodeEditor/Source/imgui_node_editor_internal.h>
 
+#include <Graph/Base/NodeSlotInput.h>
+#include <Graph/Base/NodeSlotOutput.h>
+
 #include <utility>
 
 static bool showNodeStyleEditor = false;
@@ -223,12 +226,13 @@ void BaseNode::FinalizeGraphLoading()
 		ConnectSlots(inSlot, outSlot);
 	}
 
+	// we send to all child nodes the event "Graph Is Loaded"
 	for (const auto& child : m_ChildNodes)
 	{
 		auto nodePtr = child.second;
 		if (nodePtr)
 		{
-			nodePtr->Notify(NotifyEvent::GraphIsLoaded);
+			nodePtr->TreatNotification(NotifyEvent::GraphIsLoaded);
 		}
 	}
 }
@@ -867,36 +871,46 @@ void BaseNode::DrawProperties(BaseNodeState* vBaseNodeState)
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-NodeSlotWeak BaseNode::AddInput(NodeSlot vFlow, bool vIncSlotId, bool vHideName)
+NodeSlotWeak BaseNode::AddInput(NodeSlotInputPtr vSlotPtr, bool vIncSlotId, bool vHideName)
 {
-	assert(!m_This.expired());
-	vFlow.parentNode = m_This;
-	vFlow.slotPlace = NodeSlot::PlaceEnum::INPUT;
-	vFlow.hideName = vHideName;
-	vFlow.type = uType::uTypeEnum::U_FLOW;
-	if (vIncSlotId)
+	if (vSlotPtr)
 	{
-		vFlow.pinID = NodeSlot::sGetNewSlotId();
+		assert(!m_This.expired());
+		vSlotPtr->parentNode = m_This;
+		vSlotPtr->slotPlace = NodeSlot::PlaceEnum::INPUT;
+		vSlotPtr->hideName = vHideName;
+		vSlotPtr->type = uType::uTypeEnum::U_FLOW;
+		if (vIncSlotId)
+		{
+			vSlotPtr->pinID = NodeSlot::sGetNewSlotId();
+		}
+		vSlotPtr->index = (uint32_t)m_Inputs.size();
+		m_Inputs[(int)vSlotPtr->pinID.Get()] = vSlotPtr;
+		return m_Inputs[(int)vSlotPtr->pinID.Get()];
 	}
-	vFlow.index = (uint32_t)m_Inputs.size();
-	m_Inputs[(int)vFlow.pinID.Get()] = NodeSlot::Create(vFlow);
-	return m_Inputs[(int)vFlow.pinID.Get()];
+
+	return NodeSlotWeak();
 }
 
-NodeSlotWeak BaseNode::AddOutput(NodeSlot vFlow, bool vIncSlotId, bool vHideName)
+NodeSlotWeak BaseNode::AddOutput(NodeSlotOutputPtr vSlotPtr, bool vIncSlotId, bool vHideName)
 {
-	assert(!m_This.expired());
-	vFlow.parentNode = m_This;
-	vFlow.slotPlace = NodeSlot::PlaceEnum::OUTPUT;
-	vFlow.hideName = vHideName;
-	vFlow.type = uType::uTypeEnum::U_FLOW;
-	if (vIncSlotId)
+	if (vSlotPtr)
 	{
-		vFlow.pinID = NodeSlot::sGetNewSlotId();
+		assert(!m_This.expired());
+		vSlotPtr->parentNode = m_This;
+		vSlotPtr->slotPlace = NodeSlot::PlaceEnum::OUTPUT;
+		vSlotPtr->hideName = vHideName;
+		vSlotPtr->type = uType::uTypeEnum::U_FLOW;
+		if (vIncSlotId)
+		{
+			vSlotPtr->pinID = NodeSlot::sGetNewSlotId();
+		}
+		vSlotPtr->index = (uint32_t)m_Inputs.size();
+		m_Outputs[(int)vSlotPtr->pinID.Get()] = vSlotPtr;
+		return m_Outputs[(int)vSlotPtr->pinID.Get()];
 	}
-	vFlow.index = (uint32_t)m_Inputs.size();
-	m_Outputs[(int)vFlow.pinID.Get()] = NodeSlot::Create(vFlow);
-	return m_Outputs[(int)vFlow.pinID.Get()];
+
+	return NodeSlotWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1823,11 +1837,79 @@ void BaseNode::SetChanged(bool vFlag)
 	}
 }
 
-void BaseNode::Notify(const NotifyEvent& /*vEvent*/, const NodeSlotWeak& /*vEmitterSlot*/, const NodeSlotWeak& /*vReceiverSlot*/)
+void BaseNode::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
-#ifdef _DEBUG
-	LogVarInfo("BaseNode::Notify catched by the node \"%s\", some class not implement it. maybe its wanted", name.c_str());
-#endif
+
+}
+
+void BaseNode::SendFrontNotification(const NotifyEvent& vEvent)
+{
+	for (auto slot : m_Outputs)
+	{
+		if (slot.second)
+		{
+			slot.second->SendFrontNotification(vEvent);
+		}
+	}
+}
+
+void BaseNode::SendFrontNotification(const std::string& vSlotType, const NotifyEvent& vEvent)
+{
+	auto slots = GetOutputSlotsOfType(vSlotType);
+	for (const auto& slot : slots)
+	{
+		auto slotPtr = slot.getValidShared();
+		if (slotPtr)
+		{
+			slotPtr->Notify(vEvent, slot);
+		}
+	}
+}
+
+void BaseNode::PropagateFrontNotification(const NotifyEvent& vEvent)
+{
+	for (auto slot : m_Outputs)
+	{
+		if (slot.second)
+		{
+			slot.second->Notify(vEvent);
+		}
+	}
+}
+
+void BaseNode::SendBackNotification(const NotifyEvent& vEvent)
+{
+	for (auto slot : m_Inputs)
+	{
+		if (slot.second)
+		{
+			slot.second->SendBackNotification(vEvent);
+		}
+	}
+}
+
+void BaseNode::SendBackNotification(const std::string& vSlotType, const NotifyEvent& vEvent)
+{
+	auto slots = GetOutputSlotsOfType(vSlotType);
+	for (const auto& slot : slots)
+	{
+		auto slotPtr = slot.getValidShared();
+		if (slotPtr)
+		{
+			slotPtr->Notify(vEvent, slot);
+		}
+	}
+}
+
+void BaseNode::PropagateBackNotification(const NotifyEvent& vEvent)
+{
+	for (auto slot : m_Inputs)
+	{
+		if (slot.second)
+		{
+			slot.second->Notify(vEvent);
+		}
+	}
 }
 
 void BaseNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
@@ -2122,18 +2204,6 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 				fromPtr->NotifyConnectionChangeToParent(true);
 				toPtr->NotifyConnectionChangeToParent(true);
 
-				auto output3DNodePtr = m_Output3DNode.getValidShared();
-				if (output3DNodePtr)
-				{
-					output3DNodePtr->Notify(NotifyEvent::SomeTasksWasUpdated);
-				}
-
-				auto output2DNodePtr = m_Output2DNode.getValidShared();
-				if (output2DNodePtr)
-				{
-					output2DNodePtr->Notify(NotifyEvent::SomeTasksWasUpdated);
-				}
-
 				res = true;
 			}
 					
@@ -2281,7 +2351,10 @@ bool BaseNode::ConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 	auto endPtr = vEnd.getValidShared();
 	if (startPtr && endPtr)
 	{
-		auto nodeStartPtr = startPtr->parentNode.getValidShared();
+		startPtr->Connect(vEnd);
+		endPtr->Connect(vStart);
+
+		/*auto nodeStartPtr = startPtr->parentNode.getValidShared();
 		auto nodeEndPtr = endPtr->parentNode.getValidShared();
 		if (nodeStartPtr && nodeEndPtr)
 		{
@@ -2295,7 +2368,7 @@ bool BaseNode::ConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 		else
 		{
 			LogVarDebug("Error, le node parent de vStart ou vEnd est null");
-		}
+		}*/
 	}
 
 	return res;
@@ -2307,7 +2380,10 @@ bool BaseNode::DisConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 	auto endPtr = vEnd.getValidShared();
 	if (startPtr && endPtr)
 	{
-		auto nodeStartPtr = startPtr->parentNode.getValidShared();
+		startPtr->DisConnect(vEnd);
+		endPtr->DisConnect(vStart);
+
+		/*auto nodeStartPtr = startPtr->parentNode.getValidShared();
 		auto nodeEndPtr = endPtr->parentNode.getValidShared();
 		if (nodeStartPtr && nodeEndPtr)
 		{
@@ -2322,7 +2398,7 @@ bool BaseNode::DisConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 		else
 		{
 			LogVarDebug("Error, le node parent de vStart ou vEnd est null");
-		}
+		}*/
 	}
 
 	// en fait si ca merde on doit pouvoir supprimer le lien quand meme
@@ -2601,10 +2677,18 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			{
 				if (!m_Inputs.empty())
 				{
+					NodeSlotInput input_slot;
+					input_slot.index = slot.index;
+					input_slot.name = slot.name;
+					input_slot.slotType = slot.slotType;
+					input_slot.slotPlace = slot.slotPlace;
+					input_slot.pinID = slot.pinID;
+					auto slot_input_ptr = NodeSlotInput::Create(input_slot);
+
 					bool wasSet = false;
 					for (auto input : m_Inputs)
 					{
-						if (input.second->index == slot.index)
+						if (input.second->index == slot_input_ptr->index)
 						{
 							wasSet = !input.second->setFromXml(vElem, vParent);
 							if (wasSet)
@@ -2617,7 +2701,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 					}
 					if (!wasSet)
 					{
-						auto slotPtr = AddInput(slot).getValidShared();
+						auto slotPtr = AddInput(slot_input_ptr).getValidShared();
 						if (slotPtr)
 						{
 							slotPtr->idAlreadySetbyXml = true;
@@ -2629,10 +2713,18 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			{
 				if (!m_Outputs.empty())
 				{
+					NodeSlotOutput output_slot;
+					output_slot.index = slot.index;
+					output_slot.name = slot.name;
+					output_slot.slotType = slot.slotType;
+					output_slot.slotPlace = slot.slotPlace;
+					output_slot.pinID = slot.pinID;
+					auto slot_output_ptr = NodeSlotOutput::Create(output_slot);
+
 					bool wasSet = false;
 					for (auto output : m_Outputs)
 					{
-						if (output.second->index == slot.index)
+						if (output.second->index == slot_output_ptr->index)
 						{
 							wasSet = !output.second->setFromXml(vElem, vParent);
 							if (wasSet)
@@ -2645,7 +2737,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 					}
 					if (!wasSet)
 					{
-						auto slotPtr = AddOutput(slot).getValidShared();
+						auto slotPtr = AddOutput(slot_output_ptr).getValidShared();
 						if (slotPtr)
 						{
 							slotPtr->idAlreadySetbyXml = true;

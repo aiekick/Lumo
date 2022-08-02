@@ -61,7 +61,7 @@ public:
 	void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas) override;
 	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
 
-	void SetOrUpdateOutput(ct::cWeak<Output3DModule> vOutput3DModule);
+	ct::fvec2 SetOrUpdateOutput(ct::cWeak<Output3DModule> vOutput3DModule);
 	void SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer);
 
 private:

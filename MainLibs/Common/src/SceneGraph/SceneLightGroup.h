@@ -40,7 +40,7 @@ public:
 
 public:
 	static SceneLightGroupPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
-	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding);
+	static std::string GetBufferObjectStructureHeader(const uint32_t& vBindingPoint);
 	static VulkanBufferObjectPtr CreateEmptyBuffer(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:

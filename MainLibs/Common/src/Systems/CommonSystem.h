@@ -75,7 +75,7 @@ class COMMON_API CommonSystem :
 	public BufferObjectInterface
 {
 public:
-	static std::string GetBufferObjectStructureHeader(const uint32_t& vBinding);
+	static std::string GetBufferObjectStructureHeader(const uint32_t& vBindingPoint);
 
 public: // params to be serialized
 	glm::vec2 camSize;

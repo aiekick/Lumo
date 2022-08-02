@@ -3,7 +3,7 @@ set(COMMON_LIBRARIES)
 set(COMMON_LIB_DIR)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/MainLibs/Common)
-set_target_properties(${COMMON_LIBRARIES} PROPERTIES FOLDER 3rdparty/main)
+set_target_properties(${COMMON_LIBRARIES} PROPERTIES FOLDER libs)
 ##set_target_properties(${COMMON_LIBRARIES} PROPERTIES LINK_FLAGS "/ignore:4244")
 
 message(STATUS "COMMON_INCLUDE_DIR : ${COMMON_INCLUDE_DIR}")

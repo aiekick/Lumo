@@ -39,47 +39,44 @@ NodeSlotOutputPtr NodeSlotOutput::Create(NodeSlotOutput vSlot)
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 NodeSlotOutput::NodeSlotOutput()
+	: NodeSlot()
 {
 	pinID = sGetNewSlotId();
+	slotPlace = NodeSlot::PlaceEnum::OUTPUT;
 }
 
 NodeSlotOutput::NodeSlotOutput(std::string vName)
+	: NodeSlot(vName)
 {
 	pinID = sGetNewSlotId();
-	name = vName;
+	slotPlace = NodeSlot::PlaceEnum::OUTPUT;
 }
 
 NodeSlotOutput::NodeSlotOutput(std::string vName, std::string vType)
+	: NodeSlot(vName, vType)
 {
 	pinID = sGetNewSlotId();
-	name = vName;
-	slotType = vType;
+	slotPlace = NodeSlot::PlaceEnum::OUTPUT;
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
-	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
 }
 
 NodeSlotOutput::NodeSlotOutput(std::string vName, std::string vType, bool vHideName)
+	: NodeSlot(vName, vType, vHideName)
 {
 	pinID = sGetNewSlotId();
-	name = vName;
-	slotType = vType;
+	slotPlace = NodeSlot::PlaceEnum::OUTPUT;
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
-	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
-	hideName = vHideName;
 }
 
 NodeSlotOutput::NodeSlotOutput(std::string vName, std::string vType, bool vHideName, bool vShowWidget)
+	: NodeSlot(vName, vType, vHideName, vShowWidget)
 {
 	pinID = sGetNewSlotId();
-	name = vName;
-	slotType = vType;
+	slotPlace = NodeSlot::PlaceEnum::OUTPUT;
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
-	//stamp.typeStamp = ConvertUniformsTypeEnumToString(type);
-	hideName = vHideName;
-	showWidget = vShowWidget;
 }
 
 NodeSlotOutput::~NodeSlotOutput() = default;
