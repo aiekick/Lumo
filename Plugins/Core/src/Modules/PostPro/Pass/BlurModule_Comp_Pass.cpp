@@ -128,7 +128,7 @@ vk::DescriptorImageInfo* BlurModule_Comp_Pass::GetDescriptorImageInfo(const uint
 	return nullptr;
 }
 
-void BlurModule_Comp_Pass::SwapOutputDescriptors()
+void BlurModule_Comp_Pass::SwapMultiPassFrontBackDescriptors()
 {
 	writeDescriptorSets[0].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // output
 }

@@ -96,7 +96,11 @@ void ShaderPass::ActionBeforeInit()
 
 void ShaderPass::ActionAfterInitSucceed()
 {
-
+	if (IsCompute2DRenderer() && 
+		m_ComputeBufferPtr)
+	{
+		SetDispatchSize2D(m_ComputeBufferPtr->GetOutputSize());
+	}
 }
 
 void ShaderPass::ActionAfterInitFail()
@@ -532,7 +536,7 @@ void ShaderPass::Resize(const ct::uvec2& vNewSize)
 	}
 }
 
-void ShaderPass::SwapOutputDescriptors()
+void ShaderPass::SwapMultiPassFrontBackDescriptors()
 {
 	
 }
@@ -1396,7 +1400,7 @@ void ShaderPass::UpdateRessourceDescriptor()
 	if (m_ComputeBufferPtr && 
 		m_ComputeBufferPtr->IsMultiPassMode())
 	{
-		SwapOutputDescriptors();
+		SwapMultiPassFrontBackDescriptors();
 	}
 
 	m_DescriptorWasUpdated = false;

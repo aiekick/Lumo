@@ -73,7 +73,8 @@ public:
 	GrayScottModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~GrayScottModule_Comp_Pass() override;
 
-	void ActionBeforeInit();
+	void ActionBeforeInit() override;
+	void SwapMultiPassFrontBackDescriptors() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

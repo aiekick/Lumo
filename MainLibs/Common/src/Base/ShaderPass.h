@@ -205,11 +205,30 @@ public:
 	// FBO
 	FrameBufferWeak GetFrameBuffer() { return m_FrameBufferPtr; }
 
+	/// <summary>
+	/// set the compute local group size
+	/// must be set before call to SetDispatchSize functions
+	/// </summary>
+	/// <param name="vLocalGroupSize"></param>
 	void SetLocalGroupSize(const ct::uvec3& vLocalGroupSize);
+
+	/// <summary>
+	/// set the dispatch size according to local group size
+	/// must be called after call to SetLocalGroupSize
+	/// </summary>
+	/// <param name="vDispatchSize"></param>
 	void SetDispatchSize1D(const uint32_t& vDispatchSize);
 	void SetDispatchSize2D(const ct::uvec2& vDispatchSize);
 	void SetDispatchSize3D(const ct::uvec3& vDispatchSize);
+
+	/// <summary>
+	/// get the dispatch size
+	/// </summary>
 	const ct::uvec3& GetDispatchSize();
+
+	/// <summary>
+	/// will execute vCmdBuffer->disaptch according to the defined dispatchsize
+	/// </summary>
 	void Dispatch(vk::CommandBuffer* vCmdBuffer);
 
 	// Set Wigdet limits
@@ -225,7 +244,7 @@ public:
 
 	// swap and write output descriptors imageinfos, in case of multipass
 	// xecuted jsut before compute()
-	virtual void SwapOutputDescriptors(); 
+	virtual void SwapMultiPassFrontBackDescriptors(); 
 
 	void DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber = 1U);
 

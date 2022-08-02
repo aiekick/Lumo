@@ -212,10 +212,17 @@ void GrayScottModule_Comp_Pass::AddGrayScottConfig(const std::string& vConfigNam
 	m_GrayScottConfigs.push_back(ct::fvec4(vDiffXValue, vDiffYValue, vFeedValue, vKillValue));
 }
 
+void GrayScottModule_Comp_Pass::SwapMultiPassFrontBackDescriptors()
+{
+	writeDescriptorSets[0U].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // front buffer
+	writeDescriptorSets[3U].pImageInfo = m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U); // back bubffer
+}
+
 void GrayScottModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (vCmdBuffer)
 	{
+		
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 		
@@ -321,7 +328,7 @@ std::string GrayScottModule_Comp_Pass::GetComputeShaderCode(std::string& vOutSha
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
+layout(binding = 0, rgba32f) uniform writeonly image2D frontBuffer;
 )"
 + CommonSystem::GetBufferObjectStructureHeader(1U) +
 u8R"(
@@ -337,7 +344,7 @@ layout(std140, binding = 2) uniform UBO_Comp
 	float displacement;
 };
 
-layout(binding = 3) uniform sampler2D back_buffer;
+layout(binding = 3) uniform sampler2D backBuffer;
 
 layout(binding = 4) uniform sampler2D input0;
 
@@ -346,14 +353,14 @@ layout(binding = 4) uniform sampler2D input0;
 /* laplacian corner ratio */	#define lc .2
 /* laplacian side ratio */ 		#define ls .8
 
-vec4 get(sampler2D sam, vec2 g, vec2 s, float x, float y)
+vec4 get(image2D sam, vec2 g, vec2 s, float x, float y)
 {
     vec2 v = g + vec2(x,y);
     if (v.x < 0.) v.x = s.x;
     if (v.y < 0.) v.y = s.y;
     if (v.x > s.x) v.x = 0.;
     if (v.y > s.y) v.y = 0.;
-	return texture(sam, v / s);
+	return texture(sam, uvec2(g));
 }
 
 vec4 grayScott(sampler2D sam, vec2 g, vec2 s, vec4 mo)
@@ -403,14 +410,14 @@ void main()
 
 	vec2 s = imageSize(back_buffer);
 
-	vec4 color = grayScott(back_buffer, g, s, left_mouse);
+	vec4 color = grayScott(backBuffer, g, s, left_mouse);
 	
 	if (reset_substances > 0.5)
 	{
 		color = vec4(1,0,0,1);	
 	}
 
-	imageStore(outColor, coords, res); 
+	imageStore(frontBuffer, coords, res); 
 }
 
 )";
