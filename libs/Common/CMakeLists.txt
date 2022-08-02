@@ -64,7 +64,7 @@ add_library(${PROJECT} STATIC ${PROJECT_SRC_RECURSE})
 
 include_directories(
 	src
-	${CMAKE_SOURCE_DIR}/MainLibs
+	${CMAKE_SOURCE_DIR}/libs
 	${CMAKE_SOURCE_DIR}/3rdparty
 	${CMAKE_SOURCE_DIR}/3rdparty/glm
 	${CMAKE_SOURCE_DIR}/3rdparty/glslang

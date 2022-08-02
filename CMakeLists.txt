@@ -167,8 +167,8 @@ message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
 
 include_directories(
 	src
-	${CMAKE_SOURCE_DIR}/MainLibs
-	${CMAKE_SOURCE_DIR}/MainLibs/Common/src
+	${CMAKE_SOURCE_DIR}/libs
+	${CMAKE_SOURCE_DIR}/libs/Common/src
 	${CMAKE_SOURCE_DIR}/3rdparty
 	${CMAKE_SOURCE_DIR}/3rdparty/glm
 	${CMAKE_SOURCE_DIR}/3rdparty/glslang

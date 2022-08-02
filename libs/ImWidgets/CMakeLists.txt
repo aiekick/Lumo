@@ -25,6 +25,6 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX src FILES ${PROJECT_SRC_REC
 add_library(${PROJECT} STATIC ${PROJECT_SRC_RECURSE})
 
 include_directories(
-	${CMAKE_SOURCE_DIR}/MainLibs
+	${CMAKE_SOURCE_DIR}/libs
 	${CMAKE_SOURCE_DIR}/3rdparty
 )

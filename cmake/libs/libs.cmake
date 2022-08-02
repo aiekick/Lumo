@@ -19,7 +19,7 @@ set(DEPENDS_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
 	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glm
 	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/glslang
-	${CMAKE_CURRENT_SOURCE_DIR}/MainLibs
+	${CMAKE_CURRENT_SOURCE_DIR}/libs
 )
 
 include(cmake/libs/ctools.cmake)

@@ -2,7 +2,7 @@ set(UNIFORMWIDGETS_INCLUDE_DIR)
 set(UNIFORMWIDGETS_LIBRARIES)
 set(UNIFORMWIDGETS_LIB_DIR)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/MainLibs/UniformWidgets)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libs/UniformWidgets)
 set_target_properties(${UNIFORMWIDGETS_LIBRARIES} PROPERTIES FOLDER libs)
 ##set_target_properties(${UNIFORMWIDGETS_LIBRARIES} PROPERTIES LINK_FLAGS "/ignore:4244")
 

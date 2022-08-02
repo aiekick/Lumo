@@ -2,7 +2,7 @@ set(INTERFACEBLOCK_INCLUDE_DIR)
 set(INTERFACEBLOCK_LIBRARIES)
 set(INTERFACEBLOCK_LIB_DIR)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/MainLibs/InterfaceBlock)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libs/InterfaceBlock)
 set_target_properties(${INTERFACEBLOCK_LIBRARIES} PROPERTIES FOLDER libs)
 ##set_target_properties(${INTERFACEBLOCK_LIBRARIES} PROPERTIES LINK_FLAGS "/ignore:4244")
 

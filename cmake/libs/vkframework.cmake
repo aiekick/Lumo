@@ -2,7 +2,7 @@ set(VKFRAMEWORK_INCLUDE_DIR)
 set(VKFRAMEWORK_LIBRARIES)
 set(VKFRAMEWORK_LIB_DIR)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/MainLibs/vkFramework)
+add_subdirectory(${CMAKE_SOURCE_DIR}/libs/vkFramework)
 set_target_properties(${VKFRAMEWORK_LIBRARIES} PROPERTIES FOLDER libs)
 ##set_target_properties(${VKFRAMEWORK_LIBRARIES} PROPERTIES LINK_FLAGS "/ignore:4244")
 
