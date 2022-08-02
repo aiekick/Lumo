@@ -32,7 +32,7 @@ std::shared_ptr<GrayScottNode> GrayScottNode::Create(vkApi::VulkanCorePtr vVulka
 
 GrayScottNode::GrayScottNode() : BaseNode()
 {
-	m_NodeTypeString = "GRAY_SCOTT_SIMULATION";
+	m_NodeTypeString = "2D_SIMULATION_GRAY_SCOTT";
 }
 
 GrayScottNode::~GrayScottNode()
@@ -44,7 +44,8 @@ bool GrayScottNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "GrayScott";
 
-	AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
+	//on desctive pour le moment, le sahder le gere, mais on s'en sert pas pour le moment
+	//AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
@@ -116,15 +117,15 @@ void GrayScottNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void GrayScottNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void GrayScottNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_GrayScottModulePtr)
 	{
-		m_GrayScottModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_GrayScottModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void GrayScottNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)

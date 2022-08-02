@@ -43,7 +43,7 @@ NormalFromTextureModule_Comp_Pass::NormalFromTextureModule_Comp_Pass(vkApi::Vulk
 {
 	SetRenderDocDebugName("Comp Pass : Normal From Texture", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 NormalFromTextureModule_Comp_Pass::~NormalFromTextureModule_Comp_Pass()
@@ -98,6 +98,11 @@ void NormalFromTextureModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint
 			if (vTextureSize)
 			{
 				m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+				if (vBindingPoint == 0U)
+				{
+					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
+				}
 			}
 
 			if (vImageInfo)

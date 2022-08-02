@@ -156,15 +156,6 @@ void FrameBuffer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuf
 	}
 }
 
-void FrameBuffer::NeedResize(ct::ivec2* vNewSize)
-{
-	if (vNewSize)
-	{
-		m_TemporarySize = *vNewSize;
-		m_NeedResize = true;
-	}
-}
-
 bool FrameBuffer::ResizeIfNeeded()
 {
 	if (m_NeedResize && m_Loaded)

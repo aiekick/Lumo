@@ -196,7 +196,7 @@ bool ShaderPass::InitPixel(
 	CompilPixel();
 
 	m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
-	if (m_FrameBufferPtr->Init(
+	if (m_FrameBufferPtr && m_FrameBufferPtr->Init(
 		vSize, vCountColorBuffers, vUseDepth, vNeedToClear,
 		vClearColor, vMultiPassMode, vFormat, vSampleCount)) {
 		m_RenderPassPtr = m_FrameBufferPtr->GetRenderPass();
@@ -208,6 +208,10 @@ bool ShaderPass::InitPixel(
 						// c'est pas bon mais on renvoi true car on va afficher 
 						// l'erreur dans le node et on pourra le corriger en editant le shader
 						CreatePixelPipeline();
+
+						m_OutputSize = m_FrameBufferPtr->GetOutputSize();
+						WasJustResized();
+
 						m_Loaded = true;
 					}
 				}
@@ -267,6 +271,10 @@ bool ShaderPass::InitCompute2D(
 						// c'est pas bon mais on renvoi true car on va afficher 
 						// l'erreur dans le node et on pourra le corriger en editant le shader
 						CreateComputePipeline();
+
+						m_OutputSize = m_ComputeBufferPtr->GetOutputSize();
+						WasJustResized();
+
 						m_Loaded = true;
 					}
 				}
@@ -429,62 +437,69 @@ void ShaderPass::SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor)
 #endif
 }
 
-void ShaderPass::AllowResize(const bool& vResizing)
+
+void ShaderPass::AllowResizeOnResizeEvents(const bool& vResizing)
 {
-	m_ResizingIsAllowed = vResizing;
+	m_ResizingByResizeEventIsAllowed = vResizing;
 }
 
-void ShaderPass::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ShaderPass::AllowResizeByHand(const bool& vResizing)
 {
-	if (m_ResizingIsAllowed)
+	m_ResizingByHandIsAllowed = vResizing;
+}
+
+void ShaderPass::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+{
+	if (m_ResizingByResizeEventIsAllowed)
 	{
-		if (m_FrameBufferPtr)
-		{
-			m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
-		}
-		else if (m_ComputeBufferPtr)
-		{
-			m_ComputeBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
-		}
-		else
-		{
-			auto fboPtr = m_FrameBufferWeak.getValidShared();
-			if (fboPtr)
-			{
-				fboPtr->NeedResize(vNewSize, vCountColorBuffers);
-			}
-		}
+		NeedResize(vNewSize, vCountColorBuffers);
 	}
 }
 
-void ShaderPass::NeedResize(ct::ivec2* vNewSize)
+bool ShaderPass::NeedResizeByResizeEventIfChanged(ct::ivec2 vNewSize)
 {
-	if (m_ResizingIsAllowed)
+	// need resize ?
+	if (IS_FLOAT_DIFFERENT((float)vNewSize.x, m_OutputSize.x) &&
+		IS_FLOAT_DIFFERENT((float)vNewSize.y, m_OutputSize.y))
 	{
-		if (m_FrameBufferPtr)
-		{
-			m_FrameBufferPtr->NeedResize(vNewSize);
-		}
-		else if (m_ComputeBufferPtr)
-		{
-			m_ComputeBufferPtr->NeedResize(vNewSize);
-		}
-		else
-		{
-			auto fboPtr = m_FrameBufferWeak.getValidShared();
-			if (fboPtr)
-			{
-				fboPtr->NeedResize(vNewSize);
-			}
-		}
+		// yes !
+		NeedResizeByResizeEvent(&vNewSize);
+
+		return true;
 	}
+
+	return false;
+}
+
+void ShaderPass::NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+{
+	if (m_ResizingByHandIsAllowed)
+	{
+		NeedResize(vNewSize, vCountColorBuffers);
+	}
+}
+
+bool ShaderPass::NeedResizeByHandIfChanged(ct::ivec2 vNewSize)
+{
+	// need resize ?
+	if (IS_FLOAT_DIFFERENT((float)vNewSize.x, m_OutputSize.x) &&
+		IS_FLOAT_DIFFERENT((float)vNewSize.y, m_OutputSize.y))
+	{
+		// yes !
+		NeedResizeByHand(&vNewSize);
+
+		return true;
+	}
+
+	return false;
 }
 
 bool ShaderPass::ResizeIfNeeded()
 {
 	ZoneScoped;
 
-	if (m_ResizingIsAllowed)
+	if (m_ResizingByHandIsAllowed ||
+		m_ResizingByResizeEventIsAllowed)
 	{
 		if (m_FrameBufferPtr && 
 			m_FrameBufferPtr->ResizeIfNeeded())
@@ -520,11 +535,36 @@ void ShaderPass::WasJustResized()
 
 }
 
+void ShaderPass::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+{
+	if (m_ResizingByHandIsAllowed ||
+		m_ResizingByResizeEventIsAllowed)
+	{
+		if (m_FrameBufferPtr)
+		{
+			m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
+		}
+		else if (m_ComputeBufferPtr)
+		{
+			m_ComputeBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
+		}
+		else
+		{
+			auto fboPtr = m_FrameBufferWeak.getValidShared();
+			if (fboPtr)
+			{
+				fboPtr->NeedResize(vNewSize, vCountColorBuffers);
+			}
+		}
+	}
+}
+
 void ShaderPass::Resize(const ct::uvec2& vNewSize)
 {
 	ZoneScoped;
 
-	if (m_ResizingIsAllowed)
+	if (m_ResizingByHandIsAllowed || 
+		m_ResizingByResizeEventIsAllowed)
 	{
 		if (m_FrameBufferPtr || !m_FrameBufferWeak.expired())
 		{
@@ -533,7 +573,7 @@ void ShaderPass::Resize(const ct::uvec2& vNewSize)
 		}
 		else if (m_ComputeBufferPtr)
 		{
-			m_DispatchSize = ct::uvec3(vNewSize, 1U);
+			SetDispatchSize2D(vNewSize);
 		}
 
 		m_OutputSize = ct::fvec2((float)vNewSize.x, (float)vNewSize.y);
@@ -1232,6 +1272,10 @@ std::string ShaderPass::getXml(const std::string& vOffset, const std::string& vU
 
 	//str += m_UniformWidgets.getXml(vOffset, vUserDatas);
 
+	str += vOffset + "\t<resize_by_event>" + (m_ResizingByResizeEventIsAllowed ? "true" : "false") + "</resize_by_event>\n";
+	str += vOffset + "\t<resize_by_hand>" + (m_ResizingByHandIsAllowed ? "true" : "false") + "</resize_by_hand>\n";
+	str += vOffset + "\t<buffer_quality>" + ct::toStr(m_BufferQuality) + "</buffer_quality>\n";
+
 	return str;
 }
 
@@ -1250,6 +1294,13 @@ bool ShaderPass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 		strParentName = vParent->Value();
 
 	//m_UniformWidgets.setFromXml(vElem, vParent, vUserDatas);
+
+	if (strName == "resize_by_event")
+		m_ResizingByResizeEventIsAllowed = ct::ivariant(strValue).GetB();
+	else if (strName == "resize_by_hand")
+		m_ResizingByHandIsAllowed = ct::ivariant(strValue).GetB();
+	else if (strName == "buffer_quality")
+		m_BufferQuality = ct::fvariant(strValue).GetF();
 
 	return true;
 }
@@ -1387,38 +1438,38 @@ void ShaderPass::UpdateRessourceDescriptor()
 	m_UniformWidgets.UpdateBuffers(m_This);
 	m_UniformWidgets.UpdateBlocks(m_This, true);*/
 
-	UpdateModel(m_Loaded);
+UpdateModel(m_Loaded);
 
-	if (m_NeedNewUBOUpload)
-	{
-		UploadUBO();
-		m_NeedNewUBOUpload = false;
-	}
+if (m_NeedNewUBOUpload)
+{
+	UploadUBO();
+	m_NeedNewUBOUpload = false;
+}
 
-	if (m_NeedNewSBOUpload)
-	{
-		UploadSBO();
-		m_NeedNewSBOUpload = false;
-	}
+if (m_NeedNewSBOUpload)
+{
+	UploadSBO();
+	m_NeedNewSBOUpload = false;
+}
 
-	if (m_ComputeBufferPtr && 
-		m_ComputeBufferPtr->IsMultiPassMode())
-	{
-		SwapMultiPassFrontBackDescriptors();
-	}
+if (m_ComputeBufferPtr &&
+	m_ComputeBufferPtr->IsMultiPassMode())
+{
+	SwapMultiPassFrontBackDescriptors();
+}
 
-	m_DescriptorWasUpdated = false;
-	if (CanUpdateDescriptors())
-	{
-		// update descriptor
-		m_Device.updateDescriptorSets(writeDescriptorSets, nullptr);
-		m_DescriptorWasUpdated = true;
-	}
+m_DescriptorWasUpdated = false;
+if (CanUpdateDescriptors())
+{
+	// update descriptor
+	m_Device.updateDescriptorSets(writeDescriptorSets, nullptr);
+	m_DescriptorWasUpdated = true;
+}
 
-	// on le met la avant le rendu plutot qu'apres sinon au reload la 1ere
-	// frame vaut 0 et ca peut reset le shader selon ce qu'on a mis dedans
-	// par contre on incremente la frame apres le submit
-	//m_UniformWidgets.SetFrame(m_Frame);
+// on le met la avant le rendu plutot qu'apres sinon au reload la 1ere
+// frame vaut 0 et ca peut reset le shader selon ce qu'on a mis dedans
+// par contre on incremente la frame apres le submit
+//m_UniformWidgets.SetFrame(m_Frame);
 }
 
 void ShaderPass::DestroyRessourceDescriptor()
@@ -1469,6 +1520,39 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 void ShaderPass::NeedToClearFBOThisFrame()
 {
 	m_ForceFBOClearing = true;
+}
+
+bool ShaderPass::DrawResizeWidget()
+{
+	bool resize = false;
+
+	ImGui::Header("Buffers resize");
+
+	ImGui::CheckBoxBoolDefault("Auto Resize by 3D viewport", &m_ResizingByResizeEventIsAllowed, true);
+	ImGui::CheckBoxBoolDefault("Resize by Hand", &m_ResizingByHandIsAllowed, true);
+
+	if (m_ResizingByHandIsAllowed)
+	{
+		const float aw = ImGui::GetContentRegionAvail().x;
+
+		if (ImGui::SliderFloatDefaultCompact(aw, "Quality (smaller value is better)", &m_BufferQuality, 0.5f, 4.0f, 1.0f, 0.25f))
+		{
+			m_BufferQuality = ct::clamp(m_BufferQuality, 0.25f, 4.0f);
+			resize = true;
+		}
+		
+		ct::uvec2 size = m_OutputSize;
+		resize |= ImGui::SliderUIntDefaultCompact(aw, "Width", &size.x, 1U, 2048U, 512U);
+		resize |= ImGui::SliderUIntDefaultCompact(aw, "Height", &size.y, 1U, 2048U, 512U);
+		if (resize)
+		{
+			ct::fvec2 new_quality_size = ct::clamp(ct::fvec2(size) / m_BufferQuality, 1.0f, 4096.0f); // 2048 / 0.5 => 4096
+			ct::ivec2 new_size = ct::clamp(ct::ivec2(new_quality_size), 1, 2048);
+			NeedResizeByHand(&new_size);
+		}
+	}
+
+	return resize;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

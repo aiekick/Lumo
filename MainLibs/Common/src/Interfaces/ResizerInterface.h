@@ -24,6 +24,6 @@ public:
 	ct::fvec2 m_fOutputSize;
 
 public:
-	virtual void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) = 0; 
+	virtual void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) = 0;
 	virtual ct::fvec2 GetOutputSize() { return m_fOutputSize; }
 };

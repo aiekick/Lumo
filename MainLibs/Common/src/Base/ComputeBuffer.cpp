@@ -131,15 +131,6 @@ void ComputeBuffer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorB
 	}
 }
 
-void ComputeBuffer::NeedResize(ct::ivec2* vNewSize)
-{
-	if (vNewSize)
-	{
-		m_TemporarySize = *vNewSize;
-		m_NeedResize = true;
-	}
-}
-
 bool ComputeBuffer::ResizeIfNeeded()
 {
 	if (m_NeedResize && m_Loaded)

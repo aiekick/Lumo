@@ -139,15 +139,15 @@ void MathNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void MathNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void MathNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_MathModulePtr)
 	{
-		m_MathModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_MathModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void MathNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)

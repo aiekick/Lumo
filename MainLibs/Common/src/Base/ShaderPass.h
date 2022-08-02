@@ -103,7 +103,9 @@ protected:
 	FrameBufferWeak m_FrameBufferWeak; // when loaned
 	FrameBufferPtr m_FrameBufferPtr = nullptr;
 	ComputeBufferPtr m_ComputeBufferPtr = nullptr;
-	bool m_ResizingIsAllowed = true;
+	bool m_ResizingByResizeEventIsAllowed = true;
+	bool m_ResizingByHandIsAllowed = true;
+	float m_BufferQuality = 1.0f; // smaller value give bigger resolution
 
 	// dynamic state
 	vk::Rect2D m_RenderArea = {};
@@ -190,10 +192,48 @@ public:
 
 	void SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor);
 
-	void AllowResize(const bool& vResizing); // allow or block the resize
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers); // to call at any moment
-	void NeedResize(ct::ivec2* vNewSize); // to call at any moment
-	void Resize(const ct::uvec2& vNewSize);
+	/// <summary>
+	/// allow or block resize by resize event
+	/// </summary>
+	/// <param name="vResizing"></param>
+	void AllowResizeOnResizeEvents(const bool& vResizing); // allow or block the resize
+
+	/// <summary>
+	/// allod of block reisze by hand only
+	/// </summary>
+	/// <param name="vResizing"></param>
+	void AllowResizeByHand(const bool& vResizing); // allow or block the resize
+
+	/// <summary>
+	/// to call when from resize event
+	/// </summary>
+	/// <param name="vNewSize"></param>
+	/// <param name="vCountColorBuffers"></param>
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
+
+	/// <summary>
+	/// will resize if the new size is different
+	/// </summary>
+	/// <param name="vNewSize"></param>
+	/// <returns></returns>
+	bool NeedResizeByResizeEventIfChanged(ct::ivec2 vNewSize);
+
+	/// <summary>
+	/// to call when from hand
+	/// </summary>
+	/// <param name="vNewSize"></param>
+	/// <param name="vCountColorBuffers"></param>
+	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
+
+	/// <summary>
+	/// will resize if the new size is different
+	/// </summary>
+	bool NeedResizeByHandIfChanged(ct::ivec2 vNewSize);
+
+	/// <summary>
+	/// will resize if the resize is need by FBO or compute buffers
+	/// </summary>
+	/// <returns></returns>
 	bool ResizeIfNeeded();
 
 	/// <summary>
@@ -266,6 +306,14 @@ public:
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
 
 	void NeedToClearFBOThisFrame();
+
+protected: // IMGUI
+	bool DrawResizeWidget();
+
+private:
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers); // to call at any moment
+	void NeedResize(ct::ivec2* vNewSize); // to call at any moment
+	void Resize(const ct::uvec2& vNewSize);
 
 protected:
 	virtual void ActionBeforeCompilation();

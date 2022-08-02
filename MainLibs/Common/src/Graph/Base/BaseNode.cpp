@@ -1912,7 +1912,7 @@ void BaseNode::PropagateBackNotification(const NotifyEvent& vEvent)
 	}
 }
 
-void BaseNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void BaseNode::NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	for (auto input : m_Inputs)
 	{
@@ -1926,7 +1926,29 @@ void BaseNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffer
 					auto parentPtr = slotPtr->parentNode.getValidShared();
 					if (parentPtr)
 					{
-						parentPtr->NeedResize(vNewSize, vCountColorBuffers);
+						parentPtr->NeedResizeByHand(vNewSize, vCountColorBuffers);
+					}
+				}
+			}
+		}
+	}
+}
+
+void BaseNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+{
+	for (auto input : m_Inputs)
+	{
+		if (input.second)
+		{
+			for (auto slot : input.second->linkedSlots)
+			{
+				auto slotPtr = slot.getValidShared();
+				if (slotPtr)
+				{
+					auto parentPtr = slotPtr->parentNode.getValidShared();
+					if (parentPtr)
+					{
+						parentPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 					}
 				}
 			}

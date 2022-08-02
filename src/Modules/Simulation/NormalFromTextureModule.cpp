@@ -84,6 +84,10 @@ bool NormalFromTextureModule::Init()
 		m_NormalFromTextureModule_Comp_Pass_Ptr = std::make_shared<NormalFromTextureModule_Comp_Pass>(m_VulkanCorePtr);
 		if (m_NormalFromTextureModule_Comp_Pass_Ptr)
 		{
+			// will be resized ot input size
+			m_NormalFromTextureModule_Comp_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			m_NormalFromTextureModule_Comp_Pass_Ptr->AllowResizeByHand(true);
+
 			if (m_NormalFromTextureModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_NormalFromTextureModule_Comp_Pass_Ptr);
@@ -150,9 +154,9 @@ void NormalFromTextureModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFr
 	}
 }
 
-void NormalFromTextureModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void NormalFromTextureModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void NormalFromTextureModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)

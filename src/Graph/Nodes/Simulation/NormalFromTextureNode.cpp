@@ -32,7 +32,7 @@ std::shared_ptr<NormalFromTextureNode> NormalFromTextureNode::Create(vkApi::Vulk
 
 NormalFromTextureNode::NormalFromTextureNode() : BaseNode()
 {
-	m_NodeTypeString = "NORMAL_FROM_TEXTURE_2D";
+	m_NodeTypeString = "2D_NORMAL_FROM_TEXTURE";
 }
 
 NormalFromTextureNode::~NormalFromTextureNode()
@@ -116,15 +116,15 @@ void NormalFromTextureNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeS
 	}
 }
 
-void NormalFromTextureNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void NormalFromTextureNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_NormalFromTextureModulePtr)
 	{
-		m_NormalFromTextureModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_NormalFromTextureModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void NormalFromTextureNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)

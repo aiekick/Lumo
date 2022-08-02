@@ -334,24 +334,24 @@ void BaseRenderer::Unit()
 //// PUBLIC / RESIZE ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void BaseRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void BaseRenderer::NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	for (auto passPtr : m_ShaderPass)
 	{
 		if (passPtr)
 		{
-			passPtr->NeedResize(vNewSize, vCountColorBuffers);
+			passPtr->NeedResizeByHand(vNewSize, vCountColorBuffers);
 		}
 	}
 }
 
-void BaseRenderer::NeedResize(ct::ivec2* vNewSize)
+void BaseRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	for (auto passPtr : m_ShaderPass)
 	{
 		if (passPtr)
 		{
-			passPtr->NeedResize(vNewSize);
+			passPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 		}
 	}
 }

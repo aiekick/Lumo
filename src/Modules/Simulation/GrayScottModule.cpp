@@ -84,6 +84,10 @@ bool GrayScottModule::Init()
 		m_GrayScottModule_Comp_Pass_Ptr = std::make_shared<GrayScottModule_Comp_Pass>(m_VulkanCorePtr);
 		if (m_GrayScottModule_Comp_Pass_Ptr)
 		{
+			// by default but can be changed via widget
+			m_GrayScottModule_Comp_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			m_GrayScottModule_Comp_Pass_Ptr->AllowResizeByHand(true);
+
 			if (m_GrayScottModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_GrayScottModule_Comp_Pass_Ptr);
@@ -150,9 +154,9 @@ void GrayScottModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	}
 }
 
-void GrayScottModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void GrayScottModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void GrayScottModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)

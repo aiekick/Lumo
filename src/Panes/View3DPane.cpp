@@ -154,7 +154,7 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 						if (outputSize.x != (uint32_t)maxSize.x ||
 							outputSize.y != (uint32_t)maxSize.y)
 						{
-							outputModulePtr->NeedResize(&maxSize, nullptr);
+							outputModulePtr->NeedResizeByResizeEvent(&maxSize, nullptr);
 							CommonSystem::Instance()->SetScreenSize(ct::uvec2(maxSize.x, maxSize.y));
 							CommonSystem::Instance()->NeedCamChange();
 						}

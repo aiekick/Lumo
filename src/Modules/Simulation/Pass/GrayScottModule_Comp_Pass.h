@@ -59,7 +59,7 @@ private:
 	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOComp {
-		alignas(4) float mouse_radius = 0.05f;
+		alignas(4) float mouse_radius = 10.0f;
 		alignas(4) float mouse_inversion = 0.0f;
 		alignas(4) float reset_substances = 0.0f;
 		alignas(4) float grayscott_diffusion_u = 1.0;

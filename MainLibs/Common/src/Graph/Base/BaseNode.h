@@ -367,7 +367,8 @@ public:
 	/// <param name="vEvent"></param>
 	void PropagateBackNotification(const NotifyEvent& vEvent);
 
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers);
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	ct::fvec2 GetOutputSize() override;
 
 	virtual void UpdateSlots();

@@ -587,7 +587,7 @@ void MathModule_Quad_Pass::ResizeToMaxOfTexturesIfNeeded()
 			{
 				// yes !
 				ct::ivec2 new_size = ct::ivec2((int32_t)max_size.x, (int32_t)max_size.y);
-				QuadShaderPass::NeedResize(&new_size);
+				QuadShaderPass::NeedResizeByHand(&new_size);
 			}
 		}
 	}

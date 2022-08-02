@@ -91,8 +91,7 @@ public: // contructor
 	void Unit();
 
 	// resize
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers); // to call at any moment
-	void NeedResize(ct::ivec2* vNewSize); // to call at any moment
+	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
 
 	// not to call at any moment, to call only aftter submit or before any command buffer recording
 	// return true, if was resized
