@@ -25,5 +25,5 @@ protected:
 
 public:
 	// set a model composed of many mesh
-	virtual void SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure) = 0;
+	virtual void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) = 0;
 };

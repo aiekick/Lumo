@@ -14,42 +14,66 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
+#pragma once
+
+#include <set>
+#include <array>
+#include <string>
+#include <memory>
+
+#include <Headers/Globals.h>
+
+#include <ctools/cTools.h>
+#include <ctools/ConfigAbstract.h>
+
+#include <Base/BaseRenderer.h>
+#include <Base/QuadShaderPass.h>
+
+#include <vulkan/vulkan.hpp>
+#include <vkFramework/Texture2D.h>
+#include <vkFramework/VulkanCore.h>
+#include <vkFramework/VulkanDevice.h>
+#include <vkFramework/vk_mem_alloc.h>
+#include <vkFramework/VulkanShader.h>
+#include <vkFramework/ImGuiTexture.h>
+#include <vkFramework/VulkanRessource.h>
+#include <vkFramework/VulkanFrameBuffer.h>
+
+#include <Interfaces/GuiInterface.h>
+#include <Interfaces/TaskInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
+#include <Interfaces/ResizerInterface.h>
 
-class MathModule;
-class MathNode :
-	public BaseNode,
-	public TextureInputInterface<0U>,
+class Layering2DModule_Comp_Pass;
+class Layering2DModule :
+	public BaseRenderer,
+	public GuiInterface,
+	public TaskInterface,
+	public TextureInputInterface<2U>,
 	public TextureOutputInterface,
-	public ShaderUpdateInterface
+	public ResizerInterface
 {
 public:
-	static std::shared_ptr<MathNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<Layering2DModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<MathModule> m_MathModulePtr = nullptr;
+	ct::cWeak<Layering2DModule> m_This;
+	std::shared_ptr<Layering2DModule_Comp_Pass> m_Layering2DModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	MathNode();
-	~MathNode() override;
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	Layering2DModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~Layering2DModule() override;
+
+	bool Init();
+
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
+	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	void TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
-
-private:
-	void DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;
-	void ReorganizeSlots();
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };
