@@ -43,7 +43,7 @@ GrayScottModule_Comp_Pass::GrayScottModule_Comp_Pass(vkApi::VulkanCorePtr vVulka
 {
 	SetRenderDocDebugName("Comp Pass : GrayScott", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 GrayScottModule_Comp_Pass::~GrayScottModule_Comp_Pass()
@@ -224,41 +224,26 @@ void GrayScottModule_Comp_Pass::WasJustResized()
 	}
 }
 
-void GrayScottModule_Comp_Pass::SwapMultiPassFrontBackDescriptors()
-{
-	ZoneScoped;
-
-	if (m_ComputeBufferPtr)
-	{
-		writeDescriptorSets[0U].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // front buffer
-		writeDescriptorSets[3U].pImageInfo = m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U); // back bubffer
-	}
-}
-
 void GrayScottModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (vCmdBuffer)
 	{
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
 
+		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+
 		for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
 		{
-			writeDescriptorSets[0U].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // front buffer
-			writeDescriptorSets[3U].pImageInfo = m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U); // back bubffer
-			UpdateRessourceDescriptor();
-
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-
 			Dispatch(vCmdBuffer);
+		}
 
-			// ca c'est les bouton et ca doit etre un one shot 
-			// donc on fait ca pour le reset et re provoquer un update
-			if (m_UBOComp.reset_substances > 0.5f)
-			{
-				m_UBOComp.reset_substances = 0.0f;
+		// ca c'est les bouton et ca doit etre un one shot 
+		// donc on fait ca pour le reset et re provoquer un update
+		if (m_UBOComp.reset_substances > 0.5f)
+		{
+			m_UBOComp.reset_substances = 0.0f;
 
-				NeedNewUBOUpload();
-			}
+			NeedNewUBOUpload();
 		}
 	}
 }
@@ -310,7 +295,6 @@ bool GrayScottModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
 }
@@ -331,10 +315,7 @@ bool GrayScottModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer,
 		nullptr, &m_UBO_Comp_BufferInfos);
 
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, 
-		m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // back buffer
-
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler,
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler,
 		&m_ImageInfos[0], nullptr); // input 0
 
 	return true;
@@ -352,7 +333,7 @@ std::string GrayScottModule_Comp_Pass::GetComputeShaderCode(std::string& vOutSha
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform writeonly image2D frontBuffer;
+layout(binding = 0, rgba32f) uniform image2D colorBuffer;
 )"
 + CommonSystem::GetBufferObjectStructureHeader(1U) +
 u8R"(
@@ -369,14 +350,12 @@ layout(std140, binding = 2) uniform UBO_Comp
 	ivec2 image_size;
 };
 
-layout(binding = 3) uniform readonly sampler2D backBuffer;
-
-layout(binding = 4) uniform readonly sampler2D input0;
+layout(binding = 3) uniform sampler2D input0;
 
 vec4 getPixel(ivec2 g, int x, int y)
 {
     ivec2 v = (g + ivec2(x,y)) % image_size;
-	return texelFetch(backBuffer, v, 0);
+	return imageLoad(colorBuffer, v);
 }
 
 /* laplacian corner ratio */	#define lc .2
@@ -433,7 +412,7 @@ void main()
 
 	vec4 color = grayScott(coords, left_mouse);
 
-	imageStore(frontBuffer, coords, color); 
+	imageStore(colorBuffer, coords, color); 
 }
 )";
 }

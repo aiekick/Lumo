@@ -67,7 +67,6 @@ private:
 		alignas(4) float grayscott_feed = 0.026f;
 		alignas(4) float grayscott_kill = 0.051f;
 		alignas(4) float displacement = 0.2f;
-		alignas(4) uint32_t current_frame = 0;
 		alignas(8) ct::ivec2 image_size = 0;
 	} m_UBOComp;
 
@@ -77,7 +76,6 @@ public:
 
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
-	void SwapMultiPassFrontBackDescriptors() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
