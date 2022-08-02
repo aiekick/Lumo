@@ -248,11 +248,11 @@ bool ShaderPass::InitCompute2D(
 
 	m_CountColorBuffers = vCountColorBuffers;
 
-	m_DispatchSize = ct::uvec3(vDispatchSize.x, vDispatchSize.y, 1U);
-
 	// ca peut ne pas compiler, masi c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	CompilCompute();
+
+	SetDispatchSize2D(vDispatchSize);
 
 	m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
 	if (m_ComputeBufferPtr && 
@@ -299,11 +299,11 @@ bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize)
 	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
 	m_CommandPool = m_Queue.cmdPools;
 
-	m_DispatchSize = vDispatchSize;
-
 	// ca peut ne pas compiler, masi c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	CompilCompute();
+
+	SetDispatchSize3D(vDispatchSize);
 
 	if (BuildModel()) {
 		if (CreateSBO()) {
@@ -352,11 +352,11 @@ bool ShaderPass::InitRtx(
 
 	m_CountColorBuffers = vCountColorBuffers;
 
-	m_DispatchSize = ct::uvec3(vDispatchSize.x, vDispatchSize.y, 1U);
-
 	// ca peut ne pas compiler, mais c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	CompilRtx();
+
+	SetDispatchSize2D(vDispatchSize);
 
 	m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
 	if (m_ComputeBufferPtr &&
@@ -515,6 +515,11 @@ bool ShaderPass::ResizeIfNeeded()
 	return false;
 }
 
+void ShaderPass::WasJustResized()
+{
+
+}
+
 void ShaderPass::Resize(const ct::uvec2& vNewSize)
 {
 	ZoneScoped;
@@ -533,6 +538,8 @@ void ShaderPass::Resize(const ct::uvec2& vNewSize)
 
 		m_OutputSize = ct::fvec2((float)vNewSize.x, (float)vNewSize.y);
 		m_OutputRatio = m_OutputSize.ratioXY<float>();
+
+		WasJustResized();
 	}
 }
 
@@ -586,15 +593,12 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 		}
 		else if (IsCompute2DRenderer())
 		{
-			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
+			if (m_ComputeBufferPtr &&
+				m_ComputeBufferPtr->Begin(vCmdBuffer))
 			{
-				if (m_ComputeBufferPtr &&
-					m_ComputeBufferPtr->Begin(vCmdBuffer))
-				{
-					Compute(vCmdBuffer, vIterationNumber);
+				Compute(vCmdBuffer, vIterationNumber);
 
-					m_ComputeBufferPtr->End(vCmdBuffer);
-				}
+				m_ComputeBufferPtr->End(vCmdBuffer);
 			}
 		}
 		else if (IsCompute3DRenderer())

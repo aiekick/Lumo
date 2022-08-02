@@ -196,6 +196,11 @@ public:
 	void Resize(const ct::uvec2& vNewSize);
 	bool ResizeIfNeeded();
 
+	/// <summary>
+	/// to call (herited), inform than a resized was jsut done
+	/// </summary>
+	virtual void WasJustResized();
+
 	// Renderer Type
 	bool IsPixelRenderer();
 	bool IsCompute2DRenderer();

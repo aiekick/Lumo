@@ -86,7 +86,7 @@ bool GrayScottModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 
 	ImGui::Header("Mouse");
 
-	change |= ImGui::SliderFloatDefaultCompact(aw, "Mouse Radius", &m_UBOComp.mouse_radius, 0.0f, 1.0f, 0.05f);
+	change |= ImGui::SliderFloatDefaultCompact(aw, "Mouse Radius", &m_UBOComp.mouse_radius, 0.0f, 100.0f, 10.0f);
 	if (ImGui::RadioButtonLabeled(aw, "Mouse Inversion", m_UBOComp.mouse_inversion > 0.5f, false))
 	{
 		m_UBOComp.mouse_inversion = (m_UBOComp.mouse_inversion > 0.5f) ? 0.0f : 1.0f;
@@ -212,29 +212,53 @@ void GrayScottModule_Comp_Pass::AddGrayScottConfig(const std::string& vConfigNam
 	m_GrayScottConfigs.push_back(ct::fvec4(vDiffXValue, vDiffYValue, vFeedValue, vKillValue));
 }
 
+void GrayScottModule_Comp_Pass::WasJustResized()
+{
+	ZoneScoped;
+
+	if (m_ComputeBufferPtr)
+	{
+		m_UBOComp.image_size = m_ComputeBufferPtr->GetOutputSize();
+
+		NeedNewUBOUpload();
+	}
+}
+
 void GrayScottModule_Comp_Pass::SwapMultiPassFrontBackDescriptors()
 {
-	writeDescriptorSets[0U].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // front buffer
-	writeDescriptorSets[3U].pImageInfo = m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U); // back bubffer
+	ZoneScoped;
+
+	if (m_ComputeBufferPtr)
+	{
+		writeDescriptorSets[0U].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // front buffer
+		writeDescriptorSets[3U].pImageInfo = m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U); // back bubffer
+	}
 }
 
 void GrayScottModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (vCmdBuffer)
 	{
-		
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
-		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-		
-		Dispatch(vCmdBuffer);
 
-		// ca c'est les bouton et ca doit etre un one shot 
-		// donc on fait ca pour le reset et re provoquer un update
-		if (m_UBOComp.reset_substances > 0.5f)
+		for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
 		{
-			m_UBOComp.reset_substances = 0.0f;
+			writeDescriptorSets[0U].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // front buffer
+			writeDescriptorSets[3U].pImageInfo = m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U); // back bubffer
+			UpdateRessourceDescriptor();
 
-			NeedNewUBOUpload();
+			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+
+			Dispatch(vCmdBuffer);
+
+			// ca c'est les bouton et ca doit etre un one shot 
+			// donc on fait ca pour le reset et re provoquer un update
+			if (m_UBOComp.reset_substances > 0.5f)
+			{
+				m_UBOComp.reset_substances = 0.0f;
+
+				NeedNewUBOUpload();
+			}
 		}
 	}
 }
@@ -308,7 +332,7 @@ bool GrayScottModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 		nullptr, &m_UBO_Comp_BufferInfos);
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, 
-		m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // nack buffer
+		m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // back buffer
 
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler,
 		&m_ImageInfos[0], nullptr); // input 0
@@ -342,84 +366,75 @@ layout(std140, binding = 2) uniform UBO_Comp
 	float grayscott_feed;
 	float grayscott_kill;
 	float displacement;
+	ivec2 image_size;
 };
 
-layout(binding = 3) uniform sampler2D backBuffer;
+layout(binding = 3) uniform readonly sampler2D backBuffer;
 
-layout(binding = 4) uniform sampler2D input0;
+layout(binding = 4) uniform readonly sampler2D input0;
 
-/* feed rate */ 				#define fr .01131
-/* kill rate */ 				#define kr .04
+vec4 getPixel(ivec2 g, int x, int y)
+{
+    ivec2 v = (g + ivec2(x,y)) % image_size;
+	return texelFetch(backBuffer, v, 0);
+}
+
 /* laplacian corner ratio */	#define lc .2
 /* laplacian side ratio */ 		#define ls .8
 
-vec4 get(image2D sam, vec2 g, vec2 s, float x, float y)
+vec4 grayScott(ivec2 g, vec4 mo)
 {
-    vec2 v = g + vec2(x,y);
-    if (v.x < 0.) v.x = s.x;
-    if (v.y < 0.) v.y = s.y;
-    if (v.x > s.x) v.x = 0.;
-    if (v.y > s.y) v.y = 0.;
-	return texture(sam, uvec2(g));
-}
-
-vec4 grayScott(sampler2D sam, vec2 g, vec2 s, vec4 mo)
-{
-    vec4 l 	= 	get(sam, g, s, -1. ,  0.);
-	vec4 lt = 	get(sam, g, s, -1. ,  1.);
-	vec4 t 	= 	get(sam, g, s,  0. ,  1.);
-	vec4 rt = 	get(sam, g, s,  1. ,  1.);
-	vec4 r 	= 	get(sam, g, s,  1. ,  0.);
-	vec4 rb = 	get(sam, g, s,  1. , -1.);
-	vec4 b 	= 	get(sam, g, s,  0. , -1.);
-	vec4 lb = 	get(sam, g, s, -1. , -1.);
-	vec4 c 	= 	get(sam, g, s,  0. ,  0.);
+    vec4 l 	= getPixel(g, -1,  0);
+	vec4 lt = getPixel(g, -1,  1);
+	vec4 t 	= getPixel(g,  0,  1);
+	vec4 rt = getPixel(g,  1,  1);
+	vec4 r 	= getPixel(g,  1,  0);
+	vec4 rb = getPixel(g,  1, -1);
+	vec4 b 	= getPixel(g,  0, -1);
+	vec4 lb = getPixel(g, -1, -1);
+	vec4 c 	= getPixel(g,  0,  0);
 	vec4 lap = (l+t+r+b)/4.*ls + (lt+rt+rb+lb)/4.*lc - c; // laplacian
 
 	float re = c.x * c.y * c.y; // reaction
     c.xy += vec2(grayscott_diffusion_u, grayscott_diffusion_v) * lap.xy + 
-		vec2(fr * (1. - c.x) - re, re - (fr + kr) * c.y); // grayscott formula
+		vec2(grayscott_feed * (1. - c.x) - re, re - (grayscott_feed + grayscott_kill) * c.y); // grayscott formula
 	
-	if (length(g - s * 0.5) < mouse_radius) 
+	if (length(vec2(g - image_size / 2)) < mouse_radius) 
 	{
 		c = vec4(0,1,0,1);
 	}
 
 	if (mo.z > 0.) 
 	{
-		if (length(g - mo.xy) < mouse_radius) 
+		if (length(vec2(g) - mo.xy * vec2(image_size)) < mouse_radius) 
 		{
 			if (mouse_inversion > 0.5)
 			{
-				c = vec4(0,1,0,1);
+				c = vec4(1,0,0,1);
 			}
 			else
 			{
-				c = vec4(1,0,0,1);
+				c = vec4(0,1,0,1);
 			}
 		}
 	}
 
-	return vec4(clamp(c.xy, 0., 1e1), 0, 1);
+	if (reset_substances > 0.5)
+	{
+		c = vec4(1,0,0,1);	
+	}
+
+	return vec4(clamp(c.xy, -1e1, 1e1), 0, 1);
 }
 
 void main()
 {
-	const uvec2 coords = gl_GlobalInvocationID.xy;
-	const vec2 g = vec2(gl_GlobalInvocationID.xy);
+	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 
-	vec2 s = imageSize(back_buffer);
+	vec4 color = grayScott(coords, left_mouse);
 
-	vec4 color = grayScott(backBuffer, g, s, left_mouse);
-	
-	if (reset_substances > 0.5)
-	{
-		color = vec4(1,0,0,1);	
-	}
-
-	imageStore(frontBuffer, coords, res); 
+	imageStore(frontBuffer, coords, color); 
 }
-
 )";
 }
 
