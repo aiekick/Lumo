@@ -65,7 +65,7 @@ struct GraphStyleStruct
 	ImVec4 HOVERED_BACKGROUND_COLOR = ImVec4(0.3f, 0.3f, 0.3f, 1.0f);
 	
 	// slot
-	float SLOT_RADIUS = 2.0f;
+	float SLOT_RADIUS = 5.0f;
 	ImVec4 SLOT_COLOR = ImVec4(0.8f, 0.8f, 0.2f, 1.0f);
 	ImVec4 FLOW_SLOT_COLOR = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	ImVec4 FUNCTION_SLOT_COLOR = ImVec4(0.8f, 0.2f, 0.2f, 1.0f);
@@ -180,8 +180,10 @@ class BaseNode :
 {
 public:
 	BaseNodeWeak m_This;
-	BaseNodeWeak m_Output3DNode;
-	BaseNodeWeak m_Output2DNode;
+	BaseNodeWeak m_GraphRoot3DNode;
+	BaseNodeWeak m_GraphRoot2DNode;
+	//BaseNodeWeak m_Output3DNode;
+	//BaseNodeWeak m_Output2DNode;
 
 public: // links
 	std::unordered_map<uint32_t, std::shared_ptr<NodeLink>> m_Links; // linkId, link // for search query
@@ -193,19 +195,22 @@ public: // static
 	// get shared from weak
 	static BaseNodePtr GetSharedFromWeak(const BaseNodeWeak& vNode);
 
-	static std::function<void(BaseNodeWeak)> sOpenGraphCallback; // open graph
+	static std::function<void(const BaseNodeWeak&)> sOpenGraphCallback; // open graph
 	static void OpenGraph_Callback(const BaseNodeWeak& vNode);
 
-	static std::function<void(std::string)> sOpenCodeCallback; // open code
-	static void OpenCode_Callback(std::string vCode);
+	static std::function<void(const BaseNodeWeak&, const NodeSlotWeak&, const ImGuiMouseButton&)> sSelectForGraphOutputCallback; // select for be the graph output
+	static void SelectForGraphOutput_Callback(const BaseNodeWeak& vNode, const NodeSlotWeak& vSlot, const ImGuiMouseButton&);
 
-	static std::function<void(std::string)> sLogErrorsCallback; // log errors
-	static void LogErrors_Callback(std::string vErrors);
+	static std::function<void(const std::string&)> sOpenCodeCallback; // open code
+	static void OpenCode_Callback(const std::string& vCode);
 
-	static std::function<void(std::string)> sLogInfosCallback; // log infos
-	static void LogInfos_Callback(std::string vInfos);
+	static std::function<void(const std::string&)> sLogErrorsCallback; // log errors
+	static void LogErrors_Callback(const std::string& vErrors);
 
-	static std::function<void(BaseNodeWeak)> sSelectCallback; // select node
+	static std::function<void(const std::string&)> sLogInfosCallback; // log infos
+	static void LogInfos_Callback(const std::string& vInfos);
+
+	static std::function<void(const BaseNodeWeak&)> sSelectCallback; // select node
 	static void Select_Callback(const BaseNodeWeak& vNode);
 
 	static std::function<BaseNodeWeak(BaseNodeWeak vNodeGraph, BaseNodeState* vBaseNodeState)> sShowNewNodeMenuCallback; // new node menu
@@ -529,6 +534,9 @@ public: // loading / saving
 	typedef std::pair<uint32_t, uint32_t> SlotEntry;
 	typedef std::pair<SlotEntry, SlotEntry> LinkEntry;
 	std::vector<LinkEntry> m_LinksToBuildAfterLoading;
+	SlotEntry m_OutputLeftSlotToSelectAfterLoading;
+	SlotEntry m_OutputMiddleSlotToSelectAfterLoading;
+	SlotEntry m_OutputRightSlotToSelectAfterLoading;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

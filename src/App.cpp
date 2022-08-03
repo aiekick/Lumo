@@ -47,6 +47,7 @@ limitations under the License.
 #include <vkFramework/VulkanWindow.h>
 #include <vkFramework/VulkanImGuiOverlay.h>
 #include <vkFramework/VulkanImGuiRenderer.h>
+#include <vkFramework/Texture2D.h>
 
 #include <ImGuizmo/ImGuizmo.h>
 

@@ -158,6 +158,11 @@ vk::DescriptorImageInfo* Texture2DModule::GetDescriptorImageInfo(const uint32_t&
 
 	if (m_Texture2DPtr)
 	{
+		if (vOutSize)
+		{
+			vOutSize->x = (float)m_Texture2DPtr->m_Width;
+			vOutSize->y = (float)m_Texture2DPtr->m_Height;
+		}
 		return &m_Texture2DPtr->m_DescriptorImageInfo;
 	}
 

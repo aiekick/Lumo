@@ -25,10 +25,13 @@ limitations under the License.
 #include <vkFramework/VulkanImGuiRenderer.h>
 #include <Project/ProjectFile.h>
 #include <imgui/imgui_internal.h>
-
+#include <Interfaces/TextureOutputInterface.h>
+#include <Graph/Base/BaseNode.h>
+#include <Graph/Base/NodeSlot.h>
+#include <Graph/Manager/NodeManager.h>
+#include <Systems/CommonSystem.h>
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
-
 #include <cinttypes> // printf zu
 
 #define TRACE_MEMORY
@@ -41,7 +44,10 @@ static int SourcePane_WidgetId = 0;
 ///////////////////////////////////////////////////////////////////////////////////
 
 View2DPane::View2DPane() = default;
-View2DPane::~View2DPane() = default;
+View2DPane::~View2DPane()
+{
+	Unit();
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// INIT/UNIT ////////////////////////////////////////////////////////////////////
@@ -57,6 +63,8 @@ bool View2DPane::Init()
 void View2DPane::Unit()
 {
 	ZoneScoped;
+
+	m_TextureOutputSlot.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +81,8 @@ int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 	{
 		static ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoBringToFrontOnFocus;
+			ImGuiWindowFlags_NoBringToFrontOnFocus |
+			ImGuiWindowFlags_MenuBar;
 		if (ImGui::Begin<PaneFlags>(m_PaneName,
 			&LayoutManager::Instance()->m_Pane_Shown, m_PaneFlag, flags))
 		{
@@ -83,15 +92,27 @@ int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 				flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
 			else
 				flags = ImGuiWindowFlags_NoCollapse |
-				ImGuiWindowFlags_NoBringToFrontOnFocus;
+				ImGuiWindowFlags_NoBringToFrontOnFocus |
+				ImGuiWindowFlags_MenuBar;
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
-				auto outputSize = SetOrUpdateOutput(m_Output2DModule);
+				auto outputSize = SetOrUpdateOutput(m_TextureOutputSlot);
 
-				auto outputModulePtr = m_Output2DModule.getValidShared();
-				if (outputModulePtr)
+				auto slotPtr = m_TextureOutputSlot.getValidShared();
+				if (slotPtr)
 				{
+					if (ImGui::BeginMenuBar())
+					{
+						ImGui::RadioButtonLabeled(0.0f, "Mouse", "Can Use Mouse\nBut not when camera is active", &m_CanWeTuneMouse);
+						if (ImGui::ContrastedButton("Leave"))
+						{
+							SetOrUpdateOutput(NodeSlotWeak());
+						}
+
+						ImGui::EndMenuBar();
+					}
+
 					ct::ivec2 maxSize = ImGui::GetContentRegionAvail();
 
 					if (m_ImGuiTexture.canDisplayPreview)
@@ -105,6 +126,18 @@ int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 						// apres, GetCursorScreenPos ne donnera pas la meme valeur
 						ImVec2 org = ImGui::GetCursorScreenPos() + pos;
 						ImGui::ImageRect((ImTextureID)&m_ImGuiTexture.descriptor, pos, siz);
+
+						if (ImGui::IsWindowHovered())
+						{
+							if (ImGui::IsMouseHoveringRect(org, org + siz))
+							{
+								if (m_CanWeTuneMouse && CanUpdateMouse(true, 0))
+								{
+									ct::fvec2 norPos = (ImGui::GetMousePos() - org) / siz;
+									CommonSystem::Instance()->SetMousePos(norPos, outputSize, GImGui->IO.MouseDown);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -148,19 +181,31 @@ int View2DPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::s
 	return vWidgetId;
 }
 
-ct::fvec2 View2DPane::SetOrUpdateOutput(ct::cWeak<Output2DModule> vOutput2DModule)
+ct::fvec2 View2DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 {
 	ZoneScoped;
 
 	ct::fvec2 outSize;
 
-	m_Output2DModule = vOutput2DModule;
+	m_TextureOutputSlot = vTextureOutputSlot;
 
-	auto outputModulePtr = m_Output2DModule.getValidShared();
-	if (outputModulePtr)
+	NodeSlot::sSlotGraphOutputMouseMiddle = vTextureOutputSlot;
+
+	auto slotPtr = vTextureOutputSlot.getValidShared();
+	if (slotPtr)
 	{
-		m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, outputModulePtr->GetDescriptorImageInfo(0U, &outSize));
-		m_ImGuiTexture.ratio = outSize.ratioXY<float>();
+		auto otherNodePtr = std::dynamic_pointer_cast<TextureOutputInterface>(slotPtr->parentNode.getValidShared());
+		if (otherNodePtr)
+		{
+			NodeManager::Instance()->m_RootNodePtr->m_GraphRoot2DNode = slotPtr->parentNode;
+
+			m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize));
+			m_ImGuiTexture.ratio = outSize.ratioXY<float>();
+		}
+		else
+		{
+			m_ImGuiTexture.ClearDescriptor();
+		}
 	}
 	else
 	{
@@ -173,4 +218,25 @@ ct::fvec2 View2DPane::SetOrUpdateOutput(ct::cWeak<Output2DModule> vOutput2DModul
 void View2DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer)
 {
 	m_VulkanImGuiRenderer = vVulkanImGuiRenderer;
+}
+
+bool View2DPane::CanUpdateMouse(bool vWithMouseDown, int vMouseButton)
+{
+	ZoneScoped;
+
+	bool canUpdateMouse = true;
+	//(!MainFrame::g_AnyWindowsHovered) &&
+	//(ImGui::GetActiveID() == 0) &&
+	//(ImGui::GetHoveredID() == 0);// &&
+	//(!ImGui::IsWindowHovered()) &&
+	//(!ImGuiFileDialog::Instance()->m_AnyWindowsHovered);
+	//if (MainFrame::g_CentralWindowHovered && (ImGui::GetActiveID() != 0) && !ImGuizmo::IsUsing())
+	//	canUpdateMouse = true;
+	if (vWithMouseDown)
+	{
+		static bool lastMouseDownState[3] = { false, false, false };
+		canUpdateMouse &= lastMouseDownState[vMouseButton] || ImGui::IsMouseDown(vMouseButton);
+		lastMouseDownState[vMouseButton] = ImGui::IsMouseDown(vMouseButton);
+	}
+	return canUpdateMouse;
 }

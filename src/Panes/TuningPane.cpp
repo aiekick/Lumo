@@ -120,6 +120,8 @@ void TuningPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string
 
 int TuningPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
 {
+	CommonSystem::Instance()->DrawImGui();
+
 	auto ptr = GetParentNode().getValidShared();
 	if (ptr)
 	{

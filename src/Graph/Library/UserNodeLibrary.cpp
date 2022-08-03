@@ -53,8 +53,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
 {
 	AnalyseRootDirectoryRecurs(LIBRARY_EFECT_ROOT_PATH, 0, &m_RootLibraryCategory);
 
-	m_RootLibraryCategory.AddCustom("Outputs", "Output 3D", "OUTPUT_3D");
-	m_RootLibraryCategory.AddCustom("Outputs", "Output 2D", "OUTPUT_2D");
+	//m_RootLibraryCategory.AddCustom("Outputs", "Output 3D", "OUTPUT_3D");
+	//m_RootLibraryCategory.AddCustom("Outputs", "Output 2D", "OUTPUT_2D");
 		
 	// les plugins
 	auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();
@@ -150,14 +150,14 @@ BaseNodeWeak UserNodeLibrary::CreateNode(BaseNodeWeak vNodeGraph, const LibraryE
 		auto graphPtr = vNodeGraph.getValidShared();
 		if (graphPtr)
 		{
-			if (vLibraryEntry.second.nodeType == "OUTPUT_3D")
+			/*if (vLibraryEntry.second.nodeType == "OUTPUT_3D")
 			{
 				graphPtr->m_Output3DNode = nodePtr;
 			}
 			else if (vLibraryEntry.second.nodeType == "OUTPUT_2D")
 			{
 				graphPtr->m_Output2DNode = nodePtr;
-			}
+			}*/
 
 			graphPtr->AddChildNode(nodePtr);
 

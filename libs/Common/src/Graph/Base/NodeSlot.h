@@ -60,6 +60,11 @@ public:
 	};
 
 public:
+	static NodeSlotWeak sSlotGraphOutputMouseLeft;
+	static NodeSlotWeak sSlotGraphOutputMouseMiddle;
+	static NodeSlotWeak sSlotGraphOutputMouseRight;
+
+public:
 	static std::string sGetStringFromNodeSlotPlaceEnum(const PlaceEnum& vPlaceEnum);
 	static PlaceEnum sGetNodeSlotPlaceEnumFromString(const std::string& vNodeSlotPlaceString);
 	static size_t sGetNewSlotId();
@@ -91,7 +96,7 @@ public:
 	uint32_t channelId = 0; // by ex is this slot is the b channel of a vec4, channelId will be 2
 	bool idAlreadySetbyXml = false; // know if id was already set by xml
 	bool acceptManyInputs = false; // one input can be connected to more than one output
-
+	
 	std::string originalFuncName;
 	std::string funcCode; // code de la function si c'est un slot de type FUNCTION
 
@@ -119,6 +124,9 @@ public:
 	bool hidden = false; // si true, il ne sera pas visible mais toujours present
 	bool virtualUniform = false; // virtual si l'uniform n'est pas utilisé
 
+private:
+	bool m_Selected = false; // will select visually the slot, signify he is the output of the graph
+
 public:
 	explicit NodeSlot();
 	explicit NodeSlot(std::string vName);
@@ -142,7 +150,7 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 	void DrawContent(BaseNodeState *vBaseNodeState);
-	void DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset = ImVec2(0,0));
+	void DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset = ImVec2(2,2));
 	
 	bool IsAnInput();
 	bool IsAnOutput();
@@ -181,6 +189,12 @@ public:
 	/// </summary>
 	/// <param name="vEvent"></param>
 	virtual void SendBackNotification(const NotifyEvent& vEvent);
+
+	/// <summary>
+	/// called when a slot was double clicked with mouse
+	/// </summary>
+	/// <param name="vMouseButton"></param>
+	virtual void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton);
 
 	void DrawDebugInfos();
 

@@ -19,7 +19,6 @@ limitations under the License.
 #include <map>
 #include <Graph/Graph.h>
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/ImGuiTexture.h>
 #include <vkFramework/vkFramework.h>
 
 //todo : split the interface in one input interface and one output interface

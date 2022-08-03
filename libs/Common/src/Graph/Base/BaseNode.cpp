@@ -53,7 +53,7 @@ BaseNodePtr BaseNode::GetSharedFromWeak(const BaseNodeWeak& vNode)
 	return res;
 }
 
-std::function<void(BaseNodeWeak)> BaseNode::sOpenGraphCallback;
+std::function<void(const BaseNodeWeak&)> BaseNode::sOpenGraphCallback;
 void BaseNode::OpenGraph_Callback(const BaseNodeWeak& vNode)
 {
 	if (BaseNode::sOpenGraphCallback)
@@ -62,8 +62,17 @@ void BaseNode::OpenGraph_Callback(const BaseNodeWeak& vNode)
 	}
 }
 
-std::function<void(std::string)> BaseNode::sOpenCodeCallback;
-void BaseNode::OpenCode_Callback(std::string vCode)
+std::function<void(const BaseNodeWeak&, const NodeSlotWeak&, const ImGuiMouseButton&)> BaseNode::sSelectForGraphOutputCallback;
+void BaseNode::SelectForGraphOutput_Callback(const BaseNodeWeak& vNode, const NodeSlotWeak& vSlot, const ImGuiMouseButton& vMouseButton)
+{
+	if (BaseNode::sSelectForGraphOutputCallback)
+	{
+		BaseNode::sSelectForGraphOutputCallback(vNode, vSlot, vMouseButton);
+	}
+}
+
+std::function<void(const std::string&)> BaseNode::sOpenCodeCallback;
+void BaseNode::OpenCode_Callback(const std::string& vCode)
 {
 	if (BaseNode::sOpenCodeCallback)
 	{
@@ -71,8 +80,8 @@ void BaseNode::OpenCode_Callback(std::string vCode)
 	}
 }
 
-std::function<void(std::string)> BaseNode::sLogErrorsCallback;
-void BaseNode::LogErrors_Callback(std::string vErrors)
+std::function<void(const std::string&)> BaseNode::sLogErrorsCallback;
+void BaseNode::LogErrors_Callback(const std::string& vErrors)
 {
 	if (BaseNode::sLogErrorsCallback)
 	{
@@ -80,8 +89,8 @@ void BaseNode::LogErrors_Callback(std::string vErrors)
 	}
 }
 
-std::function<void(std::string)> BaseNode::sLogInfosCallback;
-void BaseNode::LogInfos_Callback(std::string vInfos)
+std::function<void(const std::string&)> BaseNode::sLogInfosCallback;
+void BaseNode::LogInfos_Callback(const std::string& vInfos)
 {
 	if (BaseNode::sLogInfosCallback)
 	{
@@ -89,7 +98,7 @@ void BaseNode::LogInfos_Callback(std::string vInfos)
 	}
 }
 
-std::function<void(BaseNodeWeak)> BaseNode::sSelectCallback; // select node
+std::function<void(const BaseNodeWeak&)> BaseNode::sSelectCallback; // select node
 void BaseNode::Select_Callback(const BaseNodeWeak& vNode)
 {
 	if (BaseNode::sSelectCallback)
@@ -215,6 +224,20 @@ void BaseNode::UnitGraph()
 // on va cree les links apres le chargement du xml
 void BaseNode::FinalizeGraphLoading()
 {
+	// select outputs
+	BaseNode::sSelectForGraphOutputCallback(
+		FindNode(m_OutputLeftSlotToSelectAfterLoading.first), 
+		FindNodeSlotById(m_OutputLeftSlotToSelectAfterLoading.first, m_OutputLeftSlotToSelectAfterLoading.second), 
+		ImGuiMouseButton_Left);
+	BaseNode::sSelectForGraphOutputCallback(
+		FindNode(m_OutputMiddleSlotToSelectAfterLoading.first),
+		FindNodeSlotById(m_OutputMiddleSlotToSelectAfterLoading.first, m_OutputMiddleSlotToSelectAfterLoading.second),
+		ImGuiMouseButton_Middle);
+	BaseNode::sSelectForGraphOutputCallback(
+		FindNode(m_OutputRightSlotToSelectAfterLoading.first),
+		FindNodeSlotById(m_OutputRightSlotToSelectAfterLoading.first, m_OutputRightSlotToSelectAfterLoading.second),
+		ImGuiMouseButton_Right);
+
 	for (const auto& entry : m_LinksToBuildAfterLoading)
 	{
 		const SlotEntry& entIn = entry.first;
@@ -565,19 +588,18 @@ void BaseNode::FillState(BaseNodeState *vBaseNodeState)
 
 bool BaseNode::DrawNodeContent(BaseNodeState *vBaseNodeState)
 {
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 0));
+	//ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 0));
 
 	ImGui::BeginHorizontal("content");
-	ImGui::Spring(0, 0);
 
-	ImGui::BeginVertical("inputs", ImVec2(0, 0), 0.0f);
+	ImGui::BeginVertical("inputs", ImVec2(0, 0), 1.0f);
 	for (auto & param : m_Inputs) // input flows
 	{
 		param.second->DrawContent(vBaseNodeState);
 	}
 	ImGui::EndVertical();
 
-	ImGui::Spring(1, 5.0f); // pour que BeginVertical soi poussé au bout
+	ImGui::Spring(1); // pour que BeginVertical soi poussé au bout
 
 	ImGui::BeginVertical("outputs", ImVec2(0, 0), 1.0f); // 1.0f pour que l'interieur soit aligné sur la fin
 	for (auto & param : m_Outputs) // output flows
@@ -588,7 +610,7 @@ bool BaseNode::DrawNodeContent(BaseNodeState *vBaseNodeState)
 
 	ImGui::EndHorizontal();
 
-	ImGui::PopStyleVar();
+	//ImGui::PopStyleVar();
 
 	return true;
 }
@@ -679,7 +701,7 @@ bool BaseNode::DrawHeader(BaseNodeState *vBaseNodeState)
 	ImGui::Spring(1, 5.0f);
 	ImGui::TextUnformatted(name.c_str());
 	ImGui::Spring(1, 5.0f);
-	ImGui::Dummy(ImVec2(0, 24));
+	//ImGui::Dummy(ImVec2(0, 24));
 	ImGui::EndHorizontal();
 
     m_HeaderRect = ImRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
@@ -2552,6 +2574,47 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 		}
 		res += vOffset + "\t</links>\n";
 
+		// outputs // left, middle, right mouse button (dont know wha is it in this common class)
+		res += vOffset + "\t<outputs>\n";
+
+		std::string outLeftSlot;
+		auto slotLeftPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared();
+		if (slotLeftPtr)
+		{
+			auto slotLeftParentNodePtr = slotLeftPtr->parentNode.getValidShared();
+			if (slotLeftParentNodePtr)
+			{
+				outLeftSlot = ct::toStr("%u:%u", (uint32_t)slotLeftParentNodePtr->nodeID.Get(), (uint32_t)slotLeftPtr->pinID.Get());
+				res += vOffset + "\t\t<output type=\"left\" ids=\"" + outLeftSlot + "\"/>\n";
+			}
+		}
+
+		std::string outMiddleSlot;
+		auto slotMiddlePtr = NodeSlot::sSlotGraphOutputMouseMiddle.getValidShared();
+		if (slotMiddlePtr)
+		{
+			auto slotMiddleParentNodePtr = slotMiddlePtr->parentNode.getValidShared();
+			if (slotMiddleParentNodePtr)
+			{
+				outMiddleSlot = ct::toStr("%u:%u", (uint32_t)slotMiddleParentNodePtr->nodeID.Get(), (uint32_t)slotMiddlePtr->pinID.Get());
+				res += vOffset + "\t\t<output type=\"middle\" ids=\"" + outMiddleSlot + "\"/>\n";
+			}
+		}
+
+		std::string outRightSlot;
+		auto slotRightPtr = NodeSlot::sSlotGraphOutputMouseMiddle.getValidShared();
+		if (slotRightPtr)
+		{
+			auto slotRightParentNodePtr = slotRightPtr->parentNode.getValidShared();
+			if (slotRightParentNodePtr)
+			{
+				outRightSlot = ct::toStr("%u:%u", (uint32_t)slotRightParentNodePtr->nodeID.Get(), (uint32_t)slotRightPtr->pinID.Get());
+				res += vOffset + "\t\t<output type=\"right\" ids=\"" + outMiddleSlot + "\"/>\n";
+			}
+		}
+
+		res += vOffset + "\t</outputs>\n";
+
 		res += vOffset + "</graph>\n";
 	}
 	else
@@ -2766,6 +2829,40 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 						}
 					}
 				}
+			}
+		}
+
+		return false;
+	}
+	else if (strParentName == "outputs")
+	{
+		if (strName == "output")
+		{
+			std::string type;
+			std::string ids;
+
+			for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
+			{
+				std::string attName = attr->Name();
+				std::string attValue = attr->Value();
+
+				if (attName == "type")
+					type = attValue;
+				else if (attName == "ids")
+					ids = attValue;
+			}
+
+			auto vec = ct::splitStringToVector(ids, ':');
+
+			if (vec.size() == 2)
+			{
+				SlotEntry ent;
+				ent.first = ct::ivariant(vec[0]).GetU();
+				ent.second = ct::ivariant(vec[1]).GetU();
+
+				if (type == "left") { m_OutputLeftSlotToSelectAfterLoading = ent; }
+				else if (type == "middle") { m_OutputMiddleSlotToSelectAfterLoading = ent; }
+				else if (type == "right") { m_OutputRightSlotToSelectAfterLoading = ent; }
 			}
 		}
 

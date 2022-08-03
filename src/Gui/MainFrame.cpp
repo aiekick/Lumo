@@ -91,6 +91,7 @@ void MainFrame::Init()
 
 	using namespace std::placeholders;
 	BaseNode::sSelectCallback = std::bind(&MainFrame::SelectNode, this, _1);
+	BaseNode::sSelectForGraphOutputCallback = std::bind(&MainFrame::SelectNodeForGraphOutput, this, _1, _2, _3);
 }
 
 void MainFrame::Unit()
@@ -114,6 +115,25 @@ void MainFrame::SelectNode(const BaseNodeWeak& vNode)
 {
 	TuningPane::Instance()->Select(vNode);
 	DebugPane::Instance()->Select(vNode);
+}
+
+void MainFrame::SelectNodeForGraphOutput(const BaseNodeWeak& vNode, const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton)
+{
+	if (NodeManager::Instance()->m_RootNodePtr)
+	{
+		if (vButton == ImGuiMouseButton_Left)
+		{
+			View3DPane::Instance()->SetOrUpdateOutput(vSlot);
+		}
+		else if (vButton == ImGuiMouseButton_Middle)
+		{
+			View2DPane::Instance()->SetOrUpdateOutput(vSlot);
+		}
+		else if (vButton == ImGuiMouseButton_Right)
+		{
+
+		}
+	}
 }
 
 void MainFrame::NeedToNewProject(const std::string& vFilePathName)
@@ -242,11 +262,6 @@ void MainFrame::Display(const uint32_t& vCurrentFrame, ct::ivec4 vViewport)
 
 		ThemeHelper::Instance()->Draw();
 		LayoutManager::Instance()->InitAfterFirstDisplay(ImVec2((float)vViewport.z, (float)vViewport.w));
-
-		if (m_ShowImGui)
-			ImGui::ShowDemoWindow();
-		if (m_ShowMetric)
-			ImGui::ShowMetricsWindow(&m_ShowMetric);
 	}
 }
 

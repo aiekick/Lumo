@@ -223,6 +223,18 @@ void NodeSlotTextureInput::TreatNotification(
 	}
 }
 
+void NodeSlotTextureInput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton)
+{
+	if (!linkedSlots.empty())
+	{
+		auto slotPtr = linkedSlots[0].getValidShared();
+		if (slotPtr)
+		{
+			BaseNode::SelectForGraphOutput_Callback(slotPtr->parentNode, linkedSlots[0], vMouseButton);
+		}
+	}
+}
+
 void NodeSlotTextureInput::DrawDebugInfos()
 {
 	ImGui::Text("--------------------");

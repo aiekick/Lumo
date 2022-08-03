@@ -63,6 +63,10 @@ void SlotColor::AddSlotColor(const std::string& vNodeSlotType, const ImVec4& vSl
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+NodeSlotWeak NodeSlot::sSlotGraphOutputMouseLeft;
+NodeSlotWeak NodeSlot::sSlotGraphOutputMouseMiddle;
+NodeSlotWeak NodeSlot::sSlotGraphOutputMouseRight;
+
 std::string NodeSlot::sGetStringFromNodeSlotPlaceEnum(const NodeSlot::PlaceEnum& vPlaceEnum)
 {
 	static std::array<std::string, (uint32_t)NodeSlot::PlaceEnum::Count> NodeSlotPlaceString = {
@@ -300,7 +304,7 @@ void NodeSlot::DrawContent(BaseNodeState *vBaseNodeState)
 					DrawOutputWidget(vBaseNodeState);
 				}
 
-				nd::PinPivotAlignment(ImVec2(1.0f, 0.5f));
+				nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
 				nd::PinPivotSize(ImVec2(0, 0));
 
 				DrawSlot(vBaseNodeState, ImVec2(slotIconSize, slotIconSize));
@@ -349,6 +353,19 @@ void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 			if (ImGui::IsItemHovered())
 			{
 				highLighted = true;
+
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				{
+					MouseDoubleClickedOnSlot(ImGuiMouseButton_Left);
+				}
+				else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Right))
+				{
+					MouseDoubleClickedOnSlot(ImGuiMouseButton_Right);
+				}
+				else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Middle))
+				{
+					MouseDoubleClickedOnSlot(ImGuiMouseButton_Middle);
+				}
 
 				DrawSlotText(vBaseNodeState);
 			}
@@ -468,6 +485,13 @@ void NodeSlot::SendBackNotification(const NotifyEvent& /*vEvent*/)
 {
 #ifdef _DEBUG
 	LogVarInfo("NodeSlot::SendBackNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+#endif
+}
+
+void NodeSlot::MouseDoubleClickedOnSlot(const ImGuiMouseButton& /*vMouseButton*/)
+{
+#ifdef _DEBUG
+	LogVarInfo("NodeSlot::MouseDoubleClickedOnSlot catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 #endif
 }
 
@@ -595,10 +619,28 @@ void NodeSlot::DrawNodeSlot(ImDrawList *vDrawList, ImVec2 vCenter, float vSlotRa
 
 	if (vDrawList)
 	{
-		vDrawList->AddRectFilled(
-			ImVec2(vCenter.x - vSlotRadius, vCenter.y - vSlotRadius),
-			ImVec2(vCenter.x + vSlotRadius, vCenter.y + vSlotRadius),
-			vColor, 0.5f);
+		const auto min = ImVec2(vCenter.x - vSlotRadius, vCenter.y - vSlotRadius);
+		const auto max = ImVec2(vCenter.x + vSlotRadius, vCenter.y + vSlotRadius);
+
+		vDrawList->AddRectFilled(min, max, vColor, 1.0f);
+
+		auto slotOutputMouseLeftPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared(); // blue
+		if (slotOutputMouseLeftPtr && slotOutputMouseLeftPtr == m_This.getValidShared())
+		{
+			vDrawList->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.2f, 0.5f, 0.9f, 1.0f)), 1.0f, 0, 3.0f);
+		}
+
+		auto slotOutputMouseMiddlePtr = NodeSlot::sSlotGraphOutputMouseMiddle.getValidShared(); // green
+		if (slotOutputMouseMiddlePtr && slotOutputMouseMiddlePtr == m_This.getValidShared())
+		{
+			vDrawList->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.2f, 0.9f, 0.5f, 1.0f)), 1.0f, 0, 2.0f);
+		}
+
+		auto slotOutputMouseRightPtr = NodeSlot::sSlotGraphOutputMouseRight.getValidShared(); // red
+		if (slotOutputMouseRightPtr && slotOutputMouseRightPtr == m_This.getValidShared())
+		{
+			vDrawList->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.9f, 0.5f, 0.2f, 1.0f)), 1.0f, 0, 1.0f);
+		}
 	}
 }
 

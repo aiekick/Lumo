@@ -44,6 +44,8 @@ public:
 
 	void SendFrontNotification(const NotifyEvent& vEvent) override;
 
+	void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) override;
+
 	void DrawDebugInfos();
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

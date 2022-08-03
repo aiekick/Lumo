@@ -30,7 +30,7 @@ class NodeManager :
 {
 public:
 	BaseNodePtr m_RootNodePtr = nullptr;
-	// we msut clear the graph after the rendering
+	// we must clear the graph after the rendering
 	bool m_NeedToClearTheGraph = false;
 
 public:

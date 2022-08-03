@@ -19,18 +19,21 @@ limitations under the License.
 
 #include "View3DPane.h"
 
-#include <cinttypes> // printf zu
-#include <ctools/cTools.h>
-#include <ctools/FileHelper.h>
-#include <Project/ProjectFile.h>
-#include <ImWidgets/ImWidgets.h>
-#include <imgui/imgui_internal.h>
-#include <Systems/CommonSystem.h>
-#include <Graph/Manager/NodeManager.h>
 #include <Panes/Manager/LayoutManager.h>
+#include <ImWidgets/ImWidgets.h>
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
 #include <vkFramework/VulkanImGuiRenderer.h>
+#include <Project/ProjectFile.h>
+#include <imgui/imgui_internal.h>
+#include <Interfaces/TextureOutputInterface.h>
+#include <Graph/Base/BaseNode.h>
+#include <Graph/Base/NodeSlot.h>
+#include <Graph/Manager/NodeManager.h>
+#include <Systems/CommonSystem.h>
 #include <ImGuizmo/ImGuizmo.h>
+#include <ctools/cTools.h>
+#include <ctools/FileHelper.h>
+#include <cinttypes> // printf zu
 
 #define TRACE_MEMORY
 #include <vkprofiler/Profiler.h>
@@ -42,7 +45,10 @@ static int SourcePane_WidgetId = 0;
 ///////////////////////////////////////////////////////////////////////////////////
 
 View3DPane::View3DPane() = default;
-View3DPane::~View3DPane() = default;
+View3DPane::~View3DPane()
+{
+	Unit();
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// INIT/UNIT ////////////////////////////////////////////////////////////////////
@@ -58,6 +64,8 @@ bool View3DPane::Init()
 void View3DPane::Unit()
 {
 	ZoneScoped;
+
+	m_TextureOutputSlot.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -90,10 +98,10 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
-				auto outputSize = SetOrUpdateOutput(m_Output3DModule);
+				auto outputSize = SetOrUpdateOutput(m_TextureOutputSlot);
 
-				auto outputModulePtr = m_Output3DModule.getValidShared();
-				if (outputModulePtr)
+				auto slotPtr = m_TextureOutputSlot.getValidShared();
+				if (slotPtr)
 				{
 					if (ImGui::BeginMenuBar())
 					{
@@ -105,7 +113,10 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 						{
 							ImGuizmo::Enable(m_CanWeTuneGizmo);
 						}
-						//ImGui::RadioButtonLabeled(0.0f, "Depth", "Show epth", &m_ShowDepth);
+						if (ImGui::ContrastedButton("Leave"))
+						{
+							SetOrUpdateOutput(NodeSlotWeak());
+						}
 
 						ImGui::EndMenuBar();
 					}
@@ -154,9 +165,13 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 						if (outputSize.x != (uint32_t)maxSize.x ||
 							outputSize.y != (uint32_t)maxSize.y)
 						{
-							outputModulePtr->NeedResizeByResizeEvent(&maxSize, nullptr);
-							CommonSystem::Instance()->SetScreenSize(ct::uvec2(maxSize.x, maxSize.y));
-							CommonSystem::Instance()->NeedCamChange();
+							auto parentNodePtr = slotPtr->parentNode.getValidShared();
+							if (parentNodePtr)
+							{
+								parentNodePtr->NeedResizeByResizeEvent(&maxSize, nullptr);
+								CommonSystem::Instance()->SetScreenSize(ct::uvec2(maxSize.x, maxSize.y));
+								CommonSystem::Instance()->NeedCamChange();
+							}
 						}
 					}
 				}
@@ -207,19 +222,31 @@ int View3DPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::s
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-ct::fvec2 View3DPane::SetOrUpdateOutput(ct::cWeak<Output3DModule> vOutput3DModule)
+ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 {
 	ZoneScoped;
 
 	ct::fvec2 outSize;
 
-	m_Output3DModule = vOutput3DModule;
+	m_TextureOutputSlot = vTextureOutputSlot;
 
-	auto outputModulePtr = m_Output3DModule.getValidShared();
-	if (outputModulePtr)
+	NodeSlot::sSlotGraphOutputMouseLeft = vTextureOutputSlot;
+
+	auto slotPtr = vTextureOutputSlot.getValidShared();
+	if (slotPtr)
 	{
-		m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, outputModulePtr->GetDescriptorImageInfo(0U, &outSize));
-		m_ImGuiTexture.ratio = outSize.ratioXY<float>();
+		auto otherNodePtr = std::dynamic_pointer_cast<TextureOutputInterface>(slotPtr->parentNode.getValidShared());
+		if (otherNodePtr)
+		{
+			NodeManager::Instance()->m_RootNodePtr->m_GraphRoot3DNode = slotPtr->parentNode;
+
+			m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize));
+			m_ImGuiTexture.ratio = outSize.ratioXY<float>();
+		}
+		else
+		{
+			m_ImGuiTexture.ClearDescriptor();
+		}
 	}
 	else
 	{

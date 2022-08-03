@@ -92,16 +92,17 @@ bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 	m_RootNodePtr->m_BaseNodeState.m_CurrentFrame = vCurrentFrame;
 	m_RootNodePtr->m_BaseNodeState.m_Context = ImGui::GetCurrentContext();
 
-	auto output3DPtr = m_RootNodePtr->m_Output3DNode.getValidShared();
-	if (output3DPtr)
+	// double click on a node
+	auto rootNode3DPtr = m_RootNodePtr->m_GraphRoot3DNode.getValidShared();
+	if (rootNode3DPtr)
 	{
-		res |= output3DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
+		res |= rootNode3DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
 	}
 
-	auto output2DPtr = m_RootNodePtr->m_Output2DNode.getValidShared();
-	if (output2DPtr)
+	auto rootNode2DPtr = m_RootNodePtr->m_GraphRoot2DNode.getValidShared();
+	if (rootNode2DPtr)
 	{
-		res |= output2DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
+		res |= rootNode2DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
 	}
 
 	return res;
@@ -118,6 +119,8 @@ bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 	ZoneScoped;
 
 	bool change = false;
+
+	CommonSystem::Instance()->DrawImGui();
 
 	for (auto eff : m_RootNodePtr->m_ChildNodes)
 	{
@@ -204,7 +207,7 @@ bool NodeManager::LoadNodeFromXML(
 			nodePtr->pos = ImVec2(vPos.x, vPos.y);
 			nodePtr->nodeID = vNodeId;
 			
-			if (vNodeType == "OUTPUT_3D")
+			/*if (vNodeType == "OUTPUT_3D")
 			{
 				m_RootNodePtr->m_Output3DNode = nodePtr;
 			}
@@ -212,7 +215,7 @@ bool NodeManager::LoadNodeFromXML(
 			if (vNodeType == "OUTPUT_2D")
 			{
 				m_RootNodePtr->m_Output2DNode = nodePtr;
-			}
+			}*/
 
 			m_RootNodePtr->AddChildNode(nodePtr);
 			nodePtr->RecursParsingConfigChilds(vElem);

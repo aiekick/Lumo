@@ -136,6 +136,11 @@ void NodeSlotTextureOutput::SendFrontNotification(const NotifyEvent& vEvent)
 	}
 }
 
+void NodeSlotTextureOutput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton)
+{
+	BaseNode::SelectForGraphOutput_Callback(parentNode, m_This, vMouseButton);
+}
+
 void NodeSlotTextureOutput::DrawDebugInfos()
 {
 	ImGui::Text("--------------------");

@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "NodeFactory.h"
 
-#include <Graph/Nodes/Output/Output3DNode.h>
-#include <Graph/Nodes/Output/Output2DNode.h>
+//#include <Graph/Nodes/Output/Output3DNode.h>
+//#include <Graph/Nodes/Output/Output2DNode.h>
 
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType)
 {
@@ -28,8 +28,8 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 		if (corePtr)
 		{
 			// graph output
-			if (vNodeType == "OUTPUT_3D")						return Output3DNode::Create(corePtr);
-			else if (vNodeType == "OUTPUT_2D")					return Output2DNode::Create(corePtr);
+			//if (vNodeType == "OUTPUT_3D")						return Output3DNode::Create(corePtr);
+			//else if (vNodeType == "OUTPUT_2D")					return Output2DNode::Create(corePtr);
 		}
 	}
 

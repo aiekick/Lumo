@@ -19,6 +19,10 @@ limitations under the License.
 #include <memory>
 #include <ctools/cTools.h>
 
+class BaseRenderer;
+typedef std::shared_ptr<BaseRenderer> BaseRendererPtr;
+typedef ct::cWeak<BaseRenderer> BaseRendererWeak;
+
 class FrameBuffer;
 typedef std::shared_ptr<FrameBuffer> FrameBufferPtr;
 typedef ct::cWeak<FrameBuffer> FrameBufferWeak;
