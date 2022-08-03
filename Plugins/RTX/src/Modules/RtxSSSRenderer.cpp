@@ -107,7 +107,7 @@ bool RtxSSSRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 
 bool RtxSSSRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -125,7 +125,7 @@ bool RtxSSSRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void RtxSSSRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -135,7 +135,7 @@ void RtxSSSRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 
 void RtxSSSRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -143,11 +143,11 @@ void RtxSSSRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 	}
 }
 
-void RtxSSSRenderer::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
+void RtxSSSRenderer::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
 {
 	if (m_SssRenderer_Rtx_Pass_Ptr)
 	{
-		m_SssRenderer_Rtx_Pass_Ptr->SetAccelStruct(vSceneAccelStructure);
+		m_SssRenderer_Rtx_Pass_Ptr->SetAccelStructure(vSceneAccelStructure);
 	}
 }
 

@@ -16,7 +16,8 @@ limitations under the License.
 
 #include "ModelToAccelStructNode.h"
 #include <Interfaces/ModelOutputInterface.h>
-#include <Connectors/AccelStructureConnector.h>
+#include <Graph/Slots/NodeSlotModelInput.h>
+#include <Graph/Slots/NodeSlotAccelStructureOutput.h>
 
 std::shared_ptr<ModelToAccelStructNode> ModelToAccelStructNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,16 +44,8 @@ bool ModelToAccelStructNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Accel Struct Builder";
 
-	NodeSlot slot;
-
-	slot.slotType = ModelConnector::GetSlotType();
-	slot.name = "Model";
-	AddInput(slot, true, false);
-
-	slot.slotType = AccelStructureConnector::GetSlotType();
-	slot.name = "Output";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
+	AddOutput(NodeSlotAccelStructureOutput::Create("Output"), true, true);
 
 	bool res = false;
 
@@ -96,7 +89,7 @@ void ModelToAccelStructNode::SetModel(SceneModelWeak vSceneModel)
 		m_SceneAccelStructurePtr->BuildForModel(m_SceneModel);
 		if (m_SceneAccelStructurePtr->IsOk())
 		{
-			Notify(NotifyEvent::AccelStructureUpdateDone);
+			SendFrontNotification(NotifyEvent::AccelStructureUpdateDone);
 		}
 	}
 }
@@ -126,24 +119,6 @@ vk::DescriptorBufferInfo* ModelToAccelStructNode::GetBufferAddressInfo()
 	}
 
 	return nullptr;
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ModelToAccelStructNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	ModelConnector::Connect(vStartSlot, vEndSlot);
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ModelToAccelStructNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	ModelConnector::DisConnect(vStartSlot, vEndSlot);
-}
-
-void ModelToAccelStructNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	ModelConnector::TreatNotification(vEvent, m_This, vEmitterSlot, vReceiverSlot);
-	AccelStructureConnector::SendNotification(m_This);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

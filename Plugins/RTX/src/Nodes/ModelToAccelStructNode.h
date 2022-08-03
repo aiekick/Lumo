@@ -21,13 +21,13 @@ limitations under the License.
 #include <ctools/cTools.h>
 
 #include <Graph/Base/BaseNode.h>
-#include <Connectors/ModelConnector.h>
+#include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
 
 class ModelToAccelStructModule;
 class ModelToAccelStructNode : 
 	public BaseNode, 
-	public ModelConnector,
+	public ModelInputInterface,
 	public AccelStructureOutputInterface
 {
 public:
@@ -43,13 +43,8 @@ public:
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	
-	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
-	
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 	
-	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
-	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
-
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	SceneAccelStructureWeak GetAccelStruct() override;
 	vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() override;

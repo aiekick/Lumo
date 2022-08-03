@@ -18,7 +18,9 @@ limitations under the License.
 #include <Modules/RtxPbrRenderer.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
-#include <Connectors/TextureConnector.h>
+#include <Graph/Slots/NodeSlotAccelStructureInput.h>
+#include <Graph/Slots/NodeSlotLightGroupInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<RtxPbrRendererNode> RtxPbrRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -45,20 +47,9 @@ bool RtxPbrRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "PBR Renderer";
 
-	NodeSlot slot;
-
-	slot.slotType = AccelStructureConnector::GetSlotType();
-	slot.name = "Accel Struct";
-	AddInput(slot, true, false);
-
-	slot.slotType = LightGroupConnector::GetSlotType();
-	slot.name = "Lights";
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotAccelStructureInput::Create("Accel Struct"), true, false);
+	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 
@@ -90,7 +81,7 @@ bool RtxPbrRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 
 bool RtxPbrRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_RtxPbrRendererPtr)
 	{
@@ -102,7 +93,7 @@ bool RtxPbrRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 
 void RtxPbrRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_RtxPbrRendererPtr)
 	{
@@ -127,15 +118,15 @@ void RtxPbrRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeStat
 	}
 }
 
-void RtxPbrRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void RtxPbrRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_RtxPbrRendererPtr)
 	{
-		m_RtxPbrRendererPtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_RtxPbrRendererPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 vk::DescriptorImageInfo* RtxPbrRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
@@ -148,11 +139,11 @@ vk::DescriptorImageInfo* RtxPbrRendererNode::GetDescriptorImageInfo(const uint32
 	return nullptr;
 }
 
-void RtxPbrRendererNode::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
+void RtxPbrRendererNode::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
 {
 	if (m_RtxPbrRendererPtr)
 	{
-		m_RtxPbrRendererPtr->SetAccelStruct(vSceneAccelStructure);
+		m_RtxPbrRendererPtr->SetAccelStructure(vSceneAccelStructure);
 	}
 }
 
@@ -162,26 +153,6 @@ void RtxPbrRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	{
 		m_RtxPbrRendererPtr->SetLightGroup(vSceneLightGroup);
 	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void RtxPbrRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	AccelStructureConnector::Connect(vStartSlot, vEndSlot);
-	LightGroupConnector::Connect(vStartSlot, vEndSlot);
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void RtxPbrRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	AccelStructureConnector::DisConnect(vStartSlot, vEndSlot);
-	LightGroupConnector::DisConnect(vStartSlot, vEndSlot);
-}
-
-void RtxPbrRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	AccelStructureConnector::TreatNotification(vEvent, m_This, vEmitterSlot, vReceiverSlot);
-	LightGroupConnector::TreatNotification(vEvent, m_This, vEmitterSlot, vReceiverSlot);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

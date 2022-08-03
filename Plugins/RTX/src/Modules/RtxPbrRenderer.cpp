@@ -107,7 +107,7 @@ bool RtxPbrRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 
 bool RtxPbrRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -125,7 +125,7 @@ bool RtxPbrRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void RtxPbrRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -135,7 +135,7 @@ void RtxPbrRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 
 void RtxPbrRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -143,11 +143,11 @@ void RtxPbrRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 	}
 }
 
-void RtxPbrRenderer::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
+void RtxPbrRenderer::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
 {
 	if (m_PbrRenderer_Rtx_Pass_Ptr)
 	{
-		m_PbrRenderer_Rtx_Pass_Ptr->SetAccelStruct(vSceneAccelStructure);
+		m_PbrRenderer_Rtx_Pass_Ptr->SetAccelStructure(vSceneAccelStructure);
 	}
 }
 

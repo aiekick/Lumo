@@ -70,7 +70,7 @@ bool SssRenderer_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 {
 	ZoneScoped;
 
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	return false;
 }
@@ -79,7 +79,7 @@ void SssRenderer_Rtx_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct:
 {
 	ZoneScoped;
 
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
@@ -87,7 +87,7 @@ void SssRenderer_Rtx_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame
 {
 	ZoneScoped;
 
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
@@ -108,7 +108,7 @@ vk::DescriptorImageInfo* SssRenderer_Rtx_Pass::GetDescriptorImageInfo(const uint
 	return nullptr;
 }
 
-void SssRenderer_Rtx_Pass::SetAccelStruct(SceneAccelStructureWeak vSceneAccelStructure)
+void SssRenderer_Rtx_Pass::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
 {
 	ZoneScoped;
 
