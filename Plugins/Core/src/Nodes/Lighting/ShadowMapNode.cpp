@@ -17,6 +17,12 @@ limitations under the License.
 #include "ShadowMapNode.h"
 #include <Modules/Lighting/ShadowMapModule.h>
 #include <Interfaces/ModelOutputInterface.h>
+#include <Graph/Slots/NodeSlotLightGroupInput.h>
+#include <Graph/Slots/NodeSlotLightGroupOutput.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotModelInput.h>
+#include <Graph/Slots/NodeSlotTextureGroupInput.h>
+#include <Graph/Slots/NodeSlotTextureGroupOutput.h>
 
 std::shared_ptr<ShadowMapNode> ShadowMapNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,24 +49,10 @@ bool ShadowMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Shadow Map";
 
-	NodeSlot slot;
-
-	slot.slotType = LightGroupConnector::GetSlotType();
-	slot.name = "Lights";
-	AddInput(slot, true, false);
-
-	slot.slotType = ModelConnector::GetSlotType();
-	slot.name = "Mesh";
-	AddInput(slot, true, false);
-
-	slot.slotType = LightGroupConnector::GetSlotType();
-	slot.name = "Lights";
-	AddOutput(slot, true, true);
-
-	slot.slotType = TextureGroupConnector::GetSlotType();
-	slot.name = "Outputs";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
+	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
+	AddOutput(NodeSlotLightGroupOutput::Create("Lights"), true, false); 
+	AddOutput(NodeSlotTextureGroupOutput::Create("Outputs"), true, false);
 
 	bool res = false;
 	m_ShadowMapModulePtr = ShadowMapModule::Create(vVulkanCorePtr);
@@ -146,119 +138,15 @@ DescriptorImageInfoVector* ShadowMapNode::GetDescriptorImageInfos(const uint32_t
 	return nullptr;
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ShadowMapNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ShadowMapModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "MESH")
-			{
-				auto otherModelNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherModelNodePtr)
-				{
-					SetModel(otherModelNodePtr->GetModel());
-				}
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherLightGroupNodePtr)
-				{
-					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ShadowMapNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ShadowMapModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "MESH")
-			{
-				SetModel();
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				SetLightGroup();
-			}
-		}
-	}
-}
-
-void ShadowMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::ModelUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetModel(otherNodePtr->GetModel());
-				}
-			}
-		}
-		break;
-	}
-	case NotifyEvent::LightGroupUpdateDone:
-	{
-		// maj dans ce node
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetLightGroup(otherNodePtr->GetLightGroup());
-				}
-			}
-		}
-
-		// propagation en output
-		auto slots = GetOutputSlotsOfType("LIGHT_GROUP");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::LightGroupUpdateDone, slot);
-			}
-		}
-
-		break;
-	}
-	default:
-		break;
-	}
-}
-
-void ShadowMapNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ShadowMapNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_ShadowMapModulePtr)
 	{
-		m_ShadowMapModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_ShadowMapModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

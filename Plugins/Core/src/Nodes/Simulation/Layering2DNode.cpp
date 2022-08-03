@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "Layering2DNode.h"
 #include <Modules/Simulation/Layering2DModule.h>
-#include <Graph/Slots/Texture/NodeSlotTextureInput.h>
-#include <Graph/Slots/Texture/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<Layering2DNode> Layering2DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {

@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "MeshNode.h"
 #include <Modules/Assets/MeshModule.h>
-#include <Connectors/ModelConnector.h>
+#include <Graph/Slots/NodeSlotModelOutput.h>
 
 std::shared_ptr<MeshNode> MeshNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,11 +43,7 @@ bool MeshNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Model";
 
-	NodeSlot slot;
-	slot.slotType = ModelConnector::GetSlotType();
-	slot.name = "Output";
-	slot.showWidget = true;
-	AddOutput(slot, true, true);
+	AddOutput(NodeSlotModelOutput::Create("Output"), true, true);
 
 	m_MeshModule = MeshModule::Create(vVulkanCorePtr, m_This);
 	if (m_MeshModule)
@@ -87,28 +83,6 @@ SceneModelWeak MeshNode::GetModel()
 	}
 
 	return SceneModelWeak();
-}
-
-void MeshNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::ModelUpdateDone:
-	{
-		auto slots = GetOutputSlotsOfType("MESH");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::ModelUpdateDone, slot);
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 void MeshNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)

@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "NormalFromTextureNode.h"
 #include <Modules/Simulation/NormalFromTextureModule.h>
-#include <Graph/Slots/Texture/NodeSlotTextureInput.h>
-#include <Graph/Slots/Texture/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<NormalFromTextureNode> NormalFromTextureNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {

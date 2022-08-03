@@ -29,7 +29,7 @@ limitations under the License.
 class TextureGroupInputFunctions
 {
 protected:
-	void UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs);
+	void UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs);
 
 public:
 	virtual void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) = 0;

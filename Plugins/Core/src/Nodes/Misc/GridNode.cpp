@@ -17,6 +17,7 @@ limitations under the License.
 #include "GridNode.h"
 
 #include <Modules/Divers/GridModule.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<GridNode> GridNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,10 +44,7 @@ bool GridNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Grid / Axis";
 
-	NodeSlot slot;
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	AddOutput(slot, true, true);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	m_GridModulePtr = GridModule::Create(vVulkanCorePtr);
 	if (m_GridModulePtr)
@@ -106,15 +104,15 @@ void GridNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void GridNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void GridNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_GridModulePtr)
 	{
-		m_GridModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_GridModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 vk::DescriptorImageInfo* GridNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)

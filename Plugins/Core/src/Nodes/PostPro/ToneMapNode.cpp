@@ -16,6 +16,8 @@ limitations under the License.
 
 #include "ToneMapNode.h"
 #include <Modules/PostPro/ToneMapModule.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<ToneMapNode> ToneMapNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -44,15 +46,8 @@ bool ToneMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	NodeSlot slot;
 
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Input";
-	slot.descriptorBinding = 0U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, false);
 
 	bool res = false;
 
@@ -118,55 +113,15 @@ void ToneMapNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void ToneMapNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ToneMapNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_ToneMapModulePtr)
 	{
-		m_ToneMapModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_ToneMapModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ToneMapNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ToneMapModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ToneMapNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ToneMapModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-		}
-	}
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void ToneMapNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -185,37 +140,6 @@ vk::DescriptorImageInfo* ToneMapNode::GetDescriptorImageInfo(const uint32_t& vBi
 	}
 
 	return nullptr;
-}
-
-void ToneMapNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::TextureUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
-				}
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -17,6 +17,8 @@ limitations under the License.
 #include "HeatmapRendererNode.h"
 #include <Modules/Renderers/HeatmapRenderer.h>
 #include <Interfaces/ModelOutputInterface.h>
+#include <Graph/Slots/NodeSlotModelInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<HeatmapRendererNode> HeatmapRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,15 +45,8 @@ bool HeatmapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Heatmap";
 
-	NodeSlot slot;
-	
-	slot.slotType = ModelConnector::GetSlotType();
-	slot.name = "3D Model";
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 
@@ -119,15 +114,15 @@ void HeatmapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeSta
 	}
 }
 
-void HeatmapRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void HeatmapRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_HeatmapRenderer)
 	{
-		m_HeatmapRenderer->NeedResize(vNewSize, vCountColorBuffers);
+		m_HeatmapRenderer->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void HeatmapRendererNode::SetModel(SceneModelWeak vSceneModel)
@@ -146,66 +141,6 @@ vk::DescriptorImageInfo* HeatmapRendererNode::GetDescriptorImageInfo(const uint3
 	}
 
 	return nullptr;
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void HeatmapRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_HeatmapRenderer)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
-			if (otherNodePtr)
-			{
-				SetModel(otherNodePtr->GetModel());
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void HeatmapRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_HeatmapRenderer)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "MESH")
-			{
-				SetModel();
-			}
-		}
-	}
-}
-
-void HeatmapRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::ModelUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetModel(otherNodePtr->GetModel());
-				}
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

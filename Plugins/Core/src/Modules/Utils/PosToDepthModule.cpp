@@ -142,9 +142,9 @@ void PosToDepthModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 	}
 }
 
-void PosToDepthModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void PosToDepthModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void PosToDepthModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)

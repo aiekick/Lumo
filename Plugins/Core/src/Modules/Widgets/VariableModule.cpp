@@ -141,7 +141,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 					auto parentNodePtr = GetParentNode().getValidShared();
 					if (parentNodePtr)
 					{
-						parentNodePtr->Notify(NotifyEvent::VariableUpdateDone);
+						parentNodePtr->SendFrontNotification(NotifyEvent::VariableUpdateDone);
 					}
 				}
 			}
@@ -152,7 +152,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 					auto parentNodePtr = GetParentNode().getValidShared();
 					if (parentNodePtr)
 					{
-						parentNodePtr->Notify(NotifyEvent::VariableUpdateDone);
+						parentNodePtr->SendFrontNotification(NotifyEvent::VariableUpdateDone);
 					}
 				}*/
 			}
@@ -163,7 +163,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 					auto parentNodePtr = GetParentNode().getValidShared();
 					if (parentNodePtr)
 					{
-						parentNodePtr->Notify(NotifyEvent::VariableUpdateDone);
+						parentNodePtr->SendFrontNotification(NotifyEvent::VariableUpdateDone);
 					}
 				}*/
 			}
@@ -174,7 +174,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 					auto parentNodePtr = GetParentNode().getValidShared();
 					if (parentNodePtr)
 					{
-						parentNodePtr->Notify(NotifyEvent::VariableUpdateDone);
+						parentNodePtr->SendFrontNotification(NotifyEvent::VariableUpdateDone);
 					}
 				}*/
 			}

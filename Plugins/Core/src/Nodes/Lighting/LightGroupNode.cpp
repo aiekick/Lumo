@@ -16,6 +16,7 @@ limitations under the License.
 
 #include "LightGroupNode.h"
 #include <Modules/Lighting/LightGroupModule.h>
+#include <Graph/Slots/NodeSlotLightGroupOutput.h>
 
 std::shared_ptr<LightGroupNode> LightGroupNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -42,10 +43,7 @@ bool LightGroupNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Lights";
 
-	NodeSlot slot;
-	slot.slotType = LightGroupConnector::GetSlotType();
-	slot.name = "Output";
-	AddOutput(slot, true, true);
+	AddOutput(NodeSlotLightGroupOutput::Create("Output"), true, true);
 
 	bool res = false;
 	m_LightGroupModulePtr = LightGroupModule::Create(vVulkanCorePtr, m_This);
@@ -97,28 +95,6 @@ SceneLightGroupWeak LightGroupNode::GetLightGroup()
 	}
 
 	return SceneLightGroupWeak();
-}
-
-void LightGroupNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::LightGroupUpdateDone:
-	{
-		auto slots = GetOutputSlotsOfType("LIGHT_GROUP");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::LightGroupUpdateDone, slot);
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

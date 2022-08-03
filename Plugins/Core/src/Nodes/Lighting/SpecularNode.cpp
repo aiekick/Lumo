@@ -17,6 +17,9 @@ limitations under the License.
 #include "SpecularNode.h"
 #include <Modules/Lighting/SpecularModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
+#include <Graph/Slots/NodeSlotLightGroupInput.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<SpecularNode> SpecularNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,37 +46,18 @@ bool SpecularNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Specular";
 
-	NodeSlot slot;
-
-	slot.slotType = LightGroupConnector::GetSlotType();
-	slot.name = "Lights";
-	slot.descriptorBinding = 0U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Position";
-	slot.descriptorBinding = 0U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Normal";
-	slot.descriptorBinding = 1U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, true);
-
-	bool res = false;
+	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
+	AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	m_SpecularModulePtr = SpecularModule::Create(vVulkanCorePtr);
 	if (m_SpecularModulePtr)
 	{
-		res = true;
+		return true;
 	}
 
-	return res;
+	return false;
 }
 
 bool SpecularNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
@@ -129,67 +113,15 @@ void SpecularNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void SpecularNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void SpecularNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_SpecularModulePtr)
 	{
-		m_SpecularModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_SpecularModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void SpecularNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_SpecularModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
-				}
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					SetLightGroup(otherTextureNodePtr->GetLightGroup());
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void SpecularNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_SpecularModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				SetLightGroup();
-			}
-		}
-	}
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void SpecularNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -215,57 +147,6 @@ void SpecularNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	if (m_SpecularModulePtr)
 	{
 		return m_SpecularModulePtr->SetLightGroup(vSceneLightGroup);
-	}
-}
-
-void SpecularNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::TextureUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
-				}
-			}
-		}
-		break;
-	}
-	case NotifyEvent::LightGroupUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						SetLightGroup(otherNodePtr->GetLightGroup());
-					}
-				}
-			}
-		}
-		break;
-	}
-	default:
-		break;
 	}
 }
 

@@ -55,14 +55,6 @@ void UserNodeLibrary::AnalyseRootDirectory()
 
 	m_RootLibraryCategory.AddCustom("Outputs", "Output 3D", "OUTPUT_3D");
 	m_RootLibraryCategory.AddCustom("Outputs", "Output 2D", "OUTPUT_2D");
-	
-	m_RootLibraryCategory.AddCustom("Core/2D/Simulation", "GrayScott", "2D_SIMULATION_GRAY_SCOTT");
-	m_RootLibraryCategory.AddCustom("Core/2D/Lighting", "Normal from texture 2D", "2D_NORMAL_FROM_TEXTURE");
-	m_RootLibraryCategory.AddCustom("Core/2D/Misc", "2D Layering", "2D_LAYERING");
-
-	m_RootLibraryCategory.AddCustom("Core/Utils", "Math", "MATH");
-
-	m_RootLibraryCategory.AddCustom("Core/Widgets", "Color", "WIDGET_COLOR");
 		
 	// les plugins
 	auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();

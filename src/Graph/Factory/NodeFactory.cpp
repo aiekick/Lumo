@@ -18,11 +18,6 @@ limitations under the License.
 
 #include <Graph/Nodes/Output/Output3DNode.h>
 #include <Graph/Nodes/Output/Output2DNode.h>
-#include <Graph/Nodes/Simulation/GrayScottNode.h>
-#include <Graph/Nodes/Simulation/NormalFromTextureNode.h>
-#include <Graph/Nodes/Simulation/Layering2DNode.h>
-#include <Graph/Nodes/Utils/MathNode.h>
-#include <Graph/Nodes/Widgets/WidgetColorNode.h>
 
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType)
 {
@@ -35,17 +30,6 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
 			// graph output
 			if (vNodeType == "OUTPUT_3D")						return Output3DNode::Create(corePtr);
 			else if (vNodeType == "OUTPUT_2D")					return Output2DNode::Create(corePtr);
-
-			// Simulation
-			else if (vNodeType == "2D_SIMULATION_GRAY_SCOTT")	return GrayScottNode::Create(corePtr);
-			else if (vNodeType == "2D_NORMAL_FROM_TEXTURE")		return NormalFromTextureNode::Create(corePtr);
-			else if (vNodeType == "2D_LAYERING")				return Layering2DNode::Create(corePtr);
-
-			// Utils
-			else if (vNodeType == "MATH")						return MathNode::Create(corePtr);
-		
-			// Widgets
-			else if (vNodeType == "WIDGET_COLOR")				return WidgetColorNode::Create(corePtr);
 		}
 	}
 

@@ -156,9 +156,9 @@ void ToneMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const
 	}
 }
 
-void ToneMapModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ToneMapModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void ToneMapModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)

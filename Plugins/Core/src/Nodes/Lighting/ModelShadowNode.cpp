@@ -18,6 +18,10 @@ limitations under the License.
 #include <Modules/Lighting/ModelShadowModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/TextureGroupOutputInterface.h>
+#include <Graph/Slots/NodeSlotLightGroupInput.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureGroupInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<ModelShadowNode> ModelShadowNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -44,31 +48,11 @@ bool ModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Model Shadow";
 
-	NodeSlot slot;
-
-	slot.slotType = LightGroupConnector::GetSlotType();
-	slot.name = "Lights";
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Position";
-	slot.descriptorBinding = 0U; // target a texture input
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Normal";
-	slot.descriptorBinding = 1U; // target a texture input
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureGroupConnector::GetSlotType();
-	slot.name = "Shadow Maps";
-	slot.descriptorBinding = 1U; // target a texture group input
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
+	AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
+	AddInput(NodeSlotTextureGroupInput::Create("Shadow Maps"), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 	m_ModelShadowModulePtr = ModelShadowModule::Create(vVulkanCorePtr);
@@ -158,154 +142,15 @@ vk::DescriptorImageInfo* ModelShadowNode::GetDescriptorImageInfo(const uint32_t&
 	return nullptr;
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ModelShadowNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ModelShadowModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
-				}
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				auto otherLightGroupNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherLightGroupNodePtr)
-				{
-					SetLightGroup(otherLightGroupNodePtr->GetLightGroup());
-				}
-			}
-			else if (startSlotPtr->slotType == "TEXTURE_2D_GROUP")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					fvec2Vector arr;
-					auto descsPtr = otherTextureNodePtr->GetDescriptorImageInfos(endSlotPtr->descriptorBinding, &arr);
-					SetTextures(startSlotPtr->descriptorBinding, descsPtr, &arr);
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ModelShadowNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ModelShadowModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-			else if (startSlotPtr->slotType == "LIGHT_GROUP")
-			{
-				SetLightGroup();
-			}
-			else if (startSlotPtr->slotType == "TEXTURE_2D_GROUP")
-			{
-				SetTextures(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-		}
-	}
-}
-
-void ModelShadowNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::TextureUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
-				}
-			}
-		}
-
-		//todo emit notification
-		break;
-	}
-	case NotifyEvent::TextureGroupUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						fvec2Vector arr; // tofix : je sens les emmerdes a ce transfert de pointeurs dans un scope court 
-						auto descsPtr = otherNodePtr->GetDescriptorImageInfos(emiterSlotPtr->descriptorBinding, &arr);
-						SetTextures(receiverSlotPtr->descriptorBinding, descsPtr, &arr);
-					}
-				}
-			}
-		}
-
-		//todo emit notification
-		break;
-	}
-	case NotifyEvent::LightGroupUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<LightGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetLightGroup(otherNodePtr->GetLightGroup());
-				}
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
-}
-
-void ModelShadowNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ModelShadowNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_ModelShadowModulePtr)
 	{
-		m_ModelShadowModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_ModelShadowModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

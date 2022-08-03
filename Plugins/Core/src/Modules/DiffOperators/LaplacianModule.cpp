@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "MathModule.h"
+#include "LaplacianModule.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Utils/Pass/MathModule_Quad_Pass.h>
+#include <Modules/DiffOperators/Pass/LaplacianModule_Quad_Pass.h>
 
 using namespace vkApi;
 
@@ -40,10 +40,10 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MathModule> MathModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<LaplacianModule> LaplacianModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MathModule>(vVulkanCorePtr);
+	auto res = std::make_shared<LaplacianModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -56,13 +56,13 @@ std::shared_ptr<MathModule> MathModule::Create(vkApi::VulkanCorePtr vVulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MathModule::MathModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+LaplacianModule::LaplacianModule(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
 
-MathModule::~MathModule()
+LaplacianModule::~LaplacianModule()
 {
 	Unit();
 }
@@ -71,27 +71,23 @@ MathModule::~MathModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool MathModule::Init()
+bool LaplacianModule::Init()
 {
 	ZoneScoped;
 
-	ct::uvec2 map_size = 1U;
+	ct::uvec2 map_size = 512;
 
 	m_Loaded = true;
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_MathModule_Quad_Pass_Ptr = std::make_shared<MathModule_Quad_Pass>(m_VulkanCorePtr);
-		if (m_MathModule_Quad_Pass_Ptr)
+		m_LaplacianModule_Quad_Pass_Ptr = std::make_shared<LaplacianModule_Quad_Pass>(m_VulkanCorePtr);
+		if (m_LaplacianModule_Quad_Pass_Ptr)
 		{
-			// will be resized ot input size
-			m_MathModule_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			m_MathModule_Quad_Pass_Ptr->AllowResizeByHand(true);
-
-			if (m_MathModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_LaplacianModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_MathModule_Quad_Pass_Ptr);
+				AddGenericPass(m_LaplacianModule_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -104,22 +100,22 @@ bool MathModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool MathModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool LaplacianModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Math", vCmd);
+	BaseRenderer::Render("Laplacian", vCmd);
 
 	return true;
 }
 
-bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool LaplacianModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
-	//if (m_LastExecutedFrame == vCurrentFrame)
+	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("Math", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("Laplacian", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 
@@ -139,7 +135,7 @@ bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 	return false;
 }
 
-void MathModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void LaplacianModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext);
 
@@ -149,7 +145,7 @@ void MathModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vR
 	}
 }
 
-void MathModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void LaplacianModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
 
@@ -159,23 +155,28 @@ void MathModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 	}
 }
 
-void MathModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void LaplacianModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+{
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+}
+
+void LaplacianModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
-	if (m_MathModule_Quad_Pass_Ptr)
+	if (m_LaplacianModule_Quad_Pass_Ptr)
 	{
-		m_MathModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_LaplacianModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* MathModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* LaplacianModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_MathModule_Quad_Pass_Ptr)
+	if (m_LaplacianModule_Quad_Pass_Ptr)
 	{
-		return m_MathModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_LaplacianModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -185,25 +186,28 @@ vk::DescriptorImageInfo* MathModule::GetDescriptorImageInfo(const uint32_t& vBin
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string MathModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string LaplacianModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
-	str += vOffset + "<math_module>\n";
+	str += vOffset + "<laplacian_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_MathModule_Quad_Pass_Ptr)
+	for (auto passPtr : m_ShaderPass)
 	{
-		str += m_MathModule_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		if (passPtr)
+		{
+			str += passPtr->getXml(vOffset + "\t", vUserDatas);
+		}
 	}
 
-	str += vOffset + "</math_module>\n";
+	str += vOffset + "</laplacian_module>\n";
 
 	return str;
 }
 
-bool MathModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool LaplacianModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -216,49 +220,19 @@ bool MathModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "math_module")
+	if (strParentName == "laplacian_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_MathModule_Quad_Pass_Ptr)
+	for (auto passPtr : m_ShaderPass)
 	{
-		return m_MathModule_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
-
-	return true;
-}
-
-bool MathModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
-{
-	//if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (m_MathModule_Quad_Pass_Ptr)
+		if (passPtr)
 		{
-			return m_MathModule_Quad_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContext);
+			passPtr->setFromXml(vElem, vParent, vUserDatas);
 		}
 	}
 
-	return false;
-}
-
-uint32_t MathModule::GetComponentCount()
-{
-	if (m_MathModule_Quad_Pass_Ptr)
-	{
-		return m_MathModule_Quad_Pass_Ptr->GetComponentCount();
-	}
-
-	return 0U;
-}
-
-std::string MathModule::GetInputName(const uint32_t& vIdx)
-{
-	if (m_MathModule_Quad_Pass_Ptr)
-	{
-		return m_MathModule_Quad_Pass_Ptr->GetInputName(vIdx);
-	}
-
-	return "";
+	return true;
 }

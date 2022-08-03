@@ -16,6 +16,7 @@ limitations under the License.
 
 #include "VariableNode.h"
 #include <Modules/Widgets/VariableModule.h>
+#include <Graph/Slots/NodeSlotVariableOutput.h>
 
 std::shared_ptr<VariableNode> VariableNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr, const std::string& vNodeType)
 {
@@ -42,19 +43,14 @@ bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Widget Bool";
 
-	NodeSlot slot;
-
 	if (m_NodeTypeString == "WIDGET_BOOLEAN")
-		slot.slotType = "TYPE_BOOLEAN";
+		AddOutput(NodeSlotVariableOutput::Create("Output", "TYPE_BOOLEAN"), true, false);
 	else if (m_NodeTypeString == "WIDGET_FLOAT")
-		slot.slotType = "TYPE_FLOAT";
+		AddOutput(NodeSlotVariableOutput::Create("Output", "TYPE_FLOAT"), true, false);
 	else if (m_NodeTypeString == "WIDGET_INT")
-		slot.slotType = "TYPE_INT";
+		AddOutput(NodeSlotVariableOutput::Create("Output", "TYPE_INT"), true, false);
 	else if (m_NodeTypeString == "WIDGET_UINT")
-		slot.slotType = "TYPE_UINT";
-
-	slot.showWidget = true;
-	AddOutput(slot, true, false);
+		AddOutput(NodeSlotVariableOutput::Create("Output", "TYPE_UINT"), true, false);
 
 	bool res = false;
 
@@ -112,28 +108,6 @@ void VariableNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
 			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
 		}
-	}
-}
-
-void VariableNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::VariableUpdateDone:
-	{
-		auto slots = GetOutputSlotsOfType("TYPE_BOOLEAN");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::VariableUpdateDone, slot);
-			}
-		}
-		break;
-	}
-	default:
-		break;
 	}
 }
 

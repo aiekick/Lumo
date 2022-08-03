@@ -16,6 +16,7 @@ limitations under the License.
 
 #include "Texture2DNode.h"
 #include <Modules/Assets/Texture2DModule.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<Texture2DNode> Texture2DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -42,11 +43,7 @@ bool Texture2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Texture 2D";
 
-	NodeSlot slot;
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	slot.showWidget = true;
-	AddOutput(slot, true, true);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	m_Texture2DModule = Texture2DModule::Create(vVulkanCorePtr, m_This);
 	if (m_Texture2DModule)
@@ -85,28 +82,6 @@ void Texture2DNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak
 	if (m_Texture2DModule)
 	{
 		m_Texture2DModule->DrawTexture(50);
-	}
-}
-
-void Texture2DNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::TextureUpdateDone:
-	{
-		auto slots = GetOutputSlotsOfType("TEXTURE_2D");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::TextureUpdateDone, slot);
-			}
-		}
-		break;
-	}
-	default:
-		break;
 	}
 }
 

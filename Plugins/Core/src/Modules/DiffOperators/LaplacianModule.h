@@ -45,25 +45,29 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
 
-class GrayScottModule_Comp_Pass;
-class GrayScottModule :
+
+
+class LaplacianModule_Quad_Pass;
+class BlurModule_Comp_Pass;
+class LaplacianModule :
 	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
-	public TextureInputInterface<2U>,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<GrayScottModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<LaplacianModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	ct::cWeak<GrayScottModule> m_This;
-	std::shared_ptr<GrayScottModule_Comp_Pass> m_GrayScottModule_Comp_Pass_Ptr = nullptr;
+	ct::cWeak<LaplacianModule> m_This;
+
+	std::shared_ptr<LaplacianModule_Quad_Pass> m_LaplacianModule_Quad_Pass_Ptr = nullptr;
 
 public:
-	GrayScottModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~GrayScottModule() override;
+	LaplacianModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~LaplacianModule() override;
 
 	bool Init();
 
@@ -72,7 +76,7 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

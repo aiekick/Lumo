@@ -96,9 +96,9 @@ bool GridModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 	return true;
 }
 
-void GridModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void GridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

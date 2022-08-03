@@ -17,48 +17,42 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "NodeSlotTextureOutput.h"
+#include "NodeSlotTextureInput.h"
+#include <Graph/Base/BaseNode.h>
+#include <Interfaces/TextureInputInterface.h>
+#include <Interfaces/TextureOutputInterface.h>
 
 #include <utility>
-#include <Graph/Base/BaseNode.h>
-
 static const float slotIconSize = 15.0f;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTextureOutputPtr NodeSlotTextureOutput::Create(NodeSlotTextureOutput vSlot)
+NodeSlotTextureInputPtr NodeSlotTextureInput::Create(NodeSlotTextureInput vSlot)
 {
-	auto res = std::make_shared<NodeSlotTextureOutput>(vSlot);
+	auto res = std::make_shared<NodeSlotTextureInput>(vSlot);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotTextureOutputPtr NodeSlotTextureOutput::Create(const std::string& vName)
+NodeSlotTextureInputPtr NodeSlotTextureInput::Create(const std::string& vName, const uint32_t& vBindingPoint)
 {
-	auto res = std::make_shared<NodeSlotTextureOutput>(vName);
+	auto res = std::make_shared<NodeSlotTextureInput>(vName, vBindingPoint);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotTextureOutputPtr NodeSlotTextureOutput::Create(const std::string& vName, const uint32_t& vBindingPoint)
+NodeSlotTextureInputPtr NodeSlotTextureInput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
 {
-	auto res = std::make_shared<NodeSlotTextureOutput>(vName, vBindingPoint);
+	auto res = std::make_shared<NodeSlotTextureInput>(vName, vBindingPoint, vHideName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotTextureOutputPtr NodeSlotTextureOutput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
+NodeSlotTextureInputPtr NodeSlotTextureInput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
 {
-	auto res = std::make_shared<NodeSlotTextureOutput>(vName, vBindingPoint, vHideName);
-	res->m_This = res;
-	return res;
-}
-
-NodeSlotTextureOutputPtr NodeSlotTextureOutput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotTextureOutput>(vName, vBindingPoint, vHideName, vShowWidget);
+	auto res = std::make_shared<NodeSlotTextureInput>(vName, vBindingPoint, vHideName, vShowWidget);
 	res->m_This = res;
 	return res;
 }
@@ -67,24 +61,25 @@ NodeSlotTextureOutputPtr NodeSlotTextureOutput::Create(const std::string& vName,
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTextureOutput::NodeSlotTextureOutput()
-	: NodeSlotOutput("", "TEXTURE_2D")
+NodeSlotTextureInput::NodeSlotTextureInput()
+	: NodeSlotInput("", "TEXTURE_2D")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 }
 
-NodeSlotTextureOutput::NodeSlotTextureOutput(const std::string& vName)
-	: NodeSlotOutput(vName, "TEXTURE_2D")
+NodeSlotTextureInput::NodeSlotTextureInput(const std::string& vName, const uint32_t& vBindingPoint)
+	: NodeSlotInput(vName, "TEXTURE_2D")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+	colorIsSet = true; 
+	descriptorBinding = vBindingPoint;
 }
 
-NodeSlotTextureOutput::NodeSlotTextureOutput(const std::string& vName, const uint32_t& vBindingPoint)
-	: NodeSlotOutput(vName, "TEXTURE_2D")
+NodeSlotTextureInput::NodeSlotTextureInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
+	: NodeSlotInput(vName, "TEXTURE_2D", vHideName)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
@@ -92,8 +87,8 @@ NodeSlotTextureOutput::NodeSlotTextureOutput(const std::string& vName, const uin
 	descriptorBinding = vBindingPoint;
 }
 
-NodeSlotTextureOutput::NodeSlotTextureOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
-	: NodeSlotOutput(vName, "TEXTURE_2D", vHideName)
+NodeSlotTextureInput::NodeSlotTextureInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
+	: NodeSlotInput(vName, "TEXTURE_2D", vHideName, vShowWidget)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
@@ -101,26 +96,17 @@ NodeSlotTextureOutput::NodeSlotTextureOutput(const std::string& vName, const uin
 	descriptorBinding = vBindingPoint;
 }
 
-NodeSlotTextureOutput::NodeSlotTextureOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, "TEXTURE_2D", vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
-}
+NodeSlotTextureInput::~NodeSlotTextureInput() = default;
 
-NodeSlotTextureOutput::~NodeSlotTextureOutput() = default;
-
-void NodeSlotTextureOutput::Init()
+void NodeSlotTextureInput::Init()
 {
 	
 }
 
-void NodeSlotTextureOutput::Unit()
+void NodeSlotTextureInput::Unit()
 {
 	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotTextureOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+	// car NodeSlotTextureInput peut etre isntancié à l'ancienne en copie local donc sans shared_ptr
 	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
 	if (!m_This.expired())
 	{
@@ -143,15 +129,81 @@ void NodeSlotTextureOutput::Unit()
 	}
 }
 
-void NodeSlotTextureOutput::SendFrontNotification(const NotifyEvent& vEvent)
+void NodeSlotTextureInput::Connect(NodeSlotWeak vOtherSlot)
 {
-	if (vEvent == NotifyEvent::TextureUpdateDone)
+	if (slotType == "TEXTURE_2D")
 	{
-		SendNotification("TEXTURE_2D", vEvent);
+		auto endSlotPtr = vOtherSlot.getValidShared();
+		if (endSlotPtr)
+		{
+			auto parentNodePtr = dynamic_pointer_cast<TextureInputInterface<0u>>(parentNode.getValidShared());
+			if (parentNodePtr)
+			{
+				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				if (otherTextureNodePtr)
+				{
+					ct::fvec2 textureSize;
+					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
+					parentNodePtr->SetTexture(descriptorBinding, descPtr, &textureSize);
+				}
+			}
+		}
 	}
 }
 
-void NodeSlotTextureOutput::DrawDebugInfos()
+void NodeSlotTextureInput::DisConnect(NodeSlotWeak vOtherSlot)
+{
+	if (slotType == "TEXTURE_2D")
+	{
+		auto endSlotPtr = vOtherSlot.getValidShared();
+		if (endSlotPtr)
+		{
+			auto parentNodePtr = dynamic_pointer_cast<TextureInputInterface<0u>>(parentNode.getValidShared());
+			if (parentNodePtr)
+			{
+				parentNodePtr->SetTexture(descriptorBinding, nullptr, nullptr);
+			}
+		}
+	}
+}
+
+void NodeSlotTextureInput::TreatNotification(
+	const NotifyEvent& vEvent,
+	const NodeSlotWeak& vEmitterSlot,
+	const NodeSlotWeak& vReceiverSlot)
+{
+	if (vEvent == NotifyEvent::TextureUpdateDone)
+	{
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
+		if (emiterSlotPtr)
+		{
+			if (emiterSlotPtr->IsAnOutput())
+			{
+				auto parentNodePtr = parentNode.getValidShared();
+				if (parentNodePtr)
+				{
+					auto parentTextureInputNodePtr = dynamic_pointer_cast<TextureInputInterface<0u>>(parentNodePtr);
+					if (parentTextureInputNodePtr)
+					{
+						auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+						if (otherNodePtr)
+						{
+							auto receiverSlotPtr = vReceiverSlot.getValidShared();
+							if (receiverSlotPtr)
+							{
+								ct::fvec2 textureSize;
+								auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+								parentTextureInputNodePtr->SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void NodeSlotTextureInput::DrawDebugInfos()
 {
 	ImGui::Text("--------------------");
 	ImGui::Text("Slot %s", name.c_str());
@@ -163,7 +215,7 @@ void NodeSlotTextureOutput::DrawDebugInfos()
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string NodeSlotTextureOutput::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string NodeSlotTextureInput::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string res;
 
@@ -177,7 +229,7 @@ std::string NodeSlotTextureOutput::getXml(const std::string& vOffset, const std:
 	return res;
 }
 
-bool NodeSlotTextureOutput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool NodeSlotTextureInput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;

@@ -17,6 +17,9 @@ limitations under the License.
 #include "BreakTexturesGroupNode.h"
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/TextureGroupOutputInterface.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotTextureGroupInput.h>
 
 std::shared_ptr<BreakTexturesGroupNode> BreakTexturesGroupNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,11 +46,7 @@ bool BreakTexturesGroupNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Break Tex2D Group";
 
-	NodeSlot slot;
-	slot.slotType = TextureGroupConnector::GetSlotType();
-	slot.name = "Textures";
-	slot.descriptorBinding = 0U; // target a texture input
-	AddInput(slot, true, false);
+	AddInput(NodeSlotTextureGroupInput::Create("Textures"), true, false);
 
 	return true;
 }
@@ -148,39 +147,6 @@ void BreakTexturesGroupNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, No
 	}
 }
 
-void BreakTexturesGroupNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::TextureGroupUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						fvec2Vector arr; // tofix : je sens les emmerdes a ce transfert de pointeurs dans un scope court 
-						auto descsPtr = otherNodePtr->GetDescriptorImageInfos(emiterSlotPtr->descriptorBinding, &arr);
-						SetTextures(receiverSlotPtr->descriptorBinding, descsPtr, &arr);
-					}
-				}
-			}
-		}
-
-		//todo emit notification
-		break;
-	}
-	default:
-		break;
-	}
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -239,12 +205,8 @@ void BreakTexturesGroupNode::ReorganizeSlots()
 {
 	m_Outputs.clear();
 	
-	for (size_t idx = 0U ; idx < m_Textures.size() ; ++idx)
+	for (uint32_t idx = 0U ; idx < (uint32_t)m_Textures.size() ; ++idx)
 	{
-		NodeSlot slot;
-		slot.slotType = TextureConnector<0U>::GetSlotType();
-		slot.name = ct::toStr("Output %u", idx);
-		slot.descriptorBinding = (uint32_t)idx;
-		AddOutput(slot, true, true);
+		AddOutput(NodeSlotTextureOutput::Create(ct::toStr("Output %u", idx), idx), true, true);
 	}
 }

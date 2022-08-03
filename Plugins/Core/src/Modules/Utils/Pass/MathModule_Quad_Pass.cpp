@@ -156,28 +156,28 @@ void MathModule_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame
 
 }
 
-void MathModule_Quad_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void MathModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_ImageInfos.size())
+		if (vBindingPoint < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_ImageInfos[vBinding] = *vImageInfo;
+				m_ImageInfos[vBindingPoint] = *vImageInfo;
 
 				if (vTextureSize)
 				{
-					m_ImageInfosSize[vBinding] = *vTextureSize;
+					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
 					ResizeToMaxOfTexturesIfNeeded();
 				}
 
-				if ((&m_UBOFrag.u_use_input_0)[vBinding] < 1.0f)
+				if ((&m_UBOFrag.u_use_input_0)[vBindingPoint] < 1.0f)
 				{
-					(&m_UBOFrag.u_use_input_0)[vBinding] = 1.0f;
+					(&m_UBOFrag.u_use_input_0)[vBindingPoint] = 1.0f;
 
 					NeedNewUBOUpload();
 				}
@@ -186,14 +186,14 @@ void MathModule_Quad_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorIm
 			}
 			else
 			{
-				if ((&m_UBOFrag.u_use_input_0)[vBinding] > 0.0f)
+				if ((&m_UBOFrag.u_use_input_0)[vBindingPoint] > 0.0f)
 				{
-					(&m_UBOFrag.u_use_input_0)[vBinding] = 0.0f;
+					(&m_UBOFrag.u_use_input_0)[vBindingPoint] = 0.0f;
 					
 					NeedNewUBOUpload();
 				}
 
-				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 			}
 		}
 	}
@@ -587,7 +587,7 @@ void MathModule_Quad_Pass::ResizeToMaxOfTexturesIfNeeded()
 			{
 				// yes !
 				ct::ivec2 new_size = ct::ivec2((int32_t)max_size.x, (int32_t)max_size.y);
-				QuadShaderPass::NeedResize(&new_size);
+				QuadShaderPass::NeedResizeByHand(&new_size);
 			}
 		}
 	}

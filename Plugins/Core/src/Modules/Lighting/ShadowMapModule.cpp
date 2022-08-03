@@ -116,7 +116,8 @@ bool ShadowMapModule::Init()
 					1024U, 1U, m_FrameBuffers[0]->GetRenderPass(),
 					vk::SampleCountFlagBits::e1))
 				{
-					m_ShadowMapModule_Mesh_Pass_Ptr->AllowResize(false); // 1024 is fixed
+					m_ShadowMapModule_Mesh_Pass_Ptr->AllowResizeByHand(true);
+					m_ShadowMapModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(false); // 1024 is fixed
 					AddGenericPass(m_ShadowMapModule_Mesh_Pass_Ptr);
 					m_Loaded = true;
 				}
@@ -230,9 +231,9 @@ void ShadowMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	}
 }
 
-void ShadowMapModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ShadowMapModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void ShadowMapModule::SetModel(SceneModelWeak vSceneModel)

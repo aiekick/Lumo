@@ -119,7 +119,7 @@ bool SmoothNormalModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Co
 	auto parentNodePtr = GetParentNode().getValidShared();
 	if (parentNodePtr)
 	{
-		parentNodePtr->Notify(NotifyEvent::ModelUpdateDone);
+		parentNodePtr->SendFrontNotification(NotifyEvent::ModelUpdateDone);
 	}
 
 	m_LastExecutedFrame = vCurrentFrame;

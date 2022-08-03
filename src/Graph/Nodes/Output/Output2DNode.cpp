@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "Output2DNode.h"
 #include <Modules/Output/Output2DModule.h>
-#include <Graph/Slots/Texture/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
 
 std::shared_ptr<Output2DNode> Output2DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,7 +43,7 @@ bool Output2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Scene Output 2D";
 
-	m_InputSlot = AddInput(NodeSlotTextureInput::Create("Output"), true, true);
+	m_InputSlot = AddInput(NodeSlotTextureInput::Create("Output", 0U), true, true);
 
 	bool res = false;
 

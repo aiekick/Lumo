@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "Output3DNode.h"
 #include <Modules/Output/Output3DModule.h>
-#include <Graph/Slots/Texture/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
 
 std::shared_ptr<Output3DNode> Output3DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,7 +43,7 @@ bool Output3DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Scene Output 3D";
 
-	m_InputSlot = AddInput(NodeSlotTextureInput::Create("Output"), true, true);
+	m_InputSlot = AddInput(NodeSlotTextureInput::Create("Output", 0U), true, true);
 
 	bool res = false;
 

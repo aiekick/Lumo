@@ -347,7 +347,7 @@ void MeshModule::MeshLoadingFinished()
 	auto parentNodePtr = GetParentNode().getValidShared();
 	if (parentNodePtr)
 	{
-		parentNodePtr->Notify(NotifyEvent::ModelUpdateDone);
+		parentNodePtr->SendFrontNotification(NotifyEvent::ModelUpdateDone);
 	}
 }
 

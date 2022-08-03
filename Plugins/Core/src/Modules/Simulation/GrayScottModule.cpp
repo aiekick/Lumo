@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Simulation/Pass/GrayScottModule_Quad_Pass.h>
+#include <Modules/Simulation/Pass/GrayScottModule_Comp_Pass.h>
 
 using namespace vkApi;
 
@@ -77,21 +77,20 @@ bool GrayScottModule::Init()
 
 	ct::uvec2 map_size = 512;
 
-	m_Loaded = true;
+	m_Loaded = false;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_GrayScottModule_Quad_Pass_Ptr = std::make_shared<GrayScottModule_Quad_Pass>(m_VulkanCorePtr);
-		if (m_GrayScottModule_Quad_Pass_Ptr)
+		m_GrayScottModule_Comp_Pass_Ptr = std::make_shared<GrayScottModule_Comp_Pass>(m_VulkanCorePtr);
+		if (m_GrayScottModule_Comp_Pass_Ptr)
 		{
-			// eR8G8B8A8Unorm is used for have nice white and black display
-			// unfortunatly not for perf, but the main purpose is for nice widget display
-			// or maybe there is a way in glsl to know the component count of a texture
-			// so i could modify in this way the shader of imgui
-			if (m_GrayScottModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+			// by default but can be changed via widget
+			m_GrayScottModule_Comp_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			m_GrayScottModule_Comp_Pass_Ptr->AllowResizeByHand(true);
+
+			if (m_GrayScottModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
-				AddGenericPass(m_GrayScottModule_Quad_Pass_Ptr);
+				AddGenericPass(m_GrayScottModule_Comp_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -123,13 +122,9 @@ bool GrayScottModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 		{
 			bool change = false;
 
-			for (auto passPtr : m_ShaderPass)
+			if (m_GrayScottModule_Comp_Pass_Ptr)
 			{
-				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(passPtr);
-				if (passGuiPtr)
-				{
-					change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext);
-				}
+				change |= m_GrayScottModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 
 			return change;
@@ -159,18 +154,18 @@ void GrayScottModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	}
 }
 
-void GrayScottModule::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void GrayScottModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void GrayScottModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void GrayScottModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
-	if (m_GrayScottModule_Quad_Pass_Ptr)
+	if (m_GrayScottModule_Comp_Pass_Ptr)
 	{
-		m_GrayScottModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_GrayScottModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -178,9 +173,9 @@ vk::DescriptorImageInfo* GrayScottModule::GetDescriptorImageInfo(const uint32_t&
 {
 	ZoneScoped;
 
-	if (m_GrayScottModule_Quad_Pass_Ptr)
+	if (m_GrayScottModule_Comp_Pass_Ptr)
 	{
-		return m_GrayScottModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_GrayScottModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -194,19 +189,16 @@ std::string GrayScottModule::getXml(const std::string& vOffset, const std::strin
 {
 	std::string str;
 
-	str += vOffset + "<blur_module>\n";
+	str += vOffset + "<gray_scott_sim>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_GrayScottModule_Comp_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			str += passPtr->getXml(vOffset + "\t", vUserDatas);
-		}
+		str += m_GrayScottModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</blur_module>\n";
+	str += vOffset + "</gray_scott_sim>\n";
 
 	return str;
 }
@@ -224,18 +216,15 @@ bool GrayScottModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "blur_module")
+	if (strParentName == "gray_scott_sim")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_GrayScottModule_Comp_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			passPtr->setFromXml(vElem, vParent, vUserDatas);
-		}
+		m_GrayScottModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

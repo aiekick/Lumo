@@ -84,6 +84,10 @@ bool MathModule::Init()
 		m_MathModule_Quad_Pass_Ptr = std::make_shared<MathModule_Quad_Pass>(m_VulkanCorePtr);
 		if (m_MathModule_Quad_Pass_Ptr)
 		{
+			// will be resized ot input size
+			m_MathModule_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			m_MathModule_Quad_Pass_Ptr->AllowResizeByHand(true);
+
 			if (m_MathModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
@@ -155,13 +159,13 @@ void MathModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 	}
 }
 
-void MathModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void MathModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_MathModule_Quad_Pass_Ptr)
 	{
-		m_MathModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_MathModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

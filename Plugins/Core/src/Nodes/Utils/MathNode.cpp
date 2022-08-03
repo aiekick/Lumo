@@ -16,6 +16,8 @@ limitations under the License.
 
 #include "MathNode.h"
 #include <Modules/Utils/MathModule.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<MathNode> MathNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -42,32 +44,22 @@ bool MathNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Math";
 
-	NodeSlot slot;
+	for (uint32_t i = 0U; i < 3U; ++i)
+	{
+		auto slotPtr = NodeSlotTextureInput::Create("", i);
+		if (slotPtr)
+		{
+			slotPtr->hidden = true;
+			AddInput(slotPtr, true, false);
+		}
+	}
 
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "";
-	slot.descriptorBinding = 0U;
-	slot.hidden = true;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "";
-	slot.descriptorBinding = 1U;
-	slot.hidden = true;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "";
-	slot.descriptorBinding = 2U;
-	slot.hidden = true;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	slot.descriptorBinding = 0U;
-	slot.hidden = false;
-	slot.showWidget = true;
-	AddOutput(slot, true, true);
+	auto slotPtr = NodeSlotTextureOutput::Create("Output", 0U);
+	if (slotPtr)
+	{
+		slotPtr->showWidget = true;
+		AddOutput(slotPtr, true, false);
+	}
 
 	bool res = false;
 
@@ -87,13 +79,18 @@ bool MathNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
+	// UpdateTextureInputDescriptorImageInfos(m_Inputs);
+
+	bool res = false;
 
 	if (m_MathModulePtr)
 	{
-		return m_MathModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_MathModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+
+		SendFrontNotification(NotifyEvent::TextureUpdateDone);
 	}
-	return false;
+	
+	return res;
 }
 
 bool MathNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -142,22 +139,22 @@ void MathNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void MathNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void MathNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_MathModulePtr)
 	{
-		m_MathModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_MathModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void MathNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void MathNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_MathModulePtr)
 	{
-		m_MathModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_MathModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -171,45 +168,11 @@ vk::DescriptorImageInfo* MathNode::GetDescriptorImageInfo(const uint32_t& vBindi
 	return nullptr;
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MathNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+void MathNode::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MathModulePtr)
-	{
-		TextureConnector::Connect(startSlotPtr, endSlotPtr);
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MathNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MathModulePtr)
-	{
-		TextureConnector::DisConnect(startSlotPtr, endSlotPtr);
-	}
-}
-
-void MathNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::TextureUpdateDone:
-	{
-		TextureConnector::NotificationReceived(vEmitterSlot, vReceiverSlot);
-		TextureConnector::SendNotification(m_This);
-		break;
-	}
-	case NotifyEvent::GraphIsLoaded:
+	if (vEvent == NotifyEvent::GraphIsLoaded)
 	{
 		ReorganizeSlots();
-		break;
-	}
-	default:
-		break;
 	}
 }
 

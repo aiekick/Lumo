@@ -16,6 +16,8 @@ limitations under the License.
 
 #include "DeferredRendererNode.h"
 #include <Modules/Renderers/DeferredRenderer.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<DeferredRendererNode> DeferredRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -42,57 +44,16 @@ bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Deferred Renderer";
 
-	NodeSlot slot;
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Position";
-	slot.descriptorBinding = 0U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Normal";
-	slot.descriptorBinding = 1U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Albedo";
-	slot.descriptorBinding = 2U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Diffuse";
-	slot.descriptorBinding = 3U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Specular";
-	slot.descriptorBinding = 4U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Attenuation";
-	slot.descriptorBinding = 5U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Mask";
-	slot.descriptorBinding = 6U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "AO";
-	slot.descriptorBinding = 7U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Shadow";
-	slot.descriptorBinding = 8U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Albedo", 2U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Diffuse", 3U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Specular", 4U), true, false); 
+	AddInput(NodeSlotTextureInput::Create("Attenuation", 5U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Mask", 6U), true, false);
+	AddInput(NodeSlotTextureInput::Create("AO", 7U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Shadow", 8U), true, false); 
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, false);
 
 	bool res = false;
 
@@ -164,15 +125,15 @@ void DeferredRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeSt
 	}
 }
 
-void DeferredRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void DeferredRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_DeferredRendererPtr)
 	{
-		m_DeferredRendererPtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_DeferredRendererPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void DeferredRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -191,77 +152,6 @@ vk::DescriptorImageInfo* DeferredRendererNode::GetDescriptorImageInfo(const uint
 	}
 
 	return nullptr;
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void DeferredRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_DeferredRendererPtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void DeferredRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_DeferredRendererPtr)
-	{
-		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-		}
-	}
-}
-
-void DeferredRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::TextureUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
-				}
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

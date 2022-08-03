@@ -28,14 +28,12 @@ class NodeSlotTextureOutput :
 {
 public:
 	static NodeSlotTextureOutputPtr Create(NodeSlotTextureOutput vSlot);
-	static NodeSlotTextureOutputPtr Create(const std::string& vName);
 	static NodeSlotTextureOutputPtr Create(const std::string& vName, const uint32_t& vBindingPoint);
 	static NodeSlotTextureOutputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
 	static NodeSlotTextureOutputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
 
 public:
 	explicit NodeSlotTextureOutput();
-	explicit NodeSlotTextureOutput(const std::string& vName);
 	explicit NodeSlotTextureOutput(const std::string& vName, const uint32_t& vBindingPoint);
 	explicit NodeSlotTextureOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
 	explicit NodeSlotTextureOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);

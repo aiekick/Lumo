@@ -16,6 +16,8 @@ limitations under the License.
 
 #include "SmoothNormalNode.h"
 #include <Modules/Modifiers/SmoothNormalModule.h>
+#include <Graph/Slots/NodeSlotModelInput.h>
+#include <Graph/Slots/NodeSlotModelOutput.h>
 
 std::shared_ptr<SmoothNormalNode> SmoothNormalNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -42,15 +44,8 @@ bool SmoothNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Smooth Normal";
 
-	NodeSlot slot;
-	slot.slotType = ModelConnector::GetSlotType();
-	slot.showWidget = true;
-	AddInput(slot, true, true);
-
-	slot.slotType = ModelConnector::GetSlotType();
-	slot.name = "Output";
-	slot.showWidget = true;
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotModelInput::Create("Mesh"), true, true);
+	AddOutput(NodeSlotModelOutput::Create("Mesh"), true, true);
 
 	// we keep this node in ExecuteAllTime, because we need to propagate to inputs for each frames
 	
@@ -129,81 +124,6 @@ SceneModelWeak SmoothNormalNode::GetModel()
 	}
 
 	return SceneModelWeak();
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void SmoothNormalNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_SmoothNormalModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
-			if (otherNodePtr)
-			{
-				SetModel(otherNodePtr->GetModel());
-			}
-			else
-			{
-#ifdef _DEBUG
-				LogVarInfo("This node not inherit of ModelInterface");
-#endif
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void SmoothNormalNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			SetModel();
-		}
-	}
-}
-
-void SmoothNormalNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::ModelUpdateDone:
-	{
-		// traitment on inputs
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr && m_SmoothNormalModulePtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetModel(otherNodePtr->GetModel());
-				}
-			}
-		}
-
-		// notify on outputs than the mesh have changed
-		auto slots = GetOutputSlotsOfType("MESH");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::ModelUpdateDone, slot);
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 void SmoothNormalNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)

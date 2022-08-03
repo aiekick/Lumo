@@ -27,7 +27,7 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <Interfaces/TextureGroupOutputInterface.h>
 
-void TextureGroupInputFunctions::UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotPtr>& vInputs)
+void TextureGroupInputFunctions::UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs)
 {
 	for (const auto& input : vInputs) {
 		if (input.second && input.second->slotType == "TEXTURE_2D_GROUP") {

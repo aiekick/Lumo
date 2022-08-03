@@ -16,6 +16,8 @@ limitations under the License.
 
 #include "GrayScottNode.h"
 #include <Modules/Simulation/GrayScottModule.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<GrayScottNode> GrayScottNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -30,7 +32,7 @@ std::shared_ptr<GrayScottNode> GrayScottNode::Create(vkApi::VulkanCorePtr vVulka
 
 GrayScottNode::GrayScottNode() : BaseNode()
 {
-	m_NodeTypeString = "GRAY_SCOTT_SIMULATION";
+	m_NodeTypeString = "2D_SIMULATION_GRAY_SCOTT";
 }
 
 GrayScottNode::~GrayScottNode()
@@ -42,17 +44,9 @@ bool GrayScottNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "GrayScott";
 
-	NodeSlot slot;
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Input";
-	slot.descriptorBinding = 0U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, true);
+	//on desctive pour le moment, le shader le gere, mais on s'en sert pas pour le moment
+	//AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 
@@ -67,6 +61,8 @@ bool GrayScottNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
+	bool res = false;
+
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
@@ -74,9 +70,12 @@ bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 
 	if (m_GrayScottModulePtr)
 	{
-		return m_GrayScottModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_GrayScottModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+
+		//SendFrontNotification(NotifyEvent::TextureUpdateDone);
 	}
-	return false;
+
+	return res;
 }
 
 bool GrayScottNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -118,62 +117,22 @@ void GrayScottNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void GrayScottNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void GrayScottNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_GrayScottModulePtr)
 	{
-		m_GrayScottModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_GrayScottModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void GrayScottNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_GrayScottModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void GrayScottNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_GrayScottModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-		}
-	}
-}
-
-void GrayScottNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void GrayScottNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_GrayScottModulePtr)
 	{
-		m_GrayScottModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_GrayScottModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -185,37 +144,6 @@ vk::DescriptorImageInfo* GrayScottNode::GetDescriptorImageInfo(const uint32_t& v
 	}
 
 	return nullptr;
-}
-
-void GrayScottNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::TextureUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
-				}
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

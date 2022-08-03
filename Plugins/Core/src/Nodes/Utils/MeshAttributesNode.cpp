@@ -17,6 +17,9 @@ limitations under the License.
 #include "MeshAttributesNode.h"
 #include <Modules/Utils/MeshAttributesModule.h>
 #include <Interfaces/ModelOutputInterface.h>
+#include <Graph/Slots/NodeSlotModelInput.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<MeshAttributesNode> MeshAttributesNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -43,51 +46,15 @@ bool MeshAttributesNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Mesh Attributes";
 
-	NodeSlot slot;
-	
-	slot.slotType = ModelConnector::GetSlotType();
-	slot.name = "Mesh";
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Mask";
-	slot.descriptorBinding = 0U;
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Position";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Normal";
-	slot.descriptorBinding = 1U;
-	AddOutput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Tangeant";
-	slot.descriptorBinding = 2U;
-	AddOutput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "BiTangeant";
-	slot.descriptorBinding = 3U;
-	AddOutput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "UV";
-	slot.descriptorBinding = 4U;
-	AddOutput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Color";
-	slot.descriptorBinding = 5U;
-	AddOutput(slot, true, false);
-
-	slot.slotType = "DEPTH";
-	slot.name = "Depth";
-	slot.descriptorBinding = 6U;
-	AddOutput(slot, true, false);
+	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
+	AddInput(NodeSlotTextureInput::Create("Mask", 0U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Position", 0U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Normal", 1U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Tangeant", 2U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("BiTangeant", 3U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("UV", 4U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Color", 5U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Depth", 6U), true, false);
 
 	bool res = false;
 
@@ -158,15 +125,15 @@ void MeshAttributesNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeStat
 	}
 }
 
-void MeshAttributesNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void MeshAttributesNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_MeshAttributesModulePtr)
 	{
-		m_MeshAttributesModulePtr->NeedResize(vNewSize, vCountColorBuffers);
+		m_MeshAttributesModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void MeshAttributesNode::SetModel(SceneModelWeak vSceneModel)
@@ -193,105 +160,6 @@ vk::DescriptorImageInfo* MeshAttributesNode::GetDescriptorImageInfo(const uint32
 	}
 
 	return nullptr;
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MeshAttributesNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MeshAttributesModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "MESH")
-			{
-				auto otherModelNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherModelNodePtr)
-				{
-					SetModel(otherModelNodePtr->GetModel());
-				}
-			}
-			else if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					ct::fvec2 textureSize;
-					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-					SetTexture(startSlotPtr->descriptorBinding, descPtr, &textureSize);
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MeshAttributesNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MeshAttributesModulePtr)
-	{
-		if (startSlotPtr->linkedSlots.empty()) // connected to nothing
-		{
-			if (startSlotPtr->slotType == "MESH")
-			{
-				SetModel();
-			}
-			else if (startSlotPtr->slotType == "TEXTURE_2D")
-			{
-				SetTexture(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-		}
-	}
-}
-
-void MeshAttributesNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::ModelUpdateDone:
-	{	
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetModel(otherNodePtr->GetModel());
-				}
-			}
-		}
-		break;
-	}
-	case NotifyEvent::TextureUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TextureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::fvec2 textureSize;
-						auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-						SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
-					}
-				}
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

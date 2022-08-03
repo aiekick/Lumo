@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "WidgetColorNode.h"
 #include <Modules/Widgets/WidgetColorModule.h>
-#include <Graph/Slots/Texture/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<WidgetColorNode> WidgetColorNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
