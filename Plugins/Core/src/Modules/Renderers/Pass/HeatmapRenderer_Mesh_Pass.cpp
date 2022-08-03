@@ -105,7 +105,7 @@ void HeatmapRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const i
 
 bool HeatmapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	bool change = false;
 
@@ -137,13 +137,13 @@ bool HeatmapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 
 void HeatmapRenderer_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void HeatmapRenderer_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

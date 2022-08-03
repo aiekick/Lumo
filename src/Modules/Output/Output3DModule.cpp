@@ -79,7 +79,7 @@ void Output3DModule::Unit()
 
 bool Output3DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
 
@@ -103,7 +103,7 @@ bool Output3DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void Output3DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& /*vRect*/, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -113,7 +113,7 @@ void Output3DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 
 void Output3DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& /*vMaxSize*/, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

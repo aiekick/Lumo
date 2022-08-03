@@ -113,7 +113,7 @@ bool MeshAttributesModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Com
 
 bool MeshAttributesModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -131,7 +131,7 @@ bool MeshAttributesModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 
 void MeshAttributesModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -141,7 +141,7 @@ void MeshAttributesModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct:
 
 void MeshAttributesModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

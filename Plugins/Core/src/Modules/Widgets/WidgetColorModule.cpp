@@ -113,7 +113,7 @@ bool WidgetColorModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 
 bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -135,7 +135,7 @@ bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 void WidgetColorModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -145,7 +145,7 @@ void WidgetColorModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fr
 
 void WidgetColorModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -155,7 +155,7 @@ void WidgetColorModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 
 bool WidgetColorModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{

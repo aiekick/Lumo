@@ -84,7 +84,7 @@ void Texture2DModule::NeedResize(ct::ivec2* vNewSize)
 
 bool Texture2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
 
@@ -113,14 +113,14 @@ bool Texture2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void Texture2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
 }
 
 void Texture2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ImVec2 max = ImVec2((float)vMaxSize.x, (float)vMaxSize.y);
 	ImVec2 min = max * 0.5f;

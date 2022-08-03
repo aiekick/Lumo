@@ -78,7 +78,7 @@ bool WidgetColorNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 bool WidgetColorNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_WidgetColorModule)
 	{
@@ -90,7 +90,7 @@ bool WidgetColorNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void WidgetColorNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_WidgetColorModule)
 	{

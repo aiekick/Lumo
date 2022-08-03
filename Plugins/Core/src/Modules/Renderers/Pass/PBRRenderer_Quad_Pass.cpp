@@ -55,7 +55,7 @@ PBRRenderer_Quad_Pass::~PBRRenderer_Quad_Pass()
 
 bool PBRRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	/*DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Normal", 1U, m_OutputRatio);
@@ -72,13 +72,13 @@ bool PBRRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 
 void PBRRenderer_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void PBRRenderer_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

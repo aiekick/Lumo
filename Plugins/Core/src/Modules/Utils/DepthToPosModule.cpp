@@ -106,7 +106,7 @@ bool DepthToPosModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 
 bool DepthToPosModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -124,7 +124,7 @@ bool DepthToPosModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 void DepthToPosModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -134,7 +134,7 @@ void DepthToPosModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 
 void DepthToPosModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

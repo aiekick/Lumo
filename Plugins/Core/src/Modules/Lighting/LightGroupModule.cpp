@@ -95,7 +95,7 @@ bool LightGroupModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 
 bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SceneLightGroupPtr)
 	{
@@ -230,7 +230,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 void LightGroupModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SceneLightGroupPtr)
 	{
@@ -250,7 +250,7 @@ void LightGroupModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 
 void LightGroupModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& /*vMaxSize*/, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

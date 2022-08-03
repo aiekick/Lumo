@@ -68,14 +68,14 @@ bool BreakTexturesGroupNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::C
 
 bool BreakTexturesGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	return false;
 }
 
 void BreakTexturesGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

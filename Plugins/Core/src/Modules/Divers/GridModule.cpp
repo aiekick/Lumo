@@ -103,7 +103,7 @@ void GridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vC
 
 bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
 
@@ -123,7 +123,7 @@ bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 
 void GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -133,7 +133,7 @@ void GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vR
 
 void GridModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

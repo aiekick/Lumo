@@ -108,7 +108,7 @@ void HeatmapRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 
 bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -128,7 +128,7 @@ bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void HeatmapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -138,7 +138,7 @@ void HeatmapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frec
 
 void HeatmapRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

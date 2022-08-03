@@ -107,7 +107,7 @@ bool PBRRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 
 bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -125,7 +125,7 @@ bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 
 void PBRRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -135,7 +135,7 @@ void PBRRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& v
 
 void PBRRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

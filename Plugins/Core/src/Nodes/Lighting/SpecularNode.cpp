@@ -76,7 +76,7 @@ bool SpecularNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 
 bool SpecularNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SpecularModulePtr)
 	{
@@ -88,7 +88,7 @@ bool SpecularNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 
 void SpecularNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SpecularModulePtr)
 	{

@@ -111,7 +111,7 @@ bool SSAOModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 
 bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -137,7 +137,7 @@ bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 
 void SSAOModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -147,7 +147,7 @@ void SSAOModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vR
 
 void SSAOModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

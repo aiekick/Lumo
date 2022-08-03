@@ -79,7 +79,7 @@ bool DiffuseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 
 bool DiffuseNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_DiffuseModulePtr)
 	{
@@ -91,7 +91,7 @@ bool DiffuseNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 
 void DiffuseNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_DiffuseModulePtr)
 	{

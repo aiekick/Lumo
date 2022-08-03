@@ -187,7 +187,7 @@ bool ShadowMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -213,7 +213,7 @@ bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void ShadowMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -223,7 +223,7 @@ void ShadowMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frec
 
 void ShadowMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

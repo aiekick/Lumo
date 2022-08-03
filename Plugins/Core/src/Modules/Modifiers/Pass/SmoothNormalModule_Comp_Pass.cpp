@@ -63,7 +63,7 @@ void SmoothNormalModule_Comp_Pass::ActionBeforeInit()
 
 bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ImGui::Header("Infos");
 
@@ -94,13 +94,13 @@ bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, Im
 
 void SmoothNormalModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void SmoothNormalModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

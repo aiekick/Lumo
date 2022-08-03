@@ -51,7 +51,6 @@ namespace vkApi
 	public:
 		vk::Instance m_Instance;
 
-		vk::DynamicLoader m_DynamicLoader;
 		vk::DebugReportCallbackEXT m_DebugReport;
 		vk::PhysicalDeviceRobustness2FeaturesEXT m_Robustness2Feature;
 		vk::PhysicalDeviceAccelerationStructureFeaturesKHR m_AccelerationStructureFeature;

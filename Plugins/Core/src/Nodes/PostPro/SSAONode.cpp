@@ -76,7 +76,7 @@ bool SSAONode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 
 bool SSAONode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SSAOModulePtr)
 	{
@@ -88,7 +88,7 @@ bool SSAONode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 
 void SSAONode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SSAOModulePtr)
 	{

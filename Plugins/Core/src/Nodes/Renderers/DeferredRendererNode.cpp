@@ -88,7 +88,7 @@ bool DeferredRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Com
 
 bool DeferredRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_DeferredRendererPtr)
 	{
@@ -100,7 +100,7 @@ bool DeferredRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 
 void DeferredRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_DeferredRendererPtr)
 	{

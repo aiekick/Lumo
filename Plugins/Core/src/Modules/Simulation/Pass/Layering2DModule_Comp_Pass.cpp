@@ -53,7 +53,7 @@ Layering2DModule_Comp_Pass::~Layering2DModule_Comp_Pass()
 
 bool Layering2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
 
@@ -84,13 +84,13 @@ bool Layering2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGu
 
 void Layering2DModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void Layering2DModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

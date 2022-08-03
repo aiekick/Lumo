@@ -114,7 +114,7 @@ bool Layering2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 
 bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -136,7 +136,7 @@ bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 void Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -146,7 +146,7 @@ void Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 
 void Layering2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

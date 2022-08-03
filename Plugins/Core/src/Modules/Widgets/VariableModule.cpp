@@ -93,7 +93,7 @@ bool VariableModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 
 bool VariableModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -108,7 +108,7 @@ bool VariableModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void VariableModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -118,7 +118,7 @@ void VariableModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 
 void VariableModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -128,7 +128,7 @@ void VariableModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 
 bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{

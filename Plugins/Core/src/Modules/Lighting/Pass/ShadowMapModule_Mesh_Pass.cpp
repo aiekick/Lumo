@@ -108,7 +108,7 @@ void ShadowMapModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const i
 
 bool ShadowMapModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	bool change = false;
 
@@ -122,13 +122,13 @@ bool ShadowMapModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 
 void ShadowMapModule_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void ShadowMapModule_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

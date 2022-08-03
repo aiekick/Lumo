@@ -54,7 +54,7 @@ void GridModule_Vertex_Pass::ActionBeforeInit()
 
 bool GridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
 
@@ -85,13 +85,13 @@ bool GridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 
 void GridModule_Vertex_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void GridModule_Vertex_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

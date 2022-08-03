@@ -76,7 +76,7 @@ bool ToneMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 
 bool ToneMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ToneMapModulePtr)
 	{
@@ -88,7 +88,7 @@ bool ToneMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 
 void ToneMapNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ToneMapModulePtr)
 	{

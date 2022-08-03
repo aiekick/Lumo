@@ -74,7 +74,7 @@ bool LaplacianNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 
 bool LaplacianNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LaplacianModulePtr)
 	{
@@ -86,7 +86,7 @@ bool LaplacianNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 
 void LaplacianNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LaplacianModulePtr)
 	{

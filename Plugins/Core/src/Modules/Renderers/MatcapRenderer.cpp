@@ -110,7 +110,7 @@ void MatcapRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t
 
 bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -128,7 +128,7 @@ bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void MatcapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -138,7 +138,7 @@ void MatcapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 
 void MatcapRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

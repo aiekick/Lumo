@@ -78,7 +78,7 @@ bool Output2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 
 bool Output2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_Output2DModulePtr)
 	{
@@ -90,7 +90,7 @@ bool Output2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 
 void Output2DNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	/*if (m_Output3DModulePtr)
 	{

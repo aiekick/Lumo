@@ -79,7 +79,7 @@ bool NormalFromTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Co
 
 bool NormalFromTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_NormalFromTextureModulePtr)
 	{
@@ -91,7 +91,7 @@ bool NormalFromTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 
 void NormalFromTextureNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_NormalFromTextureModulePtr)
 	{

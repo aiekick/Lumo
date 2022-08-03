@@ -41,6 +41,12 @@ bool PluginInterface::Init(
 			assert(vSlotColor);
 			assert(vCustomStyle);
 
+			vk::DynamicLoader dl;
+			PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+			VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
+			VULKAN_HPP_DEFAULT_DISPATCHER.init(corePtr->getInstance(), vkGetInstanceProcAddr);
+			VULKAN_HPP_DEFAULT_DISPATCHER.init(corePtr->getDevice());
+
 			iSinAPlugin = true;
 			corePtr->setupMemoryAllocator();
 			FileHelper::Instance(vFileHelper);

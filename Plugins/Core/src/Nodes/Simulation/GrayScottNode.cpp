@@ -80,7 +80,7 @@ bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 
 bool GrayScottNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_GrayScottModulePtr)
 	{
@@ -92,7 +92,7 @@ bool GrayScottNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 
 void GrayScottNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_GrayScottModulePtr)
 	{

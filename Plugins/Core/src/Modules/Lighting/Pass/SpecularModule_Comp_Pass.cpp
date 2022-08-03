@@ -54,7 +54,7 @@ SpecularModule_Comp_Pass::~SpecularModule_Comp_Pass()
 
 bool SpecularModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	bool change = false;
 
@@ -75,13 +75,13 @@ bool SpecularModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 
 void SpecularModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void SpecularModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

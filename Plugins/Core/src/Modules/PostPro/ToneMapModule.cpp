@@ -112,7 +112,7 @@ bool ToneMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 
 bool ToneMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -138,7 +138,7 @@ bool ToneMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 
 void ToneMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -148,7 +148,7 @@ void ToneMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect&
 
 void ToneMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

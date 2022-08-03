@@ -53,7 +53,7 @@ WidgetColorModule_Pass::~WidgetColorModule_Pass()
 
 bool WidgetColorModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (ImGui::ColorEdit4Default(0.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x))
 	{
@@ -67,17 +67,17 @@ bool WidgetColorModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 
 void WidgetColorModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 }
 
 void WidgetColorModule_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 }
 
 bool WidgetColorModule_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (ImGui::ColorPicker4DefaultForNode(100.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x))
 	{

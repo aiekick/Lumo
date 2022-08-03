@@ -34,7 +34,10 @@ limitations under the License.
 static int SourcePane_WidgetId = 0;
 
 DebugPane::DebugPane() = default;
-DebugPane::~DebugPane() = default;
+DebugPane::~DebugPane()
+{
+	Unit();
+}
 
 bool DebugPane::Init()
 {
@@ -43,7 +46,7 @@ bool DebugPane::Init()
 
 void DebugPane::Unit()
 {
-
+	m_NodeToDebug.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

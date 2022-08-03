@@ -78,7 +78,7 @@ bool Output3DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 
 bool Output3DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_Output3DModulePtr)
 	{
@@ -90,7 +90,7 @@ bool Output3DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 
 void Output3DNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	/*if (m_Output3DModulePtr)
 	{

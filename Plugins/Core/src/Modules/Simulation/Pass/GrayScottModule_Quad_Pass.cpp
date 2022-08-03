@@ -51,7 +51,7 @@ GrayScottModule_Quad_Pass::~GrayScottModule_Quad_Pass()
 
 bool GrayScottModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (ImGui::CollapsingHeader("GrayScott", ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -82,13 +82,13 @@ bool GrayScottModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 
 void GrayScottModule_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void GrayScottModule_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

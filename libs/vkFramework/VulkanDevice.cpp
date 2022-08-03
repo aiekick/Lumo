@@ -304,7 +304,8 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = m_DynamicLoader.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
+		vk::DynamicLoader dl;
+		PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
 		VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
 
 		/*VULKAN_HPP_DEFAULT_DISPATCHER.vkGetRayTracingShaderGroupHandlesKHR =

@@ -80,7 +80,7 @@ bool Layering2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 
 bool Layering2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_Layering2DModulePtr)
 	{
@@ -92,7 +92,7 @@ bool Layering2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void Layering2DNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_Layering2DModulePtr)
 	{

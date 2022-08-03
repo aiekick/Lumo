@@ -74,7 +74,7 @@ bool PosToDepthNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 
 bool PosToDepthNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_PosToDepthModulePtr)
 	{
@@ -86,7 +86,7 @@ bool PosToDepthNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 void PosToDepthNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_PosToDepthModulePtr)
 	{

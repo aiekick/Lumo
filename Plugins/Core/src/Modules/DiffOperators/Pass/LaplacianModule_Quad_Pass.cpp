@@ -53,7 +53,7 @@ LaplacianModule_Quad_Pass::~LaplacianModule_Quad_Pass()
 
 bool LaplacianModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (ImGui::CollapsingHeader("Laplacian", ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -82,13 +82,13 @@ bool LaplacianModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 
 void LaplacianModule_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void LaplacianModule_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 

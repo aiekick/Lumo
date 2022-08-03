@@ -115,7 +115,7 @@ bool ModelShadowModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 
 bool ModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -141,7 +141,7 @@ bool ModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 void ModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -151,7 +151,7 @@ void ModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fr
 
 void ModelShadowModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
