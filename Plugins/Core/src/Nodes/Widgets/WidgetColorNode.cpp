@@ -43,17 +43,20 @@ bool WidgetColorNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Widget Color";
 
-	AddOutput(NodeSlotTextureOutput::Create("Color", 0U), true, true);
-
-	bool res = false;
+	auto slotPtr = NodeSlotTextureOutput::Create("Color", 0U);
+	if (slotPtr)
+	{
+		slotPtr->showWidget = true;
+		AddOutput(slotPtr, true, true);
+	}
 
 	m_WidgetColorModule = WidgetColorModule::Create(vVulkanCorePtr);
 	if (m_WidgetColorModule)
 	{
-		res = true;
+		return true;
 	}
 
-	return res;
+	return false;
 }
 
 void WidgetColorNode::Unit()

@@ -84,7 +84,7 @@ bool SpecularModule::Init()
 		m_SpecularModule_Comp_Pass_Ptr = std::make_shared<SpecularModule_Comp_Pass>(m_VulkanCorePtr);
 		if (m_SpecularModule_Comp_Pass_Ptr)
 		{
-			if (m_SpecularModule_Comp_Pass_Ptr->InitCompute2D(map_size / 8U, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			if (m_SpecularModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_SpecularModule_Comp_Pass_Ptr);
 				m_Loaded = true;

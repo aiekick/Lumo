@@ -146,6 +146,14 @@ void NodeSlotTextureInput::Connect(NodeSlotWeak vOtherSlot)
 					auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
 					parentNodePtr->SetTexture(descriptorBinding, descPtr, &textureSize);
 				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+				}
+			}
+			else
+			{
+				CTOOL_DEBUG_BREAK;
 			}
 		}
 	}
@@ -162,6 +170,10 @@ void NodeSlotTextureInput::DisConnect(NodeSlotWeak vOtherSlot)
 			if (parentNodePtr)
 			{
 				parentNodePtr->SetTexture(descriptorBinding, nullptr, nullptr);
+			}
+			else
+			{
+				CTOOL_DEBUG_BREAK;
 			}
 		}
 	}
@@ -196,6 +208,14 @@ void NodeSlotTextureInput::TreatNotification(
 								parentTextureInputNodePtr->SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
 							}
 						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
+					}
+					else
+					{
+						CTOOL_DEBUG_BREAK;
 					}
 				}
 			}

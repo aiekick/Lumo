@@ -45,6 +45,7 @@ struct LightDatas
 	float orthoDeepSize;
 	float perspectiveAngle;
 	float lightActive;
+	float is_inside; // for invert normal for lighting calculation if inside a mesh
 };)";
 }
 

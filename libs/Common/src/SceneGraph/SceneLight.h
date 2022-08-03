@@ -93,6 +93,7 @@ public:
 		float orthoDeepSize = 1000.0f;
 		float perspectiveAngle = 45.0f;
 		float lightActive = 1.0f;
+		float is_inside = 0.0f;
 	} lightDatas;
 	
 public:

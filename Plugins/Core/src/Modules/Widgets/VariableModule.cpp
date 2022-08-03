@@ -67,9 +67,12 @@ bool VariableModule::Init(const std::string& vNodeType)
 {
 	ZoneScoped;
 
-	m_VariablePtr = std::make_shared<SceneVariable>(vNodeType);
-
-	return true;
+	m_VariablePtr = SceneVariable::Create(vNodeType);
+	if (m_VariablePtr)
+	{
+		return true;
+	}
+	return false;
 }
 
 
@@ -201,19 +204,19 @@ std::string VariableModule::getXml(const std::string& vOffset, const std::string
 
 	if (m_VariablePtr)
 	{
-		if (m_VariablePtr->GetType() == "TYPE_BOOLEAN")
+		if (m_VariablePtr->GetType() == "WIDGET_BOOLEAN")
 		{
 			str += vOffset + ct::toStr("\t<bool>%s</bool>\n", m_VariablePtr->GetDatas().m_Boolean ? "true" :"false");
 		}
-		else if (m_VariablePtr->GetType() == "TYPE_FLOAT")
+		else if (m_VariablePtr->GetType() == "WIDGET_FLOAT")
 		{
 			str += vOffset + ct::toStr("\t<float>%.5f</float>\n", m_VariablePtr->GetDatas().m_Float);
 		}
-		else if (m_VariablePtr->GetType() == "TYPE_INT")
+		else if (m_VariablePtr->GetType() == "WIDGET_INT")
 		{
 			str += vOffset + ct::toStr("\t<int>%i</int>\n", m_VariablePtr->GetDatas().m_Int32);
 		}
-		else if (m_VariablePtr->GetType() == "TYPE_UINT")
+		else if (m_VariablePtr->GetType() == "WIDGET_UINT")
 		{
 			str += vOffset + ct::toStr("\t<uint>%u</uint>\n", m_VariablePtr->GetDatas().m_Uint32);
 		}
@@ -241,22 +244,22 @@ bool VariableModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 	{
 		if (strName == "bool")
 		{
-			m_VariablePtr->SetType("TYPE_BOOLEAN");
+			m_VariablePtr->SetType("WIDGET_BOOLEAN");
 			m_VariablePtr->GetDatas().m_Boolean = ct::ivariant(strValue).GetB();
 		}
 		else if (strName == "float")
 		{
-			m_VariablePtr->SetType("TYPE_FLOAT");
+			m_VariablePtr->SetType("WIDGET_FLOAT");
 			m_VariablePtr->GetDatas().m_Float = ct::fvariant(strValue).GetF();
 		}
 		else if (strName == "int")
 		{
-			m_VariablePtr->SetType("TYPE_INT");
+			m_VariablePtr->SetType("WIDGET_INT");
 			m_VariablePtr->GetDatas().m_Int32 = ct::ivariant(strValue).GetI();
 		}
 		else if (strName == "uint")
 		{
-			m_VariablePtr->SetType("TYPE_UINT");
+			m_VariablePtr->SetType("WIDGET_UINT");
 			m_VariablePtr->GetDatas().m_Uint32 = ct::uvariant(strValue).GetU();
 		}
 	}

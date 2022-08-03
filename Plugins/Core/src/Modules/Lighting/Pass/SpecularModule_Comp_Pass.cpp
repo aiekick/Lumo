@@ -273,7 +273,10 @@ vec4 getLightGroup(uint id, ivec2 coords, vec3 pos)
 	
 		vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
 		vec3 light_dir = normalize(light_pos - pos);
-	
+		
+		if (lightDatas[id].is_inside > 0.5) // inside mesh
+			normal *= - 1.0;
+
 		vec3 ro = getRayOrigin();
 		vec3 rd = normalize(ro - pos);
 		vec3 refl = reflect(-light_dir, normal);  

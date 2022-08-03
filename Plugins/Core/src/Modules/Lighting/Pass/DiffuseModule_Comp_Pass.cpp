@@ -214,6 +214,8 @@ vec4 getLightGroup(uint id, ivec2 coords, vec3 pos)
 		vec4 light_col = lightDatas[id].lightColor;
 	
 		vec3 normal = normalize(texelFetch(nor_map_sampler, coords, 0).xyz * 2.0 - 1.0);
+		if (lightDatas[id].is_inside > 0.5) // inside mesh
+			normal *= - 1.0;
 		vec3 light_dir = normalize(light_pos - pos);
 		diff = min(max(dot(normal, light_dir), 0.0) * light_intensity, 1.0) * light_col;
 	}

@@ -43,7 +43,12 @@ bool Texture2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Texture 2D";
 
-	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+	auto texPtr = NodeSlotTextureOutput::Create("Output", 0U);
+	if (texPtr)
+	{
+		texPtr->showWidget = true;
+		AddOutput(texPtr, true, true);
+	}
 
 	m_Texture2DModule = Texture2DModule::Create(vVulkanCorePtr, m_This);
 	if (m_Texture2DModule)

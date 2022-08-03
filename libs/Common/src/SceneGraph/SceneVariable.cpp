@@ -21,10 +21,7 @@ limitations under the License.
 
 SceneVariablePtr SceneVariable::Create(const std::string& vType)
 {
-	if (vType == "TYBE_BOOLEAN" ||
-		vType == "TYBE_FLOAT" ||
-		vType == "TYBE_INT" ||
-		vType == "TYBE_UINT")
+	if (IsAllowedType(vType))
 	{
 		return std::make_shared<SceneVariable>(vType);
 	}
@@ -32,23 +29,36 @@ SceneVariablePtr SceneVariable::Create(const std::string& vType)
 	return nullptr;
 }
 
+bool SceneVariable::IsAllowedType(const std::string& vType)
+{
+	if (vType == "WIDGET_BOOLEAN" ||
+		vType == "WIDGET_FLOAT" ||
+		vType == "WIDGET_INT" ||
+		vType == "WIDGET_UINT")
+	{
+		return true;
+	}
+
+	return false;
+}
+
 SceneVariable::SceneVariable(const std::string& vType)
 {
 	type = vType;
 
-	if (type == "TYBE_BOOLEAN")
+	if (type == "WIDGET_BOOLEAN")
 	{
 		datas.m_Boolean = false;
 	}
-	else if (type == "TYBE_FLOAT")
+	else if (type == "WIDGET_FLOAT")
 	{
 		datas.m_Float = 0.0f;
 	}
-	else if (type == "TYBE_INT")
+	else if (type == "WIDGET_INT")
 	{
 		datas.m_Int32 = 0;
 	}
-	else if (type == "TYBE_UINT")
+	else if (type == "WIDGET_UINT")
 	{
 		datas.m_Uint32 = 0U;
 	}

@@ -29,6 +29,7 @@ class SceneVariable
 {
 public:
 	static SceneVariablePtr Create(const std::string& vType);
+	static bool IsAllowedType(const std::string& vType);
 
 public:
 	union VariableUnion

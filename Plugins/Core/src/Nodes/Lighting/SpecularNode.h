@@ -24,7 +24,7 @@ limitations under the License.
 class SpecularModule;
 class SpecularNode :
 	public BaseNode,
-	public TextureInputInterface<2U>,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface, 
 	public LightGroupInputInterface,
 	public ShaderUpdateInterface

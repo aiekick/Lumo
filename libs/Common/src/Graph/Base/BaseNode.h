@@ -443,8 +443,8 @@ public:
 public: // shader gen related stuff
 	virtual std::string GetNodeCode(bool vRecursChilds = false);
 	virtual void CompilGeneratedCode();
-	virtual void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot);
-	virtual void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot);
+	//virtual void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot);
+	//virtual void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot);
 	bool IsCodeDirty();
 	void SetCodeDirty(bool vFlag);
 	

@@ -154,7 +154,7 @@ void ModelShadowModule_Quad_Pass::SetTextures(const uint32_t& vBinding, Descript
 
 	if (m_Loaded)
 	{
-		if (vBinding == 1U)
+		if (vBinding == 0U)
 		{
 			if (vImageInfos &&
 				vImageInfos->size() == m_ImageGroupInfos.size())
@@ -417,6 +417,9 @@ float getShadowPCF(uint lid, vec3 pos, vec3 nor)
 {
 	if (lightDatas[lid].lightActive > 0.5)
 	{
+		if (lightDatas[lid].is_inside > 0.5) // inside mesh
+			nor *= - 1.0;
+
 		vec4 shadowCoord = lightDatas[lid].lightView * vec4(pos, 1.0);
 		shadowCoord.xyz /= shadowCoord.w;
 		shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
@@ -449,6 +452,9 @@ float getShadowSimple(uint lid, vec3 pos, vec3 nor)
 {
 	if (lightDatas[lid].lightActive > 0.5)
 	{
+		if (lightDatas[lid].is_inside > 0.5) // inside mesh
+			nor *= - 1.0;
+
 		vec4 shadowCoord = lightDatas[lid].lightView * vec4(pos, 1.0);
 		shadowCoord.xyz /= shadowCoord.w;
 		shadowCoord.xy = shadowCoord.xy * 0.5 + 0.5;
@@ -480,7 +486,7 @@ void main()
 		if (dot(pos, pos) > 0.0)
 		{
 			vec3 nor = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
-		
+			
 			float sha_accum = 1.0;
 			
 			uint count = uint(lightDatas.length() + 1) % 8; // maxi 8 lights in this system

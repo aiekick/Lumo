@@ -21,6 +21,7 @@ limitations under the License.
 
 #include <utility>
 #include <Graph/Base/BaseNode.h>
+#include <SceneGraph/SceneVariable.h>
 
 static const float slotIconSize = 15.0f;
 
@@ -35,23 +36,11 @@ NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(NodeSlotVariableOutput 
 	return res;
 }
 
-NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(const std::string& vName, const std::string& vType)
-{
-	auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType);
-	res->m_This = res;
-	if (res->m_AvailableTypes.find(res->slotType) == res->m_AvailableTypes.end())
-	{
-		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
-		res.reset();
-	}
-	return res;
-}
-
 NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex)
 {
 	auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType, vVariableIndex);
 	res->m_This = res;
-	if (res->m_AvailableTypes.find(res->slotType) == res->m_AvailableTypes.end())
+	if (!SceneVariable::IsAllowedType(res->slotType))
 	{
 		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
 		res.reset();
@@ -63,7 +52,7 @@ NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(const std::string& vNam
 {
 	auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType, vVariableIndex, vHideName);
 	res->m_This = res;
-	if (res->m_AvailableTypes.find(res->slotType) == res->m_AvailableTypes.end())
+	if (!SceneVariable::IsAllowedType(res->slotType))
 	{
 		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
 		res.reset();
@@ -75,7 +64,7 @@ NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(const std::string& vNam
 {
 	auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType, vVariableIndex, vHideName, vShowWidget);
 	res->m_This = res;
-	if (res->m_AvailableTypes.find(res->slotType) == res->m_AvailableTypes.end())
+	if (!SceneVariable::IsAllowedType(res->slotType))
 	{
 		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
 		res.reset();
@@ -89,14 +78,6 @@ NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(const std::string& vNam
 
 NodeSlotVariableOutput::NodeSlotVariableOutput()
 	: NodeSlotOutput("", "")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-}
-
-NodeSlotVariableOutput::NodeSlotVariableOutput(const std::string& vName, const std::string& vType)
-	: NodeSlotOutput(vName, vType)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
@@ -167,7 +148,10 @@ void NodeSlotVariableOutput::SendFrontNotification(const NotifyEvent& vEvent)
 {
 	if (vEvent == NotifyEvent::VariableUpdateDone)
 	{
-		SendNotification(slotType, vEvent);
+		if (SceneVariable::IsAllowedType(slotType))
+		{
+			SendNotification(slotType, vEvent);
+		}
 	}
 }
 

@@ -637,7 +637,7 @@ void BaseNode::SetCodeDirty(bool vFlag)
 	m_IsCodeDirty = vFlag;
 }
 
-void BaseNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
+/*void BaseNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
 {
 #ifdef _DEBUG
 	//LogVarInfo("BaseNode::JustConnectedBySlots catched, some class not implment it. maybe its wanted");
@@ -649,7 +649,7 @@ void BaseNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEn
 #ifdef _DEBUG
 	//LogVarInfo("BaseNode::JustDisConnectedBySlots catched, some class not implment it. maybe its wanted");
 #endif
-}
+}*/
 
 void BaseNode::CompilGeneratedCode()
 {
@@ -905,7 +905,7 @@ NodeSlotWeak BaseNode::AddOutput(NodeSlotOutputPtr vSlotPtr, bool vIncSlotId, bo
 		{
 			vSlotPtr->pinID = NodeSlot::sGetNewSlotId();
 		}
-		vSlotPtr->index = (uint32_t)m_Inputs.size();
+		vSlotPtr->index = (uint32_t)m_Outputs.size();
 		m_Outputs[(int)vSlotPtr->pinID.Get()] = vSlotPtr;
 		return m_Outputs[(int)vSlotPtr->pinID.Get()];
 	}

@@ -164,12 +164,16 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						lightPtr->lightDatas.lightType = lightTypeIndex;
 						lightPtr->wasChanged = true;
 					}
+
 					if (ImGui::ColorEdit4Default(0.0f, "Color", &lightPtr->lightDatas.lightColor.x, &m_DefaultLightGroupColor.x))
 					{
 						lightPtr->AdaptIconColor();
 						lightPtr->wasChanged = true;
 					}
+
 					lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f);
+
+					lightPtr->wasChanged |= ImGui::CheckBoxFloatDefault("Inside Mesh ?", &lightPtr->lightDatas.is_inside, true);
 
 					if (lightTypeIndex == 2U) // orthographic
 					{

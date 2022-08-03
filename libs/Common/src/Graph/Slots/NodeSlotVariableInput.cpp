@@ -21,6 +21,7 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/VariableInputInterface.h>
 #include <Interfaces/VariableOutputInterface.h>
+#include <SceneGraph/SceneVariable.h>
 
 #include <utility>
 static const float slotIconSize = 15.0f;
@@ -33,7 +34,7 @@ NodeSlotVariableInputPtr NodeSlotVariableInput::Create(NodeSlotVariableInput vSl
 {
 	auto res = std::make_shared<NodeSlotVariableInput>(vSlot);
 	res->m_This = res;
-	if (res->m_AvailableTypes.find(res->slotType) == res->m_AvailableTypes.end())
+	if (!SceneVariable::IsAllowedType(res->slotType))
 	{
 		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
 		res.reset();
@@ -41,18 +42,11 @@ NodeSlotVariableInputPtr NodeSlotVariableInput::Create(NodeSlotVariableInput vSl
 	return res;
 }
 
-NodeSlotVariableInputPtr NodeSlotVariableInput::Create(const std::string& vName, const std::string& vType)
-{
-	auto res = std::make_shared<NodeSlotVariableInput>(vName, vType);
-	res->m_This = res;
-	return res;
-}
-
 NodeSlotVariableInputPtr NodeSlotVariableInput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex)
 {
 	auto res = std::make_shared<NodeSlotVariableInput>(vName, vType, vVariableIndex);
 	res->m_This = res;
-	if (res->m_AvailableTypes.find(res->slotType) == res->m_AvailableTypes.end())
+	if (!SceneVariable::IsAllowedType(res->slotType))
 	{
 		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
 		res.reset();
@@ -64,7 +58,7 @@ NodeSlotVariableInputPtr NodeSlotVariableInput::Create(const std::string& vName,
 {
 	auto res = std::make_shared<NodeSlotVariableInput>(vName, vType, vVariableIndex, vHideName);
 	res->m_This = res;
-	if (res->m_AvailableTypes.find(res->slotType) == res->m_AvailableTypes.end())
+	if (!SceneVariable::IsAllowedType(res->slotType))
 	{
 		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
 		res.reset();
@@ -76,7 +70,7 @@ NodeSlotVariableInputPtr NodeSlotVariableInput::Create(const std::string& vName,
 {
 	auto res = std::make_shared<NodeSlotVariableInput>(vName, vType, vVariableIndex, vHideName, vShowWidget);
 	res->m_This = res;
-	if (res->m_AvailableTypes.find(res->slotType) == res->m_AvailableTypes.end())
+	if (!SceneVariable::IsAllowedType(res->slotType))
 	{
 		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
 		res.reset();
@@ -90,14 +84,6 @@ NodeSlotVariableInputPtr NodeSlotVariableInput::Create(const std::string& vName,
 
 NodeSlotVariableInput::NodeSlotVariableInput()
 	: NodeSlotInput("", "")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-}
-
-NodeSlotVariableInput::NodeSlotVariableInput(const std::string& vName, const std::string& vType)
-	: NodeSlotInput(vName, vType)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
@@ -166,10 +152,10 @@ void NodeSlotVariableInput::Unit()
 
 void NodeSlotVariableInput::Connect(NodeSlotWeak vOtherSlot)
 {
-	if (m_AvailableTypes.find(slotType) != m_AvailableTypes.end())
+	auto endSlotPtr = vOtherSlot.getValidShared();
+	if (endSlotPtr)
 	{
-		auto endSlotPtr = vOtherSlot.getValidShared();
-		if (endSlotPtr)
+		if (SceneVariable::IsAllowedType(endSlotPtr->slotType))
 		{
 			auto parentNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNode.getValidShared());
 			if (parentNodePtr)
@@ -177,7 +163,7 @@ void NodeSlotVariableInput::Connect(NodeSlotWeak vOtherSlot)
 				auto otherVariableNodePtr = dynamic_pointer_cast<VariableOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherVariableNodePtr)
 				{
-					parentNodePtr->SetVariable(variableIndex, 
+					parentNodePtr->SetVariable(variableIndex,
 						otherVariableNodePtr->GetVariable(endSlotPtr->variableIndex));
 				}
 			}
@@ -187,10 +173,10 @@ void NodeSlotVariableInput::Connect(NodeSlotWeak vOtherSlot)
 
 void NodeSlotVariableInput::DisConnect(NodeSlotWeak vOtherSlot)
 {
-	if (m_AvailableTypes.find(slotType) != m_AvailableTypes.end())
+	auto endSlotPtr = vOtherSlot.getValidShared();
+	if (endSlotPtr)
 	{
-		auto endSlotPtr = vOtherSlot.getValidShared();
-		if (endSlotPtr)
+		if (SceneVariable::IsAllowedType(endSlotPtr->slotType))
 		{
 			auto parentNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNode.getValidShared());
 			if (parentNodePtr)
@@ -211,22 +197,25 @@ void NodeSlotVariableInput::TreatNotification(
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)
 		{
-			if (emiterSlotPtr->IsAnOutput())
+			if (SceneVariable::IsAllowedType(emiterSlotPtr->slotType))
 			{
-				auto parentNodePtr = parentNode.getValidShared();
-				if (parentNodePtr)
+				if (emiterSlotPtr->IsAnOutput())
 				{
-					auto parentVariableInputNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNodePtr);
-					if (parentVariableInputNodePtr)
+					auto parentNodePtr = parentNode.getValidShared();
+					if (parentNodePtr)
 					{
-						auto otherVariableNodePtr = dynamic_pointer_cast<VariableOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-						if (otherVariableNodePtr)
+						auto parentVariableInputNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNodePtr);
+						if (parentVariableInputNodePtr)
 						{
-							auto receiverSlotPtr = vReceiverSlot.getValidShared();
-							if (receiverSlotPtr)
+							auto otherVariableNodePtr = dynamic_pointer_cast<VariableOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+							if (otherVariableNodePtr)
 							{
-								parentVariableInputNodePtr->SetVariable(receiverSlotPtr->variableIndex, 
-									otherVariableNodePtr->GetVariable(emiterSlotPtr->variableIndex));
+								auto receiverSlotPtr = vReceiverSlot.getValidShared();
+								if (receiverSlotPtr)
+								{
+									parentVariableInputNodePtr->SetVariable(receiverSlotPtr->variableIndex,
+										otherVariableNodePtr->GetVariable(emiterSlotPtr->variableIndex));
+								}
 							}
 						}
 					}

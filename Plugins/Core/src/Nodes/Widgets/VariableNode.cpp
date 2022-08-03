@@ -43,21 +43,25 @@ bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Widget Bool";
 
+	std::string slot_type;
 	if (m_NodeTypeString == "WIDGET_BOOLEAN")
-		AddOutput(NodeSlotVariableOutput::Create("Output", "TYPE_BOOLEAN"), true, false);
+		slot_type = "WIDGET_BOOLEAN";
 	else if (m_NodeTypeString == "WIDGET_FLOAT")
-		AddOutput(NodeSlotVariableOutput::Create("Output", "TYPE_FLOAT"), true, false);
+		slot_type = "WIDGET_FLOAT";
 	else if (m_NodeTypeString == "WIDGET_INT")
-		AddOutput(NodeSlotVariableOutput::Create("Output", "TYPE_INT"), true, false);
+		slot_type = "WIDGET_INT";
 	else if (m_NodeTypeString == "WIDGET_UINT")
-		AddOutput(NodeSlotVariableOutput::Create("Output", "TYPE_UINT"), true, false);
+		slot_type = "WIDGET_UINT";
 
-	bool res = false;
+	auto slotPtr = NodeSlotVariableOutput::Create("Output", slot_type, 0U);
+	if (slotPtr)
+	{
+		slotPtr->showWidget = true;
+		AddOutput(slotPtr, true, false);
+	}
 
 	m_VariableModulePtr = VariableModule::Create(m_NodeTypeString, m_This);
-	res = (m_VariableModulePtr!=nullptr);
-
-	return res;
+	return (m_VariableModulePtr != nullptr);
 }
 
 bool VariableNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)

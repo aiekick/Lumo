@@ -26,19 +26,14 @@ typedef std::shared_ptr<NodeSlotVariableOutput> NodeSlotVariableOutputPtr;
 class NodeSlotVariableOutput : 
 	public NodeSlotOutput
 {
-private:
-	const std::set<std::string> m_AvailableTypes = { "TYPE_BOOLEAN", "TYPE_FLOAT", "TYPE_INT", "TYPE_UINT" };
-
 public:
 	static NodeSlotVariableOutputPtr Create(NodeSlotVariableOutput vSlot);
-	static NodeSlotVariableOutputPtr Create(const std::string& vName, const std::string& vType);
 	static NodeSlotVariableOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
 	static NodeSlotVariableOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
 	static NodeSlotVariableOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
 
 public:
 	explicit NodeSlotVariableOutput();
-	explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType);
 	explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
 	explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
 	explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
