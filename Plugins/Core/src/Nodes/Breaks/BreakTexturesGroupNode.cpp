@@ -105,48 +105,6 @@ vk::DescriptorImageInfo* BreakTexturesGroupNode::GetDescriptorImageInfo(const ui
 	return nullptr;
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void BreakTexturesGroupNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D_GROUP")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					fvec2Vector arr; // tofix : je sens les emmerdes a ce transfert de pointeurs dans un scope court 
-					auto descsPtr = otherTextureNodePtr->GetDescriptorImageInfos(endSlotPtr->descriptorBinding, &arr);
-					SetTextures(startSlotPtr->descriptorBinding, descsPtr, &arr);
-					ReorganizeSlots();
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void BreakTexturesGroupNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "TEXTURE_2D_GROUP")
-			{
-				SetTextures(startSlotPtr->descriptorBinding, nullptr, nullptr);
-				ReorganizeSlots();
-			}
-		}
-	}
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////

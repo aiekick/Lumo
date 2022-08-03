@@ -26,6 +26,9 @@ limitations under the License.
 namespace fs = std::filesystem;
 
 #ifdef USE_PLUGIN_STATIC_LINKING
+#ifdef USE_PLUGIN_CORE
+#include <Core.h>
+#endif
 #ifdef USE_PLUGIN_MESH_SIM
 #include <MeshSim.h>
 #endif
@@ -211,6 +214,9 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 	}
 	printf("-----------\n");
 #else // USE_PLUGIN_STATIC_LINKING
+#ifdef USE_PLUGIN_CORE
+	AddPlugin("Core", std::make_shared<Core>(), vVulkanCoreWeak);
+#endif
 #ifdef USE_PLUGIN_MESH_SIM
 	AddPlugin("MeshSim", std::make_shared<MeshSim>(), vVulkanCoreWeak);
 #endif

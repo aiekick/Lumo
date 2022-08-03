@@ -146,7 +146,8 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 
 	res.push_back(AddLibraryEntry("Core/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
 
-	res.push_back(AddLibraryEntry("Core/Divers", "Grid / Axis", "GRID_AXIS"));
+	res.push_back(AddLibraryEntry("Core/Misc", "Grid / Axis", "GRID_AXIS"));
+	res.push_back(AddLibraryEntry("Core/Misc", "2D Layering", "2D_LAYERING"));
 
 	res.push_back(AddLibraryEntry("Core/Lighting", "Lights", "LIGHT_GROUP"));
 	res.push_back(AddLibraryEntry("Core/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING"));
@@ -154,6 +155,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/Lighting", "Diffuse", "DIFFUSE"));
 	res.push_back(AddLibraryEntry("Core/Lighting", "Specular", "SPECULAR"));
 	res.push_back(AddLibraryEntry("Core/Lighting", "SSAO", "SSAO"));
+	res.push_back(AddLibraryEntry("Core/Lighting", "Normal from texture 2D", "2D_NORMAL_FROM_TEXTURE"));
 
 	res.push_back(AddLibraryEntry("Core/Modifiers", "Smooth Normals", "SMOOTH_NORMAL"));
 
@@ -170,9 +172,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/Renderers", "Matcap", "MATCAP_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/Renderers", "PBR", "PBR_RENDERER"));
 
-	res.push_back(AddLibraryEntry("Core/2D/Simulation", "GrayScott", "2D_SIMULATION_GRAY_SCOTT"));
-	res.push_back(AddLibraryEntry("Core/2D/Lighting", "Normal from texture 2D", "2D_NORMAL_FROM_TEXTURE"));
-	res.push_back(AddLibraryEntry("Core/2D/Misc", "2D Layering", "2D_LAYERING"));
+	res.push_back(AddLibraryEntry("Core/Simulation", "GrayScott", "2D_SIMULATION_GRAY_SCOTT"));
 
 	res.push_back(AddLibraryEntry("Core/Utils", "3D Model Attributes", "MESH_ATTRIBUTES"));
 	res.push_back(AddLibraryEntry("Core/Utils", "Depth to Pos", "DEPTH_TO_POS"));
