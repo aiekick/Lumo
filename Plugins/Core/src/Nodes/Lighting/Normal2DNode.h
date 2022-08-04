@@ -20,22 +20,22 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
-class NormalFromTextureModule;
-class NormalFromTextureNode :
+class Normal2DModule;
+class Normal2DNode :
 	public BaseNode,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<NormalFromTextureNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<Normal2DNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<NormalFromTextureModule> m_NormalFromTextureModulePtr = nullptr;
+	std::shared_ptr<Normal2DModule> m_Normal2DModulePtr = nullptr;
 
 public:
-	NormalFromTextureNode();
-	~NormalFromTextureNode() override;
+	Normal2DNode();
+	~Normal2DNode() override;
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;

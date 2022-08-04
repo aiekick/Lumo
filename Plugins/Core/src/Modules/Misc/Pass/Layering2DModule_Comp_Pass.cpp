@@ -369,10 +369,10 @@ std::string Layering2DModule_Comp_Pass::getXml(const std::string& vOffset, const
 {
 	std::string str;
 
-	str += vOffset + "\t<method>" + ct::toStr(m_UBOComp.method) + "</method>\n";
-	str += vOffset + "\t<smoothness>" + ct::toStr(m_UBOComp.smoothness) + "</smoothness>\n";
-	str += vOffset + "\t<layer_count>" + ct::toStr(m_UBOComp.layer_count) + "</layer_count>\n";
-	str += vOffset + "\t<step_scale>" + ct::toStr(m_UBOComp.step_scale) + "</step_scale>\n";
+	str += vOffset + "<method>" + ct::toStr(m_UBOComp.method) + "</method>\n";
+	str += vOffset + "<smoothness>" + ct::toStr(m_UBOComp.smoothness) + "</smoothness>\n";
+	str += vOffset + "<layer_count>" + ct::toStr(m_UBOComp.layer_count) + "</layer_count>\n";
+	str += vOffset + "<step_scale>" + ct::toStr(m_UBOComp.step_scale) + "</step_scale>\n";
 
 	return str;
 }

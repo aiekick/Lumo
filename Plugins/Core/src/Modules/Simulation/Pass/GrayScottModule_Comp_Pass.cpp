@@ -431,15 +431,15 @@ std::string GrayScottModule_Comp_Pass::getXml(const std::string& vOffset, const 
 {
 	std::string str;
 
-	str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
-	str += vOffset + "\t<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
-	str += vOffset + "\t<mouse_inversion>" + ct::toStr(m_UBOComp.mouse_inversion) + "</mouse_inversion>\n";
-	str += vOffset + "\t<grayscott_diffusion_u>" + ct::toStr(m_UBOComp.grayscott_diffusion_u) + "</grayscott_diffusion_u>\n";
-	str += vOffset + "\t<grayscott_diffusion_v>" + ct::toStr(m_UBOComp.grayscott_diffusion_v) + "</grayscott_diffusion_v>\n";
-	str += vOffset + "\t<grayscott_feed>" + ct::toStr(m_UBOComp.grayscott_feed) + "</grayscott_feed>\n";
-	str += vOffset + "\t<grayscott_kill>" + ct::toStr(m_UBOComp.grayscott_kill) + "</grayscott_kill>\n";
-	str += vOffset + "\t<iterations_count>" + ct::toStr(m_CountIterations.w) + "</iterations_count>\n";
-	str += vOffset + "\t<simulation_config>" + ct::toStr(m_SelectedGrayScottConfig) + "</simulation_config>\n";
+	str += ShaderPass::getXml(vOffset, vUserDatas);
+	str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
+	str += vOffset + "<mouse_inversion>" + ct::toStr(m_UBOComp.mouse_inversion) + "</mouse_inversion>\n";
+	str += vOffset + "<grayscott_diffusion_u>" + ct::toStr(m_UBOComp.grayscott_diffusion_u) + "</grayscott_diffusion_u>\n";
+	str += vOffset + "<grayscott_diffusion_v>" + ct::toStr(m_UBOComp.grayscott_diffusion_v) + "</grayscott_diffusion_v>\n";
+	str += vOffset + "<grayscott_feed>" + ct::toStr(m_UBOComp.grayscott_feed) + "</grayscott_feed>\n";
+	str += vOffset + "<grayscott_kill>" + ct::toStr(m_UBOComp.grayscott_kill) + "</grayscott_kill>\n";
+	str += vOffset + "<iterations_count>" + ct::toStr(m_CountIterations.w) + "</iterations_count>\n";
+	str += vOffset + "<simulation_config>" + ct::toStr(m_SelectedGrayScottConfig) + "</simulation_config>\n";
 
 	return str;
 }

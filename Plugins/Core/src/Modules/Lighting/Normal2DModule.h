@@ -45,8 +45,8 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
 
-class NormalFromTextureModule_Comp_Pass;
-class NormalFromTextureModule :
+class Normal2DModule_Comp_Pass;
+class Normal2DModule :
 	public BaseRenderer,
 	public GuiInterface,
 	public TaskInterface,
@@ -55,15 +55,15 @@ class NormalFromTextureModule :
 	public ResizerInterface
 {
 public:
-	static std::shared_ptr<NormalFromTextureModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<Normal2DModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	ct::cWeak<NormalFromTextureModule> m_This;
-	std::shared_ptr<NormalFromTextureModule_Comp_Pass> m_NormalFromTextureModule_Comp_Pass_Ptr = nullptr;
+	ct::cWeak<Normal2DModule> m_This;
+	std::shared_ptr<Normal2DModule_Comp_Pass> m_Normal2DModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	NormalFromTextureModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~NormalFromTextureModule() override;
+	Normal2DModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~Normal2DModule() override;
 
 	bool Init();
 

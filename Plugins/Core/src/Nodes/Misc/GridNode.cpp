@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "GridNode.h"
 
-#include <Modules/Divers/GridModule.h>
+#include <Modules/Misc/GridModule.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<GridNode> GridNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)

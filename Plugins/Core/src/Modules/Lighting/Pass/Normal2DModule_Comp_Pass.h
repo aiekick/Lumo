@@ -44,7 +44,7 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 
-class NormalFromTextureModule_Comp_Pass :
+class Normal2DModule_Comp_Pass :
 	public ShaderPass,
 	public GuiInterface,
 	public TextureInputInterface<1U>,
@@ -72,8 +72,8 @@ private:
 	} m_UBOComp;
 
 public:
-	NormalFromTextureModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~NormalFromTextureModule_Comp_Pass() override;
+	Normal2DModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~Normal2DModule_Comp_Pass() override;
 
 	void WasJustResized() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;

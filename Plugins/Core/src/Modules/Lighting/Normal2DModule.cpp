@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "Layering2DModule.h"
+#include "Normal2DModule.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Simulation/Pass/Layering2DModule_Comp_Pass.h>
+#include <Modules/Lighting/Pass/Normal2DModule_Comp_Pass.h>
 
 using namespace vkApi;
 
@@ -40,10 +40,10 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<Layering2DModule> Layering2DModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<Normal2DModule> Normal2DModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<Layering2DModule>(vVulkanCorePtr);
+	auto res = std::make_shared<Normal2DModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -56,13 +56,13 @@ std::shared_ptr<Layering2DModule> Layering2DModule::Create(vkApi::VulkanCorePtr 
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Layering2DModule::Layering2DModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+Normal2DModule::Normal2DModule(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
 
-Layering2DModule::~Layering2DModule()
+Normal2DModule::~Normal2DModule()
 {
 	Unit();
 }
@@ -71,7 +71,7 @@ Layering2DModule::~Layering2DModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool Layering2DModule::Init()
+bool Normal2DModule::Init()
 {
 	ZoneScoped;
 
@@ -81,16 +81,16 @@ bool Layering2DModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_Layering2DModule_Comp_Pass_Ptr = std::make_shared<Layering2DModule_Comp_Pass>(m_VulkanCorePtr);
-		if (m_Layering2DModule_Comp_Pass_Ptr)
+		m_Normal2DModule_Comp_Pass_Ptr = std::make_shared<Normal2DModule_Comp_Pass>(m_VulkanCorePtr);
+		if (m_Normal2DModule_Comp_Pass_Ptr)
 		{
 			// will be resized ot input size
-			m_Layering2DModule_Comp_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			m_Layering2DModule_Comp_Pass_Ptr->AllowResizeByHand(true);
+			m_Normal2DModule_Comp_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			m_Normal2DModule_Comp_Pass_Ptr->AllowResizeByHand(true);
 
-			if (m_Layering2DModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			if (m_Normal2DModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
-				AddGenericPass(m_Layering2DModule_Comp_Pass_Ptr);
+				AddGenericPass(m_Normal2DModule_Comp_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -103,28 +103,28 @@ bool Layering2DModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool Layering2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool Normal2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("2D Layering", vCmd);
+	BaseRenderer::Render("Normal From Texture", vCmd);
 
 	return true;
 }
 
-bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool Normal2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("2D Layering", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("Normal From Texture", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 
-			if (m_Layering2DModule_Comp_Pass_Ptr)
+			if (m_Normal2DModule_Comp_Pass_Ptr)
 			{
-				change |= m_Layering2DModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_Normal2DModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 
 			return change;
@@ -134,7 +134,7 @@ bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 	return false;
 }
 
-void Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void Normal2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -144,7 +144,7 @@ void Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 	}
 }
 
-void Layering2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void Normal2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -154,28 +154,28 @@ void Layering2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 	}
 }
 
-void Layering2DModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void Normal2DModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void Layering2DModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void Normal2DModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
-	if (m_Layering2DModule_Comp_Pass_Ptr)
+	if (m_Normal2DModule_Comp_Pass_Ptr)
 	{
-		m_Layering2DModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_Normal2DModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* Layering2DModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* Normal2DModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_Layering2DModule_Comp_Pass_Ptr)
+	if (m_Normal2DModule_Comp_Pass_Ptr)
 	{
-		return m_Layering2DModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_Normal2DModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -185,25 +185,25 @@ vk::DescriptorImageInfo* Layering2DModule::GetDescriptorImageInfo(const uint32_t
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string Layering2DModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string Normal2DModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
-	str += vOffset + "<layering_2d_module>\n";
+	str += vOffset + "<normal_2d_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_Layering2DModule_Comp_Pass_Ptr)
+	if (m_Normal2DModule_Comp_Pass_Ptr)
 	{
-		str += m_Layering2DModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_Normal2DModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</layering_2d_module>\n";
+	str += vOffset + "</normal_2d_module>\n";
 
 	return str;
 }
 
-bool Layering2DModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool Normal2DModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -216,15 +216,15 @@ bool Layering2DModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "layering_2d_module")
+	if (strParentName == "normal_2d_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_Layering2DModule_Comp_Pass_Ptr)
+	if (m_Normal2DModule_Comp_Pass_Ptr)
 	{
-		m_Layering2DModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_Normal2DModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

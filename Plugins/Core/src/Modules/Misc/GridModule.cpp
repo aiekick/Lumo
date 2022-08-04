@@ -20,7 +20,7 @@ limitations under the License.
 #include <Systems/CommonSystem.h>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
-#include <Modules/Divers/Pass/GridModule_Vertex_Pass.h>
+#include <Modules/Misc/Pass/GridModule_Vertex_Pass.h>
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////

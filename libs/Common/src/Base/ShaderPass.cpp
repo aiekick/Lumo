@@ -1272,9 +1272,9 @@ std::string ShaderPass::getXml(const std::string& vOffset, const std::string& vU
 
 	//str += m_UniformWidgets.getXml(vOffset, vUserDatas);
 
-	str += vOffset + "\t<resize_by_event>" + (m_ResizingByResizeEventIsAllowed ? "true" : "false") + "</resize_by_event>\n";
-	str += vOffset + "\t<resize_by_hand>" + (m_ResizingByHandIsAllowed ? "true" : "false") + "</resize_by_hand>\n";
-	str += vOffset + "\t<buffer_quality>" + ct::toStr(m_BufferQuality) + "</buffer_quality>\n";
+	str += vOffset + "<resize_by_event>" + (m_ResizingByResizeEventIsAllowed ? "true" : "false") + "</resize_by_event>\n";
+	str += vOffset + "<resize_by_hand>" + (m_ResizingByHandIsAllowed ? "true" : "false") + "</resize_by_hand>\n";
+	str += vOffset + "<buffer_quality>" + ct::toStr(m_BufferQuality) + "</buffer_quality>\n";
 
 	return str;
 }

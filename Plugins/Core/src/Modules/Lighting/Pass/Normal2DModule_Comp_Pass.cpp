@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "NormalFromTextureModule_Comp_Pass.h"
+#include "Normal2DModule_Comp_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -38,7 +38,7 @@ using namespace vkApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-NormalFromTextureModule_Comp_Pass::NormalFromTextureModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+Normal2DModule_Comp_Pass::Normal2DModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Normal From Texture", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -46,12 +46,12 @@ NormalFromTextureModule_Comp_Pass::NormalFromTextureModule_Comp_Pass(vkApi::Vulk
 	m_DontUseShaderFilesOnDisk = true;
 }
 
-NormalFromTextureModule_Comp_Pass::~NormalFromTextureModule_Comp_Pass()
+Normal2DModule_Comp_Pass::~Normal2DModule_Comp_Pass()
 {
 	Unit();
 }
 
-bool NormalFromTextureModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool Normal2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -75,19 +75,19 @@ bool NormalFromTextureModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFram
 	return change;
 }
 
-void NormalFromTextureModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void Normal2DModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
-void NormalFromTextureModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void Normal2DModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
-void NormalFromTextureModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void Normal2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
@@ -117,7 +117,7 @@ void NormalFromTextureModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint
 	}
 }
 
-vk::DescriptorImageInfo* NormalFromTextureModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* Normal2DModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ComputeBufferPtr)
 	{
@@ -136,7 +136,7 @@ vk::DescriptorImageInfo* NormalFromTextureModule_Comp_Pass::GetDescriptorImageIn
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void NormalFromTextureModule_Comp_Pass::WasJustResized()
+void Normal2DModule_Comp_Pass::WasJustResized()
 {
 	ZoneScoped;
 
@@ -148,7 +148,7 @@ void NormalFromTextureModule_Comp_Pass::WasJustResized()
 	}
 }
 
-void NormalFromTextureModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void Normal2DModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (vCmdBuffer)
 	{
@@ -160,7 +160,7 @@ void NormalFromTextureModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, c
 	}
 }
 
-bool NormalFromTextureModule_Comp_Pass::CreateUBO()
+bool Normal2DModule_Comp_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -183,14 +183,14 @@ bool NormalFromTextureModule_Comp_Pass::CreateUBO()
 	return true;
 }
 
-void NormalFromTextureModule_Comp_Pass::UploadUBO()
+void Normal2DModule_Comp_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
 }
 
-void NormalFromTextureModule_Comp_Pass::DestroyUBO()
+void Normal2DModule_Comp_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -198,7 +198,7 @@ void NormalFromTextureModule_Comp_Pass::DestroyUBO()
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
-bool NormalFromTextureModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool Normal2DModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -210,7 +210,7 @@ bool NormalFromTextureModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor
 	return true;
 }
 
-bool NormalFromTextureModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool Normal2DModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -230,9 +230,9 @@ bool NormalFromTextureModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 	return true;
 }
 
-std::string NormalFromTextureModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
+std::string Normal2DModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "NormalFromTextureModule_Comp_Pass";
+	vOutShaderName = "Normal2DModule_Comp_Pass";
 
 	SetLocalGroupSize(ct::uvec3(32U, 32U, 1U));
 
@@ -302,17 +302,17 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string NormalFromTextureModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string Normal2DModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
-	str += vOffset + "\t<method>" + ct::toStr(m_UBOComp.method) + "</method>\n";
-	str += vOffset + "\t<smoothness>" + ct::toStr(m_UBOComp.smoothness) + "</smoothness>\n";
+	str += vOffset + "<method>" + ct::toStr(m_UBOComp.method) + "</method>\n";
+	str += vOffset + "<smoothness>" + ct::toStr(m_UBOComp.smoothness) + "</smoothness>\n";
 
 	return str;
 }
 
-bool NormalFromTextureModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool Normal2DModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	ZoneScoped;
 

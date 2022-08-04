@@ -14,14 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "NormalFromTextureNode.h"
-#include <Modules/Simulation/NormalFromTextureModule.h>
+#include "Normal2DNode.h"
+#include <Modules/Lighting/Normal2DModule.h>
 #include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<NormalFromTextureNode> NormalFromTextureNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<Normal2DNode> Normal2DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<NormalFromTextureNode>();
+	auto res = std::make_shared<Normal2DNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -30,27 +30,27 @@ std::shared_ptr<NormalFromTextureNode> NormalFromTextureNode::Create(vkApi::Vulk
 	return res;
 }
 
-NormalFromTextureNode::NormalFromTextureNode() : BaseNode()
+Normal2DNode::Normal2DNode() : BaseNode()
 {
 	m_NodeTypeString = "2D_NORMAL_FROM_TEXTURE";
 }
 
-NormalFromTextureNode::~NormalFromTextureNode()
+Normal2DNode::~Normal2DNode()
 {
 	Unit();
 }
 
-bool NormalFromTextureNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool Normal2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "NormalFromTexture";
+	name = "Normal 2D";
 
 	AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 
-	m_NormalFromTextureModulePtr = NormalFromTextureModule::Create(vVulkanCorePtr);
-	if (m_NormalFromTextureModulePtr)
+	m_Normal2DModulePtr = Normal2DModule::Create(vVulkanCorePtr);
+	if (m_Normal2DModulePtr)
 	{
 		res = true;
 	}
@@ -58,7 +58,7 @@ bool NormalFromTextureNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool NormalFromTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool Normal2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	bool res = false;
 
@@ -67,9 +67,9 @@ bool NormalFromTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Co
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
-	if (m_NormalFromTextureModulePtr)
+	if (m_Normal2DModulePtr)
 	{
-		res = m_NormalFromTextureModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_Normal2DModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 
 		//SendFrontNotification(NotifyEvent::TextureUpdateDone);
 	}
@@ -77,29 +77,29 @@ bool NormalFromTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Co
 	return res;
 }
 
-bool NormalFromTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool Normal2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_NormalFromTextureModulePtr)
+	if (m_Normal2DModulePtr)
 	{
-		return m_NormalFromTextureModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_Normal2DModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void NormalFromTextureNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void Normal2DNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_NormalFromTextureModulePtr)
+	if (m_Normal2DModulePtr)
 	{
-		m_NormalFromTextureModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_Normal2DModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void NormalFromTextureNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void Normal2DNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
@@ -116,30 +116,30 @@ void NormalFromTextureNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeS
 	}
 }
 
-void NormalFromTextureNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void Normal2DNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	if (m_NormalFromTextureModulePtr)
+	if (m_Normal2DModulePtr)
 	{
-		m_NormalFromTextureModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+		m_Normal2DModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void NormalFromTextureNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void Normal2DNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	if (m_NormalFromTextureModulePtr)
+	if (m_Normal2DModulePtr)
 	{
-		m_NormalFromTextureModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_Normal2DModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* NormalFromTextureNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* Normal2DNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_NormalFromTextureModulePtr)
+	if (m_Normal2DModulePtr)
 	{
-		return m_NormalFromTextureModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_Normal2DModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -149,7 +149,7 @@ vk::DescriptorImageInfo* NormalFromTextureNode::GetDescriptorImageInfo(const uin
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string NormalFromTextureNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string Normal2DNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -175,9 +175,9 @@ std::string NormalFromTextureNode::getXml(const std::string& vOffset, const std:
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_NormalFromTextureModulePtr)
+		if (m_Normal2DModulePtr)
 		{
-			res += m_NormalFromTextureModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_Normal2DModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -186,7 +186,7 @@ std::string NormalFromTextureNode::getXml(const std::string& vOffset, const std:
 	return res;
 }
 
-bool NormalFromTextureNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool Normal2DNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -201,18 +201,18 @@ bool NormalFromTextureNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XM
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_NormalFromTextureModulePtr)
+	if (m_Normal2DModulePtr)
 	{
-		m_NormalFromTextureModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_Normal2DModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
 }
 
-void NormalFromTextureNode::UpdateShaders(const std::set<std::string>& vFiles)
+void Normal2DNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
-	if (m_NormalFromTextureModulePtr)
+	if (m_Normal2DModulePtr)
 	{
-		m_NormalFromTextureModulePtr->UpdateShaders(vFiles);
+		m_Normal2DModulePtr->UpdateShaders(vFiles);
 	}
 }

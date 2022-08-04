@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 #include "Layering2DNode.h"
-#include <Modules/Simulation/Layering2DModule.h>
+#include <Modules/Misc/Layering2DModule.h>
 #include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 

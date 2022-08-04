@@ -18,16 +18,16 @@
 #include <Nodes/Breaks/BreakTexturesGroupNode.h>
 
 #include <Nodes/Misc/GridNode.h>
+#include <Nodes/Misc/Layering2DNode.h>
 
 #include <Nodes/Simulation/GrayScottNode.h>
-#include <Nodes/Simulation/NormalFromTextureNode.h>
-#include <Nodes/Simulation/Layering2DNode.h>
 
 #include <Nodes/Lighting/LightGroupNode.h>
 #include <Nodes/Lighting/DiffuseNode.h>
 #include <Nodes/Lighting/SpecularNode.h>
 #include <Nodes/Lighting/ShadowMapNode.h>
 #include <Nodes/Lighting/ModelShadowNode.h>
+#include <Nodes/Lighting/Normal2DNode.h>
 
 #include <Nodes/Modifiers/SmoothNormalNode.h>
 
@@ -141,43 +141,41 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	res.push_back(AddLibraryEntry("Core/Assets", "3D Model", "MESH"));
-	res.push_back(AddLibraryEntry("Core/Assets", "2D Texture", "TEXTURE_2D"));
+	res.push_back(AddLibraryEntry("Core/3D/Assets", "3D Model", "MESH"));
+	res.push_back(AddLibraryEntry("Core/2D/Assets", "2D Texture", "TEXTURE_2D"));
 
-	res.push_back(AddLibraryEntry("Core/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
+	res.push_back(AddLibraryEntry("Core/3D/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
 
-	res.push_back(AddLibraryEntry("Core/Misc", "Grid / Axis", "GRID_AXIS"));
-	res.push_back(AddLibraryEntry("Core/Misc", "2D Layering", "2D_LAYERING"));
+	res.push_back(AddLibraryEntry("Core/3D/Misc", "Grid / Axis", "GRID_AXIS"));
 
-	res.push_back(AddLibraryEntry("Core/Lighting", "Lights", "LIGHT_GROUP"));
-	res.push_back(AddLibraryEntry("Core/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING"));
-	res.push_back(AddLibraryEntry("Core/Lighting/Shadow", "Model Shadow", "MODEL_SHADOW"));
-	res.push_back(AddLibraryEntry("Core/Lighting", "Diffuse", "DIFFUSE"));
-	res.push_back(AddLibraryEntry("Core/Lighting", "Specular", "SPECULAR"));
-	res.push_back(AddLibraryEntry("Core/Lighting", "SSAO", "SSAO"));
-	res.push_back(AddLibraryEntry("Core/Lighting", "Normal from texture 2D", "2D_NORMAL_FROM_TEXTURE"));
+	res.push_back(AddLibraryEntry("Core/2D/Misc", "2D Layering", "2D_LAYERING"));
+	res.push_back(AddLibraryEntry("Core/2D/Lighting", "Normal 2D", "2D_NORMAL_FROM_TEXTURE"));
 
-	res.push_back(AddLibraryEntry("Core/Modifiers", "Smooth Normals", "SMOOTH_NORMAL"));
+	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Lights", "LIGHT_GROUP"));
+	res.push_back(AddLibraryEntry("Core/3D/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING"));
+	res.push_back(AddLibraryEntry("Core/3D/Lighting/Shadow", "Model Shadow", "MODEL_SHADOW"));
+	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Diffuse", "DIFFUSE"));
+	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Specular", "SPECULAR"));
+	res.push_back(AddLibraryEntry("Core/3D/Lighting", "SSAO", "SSAO"));
 
-	res.push_back(AddLibraryEntry("Core/Outputs", "Output 3D", "OUTPUT_3D"));
-	res.push_back(AddLibraryEntry("Core/Outputs", "Output 2D", "OUTPUT_2D"));
+	res.push_back(AddLibraryEntry("Core/3D/Modifiers", "Smooth Normals", "SMOOTH_NORMAL"));
 
-	res.push_back(AddLibraryEntry("Core/PostPro", "Blur", "BLUR"));
-	res.push_back(AddLibraryEntry("Core/PostPro", "Laplacian", "LAPLACIAN"));
-	res.push_back(AddLibraryEntry("Core/PostPro", "Tone Map", "TONE_MAP"));
+	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Blur", "BLUR"));
+	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Laplacian", "LAPLACIAN"));
+	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Tone Map", "TONE_MAP"));
 
-	res.push_back(AddLibraryEntry("Core/Renderers", "Channels", "CHANNEL_RENDERER"));
-	res.push_back(AddLibraryEntry("Core/Renderers", "Deferred", "DEFERRED_RENDERER"));
-	res.push_back(AddLibraryEntry("Core/Renderers", "Heatmap", "HEATMAP_RENDERER"));
-	res.push_back(AddLibraryEntry("Core/Renderers", "Matcap", "MATCAP_RENDERER"));
-	res.push_back(AddLibraryEntry("Core/Renderers", "PBR", "PBR_RENDERER"));
+	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Channels", "CHANNEL_RENDERER"));
+	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Deferred", "DEFERRED_RENDERER"));
+	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Heatmap", "HEATMAP_RENDERER"));
+	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Matcap", "MATCAP_RENDERER"));
+	res.push_back(AddLibraryEntry("Core/3D/Renderers", "PBR", "PBR_RENDERER"));
 
-	res.push_back(AddLibraryEntry("Core/Simulation", "GrayScott", "2D_SIMULATION_GRAY_SCOTT"));
+	res.push_back(AddLibraryEntry("Core/2D/Simulation", "GrayScott", "2D_SIMULATION_GRAY_SCOTT"));
 
-	res.push_back(AddLibraryEntry("Core/Utils", "3D Model Attributes", "MESH_ATTRIBUTES"));
-	res.push_back(AddLibraryEntry("Core/Utils", "Depth to Pos", "DEPTH_TO_POS"));
-	res.push_back(AddLibraryEntry("Core/Utils", "Pos to Depth", "POS_TO_DEPTH"));
-	res.push_back(AddLibraryEntry("Core/Utils", "Math", "MATH"));
+	res.push_back(AddLibraryEntry("Core/3D/Utils", "3D Model Attributes", "MESH_ATTRIBUTES"));
+	res.push_back(AddLibraryEntry("Core/3D/Utils", "Depth to Pos", "DEPTH_TO_POS"));
+	res.push_back(AddLibraryEntry("Core/3D/Utils", "Pos to Depth", "POS_TO_DEPTH"));
+	res.push_back(AddLibraryEntry("Core/2D/Utils", "Math", "MATH"));
 
 	res.push_back(AddLibraryEntry("Core/Widgets", "Boolean", "WIDGET_BOOLEAN"));
 	res.push_back(AddLibraryEntry("Core/Widgets", "Color", "WIDGET_COLOR"));
@@ -224,7 +222,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 
 	// Simulations
 	else if (vPluginNodeName == "2D_SIMULATION_GRAY_SCOTT")		return GrayScottNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "2D_NORMAL_FROM_TEXTURE")		return NormalFromTextureNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "2D_NORMAL_FROM_TEXTURE")		return Normal2DNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "2D_LAYERING")					return Layering2DNode::Create(vkCorePtr);
 
 	// Utils
