@@ -95,9 +95,9 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	res.push_back(AddLibraryEntry("RTX", "PBR", "RTX_PBR_RENDERER"));
-	res.push_back(AddLibraryEntry("RTX", "SSS", "RTX_SSS_RENDERER"));
-	res.push_back(AddLibraryEntry("RTX", "AccelStruct Builder", "RTX_MODEL_TO_ACCELERATION_STRUCTURE"));
+	res.push_back(AddLibraryEntry("RTX/3D", "PBR", "RTX_PBR_RENDERER"));
+	res.push_back(AddLibraryEntry("RTX/3D", "SSS", "RTX_SSS_RENDERER"));
+	res.push_back(AddLibraryEntry("RTX/3D", "AccelStruct Builder", "RTX_MODEL_TO_ACCELERATION_STRUCTURE"));
 
 	return res;
 }
