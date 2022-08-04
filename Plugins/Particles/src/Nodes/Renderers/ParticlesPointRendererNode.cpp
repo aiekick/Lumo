@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "ParticlesPointRendererNode.h"
 #include <Modules/Renderers/ParticlesPointRenderer.h>
-#include <Interfaces/TexelBufferOutputInterface.h>
-#include <Connectors/TextureConnector.h>
+#include <Graph/Slots/NodeSlotTexelBufferInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 std::shared_ptr<ParticlesPointRendererNode> ParticlesPointRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -44,15 +44,8 @@ bool ParticlesPointRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Point Renderer";
 
-	NodeSlot slot;
-	
-	slot.slotType = "PARTICLES";
-	slot.name = "Particles";
-	AddInput(slot, true, false);
-
-	slot.slotType = TextureConnector<0U>::GetSlotType();
-	slot.name = "Output";
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotTexelBufferInput::Create("Particles", "PARTICLES"), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true);
 
 	bool res = false;
 
@@ -121,15 +114,15 @@ void ParticlesPointRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBase
 	}
 }
 
-void ParticlesPointRendererNode::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ParticlesPointRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_ParticlesPointRenderer)
 	{
-		m_ParticlesPointRenderer->NeedResize(vNewSize, vCountColorBuffers);
+		m_ParticlesPointRenderer->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
-	BaseNode::NeedResize(vNewSize, vCountColorBuffers);
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void ParticlesPointRendererNode::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
@@ -162,97 +155,6 @@ vk::DescriptorImageInfo* ParticlesPointRendererNode::GetDescriptorImageInfo(cons
 	}
 
 	return VK_NULL_HANDLE;
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ParticlesPointRendererNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ParticlesPointRenderer)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "PARTICLES")
-			{
-				auto otherTextureNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherTextureNodePtr)
-				{
-					ct::uvec2 texelBufferSize;
-					auto bufferPtr = otherTextureNodePtr->GetTexelBuffer(endSlotPtr->descriptorBinding, &texelBufferSize);
-					SetTexelBuffer(startSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
-					auto bufferViewPtr = otherTextureNodePtr->GetTexelBufferView(endSlotPtr->descriptorBinding, &texelBufferSize);
-					SetTexelBufferView(startSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void ParticlesPointRendererNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_ParticlesPointRenderer)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "PARTICLES")
-			{
-				SetTexelBuffer(startSlotPtr->descriptorBinding, nullptr, nullptr);
-				SetTexelBufferView(startSlotPtr->descriptorBinding, nullptr, nullptr);
-			}
-		}
-	}
-}
-
-void ParticlesPointRendererNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	switch (vEvent)
-	{
-	case NotifyEvent::TexelBufferUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					auto receiverSlotPtr = vReceiverSlot.getValidShared();
-					if (receiverSlotPtr)
-					{
-						ct::uvec2 texelBufferSize;
-						auto bufferPtr = otherNodePtr->GetTexelBuffer(emiterSlotPtr->descriptorBinding, &texelBufferSize);
-						SetTexelBuffer(receiverSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
-						auto bufferViewPtr = otherNodePtr->GetTexelBufferView(emiterSlotPtr->descriptorBinding, &texelBufferSize);
-						SetTexelBufferView(receiverSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
-					}
-				}
-			}
-		}
-		break;
-	}
-	/*
-	case NotifyEvent::TextureUpdateDone:
-	{
-		auto slots = GetOutputSlotsOfType("TEXTURE_2D");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::TextureUpdateDone, slot);
-			}
-		}
-		break;
-	}
-	*/
-	default:
-		break;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -235,7 +235,7 @@ bool MeshEmitterModule_Comp_Pass::BuildModel()
 		auto parentNodePtr = GetParentNode().getValidShared();
 		if (parentNodePtr)
 		{
-			parentNodePtr->Notify(NotifyEvent::TexelBufferUpdateDone);
+			parentNodePtr->SendFrontNotification(NotifyEvent::TexelBufferUpdateDone);
 		}
 	}
 	

@@ -12,7 +12,7 @@
 #include <vkFramework/VulkanWindow.h>
 
 #include <Nodes/Renderers/ParticlesPointRendererNode.h>
-#include <Nodes/Renderers/ParticlesSpriteRendererNode.h>
+#include <Nodes/Renderers/ParticlesBillBoardRendererNode.h>
 #include <Nodes/Simulation/ParticlesSimulationNode.h>
 #include <Nodes/Primitives/PrimitiveFibonacciNode.h>
 #include <Nodes/Emitters/MeshEmitterNode.h>
@@ -49,7 +49,7 @@ Particles::Particles()
 
 void Particles::ActionAfterInit()
 {
-	NodeSlot::GetSlotColors()->AddSlotColor("PARTICLES", ImVec4(0.2f, 0.5f, 0.8f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("PARTICLES", ImVec4(0.2f, 0.5f, 0.8f, 1.0f));
 }
 
 uint32_t Particles::GetVersionMajor() const
@@ -88,7 +88,7 @@ std::vector<std::string> Particles::GetNodes() const
 	{
 		"PARTICLES_SIMULATION",
 		"PARTICLES_POINT_RENDERER",
-		"PARTICLES_SPRITE_RENDERER",
+		"PARTICLES_BILLBOARDS_RENDERER",
 		"PARTICLES_PRIMITIVE_FIBONACCI"
 	};
 }
@@ -97,80 +97,29 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	{
-		LibraryEntry entry;
-		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-		entry.first = "plugins";
-		entry.second.nodeLabel = "Simulation";
-		entry.second.nodeType = "PARTICLES_SIMULATION";
-		entry.second.color = ct::fvec4(0.0f);
-		entry.second.categoryPath = "Particles/Simulation";
-		res.push_back(entry);
-	}
-
-	{
-		LibraryEntry entry;
-		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-		entry.first = "plugins";
-		entry.second.nodeLabel = "Point Renderer";
-		entry.second.nodeType = "PARTICLES_POINT_RENDERER";
-		entry.second.color = ct::fvec4(0.0f);
-		entry.second.categoryPath = "Particles/Renderers";
-		res.push_back(entry);
-	}
-
-	{
-		LibraryEntry entry;
-		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-		entry.first = "plugins";
-		entry.second.nodeLabel = "Sprite Renderer";
-		entry.second.nodeType = "PARTICLES_SPRITE_RENDERER";
-		entry.second.color = ct::fvec4(0.0f);
-		entry.second.categoryPath = "Particles/Renderers";
-		res.push_back(entry);
-	}
-
-	{
-		LibraryEntry entry;
-		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-		entry.first = "plugins";
-		entry.second.nodeLabel = "Fibonacci Ball";
-		entry.second.nodeType = "PARTICLES_PRIMITIVE_FIBONACCI";
-		entry.second.color = ct::fvec4(0.0f);
-		entry.second.categoryPath = "Particles/Primitives";
-		res.push_back(entry);
-	}
-
-	{
-		LibraryEntry entry;
-		entry.second.type = LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN;
-		entry.first = "plugins";
-		entry.second.nodeLabel = "Mesh Emitter";
-		entry.second.nodeType = "PARTICLES_MESH_EMITTER";
-		entry.second.color = ct::fvec4(0.0f);
-		entry.second.categoryPath = "Particles/Emitters";
-		res.push_back(entry);
-	}
+	res.push_back(AddLibraryEntry("Particles/3D/Simulation",	"Simulation",			"PARTICLES_SIMULATION"));
+	res.push_back(AddLibraryEntry("Particles/Renderers",		"Point Renderer",		"PARTICLES_POINT_RENDERER"));
+	res.push_back(AddLibraryEntry("Particles/3D/Renderers",		"Billboards Renderer",	"PARTICLES_BILLBOARDS_RENDERER"));
+	res.push_back(AddLibraryEntry("Particles/3D/Primitives",	"Fibonacci Ball",		"PARTICLES_PRIMITIVE_FIBONACCI"));
+	res.push_back(AddLibraryEntry("Particles/3D/Emitters",		"Mesh Emitter",			"PARTICLES_MESH_EMITTER"));
 
 	return res;
 }
 
 BaseNodePtr Particles::CreatePluginNode(const std::string& vPluginNodeName)
 {
-	BaseNodePtr res = nullptr;
-
 	if (vPluginNodeName == "PARTICLES_SIMULATION")
-		res = ParticlesSimulationNode::Create(m_VulkanCoreWeak.getValidShared());
+		return ParticlesSimulationNode::Create(m_VulkanCoreWeak.getValidShared());
 	else if (vPluginNodeName == "PARTICLES_POINT_RENDERER")
-		res = ParticlesPointRendererNode::Create(m_VulkanCoreWeak.getValidShared());
-	else if (vPluginNodeName == "PARTICLES_SPRITE_RENDERER")
-		res = ParticlesSpriteRendererNode::Create(m_VulkanCoreWeak.getValidShared());
+		return ParticlesPointRendererNode::Create(m_VulkanCoreWeak.getValidShared());
+	else if (vPluginNodeName == "PARTICLES_BILLBOARDS_RENDERER")
+		return ParticlesBillBoardRendererNode::Create(m_VulkanCoreWeak.getValidShared());
 	else if (vPluginNodeName == "PARTICLES_PRIMITIVE_FIBONACCI")
-		res = PrimitiveFibonacciNode::Create(m_VulkanCoreWeak.getValidShared());
+		return PrimitiveFibonacciNode::Create(m_VulkanCoreWeak.getValidShared());
 	else if (vPluginNodeName == "PARTICLES_MESH_EMITTER")
-		res = MeshEmitterNode::Create(m_VulkanCoreWeak.getValidShared());
+		return MeshEmitterNode::Create(m_VulkanCoreWeak.getValidShared());
 
-	return res;
+	return nullptr;
 }
 
 int Particles::ResetImGuiID(const int& vWidgetId)

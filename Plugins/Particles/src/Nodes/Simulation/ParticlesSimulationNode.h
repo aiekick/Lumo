@@ -16,14 +16,14 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
-#include <Connectors/TexelBufferConnector.h>
+#include <Interfaces/TexelBufferInputInterface.h>
 #include <Interfaces/TexelBufferOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
 class ParticlesSimulationModule;
 class ParticlesSimulationNode :
 	public BaseNode,
-	public TexelBufferConnector<1U>,
+	public TexelBufferInputInterface<1U>,
 	public TexelBufferOutputInterface,
 	public ShaderUpdateInterface
 {
@@ -41,9 +41,6 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
-	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
-	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override; 
 	void SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize) override;
 	void SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize) override;
 	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;

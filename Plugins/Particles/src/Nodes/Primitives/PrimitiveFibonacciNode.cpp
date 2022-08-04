@@ -17,6 +17,7 @@ limitations under the License.
 #include "PrimitiveFibonacciNode.h"
 #include <Modules/Primitives/PrimitiveFibonacciModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
+#include <Graph/Slots/NodeSlotTexelBufferOutput.h>
 
 std::shared_ptr<PrimitiveFibonacciNode> PrimitiveFibonacciNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -49,12 +50,7 @@ bool PrimitiveFibonacciNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "Primitive Fibonacci";
 
-	NodeSlot slot;
-
-	slot.slotType = "PARTICLES";
-	slot.name = "particles";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, false);
+	AddOutput(NodeSlotTexelBufferOutput::Create("Particles", "PARTICLES"), true, false);
 
 	m_PrimitiveFibonacciModulePtr = PrimitiveFibonacciModule::Create(vVulkanCorePtr, m_This);
 	if (m_PrimitiveFibonacciModulePtr)
@@ -123,38 +119,6 @@ void PrimitiveFibonacciNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNode
 	}
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void PrimitiveFibonacciNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	ZoneScoped;
-
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_PrimitiveFibonacciModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void PrimitiveFibonacciNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	ZoneScoped;
-
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_PrimitiveFibonacciModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			
-		}
-	}
-}
-
 vk::Buffer* PrimitiveFibonacciNode::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
@@ -177,30 +141,6 @@ vk::BufferView* PrimitiveFibonacciNode::GetTexelBufferView(const uint32_t& vBind
 	}
 
 	return nullptr;
-}
-
-void PrimitiveFibonacciNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	ZoneScoped;
-
-	switch (vEvent)
-	{
-	case NotifyEvent::TexelBufferUpdateDone:
-	{
-		auto slots = GetOutputSlotsOfType("PARTICLES");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::TexelBufferUpdateDone, slot);
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

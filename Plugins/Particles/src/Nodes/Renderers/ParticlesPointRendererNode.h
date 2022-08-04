@@ -19,14 +19,14 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <Graph/Base/BaseNode.h>
-#include <Connectors/TexelBufferConnector.h>
+#include <Interfaces/TexelBufferInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
 class ParticlesPointRenderer;
 class ParticlesPointRendererNode : 
 	public BaseNode, 
-	public TexelBufferConnector<0U>,
+	public TexelBufferInputInterface<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface
 {
@@ -43,12 +43,9 @@ public:
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	void JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
-	void JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot) override;
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize) override;
 	void SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) override;

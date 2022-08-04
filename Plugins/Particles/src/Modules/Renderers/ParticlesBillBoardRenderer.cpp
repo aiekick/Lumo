@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "ParticlesSpriteRenderer.h"
+#include "ParticlesBillBoardRenderer.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -25,17 +25,17 @@ limitations under the License.
 #include <Profiler/vkProfiler.hpp>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanShader.h>
-#include <Modules/Renderers/Pass/ParticlesSpriteRenderer_Mesh_Pass.h>
+#include <Modules/Renderers/Pass/ParticlesBillBoardRenderer_Mesh_Pass.h>
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParticlesSpriteRenderer> ParticlesSpriteRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParticlesBillBoardRenderer> ParticlesBillBoardRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ParticlesSpriteRenderer>(vVulkanCorePtr);
+	auto res = std::make_shared<ParticlesBillBoardRenderer>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -48,13 +48,13 @@ std::shared_ptr<ParticlesSpriteRenderer> ParticlesSpriteRenderer::Create(vkApi::
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ParticlesSpriteRenderer::ParticlesSpriteRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+ParticlesBillBoardRenderer::ParticlesBillBoardRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
 
-ParticlesSpriteRenderer::~ParticlesSpriteRenderer()
+ParticlesBillBoardRenderer::~ParticlesBillBoardRenderer()
 {
 	Unit();
 }
@@ -63,7 +63,7 @@ ParticlesSpriteRenderer::~ParticlesSpriteRenderer()
 //// INIT ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ParticlesSpriteRenderer::Init()
+bool ParticlesBillBoardRenderer::Init()
 {
 	ZoneScoped;
 
@@ -73,13 +73,13 @@ bool ParticlesSpriteRenderer::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_ParticlesSpriteRenderer_Mesh_Pass_Ptr = std::make_shared<ParticlesSpriteRenderer_Mesh_Pass>(m_VulkanCorePtr);
-		if (m_ParticlesSpriteRenderer_Mesh_Pass_Ptr)
+		m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr = std::make_shared<ParticlesBillBoardRenderer_Mesh_Pass>(m_VulkanCorePtr);
+		if (m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr)
 		{
-			if (m_ParticlesSpriteRenderer_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_ParticlesSpriteRenderer_Mesh_Pass_Ptr);
+				AddGenericPass(m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -92,7 +92,7 @@ bool ParticlesSpriteRenderer::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ParticlesSpriteRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ParticlesBillBoardRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -101,12 +101,12 @@ bool ParticlesSpriteRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::
 	return true;
 }
 
-void ParticlesSpriteRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ParticlesBillBoardRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-bool ParticlesSpriteRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ParticlesBillBoardRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext);
 
@@ -116,9 +116,9 @@ bool ParticlesSpriteRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 		{
 			bool change = false;
 
-			if (m_ParticlesSpriteRenderer_Mesh_Pass_Ptr)
+			if (m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr)
 			{
-				return m_ParticlesSpriteRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 		}
 	}
@@ -126,7 +126,7 @@ bool ParticlesSpriteRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 	return false;
 }
 
-void ParticlesSpriteRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void ParticlesBillBoardRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext);
 
@@ -136,7 +136,7 @@ void ParticlesSpriteRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const 
 	}
 }
 
-void ParticlesSpriteRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ParticlesBillBoardRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext);
 
@@ -146,33 +146,33 @@ void ParticlesSpriteRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFr
 	}
 }
 
-void ParticlesSpriteRenderer::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
+void ParticlesBillBoardRenderer::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
 {
 	ZoneScoped;
 
-	if (m_ParticlesSpriteRenderer_Mesh_Pass_Ptr)
+	if (m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr)
 	{
-		return m_ParticlesSpriteRenderer_Mesh_Pass_Ptr->SetTexelBuffer(vBinding, vTexelBuffer, vTexelBufferSize);
+		return m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr->SetTexelBuffer(vBinding, vTexelBuffer, vTexelBufferSize);
 	}
 }
 
-void ParticlesSpriteRenderer::SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
+void ParticlesBillBoardRenderer::SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
 {
 	ZoneScoped;
 
-	if (m_ParticlesSpriteRenderer_Mesh_Pass_Ptr)
+	if (m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr)
 	{
-		return m_ParticlesSpriteRenderer_Mesh_Pass_Ptr->SetTexelBufferView(vBinding, vTexelBufferView, vTexelBufferSize);
+		return m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr->SetTexelBufferView(vBinding, vTexelBufferView, vTexelBufferSize);
 	}
 }
 
-vk::DescriptorImageInfo* ParticlesSpriteRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* ParticlesBillBoardRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_ParticlesSpriteRenderer_Mesh_Pass_Ptr)
+	if (m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr)
 	{
-		return m_ParticlesSpriteRenderer_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return VK_NULL_HANDLE;
@@ -182,16 +182,16 @@ vk::DescriptorImageInfo* ParticlesSpriteRenderer::GetDescriptorImageInfo(const u
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ParticlesSpriteRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string ParticlesBillBoardRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
 	str += vOffset + "<heatmap_renderer>\n";
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_ParticlesSpriteRenderer_Mesh_Pass_Ptr)
+	if (m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr)
 	{
-		str += m_ParticlesSpriteRenderer_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</heatmap_renderer>\n";
@@ -199,7 +199,7 @@ std::string ParticlesSpriteRenderer::getXml(const std::string& vOffset, const st
 	return str;
 }
 
-bool ParticlesSpriteRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool ParticlesBillBoardRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -218,9 +218,9 @@ bool ParticlesSpriteRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_ParticlesSpriteRenderer_Mesh_Pass_Ptr)
+	if (m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr)
 	{
-		m_ParticlesSpriteRenderer_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_ParticlesBillBoardRenderer_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

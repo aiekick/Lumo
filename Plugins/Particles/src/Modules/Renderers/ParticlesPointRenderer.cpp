@@ -101,9 +101,9 @@ bool ParticlesPointRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::C
 	return true;
 }
 
-void ParticlesPointRenderer::NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ParticlesPointRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResize(vNewSize, vCountColorBuffers);
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 bool ParticlesPointRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

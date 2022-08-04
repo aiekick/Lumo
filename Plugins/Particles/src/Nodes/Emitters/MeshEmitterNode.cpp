@@ -18,6 +18,8 @@ limitations under the License.
 #include <Modules/Emitters/MeshEmitterModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/ModelOutputInterface.h>
+#include <Graph/Slots/NodeSlotModelInput.h>
+#include <Graph/Slots/NodeSlotTexelBufferOutput.h>
 
 std::shared_ptr<MeshEmitterNode> MeshEmitterNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -50,16 +52,8 @@ bool MeshEmitterNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "Mesh Emitter";
 
-	NodeSlot slot;
-
-	slot.slotType = ModelConnector::GetSlotType();
-	slot.name = "3D Model";
-	AddInput(slot, true, false);
-
-	slot.slotType = "PARTICLES";
-	slot.name = "particles";
-	slot.descriptorBinding = 0U;
-	AddOutput(slot, true, true);
+	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
+	AddOutput(NodeSlotTexelBufferOutput::Create("Particles", "PARTICLES"), true, false);
 
 	m_MeshEmitterModulePtr = MeshEmitterModule::Create(vVulkanCorePtr, m_This);
 	if (m_MeshEmitterModulePtr)
@@ -136,48 +130,6 @@ void MeshEmitterNode::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MeshEmitterNode::JustConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	ZoneScoped;
-
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MeshEmitterModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "MESH")
-			{
-				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(endSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetModel(otherNodePtr->GetModel());
-				}
-			}
-		}
-	}
-}
-
-// le start est toujours le slot de ce node, l'autre le slot du node connecté
-void MeshEmitterNode::JustDisConnectedBySlots(NodeSlotWeak vStartSlot, NodeSlotWeak vEndSlot)
-{
-	ZoneScoped;
-
-	auto startSlotPtr = vStartSlot.getValidShared();
-	auto endSlotPtr = vEndSlot.getValidShared();
-	if (startSlotPtr && endSlotPtr && m_MeshEmitterModulePtr)
-	{
-		if (startSlotPtr->IsAnInput())
-		{
-			if (startSlotPtr->slotType == "MESH")
-			{
-				SetModel();
-			}
-		}
-	}
-}
-
 vk::Buffer* MeshEmitterNode::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
 {
 	ZoneScoped;
@@ -200,46 +152,6 @@ vk::BufferView* MeshEmitterNode::GetTexelBufferView(const uint32_t& vBindingPoin
 	}
 
 	return nullptr;
-}
-
-void MeshEmitterNode::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	ZoneScoped;
-
-	switch (vEvent)
-	{
-	case NotifyEvent::TexelBufferUpdateDone:
-	{
-		auto slots = GetOutputSlotsOfType("PARTICLES");
-		for (const auto& slot : slots)
-		{
-			auto slotPtr = slot.getValidShared();
-			if (slotPtr)
-			{
-				slotPtr->Notify(NotifyEvent::TexelBufferUpdateDone, slot);
-			}
-		}
-		break;
-	}
-	case NotifyEvent::ModelUpdateDone:
-	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto otherNodePtr = dynamic_pointer_cast<ModelOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
-				if (otherNodePtr)
-				{
-					SetModel(otherNodePtr->GetModel());
-				}
-			}
-		}
-		break;
-	}
-	default:
-		break;
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
