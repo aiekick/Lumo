@@ -37,6 +37,7 @@ class COMMON_API BufferObjectInterface
 protected:
 	VulkanBufferObjectPtr m_BufferObjectPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	uint32_t m_BufferSize = 0U;
 
 public:
 	bool m_BufferObjectIsDirty = false;
@@ -54,5 +55,12 @@ public:
 	virtual vk::DescriptorBufferInfo* GetBufferInfo()
 	{
 		return &m_DescriptorBufferInfo;
+	}
+
+	// we reimplement it because vk::DescriptorBufferInfo.range 
+	// can be not the full size becasue related to vk::DescriptorBufferInfo.offset
+	virtual const uint32_t& GetBufferSIze()
+	{
+		return m_BufferSize;
 	}
 };

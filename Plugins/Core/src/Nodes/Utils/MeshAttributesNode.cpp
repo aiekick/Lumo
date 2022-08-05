@@ -46,7 +46,7 @@ bool MeshAttributesNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Mesh Attributes";
 
-	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
+	AddInput(NodeSlotModelInput::Create("Model"), true, false);
 	AddInput(NodeSlotTextureInput::Create("Mask", 0U), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("Position", 0U), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("Normal", 1U), true, false);

@@ -62,7 +62,7 @@ add_definitions(-DVULKAN)
 add_library(${PROJECT} STATIC ${PROJECT_SRC_RECURSE})
 ##target_compile_definitions(${PROJECT} PUBLIC -DBUILD_SHARED)
 
-include_directories(
+target_include_directories(${PROJECT} PUBLIC
 	src
 	${CMAKE_SOURCE_DIR}/libs
 	${CMAKE_SOURCE_DIR}/3rdparty

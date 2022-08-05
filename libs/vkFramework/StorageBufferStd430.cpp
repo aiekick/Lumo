@@ -84,7 +84,7 @@ void StorageBufferStd430::Upload(vkApi::VulkanCorePtr vVulkanCorePtr, bool vOnly
 		{
 			if (bufferObjectPtr)
 			{
-				VulkanRessource::upload(vVulkanCorePtr, *bufferObjectPtr, datas.data(), datas.size());
+				VulkanRessource::upload(vVulkanCorePtr, bufferObjectPtr, datas.data(), datas.size());
 
 				firstUploadWasDone = true;
 				isDirty = false;

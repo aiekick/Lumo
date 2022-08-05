@@ -98,3 +98,35 @@
 	path = 3rdparty/taskflow
 	url = https://github.com/taskflow/taskflow
 	branch = master
+[submodule "Generator/3rdparty/glfw"]
+	path = Generator/3rdparty/glfw
+	url = https://github.com/glfw/glfw.git
+	branch = master
+[submodule "Generator/3rdparty/imguitracy"]
+	path = Generator/3rdparty/imguitracy
+	url = https://github.com/aiekick/imgui.git
+	branch = master
+[submodule "Generator/3rdparty/glad"]
+	path = Generator/3rdparty/glad
+	url = https://github.com/Dav1dde/glad.git
+	branch = c
+[submodule "Generator/3rdparty/tinyxml2"]
+	path = Generator/3rdparty/tinyxml2
+	url = https://github.com/leethomason/tinyxml2.git
+	branch = master
+[submodule "Generator/3rdparty/freetype2"]
+	path = Generator/3rdparty/freetype2
+	url = https://github.com/freetype/freetype2.git
+	branch = master
+[submodule "Generator/3rdparty/BuildInc"]
+	path = Generator/3rdparty/BuildInc
+	url = https://github.com/aiekick/buildinc.git
+	branch = master
+[submodule "Generator/3rdparty/ctools"]
+	path = Generator/3rdparty/ctools
+	url = https://github.com/aiekick/cTools.git
+	branch = master
+[submodule "Generator/3rdparty/ImGuiFileDialog"]
+	path = Generator/3rdparty/ImGuiFileDialog
+	url = https://github.com/aiekick/ImGuiFileDialog.git
+	branch = Lib_Only

@@ -182,8 +182,6 @@ public:
 	BaseNodeWeak m_This;
 	BaseNodeWeak m_GraphRoot3DNode;
 	BaseNodeWeak m_GraphRoot2DNode;
-	//BaseNodeWeak m_Output3DNode;
-	//BaseNodeWeak m_Output2DNode;
 
 public: // links
 	std::unordered_map<uint32_t, std::shared_ptr<NodeLink>> m_Links; // linkId, link // for search query

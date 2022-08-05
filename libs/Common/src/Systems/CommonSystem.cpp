@@ -815,7 +815,7 @@ void CommonSystem::UploadBufferObjectIfDirty(vkApi::VulkanCorePtr vVulkanCorePtr
 
 	if (m_BufferObjectIsDirty)
 	{
-		vkApi::VulkanRessource::upload(vVulkanCorePtr, *m_BufferObjectPtr, &m_UBOCamera, sizeof(UBOCamera));
+		vkApi::VulkanRessource::upload(vVulkanCorePtr, m_BufferObjectPtr, &m_UBOCamera, sizeof(UBOCamera));
 
 		m_BufferObjectIsDirty = false;
 	}

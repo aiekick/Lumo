@@ -63,7 +63,7 @@ private:
 		"median(rgb)"
 	};
 
-	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
+	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOComp {
 		alignas(4) int32_t method = 0;

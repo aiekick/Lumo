@@ -22,16 +22,16 @@ set(DEPENDS_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/libs
 )
 
-include(cmake/libs/ctools.cmake)
-include(cmake/libs/imguifiledialog.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/libs/ctools.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/libs/imguifiledialog.cmake)
 
 message("----------------------------------- Start Libs Messages -----------------------------------")
 
-include(cmake/libs/vkframework.cmake)
-include(cmake/libs/vkprofiler.cmake)
-include(cmake/libs/utypes.cmake)
-include(cmake/libs/imwidgets.cmake)
-include(cmake/libs/fonticons.cmake)
-include(cmake/libs/common.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/libs/vkframework.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/libs/vkprofiler.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/libs/utypes.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/libs/imwidgets.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/libs/fonticons.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/libs/common.cmake)
 
 message("----------------------------------- End Libs Messages -----------------------------------")

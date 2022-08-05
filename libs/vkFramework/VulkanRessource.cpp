@@ -144,46 +144,52 @@ VulkanRessourceObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCore
 	stagingBufferInfo.size = width * height * channels * elem_size;
 	stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
 	stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
-	auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
-	upload(vVulkanCorePtr, *stagebuffer, hostdata_ptr, width * height * channels * elem_size);
-
-	VmaAllocationCreateInfo image_alloc_info = {};
-	image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
-	auto familyQueueIndex = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics).familyQueueIndex;
-	auto texture = createSharedImageObject(vVulkanCorePtr, vk::ImageCreateInfo(
-		vk::ImageCreateFlags(),
-		vk::ImageType::e2D,
-		format,
-		vk::Extent3D(vk::Extent2D(width, height), 1),
-		mipLevelCount, 1u,
-		vk::SampleCountFlagBits::e1,
-		vk::ImageTiling::eOptimal,
-		vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-		vk::SharingMode::eExclusive,
-		1,
-		&familyQueueIndex,
-		vk::ImageLayout::eUndefined),
-		image_alloc_info);
-
-	vk::BufferImageCopy copyParams(
-		0u, 0u, 0u,
-		vk::ImageSubresourceLayers(vk::ImageAspectFlagBits::eColor, 0u, 0u, 1),
-		vk::Offset3D(0, 0, 0),
-		vk::Extent3D(width, height, 1));
-
-	// on va copier que le mip level 0, on fera les autre dans GenerateMipmaps juste apres ce block
-	transitionImageLayout(vVulkanCorePtr, texture->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-	copy(vVulkanCorePtr, texture->image, stagebuffer->buffer, copyParams);
-	if (mipLevelCount > 1)
+	auto stagebufferPtr = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+	if (stagebufferPtr)
 	{
-		GenerateMipmaps(vVulkanCorePtr, texture->image, format, width, height, mipLevelCount);
-	}
-	else
-	{
-		transitionImageLayout(vVulkanCorePtr, texture->image, format, mipLevelCount, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-	}
+		upload(vVulkanCorePtr, stagebufferPtr, hostdata_ptr, width * height * channels * elem_size);
 
-	return texture;
+		VmaAllocationCreateInfo image_alloc_info = {};
+		image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+		auto familyQueueIndex = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics).familyQueueIndex;
+		auto texturePtr = createSharedImageObject(vVulkanCorePtr, vk::ImageCreateInfo(
+			vk::ImageCreateFlags(),
+			vk::ImageType::e2D,
+			format,
+			vk::Extent3D(vk::Extent2D(width, height), 1),
+			mipLevelCount, 1u,
+			vk::SampleCountFlagBits::e1,
+			vk::ImageTiling::eOptimal,
+			vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+			vk::SharingMode::eExclusive,
+			1,
+			&familyQueueIndex,
+			vk::ImageLayout::eUndefined),
+			image_alloc_info);
+		if (texturePtr)
+		{
+			vk::BufferImageCopy copyParams(
+				0u, 0u, 0u,
+				vk::ImageSubresourceLayers(vk::ImageAspectFlagBits::eColor, 0u, 0u, 1),
+				vk::Offset3D(0, 0, 0),
+				vk::Extent3D(width, height, 1));
+
+			// on va copier que le mip level 0, on fera les autre dans GenerateMipmaps juste apres ce block
+			transitionImageLayout(vVulkanCorePtr, texturePtr->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+			copy(vVulkanCorePtr, texturePtr->image, stagebufferPtr->buffer, copyParams);
+			if (mipLevelCount > 1)
+			{
+				GenerateMipmaps(vVulkanCorePtr, texturePtr->image, format, width, height, mipLevelCount);
+			}
+			else
+			{
+				transitionImageLayout(vVulkanCorePtr, texturePtr->image, format, mipLevelCount, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+			}
+
+			return texturePtr;
+		}
+	}
+	return nullptr;
 }
 
 void VulkanRessource::getDatasFromTextureImage2D(
@@ -450,7 +456,6 @@ void VulkanRessource::transitionImageLayout(vkApi::VulkanCorePtr vVulkanCorePtr,
 	vk::PipelineStageFlags sourceStage;
 	vk::PipelineStageFlags destinationStage;
 
-	// TODO:
 	if (newLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal)
 	{
 		barrier.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eDepth;
@@ -555,19 +560,22 @@ void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, 
 	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true, vCommandPool);
 }
 
-void VulkanRessource::upload(vkApi::VulkanCorePtr vVulkanCorePtr, VulkanBufferObject& dst_hostVisable, void* src_host, size_t size_bytes, size_t dst_offset)
+void VulkanRessource::upload(vkApi::VulkanCorePtr vVulkanCorePtr, VulkanBufferObjectPtr dstHostVisiblePtr, void* src_host, size_t size_bytes, size_t dst_offset)
 {
 	ZoneScoped;
 
-	if (dst_hostVisable.alloc_usage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY)
+	if (vVulkanCorePtr && dstHostVisiblePtr && src_host && size_bytes)
 	{
-		LogVarDebug("Debug : upload not done because it is VMA_MEMORY_USAGE_GPU_ONLY");
-		return;
+		if (dstHostVisiblePtr->alloc_usage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY)
+		{
+			LogVarDebug("Debug : upload not done because it is VMA_MEMORY_USAGE_GPU_ONLY");
+			return;
+		}
+		void* dst = nullptr;
+		VulkanCore::check_error(vmaMapMemory(vkApi::VulkanCore::sAllocator, dstHostVisiblePtr->alloc_meta, &dst));
+		memcpy((uint8_t*)dst + dst_offset, src_host, size_bytes);
+		vmaUnmapMemory(vkApi::VulkanCore::sAllocator, dstHostVisiblePtr->alloc_meta);
 	}
-	void* dst = nullptr;
-	VulkanCore::check_error(vmaMapMemory(vkApi::VulkanCore::sAllocator, dst_hostVisable.alloc_meta, &dst));
-	memcpy((uint8_t*)dst + dst_offset, src_host, size_bytes);
-	vmaUnmapMemory(vkApi::VulkanCore::sAllocator, dst_hostVisable.alloc_meta);
 }
 
 void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const std::vector<vk::BufferCopy>& regions, vk::CommandPool* vCommandPool)
@@ -603,21 +611,26 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 
 			//obj->bufferInfo = vk::DescriptorBufferInfo{};
 		});
-	dataPtr->alloc_usage = alloc_info.usage;
-	dataPtr->buffer_usage = bufferinfo.usage;
-	VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&bufferinfo, &alloc_info,
-		(VkBuffer*)&dataPtr->buffer, &dataPtr->alloc_meta, nullptr));
-
-	if (dataPtr && dataPtr->buffer)
+	if (dataPtr)
 	{
-		SetDeviceAddress(vVulkanCorePtr->getDevice(), dataPtr);
-	}
-	else
-	{
-		dataPtr.reset();
+		dataPtr->alloc_usage = alloc_info.usage;
+		dataPtr->buffer_usage = bufferinfo.usage;
+		VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&bufferinfo, &alloc_info,
+			(VkBuffer*)&dataPtr->buffer, &dataPtr->alloc_meta, nullptr));
+
+		if (dataPtr && dataPtr->buffer)
+		{
+			SetDeviceAddress(vVulkanCorePtr->getDevice(), dataPtr);
+		}
+		else
+		{
+			dataPtr.reset();
+		}
+
+		return dataPtr;
 	}
 
-	return dataPtr;
+	return nullptr;
 }
 
 VulkanBufferObjectPtr VulkanRessource::createUniformBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, uint64_t vSize)
@@ -704,22 +717,27 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 		stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
 		VmaAllocationCreateInfo stagingAllocInfo = {};
 		stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
-		auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
-		upload(vVulkanCorePtr, *stagebuffer, vData, vSize);
+		auto stagebufferPtr = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+		if (stagebufferPtr)
+		{
+			upload(vVulkanCorePtr, stagebufferPtr, vData, vSize);
 
-		vk::BufferCreateInfo storageBufferInfo = {};
-		storageBufferInfo.size = vSize;
-		storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst;
-		storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
-		VmaAllocationCreateInfo vboAllocInfo = {};
-		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
-		auto vboPtr = createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, vboAllocInfo);
+			vk::BufferCreateInfo storageBufferInfo = {};
+			storageBufferInfo.size = vSize;
+			storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst;
+			storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
+			VmaAllocationCreateInfo vboAllocInfo = {};
+			vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+			auto vboPtr = createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, vboAllocInfo);
+			if (vboPtr)
+			{
+				vk::BufferCopy region = {};
+				region.size = vSize;
+				copy(vVulkanCorePtr, vboPtr->buffer, stagebufferPtr->buffer, region);
 
-		vk::BufferCopy region = {};
-		region.size = vSize;
-		copy(vVulkanCorePtr, vboPtr->buffer, stagebuffer->buffer, region);
-
-		return vboPtr;
+				return vboPtr;
+			}
+		}
 	}
 
 	return nullptr;
@@ -742,33 +760,38 @@ VulkanBufferObjectPtr VulkanRessource::createTexelBuffer(
 		VmaAllocationCreateInfo vboAllocInfo = {};
 		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 		auto vboPtr = createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, vboAllocInfo);
-
-		if (vDataPtr)
+		if (vboPtr)
 		{
-			vk::BufferCreateInfo stagingBufferInfo = {};
-			stagingBufferInfo.size = vDataSize;
-			stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
-			VmaAllocationCreateInfo stagingAllocInfo = {};
-			stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
-			auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
-			upload(vVulkanCorePtr, *stagebuffer, vDataPtr, vDataSize);
+			if (vDataPtr)
+			{
+				vk::BufferCreateInfo stagingBufferInfo = {};
+				stagingBufferInfo.size = vDataSize;
+				stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
+				VmaAllocationCreateInfo stagingAllocInfo = {};
+				stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
+				auto stagebufferPtr = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+				if (stagebufferPtr)
+				{
+					upload(vVulkanCorePtr, stagebufferPtr, vDataPtr, vDataSize);
 
-			vk::BufferCopy region = {};
-			region.size = vDataSize;
-			copy(vVulkanCorePtr, vboPtr->buffer, stagebuffer->buffer, region);
+					vk::BufferCopy region = {};
+					region.size = vDataSize;
+					copy(vVulkanCorePtr, vboPtr->buffer, stagebufferPtr->buffer, region);
 
-			stagebuffer.reset();
+					stagebufferPtr.reset();
+				}
+			}
+
+			vk::BufferViewCreateInfo buffer_view_create_info;
+			buffer_view_create_info.buffer = vboPtr->buffer;
+			buffer_view_create_info.offset = 0U;
+			buffer_view_create_info.format = vFormat;
+			buffer_view_create_info.range = vDataSize;
+
+			vboPtr->bufferView = vVulkanCorePtr->getDevice().createBufferView(buffer_view_create_info);
+
+			return vboPtr;
 		}
-
-		vk::BufferViewCreateInfo buffer_view_create_info;
-		buffer_view_create_info.buffer = vboPtr->buffer;
-		buffer_view_create_info.offset = 0U;
-		buffer_view_create_info.format = vFormat;
-		buffer_view_create_info.range = vDataSize;
-
-		vboPtr->bufferView = vVulkanCorePtr->getDevice().createBufferView(buffer_view_create_info);
-
-		return vboPtr;
 	}
 
 	return nullptr;
@@ -810,21 +833,26 @@ VulkanAccelStructObjectPtr VulkanRessource::createAccelStructureBufferObject(Vul
 	{
 		vmaDestroyBuffer(vkApi::VulkanCore::sAllocator, (VkBuffer)obj->buffer, obj->alloc_meta);
 	});
-	dataPtr->alloc_usage = storageAllocInfo.usage;
-	dataPtr->buffer_usage = storageBufferInfo.usage;
-
-	VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&storageBufferInfo, &storageAllocInfo,
-		(VkBuffer*)&dataPtr->buffer, &dataPtr->alloc_meta, nullptr));
-
-	if (dataPtr && dataPtr->buffer)
+	if (dataPtr)
 	{
-		SetDeviceAddress(vVulkanCorePtr->getDevice(), dataPtr);
-	}
-	else
-	{
-		dataPtr.reset();
+		dataPtr->alloc_usage = storageAllocInfo.usage;
+		dataPtr->buffer_usage = storageBufferInfo.usage;
+
+		VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&storageBufferInfo, &storageAllocInfo,
+			(VkBuffer*)&dataPtr->buffer, &dataPtr->alloc_meta, nullptr));
+
+		if (dataPtr && dataPtr->buffer)
+		{
+			SetDeviceAddress(vVulkanCorePtr->getDevice(), dataPtr);
+		}
+		else
+		{
+			dataPtr.reset();
+		}
+
+		return dataPtr;
 	}
 
-	return dataPtr;
+	return nullptr;
 }
 }

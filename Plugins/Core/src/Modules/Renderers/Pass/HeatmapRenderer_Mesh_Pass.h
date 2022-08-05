@@ -38,14 +38,14 @@ class HeatmapRenderer_Mesh_Pass :
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_UBO_Vert = nullptr;
+	VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
 
 	struct UBOVert {
 		alignas(16) glm::mat4x4 transform = glm::mat4x4(1.0f);
 	} m_UBOVert;
 
-	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
+	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
 	struct UBOFrag {

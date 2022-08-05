@@ -44,7 +44,7 @@ bool Normal2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Normal 2D";
 
-	AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Input", 0U), true, true);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;

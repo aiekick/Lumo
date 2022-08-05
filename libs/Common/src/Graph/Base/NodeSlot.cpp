@@ -545,8 +545,6 @@ void NodeSlot::DrawSlotText(BaseNodeState *vBaseNodeState)
 
 			if (slotPlace == NodeSlot::PlaceEnum::INPUT)
 			{
-				//slotName = stamp.typeStamp; // valable seulement en mode blueprint
-
 				slotName = slotType;
 
 				if (vBaseNodeState->debug_mode)
@@ -590,8 +588,6 @@ void NodeSlot::DrawSlotText(BaseNodeState *vBaseNodeState)
 			}
 			else if (slotPlace == NodeSlot::PlaceEnum::OUTPUT)
 			{
-				//slotName = stamp.typeStamp; // valable seulement en mode blueprint
-
 				slotName = slotType;
 
 				if (vBaseNodeState->debug_mode)

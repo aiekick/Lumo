@@ -37,7 +37,7 @@ bool PluginInterface::Init(
 		{
 			assert(vFileHelper);
 			assert(vCommonSystem);
-			assert(vContext);
+			assert(vContext); ImGui::SetCurrentContext(vContext);
 			assert(vSlotColor);
 			assert(vCustomStyle);
 

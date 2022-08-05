@@ -56,7 +56,7 @@ private:
 	std::vector<ct::fvec4> m_GrayScottConfigs; // diff x, diff,y, feed, kill
 	int32_t m_SelectedGrayScottConfig = 0; // Custom
 
-	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
+	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOComp {
 		alignas(4) float mouse_radius = 10.0f;

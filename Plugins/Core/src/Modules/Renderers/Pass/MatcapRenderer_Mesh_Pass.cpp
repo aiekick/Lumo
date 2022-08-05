@@ -178,18 +178,18 @@ bool MatcapRenderer_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
-	if (m_UBO_Vert)
+	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
+	if (m_UBOVertPtr)
 	{
-		m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
+		m_DescriptorBufferInfo_Vert.buffer = m_UBOVertPtr->buffer;
 		m_DescriptorBufferInfo_Vert.range = sizeof(UBOVert);
 		m_DescriptorBufferInfo_Vert.offset = 0;
 	}
 
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
-	if (m_UBO_Frag)
+	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
+	if (m_UBOFragPtr)
 	{
-		m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
+		m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
 		m_DescriptorBufferInfo_Frag.range = sizeof(UBOFrag);
 		m_DescriptorBufferInfo_Frag.offset = 0;
 	}
@@ -208,16 +208,16 @@ void MatcapRenderer_Mesh_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void MatcapRenderer_Mesh_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert.reset();
-	m_UBO_Frag.reset();
+	m_UBOVertPtr.reset();
+	m_UBOFragPtr.reset();
 }
 
 bool MatcapRenderer_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()

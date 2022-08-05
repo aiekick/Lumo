@@ -90,7 +90,7 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 				bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
 			if (m_ModelAdressesPtr)
 			{
-				VulkanRessource::upload(m_VulkanCorePtr, *m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
+				VulkanRessource::upload(m_VulkanCorePtr, m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
 
 				m_ModelAdressesBufferInfo.buffer = m_ModelAdressesPtr->buffer;
 				m_ModelAdressesBufferInfo.offset = 0U;
@@ -166,7 +166,7 @@ bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(const Sc
 		auto transformMatrixBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeof(transform_matrix),
 			vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eShaderDeviceAddress,
 			VMA_MEMORY_USAGE_CPU_TO_GPU);
-		VulkanRessource::upload(m_VulkanCorePtr, *transformMatrixBufferPtr, &transform_matrix, sizeof(transform_matrix));
+		VulkanRessource::upload(m_VulkanCorePtr, transformMatrixBufferPtr, &transform_matrix, sizeof(transform_matrix));
 
 		vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
 		triangles.vertexFormat = vk::Format::eR32G32B32Sfloat;
@@ -276,7 +276,7 @@ bool SceneAccelStructure::CreateTopLevelAccelerationStructure(const std::vector<
 		sizeof(vk::AccelerationStructureInstanceKHR) * blasInstances.size(),
 		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eShaderDeviceAddress,
 		VMA_MEMORY_USAGE_CPU_TO_GPU);
-	VulkanRessource::upload(m_VulkanCorePtr, *instancesBufferPtr,
+	VulkanRessource::upload(m_VulkanCorePtr, instancesBufferPtr,
 		blasInstances.data(), sizeof(vk::AccelerationStructureInstanceKHR) * blasInstances.size());
 
 	vk::DeviceOrHostAddressConstKHR instance_data_device_address{};

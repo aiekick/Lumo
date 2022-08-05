@@ -90,7 +90,7 @@ public: // image
 public: // buffers
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const vk::BufferCopy& region, vk::CommandPool* vCommandPool = 0);
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const std::vector<vk::BufferCopy>& regions, vk::CommandPool* vCommandPool = 0);
-	static void upload(VulkanCorePtr vVulkanCorePtr, VulkanBufferObject& dst_hostVisable, void* src_host, size_t size_bytes, size_t dst_offset = 0);
+	static void upload(VulkanCorePtr vVulkanCorePtr, VulkanBufferObjectPtr dst_hostVisable, void* src_host, size_t size_bytes, size_t dst_offset = 0);
 
 	// will set deveic adress of buffer in vVulkanBufferObjectPtr
 	static void SetDeviceAddress(const vk::Device& vDevice, VulkanBufferObjectPtr vVulkanBufferObjectPtr);
@@ -119,30 +119,37 @@ VulkanBufferObjectPtr VulkanRessource::createVertexBufferObject(VulkanCorePtr vV
 	stagingBufferInfo.size = data.size() * sizeof(T);
 	stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
 	stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
-	auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
-	upload(vVulkanCorePtr, *stagebuffer, (void*)data.data(), data.size() * sizeof(T));
+	auto stagebufferPtr = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+	if (stagebufferPtr)
+	{
+		upload(vVulkanCorePtr, stagebufferPtr, (void*)data.data(), data.size() * sizeof(T));
 
-	vk::BufferCreateInfo vboInfo = {};
-	VmaAllocationCreateInfo vboAllocInfo = {};
-	vboInfo.size = data.size() * sizeof(T);
-	vboInfo.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-	if (vUseSSBO) vboInfo.usage = vboInfo.usage | 
-		vk::BufferUsageFlagBits::eStorageBuffer;
-	if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage | 
-		vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
-	if (vUseRTX) vboInfo.usage = vboInfo.usage | 
-		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
-		vk::BufferUsageFlagBits::eStorageBuffer |
-		vk::BufferUsageFlagBits::eShaderDeviceAddress;
+		vk::BufferCreateInfo vboInfo = {};
+		VmaAllocationCreateInfo vboAllocInfo = {};
+		vboInfo.size = data.size() * sizeof(T);
+		vboInfo.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+		if (vUseSSBO) vboInfo.usage = vboInfo.usage |
+			vk::BufferUsageFlagBits::eStorageBuffer;
+		if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage |
+			vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+		if (vUseRTX) vboInfo.usage = vboInfo.usage |
+			vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
+			vk::BufferUsageFlagBits::eStorageBuffer |
+			vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
-	vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
-	auto vbo = createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);
+		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+		auto vboPtr = createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);
+		if (vboPtr)
+		{
+			vk::BufferCopy region = {};
+			region.size = data.size() * sizeof(T);
+			copy(vVulkanCorePtr, vboPtr->buffer, stagebufferPtr->buffer, region);
 
-	vk::BufferCopy region = {};
-	region.size = data.size() * sizeof(T);
-	copy(vVulkanCorePtr, vbo->buffer, stagebuffer->buffer, region);
-
-	return vbo;
+			return vboPtr;
+		}
+	}
+	
+	return nullptr;
 }
 
 template<class T>
@@ -153,29 +160,36 @@ VulkanBufferObjectPtr VulkanRessource::createIndexBufferObject(VulkanCorePtr vVu
 	stagingBufferInfo.size = data.size() * sizeof(T);
 	stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
 	stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
-	auto stagebuffer = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
-	upload(vVulkanCorePtr, *stagebuffer, (void*)data.data(), data.size() * sizeof(T));
+	auto stagebufferPtr = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+	if (stagebufferPtr)
+	{
+		upload(vVulkanCorePtr, stagebufferPtr, (void*)data.data(), data.size() * sizeof(T));
 
-	vk::BufferCreateInfo vboInfo = {};
-	VmaAllocationCreateInfo vboAllocInfo = {};
-	vboInfo.size = data.size() * sizeof(T);
-	vboInfo.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
-	if (vUseSSBO) vboInfo.usage = vboInfo.usage | 
-		vk::BufferUsageFlagBits::eStorageBuffer;
-	if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage | 
-		vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
-	if (vUseRTX) vboInfo.usage = vboInfo.usage |
-		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
-		vk::BufferUsageFlagBits::eStorageBuffer |
-		vk::BufferUsageFlagBits::eShaderDeviceAddress;
+		vk::BufferCreateInfo vboInfo = {};
+		VmaAllocationCreateInfo vboAllocInfo = {};
+		vboInfo.size = data.size() * sizeof(T);
+		vboInfo.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+		if (vUseSSBO) vboInfo.usage = vboInfo.usage |
+			vk::BufferUsageFlagBits::eStorageBuffer;
+		if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage |
+			vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+		if (vUseRTX) vboInfo.usage = vboInfo.usage |
+			vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
+			vk::BufferUsageFlagBits::eStorageBuffer |
+			vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
-	vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
-	auto vbo = createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);
+		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+		auto vboPtr = createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);
+		if (vboPtr)
+		{
+			vk::BufferCopy region = {};
+			region.size = data.size() * sizeof(T);
+			copy(vVulkanCorePtr, vboPtr->buffer, stagebufferPtr->buffer, region);
 
-	vk::BufferCopy region = {};
-	region.size = data.size() * sizeof(T);
-	copy(vVulkanCorePtr, vbo->buffer, stagebuffer->buffer, region);
+			return vboPtr;
+		}
+	}
 
-	return vbo;
+	return nullptr;
 }
 }

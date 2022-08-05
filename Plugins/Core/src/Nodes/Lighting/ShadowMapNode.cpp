@@ -49,7 +49,7 @@ bool ShadowMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Shadow Map";
 
-	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
+	AddInput(NodeSlotModelInput::Create("Model"), true, false);
 	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
 	AddOutput(NodeSlotLightGroupOutput::Create("Lights"), true, false); 
 	AddOutput(NodeSlotTextureGroupOutput::Create("Outputs"), true, false);

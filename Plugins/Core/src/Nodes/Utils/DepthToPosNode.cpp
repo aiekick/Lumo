@@ -44,8 +44,8 @@ bool DepthToPosNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Depth To Pos";
 
-	AddInput(NodeSlotTextureInput::Create("Depth", 0U), true, false);
-	AddOutput(NodeSlotTextureOutput::Create("Pos", 0U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Depth", 0U), true, true);
+	AddOutput(NodeSlotTextureOutput::Create("Pos", 0U), true, true);
 
 	bool res = false;
 

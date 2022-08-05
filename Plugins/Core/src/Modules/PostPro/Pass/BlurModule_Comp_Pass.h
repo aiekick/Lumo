@@ -52,7 +52,7 @@ class BlurModule_Comp_Pass :
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
+	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
 
 	struct UBOComp {

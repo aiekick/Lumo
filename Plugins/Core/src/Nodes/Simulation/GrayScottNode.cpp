@@ -45,7 +45,7 @@ bool GrayScottNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "GrayScott";
 
 	//on desctive pour le moment, le shader le gere, mais on s'en sert pas pour le moment
-	//AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
+	//AddInput(NodeSlotTextureInput::Create("Input", 0U), true, true);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;

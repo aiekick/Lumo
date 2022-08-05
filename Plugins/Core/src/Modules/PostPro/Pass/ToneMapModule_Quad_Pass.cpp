@@ -185,8 +185,8 @@ bool ToneMapModule_Quad_Pass::CreateUBO()
 	ZoneScoped;
 
 	auto size_in_bytes = sizeof(UBOFrag);
-	m_UBO_Frag = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
-	m_DescriptorBufferInfo_Frag.buffer = m_UBO_Frag->buffer;
+	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
+	m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
 	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
@@ -204,14 +204,14 @@ void ToneMapModule_Quad_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Frag, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void ToneMapModule_Quad_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Frag.reset();
+	m_UBOFragPtr.reset();
 }
 
 bool ToneMapModule_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()

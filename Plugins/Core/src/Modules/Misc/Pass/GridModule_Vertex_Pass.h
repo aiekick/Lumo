@@ -34,7 +34,7 @@ class GridModule_Vertex_Pass :
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_UBO_Vert = nullptr;
+	VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
 
 	struct UBOVert {

@@ -45,7 +45,7 @@ bool HeatmapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Heatmap";
 
-	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
+	AddInput(NodeSlotModelInput::Create("Model"), true, true);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;

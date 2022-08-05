@@ -44,7 +44,7 @@ bool ModelToAccelStructNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Accel Struct Builder";
 
-	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
+	AddInput(NodeSlotModelInput::Create("Model"), true, true);
 	AddOutput(NodeSlotAccelStructureOutput::Create("Output"), true, true);
 
 	bool res = false;

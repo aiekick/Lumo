@@ -57,7 +57,7 @@ protected:
 	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
 
-	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
+	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 	struct UBOFrag {
 		alignas(4) float u_shadow_strength = 0.5f;

@@ -150,7 +150,7 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 	void DrawContent(BaseNodeState *vBaseNodeState);
-	void DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset = ImVec2(2,2));
+	void DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset = ImVec2());
 	
 	bool IsAnInput();
 	bool IsAnOutput();

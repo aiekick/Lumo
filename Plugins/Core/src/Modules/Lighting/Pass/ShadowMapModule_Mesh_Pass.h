@@ -58,7 +58,7 @@ protected:
 	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
 
-	VulkanBufferObjectPtr m_UBO_Vert = nullptr;
+	VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
 	struct UBOVert {
 		alignas(16) uint32_t light_id_to_use = 0U;

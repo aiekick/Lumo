@@ -34,8 +34,10 @@ enum class NotifyEvent
 	LightGroupUpdateDone,
 	// need to update the variable
 	VariableUpdateDone,
-	// a accel structure (tofix : for use in pluginand defin our own notify)
+	// need to update the accel structure
 	AccelStructureUpdateDone,
+	// need to update the storage buffer
+	StorageBufferUpdateDone,
 	// the node link is breked
 	NodeLinkIsBreaked,
 	// some task was updated

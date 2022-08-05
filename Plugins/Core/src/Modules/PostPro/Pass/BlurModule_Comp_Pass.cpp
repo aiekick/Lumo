@@ -148,8 +148,8 @@ bool BlurModule_Comp_Pass::CreateUBO()
 	ZoneScoped;
 
 	auto size_in_bytes = sizeof(UBOComp);
-	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
-	m_DescriptorBufferInfo_Comp.buffer = m_UBO_Comp->buffer;
+	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
+	m_DescriptorBufferInfo_Comp.buffer = m_UBOCompPtr->buffer;
 	m_DescriptorBufferInfo_Comp.range = size_in_bytes;
 	m_DescriptorBufferInfo_Comp.offset = 0;
 
@@ -167,14 +167,14 @@ void BlurModule_Comp_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void BlurModule_Comp_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp.reset();
+	m_UBOCompPtr.reset();
 }
 
 bool BlurModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()

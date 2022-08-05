@@ -52,7 +52,7 @@ class LaplacianModule_Quad_Pass :
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_UBO_Frag = nullptr;
+	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
 	struct UBOFrag {

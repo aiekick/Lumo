@@ -44,7 +44,7 @@ bool SmoothNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Smooth Normal";
 
-	AddInput(NodeSlotModelInput::Create("Mesh"), true, true);
+	AddInput(NodeSlotModelInput::Create("Model"), true, true);
 	AddOutput(NodeSlotModelOutput::Create("Mesh"), true, true);
 
 	// we keep this node in ExecuteAllTime, because we need to propagate to inputs for each frames

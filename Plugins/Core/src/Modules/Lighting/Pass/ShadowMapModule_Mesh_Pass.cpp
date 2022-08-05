@@ -213,8 +213,8 @@ bool ShadowMapModule_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
-	m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
+	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
+	m_DescriptorBufferInfo_Vert.buffer = m_UBOVertPtr->buffer;
 	m_DescriptorBufferInfo_Vert.range = sizeof(UBOVert);
 	m_DescriptorBufferInfo_Vert.offset = 0;
 
@@ -237,14 +237,14 @@ void ShadowMapModule_Mesh_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
 }
 
 void ShadowMapModule_Mesh_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert.reset();
+	m_UBOVertPtr.reset();
 }
 
 bool ShadowMapModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()

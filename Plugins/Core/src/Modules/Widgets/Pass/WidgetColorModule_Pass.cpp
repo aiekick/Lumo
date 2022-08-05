@@ -118,10 +118,10 @@ bool WidgetColorModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
-	if (m_UBO_Comp->buffer)
+	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	if (m_UBOCompPtr->buffer)
 	{
-		m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo{ m_UBO_Comp->buffer, 0, sizeof(UBOComp) };
+		m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo{ m_UBOCompPtr->buffer, 0, sizeof(UBOComp) };
 	}
 	else
 	{
@@ -137,14 +137,14 @@ void WidgetColorModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void WidgetColorModule_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp.reset();
+	m_UBOCompPtr.reset();
 }
 
 

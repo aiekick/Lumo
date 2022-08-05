@@ -43,7 +43,7 @@ private:
 	std::shared_ptr<GridModule_Vertex_Pass> m_GridModule_Vertex_Pass_Ptr = nullptr;
 
 private:
-	VulkanBufferObjectPtr m_UBO_Vert = nullptr;
+	VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
 
 	struct UBOVert {

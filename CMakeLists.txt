@@ -7,8 +7,10 @@ enable_language(C CXX)
 project(${PROJECT} CXX)
 
 option(USE_PLUGINS "Enable the plugins building" OFF)
+option(USE_CODE_GENERATOR "Enable the code generator" OFF)
+
 if (USE_PLUGINS)
-	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easy dev" OFF)
+	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easier dev" OFF)
 	option(USE_PLUGIN_CORE "Enable the Core Nodes" OFF)
 	option(USE_PLUGIN_MESH_SIM "Enable the plugin MeshSim" OFF)
 	option(USE_PLUGIN_MESH_SSS "Enable the plugin MeshSSS" OFF)
@@ -17,6 +19,15 @@ if (USE_PLUGINS)
 	option(USE_PLUGIN_RTX "Enable the plugin RTX" OFF)
 	option(USE_PLUGIN_PARTICLES "Enable the plugin Particles" OFF)
 	option(USE_PLUGIN_SMOKE "Enable the plugin Smoke" OFF)
+else()
+	set(USE_PLUGIN_CORE OFF CACHE BOOL "" FORCE)
+	set(USE_PLUGIN_MESH_SIM OFF CACHE BOOL "" FORCE)
+	set(USE_PLUGIN_MESH_SSS OFF CACHE BOOL "" FORCE)
+	set(USE_PLUGIN_SDF_MESHER OFF CACHE BOOL "" FORCE)
+	set(USE_PLUGIN_MORPHOGENESIS OFF CACHE BOOL "" FORCE)
+	set(USE_PLUGIN_RTX OFF CACHE BOOL "" FORCE)
+	set(USE_PLUGIN_PARTICLES OFF CACHE BOOL "" FORCE)
+	set(USE_PLUGIN_SMOKE OFF CACHE BOOL "" FORCE)
 endif()
 
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
@@ -56,6 +67,11 @@ else()
 	set(ARCH x32)
 endif()
 
+include_directories(
+	${CMAKE_SOURCE_DIR}/libs
+	${CMAKE_SOURCE_DIR}/3rdparty
+)
+
 include(cmake/3rdparty/3rdparty.cmake)
 include(cmake/libs/libs.cmake)
 if (USE_PLUGINS)
@@ -76,8 +92,8 @@ add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
 add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="../../../src/Gui/CustomImGuiFileDialogConfig.h")
-add_definitions(-DUSE_IMGUI="../imgui/imgui.h")
+add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Gui/CustomImGuiFileDialogConfig.h")
+add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/3rdparty/imgui/imgui.h")
 add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
 add_definitions(-DUSE_VULKAN)
@@ -165,9 +181,8 @@ set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BI
 message("BACKEND_INCLUDE_DIRS : ${Vulkan_INCLUDE_DIRS}")
 message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
 
-include_directories(
+target_include_directories(${PROJECT} PRIVATE
 	src
-	${CMAKE_SOURCE_DIR}/libs
 	${CMAKE_SOURCE_DIR}/libs/Common/src
 	${CMAKE_SOURCE_DIR}/3rdparty
 	${CMAKE_SOURCE_DIR}/3rdparty/glm
@@ -208,6 +223,15 @@ add_custom_command(
 	COMMAND BuildInc -prefix=Lumo 1000:10 $<$<CONFIG:Debug>:${CMAKE_SOURCE_DIR}/src/Headers/LumoBuild.h>
 	DEPENDS ${PROJECT}
 )
+
+########################################################
+############# BUILD CODE GENERATOR TOOL ################
+########################################################
+
+if (USE_CODE_GENERATOR)
+	add_subdirectory(Generator)
+	set_target_properties(LumoCodeGenerator PROPERTIES FOLDER dev)
+endif()
 
 #############################################################
 ### INSTALL #################################################
@@ -276,4 +300,3 @@ set(CPACK_COMPONENT_APPLICATIONS_DISPLAY_NAME "${CMAKE_PROJECT_NAME}")
 ##set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/VERSION")
 SET(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_INSTALL_PREFIX}")
 include(CPack)
-

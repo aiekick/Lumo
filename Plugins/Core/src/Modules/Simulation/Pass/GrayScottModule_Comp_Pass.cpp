@@ -258,11 +258,11 @@ bool GrayScottModule_Comp_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Comp)
+	if (m_UBOCompPtr)
 	{
-		m_UBO_Comp_BufferInfos.buffer = m_UBO_Comp->buffer;
+		m_UBO_Comp_BufferInfos.buffer = m_UBOCompPtr->buffer;
 		m_UBO_Comp_BufferInfos.range = sizeof(UBOComp);
 		m_UBO_Comp_BufferInfos.offset = 0;
 	}
@@ -281,14 +281,14 @@ void GrayScottModule_Comp_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void GrayScottModule_Comp_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp.reset();
+	m_UBOCompPtr.reset();
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 

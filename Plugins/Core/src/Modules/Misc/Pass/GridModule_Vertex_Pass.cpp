@@ -120,10 +120,10 @@ bool GridModule_Vertex_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
-	if (m_UBO_Vert)
+	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
+	if (m_UBOVertPtr)
 	{
-		m_DescriptorBufferInfo_Vert.buffer = m_UBO_Vert->buffer;
+		m_DescriptorBufferInfo_Vert.buffer = m_UBOVertPtr->buffer;
 		m_DescriptorBufferInfo_Vert.range = sizeof(UBOVert);
 		m_DescriptorBufferInfo_Vert.offset = 0;
 	}
@@ -141,14 +141,14 @@ void GridModule_Vertex_Pass::UploadUBO()
 		4 * m_UBOVert.gridCount + 4 // grid
 		+ 6 // axis
 		;
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Vert, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
 }
 
 void GridModule_Vertex_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert.reset();
+	m_UBOVertPtr.reset();
 }
 
 bool GridModule_Vertex_Pass::UpdateLayoutBindingInRessourceDescriptor()
