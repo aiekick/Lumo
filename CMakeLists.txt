@@ -173,6 +173,8 @@ add_executable(${PROJECT}
 	${PROJECT_SHADERS_RECURSE}
 )
 
+set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Z_Apps)
+
 set(${PROJECT}_Output_Name "${PROJECT}_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${${PROJECT}_Output_Name}")
 
@@ -216,7 +218,7 @@ target_link_libraries(${PROJECT} PRIVATE
 
 ## only for Debug
 add_subdirectory(3rdparty/BuildInc)
-set_target_properties(BuildInc PROPERTIES FOLDER libs/tools)
+set_target_properties(BuildInc PROPERTIES FOLDER Lumo_Libs/tools)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
@@ -230,7 +232,7 @@ add_custom_command(
 
 if (USE_CODE_GENERATOR)
 	add_subdirectory(Generator)
-	set_target_properties(LumoCodeGenerator PROPERTIES FOLDER dev)
+	set_target_properties(LumoCodeGenerator PROPERTIES FOLDER Lumo_Z_Apps)
 endif()
 
 #############################################################

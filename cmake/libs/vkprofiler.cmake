@@ -3,7 +3,7 @@ set(VKPROFILER_LIBRARIES)
 set(VKPROFILER_LIB_DIR)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/vkProfiler)
-set_target_properties(${VKPROFILER_LIBRARIES} PROPERTIES FOLDER libs)
+set_target_properties(${VKPROFILER_LIBRARIES} PROPERTIES FOLDER Lumo_Libs)
 ##set_target_properties(${VKPROFILER_LIBRARIES} PROPERTIES LINK_FLAGS "/ignore:4244")
 
 message(STATUS "VKPROFILER_INCLUDE_DIR : ${VKPROFILER_INCLUDE_DIR}")

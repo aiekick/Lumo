@@ -6,7 +6,7 @@ set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF CACHE BOOL "")
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/SdfMesher)
 
-set_target_properties(SdfMesher PROPERTIES FOLDER Plugins)
+set_target_properties(SdfMesher PROPERTIES FOLDER Lumo_Plugins)
 
 set_target_properties(SdfMesher PROPERTIES OUTPUT_NAME "SdfMesher_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
 
