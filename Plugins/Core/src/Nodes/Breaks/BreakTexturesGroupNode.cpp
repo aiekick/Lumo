@@ -76,7 +76,15 @@ bool BreakTexturesGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 void BreakTexturesGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
+}
 
+void BreakTexturesGroupNode::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
+{
+	if (vEvent == GraphIsLoaded || 
+		vEvent == TextureGroupUpdateDone)
+	{
+		ReorganizeSlots();
+	}
 }
 
 void BreakTexturesGroupNode::SetTextures(

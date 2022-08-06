@@ -110,7 +110,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 				auto parentNodePtr = GetParentNode().getValidShared();
 				if (parentNodePtr)
 				{
-					parentNodePtr->SendFrontNotification(NotifyEvent::LightGroupUpdateDone);
+					parentNodePtr->SendFrontNotification(LightGroupUpdateDone);
 				}
 			}
 
@@ -141,7 +141,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						auto parentNodePtr = GetParentNode().getValidShared();
 						if (parentNodePtr)
 						{
-							parentNodePtr->SendFrontNotification(NotifyEvent::LightGroupUpdateDone);
+							parentNodePtr->SendFrontNotification(LightGroupUpdateDone);
 						}
 						break;
 					}
@@ -224,7 +224,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 			auto parentNodePtr = GetParentNode().getValidShared();
 			if (parentNodePtr)
 			{
-				parentNodePtr->SendFrontNotification(NotifyEvent::LightGroupUpdateDone);
+				parentNodePtr->SendFrontNotification(LightGroupUpdateDone);
 			}
 		}
 	}
@@ -245,7 +245,7 @@ void LightGroupModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 				auto parentNodePtr = GetParentNode().getValidShared();
 				if (parentNodePtr)
 				{
-					parentNodePtr->SendFrontNotification(NotifyEvent::LightGroupUpdateDone);
+					parentNodePtr->SendFrontNotification(LightGroupUpdateDone);
 				}
 			}
 		}

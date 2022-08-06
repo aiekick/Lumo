@@ -327,23 +327,6 @@ layout(std140, binding = 2) uniform UBO_Frag
 
 layout(binding = 3) uniform sampler2D sampler_matcap;
 
-vec2 getMatCap(vec3 pos, vec3 nor)
-{
-	mat4 modelViewMatrix = view * model;
-	mat4 normalMatrix = transpose(inverse(modelViewMatrix));
-	vec4 pp = modelViewMatrix * vec4(pos, 1. );
-	vec4 nn = normalMatrix * vec4(nor, 0.);
-	vec3 rd = normalize( pp.xyz );
-	vec3 n = normalize( nn.xyz );
-	vec3 r = reflect(rd, n);
-	float m = 2. * sqrt(
-		pow( r.x, 2. ) +
-		pow( r.y, 2. ) +
-		pow( r.z + 1., 2. )
-	);
-	return r.xy / m + .5;
-}
-
 void main() 
 {
 	fragColor = vec4(0);
@@ -357,7 +340,6 @@ void main()
 		}
 
 		vec2 tn = matcapNormal2D;
-		tn = getMatCap(vertPosition, vertice_normal);
 		fragColor = texture(sampler_matcap, tn);
 		fragColor.a = 1.0;
 	}

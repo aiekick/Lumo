@@ -87,7 +87,7 @@ bool MathNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 	{
 		res = m_MathModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 
-		SendFrontNotification(NotifyEvent::TextureUpdateDone);
+		SendFrontNotification(TextureUpdateDone);
 	}
 	
 	return res;
@@ -170,7 +170,7 @@ vk::DescriptorImageInfo* MathNode::GetDescriptorImageInfo(const uint32_t& vBindi
 
 void MathNode::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
-	if (vEvent == NotifyEvent::GraphIsLoaded)
+	if (vEvent == GraphIsLoaded)
 	{
 		ReorganizeSlots();
 	}

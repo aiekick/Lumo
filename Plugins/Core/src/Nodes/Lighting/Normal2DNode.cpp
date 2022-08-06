@@ -71,7 +71,7 @@ bool Normal2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 	{
 		res = m_Normal2DModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 
-		//SendFrontNotification(NotifyEvent::TextureUpdateDone);
+		//SendFrontNotification(TextureUpdateDone);
 	}
 
 	return res;

@@ -193,7 +193,7 @@ void Texture2DModule::LoadTexture2D(const std::string& vFilePathName)
 		auto parentNodePtr = GetParentNode().getValidShared();
 		if (parentNodePtr)
 		{
-			parentNodePtr->SendFrontNotification(NotifyEvent::TextureUpdateDone);
+			parentNodePtr->SendFrontNotification(TextureUpdateDone);
 		}
 	}
 }

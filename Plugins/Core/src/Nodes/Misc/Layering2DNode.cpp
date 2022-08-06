@@ -72,7 +72,7 @@ bool Layering2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	{
 		res = m_Layering2DModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 
-		//SendFrontNotification(NotifyEvent::TextureUpdateDone);
+		//SendFrontNotification(TextureUpdateDone);
 	}
 
 	return res;

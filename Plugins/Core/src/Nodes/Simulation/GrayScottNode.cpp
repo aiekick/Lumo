@@ -72,7 +72,7 @@ bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 	{
 		res = m_GrayScottModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 
-		//SendFrontNotification(NotifyEvent::TextureUpdateDone);
+		//SendFrontNotification(TextureUpdateDone);
 	}
 
 	return res;

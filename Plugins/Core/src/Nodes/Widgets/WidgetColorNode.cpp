@@ -72,7 +72,7 @@ bool WidgetColorNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	{
 		auto res = m_WidgetColorModule->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 
-		SendFrontNotification(NotifyEvent::TextureUpdateDone);
+		SendFrontNotification(TextureUpdateDone);
 
 		return res;
 	}
