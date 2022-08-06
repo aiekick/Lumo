@@ -127,7 +127,7 @@ void NodeSlotLightGroupOutput::Unit()
 
 void NodeSlotLightGroupOutput::SendFrontNotification(const NotifyEvent& vEvent)
 {
-	if (vEvent == NotifyEvent::LightGroupUpdateDone)
+	if (vEvent == LightGroupUpdateDone)
 	{
 		SendNotification("LIGHT_GROUP", vEvent);
 	}

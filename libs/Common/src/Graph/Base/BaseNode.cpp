@@ -255,7 +255,7 @@ void BaseNode::FinalizeGraphLoading()
 		auto nodePtr = child.second;
 		if (nodePtr)
 		{
-			nodePtr->TreatNotification(NotifyEvent::GraphIsLoaded);
+			nodePtr->TreatNotification(GraphIsLoaded);
 		}
 	}
 }
@@ -1388,7 +1388,7 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 							}
 							else if (startSlotPtr->slotPlace == endSlotPtr->slotPlace)
 							{
-								showLabel("x Incompatible Slot Kind", ImColor(45, 32, 32, 180));
+								showLabel("x Incompatible Slot Kind", ImColor(45, 32, 32, 180)); //-V112
 								nd::RejectNewItem(ImColor(255, 0, 0), 2.0f);
 							}
 							/*else if (endSlot->parentNode == startSlot->parentNode) // desactivé pour les self connect en compute et fragment effect
@@ -1399,12 +1399,12 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 							else if (!startSlotPtr->CanWeConnectToSlot(endSlot) || 
 								!endSlotPtr->CanWeConnectToSlot(startSlot)) // si un des deux est pas d'accord pour ken on ce barre
 							{
-								showLabel("x Incompatible Slot Type", ImColor(45, 32, 32, 180));
+								showLabel("x Incompatible Slot Type", ImColor(45, 32, 32, 180)); //-V112
 								nd::RejectNewItem(ImColor(255, 128, 128), 1.0f);
 							}
 							else
 							{
-								showLabel("+ Create Link", ImColor(32, 45, 32, 180));
+								showLabel("+ Create Link", ImColor(32, 45, 32, 180)); //-V112
 								if (nd::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
 								{
 									ConnectSlots(startSlotPtr, endSlotPtr);
@@ -1426,7 +1426,7 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 				auto newLinkSlotPtr = newNodeLinkSlot.lock();
 				if (newLinkSlotPtr)
 				{
-					showLabel("Add node", ImColor(32, 45, 32, 180));
+					showLabel("Add node", ImColor(32, 45, 32, 180)); //-V112
 				}
 			}
 

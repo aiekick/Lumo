@@ -145,7 +145,7 @@ void NodeSlotStorageBufferOutput::Unit()
 
 void NodeSlotStorageBufferOutput::SendFrontNotification(const NotifyEvent& vEvent)
 {
-	if (vEvent == NotifyEvent::StorageBufferUpdateDone)
+	if (vEvent == StorageBufferUpdateDone)
 	{
 		SendNotification(slotType, vEvent);
 	}

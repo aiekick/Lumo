@@ -187,7 +187,7 @@ void NodeSlotStorageBufferInput::TreatNotification(
 	const NodeSlotWeak& vEmitterSlot,
 	const NodeSlotWeak& vReceiverSlot)
 {
-	if (vEvent == NotifyEvent::StorageBufferUpdateDone)
+	if (vEvent == StorageBufferUpdateDone)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)

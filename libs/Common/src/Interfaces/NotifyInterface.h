@@ -16,45 +16,43 @@ limitations under the License.
 
 #pragma once
 
+#include <string>
 #include <Graph/Graph.h>
 
-enum class NotifyEvent
-{
-	// need to update the model
-	ModelUpdateDone = 0,
-	// need to update the texture
-	TextureUpdateDone,
-	// need to update the texel buffer
-	TexelBufferUpdateDone,
-	// need to update the texel buffer group
-	TexelBufferGroupUpdateDone,
-	// need to update the texture group
-	TextureGroupUpdateDone,
-	// need to update the light
-	LightGroupUpdateDone,
-	// need to update the variable
-	VariableUpdateDone,
-	// need to update the accel structure
-	AccelStructureUpdateDone,
-	// need to update the storage buffer
-	StorageBufferUpdateDone,
-	// the node link is breked
-	NodeLinkIsBreaked,
-	// some task was updated
-	SomeTasksWasUpdated,
-	// graph loaded (so after all is finalized)
-	GraphIsLoaded,
-	// a new frame is available
-	NewFrameAvailable,
-	// count of notification message
-	CountEvents
-};
+// NotifyEvent : need to update the model
+#define ModelUpdateDone "ModelUpdateDone"
+// NotifyEvent : need to update the texture
+#define TextureUpdateDone "TextureUpdateDone"
+// NotifyEvent : need to update the texel buffer
+#define TexelBufferUpdateDone "TexelBufferUpdateDone"
+// NotifyEvent : need to update the texel buffer group
+#define TexelBufferGroupUpdateDone "TexelBufferGroupUpdateDone"
+// NotifyEvent : need to update the texture group
+#define TextureGroupUpdateDone "TextureGroupUpdateDone"
+// NotifyEvent : need to update the light
+#define LightGroupUpdateDone "LightGroupUpdateDone"
+// NotifyEvent : need to update the variable
+#define VariableUpdateDone "VariableUpdateDone"
+// NotifyEvent : need to update the storage buffer
+#define StorageBufferUpdateDone "StorageBufferUpdateDone"
+// NotifyEvent : the node link is breked
+#define NodeLinkIsBreaked "NodeLinkIsBreaked"
+// NotifyEvent : some task was updated
+#define SomeTasksWasUpdated "SomeTasksWasUpdated"
+// NotifyEvent : graph loaded (so after all is finalized)
+#define GraphIsLoaded "GraphIsLoaded"
+// NotifyEvent : a new frame is available
+#define NewFrameAvailable "NewFrameAvailable"
+// NotifyEvent : count of notification message
+#define CountEvents "CountEvents"
+
+typedef std::string NotifyEvent;
 
 class NotifyInterface
 {
 public:
 	virtual void Notify(
-		const NotifyEvent& vEvent, 
+		NotifyEvent vEvent, 
 		const NodeSlotWeak& vEmitterSlot, 
 		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) = 0;
 };

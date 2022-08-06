@@ -184,7 +184,7 @@ void NodeSlotTextureInput::TreatNotification(
 	const NodeSlotWeak& vEmitterSlot,
 	const NodeSlotWeak& vReceiverSlot)
 {
-	if (vEvent == NotifyEvent::TextureUpdateDone)
+	if (vEvent == TextureUpdateDone)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)

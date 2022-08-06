@@ -145,7 +145,7 @@ void NodeSlotTexelBufferOutput::Unit()
 
 void NodeSlotTexelBufferOutput::SendFrontNotification(const NotifyEvent& vEvent)
 {
-	if (vEvent == NotifyEvent::TexelBufferUpdateDone)
+	if (vEvent == TexelBufferUpdateDone)
 	{
 		SendNotification(slotType, vEvent);
 	}

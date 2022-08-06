@@ -192,7 +192,7 @@ void NodeSlotVariableInput::TreatNotification(
 	const NodeSlotWeak& vEmitterSlot,
 	const NodeSlotWeak& vReceiverSlot)
 {
-	if (vEvent == NotifyEvent::VariableUpdateDone)
+	if (vEvent == VariableUpdateDone)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)

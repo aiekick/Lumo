@@ -127,7 +127,7 @@ void NodeSlotModelOutput::Unit()
 
 void NodeSlotModelOutput::SendFrontNotification(const NotifyEvent& vEvent)
 {
-	if (vEvent == NotifyEvent::ModelUpdateDone)
+	if (vEvent == ModelUpdateDone)
 	{
 		SendNotification("MESH", vEvent);
 	}

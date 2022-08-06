@@ -167,7 +167,7 @@ void NodeSlotModelInput::TreatNotification(
 	const NodeSlotWeak& vEmitterSlot,
 	const NodeSlotWeak& vReceiverSlot)
 {
-	if (vEvent == NotifyEvent::ModelUpdateDone)
+	if (vEvent == ModelUpdateDone)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)

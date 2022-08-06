@@ -127,7 +127,7 @@ void NodeSlotTextureGroupOutput::Unit()
 
 void NodeSlotTextureGroupOutput::SendFrontNotification(const NotifyEvent& vEvent)
 {
-	if (vEvent == NotifyEvent::TextureGroupUpdateDone)
+	if (vEvent == TextureGroupUpdateDone)
 	{
 		SendNotification("TEXTURE_2D_GROUP", vEvent);
 	}

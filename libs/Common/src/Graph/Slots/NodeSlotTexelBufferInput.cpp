@@ -190,7 +190,7 @@ void NodeSlotTexelBufferInput::TreatNotification(
 	const NodeSlotWeak& vEmitterSlot,
 	const NodeSlotWeak& vReceiverSlot)
 {
-	if (vEvent == NotifyEvent::TexelBufferUpdateDone)
+	if (vEvent == TexelBufferUpdateDone)
 	{
 		auto emiterSlotPtr = vEmitterSlot.getValidShared();
 		if (emiterSlotPtr)

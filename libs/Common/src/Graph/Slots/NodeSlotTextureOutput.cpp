@@ -130,7 +130,7 @@ void NodeSlotTextureOutput::Unit()
 
 void NodeSlotTextureOutput::SendFrontNotification(const NotifyEvent& vEvent)
 {
-	if (vEvent == NotifyEvent::TextureUpdateDone)
+	if (vEvent == TextureUpdateDone)
 	{
 		SendNotification("TEXTURE_2D", vEvent);
 	}

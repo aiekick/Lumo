@@ -146,7 +146,7 @@ void NodeSlotVariableOutput::Unit()
 
 void NodeSlotVariableOutput::SendFrontNotification(const NotifyEvent& vEvent)
 {
-	if (vEvent == NotifyEvent::VariableUpdateDone)
+	if (vEvent == VariableUpdateDone)
 	{
 		if (SceneVariable::IsAllowedType(slotType))
 		{
