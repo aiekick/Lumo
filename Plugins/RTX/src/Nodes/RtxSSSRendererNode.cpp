@@ -18,7 +18,7 @@ limitations under the License.
 #include <Modules/RtxSSSRenderer.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
-#include <Graph/Slots/NodeSlotAccelStructureInput.h>
+#include <Slots/NodeSlotAccelStructureInput.h>
 #include <Graph/Slots/NodeSlotLightGroupInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 

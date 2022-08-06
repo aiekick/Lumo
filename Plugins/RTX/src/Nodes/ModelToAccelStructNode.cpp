@@ -15,9 +15,11 @@ limitations under the License.
 */
 
 #include "ModelToAccelStructNode.h"
+#include <Headers/RTXCommon.h>
+
 #include <Interfaces/ModelOutputInterface.h>
 #include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotAccelStructureOutput.h>
+#include <Slots/NodeSlotAccelStructureOutput.h>
 
 std::shared_ptr<ModelToAccelStructNode> ModelToAccelStructNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -89,7 +91,7 @@ void ModelToAccelStructNode::SetModel(SceneModelWeak vSceneModel)
 		m_SceneAccelStructurePtr->BuildForModel(m_SceneModel);
 		if (m_SceneAccelStructurePtr->IsOk())
 		{
-			SendFrontNotification(NotifyEvent::AccelStructureUpdateDone);
+			SendFrontNotification(AccelStructureUpdateDone);
 		}
 	}
 }
