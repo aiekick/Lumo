@@ -52,9 +52,6 @@ limitations under the License.
 void UserNodeLibrary::AnalyseRootDirectory()
 {
 	AnalyseRootDirectoryRecurs(LIBRARY_EFECT_ROOT_PATH, 0, &m_RootLibraryCategory);
-
-	//m_RootLibraryCategory.AddCustom("Outputs", "Output 3D", "OUTPUT_3D");
-	//m_RootLibraryCategory.AddCustom("Outputs", "Output 2D", "OUTPUT_2D");
 		
 	// les plugins
 	auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();
@@ -95,7 +92,7 @@ BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeS
 			auto createdNodePtr = createdNode.getValidShared();
 			if (createdNodePtr)
 			{
-				createdNodePtr->TreatNotification(NotifyEvent::GraphIsLoaded);
+				createdNodePtr->TreatNotification(GraphIsLoaded);
 			}
 		}
 

@@ -55,12 +55,14 @@ at least, support all rendering features and result of the SketchFab Renderer
 - [ ] VR
 - [ ] Particles System
 
-# Nodes :
+# Plugin Nodes :
+
+## Core Plugin :
 
 - [X] Assets / Mesh Node 
 - [X] Assets / Texture 2D Node 
 - [X] Breaks / Break Texture 2D Group Node
-- [X] Divers / Grid / Axis Node
+- [X] Differential Operators / Laplacian Node
 - [ ] Lighting / Attenuation Node
 - [X] Lighting / Diffuse Node
 - [X] Lighting / Light Group Node
@@ -69,25 +71,52 @@ at least, support all rendering features and result of the SketchFab Renderer
 - [ ] Lighting / RoughNess Node
 - [X] Lighting / Shadow Mappings Node
 - [X] Lighting / Specular Node
+- [X] Misc / Grid / Axis Node
+- [X] Misc / 2D Layering
 - [X] Modifiers / Smooth Normals Node
-- [X] Outputs / Output 2D Node
-- [X] Outputs / Output 3D Node
-- [X] Postpro / Blur Node
-- [X] Postpro / Laplacian Node
+- [X] Postpro / Blur Node (WIP)
 - [X] Postpro / SSAO Node
 - [X] Postpro / Tone Map Node
 - [X] Renderers / Channels Renderer Node
-- [X] Renderers / Deferred Renderer Node
+- [X] Renderers / Deferred Renderer Node (WIP)
 - [X] Renderers / Heatmap Renderer Node
 - [X] Renderers / Matcap Renderer Node
-- [ ] Renderers / PBR Renderer Node
-- [ ] Simulation / GrayScott Node
+- [ ] Renderers / PBR Renderer Node (WIP)
+- [X] Simulation / GrayScott Node
 - [X] Utils / Depth To Pos Node
 - [X] Utils / Math Node (add, sub, mul, smoothstep, step, etc..)
 - [X] Utils / Mesh Attributes Node
 - [X] Utils / Pos To Depth Node
 - [X] Widgets / Color Node
 - [X] Widgets / Variable Node
+
+## RTX Plugin :
+
+- [X] Builders / Model to Accel Structure Node (Accel Structure Builder)
+- [X] Renderers / PBR Node (WIP)
+- [X] Renderers / SSS Node (WIP)
+
+## Particles Plugin :
+
+- [X] Emitters / Mesh Emitter Node (WIP)
+- [ ] Emitters / Mesh Fur Node (WIP)
+- [X] Primitives / Fibonacci Ball Node (WIP)
+- [ ] Renderers / Billboard Renderer Node (WIP)
+- [X] Renderers / Point Renderer Node (WIP)
+- [ ] Renderers / Mesh Fur Renderer Node (WIP)
+- [X] Simulation / Simulation Node (WIP)
+- [ ] Simulation / Mesh Fur Simulation Node (WIP)
+- [ ] Constraints / Force Node
+
+# Gettings Started 
+
+- Create a new project (automatically saved when you quit the soft for the moment for easier dev)
+- Click right in the graph and add nodes.
+- Left mouse double click on a texture slot (Orange) of nodes for show the result in the 3d viewport
+- Middle mouse double click on a texture slot (Orange) of nodes for show the result in the 2d viewport
+- select a node and you can tune it in the tuning pane
+
+thats all
 
 # ScreenShots
 

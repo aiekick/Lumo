@@ -24,7 +24,6 @@ limitations under the License.
 #include <unordered_map>
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
-#include <Graph/Base/NodeSlot.h>
 #include <Graph/Library/LibraryCategory.h>
 
 class UserNodeLibrary
