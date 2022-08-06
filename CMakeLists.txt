@@ -8,6 +8,7 @@ project(${PROJECT} CXX)
 
 option(USE_PLUGINS "Enable the plugins building" OFF)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
+option(USE_VR "Enable VR Backend via OpenXR" OFF)
 
 if (USE_PLUGINS)
 	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easier dev" OFF)
@@ -205,11 +206,13 @@ target_include_directories(${PROJECT} PRIVATE
 	${IMGUIFILEDIALOG_INCLUDE_DIR}
 	${IMGUI_NODE_EDITOR_INCLUDE_DIR}
 	${COMMON_INCLUDE_DIR}
+	${OPENXR_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT} PRIVATE
 	${COMMON_LIBRARIES}
 	${PROJECT_PLUGINS}
+	${OPENXR_LIBRARIES}
 )
 
 ########################################################

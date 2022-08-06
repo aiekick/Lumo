@@ -52,17 +52,17 @@ static std::vector<const char*> getRequiredExtensions()
 namespace vkApi
 {
 
-	VulkanWindowPtr VulkanWindow::Create(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen)
+	VulkanWindowPtr VulkanWindow::Create(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen, const bool& vDecorated)
 	{
 		auto res = std::make_shared<VulkanWindow>();
-		if (!res->Init(vWidth, vHeight, vName, vOffScreen))
+		if (!res->Init(vWidth, vHeight, vName, vOffScreen, vDecorated))
 		{
 			res.reset();
 		}
 		return res;
 	}
 
-	bool VulkanWindow::Init(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen)
+	bool VulkanWindow::Init(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen, const bool& vDecorated)
 	{
 		ZoneScoped;
 
@@ -78,6 +78,10 @@ namespace vkApi
 		if (vOffScreen)
 		{
 			glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+		}
+		else if (!vDecorated)
+		{
+			glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 		}
 
 		m_Window = glfwCreateWindow(vWidth, vHeight, vName.c_str(), NULL, NULL);

@@ -21,3 +21,4 @@ git submodule add --force -b "master" https://github.com/assimp/assimp 3rdparty/
 git submodule add --force -b "master" https://github.com/madler/zlib.git 3rdparty/zlib
 git submodule add --force -b "master" https://github.com/taskflow/taskflow 3rdparty/taskflow
 git submodule add --force -b "master" https://github.com/aiekick/buildinc.git 3rdparty/BuildInc
+git submodule add --force -b "master" https://github.com/aiekick/OpenXR-SDK-Source.git 3rdparty/OpenXR_SDK

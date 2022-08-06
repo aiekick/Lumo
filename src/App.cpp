@@ -98,6 +98,7 @@ int App::Run(const std::string& vAppPath)
 	m_VulkanWindowPtr = vkApi::VulkanWindow::Create(WIDTH, HEIGHT, PROJECT_NAME " beta", false);
 	if (m_VulkanWindowPtr)
 	{
+
 		const auto& main_window = m_VulkanWindowPtr->getWindowPtr();
 		if (Init(main_window))
 		{
@@ -227,8 +228,8 @@ void App::MainLoop(GLFWwindow* vWindow)
 		ZoneScoped;
 
 		// maintain active, prevent user change via imgui dialog
-		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
-		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Viewport
+		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
+		ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable; // Disable Viewport
 
 		glfwPollEvents();
 
@@ -273,6 +274,8 @@ void App::MainLoop(GLFWwindow* vWindow)
 		MainFrame::Instance()->PostRenderingActions();
 
 		++m_CurrentFrame;
+
+		glfwWaitEvents();
 	}
 }
 

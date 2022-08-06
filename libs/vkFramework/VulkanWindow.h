@@ -26,7 +26,7 @@ namespace vkApi
 	class VulkanWindow
 	{
 	public:
-		static VulkanWindowPtr Create(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen);
+		static VulkanWindowPtr Create(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen, const bool& vDecorated = true);
 
 	private:
 		std::string m_Name;
@@ -34,7 +34,7 @@ namespace vkApi
 		std::vector<const char*> m_VKInstanceExtension;
 
 	public:
-		bool Init(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen);
+		bool Init(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen, const bool& vDecorated = true);
 		void Unit();
 
 		ct::ivec2 getFrameBufferResolution() const;

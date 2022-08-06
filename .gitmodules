@@ -130,3 +130,7 @@
 	path = Generator/3rdparty/ImGuiFileDialog
 	url = https://github.com/aiekick/ImGuiFileDialog.git
 	branch = Lib_Only
+[submodule "3rdparty/OpenXR_SDK"]
+	path = 3rdparty/OpenXR_SDK
+	url = https://github.com/aiekick/OpenXR-SDK-Source.git
+	branch = master
