@@ -191,11 +191,7 @@ SceneParticles::SceneParticles(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 SceneParticles::~SceneParticles()
 {
-	m_ParticlesDatasBufferPtr.reset();
-	m_AliveParticlesPreSimBufferPtr.reset();
-	m_AliveParticlesPostSimBufferPtr.reset();
-	m_DeadParticlesBufferPtr.reset();
-	m_CountersBufferPtr.reset();
+	Destroy();
 }
 
 ///////////////////////////////////////////////////////
@@ -234,13 +230,32 @@ bool SceneParticles::Build(const uint32_t& vPaticlesMaxCount)
 		}
 	}
 
-	m_ParticlesDatasBufferPtr->DestroyBuffer();
-	m_AliveParticlesPreSimBufferPtr->DestroyBuffer();
-	m_AliveParticlesPostSimBufferPtr->DestroyBuffer();
-	m_DeadParticlesBufferPtr->DestroyBuffer();
-	m_CountersBufferPtr->DestroyBuffer();
+	DestroyBuffers();
 
 	return false;
+}
+
+void SceneParticles::Destroy()
+{
+	m_ParticlesDatasBufferPtr.reset();
+	m_AliveParticlesPreSimBufferPtr.reset();
+	m_AliveParticlesPostSimBufferPtr.reset();
+	m_DeadParticlesBufferPtr.reset();
+	m_CountersBufferPtr.reset();
+}
+
+void SceneParticles::DestroyBuffers()
+{
+	if (m_ParticlesDatasBufferPtr)
+		m_ParticlesDatasBufferPtr->DestroyBuffer();
+	if (m_AliveParticlesPreSimBufferPtr)
+		m_AliveParticlesPreSimBufferPtr->DestroyBuffer();
+	if (m_AliveParticlesPostSimBufferPtr)
+		m_AliveParticlesPostSimBufferPtr->DestroyBuffer();
+	if (m_DeadParticlesBufferPtr)
+		m_DeadParticlesBufferPtr->DestroyBuffer();
+	if (m_CountersBufferPtr)
+		m_CountersBufferPtr->DestroyBuffer();
 }
 
 GpuOnlyStorageBufferWeak SceneParticles::GetParticlesDatasBuffer()

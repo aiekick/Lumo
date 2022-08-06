@@ -43,7 +43,7 @@ public:
 	bool CreateBuffer(
 		const uint32_t& vDatasSizeInBytes, 
 		const uint32_t& vDatasCount, 
-		const VmaMemoryUsage& vVmaMemoryUsage = VMA_MEMORY_USAGE_CPU_ONLY);
+		const VmaMemoryUsage& vVmaMemoryUsage = VMA_MEMORY_USAGE_GPU_ONLY);
 
 	VulkanBufferObjectPtr GetBufferObjectPtr();
 	vk::DescriptorBufferInfo* GetBufferInfo();

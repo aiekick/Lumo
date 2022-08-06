@@ -72,7 +72,8 @@ void ParticlesPointRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, 
 			if (vertexInputBufferPtr)
 			{
 				auto counters = particlesPtr->GetCountersFromGPU(); // read data from gpu to cpu, so dont abuse from this call
-				if (counters && counters->alive_post_sim_counter)
+				if (counters && 
+					counters->alive_post_sim_counter)
 				{
 					vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
 					{

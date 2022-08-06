@@ -116,6 +116,8 @@ public:
 
 	bool Build(const uint32_t& vPaticlesMaxCount);
 
+	void DestroyBuffers();
+
 	GpuOnlyStorageBufferWeak GetParticlesDatasBuffer();
 	GpuOnlyStorageBufferWeak GetAliveParticlesPreSimBuffer();
 	GpuOnlyStorageBufferWeak GetAliveParticlesPostSimBuffer();
@@ -141,4 +143,7 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	CounterStruct* GetCountersFromGPU();
+
+private:
+	void Destroy();
 };

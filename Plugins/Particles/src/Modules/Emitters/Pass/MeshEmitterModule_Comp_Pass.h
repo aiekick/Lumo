@@ -62,7 +62,7 @@ private:
 
 	struct UBOComp 
 	{
-		alignas(4) uint32_t max_particles_count = 0U;
+		alignas(4) uint32_t max_particles_count = 100000U; // 100K by default
 		alignas(4) uint32_t current_particles_count = 0U;
 		alignas(4) uint32_t current_vertexs_count = 0U;
 		alignas(4) float reset = 0.0f;

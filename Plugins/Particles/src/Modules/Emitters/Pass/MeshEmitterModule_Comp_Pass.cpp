@@ -90,7 +90,7 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 		change_ubo = true;
 	}
 
-	model_ubo |= ImGui::SliderUIntDefaultCompact(0.0f, "Max particles count", &m_UBOComp.max_particles_count, 1000, 1000000, 10000);
+	model_ubo |= ImGui::SliderUIntDefaultCompact(0.0f, "Max particles count", &m_UBOComp.max_particles_count, 1000U, 1000000U, 100000U);
 	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn mass", &m_UBOComp.spawn_mass, 0.1f, 1.0f, 0.5f);
 	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn rate", &m_UBOComp.spawn_rate, 0.1f, 1.0f, 0.5f);
 	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn min life", &m_UBOComp.base_min_life, 0.1f, 10.0f, 1.0f);
@@ -129,7 +129,7 @@ void MeshEmitterModule_Comp_Pass::SetModel(SceneModelWeak vSceneModel)
 	auto modelPtr = m_SceneModel.getValidShared();
 	if (modelPtr && !modelPtr->empty())
 	{
-		// only take the first messh
+		// only take the first mesh
 		m_InputMesh = modelPtr->Get(0);
 	}
 	else
@@ -191,16 +191,21 @@ bool MeshEmitterModule_Comp_Pass::BuildModel()
 {
 	ZoneScoped;
 
-	auto meshPtr = m_InputMesh.getValidShared();
-	if (meshPtr && m_ParticlesPtr)
+	if (m_ParticlesPtr)
 	{
-		m_UBOComp.current_vertexs_count = meshPtr->GetVerticesCount();
-		NeedNewUBOUpload();
+		m_ParticlesPtr->DestroyBuffers();
 
-		if (m_ParticlesPtr->Build(m_UBOComp.max_particles_count))
+		auto meshPtr = m_InputMesh.getValidShared();
+		if (meshPtr)
 		{
-			SetDispatchSize1D(m_UBOComp.current_vertexs_count);
-		}		
+			m_UBOComp.current_vertexs_count = meshPtr->GetVerticesCount();
+			NeedNewUBOUpload();
+
+			if (m_ParticlesPtr->Build(m_UBOComp.max_particles_count))
+			{
+				SetDispatchSize1D(m_UBOComp.current_vertexs_count);
+			}
+		}
 	}
 	
 	return true;
@@ -216,7 +221,8 @@ bool MeshEmitterModule_Comp_Pass::CreateUBO()
 	ZoneScoped;
 
 	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
-	if (m_UBOCompPtr && m_UBOCompPtr->buffer)
+	if (m_UBOCompPtr && 
+		m_UBOCompPtr->buffer)
 	{
 		m_DescriptorBufferInfo_Comp.buffer = m_UBOCompPtr->buffer;
 		m_DescriptorBufferInfo_Comp.offset = 0;
