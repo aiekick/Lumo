@@ -50,6 +50,9 @@ namespace fs = std::filesystem;
 #ifdef USE_PLUGIN_SMOKE
 #include <Smoke.h>
 #endif
+#ifdef USE_PLUGIN_VR
+#include <VR.h>
+#endif
 #endif // USE_PLUGIN_STATIC_LINKING
 
 //////////////////////////////////////////////////////////////////////////////
@@ -237,6 +240,9 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #endif
 #ifdef USE_PLUGIN_SMOKE
 	AddPlugin("Smoke", std::make_shared<Smoke>(), vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_VR
+	AddPlugin("VR", std::make_shared<VR>(), vVulkanCoreWeak);
 #endif
 #endif // USE_PLUGIN_STATIC_LINKING
 }

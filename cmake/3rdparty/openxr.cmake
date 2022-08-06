@@ -16,6 +16,8 @@ if (USE_OPENGL)
 	set(Vulkan_GLSLC_EXECUTABLE "" CACHE STRING "" FORCE)
 	set(Vulkan_INCLUDE_DIR "" CACHE STRING "" FORCE)
 	set(Vulkan_LIBRARY "" CACHE STRING "" FORCE)
+else()
+
 endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/OpenXR_SDK EXCLUDE_FROM_ALL)

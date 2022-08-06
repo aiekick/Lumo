@@ -39,3 +39,8 @@ if(USE_PLUGIN_SMOKE)
 	include(cmake/plugins/Smoke.cmake)
 	add_definitions(-DUSE_PLUGIN_SMOKE)
 endif()
+
+if(USE_PLUGIN_VR)
+	include(cmake/plugins/VR.cmake)
+	add_definitions(-DUSE_PLUGIN_VR)
+endif()

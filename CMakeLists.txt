@@ -6,9 +6,10 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
+add_definitions(-DPROJECT_NAME="Lumo")
+
 option(USE_PLUGINS "Enable the plugins building" OFF)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
-option(USE_VR "Enable VR Backend via OpenXR" OFF)
 
 if (USE_PLUGINS)
 	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easier dev" OFF)
@@ -20,6 +21,7 @@ if (USE_PLUGINS)
 	option(USE_PLUGIN_RTX "Enable the plugin RTX" OFF)
 	option(USE_PLUGIN_PARTICLES "Enable the plugin Particles" OFF)
 	option(USE_PLUGIN_SMOKE "Enable the plugin Smoke" OFF)
+	option(USE_PLUGIN_VR "Enable VR Backend via OpenXR" OFF)
 else()
 	set(USE_PLUGIN_CORE OFF CACHE BOOL "" FORCE)
 	set(USE_PLUGIN_MESH_SIM OFF CACHE BOOL "" FORCE)
@@ -29,6 +31,7 @@ else()
 	set(USE_PLUGIN_RTX OFF CACHE BOOL "" FORCE)
 	set(USE_PLUGIN_PARTICLES OFF CACHE BOOL "" FORCE)
 	set(USE_PLUGIN_SMOKE OFF CACHE BOOL "" FORCE)
+	set(USE_PLUGIN_VR OFF CACHE BOOL "" FORCE)
 endif()
 
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
