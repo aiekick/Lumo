@@ -204,6 +204,12 @@ bool MeshEmitterModule_Comp_Pass::BuildModel()
 			if (m_ParticlesPtr->Build(m_UBOComp.max_particles_count))
 			{
 				SetDispatchSize1D(m_UBOComp.current_vertexs_count);
+
+				auto parentNodePtr = GetParentNode().getValidShared();
+				if (parentNodePtr)
+				{
+					parentNodePtr->SendFrontNotification(ParticlesUpdateDone);
+				}
 			}
 		}
 	}

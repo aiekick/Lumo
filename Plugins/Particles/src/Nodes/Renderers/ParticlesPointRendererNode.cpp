@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "ParticlesPointRendererNode.h"
 #include <Modules/Renderers/ParticlesPointRenderer.h>
-#include <Graph/Slots/NodeSlotTexelBufferInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <Slots/NodeSlotParticlesInput.h>
 
 std::shared_ptr<ParticlesPointRendererNode> ParticlesPointRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -44,7 +44,7 @@ bool ParticlesPointRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Point Renderer";
 
-	AddInput(NodeSlotTexelBufferInput::Create("Particles", "PARTICLES"), true, true);
+	AddInput(NodeSlotParticlesInput::Create("Particles"), true, true);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true);
 
 	bool res = false;

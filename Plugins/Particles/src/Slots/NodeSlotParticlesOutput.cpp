@@ -130,7 +130,7 @@ void NodeSlotParticlesOutput::SendFrontNotification(const NotifyEvent& vEvent)
 {
 	if (vEvent == ParticlesUpdateDone)
 	{
-		SendNotification("PARTICLES", vEvent);
+		SendNotification(ParticlesUpdateDone, vEvent);
 	}
 }
 

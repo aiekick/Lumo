@@ -337,7 +337,7 @@ vk::Buffer* SceneParticles::GetAliveParticlesPostSimVertexInputBuffer()
 {
 	if (m_AliveParticlesPostSimBufferPtr)
 	{
-		m_AliveParticlesPostSimBufferPtr->GetVulkanBuffer();
+		return m_AliveParticlesPostSimBufferPtr->GetVulkanBuffer();
 	}
 
 	return nullptr;

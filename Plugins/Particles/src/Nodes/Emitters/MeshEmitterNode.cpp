@@ -16,10 +16,8 @@ limitations under the License.
 
 #include "MeshEmitterNode.h"
 #include <Modules/Emitters/MeshEmitterModule.h>
-#include <Interfaces/LightGroupOutputInterface.h>
-#include <Interfaces/ModelOutputInterface.h>
 #include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotTexelBufferOutput.h>
+#include <Slots/NodeSlotParticlesOutput.h>
 
 std::shared_ptr<MeshEmitterNode> MeshEmitterNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -53,7 +51,7 @@ bool MeshEmitterNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Mesh Emitter";
 
 	AddInput(NodeSlotModelInput::Create("Model"), true, true);
-	AddOutput(NodeSlotTexelBufferOutput::Create("Particles", "PARTICLES"), true, true);
+	AddOutput(NodeSlotParticlesOutput::Create("Particles"), true, true);
 
 	m_MeshEmitterModulePtr = MeshEmitterModule::Create(vVulkanCorePtr, m_This);
 	if (m_MeshEmitterModulePtr)
