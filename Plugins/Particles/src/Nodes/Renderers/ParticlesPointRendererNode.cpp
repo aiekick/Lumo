@@ -44,7 +44,7 @@ bool ParticlesPointRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Point Renderer";
 
-	AddInput(NodeSlotTexelBufferInput::Create("Particles", "PARTICLES"), true, false);
+	AddInput(NodeSlotTexelBufferInput::Create("Particles", "PARTICLES"), true, true);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true);
 
 	bool res = false;
@@ -77,7 +77,7 @@ bool ParticlesPointRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, v
 
 bool ParticlesPointRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ParticlesPointRenderer)
 	{
@@ -89,7 +89,7 @@ bool ParticlesPointRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGu
 
 void ParticlesPointRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ParticlesPointRenderer)
 	{
@@ -125,23 +125,13 @@ void ParticlesPointRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, co
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void ParticlesPointRendererNode::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
+void ParticlesPointRendererNode::SetParticles(SceneParticlesWeak vSceneParticles)
 {
 	ZoneScoped;
 
 	if (m_ParticlesPointRenderer)
 	{
-		m_ParticlesPointRenderer->SetTexelBuffer(vBinding, vTexelBuffer, vTexelBufferSize);
-	}
-}
-
-void ParticlesPointRendererNode::SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
-{
-	ZoneScoped;
-
-	if (m_ParticlesPointRenderer)
-	{
-		m_ParticlesPointRenderer->SetTexelBufferView(vBinding, vTexelBufferView, vTexelBufferSize);
+		m_ParticlesPointRenderer->SetParticles(vSceneParticles);
 	}
 }
 

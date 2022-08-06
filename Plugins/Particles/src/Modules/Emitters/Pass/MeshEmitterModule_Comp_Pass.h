@@ -42,35 +42,35 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/NodeInterface.h>
 #include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TexelBufferOutputInterface.h>
-#include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/ParticlesOutputInterface.h>
+
+#include <SceneGraph/SceneParticles.h>
 
 class MeshEmitterModule_Comp_Pass :
 	public ShaderPass,
 	public GuiInterface,
 	public NodeInterface,
 	public ModelInputInterface,
-	public TexelBufferOutputInterface
+	public ParticlesOutputInterface
 {
 private:
 	SceneMeshWeak m_InputMesh;
+	SceneParticlesPtr m_ParticlesPtr = nullptr;
 
-	// xyz:pos, w:life, xyz:dir, w:speed, rgba:color
-	VulkanBufferObjectPtr m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr = nullptr;
-
-	VulkanBufferObjectPtr m_UBO_Comp = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
+	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
+	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 	struct UBOComp 
 	{
-		alignas(4) uint32_t count_particles = 0U;
-		alignas(4) uint32_t count_vertexs = 0U;
-		alignas(4) uint32_t count_per_vertex = 1U;
+		alignas(4) uint32_t max_particles_count = 0U;
+		alignas(4) uint32_t current_particles_count = 0U;
+		alignas(4) uint32_t current_vertexs_count = 0U;
 		alignas(4) float reset = 0.0f;
-		alignas(4) float base_life = 1.0f;
+		alignas(4) float base_min_life = 1.0f;
+		alignas(4) float base_max_life = 1.0f;
 		alignas(4) float base_speed = 0.1f;
 		alignas(4) float spawn_rate = 0.1f;
+		alignas(4) float spawn_mass = 0.1f;
 	} 
 	m_UBOComp;
 
@@ -92,8 +92,7 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
-	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
+	SceneParticlesWeak GetParticles() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
@@ -105,6 +104,7 @@ protected:
 	void UploadUBO();
 	void DestroyUBO();
 
+	bool CanUpdateDescriptors() override;
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 

@@ -44,7 +44,7 @@ limitations under the License.
 #include <Interfaces/NodeInterface.h>
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TexelBufferOutputInterface.h>
+#include <Interfaces/ParticlesOutputInterface.h>
 
 class MeshEmitterModule_Comp_Pass;
 class MeshEmitterModule :
@@ -53,7 +53,7 @@ class MeshEmitterModule :
 	public TaskInterface,
 	public NodeInterface,
 	public ModelInputInterface,
-	public TexelBufferOutputInterface
+	public ParticlesOutputInterface
 {
 public:
 	static std::shared_ptr<MeshEmitterModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
@@ -73,8 +73,7 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
-	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
+	SceneParticlesWeak GetParticles() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

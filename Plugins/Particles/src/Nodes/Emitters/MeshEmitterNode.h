@@ -18,14 +18,14 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
-#include <Interfaces/TexelBufferOutputInterface.h>
+#include <Interfaces/ParticlesOutputInterface.h>
 
 class MeshEmitterModule;
 class MeshEmitterNode :
 	public BaseNode,
 	public ModelInputInterface,
 	public ShaderUpdateInterface,
-	public TexelBufferOutputInterface
+	public ParticlesOutputInterface
 {
 public:
 	static std::shared_ptr<MeshEmitterNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -42,8 +42,7 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
-	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
+	SceneParticlesWeak GetParticles() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 	void UpdateShaders(const std::set<std::string>& vFiles) override;

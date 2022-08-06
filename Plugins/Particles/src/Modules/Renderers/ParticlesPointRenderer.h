@@ -28,7 +28,7 @@ limitations under the License.
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/CameraInterface.h>
-#include <Interfaces/TexelBufferInputInterface.h>
+#include <Interfaces/ParticlesInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/MergedInterface.h>
@@ -41,7 +41,7 @@ class ParticlesPointRenderer :
 	public GuiInterface,
 	public TaskInterface,
 	public ResizerInterface,
-	public TexelBufferInputInterface<0U>,
+	public ParticlesInputInterface,
 	public TextureOutputInterface
 {
 public:
@@ -61,8 +61,7 @@ public:
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;
-	void SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize) override;
-	void SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize) override;
+	void SetParticles(SceneParticlesWeak vSceneParticles) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

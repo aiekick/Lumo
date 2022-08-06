@@ -11,10 +11,10 @@
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanWindow.h>
 
-#include <Nodes/Renderers/ParticlesPointRendererNode.h>
-#include <Nodes/Renderers/ParticlesBillBoardRendererNode.h>
-#include <Nodes/Simulation/ParticlesSimulationNode.h>
-#include <Nodes/Primitives/PrimitiveFibonacciNode.h>
+//#include <Nodes/Renderers/ParticlesPointRendererNode.h>
+//#include <Nodes/Renderers/ParticlesBillBoardRendererNode.h>
+//#include <Nodes/Simulation/ParticlesSimulationNode.h>
+//#include <Nodes/Primitives/PrimitiveFibonacciNode.h>
 #include <Nodes/Emitters/MeshEmitterNode.h>
 
 #ifndef USE_PLUGIN_STATIC_LINKING
@@ -86,10 +86,11 @@ std::vector<std::string> Particles::GetNodes() const
 {
 	return
 	{
-		"PARTICLES_SIMULATION",
-		"PARTICLES_POINT_RENDERER",
-		"PARTICLES_BILLBOARDS_RENDERER",
-		"PARTICLES_PRIMITIVE_FIBONACCI"
+		"PARTICLES_MESH_EMITTER",
+		//"PARTICLES_SIMULATION",
+		//"PARTICLES_POINT_RENDERER",
+		//"PARTICLES_BILLBOARDS_RENDERER",
+		//"PARTICLES_PRIMITIVE_FIBONACCI"
 	};
 }
 
@@ -97,10 +98,10 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	res.push_back(AddLibraryEntry("Particles/3D/Simulation",	"Simulation",			"PARTICLES_SIMULATION"));
-	res.push_back(AddLibraryEntry("Particles/Renderers",		"Point Renderer",		"PARTICLES_POINT_RENDERER"));
-	res.push_back(AddLibraryEntry("Particles/3D/Renderers",		"Billboards Renderer",	"PARTICLES_BILLBOARDS_RENDERER"));
-	res.push_back(AddLibraryEntry("Particles/3D/Primitives",	"Fibonacci Ball",		"PARTICLES_PRIMITIVE_FIBONACCI"));
+	//res.push_back(AddLibraryEntry("Particles/3D/Simulation",	"Simulation",			"PARTICLES_SIMULATION"));
+	//res.push_back(AddLibraryEntry("Particles/3D/Renderers",	"Point Renderer",		"PARTICLES_POINT_RENDERER"));
+	//res.push_back(AddLibraryEntry("Particles/3D/Renderers",	"Billboards Renderer",	"PARTICLES_BILLBOARDS_RENDERER"));
+	//res.push_back(AddLibraryEntry("Particles/3D/Primitives",	"Fibonacci Ball",		"PARTICLES_PRIMITIVE_FIBONACCI"));
 	res.push_back(AddLibraryEntry("Particles/3D/Emitters",		"Mesh Emitter",			"PARTICLES_MESH_EMITTER"));
 
 	return res;
@@ -108,15 +109,16 @@ std::vector<LibraryEntry> Particles::GetLibrary() const
 
 BaseNodePtr Particles::CreatePluginNode(const std::string& vPluginNodeName)
 {
-	if (vPluginNodeName == "PARTICLES_SIMULATION")
-		return ParticlesSimulationNode::Create(m_VulkanCoreWeak.getValidShared());
-	else if (vPluginNodeName == "PARTICLES_POINT_RENDERER")
-		return ParticlesPointRendererNode::Create(m_VulkanCoreWeak.getValidShared());
-	else if (vPluginNodeName == "PARTICLES_BILLBOARDS_RENDERER")
-		return ParticlesBillBoardRendererNode::Create(m_VulkanCoreWeak.getValidShared());
-	else if (vPluginNodeName == "PARTICLES_PRIMITIVE_FIBONACCI")
-		return PrimitiveFibonacciNode::Create(m_VulkanCoreWeak.getValidShared());
-	else if (vPluginNodeName == "PARTICLES_MESH_EMITTER")
+	//if (vPluginNodeName == "PARTICLES_SIMULATION")
+	//	return ParticlesSimulationNode::Create(m_VulkanCoreWeak.getValidShared());
+	//else if (vPluginNodeName == "PARTICLES_POINT_RENDERER")
+	//	return ParticlesPointRendererNode::Create(m_VulkanCoreWeak.getValidShared());
+	//else if (vPluginNodeName == "PARTICLES_BILLBOARDS_RENDERER")
+	//	return ParticlesBillBoardRendererNode::Create(m_VulkanCoreWeak.getValidShared());
+	//else if (vPluginNodeName == "PARTICLES_PRIMITIVE_FIBONACCI")
+	//	return PrimitiveFibonacciNode::Create(m_VulkanCoreWeak.getValidShared());
+	/*else*/ 
+	if (vPluginNodeName == "PARTICLES_MESH_EMITTER")
 		return MeshEmitterNode::Create(m_VulkanCoreWeak.getValidShared());
 
 	return nullptr;

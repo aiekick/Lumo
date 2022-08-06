@@ -15,9 +15,9 @@ limitations under the License.
 */
 
 #include "MeshEmitterModule_Comp_Pass.h"
+#include <Headers/ParticlesCommon.h>
 
 #include <functional>
-#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
@@ -42,11 +42,15 @@ MeshEmitterModule_Comp_Pass::MeshEmitterModule_Comp_Pass(vkApi::VulkanCorePtr vV
 {
 	SetRenderDocDebugName("Comp Pass : Particles Simulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
+	m_ParticlesPtr = SceneParticles::Create(m_VulkanCorePtr);
+
 	//m_DontUseShaderFilesOnDisk = true;
 }
 
 MeshEmitterModule_Comp_Pass::~MeshEmitterModule_Comp_Pass()
 {
+	m_ParticlesPtr.reset();
+
 	Unit();
 }
 
@@ -67,15 +71,15 @@ void MeshEmitterModule_Comp_Pass::ActionAfterInitSucceed()
 
 bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	bool change_ubo = false;
 	bool model_ubo = false;
 
-	ImGui::Text("Delta Time : %.5f", m_PushConstants.delta_time);
-	ImGui::Text("Absolute Time : %.5f", m_PushConstants.absolute_time);
-	ImGui::Text("Max Particles Count : %u", m_UBOComp.count_particles);
-	//ImGui::Text("Current Particles Count : %u", m_UBOComp.count_particles);
+	ImGui::Text("Delta time : %.5f", m_PushConstants.delta_time);
+	ImGui::Text("Absolute time : %.5f", m_PushConstants.absolute_time);
+	ImGui::Text("Max particles count : %u", m_UBOComp.max_particles_count);
+	ImGui::Text("Current particles count : %u", m_UBOComp.current_particles_count);
 
 	ImGui::Separator();
 
@@ -86,10 +90,12 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 		change_ubo = true;
 	}
 
-	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn Rate", &m_UBOComp.spawn_rate, 0.1f, 1.0f, 0.5f);
-	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn Life", &m_UBOComp.base_life, 0.1f, 10.0f, 1.0f);
-	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn Speed", &m_UBOComp.base_speed, 0.1f, 100.0f, 0.1f);
-	model_ubo |= ImGui::SliderUIntDefaultCompact(0.0f, "Count Particles per vertex", &m_UBOComp.count_per_vertex, 1U, 10U, 1U);
+	model_ubo |= ImGui::SliderUIntDefaultCompact(0.0f, "Max particles count", &m_UBOComp.max_particles_count, 1000, 1000000, 10000);
+	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn mass", &m_UBOComp.spawn_mass, 0.1f, 1.0f, 0.5f);
+	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn rate", &m_UBOComp.spawn_rate, 0.1f, 1.0f, 0.5f);
+	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn min life", &m_UBOComp.base_min_life, 0.1f, 10.0f, 1.0f);
+	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn max life", &m_UBOComp.base_max_life, 0.1f, 10.0f, 1.0f);
+	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn speed", &m_UBOComp.base_speed, 0.1f, 100.0f, 0.1f);
 	
 	if (change_ubo)
 	{
@@ -98,7 +104,6 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 
 	if (model_ubo)
 	{
-		m_UBOComp.count_per_vertex = ct::maxi(m_UBOComp.count_per_vertex, 1U);
 		NeedNewModelUpdate();
 	}
 
@@ -107,12 +112,12 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 
 void MeshEmitterModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 }
 
 void MeshEmitterModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 }
 
 void MeshEmitterModule_Comp_Pass::SetModel(SceneModelWeak vSceneModel)
@@ -135,40 +140,11 @@ void MeshEmitterModule_Comp_Pass::SetModel(SceneModelWeak vSceneModel)
 	NeedNewModelUpdate();
 }
 
-vk::Buffer* MeshEmitterModule_Comp_Pass::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
+SceneParticlesWeak MeshEmitterModule_Comp_Pass::GetParticles()
 {
 	ZoneScoped;
 
-	if (m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr)
-	{
-		if (vOutSize)
-		{
-			vOutSize->x = m_UBOComp.count_particles;
-			vOutSize->y = 1U;
-		}
-
-		return &m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr->buffer;
-	}
-
-	return nullptr;
-}
-
-vk::BufferView* MeshEmitterModule_Comp_Pass::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
-{
-	ZoneScoped;
-
-	if (m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr)
-	{
-		if (vOutSize)
-		{
-			vOutSize->x = m_UBOComp.count_particles;
-			vOutSize->y = 1U;
-		}
-
-		return &m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr->bufferView;
-	}
-
-	return nullptr;
+	return m_ParticlesPtr;
 }
 
 void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
@@ -215,28 +191,16 @@ bool MeshEmitterModule_Comp_Pass::BuildModel()
 {
 	ZoneScoped;
 
-	m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr.reset();
-
 	auto meshPtr = m_InputMesh.getValidShared();
-	if (meshPtr)
+	if (meshPtr && m_ParticlesPtr)
 	{
-		m_UBOComp.count_vertexs = meshPtr->GetVerticesCount();
-		m_UBOComp.count_particles = m_UBOComp.count_vertexs * m_UBOComp.count_per_vertex;
+		m_UBOComp.current_vertexs_count = meshPtr->GetVerticesCount();
 		NeedNewUBOUpload();
 
-		auto sizeOfStruct = sizeof(ct::fvec4) * 3U;
-		auto sizeInBytes = m_UBOComp.count_particles * sizeOfStruct;
-		m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr = VulkanRessource::createTexelBuffer(
-			m_VulkanCorePtr, vk::Format::eR32G32B32A32Sfloat, sizeInBytes);
-
-		SetDispatchSize1D(m_UBOComp.count_particles);
-
-		// inform observer than a new model is ready
-		auto parentNodePtr = GetParentNode().getValidShared();
-		if (parentNodePtr)
+		if (m_ParticlesPtr->Build(m_UBOComp.max_particles_count))
 		{
-			parentNodePtr->SendFrontNotification(NotifyEvent::TexelBufferUpdateDone);
-		}
+			SetDispatchSize1D(m_UBOComp.current_vertexs_count);
+		}		
 	}
 	
 	return true;
@@ -244,19 +208,19 @@ bool MeshEmitterModule_Comp_Pass::BuildModel()
 
 void MeshEmitterModule_Comp_Pass::DestroyModel(const bool& vReleaseDatas)
 {
-	m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr.reset();
+	
 }
 
 bool MeshEmitterModule_Comp_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
-	if (m_UBO_Comp)
+	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	if (m_UBOCompPtr && m_UBOCompPtr->buffer)
 	{
-		m_DescriptorBufferInfo_Comp.buffer = m_UBO_Comp->buffer;
-		m_DescriptorBufferInfo_Comp.range = sizeof(UBOComp);
+		m_DescriptorBufferInfo_Comp.buffer = m_UBOCompPtr->buffer;
 		m_DescriptorBufferInfo_Comp.offset = 0;
+		m_DescriptorBufferInfo_Comp.range = sizeof(UBOComp);
 	}
 
 	NeedNewUBOUpload();
@@ -268,14 +232,19 @@ void MeshEmitterModule_Comp_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, *m_UBO_Comp, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void MeshEmitterModule_Comp_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp.reset();
+	m_UBOCompPtr.reset();
+}
+
+bool MeshEmitterModule_Comp_Pass::CanUpdateDescriptors()
+{
+	return (m_ParticlesPtr != nullptr);
 }
 
 bool MeshEmitterModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -283,9 +252,12 @@ bool MeshEmitterModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageTexelBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Mesh vertexs
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Ubo
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles datas buffer
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles alive pre sim buffer
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles dead buffer
+	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles counter buffer
 
 	return true;
 }
@@ -296,25 +268,37 @@ bool MeshEmitterModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	writeDescriptorSets.clear();
 
+	// Mesh vertexs
 	auto inputMeshPtr = m_InputMesh.getValidShared();
-	if (inputMeshPtr && inputMeshPtr->GetVerticesBufferInfo()->range > 0U)
+	if (inputMeshPtr && inputMeshPtr->GetVerticesBufferInfo()->range > 0U )
 	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageTexelBuffer,
-			nullptr, nullptr, &m_Particle_pos3_life1_dir3_speed4_color4_buffer_Ptr->bufferView);
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, 
+			vk::DescriptorType::eStorageBuffer, 
 			nullptr, inputMeshPtr->GetVerticesBufferInfo());
 	}
 	else
 	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageTexelBuffer, 
-			nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, 
+			vk::DescriptorType::eStorageBuffer, 
 			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 	}
 
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer,
+	// Ubo
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, 
+		vk::DescriptorType::eUniformBuffer,
 		nullptr, &m_DescriptorBufferInfo_Comp);
-	
+
+	// Particles datas buffer
+	// not existence == no udate nor rendering => secured by CanUpdateDescriptors()
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1,
+		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetParticlesDatasBufferInfo());
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1,
+		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetAliveParticlesPreSimBufferInfo());
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1,
+		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetDeadParticlesBufferInfo());
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1,
+		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetCountersBufferInfo());
+
 	return true;
 }
 
@@ -329,8 +313,6 @@ std::string MeshEmitterModule_Comp_Pass::GetComputeShaderCode(std::string& vOutS
 
 layout(local_size_x = 8, local_size_y = 1, local_size_z = 1) in;
 
-layout(binding = 0, rgba32f) uniform imageBuffer pos3_life1_dir3_speed4_color4_buffer;
-
 struct V3N3T3B3T2C4 
 {
 	float px, py, pz;
@@ -341,20 +323,22 @@ struct V3N3T3B3T2C4
 	float cx, cy, cz, cw;
 };
 
-layout(std430, binding = 1) readonly buffer VertexInput
+layout(std430, binding = 0) readonly buffer VertexInput
 {
-	V3N3T3B3T2C4 inputVertices[];
+	V3N3T3B3T2C4 vertices[];
 };
 
-layout (std140, binding = 2) uniform UBO_Comp 
+layout (std140, binding = 1) uniform UBO_Comp 
 {
-	uint count_particles;
-	uint count_vertexs;
-	uint count_per_vertex;
+	uint max_particles_count;
+	uint current_particles_count;
+	uint current_vertexs_count;
 	float reset;
-	float base_life;
+	float base_min_life;
+	float base_max_life;
 	float base_speed;
 	float spawn_rate;
+	float spawn_mass;
 };
 
 layout(push_constant) uniform push_constants 
@@ -362,87 +346,21 @@ layout(push_constant) uniform push_constants
 	float absolute_time;
 	float delta_time;
 };
-
-void ResetParticle(int global_index)
-{
-	imageStore(pos3_life1_dir3_speed4_color4_buffer, global_index * 3 + 0, vec4(0));
-	imageStore(pos3_life1_dir3_speed4_color4_buffer, global_index * 3 + 1, vec4(0));
-	imageStore(pos3_life1_dir3_speed4_color4_buffer, global_index * 3 + 2, vec4(0));
-}
-
-void EmitParticle(int global_index, int vertex_index)
-{
-	// current vertex datas
-	V3N3T3B3T2C4 current_vertex = inputVertices[vertex_index];
-
-	// xyz:pos, w:base life
-	vec4 pos_life;
-	pos_life.x = current_vertex.px;
-	pos_life.y = current_vertex.py;
-	pos_life.z = current_vertex.pz;
-	pos_life.w = base_life;
-		
-	// xyz:dir, w:speed
-	vec4 dir_speed;
-	vec3 nor = normalize(vec3(current_vertex.nx, current_vertex.ny, current_vertex.nz));
-	dir_speed.x = nor.x;
-	dir_speed.y = nor.y;
-	dir_speed.z = nor.z;
-	dir_speed.w = base_speed;
-	
-	// rgba:color
-	vec4 color;
-	color.r = current_vertex.cx;
-	color.g = current_vertex.cy;
-	color.b = current_vertex.cz;
-	color.a = current_vertex.cw;
-
-	// for demo
-	color.rgb = dir_speed.xyz * 0.5 + 0.5;
-	color.a = 1.0;
-		
-	imageStore(pos3_life1_dir3_speed4_color4_buffer, global_index * 3 + 0, pos_life);
-	imageStore(pos3_life1_dir3_speed4_color4_buffer, global_index * 3 + 1, dir_speed);
-	imageStore(pos3_life1_dir3_speed4_color4_buffer, global_index * 3 + 2, color);
-}
-
+)"
++
+SceneParticles::GetParticlesDatasBufferHeader(2U)
++
+SceneParticles::GetAliveParticlesPreSimBufferHeader(3U)
++
+SceneParticles::GetDeadParticlesBufferHeader(4U)
++
+SceneParticles::GetCounterBufferHeader(5U)
++
+u8R"(
 void main() 
 {
-	const int i_global_index = int(gl_GlobalInvocationID.x);
-	const int i_count_vertexs = int(count_vertexs);
-	const int i_vertex_index = i_global_index % i_count_vertexs;
-			
-	vec4 pos_life = imageLoad(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 0);	
-
-	if (reset > 0.5)
-	{
-		if (i_global_index == i_vertex_index)
-		{
-			EmitParticle(i_global_index, i_vertex_index);
-		}
-		else
-		{
-			ResetParticle(i_global_index);
-		}
-	}
-	else if (pos_life.w > 0.0)
-	{
-		vec4 dir_speed = imageLoad(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 1);
-
-		pos_life.xyz += dir_speed.xyz * dir_speed.w * delta_time;
-		pos_life.w -= delta_time;
-
-		imageStore(pos3_life1_dir3_speed4_color4_buffer, i_global_index * 3 + 0, pos_life);
-	}
-	else // particle ready to be emitted
-	{
-		ResetParticle(i_global_index);
-		
-		if (mod(absolute_time, spawn_rate * 2.0) > spawn_rate)
-		{
-			EmitParticle(i_global_index, i_vertex_index);
-		}
-	}
+	const int i_global_index = int(gl_GlobalInvocationID.x);			
+	
 }
 )";
 }
@@ -455,9 +373,11 @@ std::string MeshEmitterModule_Comp_Pass::getXml(const std::string& vOffset, cons
 {
 	std::string str;
 
-	str += vOffset + "<base_life>" + ct::toStr(m_UBOComp.base_life) + "</base_life>\n";
+	str += vOffset + "<base_min_life>" + ct::toStr(m_UBOComp.base_min_life) + "</base_min_life>\n";
+	str += vOffset + "<base_max_life>" + ct::toStr(m_UBOComp.base_max_life) + "</base_max_life>\n";
 	str += vOffset + "<base_speed>" + ct::toStr(m_UBOComp.base_speed) + "</base_speed>\n";
 	str += vOffset + "<spawn_rate>" + ct::toStr(m_UBOComp.spawn_rate) + "</spawn_rate>\n";
+	str += vOffset + "<max_particles_count>" + ct::toStr(m_UBOComp.max_particles_count) + "</max_particles_count>\n";
 
 	return str;
 }
@@ -477,12 +397,16 @@ bool MeshEmitterModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxm
 
 	if (strParentName == "mesh_emitter_module")
 	{
-		if (strName == "base_life")
-			m_UBOComp.base_life = ct::fvariant(strValue).GetF();
+		if (strName == "base_min_life")
+			m_UBOComp.base_min_life = ct::fvariant(strValue).GetF();
+		else if (strName == "base_max_life")
+			m_UBOComp.base_max_life = ct::fvariant(strValue).GetF();
 		else if (strName == "base_speed")
 			m_UBOComp.base_speed = ct::fvariant(strValue).GetF();
 		else if (strName == "spawn_rate")
 			m_UBOComp.spawn_rate = ct::fvariant(strValue).GetF();
+		else if (strName == "max_particles_count")
+			m_UBOComp.max_particles_count = ct::uvariant(strValue).GetU();
 	}
 
 	return true;

@@ -17,7 +17,6 @@ limitations under the License.
 #include "ParticlesPointRenderer_Mesh_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
@@ -37,7 +36,7 @@ ParticlesPointRenderer_Mesh_Pass::ParticlesPointRenderer_Mesh_Pass(vkApi::Vulkan
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Particles", MESH_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+	//m_DontUseShaderFilesOnDisk = true;
 }
 
 ParticlesPointRenderer_Mesh_Pass::~ParticlesPointRenderer_Mesh_Pass()
@@ -51,8 +50,6 @@ ParticlesPointRenderer_Mesh_Pass::~ParticlesPointRenderer_Mesh_Pass()
 
 void ParticlesPointRenderer_Mesh_Pass::ActionBeforeInit()
 {
-	m_TexelBufferViews[0] = VK_NULL_HANDLE;
-
 	m_PrimitiveTopology = vk::PrimitiveTopology::ePointList;
 }
 
@@ -66,25 +63,37 @@ void ParticlesPointRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, 
 
 	if (!m_Loaded) return;
 
-	if (vCmdBuffer && m_TexelBuffers[0] && m_TexelBufferViewsSize[0].x)
+	if (vCmdBuffer)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		auto particlesPtr = m_SceneParticles.getValidShared();
+		if (particlesPtr)
 		{
-			VKFPScoped(*vCmdBuffer, "Particles Point Renderer", "DrawModel");
+			auto vertexInputBufferPtr = particlesPtr->GetAliveParticlesPostSimVertexInputBuffer();
+			if (vertexInputBufferPtr)
+			{
+				auto counters = particlesPtr->GetCountersFromGPU(); // read data from gpu to cpu, so dont abuse from this call
+				if (counters && counters->alive_post_sim_counter)
+				{
+					vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+					{
+						VKFPScoped(*vCmdBuffer, "Particles Point Renderer", "DrawModel");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+						vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 
-			vk::DeviceSize offsets = 0;
-			vCmdBuffer->bindVertexBuffers(0, m_TexelBuffers[0], offsets);
+						vk::DeviceSize offsets = 0;
+						vCmdBuffer->bindVertexBuffers(0, *vertexInputBufferPtr, offsets);
 
-			vCmdBuffer->draw(m_TexelBufferViewsSize[0].x, 1, 0, 0);
+						vCmdBuffer->draw(counters->alive_post_sim_counter, 1, 0, 0);
+					}
+				}
+			}
 		}
 	}
 }
 
 bool ParticlesPointRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	bool change = false;
 
@@ -98,56 +107,19 @@ bool ParticlesPointRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame
 
 void ParticlesPointRenderer_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
-
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 }
 
 void ParticlesPointRenderer_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
-
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 }
 
-void ParticlesPointRenderer_Mesh_Pass::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
+void ParticlesPointRenderer_Mesh_Pass::SetParticles(SceneParticlesWeak vSceneParticles)
 {
 	ZoneScoped;
 
-	if (m_Loaded && 
-		vTexelBuffer && 
-		vBinding < m_TexelBuffers.size())
-	{
-		m_TexelBuffers[vBinding] = *vTexelBuffer;
-
-		if (vTexelBufferSize)
-		{
-			m_TexelBufferViewsSize[vBinding] = *vTexelBufferSize;
-		}
-	}
-	else
-	{
-		m_TexelBuffers[vBinding] = VK_NULL_HANDLE;
-	}
-}
-
-void ParticlesPointRenderer_Mesh_Pass::SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
-{
-	ZoneScoped;
-
-	if (m_Loaded && 
-		vTexelBufferView && 
-		vBinding < m_TexelBufferViews.size())
-	{
-		m_TexelBufferViews[vBinding] = *vTexelBufferView;
-
-		if (vTexelBufferSize)
-		{
-			m_TexelBufferViewsSize[vBinding] = *vTexelBufferSize;
-		}
-	}
-	else
-	{
-		m_TexelBufferViews[vBinding] = VK_NULL_HANDLE;
-	}
+	m_SceneParticles = vSceneParticles;
 }
 
 vk::DescriptorImageInfo* ParticlesPointRenderer_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
@@ -172,8 +144,6 @@ vk::DescriptorImageInfo* ParticlesPointRenderer_Mesh_Pass::GetDescriptorImageInf
 bool ParticlesPointRenderer_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
-
-	NeedNewUBOUpload();
 
 	return true;
 }
@@ -212,52 +182,7 @@ void ParticlesPointRenderer_Mesh_Pass::SetInputStateBeforePipelineCreation()
 {
 	ZoneScoped;
 
-	m_InputState.binding.binding = 0;
-	m_InputState.binding.stride = sizeof(ct::fvec4) * 3U;;
-	m_InputState.binding.inputRate = vk::VertexInputRate::eVertex;
-
-	uint32_t offset = 0;
-
-	// xyz:pos, w:life, xyz:dir, w:speed, rgba:color
-	m_InputState.attributes.resize(3);
-
-	{
-		// xyz:pos, w:life
-		auto& attrib = m_InputState.attributes[0];
-		attrib.binding = 0;
-		attrib.location = 0;
-		attrib.format = vk::Format::eR32G32B32A32Sfloat;
-		attrib.offset = 0;
-		offset += sizeof(ct::fvec4);
-	}
-
-	{
-		// xyz:dir, w:speed
-		auto& attrib = m_InputState.attributes[1];
-		attrib.binding = 0;
-		attrib.location = 1;
-		attrib.format = vk::Format::eR32G32B32A32Sfloat;
-		attrib.offset = offset;
-		offset += sizeof(ct::fvec4);
-	}
-
-	{
-		// rgba:color
-		auto& attrib = m_InputState.attributes[2];
-		attrib.binding = 0;
-		attrib.location = 2;
-		attrib.format = vk::Format::eR32G32B32A32Sfloat;
-		attrib.offset = offset;
-		offset += sizeof(ct::fvec4);
-	}
-
-	m_InputState.state = vk::PipelineVertexInputStateCreateInfo(
-		vk::PipelineVertexInputStateCreateFlags(),
-		1,
-		&m_InputState.binding,
-		static_cast<uint32_t>(m_InputState.attributes.size()),
-		m_InputState.attributes.data()
-	);
+	m_InputState = SceneParticles::GetInputStateBeforePipelineCreation();
 }
 
 std::string ParticlesPointRenderer_Mesh_Pass::GetVertexShaderCode(std::string& vOutShaderName)
@@ -267,12 +192,12 @@ std::string ParticlesPointRenderer_Mesh_Pass::GetVertexShaderCode(std::string& v
 	return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
-
-layout(location = 0) in vec4 particle_pos_life;
-layout(location = 1) in vec4 particle_dir_speed;
-layout(location = 2) in vec4 particle_color;
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
+)" 
++ 
+SceneParticles::GetParticlesVertexInputBufferHeader()
++
+CommonSystem::GetBufferObjectStructureHeader(0U)
++
 u8R"(
 layout(location = 1) out flat vec4 out_particle_color;
 
@@ -280,16 +205,16 @@ void main()
 {
 	gl_PointSize = 5.0;
 
-	if (particle_pos_life.w > 0.0)
+	if (particle_life1_max_life1.x > 0.0)
 	{
-		out_particle_color = particle_color;
+		out_particle_color = particle_color4;
 		
-		if (particle_pos_life.w < 1.0)
+		if (particle_life1_max_life1.x < 1.0)
 		{
-			out_particle_color *= particle_pos_life.w;
+			out_particle_color *= particle_life1_max_life1.x;
 		}
 		
-		gl_Position = cam * vec4(particle_pos_life.xyz, 1.0);
+		gl_Position = cam * vec4(particle_pos3_mass1.xyz, 1.0);
 	}
 	else
 	{

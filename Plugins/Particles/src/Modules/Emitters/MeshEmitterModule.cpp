@@ -17,7 +17,6 @@ limitations under the License.
 #include "MeshEmitterModule.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
@@ -112,7 +111,7 @@ bool MeshEmitterModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 
 bool MeshEmitterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -139,7 +138,7 @@ bool MeshEmitterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 void MeshEmitterModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -149,7 +148,7 @@ void MeshEmitterModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fr
 
 void MeshEmitterModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -165,28 +164,16 @@ void MeshEmitterModule::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-vk::Buffer* MeshEmitterModule::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
+SceneParticlesWeak MeshEmitterModule::GetParticles()
 {
 	ZoneScoped;
 
 	if (m_MeshEmitterModule_Comp_Pass_Ptr)
 	{
-		return m_MeshEmitterModule_Comp_Pass_Ptr->GetTexelBuffer(vBindingPoint, vOutSize);
+		return m_MeshEmitterModule_Comp_Pass_Ptr->GetParticles();
 	}
 
-	return nullptr;
-}
-
-vk::BufferView* MeshEmitterModule::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
-{
-	ZoneScoped;
-
-	if (m_MeshEmitterModule_Comp_Pass_Ptr)
-	{
-		return m_MeshEmitterModule_Comp_Pass_Ptr->GetTexelBufferView(vBindingPoint, vOutSize);
-	}
-
-	return nullptr;
+	return SceneParticlesWeak();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

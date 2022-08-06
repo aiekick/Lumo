@@ -52,8 +52,8 @@ bool MeshEmitterNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "Mesh Emitter";
 
-	AddInput(NodeSlotModelInput::Create("Mesh"), true, false);
-	AddOutput(NodeSlotTexelBufferOutput::Create("Particles", "PARTICLES"), true, false);
+	AddInput(NodeSlotModelInput::Create("Model"), true, true);
+	AddOutput(NodeSlotTexelBufferOutput::Create("Particles", "PARTICLES"), true, true);
 
 	m_MeshEmitterModulePtr = MeshEmitterModule::Create(vVulkanCorePtr, m_This);
 	if (m_MeshEmitterModulePtr)
@@ -81,7 +81,7 @@ bool MeshEmitterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 {
 	ZoneScoped;
 
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_MeshEmitterModulePtr)
 	{
@@ -95,7 +95,7 @@ void MeshEmitterNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 {
 	ZoneScoped;
 
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_MeshEmitterModulePtr)
 	{
@@ -124,34 +124,24 @@ void MeshEmitterNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 
 void MeshEmitterNode::SetModel(SceneModelWeak vSceneModel)
 {
+	ZoneScoped;
+
 	if (m_MeshEmitterModulePtr)
 	{
 		m_MeshEmitterModulePtr->SetModel(vSceneModel);
 	}
 }
 
-vk::Buffer* MeshEmitterNode::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
+SceneParticlesWeak MeshEmitterNode::GetParticles()
 {
 	ZoneScoped;
 
 	if (m_MeshEmitterModulePtr)
 	{
-		return m_MeshEmitterModulePtr->GetTexelBuffer(vBindingPoint, vOutSize);
+		return m_MeshEmitterModulePtr->GetParticles();
 	}
 
-	return nullptr;
-}
-
-vk::BufferView* MeshEmitterNode::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize)
-{
-	ZoneScoped;
-
-	if (m_MeshEmitterModulePtr)
-	{
-		return m_MeshEmitterModulePtr->GetTexelBufferView(vBindingPoint, vOutSize);
-	}
-
-	return nullptr;
+	return SceneParticlesWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

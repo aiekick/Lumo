@@ -17,7 +17,6 @@ limitations under the License.
 #include "ParticlesPointRenderer.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
@@ -108,7 +107,7 @@ void ParticlesPointRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const 
 
 bool ParticlesPointRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -128,7 +127,7 @@ bool ParticlesPointRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 
 void ParticlesPointRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -138,7 +137,7 @@ void ParticlesPointRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const c
 
 void ParticlesPointRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext);
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -146,23 +145,13 @@ void ParticlesPointRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFra
 	}
 }
 
-void ParticlesPointRenderer::SetTexelBuffer(const uint32_t& vBinding, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
+void ParticlesPointRenderer::SetParticles(SceneParticlesWeak vSceneParticles)
 {
 	ZoneScoped;
 
 	if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
 	{
-		m_ParticlesPointRenderer_Mesh_Pass_Ptr->SetTexelBuffer(vBinding, vTexelBuffer, vTexelBufferSize);
-	}
-}
-
-void ParticlesPointRenderer::SetTexelBufferView(const uint32_t& vBinding, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
-{
-	ZoneScoped;
-
-	if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
-	{
-		m_ParticlesPointRenderer_Mesh_Pass_Ptr->SetTexelBufferView(vBinding, vTexelBufferView, vTexelBufferSize);
+		m_ParticlesPointRenderer_Mesh_Pass_Ptr->SetParticles(vSceneParticles);
 	}
 }
 
