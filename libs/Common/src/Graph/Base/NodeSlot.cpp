@@ -401,6 +401,38 @@ void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlo
 				otherSlotPtr->Notify(vEvent, m_This, otherSlot);
 			}
 		}
+
+		// also to the LMR selected output slots
+
+		// Left
+		if (vEmitterSlot.getValidShared() == NodeSlot::sSlotGraphOutputMouseLeft.getValidShared())
+		{
+			auto slotPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared();
+			if (slotPtr)
+			{
+				BaseNode::SelectForGraphOutput_Callback(slotPtr->parentNode, slotPtr, ImGuiMouseButton_Left);
+			}
+		}
+
+		// Middle
+		if (vEmitterSlot.getValidShared() == NodeSlot::sSlotGraphOutputMouseMiddle.getValidShared())
+		{
+			auto slotPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared();
+			if (slotPtr)
+			{
+				BaseNode::SelectForGraphOutput_Callback(slotPtr->parentNode, slotPtr, ImGuiMouseButton_Middle);
+			}
+		}
+
+		// Right
+		if (vEmitterSlot.getValidShared() == NodeSlot::sSlotGraphOutputMouseRight.getValidShared())
+		{
+			auto slotPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared();
+			if (slotPtr)
+			{
+				BaseNode::SelectForGraphOutput_Callback(slotPtr->parentNode, slotPtr, ImGuiMouseButton_Right);
+			}
+		}
 	}
 	else // receiving notification from other slots
 	{
@@ -417,25 +449,21 @@ void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlo
 		if (IsAnInput()) // Front
 		{
 			// front propagate some particular global events
-			switch (vEvent)
+			if (vEvent == GraphIsLoaded ||
+				vEvent == NewFrameAvailable ||
+				vEvent == SomeTasksWasUpdated)
 			{
-			case NotifyEvent::GraphIsLoaded:
-			case NotifyEvent::NewFrameAvailable:
-			case NotifyEvent::SomeTasksWasUpdated:
 				parentPtr->PropagateFrontNotification(vEvent);
-				break;
 			}
 		}
 		else if (IsAnOutput()) // Back
 		{
 			// back propagate some particular global events
-			switch (vEvent)
+			if (vEvent == GraphIsLoaded ||
+				vEvent == NewFrameAvailable ||
+				vEvent == SomeTasksWasUpdated)
 			{
-			case NotifyEvent::GraphIsLoaded:
-			case NotifyEvent::NewFrameAvailable:
-			case NotifyEvent::SomeTasksWasUpdated:
 				parentPtr->PropagateBackNotification(vEvent);
-				break;
 			}
 		}
 	}
