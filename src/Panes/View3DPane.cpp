@@ -98,7 +98,7 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
-				auto outputSize = SetOrUpdateOutput(m_TextureOutputSlot);
+				SetOrUpdateOutput(m_TextureOutputSlot);
 
 				auto slotPtr = m_TextureOutputSlot.getValidShared();
 				if (slotPtr)
@@ -121,11 +121,11 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 						ImGui::EndMenuBar();
 					}
 
-					ct::ivec2 maxSize = ImGui::GetContentRegionAvail();
+					ct::ivec2 contentSize = ImGui::GetContentRegionAvail();
 					
 					if (m_ImGuiTexture.canDisplayPreview)
 					{
-						m_PreviewRect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture.ratio, maxSize, false);
+						m_PreviewRect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture.ratio, contentSize, false);
 
 						ImVec2 pos = ImVec2((float)m_PreviewRect.x, (float)m_PreviewRect.y);
 						ImVec2 siz = ImVec2((float)m_PreviewRect.w, (float)m_PreviewRect.h);
@@ -144,7 +144,7 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 								if (m_CanWeTuneMouse && CanUpdateMouse(true, 0))
 								{
 									ct::fvec2 norPos = (ImGui::GetMousePos() - org) / siz;
-									CommonSystem::Instance()->SetMousePos(norPos, outputSize, GImGui->IO.MouseDown);
+									CommonSystem::Instance()->SetMousePos(norPos, m_PaneSize, GImGui->IO.MouseDown);
 								}
 
 								UpdateCamera(org, siz);
@@ -160,18 +160,21 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 					// on test ca car si le vue n'est pas visible cad si maxSize.y est inferieur a 0 alors
 					// on a affaire a un resize constant, car outputsize n'est jamais maj, tant que la vue n'a pas rendu
 					// et ca casse le fps de l'ui, rendu son utilisation impossible ( deltatime superieur 32ms d'apres tracy sur un gtx 1050 Ti)
-					if (maxSize.x > 0 && maxSize.y > 0)
+					if (contentSize.x > 0 && contentSize.y > 0)
 					{
-						if (outputSize.x != (uint32_t)maxSize.x ||
-							outputSize.y != (uint32_t)maxSize.y)
+						if (m_PaneSize.x != contentSize.x ||
+							m_PaneSize.y != contentSize.y)
 						{
 							auto parentNodePtr = slotPtr->parentNode.getValidShared();
 							if (parentNodePtr)
 							{
-								parentNodePtr->NeedResizeByResizeEvent(&maxSize, nullptr);
-								CommonSystem::Instance()->SetScreenSize(ct::uvec2(maxSize.x, maxSize.y));
+								parentNodePtr->NeedResizeByResizeEvent(&contentSize, nullptr);
+								CommonSystem::Instance()->SetScreenSize(ct::uvec2(contentSize.x, contentSize.y));
 								CommonSystem::Instance()->NeedCamChange();
 							}
+
+							m_PaneSize = contentSize;
+
 						}
 					}
 				}

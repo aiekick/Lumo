@@ -50,6 +50,9 @@ private:
 	bool m_UINeedRefresh = false;
 	uint32_t m_MaxBuffers = 0;
 
+	//for send the resize event to nodes
+	ct::ivec2 m_PaneSize;
+
 public:
 	bool Init() override;
 	void Unit() override;
