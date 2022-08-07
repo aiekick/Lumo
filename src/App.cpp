@@ -275,7 +275,8 @@ void App::MainLoop(GLFWwindow* vWindow)
 
 		++m_CurrentFrame;
 
-		glfwWaitEvents();
+		//will pause the view until we move the mouse
+		//glfwWaitEvents();
 	}
 }
 
