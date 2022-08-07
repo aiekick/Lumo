@@ -181,11 +181,16 @@ void MathModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 
 					NeedNewUBOUpload();
 				}
-
-
 			}
 			else
 			{
+				if (vTextureSize)
+				{
+					m_ImageInfosSize[vBindingPoint] = 0.0f;
+
+					ResizeToMaxOfTexturesIfNeeded();
+				}
+
 				if ((&m_UBOFrag.u_use_input_0)[vBindingPoint] > 0.0f)
 				{
 					(&m_UBOFrag.u_use_input_0)[vBindingPoint] = 0.0f;
