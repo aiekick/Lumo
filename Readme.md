@@ -18,97 +18,104 @@ at least, support all rendering features and result of the SketchFab Renderer
 
 # Tech's to implement :
 
-- [ ] Geometry Shader
-- [ ] Tesselation Shader
-- [x] Compute Shader
-- [x] Vulkan Framework
-- [X] Mesh Use
-- [X] Mexh Texturing
-- [X] Plugin system
-- [ ] Sdf Merging
-- [X] Node Graph
-- [ ] Instancing
-- [ ] SkyBox (Cubemap, LongLat)
-- [ ] Cell Shading
-- [ ] PBR Shading
-- [x] Shadow Mapping
-- [x] Deferred Rendering
-- [ ] GLTF Rendering
-- [X] RTX Rendering
-- [X] RTX : Raygen Shader
-- [X] RTX : Any hit Shader
-- [X] RTX : Closest hit Shader
-- [X] RTX : Miss Shader
-- [ ] RTX : Intersection Shader
-- [ ] RTX : Callable Shader
-- [ ] Normal Mapping
-- [ ] Parallax Mapping
-- [ ] Alpha Mapping
-- [ ] Environment Mapping
-- [x] Light Directionnal
-- [ ] Light Point
-- [ ] Light Spot
-- [ ] Light Area
-- [ ] Bloom
-- [x] SSAO
-- [ ] SSS
-- [ ] VR
-- [ ] Particles System
+| Published | Feature | status |
+| - | - | - |
+| :black_square_button: | Geometry Shader | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Tesselation Shader | ![img](https://progress-bar.dev0) |
+| :white_square_button: | Compute Shader | ![img](https://progress-bar.dev/90) |
+| :white_square_button: | Vulkan Framework | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Mesh Use | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Mexh Texturing | ![img](https://progress-bar.dev/50) |
+| :white_square_button: | Plugin system | ![img](https://progress-bar.dev/90) |
+| :black_square_button: | Sdf Merging | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Node Graph | ![img](https://progress-bar.dev/80) |
+| :black_square_button: | Instancing | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | SkyBox (Cubemap, LongLat) | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Cell Shading | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | PBR Shading | ![img](https://progress-bar.dev/20) |
+| :white_square_button: | Shadow Mapping | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Deferred Rendering | ![img](https://progress-bar.dev/50) |
+| :black_square_button: | GLTF Rendering | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | RTX Rendering | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | RTX : Raygen Shader | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | RTX : Any hit Shader | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | RTX : Closest hit Shader | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | RTX : Miss Shader | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | RTX : Intersection Shader | ![img](https://progress-bar.dev/00) |
+| :black_square_button: | RTX : Callable Shader | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Normal Mapping | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Parallax Mapping | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Alpha Mapping | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Environment Mapping | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Light Directionnal | ![img](https://progress-bar.dev/80) |
+| :black_square_button: | Light Point | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Light Spot | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Light Area | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Bloom | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | SSAO | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | SSS | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | VR | ![img](https://progress-bar.dev/20) |
+| :black_square_button: | Particles System | ![img](https://progress-bar.dev/0) |
 
 # Plugin Nodes :
 
 ## Core Plugin :
 
-| Created | Node | status |
+| Published | Node | status |
 | - | - | - |
 | :white_square_button: | Assets / Mesh Node | ![img](https://progress-bar.dev/90) |
-|  :white_square_button: | Assets / Texture 2D Node  | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
-|  :black_square_button: | Lighting / Attenuation Node | ![img](https://progress-bar.dev/0) |
-|  :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/50) |
-|  :black_square_button: | Lighting / MetalNess Node | ![img](https://progress-bar.dev/0) |
-|  :white_square_button: | Lighting / Model Shadow Node | ![img](https://progress-bar.dev/100) |
-|  :black_square_button: | Lighting / RoughNess Node | ![img](https://progress-bar.dev/0) |
-|  :white_square_button: | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Misc / 2D Layering | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Postpro / Blur Node (WIP) | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Renderers / Deferred Renderer Node (WIP) | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Renderers / Matcap Renderer Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Renderers / PBR Renderer Node (WIP) | ![img](https://progress-bar.dev/10) |
-|  :white_square_button: | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Utils / Depth To Pos Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Utils / Math Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Utils / Mesh Attributes Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Utils / Pos To Depth Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
-|  :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/20) |
+| :white_square_button: | Assets / Texture 2D Node  | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Lighting / Attenuation Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/50) |
+| :black_square_button: | Lighting / MetalNess Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Lighting / Model Shadow Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Lighting / RoughNess Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Misc / 2D Layering | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Postpro / Blur Node (WIP) | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / Deferred Renderer Node (WIP) | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / Matcap Renderer Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / PBR Renderer Node (WIP) | ![img](https://progress-bar.dev/10) |
+| :white_square_button: | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Utils / Depth To Pos Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Utils / Math Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Utils / Mesh Attributes Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Utils / Pos To Depth Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/20) |
 
 ## RTX Plugin :
 
-- [X] Builders / Model to Accel Structure Node (Accel Structure Builder)
-- [X] Renderers / PBR Node (WIP)
-- [X] Renderers / SSS Node (WIP)
+| Published | Node | status |
+| - | - | - |
+| :white_square_button: | Builders / Model to Accel Structure Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / PBR Node | ![img](https://progress-bar.dev/10) |
+| :white_square_button: | Renderers / SSS Node | ![img](https://progress-bar.dev/10) |
 
 ## Particles Plugin :
 
-- [X] Emitters / Mesh Emitter Node (WIP)
-- [ ] Emitters / Mesh Fur Node (WIP)
-- [X] Primitives / Fibonacci Ball Node (WIP)
-- [ ] Renderers / Billboard Renderer Node (WIP)
-- [X] Renderers / Point Renderer Node (WIP)
-- [ ] Renderers / Mesh Fur Renderer Node (WIP)
-- [X] Simulation / Simulation Node (WIP)
-- [ ] Simulation / Mesh Fur Simulation Node (WIP)
-- [ ] Constraints / Force Node
+| Published | Node | status |
+| - | - | - |
+| :white_square_button: | Emitters / Mesh Emitter Node | ![img](https://progress-bar.dev/90) |
+| :black_square_button: | Emitters / Point Emitter Node | ![img](https://progress-bar.dev/50) |
+| :black_square_button: |  Emitters / Mesh Fur Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
+| :black_square_button: |  Renderers / Billboard Renderer Node | ![img](https://progress-bar.dev/20) |
+| :white_square_button: | Renderers / Point Renderer Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: |  Renderers / Mesh Fur Renderer Node  | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Simulation / Simulation Node | ![img](https://progress-bar.dev/50) |
+| :black_square_button: |  Simulation / Mesh Fur Simulation Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: |  Constraints / Force Node | ![img](https://progress-bar.dev/0) |
 
 # Gettings Started 
 
