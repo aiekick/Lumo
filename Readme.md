@@ -35,9 +35,9 @@ thats all
 | :white_square_button: | Compute Shader | ![img](https://progress-bar.dev/90) |
 | :white_square_button: | Vulkan Framework | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Mesh Use | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Mexh Texturing | ![img](https://progress-bar.dev/50) |
+| :white_square_button: | Mesh Texturing | ![img](https://progress-bar.dev/50) |
 | :white_square_button: | Plugin system | ![img](https://progress-bar.dev/90) |
-| :black_square_button: | Sdf Merging | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Sdf Merging | ![img](https://progress-bar.dev/80) |
 | :white_square_button: | Node Graph | ![img](https://progress-bar.dev/80) |
 | :black_square_button: | Instancing | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | SkyBox (Cubemap, LongLat) | ![img](https://progress-bar.dev/0) |
