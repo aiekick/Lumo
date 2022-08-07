@@ -28,42 +28,32 @@ typedef std::shared_ptr<SceneParticles> SceneParticlesPtr;
 typedef ct::cWeak<SceneParticles> SceneParticlesWeak;
 
 /*
-the particles maagement is pretty simple
-we build a storage buffer for retain all particles datas with a max particle count
-we build a storage buffer of the same size with index datas for dead particle infos
-we build a storage buffer of the same size with index datas for alive particle infos
+the particles management is pretty simple
 
-for avoid unnecessary job, we need to dispatch only the alives particle count in a sim stage
-so we need to consume the alive buffer during the sim stage and write a new "sorted" alive buffer
 
-so need to have two alive buffers
-the idea is consume the frist and write with atomic counter in the second. 
-the atomic counter will be used for dispatch and will be reseted before each frame
+[[Emission]] :
 
-so can be interesting to jsut dispatch the laive aprticles count only
-dead and alive buffer are needed for know what particle is the particle storage buffer cna be used as a new particle available
-when a particle just die : 
- - we append it in the dead buffer, with a atomic counter who give the last index of dead particle. if no particle will be -1
- - we remove it in the alive buffer, with a atomic counter who give the last index of alive particle. if no particle will be -1
-when a particle just born :
- - we append if in the alive buffer, with a atomic counter who give the last index of alive particle. if no particle will be -1
- - we remove if in the dead buffer, with a atomic counter who give the last index of dead particle. if no particle will be -1
+The dispatch count will be the size of the particles buffer, so the max count
 
-so for a particle system we have :
-- particles buffer (complex struct) for n particles
-- alive buffer pre sim of uint32_t x particles_count
-- alive buffer post sim of uint32_t x particles_count
-- dead buffer of uint32_t x particles_count
-- a alive pre sim atomic counter
-- a alive post sim atomic counter
-- a dead atomic counter
+Each spawn rate we emit a particle if the emission count is > to 0
+The emission count will be atomicaly decreased
 
-job of a particle emitter :
-- create particles
+A particle si alive if the lifetime is > to 0
 
-job of a particle simulator :
-- move particles
-- kill particles
+We put the index of alive particles in a alive pre sim index buffer
+And we atomic add on the indirect drawing index
+
+[[Simulation]] :
+
+We advect aprticles
+
+If lifetime is > to their max life time we kill them by jsut put the life time to -1
+
+[[Reset]] :
+
+Before the emission we must reset :
+ - the buffer of pre sim index
+ - the emission count counter to the emission count from the ubo
 
 */
 
@@ -80,20 +70,18 @@ public:
 
 	struct CounterStruct
 	{
-		uint32_t alive_post_sim_counter = 0U;
-		uint32_t alive_pre_sim_counter = 0U;
-		uint32_t dead_m_counter = 0U;
+		uint32_t alive_particles_count = 0U;
+		uint32_t pending_emission_count = 0U;
 	};
 
 public:
 	static SceneParticlesPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 	static std::string GetParticlesDatasBufferHeader(const uint32_t& vStartBindingPoint);
 	static std::string GetParticlesVertexInputBufferHeader();
-	static std::string GetAliveParticlesPreSimBufferHeader(const uint32_t& vStartBindingPoint);
-	static std::string GetAliveParticlesPostSimBufferHeader(const uint32_t& vStartBindingPoint);
-	static std::string GetDeadParticlesBufferHeader(const uint32_t& vStartBindingPoint);
+	static std::string GetAliveParticlesIndexBufferHeader(const uint32_t& vStartBindingPoint);
 	static std::string GetCounterBufferHeader(const uint32_t& vStartBindingPoint);
 	static VertexStruct::PipelineVertexInputState GetInputStateBeforePipelineCreation();
+	static std::string GetDrawIndirectCommandHeader(const uint32_t& vStartBindingPoint);
 
 private:
 	SceneParticlesWeak m_This;
@@ -103,10 +91,9 @@ private:
 	CounterStruct m_Counters;
 
 	GpuOnlyStorageBufferPtr m_ParticlesDatasBufferPtr = nullptr;
-	GpuOnlyStorageBufferPtr m_AliveParticlesPreSimBufferPtr = nullptr;
-	GpuOnlyStorageBufferPtr m_AliveParticlesPostSimBufferPtr = nullptr;
-	GpuOnlyStorageBufferPtr m_DeadParticlesBufferPtr = nullptr;
+	GpuOnlyStorageBufferPtr m_AliveParticlesIndexBufferPtr = nullptr;
 	GpuOnlyStorageBufferPtr m_CountersBufferPtr = nullptr;
+	GpuOnlyStorageBufferPtr m_DrawArraysIndirectCommandBufferPtr = nullptr;
 
 public:
 	SceneParticles(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -118,25 +105,26 @@ public:
 
 	void DestroyBuffers();
 
-	GpuOnlyStorageBufferWeak GetParticlesDatasBuffer();
-	GpuOnlyStorageBufferWeak GetAliveParticlesPreSimBuffer();
-	GpuOnlyStorageBufferWeak GetAliveParticlesPostSimBuffer();
-	GpuOnlyStorageBufferWeak GetDeadParticlesBuffer();
-	GpuOnlyStorageBufferWeak GetCountersBuffer();
-
 	vk::DescriptorBufferInfo* GetParticlesDatasBufferInfo();
-	vk::DescriptorBufferInfo* GetAliveParticlesPreSimBufferInfo();
-	vk::DescriptorBufferInfo* GetAliveParticlesPostSimBufferInfo();
-	vk::DescriptorBufferInfo* GetDeadParticlesBufferInfo();
-	vk::DescriptorBufferInfo* GetCountersBufferInfo();
+	vk::DescriptorBufferInfo* GetAliveParticlesIndexBufferInfo();
+	vk::DescriptorBufferInfo* GetCountersBufferInfo(); 
+	vk::DescriptorBufferInfo* GetDrawIndirectCommandBufferInfo();
+
+	vk::Buffer* GetDrawIndirectCommandBuffer();
 
 	/// <summary>
 	/// will return the buffer (compatible vertex input for render)
 	/// and the particle count to render
 	/// </summary>
-	/// <param name="vOutParticleCountToRender"></param>
 	/// <returns></returns>
-	vk::Buffer* GetAliveParticlesPostSimVertexInputBuffer();
+	vk::Buffer* GetParticlesVertexInputBuffer();
+
+	/// <summary>
+	/// will return the buffer (compatible index input for render)
+	/// and the particle count to render
+	/// </summary>
+	/// <returns></returns>
+	vk::Buffer* GetAliveParticlesIndexInputBuffer();
 
 	/// <summary>
 	/// will return counters from the gpu to cpu

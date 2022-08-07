@@ -79,7 +79,6 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 	ImGui::Text("Delta time : %.5f", m_PushConstants.delta_time);
 	ImGui::Text("Absolute time : %.5f", m_PushConstants.absolute_time);
 	ImGui::Text("Max particles count : %u", m_UBOComp.max_particles_count);
-	ImGui::Text("Current particles count : %u", m_UBOComp.current_particles_count);
 
 	ImGui::Separator();
 
@@ -91,6 +90,7 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 	}
 
 	model_ubo |= ImGui::SliderUIntDefaultCompact(0.0f, "Max particles count", &m_UBOComp.max_particles_count, 1000U, 1000000U, 100000U);
+	change_ubo |= ImGui::SliderUIntDefaultCompact(0.0f, "emission count", &m_UBOComp.emission_count, 0U, m_UBOComp.max_particles_count, 100U);
 	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn mass", &m_UBOComp.spawn_mass, 0.1f, 1.0f, 0.5f);
 	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn rate", &m_UBOComp.spawn_rate, 0.1f, 1.0f, 0.5f);
 	change_ubo |= ImGui::SliderFloatDefaultCompact(0.0f, "Spawn min life", &m_UBOComp.base_min_life, 0.1f, 10.0f, 1.0f);
@@ -104,6 +104,7 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 
 	if (model_ubo)
 	{
+		NeedNewUBOUpload();
 		NeedNewModelUpdate();
 	}
 
@@ -151,6 +152,8 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 {
 	if (vCmdBuffer)
 	{
+		SetDispatchSize1D(m_UBOComp.max_particles_count);
+		
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
 
 		vCmdBuffer->pipelineBarrier(
@@ -165,6 +168,18 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 
 		m_PushConstants.delta_time = m_VulkanCorePtr->GetDeltaTime();
 		m_PushConstants.absolute_time += m_PushConstants.delta_time;
+		ComputePass(vCmdBuffer, 0U); // reset
+
+		vCmdBuffer->pipelineBarrier(
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::DependencyFlags(),
+			nullptr,
+			nullptr,
+			nullptr);
+
+		ComputePass(vCmdBuffer, 1U); // emit
+
 		vCmdBuffer->pushConstants(m_PipelineLayout,
 			vk::ShaderStageFlagBits::eCompute,
 			0, sizeof(PushConstants), &m_PushConstants);
@@ -185,6 +200,18 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 			NeedNewUBOUpload();
 		}
 	}
+}
+
+void MeshEmitterModule_Comp_Pass::ComputePass(vk::CommandBuffer* vCmd, const uint32_t& vPassNumber)
+{
+	ZoneScoped;
+
+	vCmd->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+
+	m_PushConstants.pass_number = vPassNumber;
+	vCmd->pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, sizeof(PushConstants), &m_PushConstants);
+
+	Dispatch(vCmd);
 }
 
 bool MeshEmitterModule_Comp_Pass::BuildModel()
@@ -265,11 +292,11 @@ bool MeshEmitterModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 
 	m_LayoutBindings.clear();
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Mesh vertexs
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Ubo
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// UbO
 	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles datas buffer
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles alive pre sim buffer
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles dead buffer
-	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles counter buffer
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles alive index buffer
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles counter buffer
+	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// indirect drawing buffer
 
 	return true;
 }
@@ -301,15 +328,15 @@ bool MeshEmitterModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 		nullptr, &m_DescriptorBufferInfo_Comp);
 
 	// Particles datas buffer
-	// not existence == no udate nor rendering => secured by CanUpdateDescriptors()
+	// not existence == no update nor rendering => secured by CanUpdateDescriptors()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1,
 		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetParticlesDatasBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1,
-		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetAliveParticlesPreSimBufferInfo());
+		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetAliveParticlesIndexBufferInfo());
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1,
-		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetDeadParticlesBufferInfo());
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1,
 		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetCountersBufferInfo());
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1,
+		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetDrawIndirectCommandBufferInfo());
 
 	return true;
 }
@@ -355,6 +382,7 @@ layout (std140, binding = 1) uniform UBO_Comp
 
 layout(push_constant) uniform push_constants 
 {
+	uint pass_number;
 	float absolute_time;
 	float delta_time;
 };
@@ -362,17 +390,36 @@ layout(push_constant) uniform push_constants
 +
 SceneParticles::GetParticlesDatasBufferHeader(2U)
 +
-SceneParticles::GetAliveParticlesPreSimBufferHeader(3U)
+SceneParticles::GetAliveParticlesIndexBufferHeader(3U)
 +
-SceneParticles::GetDeadParticlesBufferHeader(4U)
+SceneParticles::GetCounterBufferHeader(4U)
 +
-SceneParticles::GetCounterBufferHeader(5U)
+SceneParticles::GetDrawIndirectCommandHeader(5U)
 +
 u8R"(
+void ResetParticles()
+{
+
+}
+
+void EmitParticles()
+{
+
+}
+
 void main() 
 {
 	const int i_global_index = int(gl_GlobalInvocationID.x);			
 	
+	switch(pass_number)
+	{
+	case 0:
+		ResetParticles();
+		break;
+	case 1:
+		EmitParticles();
+		break;
+	};
 }
 )";
 }
@@ -390,6 +437,8 @@ std::string MeshEmitterModule_Comp_Pass::getXml(const std::string& vOffset, cons
 	str += vOffset + "<base_speed>" + ct::toStr(m_UBOComp.base_speed) + "</base_speed>\n";
 	str += vOffset + "<spawn_rate>" + ct::toStr(m_UBOComp.spawn_rate) + "</spawn_rate>\n";
 	str += vOffset + "<max_particles_count>" + ct::toStr(m_UBOComp.max_particles_count) + "</max_particles_count>\n";
+	str += vOffset + "<emission_count>" + ct::toStr(m_UBOComp.emission_count) + "</emission_count>\n";
+
 
 	return str;
 }
@@ -419,6 +468,8 @@ bool MeshEmitterModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxm
 			m_UBOComp.spawn_rate = ct::fvariant(strValue).GetF();
 		else if (strName == "max_particles_count")
 			m_UBOComp.max_particles_count = ct::uvariant(strValue).GetU();
+		else if (strName == "emission_count")
+			m_UBOComp.emission_count = ct::uvariant(strValue).GetU();
 	}
 
 	return true;

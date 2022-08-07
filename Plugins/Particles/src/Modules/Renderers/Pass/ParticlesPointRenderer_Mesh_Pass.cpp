@@ -68,23 +68,24 @@ void ParticlesPointRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, 
 		auto particlesPtr = m_SceneParticles.getValidShared();
 		if (particlesPtr)
 		{
-			auto vertexInputBufferPtr = particlesPtr->GetAliveParticlesPostSimVertexInputBuffer();
+			auto vertexInputBufferPtr = particlesPtr->GetParticlesVertexInputBuffer();
 			if (vertexInputBufferPtr)
 			{
-				auto counters = particlesPtr->GetCountersFromGPU(); // read data from gpu to cpu, so dont abuse from this call
-				if (counters && 
-					counters->alive_post_sim_counter)
+				auto indexInputBufferPtr = particlesPtr->GetAliveParticlesIndexInputBuffer();
+				if (indexInputBufferPtr)
 				{
-					vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+					auto indirectBufferPtr = particlesPtr->GetDrawIndirectCommandBuffer();
+					if (indirectBufferPtr)
 					{
-						VKFPScoped(*vCmdBuffer, "Particles Point Renderer", "DrawModel");
+						vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+						{
+							VKFPScoped(*vCmdBuffer, "Particles Point Renderer", "DrawModel Indexed Indirect");
 
-						vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-
-						vk::DeviceSize offsets = 0;
-						vCmdBuffer->bindVertexBuffers(0, *vertexInputBufferPtr, offsets);
-
-						vCmdBuffer->draw(counters->alive_post_sim_counter, 1, 0, 0);
+							vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+							vCmdBuffer->bindVertexBuffers(0, *vertexInputBufferPtr, (vk::DeviceSize)0);
+							vCmdBuffer->bindIndexBuffer(*indexInputBufferPtr, (vk::DeviceSize)0, vk::IndexType::eUint32);
+							vCmdBuffer->drawIndexedIndirect(*indirectBufferPtr, 0, 1, sizeof(VkDrawIndexedIndirectCommand));
+						}
 					}
 				}
 			}

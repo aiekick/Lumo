@@ -46,7 +46,7 @@ struct Particle
 	vec2 life1_max_life1;	// x:life, y:max_life
 };
 
-layout(std430, binding = %u) readonly buffer SBO_ParticleDatas
+layout(std430, binding = %u) buffer SBO_ParticleDatas
 {
 	Particle particleDatas[];
 };
@@ -63,32 +63,12 @@ layout(location = 3) in vec2 particle_life1_max_life1;
 )";
 }
 
-std::string SceneParticles::GetAliveParticlesPreSimBufferHeader(const uint32_t& vStartBindingPoint)
+std::string SceneParticles::GetAliveParticlesIndexBufferHeader(const uint32_t& vStartBindingPoint)
 {
 	return ct::toStr(u8R"(
-layout(std430, binding = %u) readonly buffer SBO_AlivePreSimParticleDatas
+layout(std430, binding = %u) buffer SBO_AlivePreSimParticleDatas
 {
 	uint alive_pre_sim_buffer[];
-};
-)", vStartBindingPoint);
-}
-
-std::string SceneParticles::GetAliveParticlesPostSimBufferHeader(const uint32_t& vStartBindingPoint)
-{
-	return ct::toStr(u8R"(
-layout(std430, binding = %u) readonly buffer SBO_AlivePostSimParticleDatas
-{
-	uint alive_post_sim_buffer[];
-};
-)", vStartBindingPoint);
-}
-
-std::string SceneParticles::GetDeadParticlesBufferHeader(const uint32_t& vStartBindingPoint)
-{
-	return ct::toStr(u8R"(
-layout(std430, binding = %u) readonly buffer SBO_DeadParticleDatas
-{
-	uint dead_buffer[];
 };
 )", vStartBindingPoint);
 }
@@ -96,11 +76,12 @@ layout(std430, binding = %u) readonly buffer SBO_DeadParticleDatas
 std::string SceneParticles::GetCounterBufferHeader(const uint32_t& vStartBindingPoint)
 {
 	return ct::toStr(u8R"(
-layout(std430, binding = %u) readonly buffer SBO_AtomicCounters
+layout(std430, binding = %u) buffer SBO_AtomicCounters
 {
 	uint alive_post_sim_counter;
 	uint alive_pre_sim_counter;
-	uint dead_m_counter;
+	uint dead_counter;
+	uint alive_particle_count,
 };
 )", vStartBindingPoint);
 }
@@ -175,6 +156,20 @@ VertexStruct::PipelineVertexInputState SceneParticles::GetInputStateBeforePipeli
 	return inputState;
 }
 
+std::string SceneParticles::GetDrawIndirectCommandHeader(const uint32_t& vStartBindingPoint)
+{
+	return ct::toStr(u8R"(
+layout(std430, binding = %u) buffer SBO_DrawIndexedIndirectCommand
+{
+	uint indexCount;
+	uint instanceCount;
+	uint firstIndex;
+	int vertexOffset;
+	uint firstInstance;
+};
+)", vStartBindingPoint);
+}
+
 ///////////////////////////////////////////////////////
 //// PUBLIC : CTOR / DTOR /////////////////////////////
 ///////////////////////////////////////////////////////
@@ -183,10 +178,9 @@ SceneParticles::SceneParticles(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	m_ParticlesDatasBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
-	m_AliveParticlesPreSimBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
-	m_AliveParticlesPostSimBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
-	m_DeadParticlesBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
+	m_AliveParticlesIndexBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
 	m_CountersBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
+	m_DrawArraysIndirectCommandBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
 }
 
 SceneParticles::~SceneParticles()
@@ -202,10 +196,9 @@ bool SceneParticles::IsOk()
 {
 	return 
 		(m_ParticlesDatasBufferPtr != nullptr) &&
-		(m_AliveParticlesPreSimBufferPtr != nullptr) &&
-		(m_AliveParticlesPostSimBufferPtr != nullptr) &&
-		(m_DeadParticlesBufferPtr != nullptr) &&
-		(m_CountersBufferPtr != nullptr)
+		(m_AliveParticlesIndexBufferPtr != nullptr) &&
+		(m_CountersBufferPtr != nullptr) &&
+		(m_DrawArraysIndirectCommandBufferPtr != nullptr)
 	;
 }
 
@@ -214,16 +207,28 @@ bool SceneParticles::Build(const uint32_t& vPaticlesMaxCount)
 {
 	if (vPaticlesMaxCount)
 	{
-		if (m_ParticlesDatasBufferPtr && m_ParticlesDatasBufferPtr->CreateBuffer(sizeof(ParticleStruct), vPaticlesMaxCount)) {
-			if (m_AliveParticlesPreSimBufferPtr && m_AliveParticlesPreSimBufferPtr->CreateBuffer(sizeof(uint32_t), vPaticlesMaxCount)) {
-				if (m_AliveParticlesPostSimBufferPtr && m_AliveParticlesPostSimBufferPtr->CreateBuffer(sizeof(uint32_t), vPaticlesMaxCount)) {
-					if (m_DeadParticlesBufferPtr && m_DeadParticlesBufferPtr->CreateBuffer(sizeof(uint32_t), vPaticlesMaxCount)) {
-						// for this one we will need to get on cpu side the counters for render the next frame of the simulator
-						// for limit the rendering to the alive particles only
-						if (m_CountersBufferPtr && m_CountersBufferPtr->CreateBuffer(
-							sizeof(CounterStruct), 1U, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU)) {
-							return true;
-						}
+		if (m_ParticlesDatasBufferPtr &&
+			m_ParticlesDatasBufferPtr->CreateBuffer(
+				sizeof(ParticleStruct), vPaticlesMaxCount,
+				VMA_MEMORY_USAGE_GPU_ONLY,
+				vk::BufferUsageFlagBits::eVertexBuffer)) {
+			if (m_AliveParticlesIndexBufferPtr &&
+				m_AliveParticlesIndexBufferPtr->CreateBuffer(
+				sizeof(uint32_t), vPaticlesMaxCount,
+					VMA_MEMORY_USAGE_GPU_ONLY,
+					vk::BufferUsageFlagBits::eIndexBuffer)) {
+				// for this one we will need to get on cpu side the counters for render the next frame of the simulator
+				// for limit the rendering to the alive particles only
+				if (m_CountersBufferPtr &&
+					m_CountersBufferPtr->CreateBuffer(
+						sizeof(CounterStruct), 1U,
+						VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU)) {
+					if (m_DrawArraysIndirectCommandBufferPtr &&
+						m_DrawArraysIndirectCommandBufferPtr->CreateBuffer(
+							sizeof(VkDrawIndexedIndirectCommand), 1U,
+							VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY,
+							vk::BufferUsageFlagBits::eIndirectBuffer)) {
+						return true;
 					}
 				}
 			}
@@ -238,49 +243,21 @@ bool SceneParticles::Build(const uint32_t& vPaticlesMaxCount)
 void SceneParticles::Destroy()
 {
 	m_ParticlesDatasBufferPtr.reset();
-	m_AliveParticlesPreSimBufferPtr.reset();
-	m_AliveParticlesPostSimBufferPtr.reset();
-	m_DeadParticlesBufferPtr.reset();
+	m_AliveParticlesIndexBufferPtr.reset();
 	m_CountersBufferPtr.reset();
+	m_DrawArraysIndirectCommandBufferPtr.reset();
 }
 
 void SceneParticles::DestroyBuffers()
 {
 	if (m_ParticlesDatasBufferPtr)
 		m_ParticlesDatasBufferPtr->DestroyBuffer();
-	if (m_AliveParticlesPreSimBufferPtr)
-		m_AliveParticlesPreSimBufferPtr->DestroyBuffer();
-	if (m_AliveParticlesPostSimBufferPtr)
-		m_AliveParticlesPostSimBufferPtr->DestroyBuffer();
-	if (m_DeadParticlesBufferPtr)
-		m_DeadParticlesBufferPtr->DestroyBuffer();
+	if (m_AliveParticlesIndexBufferPtr)
+		m_AliveParticlesIndexBufferPtr->DestroyBuffer();
 	if (m_CountersBufferPtr)
 		m_CountersBufferPtr->DestroyBuffer();
-}
-
-GpuOnlyStorageBufferWeak SceneParticles::GetParticlesDatasBuffer()
-{
-	return m_ParticlesDatasBufferPtr;
-}
-
-GpuOnlyStorageBufferWeak SceneParticles::GetAliveParticlesPreSimBuffer()
-{
-	return m_AliveParticlesPreSimBufferPtr;
-}
-
-GpuOnlyStorageBufferWeak SceneParticles::GetAliveParticlesPostSimBuffer()
-{
-	return m_AliveParticlesPostSimBufferPtr;
-}
-
-GpuOnlyStorageBufferWeak SceneParticles::GetDeadParticlesBuffer()
-{
-	return m_DeadParticlesBufferPtr;
-}
-
-GpuOnlyStorageBufferWeak SceneParticles::GetCountersBuffer()
-{
-	return m_CountersBufferPtr;
+	if (m_DrawArraysIndirectCommandBufferPtr)
+		m_DrawArraysIndirectCommandBufferPtr->DestroyBuffer();
 }
 
 vk::DescriptorBufferInfo* SceneParticles::GetParticlesDatasBufferInfo()
@@ -293,31 +270,11 @@ vk::DescriptorBufferInfo* SceneParticles::GetParticlesDatasBufferInfo()
 	return &m_EmptyDescriptorBufferInfo;
 }
 
-vk::DescriptorBufferInfo* SceneParticles::GetAliveParticlesPreSimBufferInfo()
+vk::DescriptorBufferInfo* SceneParticles::GetAliveParticlesIndexBufferInfo()
 {
-	if (m_AliveParticlesPreSimBufferPtr)
+	if (m_AliveParticlesIndexBufferPtr)
 	{
-		return m_AliveParticlesPreSimBufferPtr->GetBufferInfo();
-	}
-
-	return &m_EmptyDescriptorBufferInfo;
-}
-
-vk::DescriptorBufferInfo* SceneParticles::GetAliveParticlesPostSimBufferInfo()
-{
-	if (m_AliveParticlesPostSimBufferPtr)
-	{
-		return m_AliveParticlesPostSimBufferPtr->GetBufferInfo();
-	}
-
-	return &m_EmptyDescriptorBufferInfo;
-}
-
-vk::DescriptorBufferInfo* SceneParticles::GetDeadParticlesBufferInfo()
-{
-	if (m_DeadParticlesBufferPtr)
-	{
-		return m_DeadParticlesBufferPtr->GetBufferInfo();
+		return m_AliveParticlesIndexBufferPtr->GetBufferInfo();
 	}
 
 	return &m_EmptyDescriptorBufferInfo;
@@ -333,11 +290,41 @@ vk::DescriptorBufferInfo* SceneParticles::GetCountersBufferInfo()
 	return &m_EmptyDescriptorBufferInfo;
 }
 
-vk::Buffer* SceneParticles::GetAliveParticlesPostSimVertexInputBuffer()
+vk::DescriptorBufferInfo* SceneParticles::GetDrawIndirectCommandBufferInfo()
 {
-	if (m_AliveParticlesPostSimBufferPtr)
+	if (m_DrawArraysIndirectCommandBufferPtr)
 	{
-		return m_AliveParticlesPostSimBufferPtr->GetVulkanBuffer();
+		return m_DrawArraysIndirectCommandBufferPtr->GetBufferInfo();
+	}
+
+	return &m_EmptyDescriptorBufferInfo;
+}
+
+vk::Buffer* SceneParticles::GetParticlesVertexInputBuffer()
+{
+	if (m_ParticlesDatasBufferPtr)
+	{
+		return m_ParticlesDatasBufferPtr->GetVulkanBuffer();
+	}
+
+	return nullptr;
+}
+
+vk::Buffer* SceneParticles::GetAliveParticlesIndexInputBuffer()
+{
+	if (m_AliveParticlesIndexBufferPtr)
+	{
+		return m_AliveParticlesIndexBufferPtr->GetVulkanBuffer();
+	}
+
+	return nullptr;
+}
+
+vk::Buffer* SceneParticles::GetDrawIndirectCommandBuffer()
+{
+	if (m_DrawArraysIndirectCommandBufferPtr)
+	{
+		return m_DrawArraysIndirectCommandBufferPtr->GetVulkanBuffer();
 	}
 
 	return nullptr;
@@ -351,15 +338,6 @@ SceneParticles::CounterStruct* SceneParticles::GetCountersFromGPU()
 		auto sboPtr = m_CountersBufferPtr->GetBufferObjectPtr();
 		if (sboPtr)
 		{
-			/*
-			struct CounterStruct
-			{
-				uint32_t alive_post_sim_counter = 0U;
-				uint32_t alive_pre_sim_counter = 0U;
-				uint32_t dead_m_counter = 0U;
-			};
-			*/
-
 			// we will get counter data from gpu
 			void* mappedMemory = nullptr;
 			if (vmaMapMemory(vkApi::VulkanCore::sAllocator, sboPtr->alloc_meta, &mappedMemory) == VK_SUCCESS)

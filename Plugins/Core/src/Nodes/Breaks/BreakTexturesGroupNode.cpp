@@ -101,6 +101,8 @@ void BreakTexturesGroupNode::SetTextures(
 			m_Textures.push_back(info);
 		}
 	}
+
+	ReorganizeSlots();
 }
 
 vk::DescriptorImageInfo* BreakTexturesGroupNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
@@ -169,10 +171,13 @@ bool BreakTexturesGroupNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 
 void BreakTexturesGroupNode::ReorganizeSlots()
 {
-	m_Outputs.clear();
-	
-	for (uint32_t idx = 0U ; idx < (uint32_t)m_Textures.size() ; ++idx)
+	if (m_Textures.size() != m_Outputs.size())
 	{
-		AddOutput(NodeSlotTextureOutput::Create(ct::toStr("Output %u", idx), idx), true, true);
+		m_Outputs.clear();
+
+		for (uint32_t idx = 0U; idx < (uint32_t)m_Textures.size(); ++idx)
+		{
+			AddOutput(NodeSlotTextureOutput::Create(ct::toStr("Output %u", idx), idx), true, true);
+		}
 	}
 }

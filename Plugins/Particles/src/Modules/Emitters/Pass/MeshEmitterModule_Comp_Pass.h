@@ -46,6 +46,8 @@ limitations under the License.
 
 #include <SceneGraph/SceneParticles.h>
 
+#include <Utils/GpuOnlyStorageBuffer.h>
+
 class MeshEmitterModule_Comp_Pass :
 	public ShaderPass,
 	public GuiInterface,
@@ -63,9 +65,9 @@ private:
 	struct UBOComp 
 	{
 		alignas(4) uint32_t max_particles_count = 100000U; // 100K by default
-		alignas(4) uint32_t current_particles_count = 0U;
 		alignas(4) uint32_t current_vertexs_count = 0U;
 		alignas(4) float reset = 0.0f;
+		alignas(4) uint32_t emission_count = 100U; // 100 by default
 		alignas(4) float base_min_life = 1.0f;
 		alignas(4) float base_max_life = 1.0f;
 		alignas(4) float base_speed = 0.1f;
@@ -74,8 +76,14 @@ private:
 	} 
 	m_UBOComp;
 
+	struct m_SBOComp
+	{
+		uint32_t pending_emission_count = 0U;
+	} m_SBOComp;
+
 	struct PushConstants 
 	{
+		uint32_t pass_number = 0U;	// compute pass (reset, then emit)
 		float absolute_time = 0.0f;
 		float delta_time = 0.0f;
 	} 
@@ -96,7 +104,9 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
-protected:
+private:
+	void ComputePass(vk::CommandBuffer* vCmd, const uint32_t& vPassNumber);
+
 	bool BuildModel() override;
 	void DestroyModel(const bool& vReleaseDatas = false) override;
 

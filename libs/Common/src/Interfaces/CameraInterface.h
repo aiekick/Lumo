@@ -35,12 +35,12 @@ limitations under the License.
 class COMMON_API CameraInterface
 {
 public:
-	glm::mat4x4 uView;
-	glm::mat4x4 uProj;
-	glm::mat4x4 uModel;
-	glm::mat4x4 uCam;
-	glm::mat4x4 uInvCam;
-	glm::mat4x4 uNormalMatrix;
+	glm::mat4 uView = glm::mat4(1.0f);
+	glm::mat4 uProj = glm::mat4(1.0f);
+	glm::mat4 uModel = glm::mat4(1.0f);
+	glm::mat4 uCam = glm::mat4(1.0f);
+	glm::mat4 uInvCam = glm::mat4(1.0f);
+	glm::mat4 uNormalMatrix = glm::mat4(1.0f);
 
 public:
 	virtual void NeedCamChange() = 0;
