@@ -59,36 +59,38 @@ at least, support all rendering features and result of the SketchFab Renderer
 
 ## Core Plugin :
 
-- [X] Assets / Mesh Node 
-- [X] Assets / Texture 2D Node 
-- [X] Breaks / Break Texture 2D Group Node
-- [X] Differential Operators / Laplacian Node
-- [ ] Lighting / Attenuation Node
-- [X] Lighting / Diffuse Node
-- [X] Lighting / Light Group Node
-- [ ] Lighting / MetalNess Node
-- [X] Lighting / Model Shadow Node
-- [ ] Lighting / RoughNess Node
-- [X] Lighting / Shadow Mappings Node
-- [X] Lighting / Specular Node
-- [X] Misc / Grid / Axis Node
-- [X] Misc / 2D Layering
-- [X] Modifiers / Smooth Normals Node
-- [X] Postpro / Blur Node (WIP)
-- [X] Postpro / SSAO Node
-- [X] Postpro / Tone Map Node
-- [X] Renderers / Channels Renderer Node
-- [X] Renderers / Deferred Renderer Node (WIP)
-- [X] Renderers / Heatmap Renderer Node
-- [X] Renderers / Matcap Renderer Node
-- [ ] Renderers / PBR Renderer Node (WIP)
-- [X] Simulation / GrayScott Node
-- [X] Utils / Depth To Pos Node
-- [X] Utils / Math Node (add, sub, mul, smoothstep, step, etc..)
-- [X] Utils / Mesh Attributes Node
-- [X] Utils / Pos To Depth Node
-- [X] Widgets / Color Node
-- [X] Widgets / Variable Node
+| Created | Node | status |
+| - | - | - |
+| :white_square_button: | Assets / Mesh Node | ![img](https://progress-bar.dev/90) |
+|  :white_square_button: | Assets / Texture 2D Node  | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
+|  :black_square_button: | Lighting / Attenuation Node | ![img](https://progress-bar.dev/0) |
+|  :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/50) |
+|  :black_square_button: | Lighting / MetalNess Node | ![img](https://progress-bar.dev/0) |
+|  :white_square_button: | Lighting / Model Shadow Node | ![img](https://progress-bar.dev/100) |
+|  :black_square_button: | Lighting / RoughNess Node | ![img](https://progress-bar.dev/0) |
+|  :white_square_button: | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Misc / 2D Layering | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Postpro / Blur Node (WIP) | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Renderers / Deferred Renderer Node (WIP) | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Renderers / Matcap Renderer Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Renderers / PBR Renderer Node (WIP) | ![img](https://progress-bar.dev/10) |
+|  :white_square_button: | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Utils / Depth To Pos Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Utils / Math Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Utils / Mesh Attributes Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Utils / Pos To Depth Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
+|  :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/20) |
 
 ## RTX Plugin :
 
