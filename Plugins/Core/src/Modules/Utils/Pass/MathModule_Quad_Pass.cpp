@@ -582,7 +582,7 @@ void MathModule_Quad_Pass::ResizeToMaxOfTexturesIfNeeded()
 		{
 			// need resize to max of input textures ?
 			ct::fvec2 current_size = m_FrameBufferPtr->GetOutputSize();
-			if (IS_FLOAT_DIFFERENT(max_size.x, current_size.x) &&
+			if (IS_FLOAT_DIFFERENT(max_size.x, current_size.x) ||
 				IS_FLOAT_DIFFERENT(max_size.y, current_size.y))
 			{
 				// yes !
