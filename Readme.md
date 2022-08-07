@@ -16,6 +16,16 @@ Lumo is "Light" in Esperanto, its a short and pretty word to me :)
 
 at least, support all rendering features and result of the SketchFab Renderer
 
+# Gettings Started 
+
+- Create a new project (automatically saved when you quit the soft for the moment for easier dev)
+- Click right in the graph and add nodes.
+- Left mouse double click on a texture slot (Orange) of nodes for show the result in the 3d viewport
+- Middle mouse double click on a texture slot (Orange) of nodes for show the result in the 2d viewport
+- select a node and you can tune it in the tuning pane
+
+thats all
+
 # Tech's to implement :
 
 | Published | Feature | status |
@@ -59,6 +69,18 @@ at least, support all rendering features and result of the SketchFab Renderer
 
 # Plugin Nodes :
 
+| Published | Plugin | status |
+| - | - | - |
+| :white_square_button: | Core | ![img](https://progress-bar.dev/50) |
+| :black_square_button: | MeshSim | ![img](https://progress-bar.dev/90) |
+| :black_square_button: | MeshSSS | ![img](https://progress-bar.dev/10) |
+| :black_square_button: | MorphoGenesis | ![img](https://progress-bar.dev/20) |
+| :white_square_button: | Particles | ![img](https://progress-bar.dev/20) |
+| :white_square_button: | RTX | ![img](https://progress-bar.dev/40) |
+| :black_square_button: | SdfMesher | ![img](https://progress-bar.dev/40) |
+| :black_square_button: | Smoke | ![img](https://progress-bar.dev/20) |
+| :black_square_button: | VR | ![img](https://progress-bar.dev/60) |
+
 ## Core Plugin :
 
 | Published | Node | status |
@@ -94,13 +116,23 @@ at least, support all rendering features and result of the SketchFab Renderer
 | :white_square_button: | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/20) |
 
-## RTX Plugin :
+## MeshSim Plugin : 
 
 | Published | Node | status |
 | - | - | - |
-| :white_square_button: | Builders / Model to Accel Structure Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / PBR Node | ![img](https://progress-bar.dev/10) |
-| :white_square_button: | Renderers / SSS Node | ![img](https://progress-bar.dev/10) |
+| :black_square_button: | Lighting / Shadow Map Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Modifiers / Simulator | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Renderers / Renderer | ![img](https://progress-bar.dev/100) |
+
+## MeshSSS Plugin : 
+
+| Published | Node | status |
+| - | - | - |
+
+## MorphoGenesis Plugin : 
+
+| Published | Node | status |
+| - | - | - |
 
 ## Particles Plugin :
 
@@ -117,15 +149,28 @@ at least, support all rendering features and result of the SketchFab Renderer
 | :black_square_button: |  Simulation / Mesh Fur Simulation Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: |  Constraints / Force Node | ![img](https://progress-bar.dev/0) |
 
-# Gettings Started 
+## RTX Plugin :
 
-- Create a new project (automatically saved when you quit the soft for the moment for easier dev)
-- Click right in the graph and add nodes.
-- Left mouse double click on a texture slot (Orange) of nodes for show the result in the 3d viewport
-- Middle mouse double click on a texture slot (Orange) of nodes for show the result in the 2d viewport
-- select a node and you can tune it in the tuning pane
+| Published | Node | status |
+| - | - | - |
+| :white_square_button: | Builders / Model to Accel Structure Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / PBR Node | ![img](https://progress-bar.dev/10) |
+| :white_square_button: | Renderers / SSS Node | ![img](https://progress-bar.dev/10) |
 
-thats all
+## SdfMesher Plugin : 
+
+| Published | Node | status |
+| - | - | - |
+
+## Smoke Plugin : 
+
+| Published | Node | status |
+| - | - | - |
+
+## VR Plugin : 
+
+| Published | Node | status |
+| - | - | - |
 
 # ScreenShots
 
