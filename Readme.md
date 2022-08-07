@@ -30,8 +30,8 @@ thats all
 
 | Published | Feature | status |
 | - | - | - |
-| :black_square_button: | Geometry Shader | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Tesselation Shader | ![img](https://progress-bar.dev0) |
+| :black_square_button: | Geometry Shader | ![img](https://progress-bar.dev/60) |
+| :black_square_button: | Tesselation Shader | ![img](https://progress-bar.dev/50) |
 | :white_square_button: | Compute Shader | ![img](https://progress-bar.dev/90) |
 | :white_square_button: | Vulkan Framework | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Mesh Use | ![img](https://progress-bar.dev/100) |
