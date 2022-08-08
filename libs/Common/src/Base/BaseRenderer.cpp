@@ -520,8 +520,8 @@ void BaseRenderer::BeginTracyFrame(const char* vFrameName)
 
 void BaseRenderer::ResetCommandBuffer()
 {
-	auto cmd = GetCommandBuffer();
-	cmd->reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+	//auto cmd = GetCommandBuffer();
+	//cmd->reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 }
 
 void BaseRenderer::BeginCommandBuffer(const char* vSectionLabel)

@@ -529,7 +529,6 @@ namespace vkApi
 #if VULKAN_DEBUG
 			wantedLayers.emplace_back("VK_LAYER_KHRONOS_validation");
 			wantedLayers.emplace_back("VK_LAYER_LUNARG_core_validation");
-			wantedLayers.emplace_back("VK_LAYER_KHRONOS_synchronization2");
 			//wantedLayers.emplace_back("VK_LAYER_LUNARG_monitor");
 			//wantedLayers.emplace_back("VK_LAYER_LUNARG_api_dump");
 			//wantedLayers.emplace_back("VK_LAYER_LUNARG_device_simulation");
@@ -735,21 +734,27 @@ namespace vkApi
 			m_ApiVersion != VK_API_VERSION_1_0 &&
 			m_ApiVersion != VK_API_VERSION_1_1)
 		{
-			wantedDeviceExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME); // VK_API_VERSION_1_2
+			// not needed because in core since VK_API_VERSION_1_2
+			//wantedDeviceExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME); // VK_API_VERSION_1_2
 
 			// needed by VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
-			wantedDeviceExtensions.push_back(VK_KHR_MAINTENANCE_3_EXTENSION_NAME);
+			// not needed because in core since VK_API_VERSION_1_1
+			//wantedDeviceExtensions.push_back(VK_KHR_MAINTENANCE_3_EXTENSION_NAME);
 
 			// needed by VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME
-			wantedDeviceExtensions.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
+			// not needed because in core since VK_API_VERSION_1_2
+			//wantedDeviceExtensions.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
+			// not needed because in core since VK_API_VERSION_1_2
 			wantedDeviceExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
 			wantedDeviceExtensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
 
 			// needed by VK_KHR_SPIRV_1_4_EXTENSION_NAME
-			wantedDeviceExtensions.push_back(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME);
+			// not needed because in core since VK_API_VERSION_1_2
+			//wantedDeviceExtensions.push_back(VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME);
 
 			// needed by VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME
-			wantedDeviceExtensions.push_back(VK_KHR_SPIRV_1_4_EXTENSION_NAME);
+			// not needed because in core since VK_API_VERSION_1_2
+			//wantedDeviceExtensions.push_back(VK_KHR_SPIRV_1_4_EXTENSION_NAME);
 			wantedDeviceExtensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
 
 			wantedDeviceExtensions.push_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
@@ -814,17 +819,17 @@ namespace vkApi
 		uint32_t familyQueueIndex = m_Queues[vk::QueueFlagBits::eGraphics].familyQueueIndex;
 		m_Queues[vk::QueueFlagBits::eGraphics].vkQueue = m_LogDevice.getQueue(familyQueueIndex, 0);
 		m_Queues[vk::QueueFlagBits::eGraphics].cmdPools = m_LogDevice.createCommandPool(
-			vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer), familyQueueIndex));
+			vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(/*vk::CommandPoolCreateFlagBits::eResetCommandBuffer*/), familyQueueIndex));
 
 		familyQueueIndex = m_Queues[vk::QueueFlagBits::eCompute].familyQueueIndex;
 		m_Queues[vk::QueueFlagBits::eCompute].vkQueue = m_LogDevice.getQueue(familyQueueIndex, 0);
 		m_Queues[vk::QueueFlagBits::eCompute].cmdPools = m_LogDevice.createCommandPool(
-			vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer), familyQueueIndex));
+			vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(/*vk::CommandPoolCreateFlagBits::eResetCommandBuffer*/), familyQueueIndex));
 
 		familyQueueIndex = m_Queues[vk::QueueFlagBits::eTransfer].familyQueueIndex;
 		m_Queues[vk::QueueFlagBits::eTransfer].vkQueue = m_LogDevice.getQueue(familyQueueIndex, 0);
 		m_Queues[vk::QueueFlagBits::eTransfer].cmdPools = m_LogDevice.createCommandPool(
-			vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer), familyQueueIndex));
+			vk::CommandPoolCreateInfo(vk::CommandPoolCreateFlags(/*vk::CommandPoolCreateFlagBits::eResetCommandBuffer*/), familyQueueIndex));
 	
 		return true;
 	}
