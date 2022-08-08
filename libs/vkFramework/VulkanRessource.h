@@ -103,7 +103,9 @@ public: // buffers
 	static VulkanBufferObjectPtr createTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr,	vk::Format vFormat, uint64_t vDataSize, void* vDataPtr = nullptr);
 
 	template<class T> static VulkanBufferObjectPtr createVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);
+	static VulkanBufferObjectPtr createEmptyVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const size_t& vByteSize, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);
 	template<class T> static VulkanBufferObjectPtr createIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);
+	static VulkanBufferObjectPtr createEmptyIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const size_t& vByteSize, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);
 
 public: // RTX Accel Structure
 	// will set deveic adress of buffer in vVulkanBufferObjectPtr

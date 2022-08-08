@@ -219,8 +219,8 @@ namespace vkApi
 		assert(vLabel);
 		assert(strlen(vLabel) > 0U);
 
-		printf("-----------\n");
-		printf("Vulkan %s available Extentions : [%u]\n", vLabel, (uint32_t)installed.size());
+		LogVarLightInfo("-----------");
+		LogVarLightInfo("Vulkan %s available Extentions : [%u]", vLabel, (uint32_t)installed.size());
 		for (const auto& i : installed)
 		{
 			bool extFound = false;
@@ -234,7 +234,7 @@ namespace vkApi
 				}
 			}
 
-			printf("Debug : [%s] Ext %s \n", extFound ? "X" : " ", (const char*)i.extensionName);
+			LogVarLightInfo("Debug : [%s] Ext %s", extFound ? "X" : " ", (const char*)i.extensionName);
 		}
 	}
 
@@ -401,7 +401,7 @@ namespace vkApi
 		size_t of = vMaxLayerNameSize - strlen(layer_info.layerName);
 		if (of < 255)
 			spaceBuffer[of] = '\0';
-		printf("Debug : [%s] Layer %s %s [%s] %s \n", (vWanted ? "X" : " "), layer_info.layerName, spaceBuffer, version.c_str(), layer_info.description);
+		LogVarLightInfo("Debug : [%s] Layer %s %s [%s] %s", (vWanted ? "X" : " "), layer_info.layerName, spaceBuffer, version.c_str(), layer_info.description);
 	}
 
 	// Find available validation layers
@@ -409,7 +409,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		printf("-----------\n");
+		LogVarLightInfo("-----------");
 		
 		// Query validation layers currently isntalled
 		uint32_t layerCount;
@@ -423,7 +423,7 @@ namespace vkApi
 			maxSize = ct::maxi(maxSize, strlen(layer_info.layerName));
 		}
 
-		printf("Vulkan available validation layers : [%u]\n", layerCount);
+		LogVarLightInfo("Vulkan available validation layers : [%u]", layerCount);
 
 		for (const auto& layer_info : availableLayers)
 		{
@@ -449,7 +449,7 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		/*printf("-- DEBUG --\n");
+		/*LogVarLightInfo("-- DEBUG --");
 
 		// Query validation layers currently isntalled
 		uint32_t layerCount;
@@ -463,7 +463,7 @@ namespace vkApi
 			maxSize = ct::maxi(maxSize, strlen(layer_info.layerName));
 		}
 
-		printf("Vulkan available validation layers : [%u]\n", layerCount);
+		LogVarLightInfo("Vulkan available validation layers : [%u]", layerCount);
 
 		for (const auto& layer_info : availableLayers)
 		{
@@ -480,7 +480,7 @@ namespace vkApi
 			PrintLayerStatus(layer_info, layerWanted, maxSize);
 		}
 
-		printf("-----------\n");*/
+		LogVarLightInfo("-----------");*/
 
 		return true;
 	}
@@ -512,8 +512,8 @@ namespace vkApi
 				}
 			}
 			
-			printf("-----------\n");
-			printf("Vulkan api version is : %u.%u.%u.%u\n-----------",
+			LogVarLightInfo("-----------");
+			LogVarLightInfo("Vulkan api version is : %u.%u.%u.%u\n-----------",
 				VK_API_VERSION_VARIANT(m_ApiVersion),
 				VK_API_VERSION_MAJOR(m_ApiVersion),
 				VK_API_VERSION_MINOR(m_ApiVersion),
@@ -529,6 +529,7 @@ namespace vkApi
 #if VULKAN_DEBUG
 			wantedLayers.emplace_back("VK_LAYER_KHRONOS_validation");
 			wantedLayers.emplace_back("VK_LAYER_LUNARG_core_validation");
+			wantedLayers.emplace_back("VK_LAYER_KHRONOS_synchronization2");
 			//wantedLayers.emplace_back("VK_LAYER_LUNARG_monitor");
 			//wantedLayers.emplace_back("VK_LAYER_LUNARG_api_dump");
 			//wantedLayers.emplace_back("VK_LAYER_LUNARG_device_simulation");
@@ -580,6 +581,11 @@ namespace vkApi
 			);
 
 			std::vector<vk::ValidationFeatureEnableEXT> enabledFeatures;
+
+#if VULKAN_DEBUG_SYNCHRONIZATION_FEATURES
+			enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eSynchronizationValidation);
+#endif
+
 #if VULKAN_DEBUG_FEATURES
 			enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eBestPractices);
 			enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eGpuAssisted);
@@ -668,16 +674,16 @@ namespace vkApi
 			prop2.pNext = &m_RayTracingDeviceProperties;
 			vkGetPhysicalDeviceProperties2(m_PhysDevice, reinterpret_cast<VkPhysicalDeviceProperties2*>(&prop2));
 
-			printf("-----------\n");
-			printf("Ray Tracing Device Properties :\n");
-			printf(" - Shader Group Handle Size : %u\n", m_RayTracingDeviceProperties.shaderGroupHandleSize);
-			printf(" - Max Ray Recursion Depth : %u\n", m_RayTracingDeviceProperties.maxRayRecursionDepth);
-			printf(" - Max Shader Group Stride : %u\n", m_RayTracingDeviceProperties.maxShaderGroupStride);
-			printf(" - Shader Group Base Alignment : %u\n", m_RayTracingDeviceProperties.shaderGroupBaseAlignment);
-			printf(" - Shader Group Handle Capture Replay Size : %u\n", m_RayTracingDeviceProperties.shaderGroupHandleCaptureReplaySize);
-			printf(" - Max Ray Dispatch Invocation Count : %u\n", m_RayTracingDeviceProperties.maxRayDispatchInvocationCount);
-			printf(" - Shader Group Handle Alignment : %u\n", m_RayTracingDeviceProperties.shaderGroupHandleAlignment);
-			printf(" - Max Ray Hit Attribute Size : %u\n", m_RayTracingDeviceProperties.maxRayHitAttributeSize);
+			LogVarLightInfo("-----------");
+			LogVarLightInfo("Ray Tracing Device Properties :");
+			LogVarLightInfo(" - Shader Group Handle Size : %u", m_RayTracingDeviceProperties.shaderGroupHandleSize);
+			LogVarLightInfo(" - Max Ray Recursion Depth : %u", m_RayTracingDeviceProperties.maxRayRecursionDepth);
+			LogVarLightInfo(" - Max Shader Group Stride : %u", m_RayTracingDeviceProperties.maxShaderGroupStride);
+			LogVarLightInfo(" - Shader Group Base Alignment : %u", m_RayTracingDeviceProperties.shaderGroupBaseAlignment);
+			LogVarLightInfo(" - Shader Group Handle Capture Replay Size : %u", m_RayTracingDeviceProperties.shaderGroupHandleCaptureReplaySize);
+			LogVarLightInfo(" - Max Ray Dispatch Invocation Count : %u", m_RayTracingDeviceProperties.maxRayDispatchInvocationCount);
+			LogVarLightInfo(" - Shader Group Handle Alignment : %u", m_RayTracingDeviceProperties.shaderGroupHandleAlignment);
+			LogVarLightInfo(" - Max Ray Hit Attribute Size : %u", m_RayTracingDeviceProperties.maxRayHitAttributeSize);
 		}
 
 		//auto limits = m_PhysDevice.getProperties().limits;
@@ -752,45 +758,45 @@ namespace vkApi
 		std::vector<const char*> deviceExtensions = {};
 		findBestExtensions("Device", installedDeviceExtensions, wantedDeviceExtensions, deviceExtensions);
 
-		printf("-----------\n");
-		printf("Device Features :\n");
+		LogVarLightInfo("-----------");
+		LogVarLightInfo("Device Features :");
 		
 		// enabled features
-		printf("Feature vk 1.0 : wide Lines\n");
+		LogVarLightInfo("Feature vk 1.0 : wide Lines");
 		m_PhysDeviceFeatures.setWideLines(true);			// pour changer la taille des lignes
 
-		printf("Feature vk 1.0 : sample Rate Shading\n");
+		LogVarLightInfo("Feature vk 1.0 : sample Rate Shading");
 		m_PhysDeviceFeatures.setSampleRateShading(true);	// pour anti aliaser les textures
 
-		printf("Feature vk 1.0 : geometry Shader\n");
+		LogVarLightInfo("Feature vk 1.0 : geometry Shader");
 		m_PhysDeviceFeatures.setGeometryShader(true);		// pour utiliser les shader de geometrie
 
-		printf("Feature vk 1.0 : tessellation Shader\n");
+		LogVarLightInfo("Feature vk 1.0 : tessellation Shader");
 		m_PhysDeviceFeatures.setTessellationShader(true);	// pour utiliser les shaders de tesselation
 		
 		// for using int64_t and uint64_t in a sahder code
 		// need to add in a shader :
 		// #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
-		printf("Feature vk 1.0 : int64/uint64 in a Shader\n");
+		LogVarLightInfo("Feature vk 1.0 : int64/uint64 in a Shader");
 		m_PhysDeviceFeatures.setShaderInt64(true);
 
 		m_PhysDeviceFeatures2.setFeatures(m_PhysDeviceFeatures);
 
-		printf("Feature vk 1.0 : null Descriptor\n");
+		LogVarLightInfo("Feature vk 1.0 : null Descriptor");
 		m_Robustness2Feature.setNullDescriptor(true);		// null descriptor feature
 		m_PhysDeviceFeatures2.setPNext(&m_Robustness2Feature);
 
-		printf("Feature vk 1.2 : Buffer Device Address\n");
+		LogVarLightInfo("Feature vk 1.2 : Buffer Device Address");
 		m_BufferDeviceAddress.setBufferDeviceAddress(true);
 		m_Robustness2Feature.setPNext(&m_BufferDeviceAddress);
 
 		if (m_Use_RTX)
 		{
-			printf("Feature vk 1.2 : (RTX) Acceleration Structure\n");
+			LogVarLightInfo("Feature vk 1.2 : (RTX) Acceleration Structure");
 			m_AccelerationStructureFeature.setAccelerationStructure(true);
 			m_BufferDeviceAddress.setPNext(&m_AccelerationStructureFeature);
 
-			printf("Feature vk 1.2 : (RTX) Ray Tracing Pipeline\n");
+			LogVarLightInfo("Feature vk 1.2 : (RTX) Ray Tracing Pipeline");
 			m_RayTracingPipelineFeature.setRayTracingPipeline(true);
 			m_AccelerationStructureFeature.setPNext(&m_RayTracingPipelineFeature);
 		}

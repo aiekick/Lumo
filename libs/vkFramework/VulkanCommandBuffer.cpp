@@ -152,7 +152,7 @@ namespace vkApi
 
 		ResetFence();
 
-		cmd.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+		//cmd.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 		cmd.begin(vk::CommandBufferBeginInfo());
 
 		return true;

@@ -538,11 +538,13 @@ void VulkanRessource::transitionImageLayout(vkApi::VulkanCorePtr vVulkanCorePtr,
 		throw std::invalid_argument("unsupported layout transition!");
 	}
 
-	cmd.pipelineBarrier(sourceStage, destinationStage,
+	cmd.pipelineBarrier(
+		sourceStage, 
+		destinationStage,
 		vk::DependencyFlags(),
-		{},
-		{},
-		barrier);
+		0, nullptr,
+		0, nullptr,
+		1, &barrier);
 
 	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true);
 }
@@ -795,6 +797,44 @@ VulkanBufferObjectPtr VulkanRessource::createTexelBuffer(
 	}
 
 	return nullptr;
+}
+
+VulkanBufferObjectPtr VulkanRessource::createEmptyVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const size_t& vByteSize, bool vUseSSBO, bool vUseTransformFeedback, bool vUseRTX)
+{
+	vk::BufferCreateInfo vboInfo = {};
+	VmaAllocationCreateInfo vboAllocInfo = {};
+	vboInfo.size = vByteSize;
+	vboInfo.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+	if (vUseSSBO) vboInfo.usage = vboInfo.usage |
+		vk::BufferUsageFlagBits::eStorageBuffer;
+	if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage |
+		vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+	if (vUseRTX) vboInfo.usage = vboInfo.usage |
+		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
+		vk::BufferUsageFlagBits::eStorageBuffer |
+		vk::BufferUsageFlagBits::eShaderDeviceAddress;
+
+	vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
+	return createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);
+}
+
+VulkanBufferObjectPtr VulkanRessource::createEmptyIndexBufferObject(VulkanCorePtr vVulkanCorePtr, const size_t& vByteSize, bool vUseSSBO, bool vUseTransformFeedback, bool vUseRTX)
+{
+	vk::BufferCreateInfo vboInfo = {};
+	VmaAllocationCreateInfo vboAllocInfo = {};
+	vboInfo.size = vByteSize;
+	vboInfo.usage = vk::BufferUsageFlagBits::eIndexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+	if (vUseSSBO) vboInfo.usage = vboInfo.usage |
+		vk::BufferUsageFlagBits::eStorageBuffer;
+	if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage |
+		vk::BufferUsageFlagBits::eTransformFeedbackBufferEXT;
+	if (vUseRTX) vboInfo.usage = vboInfo.usage |
+		vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR |
+		vk::BufferUsageFlagBits::eStorageBuffer |
+		vk::BufferUsageFlagBits::eShaderDeviceAddress;
+
+	vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
+	return createSharedBufferObject(vVulkanCorePtr, vboInfo, vboAllocInfo);
 }
 
 //////////////////////////////////////////////////////////////////////////////////

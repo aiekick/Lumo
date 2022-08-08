@@ -90,7 +90,7 @@ public:
 			auto newSizeToAllocate = startOffset - lastOffset + newSize;
 #ifdef PRINT_BLOCK_DATAS
 			auto endOffset = startOffset + newSize;
-			printf("key %s, size %u, align %u, Offsets : %u => %u, size to alloc %u\n", vKey.c_str(), newSize, baseAlign, startOffset, endOffset, newSizeToAllocate);
+			LogVarLightInfo("key %s, size %u, align %u, Offsets : %u => %u, size to alloc %u", vKey.c_str(), newSize, baseAlign, startOffset, endOffset, newSizeToAllocate);
 #endif
 			datas.resize(lastOffset + newSizeToAllocate);
 			// on set de "lastOffset" à "lastOffset + newSizeToAllocate"

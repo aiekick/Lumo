@@ -120,7 +120,7 @@ namespace vkApi
 				auto imguiRendPtr = m_VulkanImGuiRendererWeak.getValidShared();
 				if (imguiRendPtr)
 				{
-					imguiRendPtr->Init(&init_info, (VkRenderPass)corePtr->getMainRenderPass());
+					imguiRendPtr->Init(corePtr, &init_info, (VkRenderPass)corePtr->getMainRenderPass());
 
 					// load memory font file
 					ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_RM, 15.0f);

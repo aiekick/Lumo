@@ -239,14 +239,12 @@ void App::MainLoop(GLFWwindow* vWindow)
 
 		glfwPollEvents();
 
+		// to absolutly do beofre all vk rendering commands
+		m_VulkanCorePtr->ResetCommandPools();
+
 		Update(); // to do absolutly beofre imgui rendering
 
-		ct::ivec4 viewportRect = ct::ivec4(0, m_VulkanWindowPtr->getWindowResolution());
-
-		ImGui::SetPUSHID(125);
-		PluginManager::Instance()->ResetImGuiID(125);
-
-		PrepareImGui(viewportRect);
+		PrepareImGui(ct::ivec4(0, m_VulkanWindowPtr->getWindowResolution()));
 
 		// Merged Rendering
 		bool needResize = false;
@@ -352,6 +350,9 @@ void App::EndRender()
 void App::PrepareImGui(ct::ivec4 vViewport)
 {
 	ZoneScoped;
+
+	ImGui::SetPUSHID(125);
+	PluginManager::Instance()->ResetImGuiID(125);
 
 	// ImGui Calc juste avant de rendre dnas la swapchain
 	m_VulkanImGuiOverlayPtr->begin();

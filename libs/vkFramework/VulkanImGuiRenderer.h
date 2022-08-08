@@ -21,6 +21,11 @@ limitations under the License.
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/vkFramework.h>
 
+#define ENABLE_AIEKICK_CODE
+
+#ifdef ENABLE_AIEKICK_CODE
+#include <vkFramework/VulkanCore.h>
+#endif
 // Implemented features:
 //  [X] Renderer: Support for large meshes (64k+ vertices) with 16-bit indices.
 //  [x] Platform: Multi-viewport / platform windows. With issues (flickering when creating a new viewport).
@@ -65,6 +70,9 @@ limitations under the License.
 // [Please zero-clear before use!]
 struct ImGui_ImplVulkan_InitInfo
 {
+#ifdef ENABLE_AIEKICK_CODE
+    vkApi::VulkanCorePtr            vulkanCorePtr = nullptr;
+#endif
     VkInstance                      Instance;
     VkPhysicalDevice                PhysicalDevice;
     VkDevice                        Device;
@@ -186,7 +194,7 @@ private:
 	VkRenderPass m_RenderPass = VK_NULL_HANDLE;
 
 public:
-	bool Init(ImGui_ImplVulkan_InitInfo* info, VkRenderPass render_pass);
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr, ImGui_ImplVulkan_InitInfo* info, VkRenderPass render_pass);
 	void Unit();
 
 public:

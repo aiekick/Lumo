@@ -26,6 +26,9 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <ctools/Logger.h>
 
+#ifdef ENABLE_AIEKICK_CODE
+#include <vkFramework/VulkanRessource.h>
+#endif
 
 // Implemented features:
 //  [X] Renderer: Support for large meshes (64k+ vertices) with 16-bit indices.
@@ -83,12 +86,18 @@ limitations under the License.
 // [Please zero-clear before use!]
 struct ImGui_ImplVulkanH_FrameRenderBuffers
 {
-    VkDeviceMemory      VertexBufferMemory;
-    VkDeviceMemory      IndexBufferMemory;
     VkDeviceSize        VertexBufferSize;
     VkDeviceSize        IndexBufferSize;
+
+#ifndef ENABLE_AIEKICK_CODE
+    VkDeviceMemory      VertexBufferMemory;
+    VkDeviceMemory      IndexBufferMemory;
     VkBuffer            VertexBuffer;
     VkBuffer            IndexBuffer;
+#else
+    VulkanBufferObjectPtr vertexBufferPtr = nullptr;
+    VulkanBufferObjectPtr indexBufferPtr = nullptr;
+#endif
 };
 
 // Each viewport will hold 1 ImGui_ImplVulkanH_WindowRenderBuffers
@@ -398,10 +407,17 @@ static void ImGui_ImplVulkan_SetupRenderState(ImDrawData* draw_data, VkPipeline 
     // Bind Vertex And Index Buffer:
     if (draw_data->TotalVtxCount > 0)
     {
+#ifndef ENABLE_AIEKICK_CODE
         VkBuffer vertex_buffers[1] = { rb->VertexBuffer };
         VkDeviceSize vertex_offset[1] = { 0 };
         vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, vertex_offset);
         vkCmdBindIndexBuffer(command_buffer, rb->IndexBuffer, 0, sizeof(ImDrawIdx) == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+#else
+        VkBuffer vertex_buffers[1] = { rb->vertexBufferPtr->buffer };
+        VkDeviceSize vertex_offset[1] = { 0 };
+        vkCmdBindVertexBuffers(command_buffer, 0, 1, vertex_buffers, vertex_offset);
+        vkCmdBindIndexBuffer(command_buffer, rb->indexBufferPtr->buffer, 0, sizeof(ImDrawIdx) == 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+#endif
     }
 
     // Setup viewport:
@@ -460,6 +476,7 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
 
     if (draw_data->TotalVtxCount > 0)
     {
+#ifndef ENABLE_AIEKICK_CODE
         // Create or resize the vertex/index buffers
         size_t vertex_size = draw_data->TotalVtxCount * sizeof(ImDrawVert);
         size_t index_size = draw_data->TotalIdxCount * sizeof(ImDrawIdx);
@@ -494,6 +511,45 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
         check_vk_result(err);
         vkUnmapMemory(v->Device, rb->VertexBufferMemory);
         vkUnmapMemory(v->Device, rb->IndexBufferMemory);
+#else
+        // Create or resize the vertex/index buffers
+        size_t vertex_size = draw_data->TotalVtxCount * sizeof(ImDrawVert);
+        size_t index_size = draw_data->TotalIdxCount * sizeof(ImDrawIdx);
+        if (!rb->vertexBufferPtr || !rb->vertexBufferPtr->buffer || rb->VertexBufferSize < vertex_size)
+        {
+            rb->vertexBufferPtr = vkApi::VulkanRessource::createEmptyVertexBufferObject(v->vulkanCorePtr, vertex_size);
+            rb->VertexBufferSize = vertex_size;
+        }
+        if (!rb->indexBufferPtr || !rb->indexBufferPtr->buffer || rb->IndexBufferSize < index_size)
+        {
+            rb->indexBufferPtr = vkApi::VulkanRessource::createEmptyIndexBufferObject(v->vulkanCorePtr, index_size);
+            rb->IndexBufferSize = index_size;
+        }
+
+        // Upload vertex/index data into a single contiguous GPU buffer
+
+ 
+        ImDrawVert* vtx_dst = NULL;
+        ImDrawIdx* idx_dst = NULL;
+
+        vkApi::VulkanCore::check_error(vmaMapMemory(vkApi::VulkanCore::sAllocator, rb->vertexBufferPtr->alloc_meta, (void**)(&vtx_dst)));
+        vkApi::VulkanCore::check_error(vmaMapMemory(vkApi::VulkanCore::sAllocator, rb->indexBufferPtr->alloc_meta, (void**)(&idx_dst)));
+
+        for (int n = 0; n < draw_data->CmdListsCount; n++)
+        {
+            const ImDrawList* cmd_list = draw_data->CmdLists[n];
+            memcpy(vtx_dst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+            memcpy(idx_dst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+            vtx_dst += cmd_list->VtxBuffer.Size;
+            idx_dst += cmd_list->IdxBuffer.Size;
+        }
+
+        vmaFlushAllocation(vkApi::VulkanCore::sAllocator, rb->vertexBufferPtr->alloc_meta, 0, VK_WHOLE_SIZE);
+        vmaFlushAllocation(vkApi::VulkanCore::sAllocator, rb->indexBufferPtr->alloc_meta, 0, VK_WHOLE_SIZE);
+
+        vmaUnmapMemory(vkApi::VulkanCore::sAllocator, rb->vertexBufferPtr->alloc_meta);
+        vmaUnmapMemory(vkApi::VulkanCore::sAllocator, rb->indexBufferPtr->alloc_meta);
+#endif
     }
 
     // Setup desired Vulkan state
@@ -560,7 +616,7 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
                    }
                     else
                     {
-                        printf("pcmd->TextureId is NULL VkDescriptorSet\n");
+                        LogVarLightInfo("pcmd->TextureId is NULL VkDescriptorSet");
                         //break;
                     }
                 }
@@ -1182,7 +1238,7 @@ VkPresentModeKHR ImGui_ImplVulkanH_SelectPresentMode(VkPhysicalDevice physical_d
     avail_modes.resize((int)avail_count);
     vkGetPhysicalDeviceSurfacePresentModesKHR(physical_device, surface, &avail_count, avail_modes.Data);
     //for (uint32_t avail_i = 0; avail_i < avail_count; avail_i++)
-    //    printf("[vulkan] avail_modes[%d] = %d\n", avail_i, avail_modes[avail_i]);
+    //    printf("[vulkan] avail_modes[%d] = %d", avail_i, avail_modes[avail_i]);
 
     for (int request_i = 0; request_i < request_modes_count; request_i++)
         for (uint32_t avail_i = 0; avail_i < avail_count; avail_i++)
@@ -1473,10 +1529,15 @@ void ImGui_ImplVulkanH_DestroyFrameSemaphores(VkDevice device, ImGui_ImplVulkanH
 
 void ImGui_ImplVulkanH_DestroyFrameRenderBuffers(VkDevice device, ImGui_ImplVulkanH_FrameRenderBuffers* buffers, const VkAllocationCallbacks* allocator)
 {
+#ifndef ENABLE_AIEKICK_CODE
     if (buffers->VertexBuffer) { vkDestroyBuffer(device, buffers->VertexBuffer, allocator); buffers->VertexBuffer = VK_NULL_HANDLE; }
     if (buffers->VertexBufferMemory) { vkFreeMemory(device, buffers->VertexBufferMemory, allocator); buffers->VertexBufferMemory = VK_NULL_HANDLE; }
     if (buffers->IndexBuffer) { vkDestroyBuffer(device, buffers->IndexBuffer, allocator); buffers->IndexBuffer = VK_NULL_HANDLE; }
     if (buffers->IndexBufferMemory) { vkFreeMemory(device, buffers->IndexBufferMemory, allocator); buffers->IndexBufferMemory = VK_NULL_HANDLE; }
+#else
+    buffers->vertexBufferPtr.reset();
+    buffers->indexBufferPtr.reset();
+#endif
     buffers->VertexBufferSize = 0;
     buffers->IndexBufferSize = 0;
 }
@@ -1535,7 +1596,7 @@ static void ImGui_ImplVulkan_CreateWindow(ImGuiViewport* viewport)
     // FIXME-VULKAN: Even thought mailbox seems to get us maximum framerate with a single window, it halves framerate with a second window etc. (w/ Nvidia and SDK 1.82.1)
     VkPresentModeKHR present_modes[] = { VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR };
     wd->PresentMode = ImGui_ImplVulkanH_SelectPresentMode(v->PhysicalDevice, wd->Surface, &present_modes[0], IM_ARRAYSIZE(present_modes));
-    //printf("[vulkan] Secondary window selected PresentMode = %d\n", wd->PresentMode);
+    //printf("[vulkan] Secondary window selected PresentMode = %d", wd->PresentMode);
 
     // Create SwapChain, RenderPass, Framebuffer, etc.
     wd->ClearEnable = (viewport->Flags & ImGuiViewportFlags_NoRendererClear) ? false : true;
@@ -1733,7 +1794,7 @@ VkDescriptorSet ImGui_ImplVulkanH_Create_UserTexture_Descriptor(VkSampler sample
     else
     {
         descriptor_set = VK_NULL_HANDLE;
-        printf("VkDescriptorSet is NULL");
+        LogVarLightInfo("VkDescriptorSet is NULL");
     }
 
     return descriptor_set;
@@ -1768,7 +1829,7 @@ VulkanImGuiRendererPtr VulkanImGuiRenderer::Create()
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-bool VulkanImGuiRenderer::Init(ImGui_ImplVulkan_InitInfo* info, VkRenderPass render_pass)
+bool VulkanImGuiRenderer::Init(vkApi::VulkanCorePtr vVulkanCorePtr, ImGui_ImplVulkan_InitInfo* info, VkRenderPass render_pass)
 {
 	// Setup back-end capabilities flags
 	ImGuiIO& io = ImGui::GetIO();
@@ -1776,6 +1837,9 @@ bool VulkanImGuiRenderer::Init(ImGui_ImplVulkan_InitInfo* info, VkRenderPass ren
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;  // We can create multi-viewports on the Renderer side (optional)
 
+#ifdef ENABLE_AIEKICK_CODE
+    info->vulkanCorePtr = vVulkanCorePtr;
+#endif
 	IM_ASSERT(info->Instance != VK_NULL_HANDLE);
 	IM_ASSERT(info->PhysicalDevice != VK_NULL_HANDLE);
 	IM_ASSERT(info->Device != VK_NULL_HANDLE);
@@ -1862,7 +1926,7 @@ vk::DescriptorSet VulkanImGuiRenderer::CreateImGuiTexture(VkSampler sampler, VkI
 	else
 	{
 		descriptor_set = vk::DescriptorSet{};
-		printf("VkDescriptorSet is NULL");
+		LogVarLightInfo("VkDescriptorSet is NULL");
 	}
 
 	return descriptor_set;

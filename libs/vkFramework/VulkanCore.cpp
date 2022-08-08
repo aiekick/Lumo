@@ -309,6 +309,7 @@ namespace vkApi
 			{
 				if (m_VulkanDevicePtr->m_LogDevice.resetFences(1, &m_VulkanSwapChainPtr->m_WaitFences[m_VulkanSwapChainPtr->m_FrameIndex]) == vk::Result::eSuccess)
 				{
+					//todo : reset pool instead ?
 					m_CommandBuffers[m_VulkanSwapChainPtr->m_FrameIndex].reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 
 					m_CommandBuffers[m_VulkanSwapChainPtr->m_FrameIndex].begin(vk::CommandBufferBeginInfo());
@@ -367,8 +368,12 @@ namespace vkApi
 				.setSignalSemaphoreCount(1)
 				.setPSignalSemaphores(&m_VulkanSwapChainPtr->m_RenderCompleteSemaphores[m_VulkanSwapChainPtr->m_FrameIndex]);
 
-			//std::unique_lock<std::mutex> lck(VulkanSubmitter::criticalSectionMutex, std::defer_lock);
-			//lck.lock();
+			VulkanSubmitter::Submit(m_This.getValidShared(), vk::QueueFlagBits::eGraphics,
+				submitInfo, m_VulkanSwapChainPtr->m_WaitFences[m_VulkanSwapChainPtr->m_FrameIndex]);
+
+			/*
+			std::unique_lock<std::mutex> lck(VulkanSubmitter::criticalSectionMutex, std::defer_lock);
+			lck.lock();
 			auto result = getQueue(vk::QueueFlagBits::eGraphics).vkQueue.submit(1, &submitInfo, 
 				m_VulkanSwapChainPtr->m_WaitFences[m_VulkanSwapChainPtr->m_FrameIndex]);
 			if (result == vk::Result::eErrorDeviceLost)
@@ -376,7 +381,8 @@ namespace vkApi
 				// driver lost, we'll crash in this case:
 				LogVarDebug("Debug : Driver Lost after submit");
 			}
-			//lck.unlock();
+			lck.unlock();
+			*/
 		}
 	}
 
@@ -576,16 +582,21 @@ namespace vkApi
 		);
 	}
 
+	void VulkanCore::ResetCommandPools()
+	{
+		for (auto& queue : m_VulkanDevicePtr->m_Queues)
+		{
+			m_VulkanDevicePtr->m_LogDevice.resetCommandPool(queue.second.cmdPools, vk::CommandPoolResetFlagBits::eReleaseResources);
+		}
+	}
+
 	void VulkanCore::destroyGraphicCommandsAndSynchronization()
 	{
 		ZoneScoped;
 
 		m_VulkanDevicePtr->m_LogDevice.freeCommandBuffers(m_VulkanDevicePtr->getQueue(vk::QueueFlagBits::eGraphics).cmdPools, m_CommandBuffers);
 
-		for (auto& queue : m_VulkanDevicePtr->m_Queues)
-		{
-			m_VulkanDevicePtr->m_LogDevice.resetCommandPool(queue.second.cmdPools, vk::CommandPoolResetFlagBits::eReleaseResources);
-		}
+		ResetCommandPools();
 	}
 
 	void VulkanCore::destroyComputeCommandsAndSynchronization()
@@ -607,10 +618,12 @@ namespace vkApi
 		ZoneScoped;
 
 		VmaAllocatorCreateInfo allocatorInfo = {};
+		allocatorInfo.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
 
 		if (m_VulkanDevicePtr->m_Use_RTX)
 		{
-			allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;  // VK_API_VERSION_1_2
+			allocatorInfo.flags |= 
+				VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;  // VK_API_VERSION_1_2
 		}
 
 		allocatorInfo.physicalDevice = (VkPhysicalDevice)m_VulkanDevicePtr->m_PhysDevice;

@@ -22,8 +22,9 @@ limitations under the License.
 #include <vkFramework/vkFramework.h>
 
 #define VULKAN_DEBUG 1
-#define VULKAN_DEBUG_FEATURES 0
 #define VULKAN_GPU_ID 0
+#define VULKAN_DEBUG_FEATURES 1
+#define VULKAN_DEBUG_SYNCHRONIZATION_FEATURES 1
 
 namespace vkApi
 {

@@ -151,6 +151,9 @@ namespace vkApi
 		bool justGainFocus();
 		ct::frect* getDisplayRect();
 
+	public: // reset
+		void ResetCommandPools();
+
 	protected:
 		void setupGraphicCommandsAndSynchronization();
 		void destroyGraphicCommandsAndSynchronization();

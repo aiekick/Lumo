@@ -41,6 +41,7 @@
 #include <cctype>
 
 #include "ResourceLimits.h"
+#include <ctools/Logger.h>
 
 namespace glslang {
 	const TBuiltInResource DefaultTBuiltInResource = {
@@ -281,7 +282,7 @@ namespace glslang {
 			const std::string valueStr = configStr.substr(value_s, value_e - value_s);
 
 			if (value_s == std::string::npos || !(valueStr[0] == '-' || isdigit(valueStr[0]))) {
-				printf("Error: '%s' bad .conf file.  Each name must be followed by one number.\n",
+				LogVarLightInfo("Error: '%s' bad .conf file.  Each name must be followed by one number.",
 					valueStr.c_str());
 				return;
 			}
@@ -493,7 +494,7 @@ namespace glslang {
 			else if (tokenStr == "generalConstantMatrixVectorIndexing")
 				resources->limits.generalConstantMatrixVectorIndexing = (value != 0);
 			else
-				printf("Warning: unrecognized limit (%s) in configuration file.\n", tokenStr.c_str());
+			LogVarLightInfo("Warning: unrecognized limit (%s) in configuration file.", tokenStr.c_str());
 		}
 	}
 }  // end namespace glslang
