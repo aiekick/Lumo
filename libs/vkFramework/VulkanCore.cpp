@@ -367,8 +367,8 @@ namespace vkApi
 				.setSignalSemaphoreCount(1)
 				.setPSignalSemaphores(&m_VulkanSwapChainPtr->m_RenderCompleteSemaphores[m_VulkanSwapChainPtr->m_FrameIndex]);
 
-			std::unique_lock<std::mutex> lck(VulkanSubmitter::criticalSectionMutex, std::defer_lock);
-			lck.lock();
+			//std::unique_lock<std::mutex> lck(VulkanSubmitter::criticalSectionMutex, std::defer_lock);
+			//lck.lock();
 			auto result = getQueue(vk::QueueFlagBits::eGraphics).vkQueue.submit(1, &submitInfo, 
 				m_VulkanSwapChainPtr->m_WaitFences[m_VulkanSwapChainPtr->m_FrameIndex]);
 			if (result == vk::Result::eErrorDeviceLost)
@@ -376,7 +376,7 @@ namespace vkApi
 				// driver lost, we'll crash in this case:
 				LogVarDebug("Debug : Driver Lost after submit");
 			}
-			lck.unlock();
+			//lck.unlock();
 		}
 	}
 

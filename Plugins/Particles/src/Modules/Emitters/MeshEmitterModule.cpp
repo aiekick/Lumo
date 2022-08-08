@@ -31,6 +31,8 @@ limitations under the License.
 
 #include <Modules/Emitters/Pass/MeshEmitterModule_Comp_Pass.h>
 
+#include <Systems/RenderDocController.h>
+
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////
@@ -79,6 +81,8 @@ bool MeshEmitterModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
+		SetExecutionWhenNeededOnly(true);
+
 		m_MeshEmitterModule_Comp_Pass_Ptr = std::make_shared<MeshEmitterModule_Comp_Pass>(m_VulkanCorePtr);
 		if (m_MeshEmitterModule_Comp_Pass_Ptr)
 		{
@@ -109,6 +113,15 @@ bool MeshEmitterModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 	return true;
 }
 
+bool MeshEmitterModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+{
+	ZoneScoped;
+
+	BaseRenderer::Render("Particles Mesh Emitter", vCmd);
+
+	return true;
+}
+
 bool MeshEmitterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
@@ -118,6 +131,18 @@ bool MeshEmitterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 		if (ImGui::CollapsingHeader_CheckBox("Particles Mesh Emitter", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
+
+			static bool s_Capture_RenderDocFrame = false;
+			ImGui::CheckBoxBoolDefault("Capture Renderdoc Frame with next action", &s_Capture_RenderDocFrame, false);
+
+			if (ImGui::ContrastedButton("Next Frame", nullptr, nullptr, ImGui::GetContentRegionAvail().x))
+			{
+				change = true;
+				if (s_Capture_RenderDocFrame)
+				{
+					RenderDocController::Instance()->RequestCapture();
+				}
+			}
 
 			if (m_MeshEmitterModule_Comp_Pass_Ptr)
 			{

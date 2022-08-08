@@ -78,10 +78,8 @@ std::string SceneParticles::GetCounterBufferHeader(const uint32_t& vStartBinding
 	return ct::toStr(u8R"(
 layout(std430, binding = %u) buffer SBO_AtomicCounters
 {
-	uint alive_post_sim_counter;
-	uint alive_pre_sim_counter;
-	uint dead_counter;
-	uint alive_particle_count,
+	uint alive_particles_count;
+	uint pending_emission_count;
 };
 )", vStartBindingPoint);
 }
@@ -226,7 +224,7 @@ bool SceneParticles::Build(const uint32_t& vPaticlesMaxCount)
 					if (m_DrawArraysIndirectCommandBufferPtr &&
 						m_DrawArraysIndirectCommandBufferPtr->CreateBuffer(
 							sizeof(VkDrawIndexedIndirectCommand), 1U,
-							VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY,
+							VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU,
 							vk::BufferUsageFlagBits::eIndirectBuffer)) {
 						return true;
 					}
@@ -332,8 +330,7 @@ vk::Buffer* SceneParticles::GetDrawIndirectCommandBuffer()
 
 SceneParticles::CounterStruct* SceneParticles::GetCountersFromGPU()
 {
-	if (m_CountersBufferPtr && 
-		m_CountersBufferPtr->GetBufferInfo())
+	if (m_CountersBufferPtr)
 	{
 		auto sboPtr = m_CountersBufferPtr->GetBufferObjectPtr();
 		if (sboPtr)
@@ -348,6 +345,29 @@ SceneParticles::CounterStruct* SceneParticles::GetCountersFromGPU()
 			}
 
 			return &m_Counters;
+		}
+	}
+
+	return nullptr;
+}
+
+VkDrawIndexedIndirectCommand* SceneParticles::GetDrawIndirectCommandFromGPU()
+{
+	if (m_DrawArraysIndirectCommandBufferPtr)
+	{
+		auto sboPtr = m_DrawArraysIndirectCommandBufferPtr->GetBufferObjectPtr();
+		if (sboPtr)
+		{
+			// we will get counter data from gpu
+			void* mappedMemory = nullptr;
+			if (vmaMapMemory(vkApi::VulkanCore::sAllocator, sboPtr->alloc_meta, &mappedMemory) == VK_SUCCESS)
+			{
+				memcpy(&m_IndexedIndirectCommand, mappedMemory, sizeof(VkDrawIndexedIndirectCommand));
+
+				vmaUnmapMemory(vkApi::VulkanCore::sAllocator, sboPtr->alloc_meta);
+			}
+
+			return &m_IndexedIndirectCommand;
 		}
 	}
 

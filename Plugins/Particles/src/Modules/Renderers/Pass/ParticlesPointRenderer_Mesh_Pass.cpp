@@ -77,14 +77,19 @@ void ParticlesPointRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, 
 					auto indirectBufferPtr = particlesPtr->GetDrawIndirectCommandBuffer();
 					if (indirectBufferPtr)
 					{
-						vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+						m_CountersPtr = particlesPtr->GetCountersFromGPU();
+						if (m_CountersPtr)
 						{
-							VKFPScoped(*vCmdBuffer, "Particles Point Renderer", "DrawModel Indexed Indirect");
+							/*vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+							{
+								VKFPScoped(*vCmdBuffer, "Particles Point Renderer", "DrawModel Indexed Indirect");
 
-							vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-							vCmdBuffer->bindVertexBuffers(0, *vertexInputBufferPtr, (vk::DeviceSize)0);
-							vCmdBuffer->bindIndexBuffer(*indexInputBufferPtr, (vk::DeviceSize)0, vk::IndexType::eUint32);
-							vCmdBuffer->drawIndexedIndirect(*indirectBufferPtr, 0, 1, sizeof(VkDrawIndexedIndirectCommand));
+								vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+								vCmdBuffer->bindVertexBuffers(0, *vertexInputBufferPtr, (vk::DeviceSize)0);
+								vCmdBuffer->bindIndexBuffer(*indexInputBufferPtr, (vk::DeviceSize)0, vk::IndexType::eUint32);
+								//vCmdBuffer->drawIndexed(m_CountersPtr->alive_particles_count, 1U, 0U, 0U, 0U);
+								//vCmdBuffer->drawIndexedIndirect(*indirectBufferPtr, 0, 1, sizeof(VkDrawIndexedIndirectCommand));
+							}*/
 						}
 					}
 				}
@@ -98,6 +103,12 @@ bool ParticlesPointRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	bool change = false;
+
+	if (m_CountersPtr)
+	{
+		ImGui::Text("Alive Particles Count : %u", m_CountersPtr->alive_particles_count);
+		ImGui::Text("Pending Emission Count : %u", m_CountersPtr->pending_emission_count);
+	}
 
 	if (change)
 	{

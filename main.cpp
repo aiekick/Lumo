@@ -80,11 +80,11 @@ int main(int, char** argv)
 		LogVarLightInfo("Exception %s", e.what());
 		Logger::Instance()->Close();
 
-		if (App::Instance()->GetWindowPtr())
+		/*if (App::Instance()->GetWindowPtr())
 		{
 			const auto& main_window = App::Instance()->GetWindowPtr()->getWindowPtr();
 			App::Instance()->Unit(main_window);
-		}
+		}*/
 
 		return EXIT_FAILURE;
 	}

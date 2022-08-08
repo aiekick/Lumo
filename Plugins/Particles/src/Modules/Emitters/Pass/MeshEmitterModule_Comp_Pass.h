@@ -62,6 +62,9 @@ private:
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
+	SceneParticles::CounterStruct* m_CountersPtr = nullptr;
+	VkDrawIndexedIndirectCommand* m_IndexedIndirectCommandPtr = nullptr;
+
 	struct UBOComp 
 	{
 		alignas(4) uint32_t max_particles_count = 100000U; // 100K by default

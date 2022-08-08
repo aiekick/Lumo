@@ -89,6 +89,7 @@ private:
 	vk::DescriptorBufferInfo m_EmptyDescriptorBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 	CounterStruct m_Counters;
+	VkDrawIndexedIndirectCommand m_IndexedIndirectCommand;
 
 	GpuOnlyStorageBufferPtr m_ParticlesDatasBufferPtr = nullptr;
 	GpuOnlyStorageBufferPtr m_AliveParticlesIndexBufferPtr = nullptr;
@@ -131,6 +132,12 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	CounterStruct* GetCountersFromGPU();
+
+	/// <summary>
+	/// will return counters from the gpu to cpu
+	/// </summary>
+	/// <returns></returns>
+	VkDrawIndexedIndirectCommand* GetDrawIndirectCommandFromGPU();
 
 private:
 	void Destroy();

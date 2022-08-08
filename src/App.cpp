@@ -73,6 +73,8 @@ limitations under the License.
 
 #include <Base/Base.h>
 
+#include <Systems/RenderDocController.h>
+
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -213,6 +215,8 @@ bool App::Init(GLFWwindow* vWindow)
 					m_VulkanCorePtr->getPhysicalDevice(),
 					m_VulkanCorePtr->getDevice());
 
+				RenderDocController::Instance()->Init();
+
 				res = true;
 			}
 		} 
@@ -226,6 +230,8 @@ void App::MainLoop(GLFWwindow* vWindow)
 	while (!glfwWindowShouldClose(vWindow))
 	{
 		ZoneScoped;
+
+		RenderDocController::Instance()->StartCaptureIfResquested();
 
 		// maintain active, prevent user change via imgui dialog
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
@@ -277,6 +283,8 @@ void App::MainLoop(GLFWwindow* vWindow)
 
 		//will pause the view until we move the mouse
 		//glfwWaitEvents();
+
+		RenderDocController::Instance()->EndCaptureIfResquested();
 	}
 }
 
@@ -406,6 +414,8 @@ bool App::Unit(GLFWwindow* vWindow)
 	UNUSED(vWindow);
 
 	vkDeviceWaitIdle((VkDevice)m_VulkanCorePtr->getDevice());
+
+	RenderDocController::Instance()->Unit();
 
 	vkprof::vkProfiler::Instance()->Unit();
 

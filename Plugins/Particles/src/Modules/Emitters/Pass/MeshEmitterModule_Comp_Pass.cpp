@@ -76,9 +76,26 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 	bool change_ubo = false;
 	bool model_ubo = false;
 
-	ImGui::Text("Delta time : %.5f", m_PushConstants.delta_time);
-	ImGui::Text("Absolute time : %.5f", m_PushConstants.absolute_time);
+	ImGui::Text("Delta time          : %.5f", m_PushConstants.delta_time);
+	ImGui::Text("Absolute time       : %.5f", m_PushConstants.absolute_time);
 	ImGui::Text("Max particles count : %u", m_UBOComp.max_particles_count);
+
+	if (m_IndexedIndirectCommandPtr)
+	{
+		ImGui::Text("DrawIndexedIndirectCommand Content :");
+		ImGui::Text("indexCount    : %u", m_IndexedIndirectCommandPtr->indexCount);
+		ImGui::Text("instanceCount : %u", m_IndexedIndirectCommandPtr->instanceCount);
+		ImGui::Text("firstIndex    : %u", m_IndexedIndirectCommandPtr->firstIndex);
+		ImGui::Text("vertexOffset  : %u", m_IndexedIndirectCommandPtr->vertexOffset);
+		ImGui::Text("firstInstance : %u", m_IndexedIndirectCommandPtr->firstInstance);
+	}
+
+	if (m_CountersPtr)
+	{
+		ImGui::Text("Counters Content :");
+		ImGui::Text("alive_particles_count  : %u", m_CountersPtr->alive_particles_count);
+		ImGui::Text("pending_emission_count : %u", m_CountersPtr->pending_emission_count);
+	}
 
 	ImGui::Separator();
 
@@ -152,8 +169,6 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 {
 	if (vCmdBuffer)
 	{
-		SetDispatchSize1D(m_UBOComp.max_particles_count);
-		
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
 
 		vCmdBuffer->pipelineBarrier(
@@ -168,6 +183,7 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 
 		m_PushConstants.delta_time = m_VulkanCorePtr->GetDeltaTime();
 		m_PushConstants.absolute_time += m_PushConstants.delta_time;
+		SetDispatchSize1D(1U);
 		ComputePass(vCmdBuffer, 0U); // reset
 
 		vCmdBuffer->pipelineBarrier(
@@ -178,13 +194,8 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 			nullptr,
 			nullptr);
 
+		SetDispatchSize1D(m_UBOComp.max_particles_count);
 		ComputePass(vCmdBuffer, 1U); // emit
-
-		vCmdBuffer->pushConstants(m_PipelineLayout,
-			vk::ShaderStageFlagBits::eCompute,
-			0, sizeof(PushConstants), &m_PushConstants);
-
-		Dispatch(vCmdBuffer);
 
 		vCmdBuffer->pipelineBarrier(
 			vk::PipelineStageFlagBits::eComputeShader,
@@ -198,6 +209,12 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 		{
 			m_UBOComp.reset = 0.0f;
 			NeedNewUBOUpload();
+		}
+
+		if (m_ParticlesPtr)
+		{
+			m_CountersPtr = m_ParticlesPtr->GetCountersFromGPU();
+			m_IndexedIndirectCommandPtr = m_ParticlesPtr->GetDrawIndirectCommandFromGPU();
 		}
 	}
 }
@@ -345,12 +362,12 @@ std::string MeshEmitterModule_Comp_Pass::GetComputeShaderCode(std::string& vOutS
 {
 	vOutShaderName = "MeshEmitterModule_Comp_Pass";
 
-	SetLocalGroupSize(ct::uvec3(8U, 1U, 1U));
+	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
 
 	return u8R"(
 #version 450
 
-layout(local_size_x = 8, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 struct V3N3T3B3T2C4 
 {
@@ -370,9 +387,9 @@ layout(std430, binding = 0) readonly buffer VertexInput
 layout (std140, binding = 1) uniform UBO_Comp 
 {
 	uint max_particles_count;
-	uint current_particles_count;
 	uint current_vertexs_count;
 	float reset;
+	uint emission_count;
 	float base_min_life;
 	float base_max_life;
 	float base_speed;

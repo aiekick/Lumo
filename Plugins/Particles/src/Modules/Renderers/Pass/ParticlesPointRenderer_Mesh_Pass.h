@@ -31,6 +31,7 @@ limitations under the License.
 #include <Interfaces/ParticlesOutputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/MergedInterface.h>
+#include <SceneGraph/SceneParticles.h>
 
 class ParticlesPointRenderer_Mesh_Pass :
 	public ShaderPass,
@@ -38,6 +39,9 @@ class ParticlesPointRenderer_Mesh_Pass :
 	public ParticlesInputInterface,
 	public TextureOutputInterface
 {
+private:
+	SceneParticles::CounterStruct* m_CountersPtr = nullptr;
+
 public:
 	ParticlesPointRenderer_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ParticlesPointRenderer_Mesh_Pass() override;
