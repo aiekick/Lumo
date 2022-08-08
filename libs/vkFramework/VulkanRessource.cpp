@@ -235,7 +235,7 @@ VulkanRessourceObjectPtr VulkanRessource::createColorAttachment2D(vkApi::VulkanC
 		imageInfo.sharingMode = vk::SharingMode::eExclusive;
 	imageInfo.queueFamilyIndexCount = static_cast<uint32_t>(familyIndices.size());
 	imageInfo.pQueueFamilyIndices = familyIndices.data();
-	imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+	imageInfo.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
 
 	VmaAllocationCreateInfo image_alloc_info = {};
 	image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
@@ -243,7 +243,7 @@ VulkanRessourceObjectPtr VulkanRessource::createColorAttachment2D(vkApi::VulkanC
 	auto vkoPtr = VulkanRessource::createSharedImageObject(vVulkanCorePtr, imageInfo, image_alloc_info);
 	if (vkoPtr)
 	{
-		VulkanRessource::transitionImageLayout(vVulkanCorePtr, vkoPtr->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eShaderReadOnlyOptimal);
+		VulkanRessource::transitionImageLayout(vVulkanCorePtr, vkoPtr->image, format, mipLevelCount, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 	}
 
 	return vkoPtr;
