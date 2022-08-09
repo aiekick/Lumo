@@ -91,7 +91,9 @@ void MainFrame::Init()
 
 	using namespace std::placeholders;
 	BaseNode::sSelectCallback = std::bind(&MainFrame::SelectNode, this, _1);
-	BaseNode::sSelectForGraphOutputCallback = std::bind(&MainFrame::SelectNodeForGraphOutput, this, _1, _2, _3);
+	BaseNode::sSelectForGraphOutputCallback = std::bind(&MainFrame::SelectNodeForGraphOutput, this, _1, _2);
+	NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.5f, 0.9f, 1.0f);
+	NodeSlot::sSlotGraphOutputMouseMiddleColor = ImVec4(0.2f, 0.9f, 0.5f, 1.0f);
 }
 
 void MainFrame::Unit()
@@ -106,6 +108,7 @@ void MainFrame::Unit()
 	TuningPane::Instance()->Unit();
 	GraphPane::Instance()->Unit();
 	ScenePane::Instance()->Unit();
+
 #ifdef USE_PROFILER
 	ProfilerPane::Instance()->Unit();
 #endif
@@ -117,7 +120,7 @@ void MainFrame::SelectNode(const BaseNodeWeak& vNode)
 	DebugPane::Instance()->Select(vNode);
 }
 
-void MainFrame::SelectNodeForGraphOutput(const BaseNodeWeak& vNode, const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton)
+void MainFrame::SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton)
 {
 	if (NodeManager::Instance()->m_RootNodePtr)
 	{

@@ -16,15 +16,18 @@ limitations under the License.
 
 #pragma once
 
-#include <imgui/imgui.h>
-#include <ctools/cTools.h>
-#include <ctools/ConfigAbstract.h>
-#include <vkFramework/VulkanCore.h>
-#include <Graph/Graph.h>
-#include <functional>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
+#include <functional>
+#include <imgui/imgui.h>
+#include <Graph/Graph.h>
+#include <ctools/cTools.h>
+#include <Editor/SlotEditor.h>
+#include <ctools/ConfigAbstract.h>
+#include <vkFramework/VulkanCore.h>
+#include <Graph/Base/NodeSlotInput.h>
+#include <Graph/Base/NodeSlotOutput.h>
 
 struct GLFWwindow;
 class MainFrame : public conf::ConfigAbstract
@@ -49,10 +52,26 @@ private:
 	bool m_NeedToNewProject = false;
 	bool m_NeedToLoadProject = false;
 	bool m_NeedToCloseProject = false;
+
+private: // generation
 	std::string m_FilePathNameToLoad;
+	std::string m_ClassName;
+	bool m_GenerateAModule = false;
+	bool m_GenerateAPass = false;
+	std::string m_RendererType;
 
 private:
 	BaseNodePtr m_RootNodePtr = nullptr;
+	BaseNodeWeak m_SelectedNode;
+	NodeSlotInputWeak m_SelectedNodeSlotInput;
+	NodeSlotOutputWeak m_SelectedNodeSlotOutput;
+	SlotEditor m_InputSlotEditor;
+	SlotEditor m_OutputSlotEditor;
+
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+
+	// need one frame update for make it work
+	bool m_NeedToApplyLayout = false;
 
 public:
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -67,6 +86,10 @@ private: // imgui pane / dialogs
 	void DrawMainMenuBar();
 	void DrawContent();
 	void DrawGraph();
+	void DrawPluginCreationPane();
+	void DrawNodeCreationPane();
+	void SelectNode(const BaseNodeWeak& vNode);
+	void SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton);
 
 private:
 	void SetAppTitle(const std::string& vFilePathName = std::string());

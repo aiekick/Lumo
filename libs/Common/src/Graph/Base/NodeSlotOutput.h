@@ -22,7 +22,11 @@ limitations under the License.
 class NodeSlotOutput : public NodeSlot
 {
 public:
-	static NodeSlotOutputPtr Create(NodeSlotOutput vSlot);
+	static NodeSlotOutputPtr Create();
+	static NodeSlotOutputPtr Create(std::string vName);
+	static NodeSlotOutputPtr Create(std::string vName, std::string vType);
+	static NodeSlotOutputPtr Create(std::string vName, std::string vType, bool vHideName);
+	static NodeSlotOutputPtr Create(std::string vName, std::string vType, bool vHideName, bool vShowWidget);
 
 public:
 	explicit NodeSlotOutput();

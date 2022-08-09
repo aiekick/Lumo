@@ -63,9 +63,12 @@ void SlotColor::AddSlotColor(const std::string& vNodeSlotType, const ImVec4& vSl
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotWeak NodeSlot::sSlotGraphOutputMouseLeft;
+NodeSlotWeak NodeSlot::sSlotGraphOutputMouseLeft; 
+ImVec4 NodeSlot::sSlotGraphOutputMouseLeftColor;
 NodeSlotWeak NodeSlot::sSlotGraphOutputMouseMiddle;
+ImVec4 NodeSlot::sSlotGraphOutputMouseMiddleColor;
 NodeSlotWeak NodeSlot::sSlotGraphOutputMouseRight;
+ImVec4 NodeSlot::sSlotGraphOutputMouseRightColor;
 
 std::string NodeSlot::sGetStringFromNodeSlotPlaceEnum(const NodeSlot::PlaceEnum& vPlaceEnum)
 {
@@ -336,18 +339,18 @@ void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 
 		if (ImGui::IsRectVisible(vSlotSize))
 		{
+			if (!colorIsSet)
+			{
+				color = sGetSlotColors()->GetSlotColor(slotType);
+				colorIsSet = true;
+			}
+
+			auto u_color = ImGui::GetColorU32(color);
+			
 			auto draw_list = ImGui::GetWindowDrawList();
 			if (draw_list)
 			{
-				if (!colorIsSet)
-				{
-					color = sGetSlotColors()->GetSlotColor(slotType);
-					colorIsSet = true;
-				}
-
-				auto u_color = ImGui::GetColorU32(color);
-				DrawNodeSlot(draw_list, slotCenter, vBaseNodeState->graphStyle.SLOT_RADIUS,
-					connected, u_color, u_color);
+				DrawNodeSlot(draw_list, slotCenter, vBaseNodeState, connected, u_color, u_color);
 			}
 
 			if (ImGui::IsItemHovered())
@@ -357,17 +360,20 @@ void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
 					MouseDoubleClickedOnSlot(ImGuiMouseButton_Left);
+					BaseNode::SelectSlot_Callback(m_This, ImGuiMouseButton_Left);
 				}
 				else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Right))
 				{
 					MouseDoubleClickedOnSlot(ImGuiMouseButton_Right);
+					BaseNode::SelectSlot_Callback(m_This, ImGuiMouseButton_Right);
 				}
 				else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Middle))
 				{
 					MouseDoubleClickedOnSlot(ImGuiMouseButton_Middle);
+					BaseNode::SelectSlot_Callback(m_This, ImGuiMouseButton_Middle);
 				}
 
-				DrawSlotText(vBaseNodeState);
+				DrawSlotText(draw_list, slotCenter, vBaseNodeState, connected, u_color, u_color);
 			}
 		}
 	}
@@ -407,31 +413,19 @@ void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlo
 		// Left
 		if (vEmitterSlot.getValidShared() == NodeSlot::sSlotGraphOutputMouseLeft.getValidShared())
 		{
-			auto slotPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared();
-			if (slotPtr)
-			{
-				BaseNode::SelectForGraphOutput_Callback(slotPtr->parentNode, slotPtr, ImGuiMouseButton_Left);
-			}
+			BaseNode::SelectForGraphOutput_Callback(NodeSlot::sSlotGraphOutputMouseLeft, ImGuiMouseButton_Left);
 		}
 
 		// Middle
 		if (vEmitterSlot.getValidShared() == NodeSlot::sSlotGraphOutputMouseMiddle.getValidShared())
 		{
-			auto slotPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared();
-			if (slotPtr)
-			{
-				BaseNode::SelectForGraphOutput_Callback(slotPtr->parentNode, slotPtr, ImGuiMouseButton_Middle);
-			}
+			BaseNode::SelectForGraphOutput_Callback(NodeSlot::sSlotGraphOutputMouseLeft, ImGuiMouseButton_Middle);
 		}
 
 		// Right
 		if (vEmitterSlot.getValidShared() == NodeSlot::sSlotGraphOutputMouseRight.getValidShared())
 		{
-			auto slotPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared();
-			if (slotPtr)
-			{
-				BaseNode::SelectForGraphOutput_Callback(slotPtr->parentNode, slotPtr, ImGuiMouseButton_Right);
-			}
+			BaseNode::SelectForGraphOutput_Callback(NodeSlot::sSlotGraphOutputMouseLeft, ImGuiMouseButton_Right);
 		}
 	}
 	else // receiving notification from other slots
@@ -561,7 +555,7 @@ void NodeSlot::DrawOutputWidget(BaseNodeState *vBaseNodeState)
 	}
 }
 
-void NodeSlot::DrawSlotText(BaseNodeState *vBaseNodeState)
+void NodeSlot::DrawSlotText(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor)
 {
 	if (vBaseNodeState)
 	{
@@ -636,34 +630,39 @@ void NodeSlot::DrawSlotText(BaseNodeState *vBaseNodeState)
 		}
 	}
 }
-void NodeSlot::DrawNodeSlot(ImDrawList *vDrawList, ImVec2 vCenter, float vSlotRadius, bool vConnected, ImU32 vColor, ImU32 vInnerColor)
+void NodeSlot::DrawNodeSlot(ImDrawList *vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor)
 {
 	UNUSED(vInnerColor);
 	UNUSED(vConnected);
 
 	if (vDrawList)
 	{
-		const auto min = ImVec2(vCenter.x - vSlotRadius, vCenter.y - vSlotRadius);
-		const auto max = ImVec2(vCenter.x + vSlotRadius, vCenter.y + vSlotRadius);
+		const auto slotRadius = vBaseNodeState->graphStyle.SLOT_RADIUS;
 
-		vDrawList->AddRectFilled(min, max, vColor, 1.0f);
+		vDrawList->AddNgonFilled(vCenter, slotRadius, vColor, 24);
+		
+		if (ImGui::IsItemHovered())
+		{
+			ImVec4 color = ImGui::ColorConvertU32ToFloat4(vColor); color.w = 0.5f;
+			vDrawList->AddNgon(vCenter, slotRadius + 2.0f, ImGui::GetColorU32(color), 24, 2.5f);
+		}
 
 		auto slotOutputMouseLeftPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared(); // blue
 		if (slotOutputMouseLeftPtr && slotOutputMouseLeftPtr == m_This.getValidShared())
 		{
-			vDrawList->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.2f, 0.5f, 0.9f, 1.0f)), 1.0f, 0, 3.0f);
+			vDrawList->AddNgon(vCenter, slotRadius + 2.0f, ImGui::GetColorU32(NodeSlot::sSlotGraphOutputMouseLeftColor), 24, 2.5f);
 		}
 
 		auto slotOutputMouseMiddlePtr = NodeSlot::sSlotGraphOutputMouseMiddle.getValidShared(); // green
 		if (slotOutputMouseMiddlePtr && slotOutputMouseMiddlePtr == m_This.getValidShared())
 		{
-			vDrawList->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.2f, 0.9f, 0.5f, 1.0f)), 1.0f, 0, 2.0f);
+			vDrawList->AddNgon(vCenter, slotRadius + 2.0f, ImGui::GetColorU32(NodeSlot::sSlotGraphOutputMouseMiddleColor), 24, 2.5f);
 		}
 
 		auto slotOutputMouseRightPtr = NodeSlot::sSlotGraphOutputMouseRight.getValidShared(); // red
 		if (slotOutputMouseRightPtr && slotOutputMouseRightPtr == m_This.getValidShared())
 		{
-			vDrawList->AddRect(min, max, ImGui::GetColorU32(ImVec4(0.9f, 0.5f, 0.2f, 1.0f)), 1.0f, 0, 1.0f);
+			vDrawList->AddNgon(vCenter, slotRadius + 2.0f, ImGui::GetColorU32(NodeSlot::sSlotGraphOutputMouseRightColor), 24, 2.5f);
 		}
 	}
 }

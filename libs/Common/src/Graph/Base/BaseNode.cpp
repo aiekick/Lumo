@@ -74,12 +74,22 @@ void BaseNode::OpenGraph_Callback(const BaseNodeWeak& vNode)
 	}
 }
 
-std::function<void(const BaseNodeWeak&, const NodeSlotWeak&, const ImGuiMouseButton&)> BaseNode::sSelectForGraphOutputCallback;
-void BaseNode::SelectForGraphOutput_Callback(const BaseNodeWeak& vNode, const NodeSlotWeak& vSlot, const ImGuiMouseButton& vMouseButton)
+std::function<void(const NodeSlotWeak&, const ImGuiMouseButton&)> BaseNode::sSelectSlotCallback;
+void BaseNode::SelectSlot_Callback(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vMouseButton)
+{
+	if (BaseNode::sSelectSlotCallback)
+	{
+		BaseNode::sSelectSlotCallback(vSlot, vMouseButton);
+	}
+}
+
+
+std::function<void(const NodeSlotWeak&, const ImGuiMouseButton&)> BaseNode::sSelectForGraphOutputCallback;
+void BaseNode::SelectForGraphOutput_Callback(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vMouseButton)
 {
 	if (BaseNode::sSelectForGraphOutputCallback)
 	{
-		BaseNode::sSelectForGraphOutputCallback(vNode, vSlot, vMouseButton);
+		BaseNode::sSelectForGraphOutputCallback(vSlot, vMouseButton);
 	}
 }
 
@@ -238,15 +248,12 @@ void BaseNode::FinalizeGraphLoading()
 {
 	// select outputs
 	BaseNode::sSelectForGraphOutputCallback(
-		FindNode(m_OutputLeftSlotToSelectAfterLoading.first), 
 		FindNodeSlotById(m_OutputLeftSlotToSelectAfterLoading.first, m_OutputLeftSlotToSelectAfterLoading.second), 
 		ImGuiMouseButton_Left);
 	BaseNode::sSelectForGraphOutputCallback(
-		FindNode(m_OutputMiddleSlotToSelectAfterLoading.first),
 		FindNodeSlotById(m_OutputMiddleSlotToSelectAfterLoading.first, m_OutputMiddleSlotToSelectAfterLoading.second),
 		ImGuiMouseButton_Middle);
 	BaseNode::sSelectForGraphOutputCallback(
-		FindNode(m_OutputRightSlotToSelectAfterLoading.first),
 		FindNodeSlotById(m_OutputRightSlotToSelectAfterLoading.first, m_OutputRightSlotToSelectAfterLoading.second),
 		ImGuiMouseButton_Right);
 
@@ -2774,13 +2781,12 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			{
 				if (!m_Inputs.empty())
 				{
-					NodeSlotInput input_slot;
-					input_slot.index = slot.index;
-					input_slot.name = slot.name;
-					input_slot.slotType = slot.slotType;
-					input_slot.slotPlace = slot.slotPlace;
-					input_slot.pinID = slot.pinID;
-					auto slot_input_ptr = NodeSlotInput::Create(input_slot);
+					auto slot_input_ptr = NodeSlotInput::Create();
+					slot_input_ptr->index = slot.index;
+					slot_input_ptr->name = slot.name;
+					slot_input_ptr->slotType = slot.slotType;
+					slot_input_ptr->slotPlace = slot.slotPlace;
+					slot_input_ptr->pinID = slot.pinID;
 
 					bool wasSet = false;
 					for (auto input : m_Inputs)
@@ -2810,13 +2816,12 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			{
 				if (!m_Outputs.empty())
 				{
-					NodeSlotOutput output_slot;
-					output_slot.index = slot.index;
-					output_slot.name = slot.name;
-					output_slot.slotType = slot.slotType;
-					output_slot.slotPlace = slot.slotPlace;
-					output_slot.pinID = slot.pinID;
-					auto slot_output_ptr = NodeSlotOutput::Create(output_slot);
+					auto slot_output_ptr = NodeSlotOutput::Create();
+					slot_output_ptr->index = slot.index;
+					slot_output_ptr->name = slot.name;
+					slot_output_ptr->slotType = slot.slotType;
+					slot_output_ptr->slotPlace = slot.slotPlace;
+					slot_output_ptr->pinID = slot.pinID;
 
 					bool wasSet = false;
 					for (auto output : m_Outputs)

@@ -129,7 +129,7 @@ public:
 	void Unit();
 
 	void SelectNode(const BaseNodeWeak& vNode);
-	void SelectNodeForGraphOutput(const BaseNodeWeak& vNode, const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton);
+	void SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton);
 
 	void NeedToNewProject(const std::string& vFilePathName);
 	void NeedToLoadProject(const std::string& vFilePathName);

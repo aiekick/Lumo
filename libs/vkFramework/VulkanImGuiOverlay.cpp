@@ -123,13 +123,19 @@ namespace vkApi
 					imguiRendPtr->Init(corePtr, &init_info, (VkRenderPass)corePtr->getMainRenderPass());
 
 					// load memory font file
-					ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_RM, 15.0f);
+					auto fontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_RM, 60.0f);
+					if (fontPtr)
+						fontPtr->Scale = 0.25f;
 					static ImFontConfig icons_config; icons_config.MergeMode = true; icons_config.PixelSnapH = true;
 					static ImWchar icons_ranges_NDP[] = { ICON_MIN_NDP, ICON_MAX_NDP, 0 };
-					ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_NDP, 15.0f, &icons_config, icons_ranges_NDP);
+					fontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_NDP, 60.0f, &icons_config, icons_ranges_NDP);
+					if (fontPtr)
+						fontPtr->Scale = 0.25f;
 					static ImWchar icons_ranges_NDP2[] = { ICON_MIN_NDP2, ICON_MAX_NDP2, 0 };
-					ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_NDP2, 15.0f, &icons_config, icons_ranges_NDP2);
-					
+					fontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_NDP2, 60.0f, &icons_config, icons_ranges_NDP2);
+					if (fontPtr)
+						fontPtr->Scale = 0.25f;
+
 					imguiRendPtr->CreateFontsTexture(corePtr);
 
 					return true;

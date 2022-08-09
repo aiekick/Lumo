@@ -199,8 +199,11 @@ public: // static
 	static std::function<void(const BaseNodeWeak&)> sOpenGraphCallback; // open graph
 	static void OpenGraph_Callback(const BaseNodeWeak& vNode);
 
-	static std::function<void(const BaseNodeWeak&, const NodeSlotWeak&, const ImGuiMouseButton&)> sSelectForGraphOutputCallback; // select for be the graph output
-	static void SelectForGraphOutput_Callback(const BaseNodeWeak& vNode, const NodeSlotWeak& vSlot, const ImGuiMouseButton&);
+	static std::function<void(const NodeSlotWeak&, const ImGuiMouseButton&)> sSelectSlotCallback; // select for be the graph output
+	static void SelectSlot_Callback(const NodeSlotWeak& vSlot, const ImGuiMouseButton&);
+
+	static std::function<void(const NodeSlotWeak&, const ImGuiMouseButton&)> sSelectForGraphOutputCallback; // select for be the graph output
+	static void SelectForGraphOutput_Callback(const NodeSlotWeak& vSlot, const ImGuiMouseButton&);
 
 	static std::function<void(const std::string&)> sOpenCodeCallback; // open code
 	static void OpenCode_Callback(const std::string& vCode);

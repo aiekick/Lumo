@@ -27,9 +27,37 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotInputPtr NodeSlotInput::Create(NodeSlotInput vSlot)
+NodeSlotInputPtr NodeSlotInput::Create()
 {
-	auto res = std::make_shared<NodeSlotInput>(vSlot);
+	auto res = std::make_shared<NodeSlotInput>();
+	res->m_This = res;
+	return res;
+}
+
+NodeSlotInputPtr NodeSlotInput::Create(std::string vName)
+{
+	auto res = std::make_shared<NodeSlotInput>(vName);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlotInputPtr NodeSlotInput::Create(std::string vName, std::string vType)
+{
+	auto res = std::make_shared<NodeSlotInput>(vName, vType);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlotInputPtr NodeSlotInput::Create(std::string vName, std::string vType, bool vHideName)
+{
+	auto res = std::make_shared<NodeSlotInput>(vName, vType, vHideName);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlotInputPtr NodeSlotInput::Create(std::string vName, std::string vType, bool vHideName, bool vShowWidget)
+{
+	auto res = std::make_shared<NodeSlotInput>(vName, vType, vHideName, vShowWidget);
 	res->m_This = res;
 	return res;
 }
@@ -39,6 +67,7 @@ NodeSlotInputPtr NodeSlotInput::Create(NodeSlotInput vSlot)
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 NodeSlotInput::NodeSlotInput()
+	: NodeSlot()
 {
 	pinID = sGetNewSlotId();
 	slotPlace = NodeSlot::PlaceEnum::INPUT;

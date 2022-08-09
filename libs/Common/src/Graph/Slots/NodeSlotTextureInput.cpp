@@ -227,11 +227,7 @@ void NodeSlotTextureInput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMou
 {
 	if (!linkedSlots.empty())
 	{
-		auto slotPtr = linkedSlots[0].getValidShared();
-		if (slotPtr)
-		{
-			BaseNode::SelectForGraphOutput_Callback(slotPtr->parentNode, linkedSlots[0], vMouseButton);
-		}
+		BaseNode::SelectForGraphOutput_Callback(linkedSlots[0], vMouseButton);
 	}
 }
 

@@ -22,7 +22,11 @@ limitations under the License.
 class NodeSlotInput : public NodeSlot
 {
 public:
-	static NodeSlotInputPtr Create(NodeSlotInput vSlot);
+	static NodeSlotInputPtr Create();
+	static NodeSlotInputPtr Create(std::string vName);
+	static NodeSlotInputPtr Create(std::string vName, std::string vType);
+	static NodeSlotInputPtr Create(std::string vName, std::string vType, bool vHideName);
+	static NodeSlotInputPtr Create(std::string vName, std::string vType, bool vHideName, bool vShowWidget);
 
 public:
 	explicit NodeSlotInput();

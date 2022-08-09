@@ -3443,6 +3443,39 @@ bool ImGui::ContrastedComboVectorDefault(float vWidth, const char* label, int* c
 	return change;
 }
 
+bool ImGui::ContrastedComboVectorDefault(float vWidth, const char* label, int* current_item, const std::vector<const char*>& items, int vDefault, int height_in_items)
+{
+	bool change = false;
+
+	if (!items.empty())
+	{
+		float px = ImGui::GetCursorPosX();
+
+		ImGui::PushID(++CustomStyle::Instance()->pushId);
+
+		change = ImGui::ContrastedButton(ICON_NDP_RESET);
+		if (change)
+			*current_item = vDefault;
+
+		ImGui::CustomSameLine();
+
+		if (vWidth > 0.0f)
+		{
+			vWidth -= ImGui::GetCursorPosX() - px;
+		}
+
+		change |= ContrastedCombo(vWidth, label, current_item, [](void* data, int idx, const char** out_text)
+			{
+				*out_text = ((const std::vector<const char*>*)data)->at(idx);
+				return true;
+			}, (void*)&items, (int)items.size(), height_in_items);
+
+		ImGui::PopID();
+	}
+
+	return change;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// INPUT ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3554,6 +3587,36 @@ IMGUI_API bool ImGui::InputIntDefault(float vWidth, const char* vName, int* vVar
 	ImGui::PushID(++CustomStyle::Instance()->pushId);
 	ImGui::PushItemWidth(w);
 	change |= ImGui::InputInt(vName, vVar, step, step_fast);
+	ImGui::PopItemWidth();
+	ImGui::PopID();
+
+	if (ImGui::IsItemActive() || ImGui::IsItemHovered())
+		ImGui::SetTooltip("%.3f", *vVar);
+
+	return change;
+}
+
+IMGUI_API bool ImGui::InputUIntDefault(float vWidth, const char* vName, uint32_t* vVar, uint32_t step, uint32_t step_fast, uint32_t vDefault)
+{
+	bool change = false;
+
+	const float padding = ImGui::GetStyle().FramePadding.x;
+
+	if (!ImGui::GetCurrentWindow()->ScrollbarY)
+	{
+		vWidth -= ImGui::GetStyle().ScrollbarSize;
+	}
+
+	change = ImGui::ContrastedButton(ICON_NDP_RESET);
+	const float w = vWidth - ImGui::GetItemRectSize().x - padding * 2.0f - 24;
+	if (change)
+		*vVar = vDefault;
+
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+
+	ImGui::PushID(++CustomStyle::Instance()->pushId);
+	ImGui::PushItemWidth(w);
+	change |= InputScalar(vName, ImGuiDataType_U32, (void*)vVar, (void*)(step > 0 ? &step : NULL), (void*)(step_fast > 0 ? &step_fast : NULL), "%d", 0);
 	ImGui::PopItemWidth();
 	ImGui::PopID();
 

@@ -61,8 +61,11 @@ public:
 
 public:
 	static NodeSlotWeak sSlotGraphOutputMouseLeft;
+	static ImVec4 sSlotGraphOutputMouseLeftColor;
 	static NodeSlotWeak sSlotGraphOutputMouseMiddle;
+	static ImVec4 sSlotGraphOutputMouseMiddleColor;
 	static NodeSlotWeak sSlotGraphOutputMouseRight;
+	static ImVec4 sSlotGraphOutputMouseRightColor;
 
 public:
 	static std::string sGetStringFromNodeSlotPlaceEnum(const PlaceEnum& vPlaceEnum);
@@ -77,6 +80,10 @@ public:
 public:
 	std::string slotType = "NONE";
 	NodeSlot::PlaceEnum slotPlace = NodeSlot::PlaceEnum::INPUT;
+
+#ifdef USE_CODE_GENERATOR
+	uint32_t editorSlotTypeIndex = 0U;
+#endif
 
 public:
 	nd::PinId pinID = 0;
@@ -201,7 +208,6 @@ public:
 private:
 	void DrawInputWidget(BaseNodeState *vBaseNodeState);
 	void DrawOutputWidget(BaseNodeState *vBaseNodeState);
-	void DrawSlotText(BaseNodeState *vBaseNodeState);
-
-	void DrawNodeSlot(ImDrawList *vDrawList, ImVec2 vCenter, float vSlotRadius, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
+	void DrawSlotText(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
+	void DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
 };
