@@ -36,6 +36,18 @@ uint32_t BaseNode::freeNodeId = MAGIC_NUMBER;
 ////// STATIC ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+BaseNodePtr BaseNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+{
+	BaseNodePtr res = std::make_shared<BaseNode>();
+	res->m_This = res;
+	if (!res->Init(vVulkanCorePtr))
+	{
+		res.reset();
+		res = nullptr;
+	}
+	return res;
+}
+
 uint32_t BaseNode::GetNextNodeId()
 {
 	return ++BaseNode::freeNodeId;

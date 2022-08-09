@@ -123,7 +123,7 @@ bool App::Init(GLFWwindow* vWindow)
 				ImGui::CustomStyle::Instance();
 
 				// apres les autres, car on charge le fichier projet
-				MainFrame::Instance(vWindow)->Init();
+				MainFrame::Instance(vWindow)->Init(m_VulkanCorePtr);
 
 #ifdef USE_THUMBNAILS
 				ImGuiFileDialog::Instance()->SetCreateThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info)
@@ -202,6 +202,9 @@ void App::MainLoop(GLFWwindow* vWindow)
 		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Viewport
 
 		glfwPollEvents();
+
+		// to absolutly do beofre all vk rendering commands
+		m_VulkanCorePtr->ResetCommandPools();
 
 		Update(); // to do absolutly beofre imgui rendering
 

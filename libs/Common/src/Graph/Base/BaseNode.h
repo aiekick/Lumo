@@ -179,6 +179,9 @@ class BaseNode :
 	public ResizerInterface
 {
 public:
+	static BaseNodePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+
+public:
 	BaseNodeWeak m_This;
 	BaseNodeWeak m_GraphRoot3DNode;
 	BaseNodeWeak m_GraphRoot2DNode;

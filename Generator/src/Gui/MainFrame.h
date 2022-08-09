@@ -19,7 +19,7 @@ limitations under the License.
 #include <imgui/imgui.h>
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
-#include <Systems/FrameActionSystem.h>
+#include <vkFramework/VulkanCore.h>
 #include <Graph/Graph.h>
 #include <functional>
 #include <string>
@@ -44,7 +44,6 @@ private:
 	bool m_NeedToCloseApp = false;			// whenn app closing app is required
 	bool m_SaveDialogIfRequired = false;	// open save options dialog (save / save as / continue without saving / cancel)
 	bool m_SaveDialogActionWasDone = false;	// if action was done by save options dialog
-	FrameActionSystem m_ActionSystem;
 
 private:
 	bool m_NeedToNewProject = false;
@@ -52,18 +51,22 @@ private:
 	bool m_NeedToCloseProject = false;
 	std::string m_FilePathNameToLoad;
 
+private:
+	BaseNodePtr m_RootNodePtr = nullptr;
+
 public:
-	void Init();
+	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr);
 	void Unit();
 
 	void Display(const uint32_t& vCurrentFrame, ct::ivec4 vViewport);
 
 	GLFWwindow* GetGLFWwindow() { return m_Window; }
-	FrameActionSystem* GetActionSystem() { return &m_ActionSystem; }
 
 private: // imgui pane / dialogs
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame);
+	void DrawMainMenuBar();
 	void DrawContent();
+	void DrawGraph();
 
 private:
 	void SetAppTitle(const std::string& vFilePathName = std::string());

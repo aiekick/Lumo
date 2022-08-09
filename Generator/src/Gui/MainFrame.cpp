@@ -28,7 +28,9 @@ limitations under the License.
 #include <ImWidgets/ImWidgets.h>
 #include <FontIcons/CustomFont.h>
 #include <FontIcons/CustomFont.h>
-
+#include <Helper/ThemeHelper.h>
+#include <Helper/Messaging.h>
+#include <Graph/Base/BaseNode.h>
 #include <imgui/imgui_internal.h>
 
 MainFrame::MainFrame(GLFWwindow* vWin)
@@ -38,11 +40,25 @@ MainFrame::MainFrame(GLFWwindow* vWin)
 
 MainFrame::~MainFrame()
 {
+	m_RootNodePtr.reset();
 }
 
-void MainFrame::Init()
+bool MainFrame::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	SetAppTitle();
+
+	ThemeHelper::Instance(); // default
+	LoadConfigFile("config.xml");
+
+	ThemeHelper::Instance()->ApplyStyle();
+
+	m_RootNodePtr = BaseNode::Create(vVulkanCorePtr);
+	if (m_RootNodePtr)
+	{
+		return true;
+	}
+
+	return false;
 }
 
 void MainFrame::Unit()
@@ -62,32 +78,63 @@ void MainFrame::Display(const uint32_t& vCurrentFrame, ct::ivec4 vViewport)
 	const auto context = ImGui::GetCurrentContext();
 	if (context)
 	{
-		ImGui::SetNextWindowPos(m_DisplayPos);
-		ImGui::SetNextWindowSize(m_DisplaySize);
-
-		ImGui::Begin("##main", 0, 
-			ImGuiWindowFlags_MenuBar | 
-			ImGuiWindowFlags_NoTitleBar | 
-			ImGuiWindowFlags_NoMove | 
-			ImGuiWindowFlags_NoResize | 
-			ImGuiWindowFlags_NoDocking);
-
-		if (ImGui::BeginMenuBar())
+		if (ImGui::BeginMainMenuBar())
 		{
+			DrawMainMenuBar();
+
 			auto io = ImGui::GetIO();
 			const auto label = ct::toStr("Dear ImGui %s (Docking)", ImGui::GetVersion());
 			const auto size = ImGui::CalcTextSize(label.c_str());
 			ImGui::Spacing(ImGui::GetContentRegionAvail().x - size.x - ImGui::GetStyle().FramePadding.x * 2.0f);
 			ImGui::Text("%s", label.c_str());
 
-			ImGui::EndMenuBar();
+			ImGui::EndMainMenuBar();
 		}
+
+		if (ImGui::BeginMainStatusBar())
+		{
+			Messaging::Instance()->Draw();
+
+			const auto io = ImGui::GetIO();
+			const auto fps = ct::toStr("%.1f ms/frame (%.1f fps)", 1000.0f / io.Framerate, io.Framerate);
+			const auto size = ImGui::CalcTextSize(fps.c_str());
+			ImGui::Spacing(ImGui::GetContentRegionAvail().x - size.x - ImGui::GetStyle().FramePadding.x * 2.0f);
+			ImGui::Text("%s", fps.c_str());
+
+			ImGui::EndMainStatusBar();
+		}
+
+		ImGui::SetNextWindowPos(m_DisplayPos + ImVec2(0, ImGui::GetFrameHeight()));
+		ImGui::SetNextWindowSize(ImVec2(m_DisplaySize.x * 0.5f, m_DisplaySize.y - ImGui::GetFrameHeight() * 2.0f));
+
+		ImGui::Begin("Parameters", 0, 
+			ImGuiWindowFlags_NoMove | 
+			ImGuiWindowFlags_NoResize | 
+			ImGuiWindowFlags_NoDocking |
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoSavedSettings);
 
 		DrawContent();
 
 		ImGui::End();
 
+		ImGui::SetNextWindowPos(m_DisplayPos + ImVec2(m_DisplaySize.x * 0.5f, ImGui::GetFrameHeight()));
+		ImGui::SetNextWindowSize(ImVec2(m_DisplaySize.x * 0.5f, m_DisplaySize.y - ImGui::GetFrameHeight() * 2.0f));
+
+		ImGui::Begin("Graph", 0,
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoDocking |
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoSavedSettings);
+
+		DrawGraph();
+
+		ImGui::End();
+
 		DisplayDialogsAndPopups(vCurrentFrame);
+
+		ThemeHelper::Instance()->Draw();
 	}
 }
 
@@ -106,9 +153,45 @@ void MainFrame::SetAppTitle(const std::string& vFilePathName)
 	glfwSetWindowTitle(m_Window, bufTitle);
 }
 
+void MainFrame::DrawMainMenuBar()
+{
+	if (ImGui::BeginMenu(ICON_NDP_COGS " Settings"))
+	{
+		if (ImGui::MenuItem("Settings"))
+		{
+			//SettingsDlg::Instance()->OpenDialog();
+		}
+
+		if (ImGui::BeginMenu(ICON_NDP_PICTURE_O " Styles"))
+		{
+			ThemeHelper::Instance()->DrawMenu();
+
+			ImGui::Separator();
+
+			ImGui::MenuItem("Show ImGui", "", &m_ShowImGui);
+			ImGui::MenuItem("Show ImGui Metric/Debug", "", &m_ShowMetric);
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenu();
+	}
+}
+
 void MainFrame::DrawContent()
 {
+	const auto pos = ImGui::GetWindowPos();
+	const auto size = ImGui::GetContentRegionAvail();
+
 	ImGui::Text("Lumo Node Creation");
+}
+
+void MainFrame::DrawGraph()
+{
+	if (m_RootNodePtr)
+	{
+		m_RootNodePtr->DrawGraph();
+	}
 }
 
 ///////////////////////////////////////////////////////
