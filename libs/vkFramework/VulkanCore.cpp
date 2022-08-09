@@ -310,7 +310,7 @@ namespace vkApi
 				if (m_VulkanDevicePtr->m_LogDevice.resetFences(1, &m_VulkanSwapChainPtr->m_WaitFences[m_VulkanSwapChainPtr->m_FrameIndex]) == vk::Result::eSuccess)
 				{
 					//todo : reset pool instead ?
-					m_CommandBuffers[m_VulkanSwapChainPtr->m_FrameIndex].reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+					//m_CommandBuffers[m_VulkanSwapChainPtr->m_FrameIndex].reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 
 					m_CommandBuffers[m_VulkanSwapChainPtr->m_FrameIndex].begin(vk::CommandBufferBeginInfo());
 
@@ -408,7 +408,7 @@ namespace vkApi
 
 			resetComputeFence();
 
-			cmd.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+			//cmd.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 			cmd.begin(vk::CommandBufferBeginInfo());
 
 			return true;

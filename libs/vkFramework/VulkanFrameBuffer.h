@@ -39,7 +39,7 @@ namespace vkApi
 		float ratio = 0.0f;
 		vk::Framebuffer framebuffer = nullptr;
 		bool neverCleared = true;
-		bool neverToClear = false;
+		bool needToClear = false;
 		vk::SampleCountFlagBits sampleCount = vk::SampleCountFlagBits::e1;
 		uint32_t depthAttIndex = 0U;
 

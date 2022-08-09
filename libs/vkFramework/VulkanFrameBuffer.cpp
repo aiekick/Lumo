@@ -56,7 +56,7 @@ namespace vkApi
 		bool res = false;
 
 		m_VulkanCorePtr = vVulkanCorePtr;
-		neverToClear = vNeedToClear;
+		needToClear = vNeedToClear;
 
 		if (vCountColorBuffers > 0 && vCountColorBuffers <= 8)
 		{
@@ -133,8 +133,8 @@ namespace vkApi
 							if (vNeedToClear)
 							{
 								clearColorValues.push_back(vk::ClearColorValue(std::array<float, 4>{ vClearColor.x, vClearColor.y, vClearColor.z, vClearColor.w }));
-								//attachmentClears.push_back(vk::ClearAttachment(vk::ImageAspectFlagBits::eColor, attIndex, clearColorValues[attIndex]));
-								//rectClears.push_back(vk::ClearRect(vk::Rect2D(vk::Offset2D(), vk::Extent2D(width, height)), 0, 1));
+								attachmentClears.push_back(vk::ClearAttachment(vk::ImageAspectFlagBits::eColor, attIndex, clearColorValues[attIndex]));
+								rectClears.push_back(vk::ClearRect(vk::Rect2D(vk::Offset2D(), vk::Extent2D(width, height)), 0, 1));
 							}
 						}
 						else
@@ -172,53 +172,78 @@ namespace vkApi
 				if (vCreateRenderPass)
 				{
 					std::vector<vk::SubpassDescription> subpasses;
-
-					vk::SubpassDescription subPassDesc = {};
-					subPassDesc.flags = vk::SubpassDescriptionFlags();
-					subPassDesc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
-					subPassDesc.inputAttachmentCount = 0;
-					subPassDesc.pInputAttachments = nullptr;
-					subPassDesc.colorAttachmentCount = static_cast<uint32_t>(colorReferences.size());
-					subPassDesc.pColorAttachments = colorReferences.data();
-					if (sampleCount != vk::SampleCountFlagBits::e1)
-						subPassDesc.pResolveAttachments = resolveColorReferences.data();
-					else
-						subPassDesc.pResolveAttachments = nullptr;
-					subPassDesc.preserveAttachmentCount = 0;
-					subPassDesc.pPreserveAttachments = nullptr;
-					if (vUseDepth)
-						subPassDesc.pDepthStencilAttachment = depthReferences.data();
-					else
-						subPassDesc.pDepthStencilAttachment = nullptr;
-					subpasses.push_back(subPassDesc);
+					{
+						vk::SubpassDescription subPassDesc = {};
+						subPassDesc.flags = vk::SubpassDescriptionFlags();
+						subPassDesc.pipelineBindPoint = vk::PipelineBindPoint::eGraphics;
+						subPassDesc.inputAttachmentCount = 0;
+						subPassDesc.pInputAttachments = nullptr;
+						subPassDesc.colorAttachmentCount = static_cast<uint32_t>(colorReferences.size());
+						subPassDesc.pColorAttachments = colorReferences.data();
+						subPassDesc.pResolveAttachments = resolveColorReferences.data(); // null if empty +> OK
+						subPassDesc.preserveAttachmentCount = 0;
+						subPassDesc.pPreserveAttachments = nullptr;
+						subPassDesc.pDepthStencilAttachment = depthReferences.data(); // null if empty +> OK
+						subpasses.push_back(subPassDesc);
+					}
 
 					// Use subpass dependencies for layout transitions
-					std::array<vk::SubpassDependency, 2> dependencies;
-					
-					dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
-					dependencies[0].dstSubpass = 0;
-					dependencies[0].srcStageMask = vk::PipelineStageFlagBits::eFragmentShader;
-					dependencies[0].dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-					dependencies[0].srcAccessMask = vk::AccessFlagBits::eShaderRead;
-					dependencies[0].dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-					dependencies[0].dependencyFlags = vk::DependencyFlagBits::eByRegion;
+					std::vector<vk::SubpassDependency> dependencies;
+					{
+						vk::SubpassDependency colorDependencie;
+						colorDependencie.srcSubpass = VK_SUBPASS_EXTERNAL;
+						colorDependencie.dstSubpass = 0;
+						colorDependencie.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+						colorDependencie.srcAccessMask = vk::AccessFlagBits::eNone;
+						colorDependencie.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+						colorDependencie.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+						colorDependencie.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+						dependencies.push_back(colorDependencie);
 
-					dependencies[1].srcSubpass = 0;
-					dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
-					dependencies[1].srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-					dependencies[1].dstStageMask = vk::PipelineStageFlagBits::eFragmentShader;
-					dependencies[1].srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-					dependencies[1].dstAccessMask = vk::AccessFlagBits::eShaderRead;
-					dependencies[1].dependencyFlags = vk::DependencyFlagBits::eByRegion;
+						/*vk::SubpassDependency colorDependencie0;
+						colorDependencie0.srcSubpass = VK_SUBPASS_EXTERNAL;
+						colorDependencie0.dstSubpass = 0;
+						colorDependencie0.srcStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+						colorDependencie0.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+						colorDependencie0.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+						colorDependencie0.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+						colorDependencie0.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+						dependencies.push_back(colorDependencie0);
+
+						vk::SubpassDependency colorDependencie1;
+						colorDependencie1.srcSubpass = 0;
+						colorDependencie1.dstSubpass = VK_SUBPASS_EXTERNAL;
+						colorDependencie1.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+						colorDependencie1.dstStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+						colorDependencie1.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+						colorDependencie1.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+						colorDependencie1.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+						dependencies.push_back(colorDependencie1);*/
+
+						if (vUseDepth)
+						{
+							/*vk::SubpassDependency depthDependencie;
+							depthDependencie.srcSubpass = VK_SUBPASS_EXTERNAL;
+							depthDependencie.dstSubpass = 0;
+							depthDependencie.srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+							depthDependencie.srcAccessMask = vk::AccessFlagBits::eNone;
+							depthDependencie.dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
+							depthDependencie.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+							depthDependencie.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+							dependencies.push_back(depthDependencie);*/
+						}
+					}
 
 					vk::RenderPassCreateInfo renderPassInfo = {};
-					renderPassInfo.flags = vk::RenderPassCreateFlags();
-					renderPassInfo.attachmentCount = static_cast<uint32_t>(attachmentDescriptions.size());
-					renderPassInfo.pAttachments = attachmentDescriptions.data();
-					renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
-					renderPassInfo.pSubpasses = subpasses.data();
-					renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
-					renderPassInfo.pDependencies = dependencies.data();
+					{
+						renderPassInfo.flags = vk::RenderPassCreateFlags();
+						renderPassInfo.attachmentCount = static_cast<uint32_t>(attachmentDescriptions.size());
+						renderPassInfo.pAttachments = attachmentDescriptions.data();
+						renderPassInfo.subpassCount = static_cast<uint32_t>(subpasses.size());
+						renderPassInfo.pSubpasses = subpasses.data();
+						renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+						renderPassInfo.pDependencies = dependencies.data();
+					}
 
 					vRenderPass = logDevice.createRenderPass(renderPassInfo);
 				}

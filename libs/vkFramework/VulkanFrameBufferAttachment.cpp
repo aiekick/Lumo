@@ -87,20 +87,40 @@ namespace vkApi
 
 			attachmentDescriptorInfo.sampler = attachmentSampler;
 			attachmentDescriptorInfo.imageView = attachmentView;
-			attachmentDescriptorInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+			attachmentDescriptorInfo.imageLayout = vk::ImageLayout::eAttachmentOptimal;
 
 			attachmentDescription.flags = vk::AttachmentDescriptionFlags();
 			attachmentDescription.format = format;
 			attachmentDescription.samples = vSampleCount;
+
 			if (vNeedToClear)
+			{
 				attachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
+			}
 			else
-				attachmentDescription.loadOp = vk::AttachmentLoadOp::eLoad;
-			attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
-			attachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+			{
+				if (sampleCount != vk::SampleCountFlagBits::e1)
+				{
+					attachmentDescription.loadOp = vk::AttachmentLoadOp::eDontCare;
+				}
+				else
+				{
+					attachmentDescription.loadOp = vk::AttachmentLoadOp::eLoad;
+				}
+			}
+
+			if (sampleCount != vk::SampleCountFlagBits::e1)
+			{
+				attachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
+			}
+			else
+			{
+				attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+			}
+
 			attachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 			attachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
-			attachmentDescription.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+			attachmentDescription.finalLayout = vk::ImageLayout::eAttachmentOptimal;
 
 			res = true;
 		}
@@ -172,8 +192,8 @@ namespace vkApi
 			attachmentDescription.format = format;
 			attachmentDescription.samples = sampleCount;
 			attachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
-			attachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
-			attachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eDontCare;
+			attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+			attachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eClear;
 			attachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 			attachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
 			attachmentDescription.finalLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;

@@ -235,15 +235,15 @@ VulkanRessourceObjectPtr VulkanRessource::createColorAttachment2D(vkApi::VulkanC
 		imageInfo.sharingMode = vk::SharingMode::eExclusive;
 	imageInfo.queueFamilyIndexCount = static_cast<uint32_t>(familyIndices.size());
 	imageInfo.pQueueFamilyIndices = familyIndices.data();
-	imageInfo.initialLayout = vk::ImageLayout::eColorAttachmentOptimal;
-
+	imageInfo.initialLayout = vk::ImageLayout::eUndefined;
+	
 	VmaAllocationCreateInfo image_alloc_info = {};
 	image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 
 	auto vkoPtr = VulkanRessource::createSharedImageObject(vVulkanCorePtr, imageInfo, image_alloc_info);
 	if (vkoPtr)
 	{
-		VulkanRessource::transitionImageLayout(vVulkanCorePtr, vkoPtr->image, format, mipLevelCount, vk::ImageLayout::eColorAttachmentOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+		VulkanRessource::transitionImageLayout(vVulkanCorePtr, vkoPtr->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eAttachmentOptimal);
 	}
 
 	return vkoPtr;
@@ -502,6 +502,16 @@ void VulkanRessource::transitionImageLayout(vkApi::VulkanCorePtr vVulkanCorePtr,
 
 			sourceStage = vk::PipelineStageFlagBits::eTransfer;
 			destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+
+			wasFound = true;
+		}
+		else if (newLayout == vk::ImageLayout::eAttachmentOptimal)
+		{
+			barrier.srcAccessMask = vk::AccessFlags();
+			barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentRead;
+
+			sourceStage = vk::PipelineStageFlagBits::eTransfer;
+			destinationStage = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 
 			wasFound = true;
 		}
