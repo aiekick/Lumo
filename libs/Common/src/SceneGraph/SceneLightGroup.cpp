@@ -44,6 +44,7 @@ std::string SceneLightGroup::GetBufferObjectStructureHeader(const uint32_t& vBin
 
 layout(std430, binding = %u) readonly buffer SBO_LightGroup
 {
+	uint lightsCount;
 	LightDatas lightDatas[];
 };
 )", SceneLight::GetStructureHeader().c_str(), vBindingPoint);
@@ -56,7 +57,7 @@ VulkanBufferObjectPtr SceneLightGroup::CreateEmptyBuffer(vkApi::VulkanCorePtr vV
 
 	if (vVulkanCorePtr)
 	{
-		auto size_in_bytes = sizeof(SceneLight::lightDatas);
+		auto size_in_bytes = sizeof(uint32_t) + sizeof(SceneLight::lightDatas);
 		//gpu only since no udpate will be done
 		return vkApi::VulkanRessource::createStorageBufferObject(
 			vVulkanCorePtr, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
@@ -89,6 +90,8 @@ bool SceneLightGroup::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	if (m_VulkanCorePtr)
 	{
+		m_SBO430.RegisterVar("LightsCount", m_LightsCount);
+
 		if (empty())
 		{
 			Add();
@@ -161,6 +164,9 @@ SceneLightWeak SceneLightGroup::Add()
 
 			m_Lights.push_back(lightPtr);
 
+			m_LightsCount = (uint32_t)m_Lights.size();
+			m_SBO430.SetVar("LightsCount", m_LightsCount);
+
 			return Get(idx);
 		}
 	}
@@ -177,6 +183,10 @@ void SceneLightGroup::erase(uint32_t vIndex)
 		m_Lights.erase(m_Lights.begin() + vIndex);
 
 		m_SBO430.Clear();
+
+		m_LightsCount = 0U;
+		m_SBO430.RegisterVar("LightsCount", m_LightsCount);
+
 		uint32_t idx = 0U;
 		for (auto lightPtr : m_Lights)
 		{
@@ -185,6 +195,9 @@ void SceneLightGroup::erase(uint32_t vIndex)
 				m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx++), lightPtr->lightDatas);
 			}
 		}
+
+		m_LightsCount = (uint32_t)m_Lights.size();
+		m_SBO430.SetVar("LightsCount", m_LightsCount);
 	}
 }
 

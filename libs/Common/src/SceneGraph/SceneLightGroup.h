@@ -46,6 +46,7 @@ public:
 private:
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 	SceneLightGroupWeak m_This;
+	uint32_t m_LightsCount = 0U;
 	std::vector<SceneLightPtr> m_Lights;
 	StorageBufferStd430 m_SBO430;
 	vk::DescriptorBufferInfo m_SBO430BufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };

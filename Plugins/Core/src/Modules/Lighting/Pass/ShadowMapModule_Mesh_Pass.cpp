@@ -152,6 +152,8 @@ void ShadowMapModule_Mesh_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGro
 	}
 
 	UpdateBufferInfoInRessourceDescriptor();
+
+
 }
 
 SceneLightGroupWeak ShadowMapModule_Mesh_Pass::GetLightGroup()

@@ -232,10 +232,8 @@ void main()
 	vec3 pos = texelFetch(pos_map_sampler, coords, 0).xyz;
 	if (dot(pos, pos) > 0.0)
 	{
-		// why length() return 0 ???
-		// there is always one light at least...
-		// so we do length() + 1
-		for (int i=0;i<lightDatas.length() + 1;++i)
+		uint count = uint(lightsCount) % 8; // maxi 8 lights in this system
+		for (int i=0;i<count;++i)
 		{
 			res += getLightGroup(i, coords, pos);
 		}

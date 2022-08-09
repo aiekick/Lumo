@@ -113,6 +113,8 @@ void ModelShadowNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	if (m_ModelShadowModulePtr)
 	{
 		m_ModelShadowModulePtr->SetLightGroup(vSceneLightGroup);
+
+		SendFrontNotification(LightGroupUpdateDone);
 	}
 }
 

@@ -192,7 +192,7 @@ void ModelShadowModule_Quad_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightG
 {
 	m_SceneLightGroup = vSceneLightGroup;
 
-	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
 	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
 	if (lightGroupPtr &&
@@ -489,7 +489,7 @@ void main()
 			
 			float sha_accum = 1.0;
 			
-			uint count = uint(lightDatas.length() + 1) % 8; // maxi 8 lights in this system
+			uint count = uint(lightsCount) % 8; // maxi 8 lights in this system
 			for (uint lid = 0 ; lid < count ; ++lid)
 			{
 				if (u_use_pcf > 0.5)

@@ -237,9 +237,9 @@ void FrameBuffer::BeginRenderPass(vk::CommandBuffer* vCmdBuffer)
 void FrameBuffer::ClearAttachmentsIfNeeded(vk::CommandBuffer* vCmdBuffer, const bool& vForce)
 {
 	auto fbo = GetFrontFbo();
-	if (fbo->neverCleared || vForce)
+	if (/*fbo->neverCleared || */ vForce)
 	{
-		if (fbo->neverToClear || vForce)
+		if (/*fbo->needToClear || */vForce)
 		{
 			if (vCmdBuffer)
 			{

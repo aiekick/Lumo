@@ -27,6 +27,8 @@ limitations under the License.
 #include <Modules/Renderers/Pass/ParticlesPointRenderer_Mesh_Pass.h>
 using namespace vkApi;
 
+#include <Systems/RenderDocController.h>
+
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -100,6 +102,15 @@ bool ParticlesPointRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::C
 	return true;
 }
 
+bool ParticlesPointRenderer::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+{
+	ZoneScoped;
+
+	BaseRenderer::Render("Particles Renderer", vCmd);
+
+	return true;
+}
+
 void ParticlesPointRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
@@ -115,10 +126,36 @@ bool ParticlesPointRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 		{
 			bool change = false;
 
+			static bool s_RenderingWhenNeeded = false;
+			if (ImGui::CheckBoxBoolDefault("Rendering when needed", &s_RenderingWhenNeeded, false))
+			{
+				SetExecutionWhenNeededOnly(s_RenderingWhenNeeded);
+			}
+
+			static bool s_Capture_RenderDocFrame = false;
+			ImGui::CheckBoxBoolDefault("Capture Renderdoc Frame with next action", &s_Capture_RenderDocFrame, false);
+
+			if (ImGui::ContrastedButton("Next Frame", nullptr, nullptr, ImGui::GetContentRegionAvail().x))
+			{
+				change = true;
+
+				if (s_Capture_RenderDocFrame)
+				{
+					RenderDocController::Instance()->RequestCapture();
+				}
+			}
+
 			if (m_ParticlesPointRenderer_Mesh_Pass_Ptr)
 			{
-				return m_ParticlesPointRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_ParticlesPointRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
+
+			if (change)
+			{
+				NeedNewExecution();
+			}
+
+			return change;
 		}
 	}
 

@@ -81,8 +81,6 @@ bool MeshEmitterModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		SetExecutionWhenNeededOnly(true);
-
 		m_MeshEmitterModule_Comp_Pass_Ptr = std::make_shared<MeshEmitterModule_Comp_Pass>(m_VulkanCorePtr);
 		if (m_MeshEmitterModule_Comp_Pass_Ptr)
 		{
@@ -131,6 +129,12 @@ bool MeshEmitterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 		if (ImGui::CollapsingHeader_CheckBox("Particles Mesh Emitter", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
+
+			static bool s_RenderingWhenNeeded = false;
+			if (ImGui::CheckBoxBoolDefault("Rendering when needed", &s_RenderingWhenNeeded, false))
+			{
+				SetExecutionWhenNeededOnly(s_RenderingWhenNeeded);
+			}
 
 			static bool s_Capture_RenderDocFrame = false;
 			ImGui::CheckBoxBoolDefault("Capture Renderdoc Frame with next action", &s_Capture_RenderDocFrame, false);

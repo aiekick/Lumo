@@ -745,7 +745,7 @@ namespace vkApi
 			// not needed because in core since VK_API_VERSION_1_2
 			//wantedDeviceExtensions.push_back(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
 			// not needed because in core since VK_API_VERSION_1_2
-			wantedDeviceExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
+			//wantedDeviceExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME);
 			wantedDeviceExtensions.push_back(VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME);
 
 			// needed by VK_KHR_SPIRV_1_4_EXTENSION_NAME

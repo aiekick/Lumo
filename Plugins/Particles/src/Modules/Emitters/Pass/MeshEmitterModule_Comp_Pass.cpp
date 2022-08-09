@@ -76,12 +76,14 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 	bool change_ubo = false;
 	bool model_ubo = false;
 
+	ImGui::Separator();
 	ImGui::Text("Delta time          : %.5f", m_PushConstants.delta_time);
 	ImGui::Text("Absolute time       : %.5f", m_PushConstants.absolute_time);
 	ImGui::Text("Max particles count : %u", m_UBOComp.max_particles_count);
 
 	if (m_IndexedIndirectCommandPtr)
 	{
+		ImGui::Separator();
 		ImGui::Text("DrawIndexedIndirectCommand Content :");
 		ImGui::Text("indexCount    : %u", m_IndexedIndirectCommandPtr->indexCount);
 		ImGui::Text("instanceCount : %u", m_IndexedIndirectCommandPtr->instanceCount);
@@ -92,6 +94,7 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 
 	if (m_CountersPtr)
 	{
+		ImGui::Separator();
 		ImGui::Text("Counters Content :");
 		ImGui::Text("alive_particles_count  : %u", m_CountersPtr->alive_particles_count);
 		ImGui::Text("pending_emission_count : %u", m_CountersPtr->pending_emission_count);
@@ -204,7 +207,7 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 			nullptr,
 			nullptr,
 			nullptr);
-
+		
 		if (m_UBOComp.reset > 0.5f)
 		{
 			m_UBOComp.reset = 0.0f;
@@ -416,18 +419,125 @@ SceneParticles::GetDrawIndirectCommandHeader(5U)
 u8R"(
 void ResetParticles()
 {
-
+	indexCount = 0;
+	instanceCount = 1;
+	firstIndex = 0;
+	vertexOffset = 0;
+	firstInstance = 0;
+	
+	alive_particles_count = 0;
+	pending_emission_count = 0;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+// https://stackoverflow.com/questions/4200224/random-noise-functions-for-glsl
+
+// A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
+uint hash(uint x) 
+{
+    x += ( x << 10u );
+    x ^= ( x >>  6u );
+    x += ( x <<  3u );
+    x ^= ( x >> 11u );
+    x += ( x << 15u );
+    return x;
+}
+
+// Compound versions of the hashing algorithm I whipped together.
+uint hash(uvec2 v) { return hash( v.x ^ hash(v.y)                         ); }
+uint hash(uvec3 v) { return hash( v.x ^ hash(v.y) ^ hash(v.z)             ); }
+uint hash(uvec4 v) { return hash( v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w) ); }
+
+// Construct a float with half-open range [0:1] using low 23 bits.
+// All zeroes yields 0.0, all ones yields the next smallest representable value below 1.0.
+float floatConstruct( uint m ) 
+{
+    const uint ieeeMantissa = 0x007FFFFFu; // binary32 mantissa bitmask
+    const uint ieeeOne      = 0x3F800000u; // 1.0 in IEEE binary32
+
+    m &= ieeeMantissa;                     // Keep only mantissa bits (fractional part)
+    m |= ieeeOne;                          // Add fractional part to 1.0
+
+    float  f = uintBitsToFloat( m );       // Range [1:2]
+    return f - 1.0;                        // Range [0:1]
+}
+
+// Pseudo-random value in half-open range [0:1].
+float random(float v) { return floatConstruct(hash(floatBitsToUint(v))); }
+float random(vec2 v) { return floatConstruct(hash(floatBitsToUint(v))); }
+float random(vec3 v) { return floatConstruct(hash(floatBitsToUint(v))); }
+float random(vec4 v) { return floatConstruct(hash(floatBitsToUint(v))); }
+
+uint random_vertex_index() 
+{
+	vec3 inputs = vec3(float(gl_GlobalInvocationID.x), absolute_time, delta_time);
+	float rand = random(inputs); // [0 - 1]
+	return max(uint(rand * current_vertexs_count) % (current_vertexs_count - 1), 0);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 void EmitParticles()
 {
-
+	const int i_global_index = int(gl_GlobalInvocationID.x);						
+				
+	if (reset > 0.5)
+	{
+		particleDatas[i_global_index].pos3_mass1 = vec4(0.0, 0.0, 0.0, 0.0);
+		particleDatas[i_global_index].dir3_speed1 = vec4(0.0, 0.0, 0.0, 0.0);
+		particleDatas[i_global_index].color4 = vec4(0.0, 0.0, 0.0, 0.0);
+		particleDatas[i_global_index].life1_max_life1 = vec2(0.0, 0.0);
+	}
+	else
+	{
+		if (particleDatas[i_global_index].life1_max_life1.x <= 0.0) // dead particle
+		{
+			if (mod(absolute_time, spawn_rate) > spawn_rate * 0.5) // emit particles
+			{
+				uint pending_count = atomicAdd(pending_emission_count, 1);
+				if (pending_count < emission_count)
+				{	
+					uint new_pos = atomicAdd(alive_particles_count, 1);
+					if (new_pos < max_particles_count)
+					{
+						uint u_mesh_index = random_vertex_index();
+						
+						const V3N3T3B3T2C4 v = vertices[i_global_index];
+					
+						vec3 pos = vec3(v.px, v.py, v.pz);
+						vec3 nor = vec3(v.nx, v.ny, v.nz);
+						
+						particleDatas[i_global_index].pos3_mass1 = vec4(v.px, v.py, v.pz, spawn_mass);
+						particleDatas[i_global_index].dir3_speed1 = vec4(nor, base_speed);
+						particleDatas[i_global_index].color4 = vec4(nor * 0.5 + 0.5, 1.0);
+						particleDatas[i_global_index].life1_max_life1 = vec2(base_min_life, base_max_life);
+						
+						// increment the alive particle count for this frame
+						alive_pre_sim_buffer[new_pos] = i_global_index; // index of the particle
+						
+						atomicMax(indexCount, alive_particles_count);
+					}
+				}
+			}
+		}
+		else // alive
+		{
+			atomicAdd(alive_particles_count, 1);
+			atomicMax(indexCount, alive_particles_count);
+		}
+		
+		// security, since in indirect mode, we can crash the app
+		// if indexCount > than the buffer size
+		atomicMin(indexCount, max_particles_count - 1);
+	}
 }
 
 void main() 
 {
-	const int i_global_index = int(gl_GlobalInvocationID.x);			
-	
 	switch(pass_number)
 	{
 	case 0:

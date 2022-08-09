@@ -63,6 +63,72 @@ layout(location = 3) in vec2 particle_life1_max_life1;
 )";
 }
 
+VertexStruct::PipelineVertexInputState SceneParticles::GetInputStateBeforePipelineCreation()
+{
+	ZoneScoped;
+
+	VertexStruct::PipelineVertexInputState inputState = VertexStruct::PipelineVertexInputState{};
+
+	inputState.binding.binding = 0;
+	inputState.binding.stride = sizeof(ParticleStruct);
+	inputState.binding.inputRate = vk::VertexInputRate::eVertex;
+
+	uint32_t offset = 0;
+
+	// xyz::pos, w:mass
+	// xyz:direction, w:speed
+	// rgba:color
+	// x:life, y:max_life
+
+	inputState.attributes.resize(4);
+
+	{
+		// xyz::pos, w:mass
+		auto& attrib = inputState.attributes[0];
+		attrib.binding = 0;
+		attrib.location = 0;
+		attrib.format = vk::Format::eR32G32B32A32Sfloat;
+		attrib.offset = offsetof(ParticleStruct, pos3_mass1);
+	}
+
+	{
+		// xyz:direction, w:speed
+		auto& attrib = inputState.attributes[1];
+		attrib.binding = 0;
+		attrib.location = 1;
+		attrib.format = vk::Format::eR32G32B32A32Sfloat;
+		attrib.offset = offsetof(ParticleStruct, dir3_speed1);
+	}
+
+	{
+		// rgba:color
+		auto& attrib = inputState.attributes[2];
+		attrib.binding = 0;
+		attrib.location = 2;
+		attrib.format = vk::Format::eR32G32B32A32Sfloat;
+		attrib.offset = offsetof(ParticleStruct, color4);
+	}
+
+	{
+		// x:life, y:max_life
+		auto& attrib = inputState.attributes[3];
+		attrib.binding = 0;
+		attrib.location = 3;
+		attrib.format = vk::Format::eR32G32Sfloat;
+		attrib.offset = offsetof(ParticleStruct, life1_max_life1);
+	}
+
+	inputState.state = vk::PipelineVertexInputStateCreateInfo(
+		vk::PipelineVertexInputStateCreateFlags(),
+		1,
+		&inputState.binding,
+		static_cast<uint32_t>(inputState.attributes.size()),
+		inputState.attributes.data()
+	);
+
+	return inputState;
+}
+
 std::string SceneParticles::GetAliveParticlesIndexBufferHeader(const uint32_t& vStartBindingPoint)
 {
 	return ct::toStr(u8R"(
@@ -82,76 +148,6 @@ layout(std430, binding = %u) buffer SBO_AtomicCounters
 	uint pending_emission_count;
 };
 )", vStartBindingPoint);
-}
-
-VertexStruct::PipelineVertexInputState SceneParticles::GetInputStateBeforePipelineCreation()
-{
-	ZoneScoped;
-
-	VertexStruct::PipelineVertexInputState inputState = VertexStruct::PipelineVertexInputState{};
-
-	inputState.binding.binding = 0;
-	inputState.binding.stride = sizeof(ct::fvec4) * 3U;;
-	inputState.binding.inputRate = vk::VertexInputRate::eVertex;
-
-	uint32_t offset = 0;
-
-	// xyz::pos, w:mass
-	// xyz:direction, w:speed
-	// rgba:color
-	// x:life, y:max_life
-
-	inputState.attributes.resize(4);
-
-	{
-		// xyz::pos, w:mass
-		auto& attrib = inputState.attributes[0];
-		attrib.binding = 0;
-		attrib.location = 0;
-		attrib.format = vk::Format::eR32G32B32A32Sfloat;
-		attrib.offset = 0;
-		offset += sizeof(ct::fvec4);
-	}
-
-	{
-		// xyz:direction, w:speed
-		auto& attrib = inputState.attributes[1];
-		attrib.binding = 0;
-		attrib.location = 1;
-		attrib.format = vk::Format::eR32G32B32A32Sfloat;
-		attrib.offset = offset;
-		offset += sizeof(ct::fvec4);
-	}
-
-	{
-		// rgba:color
-		auto& attrib = inputState.attributes[2];
-		attrib.binding = 0;
-		attrib.location = 2;
-		attrib.format = vk::Format::eR32G32B32A32Sfloat;
-		attrib.offset = offset;
-		offset += sizeof(ct::fvec4);
-	}
-
-	{
-		// x:life, y:max_life
-		auto& attrib = inputState.attributes[3];
-		attrib.binding = 0;
-		attrib.location = 3;
-		attrib.format = vk::Format::eR32G32Sfloat;
-		attrib.offset = offset;
-		offset += sizeof(ct::fvec2);
-	}
-
-	inputState.state = vk::PipelineVertexInputStateCreateInfo(
-		vk::PipelineVertexInputStateCreateFlags(),
-		1,
-		&inputState.binding,
-		static_cast<uint32_t>(inputState.attributes.size()),
-		inputState.attributes.data()
-	);
-
-	return inputState;
 }
 
 std::string SceneParticles::GetDrawIndirectCommandHeader(const uint32_t& vStartBindingPoint)

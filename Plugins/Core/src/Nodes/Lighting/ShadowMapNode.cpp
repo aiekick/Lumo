@@ -115,6 +115,8 @@ void ShadowMapNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	if (m_ShadowMapModulePtr)
 	{
 		m_ShadowMapModulePtr->SetLightGroup(vSceneLightGroup);
+
+		SendFrontNotification(LightGroupUpdateDone);
 	}
 }
 

@@ -607,7 +607,7 @@ void VulkanRessource::SetDeviceAddress(const vk::Device& vDevice, VulkanBufferOb
 	{
 		vk::BufferDeviceAddressInfoKHR bufferDeviceAddressInfo{};
 		bufferDeviceAddressInfo.buffer = vVulkanBufferObjectPtr->buffer;
-		vVulkanBufferObjectPtr->device_address = vDevice.getBufferAddressKHR(&bufferDeviceAddressInfo);
+		vVulkanBufferObjectPtr->device_address = vDevice.getBufferAddress(&bufferDeviceAddressInfo);
 	}
 }
 

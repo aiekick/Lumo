@@ -191,8 +191,18 @@ namespace vkApi
 			attachmentDescription.flags = vk::AttachmentDescriptionFlags();
 			attachmentDescription.format = format;
 			attachmentDescription.samples = sampleCount;
+
 			attachmentDescription.loadOp = vk::AttachmentLoadOp::eClear;
-			attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+
+			if (sampleCount != vk::SampleCountFlagBits::e1)
+			{
+				attachmentDescription.storeOp = vk::AttachmentStoreOp::eDontCare;
+			}
+			else
+			{
+				attachmentDescription.storeOp = vk::AttachmentStoreOp::eStore;
+			}
+
 			attachmentDescription.stencilLoadOp = vk::AttachmentLoadOp::eClear;
 			attachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 			attachmentDescription.initialLayout = vk::ImageLayout::eUndefined;

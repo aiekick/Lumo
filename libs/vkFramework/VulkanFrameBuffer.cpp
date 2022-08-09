@@ -149,6 +149,8 @@ namespace vkApi
 				if (vUseDepth)
 				{
 					depthAttIndex = attIndex;
+
+					// the depth must have the same sampleCount as color, if not the app will crash
 					if (attachments[attIndex].InitDepth(m_VulkanCorePtr, size, vk::Format::eD32SfloatS8Uint, sampleCount))
 					{
 						attachmentViews.push_back(attachments[attIndex].attachmentView);
@@ -190,47 +192,67 @@ namespace vkApi
 					// Use subpass dependencies for layout transitions
 					std::vector<vk::SubpassDependency> dependencies;
 					{
-						vk::SubpassDependency colorDependencie;
-						colorDependencie.srcSubpass = VK_SUBPASS_EXTERNAL;
-						colorDependencie.dstSubpass = 0;
-						colorDependencie.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-						colorDependencie.srcAccessMask = vk::AccessFlagBits::eNone;
-						colorDependencie.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-						colorDependencie.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-						colorDependencie.dependencyFlags = vk::DependencyFlagBits::eByRegion;
-						dependencies.push_back(colorDependencie);
-
-						/*vk::SubpassDependency colorDependencie0;
-						colorDependencie0.srcSubpass = VK_SUBPASS_EXTERNAL;
-						colorDependencie0.dstSubpass = 0;
-						colorDependencie0.srcStageMask = vk::PipelineStageFlagBits::eFragmentShader;
-						colorDependencie0.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-						colorDependencie0.srcAccessMask = vk::AccessFlagBits::eShaderRead;
-						colorDependencie0.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-						colorDependencie0.dependencyFlags = vk::DependencyFlagBits::eByRegion;
-						dependencies.push_back(colorDependencie0);
-
-						vk::SubpassDependency colorDependencie1;
-						colorDependencie1.srcSubpass = 0;
-						colorDependencie1.dstSubpass = VK_SUBPASS_EXTERNAL;
-						colorDependencie1.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-						colorDependencie1.dstStageMask = vk::PipelineStageFlagBits::eFragmentShader;
-						colorDependencie1.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-						colorDependencie1.dstAccessMask = vk::AccessFlagBits::eShaderRead;
-						colorDependencie1.dependencyFlags = vk::DependencyFlagBits::eByRegion;
-						dependencies.push_back(colorDependencie1);*/
+						/*{
+							vk::SubpassDependency colorDependencie;
+							colorDependencie.srcSubpass = VK_SUBPASS_EXTERNAL;
+							colorDependencie.dstSubpass = 0;
+							colorDependencie.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+							colorDependencie.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+							colorDependencie.srcAccessMask = vk::AccessFlagBits::eNone;
+							colorDependencie.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+							colorDependencie.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+							dependencies.push_back(colorDependencie);
+						}*/
 
 						if (vUseDepth)
 						{
-							/*vk::SubpassDependency depthDependencie;
-							depthDependencie.srcSubpass = VK_SUBPASS_EXTERNAL;
-							depthDependencie.dstSubpass = 0;
-							depthDependencie.srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-							depthDependencie.srcAccessMask = vk::AccessFlagBits::eNone;
-							depthDependencie.dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests | vk::PipelineStageFlagBits::eLateFragmentTests;
-							depthDependencie.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
-							depthDependencie.dependencyFlags = vk::DependencyFlagBits::eByRegion;
-							dependencies.push_back(depthDependencie);*/
+							{
+								vk::SubpassDependency depthDependencie;
+								depthDependencie.srcSubpass = VK_SUBPASS_EXTERNAL;
+								depthDependencie.dstSubpass = 0;
+								depthDependencie.srcStageMask = vk::PipelineStageFlagBits::eLateFragmentTests;
+								depthDependencie.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+								depthDependencie.dstStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+								depthDependencie.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+								depthDependencie.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+								dependencies.push_back(depthDependencie);
+							}
+
+							{
+								vk::SubpassDependency depthDependencie;
+								depthDependencie.srcSubpass = 0;
+								depthDependencie.dstSubpass = VK_SUBPASS_EXTERNAL;
+								depthDependencie.srcStageMask = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+								depthDependencie.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+								depthDependencie.dstStageMask = vk::PipelineStageFlagBits::eLateFragmentTests;
+								depthDependencie.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+								depthDependencie.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+								dependencies.push_back(depthDependencie);
+							}
+						}
+
+						{
+							vk::SubpassDependency colorDependencie;
+							colorDependencie.srcSubpass = VK_SUBPASS_EXTERNAL;
+							colorDependencie.dstSubpass = 0;
+							colorDependencie.srcStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+							colorDependencie.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+							colorDependencie.dstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+							colorDependencie.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+							colorDependencie.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+							dependencies.push_back(colorDependencie);
+						}
+
+						{
+							vk::SubpassDependency colorDependencie;
+							colorDependencie.srcSubpass = 0;
+							colorDependencie.dstSubpass = VK_SUBPASS_EXTERNAL;
+							colorDependencie.srcStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
+							colorDependencie.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+							colorDependencie.dstStageMask = vk::PipelineStageFlagBits::eFragmentShader;
+							colorDependencie.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+							colorDependencie.dependencyFlags = vk::DependencyFlagBits::eByRegion;
+							dependencies.push_back(colorDependencie); 
 						}
 					}
 

@@ -488,7 +488,7 @@ void main()
 		vec3 ro = getRayOrigin();
 		vec3 rd = normalize(ro - pos);
 				
-		uint count = uint(lightDatas.length() + 1) % 8; // maxi 8 lights in this system
+		uint count = uint(lightsCount) % 8; // maxi 8 lights in this system
 		for (uint lid = 0 ; lid < count ; ++lid)
 		{
 			if (lightDatas[lid].lightActive > 0.5)
