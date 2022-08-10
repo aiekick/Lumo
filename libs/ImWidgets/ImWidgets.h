@@ -30,10 +30,10 @@ struct GLFWWindow;
 #endif // USE_GLFW3
 namespace ImGui
 {
-	class CustomStyle
+	IMGUI_API class CustomStyle
 	{
 	public:
-		static CustomStyle* Instance(CustomStyle* vCopy = nullptr, bool vForce = false)
+		IMGUI_API static CustomStyle* Instance(CustomStyle* vCopy = nullptr, bool vForce = false)
 		{
 			static CustomStyle _instance;
 			static CustomStyle* _instance_copy = nullptr;
@@ -312,90 +312,105 @@ namespace ImGui
 #endif
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	///// SLIDERS //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	IMGUI_API bool SliderScalarCompact(float width, const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const void* p_step, const char* format = nullptr);
-	IMGUI_API bool SliderInt32Compact(float width, const char* label, int32_t* v, int32_t v_min, int32_t v_max, int32_t v_step, const char* format = "%d");
-	IMGUI_API bool SliderInt64Compact(float width, const char* label, int64_t* v, int64_t v_min, int64_t v_max, int64_t v_step, const char* format = "%d");
-	IMGUI_API bool SliderUIntCompact(float width, const char* label, uint32_t* v, uint32_t v_min, uint32_t v_max, uint32_t v_step, const char* format = "%d");
-	IMGUI_API bool SliderUInt64Compact(float width, const char* label, uint64_t* v, uint64_t v_min, uint64_t v_max, uint64_t v_step, const char* format = "%d");
-	IMGUI_API bool SliderSizeTCompact(float width, const char* label, size_t* v, size_t v_min, size_t v_max, size_t v_step, const char* format = "%d");
-	IMGUI_API bool SliderFloatCompact(float width, const char* label, float* v, float v_min, float v_max, float v_step, const char* format = "%.3f");
-	IMGUI_API bool SliderDoubleCompact(float width, const char* label, double* v, double v_min, double v_max, double v_step, const char* format = "%.3f");
+IMGUI_API bool SliderScalarCompact(float width, const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const void* p_step, const char* format = nullptr);
+IMGUI_API bool SliderInt32Compact(float width, const char* label, int32_t* v, int32_t v_min, int32_t v_max, int32_t v_step, const char* format = "%d");
+IMGUI_API bool SliderInt64Compact(float width, const char* label, int64_t* v, int64_t v_min, int64_t v_max, int64_t v_step, const char* format = "%d");
+IMGUI_API bool SliderUIntCompact(float width, const char* label, uint32_t* v, uint32_t v_min, uint32_t v_max, uint32_t v_step, const char* format = "%d");
+IMGUI_API bool SliderUInt64Compact(float width, const char* label, uint64_t* v, uint64_t v_min, uint64_t v_max, uint64_t v_step, const char* format = "%d");
+IMGUI_API bool SliderSizeTCompact(float width, const char* label, size_t* v, size_t v_min, size_t v_max, size_t v_step, const char* format = "%d");
+IMGUI_API bool SliderFloatCompact(float width, const char* label, float* v, float v_min, float v_max, float v_step, const char* format = "%.3f");
+IMGUI_API bool SliderDoubleCompact(float width, const char* label, double* v, double v_min, double v_max, double v_step, const char* format = "%.3f");
 
-	IMGUI_API bool SliderScalarDefaultCompact(float width, const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const void* p_default, const void* p_step = nullptr, const char* format = nullptr);
-	IMGUI_API bool SliderIntDefaultCompact(float width, const char* label, int* v, int v_min, int v_max, int v_default, int v_step = 0, const char* format = "%d");
-	IMGUI_API bool SliderUIntDefaultCompact(float width, const char* label, uint32_t* v, uint32_t v_min, uint32_t v_max, uint32_t v_default, uint32_t v_step = 0, const char* format = "%d");
-	IMGUI_API bool SliderSizeTDefaultCompact(float width, const char* label, size_t* v, size_t v_min, size_t v_max, size_t v_default, size_t v_step = 0, const char* format = "%d");
-	IMGUI_API bool SliderFloatDefaultCompact(float width, const char* label, float* v, float v_min, float v_max, float v_default, float v_step = 0.0f, const char* format = "%.3f");
+IMGUI_API bool SliderScalarDefaultCompact(float width, const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const void* p_default, const void* p_step = nullptr, const char* format = nullptr);
+IMGUI_API bool SliderIntDefaultCompact(float width, const char* label, int* v, int v_min, int v_max, int v_default, int v_step = 0, const char* format = "%d");
+IMGUI_API bool SliderUIntDefaultCompact(float width, const char* label, uint32_t* v, uint32_t v_min, uint32_t v_max, uint32_t v_default, uint32_t v_step = 0, const char* format = "%d");
+IMGUI_API bool SliderSizeTDefaultCompact(float width, const char* label, size_t* v, size_t v_min, size_t v_max, size_t v_default, size_t v_step = 0, const char* format = "%d");
+IMGUI_API bool SliderFloatDefaultCompact(float width, const char* label, float* v, float v_min, float v_max, float v_default, float v_step = 0.0f, const char* format = "%.3f");
 
-	IMGUI_API bool SliderScalar(float width, const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const void* p_step = nullptr, const char* format = nullptr, ImGuiSliderFlags flags = 0);
-	IMGUI_API bool SliderInt(float width, const char* label, int* v, int v_min, int v_max, int v_step = 0, const char* format = "%d", ImGuiSliderFlags flags = 0);
-	IMGUI_API bool SliderUInt(float width, const char* label, uint32_t* v, uint32_t v_min, uint32_t v_max, uint32_t v_step = 0, const char* format = "%d", ImGuiSliderFlags flags = 0);
-	IMGUI_API bool SliderSizeT(float width, const char* label, size_t* v, size_t v_min, size_t v_max, size_t v_step = 0, const char* format = "%zu", ImGuiSliderFlags flags = 0);
-	IMGUI_API bool SliderFloat(float width, const char* label, float* v, float v_min, float v_max, float v_step = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);     // adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display.
+IMGUI_API bool SliderScalar(float width, const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const void* p_step = nullptr, const char* format = nullptr, ImGuiSliderFlags flags = 0);
+IMGUI_API bool SliderInt(float width, const char* label, int* v, int v_min, int v_max, int v_step = 0, const char* format = "%d", ImGuiSliderFlags flags = 0);
+IMGUI_API bool SliderUInt(float width, const char* label, uint32_t* v, uint32_t v_min, uint32_t v_max, uint32_t v_step = 0, const char* format = "%d", ImGuiSliderFlags flags = 0);
+IMGUI_API bool SliderSizeT(float width, const char* label, size_t* v, size_t v_min, size_t v_max, size_t v_step = 0, const char* format = "%zu", ImGuiSliderFlags flags = 0);
+IMGUI_API bool SliderFloat(float width, const char* label, float* v, float v_min, float v_max, float v_step = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);     // adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display.
 
-	IMGUI_API bool SliderScalarDefault(float width, const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const void* p_default, const void* p_step, const char* format = nullptr, ImGuiSliderFlags flags = 0);
-	IMGUI_API bool SliderIntDefault(float width, const char* label, int* v, int v_min, int v_max, int v_default, int v_step = 0, const char* format = "%d", ImGuiSliderFlags flags = 0);
-	IMGUI_API bool SliderUIntDefault(float width, const char* label, uint32_t* v, uint32_t v_min, uint32_t v_max, uint32_t v_default, uint32_t v_step = 0, const char* format = "%d", ImGuiSliderFlags flags = 0);
-	IMGUI_API bool SliderSizeTDefault(float width, const char* label, size_t* v, size_t v_min, size_t v_max, size_t v_default, size_t v_step = 0, const char* format = "%zu", ImGuiSliderFlags flags = 0);
-	IMGUI_API bool SliderFloatDefault(float width, const char* label, float* v, float v_min, float v_max, float v_default, float v_step = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);     // adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display.
+IMGUI_API bool SliderScalarDefault(float width, const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const void* p_default, const void* p_step, const char* format = nullptr, ImGuiSliderFlags flags = 0);
+IMGUI_API bool SliderIntDefault(float width, const char* label, int* v, int v_min, int v_max, int v_default, int v_step = 0, const char* format = "%d", ImGuiSliderFlags flags = 0);
+IMGUI_API bool SliderUIntDefault(float width, const char* label, uint32_t* v, uint32_t v_min, uint32_t v_max, uint32_t v_default, uint32_t v_step = 0, const char* format = "%d", ImGuiSliderFlags flags = 0);
+IMGUI_API bool SliderSizeTDefault(float width, const char* label, size_t* v, size_t v_min, size_t v_max, size_t v_default, size_t v_step = 0, const char* format = "%zu", ImGuiSliderFlags flags = 0);
+IMGUI_API bool SliderFloatDefault(float width, const char* label, float* v, float v_min, float v_max, float v_default, float v_step = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0);     // adjust format to decorate the value with a prefix or a suffix for in-slider labels or unit display.
 
-	template<typename T>
-	IMGUI_API bool SliderDefault(float vWidth, const char* vName, T* vVar, T vInf, T vSup, T vDefault, T vStep = (T)0, bool vForNode = false)
+template<typename T>
+IMGUI_API bool SliderDefault(float vWidth, const char* vName, T* vVar, T vInf, T vSup, T vDefault, T vStep = (T)0, bool vForNode = false)
+{
+	UNUSED(vForNode);
+
+	bool change = false;
+
+	if (std::is_same<T, int>::value)
 	{
-		UNUSED(vForNode);
-
-		bool change = false;
-
-		if (std::is_same<T, int>::value)
-		{
-			change |= SliderScalarDefault(vWidth, vName, ImGuiDataType_S32, (void*)vVar, (void*)&vInf, (void*)&vSup, (void*)&vDefault, (void*)&vStep);
-		}
-		else if (std::is_same<T, float>::value)
-		{
-			change |= SliderScalarDefault(vWidth, vName, ImGuiDataType_Float, (void*)vVar, (void*)&vInf, (void*)&vSup, (void*)&vDefault, (void*)&vStep);
-		}
-
-		return change;
+		change |= SliderScalarDefault(vWidth, vName, ImGuiDataType_S32, (void*)vVar, (void*)&vInf, (void*)&vSup, (void*)&vDefault, (void*)&vStep);
+	}
+	else if (std::is_same<T, float>::value)
+	{
+		change |= SliderScalarDefault(vWidth, vName, ImGuiDataType_Float, (void*)vVar, (void*)&vInf, (void*)&vSup, (void*)&vDefault, (void*)&vStep);
 	}
 
-	template<typename T>
-	IMGUI_API bool SliderDefaultCompact(float vWidth, const char* vName, T* vVar, T vInf, T vSup, T vDefault, T vStep = (T)0, bool vForNode = false)
+	return change;
+}
+
+template<typename T>
+IMGUI_API bool SliderDefaultCompact(float vWidth, const char* vName, T* vVar, T vInf, T vSup, T vDefault, T vStep = (T)0, bool vForNode = false)
+{
+	UNUSED(vForNode);
+
+	bool change = false;
+
+	if (std::is_same<T, int>::value)
 	{
-		UNUSED(vForNode);
-
-		bool change = false;
-
-		if (std::is_same<T, int>::value)
-		{
-			change |= SliderScalarDefaultCompact(vWidth, vName, ImGuiDataType_S32, (void*)vVar, (void*)&vInf, (void*)&vSup, (void*)&vDefault, (void*)&vStep);
-		}
-		else if (std::is_same<T, float>::value)
-		{
-			change |= SliderScalarDefaultCompact(vWidth, vName, ImGuiDataType_Float, (void*)vVar, (void*)&vInf, (void*)&vSup, (void*)&vDefault, (void*)&vStep);
-		}
-
-		return change;
+		change |= SliderScalarDefaultCompact(vWidth, vName, ImGuiDataType_S32, (void*)vVar, (void*)&vInf, (void*)&vSup, (void*)&vDefault, (void*)&vStep);
+	}
+	else if (std::is_same<T, float>::value)
+	{
+		change |= SliderScalarDefaultCompact(vWidth, vName, ImGuiDataType_Float, (void*)vVar, (void*)&vInf, (void*)&vSup, (void*)&vDefault, (void*)&vStep);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// COMBO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	return change;
+}
 
-	IMGUI_API bool BeginContrastedCombo(const char* label, const char* preview_value, ImGuiComboFlags flags = 0);
-	IMGUI_API bool ContrastedCombo(float vWidth, const char* label, int* current_item, const char* const items[], int items_count, int popup_max_height_in_items = -1);
-	IMGUI_API bool ContrastedCombo(float vWidth, const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1);
-	IMGUI_API bool ContrastedCombo(float vWidth, const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
-	IMGUI_API bool ContrastedComboVectorDefault(float vWidth, const char* label, int* current_item, const std::vector<std::string>& items, int vDefault, int height_in_items = -1);
-	IMGUI_API bool ContrastedComboVectorDefault(float vWidth, const char* label, int* current_item, const std::vector<const char*>& items, int vDefault, int height_in_items = -1);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///// COMBO ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	///// INPUT ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+IMGUI_API bool BeginContrastedCombo(const char* label, const char* preview_value, ImGuiComboFlags flags = 0);
+IMGUI_API bool ContrastedCombo(float vWidth, const char* label, int* current_item, const char* const items[], int items_count, int popup_max_height_in_items = -1);
+IMGUI_API bool ContrastedCombo(float vWidth, const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items = -1);
+IMGUI_API bool ContrastedCombo(float vWidth, const char* label, int* current_item, bool(*items_getter)(void* data, int idx, const char** out_text), void* data, int items_count, int popup_max_height_in_items = -1);
+IMGUI_API bool ContrastedComboVectorDefault(float vWidth, const char* label, int* current_item, const std::vector<std::string>& items, int vDefault, int height_in_items = -1);
 
-	IMGUI_API bool InputFloatDefault(float vWidth, const char* vName, float* vVar, float vDefault, const char* vInputPrec = "%.3f", const char* vPopupPrec = "%.3f", bool vShowResetButton = true, float vStep = 0.0f, float vStepFast = 0.0f);
-	IMGUI_API bool InputFloatDefaultStepper(float vWidth, const char* vName, float* vVar, float vDefault, float vStep, float vStepFast, const char* vInputPrec = "%.3f", const char* vPopupPrec = "%.3f", bool vShowResetButton = true);
-	IMGUI_API bool InputIntDefault(float vWidth, const char* vName, int* vVar, int step, int step_fast, int vDefault);
-	IMGUI_API bool InputUIntDefault(float vWidth, const char* vName, uint32_t* vVar, uint32_t step, uint32_t step_fast, uint32_t vDefault);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///// INPUT ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+IMGUI_API bool InputFloatDefault(float vWidth, const char* vName, float* vVar, float vDefault, const char* vInputPrec = "%.3f", const char* vPopupPrec = "%.3f", bool vShowResetButton = true, float vStep = 0.0f, float vStepFast = 0.0f);
+IMGUI_API bool InputFloatDefaultStepper(float vWidth, const char* vName, float* vVar, float vDefault, float vStep, float vStepFast, const char* vInputPrec = "%.3f", const char* vPopupPrec = "%.3f", bool vShowResetButton = true);
+IMGUI_API bool InputIntDefault(float vWidth, const char* vName, int* vVar, int step, int step_fast, int vDefault);
+IMGUI_API bool InputUIntDefault(float vWidth, const char* vName, uint32_t* vVar, uint32_t step, uint32_t step_fast, uint32_t vDefault);
+}
+
+namespace ImWidgets
+{
+	IMGUI_API class InputText
+	{
+	private:
+		static constexpr size_t m_Len = 512U;
+		char buffer[m_Len + 1] = "";
+		std::string m_Text;
+
+	public:
+		IMGUI_API bool DisplayInputText(const float& vWidth, const std::string& vLabel, const std::string& vDefaultText);
+		IMGUI_API void SetText(const std::string& vText);
+		IMGUI_API std::string GetText();
+	};
 }

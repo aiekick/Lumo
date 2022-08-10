@@ -33,6 +33,7 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <imgui/imgui_internal.h>
 #include <Graph/Layout/GraphLayout.h>
+#include <Project/ProjectFile.h>
 
 MainFrame::MainFrame(GLFWwindow* vWin)
 {
@@ -51,7 +52,7 @@ bool MainFrame::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	SetAppTitle();
 
 	ThemeHelper::Instance(); // default
-	LoadConfigFile("config.xml");
+	LoadConfigFile("generatorConfig.xml");
 
 	ThemeHelper::Instance()->ApplyStyle();
 
@@ -88,7 +89,43 @@ bool MainFrame::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 void MainFrame::Unit()
 {
-	SaveConfigFile("config.xml");
+	ProjectFile::Instance()->Save();
+	SaveConfigFile("generatorConfig.xml");
+}
+
+void MainFrame::PostRenderingActions()
+{
+	if (m_NeedToNewProject)
+	{
+		ProjectFile::Instance()->New(m_FilePathNameToLoad);
+		SetAppTitle(m_FilePathNameToLoad);
+
+		m_FilePathNameToLoad.clear();
+		m_NeedToNewProject = false;
+	}
+
+	if (m_NeedToLoadProject)
+	{
+		if (ProjectFile::Instance()->LoadAs(m_FilePathNameToLoad))
+		{
+			SetAppTitle(m_FilePathNameToLoad);
+			ProjectFile::Instance()->SetProjectChange(false);
+		}
+		else
+		{
+			Messaging::Instance()->AddError(true, nullptr, nullptr,
+				"Failed to load project %s", m_FilePathNameToLoad.c_str());
+		}
+
+		m_FilePathNameToLoad.clear();
+		m_NeedToLoadProject = false;
+	}
+
+	if (m_NeedToCloseProject)
+	{
+		ProjectFile::Instance()->Clear();
+		m_NeedToCloseProject = false;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -172,6 +209,17 @@ void MainFrame::Display(const uint32_t& vCurrentFrame, ct::ivec4 vViewport)
 
 void MainFrame::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame)
 {
+	if (ImGuiFileDialog::Instance()->Display("GenerateToPath"))
+	{
+		if (ImGuiFileDialog::Instance()->IsOk())
+		{
+			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
+
+			m_NodeGenerator.GenerateNodeClasses(filePath, m_GeneratorDatas);
+		}
+
+		ImGuiFileDialog::Instance()->Close();
+	}
 	if (m_ShowImGui)
 		ImGui::ShowDemoWindow(&m_ShowImGui);
 	if (m_ShowMetric)
@@ -304,8 +352,8 @@ void MainFrame::DrawNodeCreationPane()
 	if (ImGui::ContrastedButton("New Node"))
 	{
 		m_RootNodePtr->ClearGraph();
-		m_SelectedNode = m_RootNodePtr->AddChildNode(BaseNode::Create(m_VulkanCorePtr));
-		auto nodePtr = m_SelectedNode.getValidShared();
+		m_GeneratorDatas.m_SelectedNode = m_RootNodePtr->AddChildNode(BaseNode::Create(m_VulkanCorePtr));
+		auto nodePtr = m_GeneratorDatas.m_SelectedNode.getValidShared();
 		if (nodePtr)
 		{
 			nodePtr->name = "New Node";
@@ -313,90 +361,93 @@ void MainFrame::DrawNodeCreationPane()
 		m_NeedToApplyLayout = true;
 	}
 
-	auto nodePtr = m_SelectedNode.getValidShared();
+	auto nodePtr = m_GeneratorDatas.m_SelectedNode.getValidShared();
 	if (nodePtr)
 	{
 		ImGui::SameLine();
 
 		if (ImGui::ContrastedButton("Delete the Node"))
 		{
-			m_RootNodePtr->DestroyChildNode(m_SelectedNode);
+			m_RootNodePtr->DestroyChildNode(m_GeneratorDatas.m_SelectedNode);
 		}
 
-		static char s_nameBuffer[255 + 1] = "";
-		ct::SetBuffer(s_nameBuffer, 255, nodePtr->name);
-		ImGui::Text("Name :"); 
-		ImGui::SameLine();
-		ImGui::PushItemWidth(aw * 0.5f);
-		if (ImGui::InputText("##Name", s_nameBuffer, 255U))
+		if (m_NodeDisplayNameInputText.DisplayInputText(aw * 0.5f, "Node Display Name :", "New Node"))
 		{
-			nodePtr->name = std::string(s_nameBuffer, strlen(s_nameBuffer));
+			m_GeneratorDatas.m_NodeDisplayName = m_NodeDisplayNameInputText.GetText();
+			nodePtr->name = m_GeneratorDatas.m_NodeDisplayName;
 		}
-		ImGui::PopItemWidth();
+
+		if (m_NodeCreationNameInputText.DisplayInputText(aw * 0.5f, "Node Creation Name :", "NEW_NODE"))
+		{
+			m_GeneratorDatas.m_NodeCreationName = m_NodeCreationNameInputText.GetText();
+			ct::replaceString(m_GeneratorDatas.m_ClassName, " ", "_");
+			m_NodeCreationNameInputText.SetText(m_GeneratorDatas.m_NodeCreationName);
+		}
 
 		ImGui::Separator();
 
 		m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(
 			m_InputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 7.0f), 
-				m_SelectedNode, 
-				m_SelectedNodeSlotInput, 
+				m_GeneratorDatas.m_SelectedNode,
+				m_SelectedNodeSlotInput,
 				NodeSlot::PlaceEnum::INPUT).getValidShared());
 
 		ImGui::SameLine();
 
 		m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(
 			m_OutputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 7.0f),
-				m_SelectedNode, 
-				m_SelectedNodeSlotOutput, 
+				m_GeneratorDatas.m_SelectedNode,
+				m_SelectedNodeSlotOutput,
 				NodeSlot::PlaceEnum::OUTPUT).getValidShared());
 
 		ImGui::Separator();
 
 		ImGui::Text("Classes");
 
-		static char s_classNameBuffer[255 + 1] = "";
-		ct::SetBuffer(s_classNameBuffer, 255, m_ClassName);
-		ImGui::Text("Name :");
-		ImGui::SameLine();
-		ImGui::PushItemWidth(aw * 0.5f);
-		if (ImGui::InputText("##Name", s_classNameBuffer, 255U))
+		if (m_ClassNameInputText.DisplayInputText(aw * 0.5f, "Name :", "NewClass"))
 		{
-			m_ClassName = std::string(s_classNameBuffer, strlen(s_classNameBuffer));
+			m_GeneratorDatas.m_ClassName = m_ClassNameInputText.GetText();
+			ct::replaceString(m_GeneratorDatas.m_ClassName, " ", "");
+			m_ClassNameInputText.SetText(m_GeneratorDatas.m_ClassName);
 		}
-		ImGui::PopItemWidth();
 
 		ImGui::Separator();
 
-		ImGui::CheckBoxBoolDefault("Generate a Module ?", &m_GenerateAModule, true);
+		ImGui::CheckBoxBoolDefault("Generate a Module ?", &m_GeneratorDatas.m_GenerateAModule, true);
 
-		if (m_GenerateAModule)
+		if (m_GeneratorDatas.m_GenerateAModule)
 		{
 			ImGui::Text("Renderer Type");
 
-			if (ImGui::RadioButtonLabeled(0.0f, "Pixel 2D", m_RendererType == "Pixel 2D", false))
-				m_RendererType = "Pixel 2D";
+			if (ImGui::RadioButtonLabeled(0.0f, "Pixel 2D", m_GeneratorDatas.m_RendererType == "Pixel 2D", false))
+				m_GeneratorDatas.m_RendererType = "Pixel 2D";
 			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Compute 1D", m_RendererType == "Compute 1D", false))
-				m_RendererType = "Compute 1D";
+			if (ImGui::RadioButtonLabeled(0.0f, "Compute 1D", m_GeneratorDatas.m_RendererType == "Compute 1D", false))
+				m_GeneratorDatas.m_RendererType = "Compute 1D";
 			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Compute 2D", m_RendererType == "Compute 2D", false))
-				m_RendererType = "Compute 2D";
+			if (ImGui::RadioButtonLabeled(0.0f, "Compute 2D", m_GeneratorDatas.m_RendererType == "Compute 2D", false))
+				m_GeneratorDatas.m_RendererType = "Compute 2D";
 			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Compute 3D", m_RendererType == "Compute 3D", false))
-				m_RendererType = "Compute 3D";
+			if (ImGui::RadioButtonLabeled(0.0f, "Compute 3D", m_GeneratorDatas.m_RendererType == "Compute 3D", false))
+				m_GeneratorDatas.m_RendererType = "Compute 3D";
 			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Rtx", m_RendererType == "Rtx", false))
-				m_RendererType = "Rtx";
+			if (ImGui::RadioButtonLabeled(0.0f, "Rtx", m_GeneratorDatas.m_RendererType == "Rtx", false))
+				m_GeneratorDatas.m_RendererType = "Rtx";
 		}
 
 
-		ImGui::CheckBoxBoolDefault("Generate a Pass ?", &m_GenerateAPass, true);
+		ImGui::CheckBoxBoolDefault("Generate a Pass ?", &m_GeneratorDatas.m_GenerateAPass, true);
+
+		if (ImGui::ContrastedButton("Generate"))
+		{
+			ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", nullptr, ".");
+		}
 	}
 }
 
 void MainFrame::SelectNode(const BaseNodeWeak& vNode)
 {
-	m_SelectedNode = vNode;
+	m_GeneratorDatas.m_SelectedNode = vNode;
 }
 
 void MainFrame::SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton)
@@ -412,11 +463,13 @@ void MainFrame::SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vB
 				{
 					m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(vSlot.getValidShared());
 					NodeSlot::sSlotGraphOutputMouseLeft = m_SelectedNodeSlotInput;
+					m_InputSlotEditor.SelectSlot(m_SelectedNodeSlotInput);
 				}
 				else if (slotPtr->IsAnOutput())
 				{
 					m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(vSlot.getValidShared());
 					NodeSlot::sSlotGraphOutputMouseRight = m_SelectedNodeSlotOutput;
+					m_OutputSlotEditor.SelectSlot(m_SelectedNodeSlotInput);
 				}
 			}
 		}
@@ -440,8 +493,13 @@ std::string MainFrame::getXml(const std::string& vOffset, const std::string& vUs
 	UNUSED(vUserDatas);
 
 	std::string str;
-	
-	//str += vOffset + "<showmetric>" + (m_ShowMetric ? "true" : "false") + "</showmetric>\n";
+
+	str += ThemeHelper::Instance()->getXml(vOffset);
+	str += vOffset + "<bookmarks>" + ImGuiFileDialog::Instance()->SerializeBookmarks() + "</bookmarks>\n";
+	str += vOffset + "<showaboutdialog>" + (m_ShowAboutDialog ? "true" : "false") + "</showaboutdialog>\n";
+	str += vOffset + "<showimgui>" + (m_ShowImGui ? "true" : "false") + "</showimgui>\n";
+	str += vOffset + "<showmetric>" + (m_ShowMetric ? "true" : "false") + "</showmetric>\n";
+	str += vOffset + "<project>" + ProjectFile::Instance()->GetProjectFilepathName() + "</project>\n";
 
 	return str;
 }
@@ -460,9 +518,22 @@ bool MainFrame::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vP
 		strValue = vElem->GetText();
 	if (vParent != 0)
 		strParentName = vParent->Value();
-	
-	//if (strName == "project")
-	//	NeedToLoadProject(strValue);
+
+	ThemeHelper::Instance()->setFromXml(vElem, vParent);
+
+	if (strName == "bookmarks")
+		ImGuiFileDialog::Instance()->DeserializeBookmarks(strValue);
+	else if (strName == "project")
+	{
+		m_NeedToLoadProject = true;
+		m_FilePathNameToLoad = strValue;
+	}
+	else if (strName == "showaboutdialog")
+		m_ShowAboutDialog = ct::ivariant(strValue).GetB();
+	else if (strName == "showimgui")
+		m_ShowImGui = ct::ivariant(strValue).GetB();
+	else if (strName == "showmetric")
+		m_ShowMetric = ct::ivariant(strValue).GetB();
 
 	return true;
 }

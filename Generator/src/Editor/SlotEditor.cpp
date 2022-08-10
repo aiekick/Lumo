@@ -27,6 +27,15 @@
 #include <Graph/Slots/NodeSlotStorageBufferInput.h>
 #include <Graph/Slots/NodeSlotStorageBufferOutput.h>
 
+void SlotEditor::SelectSlot(NodeSlotWeak vNodeSlot)
+{
+	auto slotPtr = vNodeSlot.getValidShared();
+	if (slotPtr)
+	{
+		m_SlotDisplayNameInputText.SetText(slotPtr->name);
+	}
+}
+
 NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak vNode, NodeSlotWeak vNodeSlot, const NodeSlot::PlaceEnum& vPlace)
 {
 	NodeSlotWeak res;
@@ -54,10 +63,12 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 				if (vPlace == NodeSlot::PlaceEnum::INPUT)
 				{
 					res = std::dynamic_pointer_cast<NodeSlotInput>(nodePtr->AddInput(NodeSlotInput::Create("New Slot"), false, false).getValidShared());
+					NodeSlot::sSlotGraphOutputMouseLeft = res;
 				}
 				else if (vPlace == NodeSlot::PlaceEnum::OUTPUT)
 				{
 					res = std::dynamic_pointer_cast<NodeSlotOutput>(nodePtr->AddOutput(NodeSlotOutput::Create("New Slot"), false, false).getValidShared());
+					NodeSlot::sSlotGraphOutputMouseRight = res;
 				}
 
 				ImGui::EndChild();
@@ -80,23 +91,18 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 				nodePtr->DestroySlotOfAnyMap(vNodeSlot);
 			}
 
-			ct::SetBuffer(m_SlotNameBuffer, 255, slotPtr->name);
-			ImGui::Text("Slot Name :");
-			ImGui::SameLine();
-			ImGui::PushItemWidth(vSize.x);
-			if (ImGui::InputText("##SlotName", m_SlotNameBuffer, 255U))
+			if (m_SlotDisplayNameInputText.DisplayInputText(vSize.x, "Slot Name :", "New Slot"))
 			{
-				slotPtr->name = std::string(m_SlotNameBuffer, strlen(m_SlotNameBuffer));
+				slotPtr->name = m_SlotDisplayNameInputText.GetText();
 			}
-			ImGui::PopItemWidth();
 
 			m_InputType = (int32_t)slotPtr->editorSlotTypeIndex;
-			m_SelectedType = m_TypeArray[m_InputType];
+			m_SelectedType = m_BaseTypes.m_TypeArray[m_InputType];
 
-			if (ImGui::ContrastedComboVectorDefault(vSize.x, "Slot Type", &m_InputType, m_TypeArray, 0U))
+			if (ImGui::ContrastedComboVectorDefault(vSize.x, "Slot Type", &m_InputType, m_BaseTypes.m_TypeArray, 0U))
 			{
 				slotPtr->editorSlotTypeIndex = (uint32_t)m_InputType;
-				m_SelectedType = m_TypeArray[m_InputType];
+				m_SelectedType = m_BaseTypes.m_TypeArray[slotPtr->editorSlotTypeIndex];
 
 				if (vPlace == NodeSlot::PlaceEnum::INPUT)
 				{

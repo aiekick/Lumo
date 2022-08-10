@@ -28,6 +28,8 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <Graph/Base/NodeSlotInput.h>
 #include <Graph/Base/NodeSlotOutput.h>
+#include <Generator/NodeGenerator.h>
+#include <ImWidgets/ImWidgets.h>
 
 struct GLFWwindow;
 class MainFrame : public conf::ConfigAbstract
@@ -52,21 +54,21 @@ private:
 	bool m_NeedToNewProject = false;
 	bool m_NeedToLoadProject = false;
 	bool m_NeedToCloseProject = false;
+	std::string m_FilePathNameToLoad;
 
 private: // generation
-	std::string m_FilePathNameToLoad;
-	std::string m_ClassName;
-	bool m_GenerateAModule = false;
-	bool m_GenerateAPass = false;
-	std::string m_RendererType;
+	GeneratorStruct m_GeneratorDatas;
+	NodeGenerator m_NodeGenerator;
 
 private:
 	BaseNodePtr m_RootNodePtr = nullptr;
-	BaseNodeWeak m_SelectedNode;
-	NodeSlotInputWeak m_SelectedNodeSlotInput;
-	NodeSlotOutputWeak m_SelectedNodeSlotOutput;
 	SlotEditor m_InputSlotEditor;
 	SlotEditor m_OutputSlotEditor;
+	NodeSlotInputWeak m_SelectedNodeSlotInput;
+	NodeSlotOutputWeak m_SelectedNodeSlotOutput;
+	ImWidgets::InputText m_NodeDisplayNameInputText;
+	ImWidgets::InputText m_NodeCreationNameInputText;
+	ImWidgets::InputText m_ClassNameInputText;
 
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
@@ -78,6 +80,7 @@ public:
 	void Unit();
 
 	void Display(const uint32_t& vCurrentFrame, ct::ivec4 vViewport);
+	void PostRenderingActions();
 
 	GLFWwindow* GetGLFWwindow() { return m_Window; }
 

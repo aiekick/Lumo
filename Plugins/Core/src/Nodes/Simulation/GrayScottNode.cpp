@@ -109,8 +109,8 @@ void GrayScottNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 		{
 			char debugBuffer[255] = "\0";
 			snprintf(debugBuffer, 254,
-				"Used(%s)\nCell(%i, %i)"/*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/,
-				(used ? "true" : "false"), cell.x, cell.y/*, pos.x, pos.y, size.x, size.y*/);
+				"Used(%s)\nCell(%i, %i)",
+				(used ? "true" : "false"), cell.x, cell.y);
 			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
 			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
 		}

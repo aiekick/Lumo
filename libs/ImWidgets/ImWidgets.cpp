@@ -3443,39 +3443,6 @@ bool ImGui::ContrastedComboVectorDefault(float vWidth, const char* label, int* c
 	return change;
 }
 
-bool ImGui::ContrastedComboVectorDefault(float vWidth, const char* label, int* current_item, const std::vector<const char*>& items, int vDefault, int height_in_items)
-{
-	bool change = false;
-
-	if (!items.empty())
-	{
-		float px = ImGui::GetCursorPosX();
-
-		ImGui::PushID(++CustomStyle::Instance()->pushId);
-
-		change = ImGui::ContrastedButton(ICON_NDP_RESET);
-		if (change)
-			*current_item = vDefault;
-
-		ImGui::CustomSameLine();
-
-		if (vWidth > 0.0f)
-		{
-			vWidth -= ImGui::GetCursorPosX() - px;
-		}
-
-		change |= ContrastedCombo(vWidth, label, current_item, [](void* data, int idx, const char** out_text)
-			{
-				*out_text = ((const std::vector<const char*>*)data)->at(idx);
-				return true;
-			}, (void*)&items, (int)items.size(), height_in_items);
-
-		ImGui::PopID();
-	}
-
-	return change;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///// INPUT ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3624,4 +3591,45 @@ IMGUI_API bool ImGui::InputUIntDefault(float vWidth, const char* vName, uint32_t
 		ImGui::SetTooltip("%.3f", *vVar);
 
 	return change;
+}
+
+IMGUI_API bool ImWidgets::InputText::DisplayInputText(const float& vWidth, const std::string& vLabel, const std::string& vDefaultText)
+{
+	bool res = false;
+	float px = ImGui::GetCursorPosX();
+	ImGui::Text(vLabel.c_str());
+	ImGui::SameLine();
+	const float w = vWidth - (ImGui::GetCursorPosX() - px);
+	ImGui::PushID(++ImGui::CustomStyle::Instance()->pushId);
+	ImGui::PushItemWidth(w);
+	if (buffer[0] == '\0') // default text
+	{
+		SetText(vDefaultText);
+	}
+	if (ImGui::InputText("##ImWidgets_InputText_DisplayInputText", buffer, 512))
+	{
+		m_Text = std::string(buffer, strlen(buffer));
+		res = true;
+	}
+	ImGui::PopItemWidth();
+	ImGui::PopID();
+	return res;
+}
+
+IMGUI_API void ImWidgets::InputText::SetText(const std::string& vText)
+{
+	m_Text = vText;
+	size_t len = m_Len;
+	if (vText.size() < len)
+		len = vText.size();
+#ifdef _MSC_VER
+	strncpy_s(buffer, vText.c_str(), len);
+#else
+	strncpy(buffer, vText.c_str(), len);
+#endif
+}
+
+IMGUI_API std::string ImWidgets::InputText::GetText()
+{ 
+	return m_Text; 
 }

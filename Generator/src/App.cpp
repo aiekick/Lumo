@@ -238,6 +238,9 @@ void App::MainLoop(GLFWwindow* vWindow)
 		ImGuiFileDialog::Instance()->ManageGPUThumbnails();
 #endif
 
+		// mainframe post actions
+		MainFrame::Instance()->PostRenderingActions();
+
 		++m_CurrentFrame;
 	}
 }
