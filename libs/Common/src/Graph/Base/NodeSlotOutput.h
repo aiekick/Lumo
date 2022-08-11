@@ -23,17 +23,17 @@ class NodeSlotOutput : public NodeSlot
 {
 public:
 	static NodeSlotOutputPtr Create();
-	static NodeSlotOutputPtr Create(std::string vName);
-	static NodeSlotOutputPtr Create(std::string vName, std::string vType);
-	static NodeSlotOutputPtr Create(std::string vName, std::string vType, bool vHideName);
-	static NodeSlotOutputPtr Create(std::string vName, std::string vType, bool vHideName, bool vShowWidget);
+	static NodeSlotOutputPtr Create(const std::string& vName);
+	static NodeSlotOutputPtr Create(const std::string& vName, const std::string& vType);
+	static NodeSlotOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
+	static NodeSlotOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
 
 public:
 	explicit NodeSlotOutput();
-	explicit NodeSlotOutput(std::string vName);
-	explicit NodeSlotOutput(std::string vName, std::string vType);
-	explicit NodeSlotOutput(std::string vName, std::string vType, bool vHideName);
-	explicit NodeSlotOutput(std::string vName, std::string vType, bool vHideName, bool vShowWidget);
+	explicit NodeSlotOutput(const std::string& vName);
+	explicit NodeSlotOutput(const std::string& vName, const std::string& vType);
+	explicit NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName);
+	explicit NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
 	~NodeSlotOutput();
 
 	void Init();

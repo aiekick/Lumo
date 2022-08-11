@@ -34,28 +34,28 @@ NodeSlotOutputPtr NodeSlotOutput::Create()
 	return res;
 }
 
-NodeSlotOutputPtr NodeSlotOutput::Create(std::string vName)
+NodeSlotOutputPtr NodeSlotOutput::Create(const std::string& vName)
 {
 	auto res = std::make_shared<NodeSlotOutput>(vName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotOutputPtr NodeSlotOutput::Create(std::string vName, std::string vType)
+NodeSlotOutputPtr NodeSlotOutput::Create(const std::string& vName, const std::string& vType)
 {
 	auto res = std::make_shared<NodeSlotOutput>(vName, vType);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotOutputPtr NodeSlotOutput::Create(std::string vName, std::string vType, bool vHideName)
+NodeSlotOutputPtr NodeSlotOutput::Create(const std::string& vName, const std::string& vType, const bool& vHideName)
 {
 	auto res = std::make_shared<NodeSlotOutput>(vName, vType, vHideName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotOutputPtr NodeSlotOutput::Create(std::string vName, std::string vType, bool vHideName, bool vShowWidget)
+NodeSlotOutputPtr NodeSlotOutput::Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
 {
 	auto res = std::make_shared<NodeSlotOutput>(vName, vType, vHideName, vShowWidget);
 	res->m_This = res;
@@ -73,14 +73,14 @@ NodeSlotOutput::NodeSlotOutput()
 	slotPlace = NodeSlot::PlaceEnum::OUTPUT;
 }
 
-NodeSlotOutput::NodeSlotOutput(std::string vName)
+NodeSlotOutput::NodeSlotOutput(const std::string& vName)
 	: NodeSlot(vName)
 {
 	pinID = sGetNewSlotId();
 	slotPlace = NodeSlot::PlaceEnum::OUTPUT;
 }
 
-NodeSlotOutput::NodeSlotOutput(std::string vName, std::string vType)
+NodeSlotOutput::NodeSlotOutput(const std::string& vName, const std::string& vType)
 	: NodeSlot(vName, vType)
 {
 	pinID = sGetNewSlotId();
@@ -89,7 +89,7 @@ NodeSlotOutput::NodeSlotOutput(std::string vName, std::string vType)
 	colorIsSet = true;
 }
 
-NodeSlotOutput::NodeSlotOutput(std::string vName, std::string vType, bool vHideName)
+NodeSlotOutput::NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName)
 	: NodeSlot(vName, vType, vHideName)
 {
 	pinID = sGetNewSlotId();
@@ -98,7 +98,7 @@ NodeSlotOutput::NodeSlotOutput(std::string vName, std::string vType, bool vHideN
 	colorIsSet = true;
 }
 
-NodeSlotOutput::NodeSlotOutput(std::string vName, std::string vType, bool vHideName, bool vShowWidget)
+NodeSlotOutput::NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
 	: NodeSlot(vName, vType, vHideName, vShowWidget)
 {
 	pinID = sGetNewSlotId();

@@ -49,7 +49,8 @@ void NodeGenerator::GenerateNodeClasses(const std::string& vPath, const ProjectF
 #include <Graph/Base/BaseNode.h>
 )";
 
-		cpp_node_file_code += ct::toStr(u8R"(#include "%s.h"
+		cpp_node_file_code += ct::toStr(u8R"(
+#include "%s.h"
 )", node_class_name.c_str());
 
 		if (nodePtr->m_GenerateAModule)
@@ -142,6 +143,8 @@ NODE_CLASS_NAME::~NODE_CLASS_NAME()
 
 bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	bool res = false;
+
 	name = "NODE_DISPLAY_NAME";
 )";
 
@@ -162,22 +165,34 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 					case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddInput(NodeSlotLightGroupInput::Create("%s"), false, %s);)",
-							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false"); 
+						if (_inputCounter[BaseTypeEnum::BASE_TYPE_LightGroup] == 1)
+							h_node_file_code += u8R"(
+	public LightGroupInputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_Model: // Model
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddInput(NodeSlotModelInput::Create("%s"), false, %s);)",
 							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+						if (_inputCounter[BaseTypeEnum::BASE_TYPE_Model] == 1)
+							h_node_file_code += u8R"(
+	public ModelInputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddInput(NodeSlotStorageBufferInput::Create("%s"), false, %s);)",
 							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+						if (_inputCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer] == 1)
+							h_node_file_code += u8R"(
+	public StorageBufferInputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddInput(NodeSlotTexelBufferInput::Create("%s"), false, %s);)",
 							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+						if (_inputCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer] == 1)
+							h_node_file_code += u8R"(
+	public TexelBufferInputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_Texture: // Texture
 						cpp_node_file_code += ct::toStr(u8R"(
@@ -185,11 +200,17 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 							inputSlot.second->name.c_str(),
 							inputSlot.second->descriptorBinding,
 							inputSlot.second->hideName ? "true" : "false");
+						if (_inputCounter[BaseTypeEnum::BASE_TYPE_Texture] == 1)
+							h_node_file_code += ct::toStr(u8R"(
+	public TextureInputInterface<%u>,)", _inputCounter[BaseTypeEnum::BASE_TYPE_Texture]);
 						break;
 					case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddInput(NodeSlotTextureGroupInput::Create("%s"), false, %s);)",
 							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+						if (_inputCounter[BaseTypeEnum::BASE_TYPE_TextureGroup] == 1)
+							h_node_file_code += u8R"(
+	public TextureGroupInputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_Variable: // Variable
 						cpp_node_file_code += ct::toStr(u8R"(
@@ -198,6 +219,9 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 							inputSlot.second->slotType.c_str(),
 							inputSlot.second->variableIndex,
 							inputSlot.second->hideName ? "true" : "false");
+						if (_inputCounter[BaseTypeEnum::BASE_TYPE_Variable] == 1)
+							h_node_file_code += u8R"(
+	public VariableInputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_Custom: // Custom
 						break;
@@ -207,30 +231,7 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 		}
 
 		cpp_node_file_code += u8R"(
-
 )";
-
-		if (_inputCounter[BaseTypeEnum::BASE_TYPE_LightGroup] > 0)
-			h_node_file_code += u8R"(
-	public LightGroupInputInterface,)";
-		if (_inputCounter[BaseTypeEnum::BASE_TYPE_Model] > 0)
-			h_node_file_code += u8R"(
-	public ModelInputInterface,)";
-		if (_inputCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer] > 0)
-			h_node_file_code += u8R"(
-	public StorageBufferInputInterface,)";
-		if (_inputCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer] > 0)
-			h_node_file_code += u8R"(
-	public TexelBufferInputInterface,)";
-		if (_inputCounter[BaseTypeEnum::BASE_TYPE_Texture] > 0)
-			h_node_file_code += ct::toStr(u8R"(
-	public TextureInputInterface<%u>,)", _inputCounter[BaseTypeEnum::BASE_TYPE_Texture]);
-		if (_inputCounter[BaseTypeEnum::BASE_TYPE_TextureGroup] > 0)
-			h_node_file_code += u8R"(
-	public TextureGroupInputInterface,)";
-		if (_inputCounter[BaseTypeEnum::BASE_TYPE_Variable] > 0)
-			h_node_file_code += u8R"(
-	public VariableInputInterface,)";
 
 		std::map<uint32_t, uint32_t> _outputCounter;
 		for (const auto& outputSlot : nodePtr->m_Outputs)
@@ -249,21 +250,33 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotLightGroupOutput::Create("%s"), false, %s);)",
 							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						if (_outputCounter[BaseTypeEnum::BASE_TYPE_LightGroup] == 1)
+							h_node_file_code += u8R"(
+	public LightGroupOutputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_Model: // Model
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotModelOutput::Create("%s"), false, %s);)",
 							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						if (_outputCounter[BaseTypeEnum::BASE_TYPE_Model] == 1)
+							h_node_file_code += u8R"(
+	public ModelOutputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotStorageBufferOutput::Create("%s"), false, %s);)",
 							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						if (_outputCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer] == 1)
+							h_node_file_code += u8R"(
+	public StorageBufferOutputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotTexelBufferOutput::Create("%s"), false, %s);)",
 							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						if (_outputCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer] == 1)
+							h_node_file_code += u8R"(
+	public TexelBufferOutputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_Texture: // Texture
 						cpp_node_file_code += ct::toStr(u8R"(
@@ -271,11 +284,17 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 							outputSlot.second->name.c_str(),
 							outputSlot.second->descriptorBinding,
 							outputSlot.second->hideName ? "true" : "false");
+						if (_outputCounter[BaseTypeEnum::BASE_TYPE_Texture] == 1)
+							h_node_file_code += u8R"(
+	public TextureOutputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
 						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotTextureGroupOutput::Create("%s"), false, %s);)",
 							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						if (_outputCounter[BaseTypeEnum::BASE_TYPE_TextureGroup] == 1)
+							h_node_file_code += u8R"(
+	public TextureGroupOutputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_Variable: // Variable
 						cpp_node_file_code += ct::toStr(u8R"(
@@ -285,6 +304,9 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 							outputSlot.second->variableIndex,
 							outputSlot.second->hideName ? "true" : "false");
 						h_node_file_code += u8R"(public VariableOutputInterface,)";
+						if (_outputCounter[BaseTypeEnum::BASE_TYPE_Variable] == 1)
+							h_node_file_code += u8R"(
+	public VariableOutputInterface,)";
 						break;
 					case BaseTypeEnum::BASE_TYPE_Custom: // Custom
 						break;
@@ -293,31 +315,7 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 			}
 		}
 
-		if (_outputCounter[BaseTypeEnum::BASE_TYPE_LightGroup] > 0)
-			h_node_file_code += u8R"(
-	public LightGroupOutputInterface,)";
-		if (_outputCounter[BaseTypeEnum::BASE_TYPE_Model] > 0)
-			h_node_file_code += u8R"(
-	public ModelOutputInterface,)";
-		if (_outputCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer] > 0)
-			h_node_file_code += u8R"(
-	public StorageBufferOutputInterface,)";
-		if (_outputCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer] > 0)
-			h_node_file_code += u8R"(
-	public TexelBufferOutputInterface,)";
-		if (_outputCounter[BaseTypeEnum::BASE_TYPE_Texture] > 0)
-			h_node_file_code += u8R"(
-	public TextureOutputInterface,)";
-		if (_outputCounter[BaseTypeEnum::BASE_TYPE_TextureGroup] > 0)
-			h_node_file_code += u8R"(
-	public TextureGroupOutputInterface,)";
-		if (_outputCounter[BaseTypeEnum::BASE_TYPE_Variable] > 0)
-			h_node_file_code += u8R"(
-	public VariableOutputInterface,)";
-
-
-	cpp_node_file_code += u8R"(
-	bool res = false;
+		cpp_node_file_code += u8R"(
 
 	m_MODULE_CLASS_NAMEPtr = MODULE_CLASS_NAME::Create(vVulkanCorePtr);
 	if (m_MODULE_CLASS_NAMEPtr)
@@ -355,15 +353,17 @@ bool NODE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 bool NODE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	bool res = false;
+
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
-		return m_MODULE_CLASS_NAMEPtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_MODULE_CLASS_NAMEPtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
-	return false;
+	return res;
 }
 
 void NODE_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
@@ -500,6 +500,7 @@ bool NODE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 		m_MODULE_CLASS_NAMEPtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
+	// continue recurse child exploring
 	return true;
 }
 
@@ -514,7 +515,7 @@ void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
 		m_MODULE_CLASS_NAMEPtr->UpdateShaders(vFiles);
 	}
 }
-		)";
+)";
 
 	h_node_file_code += u8R"(
 {
@@ -544,9 +545,7 @@ public:
 )";
 
 	h_node_file_code += u8R"(
-
-	// Interface Setters
-)";
+	// Interfaces Setters)";
 	if (_inputCounter[BaseTypeEnum::BASE_TYPE_LightGroup] > 0)
 		h_node_file_code += u8R"(
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;)";
@@ -572,9 +571,7 @@ public:
 
 	h_node_file_code += u8R"(
 
-	// Interface Getters
-)";
-
+	// Interfaces Getters)";
 	if (_outputCounter[BaseTypeEnum::BASE_TYPE_LightGroup] > 0)
 		h_node_file_code += u8R"(
 	SceneLightGroupWeak GetLightGroup() override;)";

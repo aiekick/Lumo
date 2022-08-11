@@ -13,12 +13,26 @@ GeneratorNodeSlotInputPtr GeneratorNodeSlotInput::Create()
 	return res;
 }
 
+GeneratorNodeSlotInputPtr GeneratorNodeSlotInput::Create(const std::string& vName)
+{
+	auto res = std::make_shared<GeneratorNodeSlotInput>(vName);
+	res->m_This = res;
+	return res;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 GeneratorNodeSlotInput::GeneratorNodeSlotInput()
 	: NodeSlotInput()
+{
+	pinID = sGetNewSlotId();
+	slotPlace = NodeSlot::PlaceEnum::INPUT;
+}
+
+GeneratorNodeSlotInput::GeneratorNodeSlotInput(const std::string& vName)
+	: NodeSlotInput(vName)
 {
 	pinID = sGetNewSlotId();
 	slotPlace = NodeSlot::PlaceEnum::INPUT;

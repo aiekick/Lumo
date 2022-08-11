@@ -445,9 +445,13 @@ void MainFrame::DrawNodeCreationPane()
 {
 	const float aw = ImGui::GetContentRegionAvail().x;
 
-	if (ImGui::ContrastedButton("New Node"))
+	if (ImGui::ContrastedButton("Clear Graph (WARNING, cant be canceled !)"))
 	{
 		ProjectFile::Instance()->m_RootNodePtr->ClearGraph();
+	}
+
+	if (ImGui::ContrastedButton("New Node"))
+	{
 		ProjectFile::Instance()->m_SelectedNode = std::dynamic_pointer_cast<GeneratorNode>(
 			ProjectFile::Instance()->m_RootNodePtr->AddChildNode(GeneratorNode::Create(m_VulkanCorePtr)).getValidShared());
 		auto nodePtr = ProjectFile::Instance()->m_SelectedNode.getValidShared();
@@ -544,16 +548,35 @@ void MainFrame::DrawNodeCreationPane()
 
 void MainFrame::SelectNode(const BaseNodeWeak& vNode)
 {
-	ProjectFile::Instance()->m_SelectedNode = std::dynamic_pointer_cast<GeneratorNode>(vNode.getValidShared());
-
-	auto nodePtr = ProjectFile::Instance()->m_SelectedNode.getValidShared();
+	auto currentNodePtr = std::dynamic_pointer_cast<GeneratorNode>(ProjectFile::Instance()->m_SelectedNode.getValidShared());
+	auto nodePtr = std::dynamic_pointer_cast<GeneratorNode>(vNode.getValidShared());
 	if (nodePtr)
 	{
+		ProjectFile::Instance()->m_SelectedNode = nodePtr;
+
 		m_NodeDisplayNameInputText.SetText(nodePtr->m_NodeDisplayName);
 		m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
 		m_ClassNameInputText.SetText(nodePtr->m_ClassName);
-	}
 
+		if (currentNodePtr && nodePtr != currentNodePtr)
+		{
+			NodeSlot::sSlotGraphOutputMouseLeft.reset();
+			m_SelectedNodeSlotInput.reset();
+			// selection of the first slot
+			if (!nodePtr->m_Inputs.empty())
+			{
+				SelectSlot(nodePtr->m_Inputs.begin()->second, ImGuiMouseButton_Left);
+			}
+
+			NodeSlot::sSlotGraphOutputMouseRight.reset();
+			m_SelectedNodeSlotOutput.reset();
+			// selection of the first slot
+			if (!nodePtr->m_Outputs.empty())
+			{
+				SelectSlot(nodePtr->m_Outputs.begin()->second, ImGuiMouseButton_Left);
+			}
+		}
+	}
 }
 
 void MainFrame::SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton)

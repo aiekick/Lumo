@@ -72,12 +72,12 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 			{
 				if (vPlace == NodeSlot::PlaceEnum::INPUT)
 				{
-					res = std::dynamic_pointer_cast<NodeSlotInput>(nodePtr->AddInput(NodeSlotInput::Create("New Slot"), false, false).getValidShared());
+					res = std::dynamic_pointer_cast<GeneratorNodeSlotInput>(nodePtr->AddInput(GeneratorNodeSlotInput::Create("New Slot"), false, false).getValidShared());
 					NodeSlot::sSlotGraphOutputMouseLeft = res;
 				}
 				else if (vPlace == NodeSlot::PlaceEnum::OUTPUT)
 				{
-					res = std::dynamic_pointer_cast<NodeSlotOutput>(nodePtr->AddOutput(NodeSlotOutput::Create("New Slot"), false, false).getValidShared());
+					res = std::dynamic_pointer_cast<GeneratorNodeSlotOutput>(nodePtr->AddOutput(GeneratorNodeSlotOutput::Create("New Slot"), false, false).getValidShared());
 					NodeSlot::sSlotGraphOutputMouseRight = res;
 				}
 
@@ -119,11 +119,11 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 
 					if (vPlace == NodeSlot::PlaceEnum::INPUT)
 					{
-						res = std::dynamic_pointer_cast<NodeSlotInput>(ChangeInputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
+						res = std::dynamic_pointer_cast<GeneratorNodeSlotInput>(ChangeInputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
 					}
 					else if (vPlace == NodeSlot::PlaceEnum::OUTPUT)
 					{
-						res = std::dynamic_pointer_cast<NodeSlotOutput>(ChangeOutputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
+						res = std::dynamic_pointer_cast<GeneratorNodeSlotOutput>(ChangeOutputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
 					}
 				}
 
@@ -201,7 +201,9 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::
 				{
 					NodeSlot::sSlotGraphOutputMouseLeft = slotPtr;
 
-					slotPtr->type = resPtr->type;
+					slotPtr->slotType = resPtr->slotType;
+					slotPtr->color = resPtr->color;
+					slotPtr->colorIsSet = resPtr->colorIsSet;
 
 					resPtr.reset();
 
@@ -264,7 +266,9 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(BaseNodeWeak vRootNode, const std:
 				{
 					NodeSlot::sSlotGraphOutputMouseRight = slotPtr;
 
-					slotPtr->type = resPtr->type;
+					slotPtr->slotType = resPtr->slotType;
+					slotPtr->color = resPtr->color;
+					slotPtr->colorIsSet = resPtr->colorIsSet;
 
 					resPtr.reset();
 

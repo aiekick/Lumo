@@ -13,9 +13,11 @@ class GeneratorNodeSlotInput : public NodeSlotInput, public GeneratorNodeSlotDat
 {
 public:
 	static GeneratorNodeSlotInputPtr Create();
+	static GeneratorNodeSlotInputPtr Create(const std::string& vName);
 
 public:
-	GeneratorNodeSlotInput();
+	explicit GeneratorNodeSlotInput();
+	explicit GeneratorNodeSlotInput(const std::string& vName);
 
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

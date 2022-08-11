@@ -13,12 +13,26 @@ GeneratorNodeSlotOutputPtr GeneratorNodeSlotOutput::Create()
 	return res;
 }
 
+GeneratorNodeSlotOutputPtr GeneratorNodeSlotOutput::Create(const std::string& vName)
+{
+	auto res = std::make_shared<GeneratorNodeSlotOutput>(vName);
+	res->m_This = res;
+	return res;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 GeneratorNodeSlotOutput::GeneratorNodeSlotOutput()
 	: NodeSlotOutput()
+{
+	pinID = sGetNewSlotId();
+	slotPlace = NodeSlot::PlaceEnum::OUTPUT;
+}
+
+GeneratorNodeSlotOutput::GeneratorNodeSlotOutput(const std::string& vName)
+	: NodeSlotOutput(vName)
 {
 	pinID = sGetNewSlotId();
 	slotPlace = NodeSlot::PlaceEnum::OUTPUT;
