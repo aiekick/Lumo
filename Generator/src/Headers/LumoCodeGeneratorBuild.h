@@ -1,6 +1,6 @@
 #pragma once
 
-#define LumoCodeGenerator_BuildNumber 224
+#define LumoCodeGenerator_BuildNumber 232
 #define LumoCodeGenerator_MinorNumber 0
 #define LumoCodeGenerator_MajorNumber 0
-#define LumoCodeGenerator_BuildId "0.0.224"
+#define LumoCodeGenerator_BuildId "0.0.232"

@@ -40,6 +40,7 @@ MainFrame::MainFrame(GLFWwindow* vWin)
 	m_Window = vWin;
 }
 
+
 MainFrame::~MainFrame()
 {
 	

@@ -730,13 +730,19 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 		}
 	}
 
-	cpp_node_file_code += u8R"(
+
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 
 	m_MODULE_CLASS_NAMEPtr = MODULE_CLASS_NAME::Create(vVulkanCorePtr);
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		res = true;
+	})";
 	}
+
+	cpp_node_file_code += u8R"(
 
 	return res;
 }
@@ -753,12 +759,19 @@ bool NODE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
+)";
 
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		res = m_MODULE_CLASS_NAMEPtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
-
+)";
+	}
+		
+	cpp_node_file_code += u8R"(
 	return res;
 }
 
@@ -772,24 +785,38 @@ bool NODE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+)";
 
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		res = m_MODULE_CLASS_NAMEPtr->DrawWidgets(vCurrentFrame, vContext);
 	}
+)";
+	}
 
+	cpp_node_file_code += u8R"(
 	return res;
 }
 
 void NODE_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	ImGui::SetCurrentContext(vContext);)";
+
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+	})";
 	}
+
+	cpp_node_file_code += u8R"(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -818,12 +845,19 @@ void NODE_CLASS_NAME::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void NODE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
+{)";
+
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
+)";
+	}
 
+	cpp_node_file_code += u8R"(
 	// on fait ca apres
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
@@ -833,11 +867,23 @@ void NODE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
+{)";
+
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+	})";
 	}
+	else
+	{
+		cpp_node_file_code += u8R"(
+)";
+	}
+
+	cpp_node_file_code += u8R"(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -845,12 +891,19 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
+{)";
+
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
+)";
+	}
 
+	cpp_node_file_code += u8R"(
 	return nullptr;
 }
 
@@ -883,12 +936,19 @@ std::string NODE_CLASS_NAME::getXml(const std::string& vOffset, const std::strin
 		{
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
+)";
 
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 		if (m_MODULE_CLASS_NAMEPtr)
 		{
 			res += m_MODULE_CLASS_NAMEPtr->getXml(vOffset + "\t", vUserDatas);
 		}
+)";
+	}
 
+	cpp_node_file_code += u8R"(
 		res += vOffset + "</node>\n";
 	}
 
@@ -909,12 +969,19 @@ bool NODE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 		strParentName = vParent->Value();
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+)";
 
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->setFromXml(vElem, vParent, vUserDatas);
 	}
+)";
+	}
 
+	cpp_node_file_code += u8R"(
 	// continue recurse child exploring
 	return true;
 }
@@ -924,11 +991,23 @@ bool NODE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
-{
+{)";
+
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->UpdateShaders(vFiles);
+	})";
 	}
+	else
+	{
+		cpp_node_file_code += u8R"(
+)";
+	}
+
+	cpp_node_file_code += u8R"(
 }
 )";
 
@@ -936,10 +1015,17 @@ void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
 {
 public:
 	static std::shared_ptr<NODE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+)";
 
+	if (m_GenerateAModule)
+	{
+		h_node_file_code += u8R"(
 private:
 	std::shared_ptr<MODULE_CLASS_NAME> m_MODULE_CLASS_NAMEPtr = nullptr;
+)";
+	}
 
+	h_node_file_code += u8R"(
 public:
 	NODE_CLASS_NAME();
 	~NODE_CLASS_NAME() override;
