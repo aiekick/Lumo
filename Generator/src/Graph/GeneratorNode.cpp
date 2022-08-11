@@ -301,12 +301,6 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				slot_input_ptr->pinID = slot.pinID;
 				slot_input_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
 
-				// selection of the first slot
-				if (m_Inputs.empty())
-				{
-					NodeSlot::sSlotGraphOutputMouseLeft = slot_input_ptr;
-				}
-
 				bool wasSet = false;
 				for (auto input : m_Inputs)
 				{
@@ -339,12 +333,6 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				slot_output_ptr->slotPlace = slot.slotPlace;
 				slot_output_ptr->pinID = slot.pinID;
 				slot_output_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
-
-				// selection of the first slot
-				if (m_Outputs.empty())
-				{
-					NodeSlot::sSlotGraphOutputMouseRight = slot_output_ptr;
-				}
 
 				bool wasSet = false;
 				for (auto output : m_Outputs)

@@ -105,6 +105,33 @@ void MainFrame::PostRenderingActions()
 		{
 			SetAppTitle(m_FilePathNameToLoad);
 			ProjectFile::Instance()->SetProjectChange(false);
+
+			// on selectionne le 1er node du projet
+			if (ProjectFile::Instance()->m_SelectedNode.expired())
+			{
+				if (!ProjectFile::Instance()->m_RootNodePtr->m_ChildNodes.empty())
+				{
+					SelectNode(ProjectFile::Instance()->m_RootNodePtr->m_ChildNodes.begin()->second);
+				}
+			}
+
+			// on selectionne les 1ers slots du node selectionné 
+			// a l'issue du chargement
+			auto nodePtr = ProjectFile::Instance()->m_SelectedNode.getValidShared();
+			if (nodePtr)
+			{
+				// selection of the first slot
+				if (!nodePtr->m_Inputs.empty())
+				{
+					SelectSlot(nodePtr->m_Inputs.begin()->second, ImGuiMouseButton_Left);
+				}
+
+				// selection of the first slot
+				if (!nodePtr->m_Outputs.empty())
+				{
+					SelectSlot(nodePtr->m_Outputs.begin()->second, ImGuiMouseButton_Left);
+				}
+			}
 		}
 		else
 		{
@@ -548,7 +575,7 @@ void MainFrame::SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vB
 				{
 					m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(vSlot.getValidShared());
 					NodeSlot::sSlotGraphOutputMouseRight = m_SelectedNodeSlotOutput;
-					m_OutputSlotEditor.SelectSlot(m_SelectedNodeSlotInput);
+					m_OutputSlotEditor.SelectSlot(m_SelectedNodeSlotOutput);
 				}
 			}
 		}

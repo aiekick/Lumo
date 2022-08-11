@@ -621,8 +621,8 @@ public:
 		ct::replaceString(cpp_node_file_code, "MODULE_CLASS_NAME", module_class_name);
 		ct::replaceString(h_node_file_code, "MODULE_CLASS_NAME", module_class_name);
 
-		FileHelper::Instance()->SaveStringToFile(cpp_node_file_code, "test.cpp");
-		FileHelper::Instance()->SaveStringToFile(h_node_file_code, "test.h");
+		FileHelper::Instance()->SaveStringToFile(cpp_node_file_code, cpp_node_file_name);
+		FileHelper::Instance()->SaveStringToFile(h_node_file_code, h_node_file_name);
 	}
 }
 
