@@ -257,6 +257,10 @@ bool ProjectFile::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 	{
 		return true;
 	}
+	else if (strName == "generation")
+	{
+		return true;
+	}
 	else if (strName == "graph")
 	{
 		m_RootNodePtr->RecursParsingConfigChilds(vElem, "project");

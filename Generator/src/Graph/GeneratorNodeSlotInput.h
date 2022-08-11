@@ -2,13 +2,14 @@
 
 #include <Graph/Graph.h>
 #include <Graph/Base/NodeSlotInput.h>
+#include <Graph/GeneratorCommon.h>
 #include <ctools/cTools.h>
 
 class GeneratorNodeSlotInput;
 typedef ct::cWeak<GeneratorNodeSlotInput> GeneratorNodeSlotInputWeak;
 typedef std::shared_ptr<GeneratorNodeSlotInput> GeneratorNodeSlotInputPtr;
 
-class GeneratorNodeSlotInput : public NodeSlotInput
+class GeneratorNodeSlotInput : public NodeSlotInput, public GeneratorNodeSlotDatas
 {
 public:
 	static GeneratorNodeSlotInputPtr Create();

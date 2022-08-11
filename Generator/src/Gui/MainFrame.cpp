@@ -421,7 +421,8 @@ void MainFrame::DrawNodeCreationPane()
 	if (ImGui::ContrastedButton("New Node"))
 	{
 		ProjectFile::Instance()->m_RootNodePtr->ClearGraph();
-		ProjectFile::Instance()->m_SelectedNode = ProjectFile::Instance()->m_RootNodePtr->AddChildNode(BaseNode::Create(m_VulkanCorePtr));
+		ProjectFile::Instance()->m_SelectedNode = std::dynamic_pointer_cast<GeneratorNode>(
+			ProjectFile::Instance()->m_RootNodePtr->AddChildNode(GeneratorNode::Create(m_VulkanCorePtr)).getValidShared());
 		auto nodePtr = ProjectFile::Instance()->m_SelectedNode.getValidShared();
 		if (nodePtr)
 		{
@@ -442,15 +443,15 @@ void MainFrame::DrawNodeCreationPane()
 
 		if (m_NodeDisplayNameInputText.DisplayInputText(aw * 0.5f, "Node Display Name :", "New Node"))
 		{
-			ProjectFile::Instance()->m_NodeDisplayName = m_NodeDisplayNameInputText.GetText();
-			nodePtr->name = ProjectFile::Instance()->m_NodeDisplayName;
+			nodePtr->m_NodeDisplayName = m_NodeDisplayNameInputText.GetText();
+			nodePtr->name = nodePtr->m_NodeDisplayName;
 		}
 
 		if (m_NodeCreationNameInputText.DisplayInputText(aw * 0.5f, "Node Creation Name :", "NEW_NODE"))
 		{
-			ProjectFile::Instance()->m_NodeCreationName = m_NodeCreationNameInputText.GetText();
-			ct::replaceString(ProjectFile::Instance()->m_ClassName, " ", "_");
-			m_NodeCreationNameInputText.SetText(ProjectFile::Instance()->m_NodeCreationName);
+			nodePtr->m_NodeCreationName = m_NodeCreationNameInputText.GetText();
+			ct::replaceString(nodePtr->m_ClassName, " ", "_");
+			m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
 		}
 
 		ImGui::Separator();
@@ -475,37 +476,37 @@ void MainFrame::DrawNodeCreationPane()
 
 		if (m_ClassNameInputText.DisplayInputText(aw * 0.5f, "Name :", "NewClass"))
 		{
-			ProjectFile::Instance()->m_ClassName = m_ClassNameInputText.GetText();
-			ct::replaceString(ProjectFile::Instance()->m_ClassName, " ", "");
-			m_ClassNameInputText.SetText(ProjectFile::Instance()->m_ClassName);
+			nodePtr->m_ClassName = m_ClassNameInputText.GetText();
+			ct::replaceString(nodePtr->m_ClassName, " ", "");
+			m_ClassNameInputText.SetText(nodePtr->m_ClassName);
 		}
 
 		ImGui::Separator();
 
-		ImGui::CheckBoxBoolDefault("Generate a Module ?", &ProjectFile::Instance()->m_GenerateAModule, true);
+		ImGui::CheckBoxBoolDefault("Generate a Module ?", &nodePtr->m_GenerateAModule, true);
 
-		if (ProjectFile::Instance()->m_GenerateAModule)
+		if (nodePtr->m_GenerateAModule)
 		{
 			ImGui::Text("Renderer Type");
 
-			if (ImGui::RadioButtonLabeled(0.0f, "Pixel 2D", ProjectFile::Instance()->m_RendererType == "Pixel 2D", false))
-				ProjectFile::Instance()->m_RendererType = "Pixel 2D";
+			if (ImGui::RadioButtonLabeled(0.0f, "Pixel 2D", nodePtr->m_RendererType == "Pixel 2D", false))
+				nodePtr->m_RendererType = "Pixel 2D";
 			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Compute 1D", ProjectFile::Instance()->m_RendererType == "Compute 1D", false))
-				ProjectFile::Instance()->m_RendererType = "Compute 1D";
+			if (ImGui::RadioButtonLabeled(0.0f, "Compute 1D", nodePtr->m_RendererType == "Compute 1D", false))
+				nodePtr->m_RendererType = "Compute 1D";
 			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Compute 2D", ProjectFile::Instance()->m_RendererType == "Compute 2D", false))
-				ProjectFile::Instance()->m_RendererType = "Compute 2D";
+			if (ImGui::RadioButtonLabeled(0.0f, "Compute 2D", nodePtr->m_RendererType == "Compute 2D", false))
+				nodePtr->m_RendererType = "Compute 2D";
 			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Compute 3D", ProjectFile::Instance()->m_RendererType == "Compute 3D", false))
-				ProjectFile::Instance()->m_RendererType = "Compute 3D";
+			if (ImGui::RadioButtonLabeled(0.0f, "Compute 3D", nodePtr->m_RendererType == "Compute 3D", false))
+				nodePtr->m_RendererType = "Compute 3D";
 			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Rtx", ProjectFile::Instance()->m_RendererType == "Rtx", false))
-				ProjectFile::Instance()->m_RendererType = "Rtx";
+			if (ImGui::RadioButtonLabeled(0.0f, "Rtx", nodePtr->m_RendererType == "Rtx", false))
+				nodePtr->m_RendererType = "Rtx";
 		}
 
 
-		ImGui::CheckBoxBoolDefault("Generate a Pass ?", &ProjectFile::Instance()->m_GenerateAPass, true);
+		ImGui::CheckBoxBoolDefault("Generate a Pass ?", &nodePtr->m_GenerateAPass, true);
 
 		if (ImGui::ContrastedButton("Generate"))
 		{
@@ -516,7 +517,16 @@ void MainFrame::DrawNodeCreationPane()
 
 void MainFrame::SelectNode(const BaseNodeWeak& vNode)
 {
-	ProjectFile::Instance()->m_SelectedNode = vNode;
+	ProjectFile::Instance()->m_SelectedNode = std::dynamic_pointer_cast<GeneratorNode>(vNode.getValidShared());
+
+	auto nodePtr = ProjectFile::Instance()->m_SelectedNode.getValidShared();
+	if (nodePtr)
+	{
+		m_NodeDisplayNameInputText.SetText(nodePtr->m_NodeDisplayName);
+		m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
+		m_ClassNameInputText.SetText(nodePtr->m_ClassName);
+	}
+
 }
 
 void MainFrame::SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton)

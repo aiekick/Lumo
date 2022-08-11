@@ -27,12 +27,22 @@
 #include <Graph/Slots/NodeSlotStorageBufferInput.h>
 #include <Graph/Slots/NodeSlotStorageBufferOutput.h>
 
+#include <Graph/GeneratorCommon.h>
+#include <Graph/GeneratorNodeSlotInput.h>
+#include <Graph/GeneratorNodeSlotOutput.h>
+
 void SlotEditor::SelectSlot(NodeSlotWeak vNodeSlot)
 {
 	auto slotPtr = vNodeSlot.getValidShared();
 	if (slotPtr)
 	{
 		m_SlotDisplayNameInputText.SetText(slotPtr->name);
+
+		auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(slotPtr);
+		if (slotDatasPtr)
+		{
+			m_InputType = slotDatasPtr->editorSlotTypeIndex;
+		}
 	}
 }
 
@@ -82,50 +92,54 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 		auto slotPtr = vNodeSlot.getValidShared();
 		if (slotPtr)
 		{
-			res = vNodeSlot;
-
-			ImGui::SameLine();
-
-			if (ImGui::ContrastedButton("Delete the Slot"))
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(slotPtr);
+			if (slotDatasPtr)
 			{
-				nodePtr->DestroySlotOfAnyMap(vNodeSlot);
-			}
+				res = vNodeSlot;
 
-			if (m_SlotDisplayNameInputText.DisplayInputText(vSize.x, "Slot Name :", "New Slot"))
-			{
-				slotPtr->name = m_SlotDisplayNameInputText.GetText();
-			}
+				ImGui::SameLine();
 
-			m_InputType = (int32_t)slotPtr->editorSlotTypeIndex;
-			m_SelectedType = m_BaseTypes.m_TypeArray[m_InputType];
-
-			if (ImGui::ContrastedComboVectorDefault(vSize.x, "Slot Type", &m_InputType, m_BaseTypes.m_TypeArray, 0U))
-			{
-				slotPtr->editorSlotTypeIndex = (uint32_t)m_InputType;
-				m_SelectedType = m_BaseTypes.m_TypeArray[slotPtr->editorSlotTypeIndex];
-
-				if (vPlace == NodeSlot::PlaceEnum::INPUT)
+				if (ImGui::ContrastedButton("Delete the Slot"))
 				{
-					res = std::dynamic_pointer_cast<NodeSlotInput>(ChangeInputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
+					nodePtr->DestroySlotOfAnyMap(vNodeSlot);
 				}
-				else if (vPlace == NodeSlot::PlaceEnum::OUTPUT)
+
+				if (m_SlotDisplayNameInputText.DisplayInputText(vSize.x, "Slot Name :", "New Slot"))
 				{
-					res = std::dynamic_pointer_cast<NodeSlotOutput>(ChangeOutputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
+					slotPtr->name = m_SlotDisplayNameInputText.GetText();
 				}
-			}
 
-			ImGui::CheckBoxBoolDefault("Hide Name", &slotPtr->hideName, false);
-			ImGui::CheckBoxBoolDefault("Show widget", &slotPtr->showWidget, false);
+				m_InputType = (int32_t)slotDatasPtr->editorSlotTypeIndex;
+				m_SelectedType = m_BaseTypes.m_TypeArray[m_InputType];
 
-			if (m_SelectedType == "TexelBuffer" ||
-				m_SelectedType == "Texture" ||
-				m_SelectedType == "TextureGroup")
-			{
-				ImGui::InputUIntDefault(0.0f, "Descriptor Binding", &slotPtr->descriptorBinding, 1U, 2U, 0U);
-			}
-			else if (m_SelectedType == "Variable")
-			{
-				ImGui::InputUIntDefault(0.0f, "Variable Index", &slotPtr->variableIndex, 1U, 2U, 0U);
+				if (ImGui::ContrastedComboVectorDefault(vSize.x, "Slot Type", &m_InputType, m_BaseTypes.m_TypeArray, 0U))
+				{
+					slotDatasPtr->editorSlotTypeIndex = (uint32_t)m_InputType;
+					m_SelectedType = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+
+					if (vPlace == NodeSlot::PlaceEnum::INPUT)
+					{
+						res = std::dynamic_pointer_cast<NodeSlotInput>(ChangeInputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
+					}
+					else if (vPlace == NodeSlot::PlaceEnum::OUTPUT)
+					{
+						res = std::dynamic_pointer_cast<NodeSlotOutput>(ChangeOutputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
+					}
+				}
+
+				ImGui::CheckBoxBoolDefault("Hide Name", &slotPtr->hideName, false);
+				ImGui::CheckBoxBoolDefault("Show widget", &slotPtr->showWidget, false);
+
+				if (m_SelectedType == "TexelBuffer" ||
+					m_SelectedType == "Texture" ||
+					m_SelectedType == "TextureGroup")
+				{
+					ImGui::InputUIntDefault(0.0f, "Descriptor Binding", &slotPtr->descriptorBinding, 1U, 2U, 0U);
+				}
+				else if (m_SelectedType == "Variable")
+				{
+					ImGui::InputUIntDefault(0.0f, "Variable Index", &slotPtr->variableIndex, 1U, 2U, 0U);
+				}
 			}
 		}
 	}
@@ -145,70 +159,54 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::
 		auto slotPtr = vSlot.getValidShared();
 		if (slotPtr)
 		{
-			NodeSlotInputPtr resPtr = nullptr;
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(slotPtr);
+			if (slotDatasPtr)
+			{
+				NodeSlotInputPtr resPtr = nullptr;
 
-			if (vType == "None")
-			{
-				resPtr = NodeSlotInput::Create(slotPtr->name);
-			}
-			else if (vType == "LightGroup")
-			{
-				resPtr = NodeSlotLightGroupInput::Create(slotPtr->name);
-			}
-			else if (vType == "Model")
-			{
-				resPtr = NodeSlotModelInput::Create(slotPtr->name);
-			}
-			else if (vType == "StorageBuffer")
-			{
-				resPtr = NodeSlotStorageBufferInput::Create(slotPtr->name, slotPtr->slotType);
-			}
-			else if (vType == "TexelBuffer")
-			{
-				resPtr = NodeSlotTexelBufferInput::Create(slotPtr->name, slotPtr->slotType);
-			}
-			else if (vType == "Texture")
-			{
-				resPtr = NodeSlotTextureInput::Create(slotPtr->name, slotPtr->descriptorBinding);
-			}
-			else if (vType == "TextureGroup")
-			{
-				resPtr = NodeSlotTextureGroupInput::Create(slotPtr->name);
-			}
-			else if (vType == "Variable")
-			{
-				resPtr = NodeSlotVariableInput::Create(slotPtr->name, slotPtr->slotType, slotPtr->variableIndex);
-			}
+				if (vType == "None")
+				{
+					resPtr = NodeSlotInput::Create(slotPtr->name);
+				}
+				else if (vType == "LightGroup")
+				{
+					resPtr = NodeSlotLightGroupInput::Create(slotPtr->name);
+				}
+				else if (vType == "Model")
+				{
+					resPtr = NodeSlotModelInput::Create(slotPtr->name);
+				}
+				else if (vType == "StorageBuffer")
+				{
+					resPtr = NodeSlotStorageBufferInput::Create(slotPtr->name, slotPtr->slotType);
+				}
+				else if (vType == "TexelBuffer")
+				{
+					resPtr = NodeSlotTexelBufferInput::Create(slotPtr->name, slotPtr->slotType);
+				}
+				else if (vType == "Texture")
+				{
+					resPtr = NodeSlotTextureInput::Create(slotPtr->name, slotPtr->descriptorBinding);
+				}
+				else if (vType == "TextureGroup")
+				{
+					resPtr = NodeSlotTextureGroupInput::Create(slotPtr->name);
+				}
+				else if (vType == "Variable")
+				{
+					resPtr = NodeSlotVariableInput::Create(slotPtr->name, slotPtr->slotType, slotPtr->variableIndex);
+				}
 
-			if (resPtr)
-			{
-				NodeSlot::sSlotGraphOutputMouseLeft = resPtr;
+				if (resPtr)
+				{
+					NodeSlot::sSlotGraphOutputMouseLeft = slotPtr;
 
-				resPtr->slotPlace = slotPtr->slotPlace;
-				resPtr->pinID = slotPtr->pinID;
-				resPtr->index = slotPtr->index;
-				resPtr->help = slotPtr->help;
-				resPtr->stamp = slotPtr->stamp;
-				resPtr->type = slotPtr->type;
-				resPtr->linkedSlots = slotPtr->linkedSlots;
-				resPtr->parentNode = slotPtr->parentNode;
-				resPtr->uniform = slotPtr->uniform;
-				resPtr->fboAttachmentId = slotPtr->fboAttachmentId;
-				resPtr->channelId = slotPtr->channelId;
-				resPtr->idAlreadySetbyXml = slotPtr->idAlreadySetbyXml;
-				resPtr->acceptManyInputs = slotPtr->acceptManyInputs;
-				resPtr->highLighted = slotPtr->highLighted;
-				resPtr->connected = slotPtr->connected;
-				resPtr->hideName = slotPtr->hideName;
-				resPtr->showWidget = slotPtr->showWidget;
-				resPtr->hidden = slotPtr->hidden;
-				resPtr->virtualUniform = slotPtr->virtualUniform;
-				resPtr->editorSlotTypeIndex = slotPtr->editorSlotTypeIndex;
+					slotPtr->type = resPtr->type;
 
-				uint32_t id = (uint32_t)slotPtr->pinID.Get();
-				nodePtr->m_Inputs[id] = resPtr;
+					resPtr.reset();
 
-				return nodePtr->m_Inputs[id];
+					return slotPtr;
+				}
 			}
 		}
 	}
@@ -224,70 +222,54 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(BaseNodeWeak vRootNode, const std:
 		auto slotPtr = vSlot.getValidShared();
 		if (slotPtr)
 		{
-			NodeSlotOutputPtr resPtr = nullptr;
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(slotPtr);
+			if (slotDatasPtr)
+			{
+				NodeSlotOutputPtr resPtr = nullptr;
 
-			if (vType == "None")
-			{
-				resPtr = NodeSlotOutput::Create(slotPtr->name);
-			}
-			else if (vType == "LightGroup")
-			{
-				resPtr = NodeSlotLightGroupOutput::Create(slotPtr->name);
-			}
-			else if (vType == "Model")
-			{
-				resPtr = NodeSlotModelOutput::Create(slotPtr->name);
-			}
-			else if (vType == "StorageBuffer")
-			{
-				resPtr = NodeSlotStorageBufferOutput::Create(slotPtr->name, slotPtr->slotType);
-			}
-			else if (vType == "TexelBuffer")
-			{
-				resPtr = NodeSlotTexelBufferOutput::Create(slotPtr->name, slotPtr->slotType);
-			}
-			else if (vType == "Texture")
-			{
-				resPtr = NodeSlotTextureOutput::Create(slotPtr->name, slotPtr->descriptorBinding);
-			}
-			else if (vType == "TextureGroup")
-			{
-				resPtr = NodeSlotTextureGroupOutput::Create(slotPtr->name);
-			}
-			else if (vType == "Variable")
-			{
-				resPtr = NodeSlotVariableOutput::Create(slotPtr->name, slotPtr->slotType, slotPtr->descriptorBinding);
-			}
+				if (vType == "None")
+				{
+					resPtr = NodeSlotOutput::Create(slotPtr->name);
+				}
+				else if (vType == "LightGroup")
+				{
+					resPtr = NodeSlotLightGroupOutput::Create(slotPtr->name);
+				}
+				else if (vType == "Model")
+				{
+					resPtr = NodeSlotModelOutput::Create(slotPtr->name);
+				}
+				else if (vType == "StorageBuffer")
+				{
+					resPtr = NodeSlotStorageBufferOutput::Create(slotPtr->name, slotPtr->slotType);
+				}
+				else if (vType == "TexelBuffer")
+				{
+					resPtr = NodeSlotTexelBufferOutput::Create(slotPtr->name, slotPtr->slotType);
+				}
+				else if (vType == "Texture")
+				{
+					resPtr = NodeSlotTextureOutput::Create(slotPtr->name, slotPtr->descriptorBinding);
+				}
+				else if (vType == "TextureGroup")
+				{
+					resPtr = NodeSlotTextureGroupOutput::Create(slotPtr->name);
+				}
+				else if (vType == "Variable")
+				{
+					resPtr = NodeSlotVariableOutput::Create(slotPtr->name, slotPtr->slotType, slotPtr->descriptorBinding);
+				}
 
-			if (resPtr)
-			{
-				NodeSlot::sSlotGraphOutputMouseRight = resPtr;
+				if (resPtr)
+				{
+					NodeSlot::sSlotGraphOutputMouseRight = slotPtr;
 
-				resPtr->slotPlace = slotPtr->slotPlace;
-				resPtr->pinID = slotPtr->pinID;
-				resPtr->index = slotPtr->index;
-				resPtr->help = slotPtr->help;
-				resPtr->stamp = slotPtr->stamp;
-				resPtr->type = slotPtr->type;
-				resPtr->linkedSlots = slotPtr->linkedSlots;
-				resPtr->parentNode = slotPtr->parentNode;
-				resPtr->uniform = slotPtr->uniform;
-				resPtr->fboAttachmentId = slotPtr->fboAttachmentId;
-				resPtr->channelId = slotPtr->channelId;
-				resPtr->idAlreadySetbyXml = slotPtr->idAlreadySetbyXml;
-				resPtr->acceptManyInputs = slotPtr->acceptManyInputs;
-				resPtr->highLighted = slotPtr->highLighted;
-				resPtr->connected = slotPtr->connected;
-				resPtr->hideName = slotPtr->hideName;
-				resPtr->showWidget = slotPtr->showWidget;
-				resPtr->hidden = slotPtr->hidden;
-				resPtr->virtualUniform = slotPtr->virtualUniform;
-				resPtr->editorSlotTypeIndex = slotPtr->editorSlotTypeIndex;
+					slotPtr->type = resPtr->type;
 
-				uint32_t id = (uint32_t)slotPtr->pinID.Get();
-				nodePtr->m_Outputs[id] = resPtr;
+					resPtr.reset();
 
-				return nodePtr->m_Outputs[id];
+					return slotPtr;
+				}
 			}
 		}
 	}

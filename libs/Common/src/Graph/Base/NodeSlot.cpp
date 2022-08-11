@@ -555,7 +555,7 @@ void NodeSlot::DrawOutputWidget(BaseNodeState *vBaseNodeState)
 	}
 }
 
-void NodeSlot::DrawSlotText(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor)
+void NodeSlot::DrawSlotText(ImDrawList* /*vDrawList*/, ImVec2 /*vCenter*/, BaseNodeState* vBaseNodeState, bool /*vConnected*/, ImU32 /*vColor*/, ImU32 /*vInnerColor*/)
 {
 	if (vBaseNodeState)
 	{
@@ -643,8 +643,8 @@ void NodeSlot::DrawNodeSlot(ImDrawList *vDrawList, ImVec2 vCenter, BaseNodeState
 		
 		if (ImGui::IsItemHovered())
 		{
-			ImVec4 color = ImGui::ColorConvertU32ToFloat4(vColor); color.w = 0.5f;
-			vDrawList->AddNgon(vCenter, slotRadius + 2.0f, ImGui::GetColorU32(color), 24, 2.5f);
+			ImVec4 _color = ImGui::ColorConvertU32ToFloat4(vColor); _color.w = 0.5f;
+			vDrawList->AddNgon(vCenter, slotRadius + 2.0f, ImGui::GetColorU32(_color), 24, 2.5f);
 		}
 
 		auto slotOutputMouseLeftPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared(); // blue

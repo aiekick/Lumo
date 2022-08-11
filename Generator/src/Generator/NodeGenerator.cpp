@@ -5,6 +5,7 @@
 #include <ImWidgets/ImWidgets.h>
 #include <Graph/Base/NodeSlot.h>
 #include <Graph/Base/BaseNode.h>
+#include <Graph/GeneratorCommon.h>
 #include <Graph/Base/NodeSlotInput.h>
 #include <Graph/Base/NodeSlotOutput.h>
 #include <Graph/Slots/NodeSlotModelInput.h>
@@ -27,11 +28,11 @@ void NodeGenerator::GenerateNodeClasses(const std::string& vPath, const ProjectF
 	auto nodePtr = vDatas.m_SelectedNode.getValidShared();
 	if (nodePtr)
 	{
-		std::string node_class_name = vDatas.m_ClassName + "Node";
+		std::string node_class_name = nodePtr->m_ClassName + "Node";
 		std::string cpp_node_file_name = node_class_name + ".cpp";
 		std::string h_node_file_name = node_class_name + ".h";
 
-		std::string module_class_name = vDatas.m_ClassName + "Module";
+		std::string module_class_name = nodePtr->m_ClassName + "Module";
 		std::string cpp_module_file_name = module_class_name + ".cpp";
 		std::string h_module_file_name = module_class_name + ".h";
 		
@@ -51,10 +52,10 @@ void NodeGenerator::GenerateNodeClasses(const std::string& vPath, const ProjectF
 		cpp_node_file_code += ct::toStr(u8R"(#include "%s.h"
 )", node_class_name.c_str());
 
-		if (vDatas.m_GenerateAModule)
+		if (nodePtr->m_GenerateAModule)
 		{
 			cpp_node_file_code += ct::toStr(u8R"(#include <Modules/%s/%s.h>
-)", vDatas.m_Category.c_str(), module_class_name.c_str());
+)", nodePtr->m_Category.c_str(), module_class_name.c_str());
 			GenerateModules(vPath, vDatas);
 		}
 
@@ -64,36 +65,44 @@ void NodeGenerator::GenerateNodeClasses(const std::string& vPath, const ProjectF
 		{
 			if (inputSlot.second)
 			{
-				auto typeString = m_BaseTypes.m_TypeArray[inputSlot.second->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+				if (slotDatasPtr)
 				{
-					continue;
+					auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+					if (typeString == "None" ||
+						typeString == "Custom")
+					{
+						continue;
+					}
+
+					cpp_node_file_code += ct::toStr(u8R"(#include <Graph/Slots/NodeSlot%sInput.h>
+)", typeString.c_str());
+
+					h_node_file_code += ct::toStr(u8R"(#include <Interfaces/%sInputInterface.h>
+)", typeString.c_str());
 				}
-
-				cpp_node_file_code += ct::toStr(u8R"(#include <Graph/Slots/NodeSlot%sInput.h>
-)", typeString.c_str());
-
-				h_node_file_code += ct::toStr(u8R"(#include <Interfaces/%sInputInterface.h>
-)", typeString.c_str());
 			}
 		}
 		for (const auto& outputSlot : nodePtr->m_Outputs)
 		{
 			if (outputSlot.second)
 			{
-				auto typeString = m_BaseTypes.m_TypeArray[outputSlot.second->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+				if (slotDatasPtr)
 				{
-					continue;
+					auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+					if (typeString == "None" ||
+						typeString == "Custom")
+					{
+						continue;
+					}
+
+					cpp_node_file_code += ct::toStr(u8R"(#include <Graph/Slots/NodeSlot%sOutput.h>
+)", typeString.c_str());
+
+					h_node_file_code += ct::toStr(u8R"(#include <Interfaces/%sOutputInterface.h>
+)", typeString.c_str());
 				}
-
-				cpp_node_file_code += ct::toStr(u8R"(#include <Graph/Slots/NodeSlot%sOutput.h>
-)", typeString.c_str());
-
-				h_node_file_code += ct::toStr(u8R"(#include <Interfaces/%sOutputInterface.h>
-)", typeString.c_str());
 			}
 		}
 
@@ -142,53 +151,57 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 		{
 			if (inputSlot.second)
 			{
-				_inputCounter[inputSlot.second->editorSlotTypeIndex]++;
-				switch (inputSlot.second->editorSlotTypeIndex)
+				auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+				if (slotDatasPtr)
 				{
-				case BaseTypeEnum::BASE_TYPE_None: // None
-					break;
-				case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
-					cpp_node_file_code += ct::toStr(u8R"(
-	AddInput(NodeSlotLightGroupInput::Create("%s"), false, %s);)", 
-						inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_Model: // Model
-					cpp_node_file_code += ct::toStr(u8R"(
-	AddInput(NodeSlotModelInput::Create("%s"), false, %s);)", 
-						inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
-					cpp_node_file_code += ct::toStr(u8R"(
+					_inputCounter[slotDatasPtr->editorSlotTypeIndex]++;
+					switch (slotDatasPtr->editorSlotTypeIndex)
+					{
+					case BaseTypeEnum::BASE_TYPE_None: // None
+						break;
+					case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
+						cpp_node_file_code += ct::toStr(u8R"(
+	AddInput(NodeSlotLightGroupInput::Create("%s"), false, %s);)",
+							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_Model: // Model
+						cpp_node_file_code += ct::toStr(u8R"(
+	AddInput(NodeSlotModelInput::Create("%s"), false, %s);)",
+							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
+						cpp_node_file_code += ct::toStr(u8R"(
 	AddInput(NodeSlotStorageBufferInput::Create("%s"), false, %s);)",
-						inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
-					cpp_node_file_code += ct::toStr(u8R"(
+							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
+						cpp_node_file_code += ct::toStr(u8R"(
 	AddInput(NodeSlotTexelBufferInput::Create("%s"), false, %s);)",
-						inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_Texture: // Texture
-					cpp_node_file_code += ct::toStr(u8R"(
-	AddInput(NodeSlotTextureInput::Create("%s", %u), false, %s);)",				
-						inputSlot.second->name.c_str(), 
-					inputSlot.second->descriptorBinding,
-					inputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
-					cpp_node_file_code += ct::toStr(u8R"(
-	AddInput(NodeSlotTextureGroupInput::Create("%s"), false, %s);)", 
-						inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_Variable: // Variable
-					cpp_node_file_code += ct::toStr(u8R"(
-	AddInput(NodeSlotVariableInput::Create("%s", %s, %u), false, %s);)", 
-					inputSlot.second->name.c_str(), 
-					inputSlot.second->slotType.c_str(), 
-					inputSlot.second->variableIndex, 
-					inputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_Custom: // Custom
-					break;
+							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_Texture: // Texture
+						cpp_node_file_code += ct::toStr(u8R"(
+	AddInput(NodeSlotTextureInput::Create("%s", %u), false, %s);)",
+							inputSlot.second->name.c_str(),
+							inputSlot.second->descriptorBinding,
+							inputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
+						cpp_node_file_code += ct::toStr(u8R"(
+	AddInput(NodeSlotTextureGroupInput::Create("%s"), false, %s);)",
+							inputSlot.second->name.c_str(), inputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_Variable: // Variable
+						cpp_node_file_code += ct::toStr(u8R"(
+	AddInput(NodeSlotVariableInput::Create("%s", %s, %u), false, %s);)",
+							inputSlot.second->name.c_str(),
+							inputSlot.second->slotType.c_str(),
+							inputSlot.second->variableIndex,
+							inputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_Custom: // Custom
+						break;
+					}
 				}
 			}
 		}
@@ -224,54 +237,58 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 		{
 			if (outputSlot.second)
 			{
-				_outputCounter[outputSlot.second->editorSlotTypeIndex]++;
-				switch (outputSlot.second->editorSlotTypeIndex)
+				auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+				if (slotDatasPtr)
 				{
-				case BaseTypeEnum::BASE_TYPE_None: // None
-					break;
-				case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
-					cpp_node_file_code += ct::toStr(u8R"(
+					_outputCounter[slotDatasPtr->editorSlotTypeIndex]++;
+					switch (slotDatasPtr->editorSlotTypeIndex)
+					{
+					case BaseTypeEnum::BASE_TYPE_None: // None
+						break;
+					case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
+						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotLightGroupOutput::Create("%s"), false, %s);)",
-						outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_Model: // Model
-					cpp_node_file_code += ct::toStr(u8R"(
+							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_Model: // Model
+						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotModelOutput::Create("%s"), false, %s);)",
-						outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
-					cpp_node_file_code += ct::toStr(u8R"(
+							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
+						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotStorageBufferOutput::Create("%s"), false, %s);)",
-						outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
-					cpp_node_file_code += ct::toStr(u8R"(
+							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
+						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotTexelBufferOutput::Create("%s"), false, %s);)",
-						outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_Texture: // Texture
-					cpp_node_file_code += ct::toStr(u8R"(
+							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_Texture: // Texture
+						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotTextureOutput::Create("%s", %u), false, %s);)",
-						outputSlot.second->name.c_str(),
-						outputSlot.second->descriptorBinding,
-						outputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
-					cpp_node_file_code += ct::toStr(u8R"(
-	AddOutput(NodeSlotTextureGroupOutput::Create("%s"), false, %s);)", 
-						outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
-					break;
-				case BaseTypeEnum::BASE_TYPE_Variable: // Variable
-					cpp_node_file_code += ct::toStr(u8R"(
+							outputSlot.second->name.c_str(),
+							outputSlot.second->descriptorBinding,
+							outputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
+						cpp_node_file_code += ct::toStr(u8R"(
+	AddOutput(NodeSlotTextureGroupOutput::Create("%s"), false, %s);)",
+							outputSlot.second->name.c_str(), outputSlot.second->hideName ? "true" : "false");
+						break;
+					case BaseTypeEnum::BASE_TYPE_Variable: // Variable
+						cpp_node_file_code += ct::toStr(u8R"(
 	AddOutput(NodeSlotVariableOutput::Create("%s", %s, %u), false, %s);)",
-					outputSlot.second->name.c_str(),
-					outputSlot.second->slotType.c_str(),
-					outputSlot.second->variableIndex,
-					outputSlot.second->hideName ? "true" : "false");
-					h_node_file_code += u8R"(public VariableOutputInterface,)";
-					break;
-				case BaseTypeEnum::BASE_TYPE_Custom: // Custom
-					break;
+							outputSlot.second->name.c_str(),
+							outputSlot.second->slotType.c_str(),
+							outputSlot.second->variableIndex,
+							outputSlot.second->hideName ? "true" : "false");
+						h_node_file_code += u8R"(public VariableOutputInterface,)";
+						break;
+					case BaseTypeEnum::BASE_TYPE_Custom: // Custom
+						break;
+					}
 				}
 			}
 		}
@@ -595,11 +612,11 @@ public:
 		ct::replaceString(cpp_node_file_code, "NODE_CLASS_NAME", node_class_name);
 		ct::replaceString(h_node_file_code, "NODE_CLASS_NAME", node_class_name);
 		
-		ct::replaceString(cpp_node_file_code, "NODE_CREATION_NAME", vDatas.m_NodeCreationName);
-		ct::replaceString(h_node_file_code, "NODE_CREATION_NAME", vDatas.m_NodeCreationName);
+		ct::replaceString(cpp_node_file_code, "NODE_CREATION_NAME", nodePtr->m_NodeCreationName);
+		ct::replaceString(h_node_file_code, "NODE_CREATION_NAME", nodePtr->m_NodeCreationName);
 		
-		ct::replaceString(cpp_node_file_code, "NODE_DISPLAY_NAME", vDatas.m_NodeDisplayName);
-		ct::replaceString(h_node_file_code, "NODE_DISPLAY_NAME", vDatas.m_NodeDisplayName);
+		ct::replaceString(cpp_node_file_code, "NODE_DISPLAY_NAME", nodePtr->m_NodeDisplayName);
+		ct::replaceString(h_node_file_code, "NODE_DISPLAY_NAME", nodePtr->m_NodeDisplayName);
 		
 		ct::replaceString(cpp_node_file_code, "MODULE_CLASS_NAME", module_class_name);
 		ct::replaceString(h_node_file_code, "MODULE_CLASS_NAME", module_class_name);

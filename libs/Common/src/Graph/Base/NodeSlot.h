@@ -81,10 +81,6 @@ public:
 	std::string slotType = "NONE";
 	NodeSlot::PlaceEnum slotPlace = NodeSlot::PlaceEnum::INPUT;
 
-#ifdef USE_CODE_GENERATOR
-	uint32_t editorSlotTypeIndex = 0U;
-#endif
-
 public:
 	nd::PinId pinID = 0;
 	std::string name;

@@ -1,5 +1,6 @@
 #include "GeneratorNode.h"
 
+#include <Graph/GeneratorCommon.h>
 #include <Graph/GeneratorNodeSlotInput.h>
 #include <Graph/GeneratorNodeSlotOutput.h>
 
@@ -148,6 +149,19 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
+
+		res += vOffset + "\t<generation>\n";
+
+		res += vOffset + ct::toStr("\t\t<class_name>%s</class_name>\n", m_ClassName.c_str());
+		res += vOffset + ct::toStr("\t\t<category_name>%s</category_name>\n", m_Category.c_str());
+		res += vOffset + ct::toStr("\t\t<node_creation_name>%s</node_creation_name>\n", m_NodeCreationName.c_str());
+		res += vOffset + ct::toStr("\t\t<node_display_name>%s</node_display_name>\n", m_NodeDisplayName.c_str());
+		res += vOffset + ct::toStr("\t\t<generate_module>%s</generate_module>\n", m_GenerateAModule ? "true" : "false");
+		res += vOffset + ct::toStr("\t\t<generate_pass>%s</generate_pass>\n", m_GenerateAPass ? "true" : "false");
+		res += vOffset + ct::toStr("\t\t<renderer_type>%s</renderer_type>\n", m_RendererType.c_str());
+
+		res += vOffset + "\t</generation>\n";
+
 		res += vOffset + "</node>\n";
 	}
 
@@ -252,6 +266,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 	else if (strParentName == "node")
 	{
 		NodeSlot slot;
+		GeneratorNodeSlotDatas slotDatas;
+
 		if (strName == "slot")
 		{
 			for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
@@ -271,6 +287,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 					slot.pinID = ct::ivariant(attValue).GetU();
 				else if (attName == "hideName")
 					slot.hideName = ct::ivariant(attValue).GetB();
+				else if (attName == "typeIndex")
+					slotDatas.editorSlotTypeIndex = ct::ivariant(attValue).GetU();
 			}
 
 			if (slot.slotPlace == NodeSlot::PlaceEnum::INPUT)
@@ -281,6 +299,13 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				slot_input_ptr->slotType = slot.slotType;
 				slot_input_ptr->slotPlace = slot.slotPlace;
 				slot_input_ptr->pinID = slot.pinID;
+				slot_input_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
+
+				// selection of the first slot
+				if (m_Inputs.empty())
+				{
+					NodeSlot::sSlotGraphOutputMouseLeft = slot_input_ptr;
+				}
 
 				bool wasSet = false;
 				for (auto input : m_Inputs)
@@ -313,6 +338,13 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				slot_output_ptr->slotType = slot.slotType;
 				slot_output_ptr->slotPlace = slot.slotPlace;
 				slot_output_ptr->pinID = slot.pinID;
+				slot_output_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
+
+				// selection of the first slot
+				if (m_Outputs.empty())
+				{
+					NodeSlot::sSlotGraphOutputMouseRight = slot_output_ptr;
+				}
 
 				bool wasSet = false;
 				for (auto output : m_Outputs)
@@ -337,9 +369,9 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 					}
 				}
 			}
-		}
 
-		return false;
+			return false;
+		}
 	}
 	else if (strParentName == "outputs")
 	{
@@ -374,6 +406,25 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 		}
 
 		return false;
+	}
+	else if (strParentName == "generation")
+	{
+		if (strName == "class_name")
+			m_ClassName = strValue;
+		else if (strName == "category_name")
+			m_Category = strValue;
+		else if (strName == "node_creation_name")
+			m_NodeCreationName = strValue;
+		else if (strName == "node_display_name")
+			m_NodeDisplayName = strValue;
+		else if (strName == "generate_module")
+			m_GenerateAModule = ct::ivariant(strValue).GetB();
+		else if (strName == "generate_pass")
+			m_GenerateAPass = ct::ivariant(strValue).GetB();
+		else if (strName == "renderer_type")
+			m_RendererType = strValue;
+
+		return true;
 	}
 
 	return true;

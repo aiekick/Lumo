@@ -32,13 +32,14 @@ std::string GeneratorNodeSlotInput::getXml(const std::string& vOffset, const std
 {
 	std::string res;
 
-	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\" hideName=\"%s\"/>\n",
+	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\" hideName=\"%s\" typeIndex=\"%u\"/>\n",
 		index,
 		name.c_str(),
 		slotType.c_str(),
 		NodeSlot::sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
 		(uint32_t)pinID.Get(),
-		hideName ? "true" : "false");
+		hideName ? "true" : "false",
+		editorSlotTypeIndex);
 
 	return res;
 }

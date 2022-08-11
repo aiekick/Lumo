@@ -32,13 +32,14 @@ std::string GeneratorNodeSlotOutput::getXml(const std::string& vOffset, const st
 {
 	std::string res;
 
-	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\" hideName=\"%s\"/>\n",
+	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\" hideName=\"%s\" typeIndex=\"%u\"/>\n",
 		index,
 		name.c_str(),
 		slotType.c_str(),
 		NodeSlot::sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
 		(uint32_t)pinID.Get(),
-		hideName ? "true" : "false");
+		hideName ? "true" : "false",
+		editorSlotTypeIndex);
 
 	return res;
 }
@@ -64,6 +65,7 @@ bool GeneratorNodeSlotOutput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 		auto _place = NodeSlot::PlaceEnum::NONE;
 		uint32_t _pinId = 0U;
 		bool _hideName = false;
+		uint32_t _typeIndex = 0U;
 
 		for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
 		{
