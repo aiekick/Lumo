@@ -27,7 +27,6 @@ limitations under the License.
 #include <ImWidgets/ImWidgets.h>
 #include <ctools/ConfigAbstract.h>
 #include <vkFramework/VulkanCore.h>
-#include <Generator/NodeGenerator.h>
 #include <Graph/Base/NodeSlotInput.h>
 #include <Systems/FrameActionSystem.h>
 #include <Graph/Base/NodeSlotOutput.h>
@@ -57,9 +56,6 @@ private:
 	bool m_NeedToLoadProject = false;
 	bool m_NeedToCloseProject = false;
 	std::string m_FilePathNameToLoad;
-
-private: // generation
-	NodeGenerator m_NodeGenerator;
 
 private:
 	SlotEditor m_InputSlotEditor;

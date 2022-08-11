@@ -269,3 +269,20 @@ bool ProjectFile::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 	return false;
 }
 
+void ProjectFile::GenerateGraphFiles(const std::string& vPath)
+{
+	if (m_RootNodePtr)
+	{
+		for (auto node : m_RootNodePtr->m_ChildNodes)
+		{
+			if (node.second)
+			{
+				auto genNodePtr = std::dynamic_pointer_cast<GeneratorNode>(node.second);
+				if (genNodePtr)
+				{
+					genNodePtr->GenerateNodeClasses(vPath,this);
+				}
+			}
+		}
+	}
+}

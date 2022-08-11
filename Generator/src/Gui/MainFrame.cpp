@@ -260,7 +260,7 @@ void MainFrame::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame)
 		{
 			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
 
-			m_NodeGenerator.GenerateNodeClasses(filePath, *ProjectFile::Instance());
+			ProjectFile::Instance()->GenerateGraphFiles(filePath);
 		}
 
 		ImGuiFileDialog::Instance()->Close();
@@ -452,8 +452,8 @@ void MainFrame::DrawNodeCreationPane()
 
 	if (ImGui::ContrastedButton("New Node"))
 	{
-		ProjectFile::Instance()->m_SelectedNode = std::dynamic_pointer_cast<GeneratorNode>(
-			ProjectFile::Instance()->m_RootNodePtr->AddChildNode(GeneratorNode::Create(m_VulkanCorePtr)).getValidShared());
+		SelectNode(std::dynamic_pointer_cast<GeneratorNode>(
+			ProjectFile::Instance()->m_RootNodePtr->AddChildNode(GeneratorNode::Create(m_VulkanCorePtr)).getValidShared()));
 		auto nodePtr = ProjectFile::Instance()->m_SelectedNode.getValidShared();
 		if (nodePtr)
 		{
@@ -1097,8 +1097,8 @@ bool MainFrame::LoadNodeFromXML(
 			nodePtr->nodeID = vNodeId;
 
 			ProjectFile::Instance()->m_RootNodePtr->AddChildNode(nodePtr);
-			nodePtr->RecursParsingConfigChilds(vElem);
 			nd::SetNodePosition(vNodeId, nodePtr->pos);
+			nodePtr->RecursParsingConfigChilds(vElem);
 
 			// pour eviter que des slots aient le meme id qu'un nodePtr
 			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)vNodeId);

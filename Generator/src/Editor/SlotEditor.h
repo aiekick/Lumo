@@ -2,8 +2,8 @@
 
 #include <Graph/Graph.h>
 #include <Graph/Base/NodeSlot.h>
-#include <Generator/NodeGenerator.h>
 #include <ImWidgets/ImWidgets.h>
+#include <Graph/GeneratorNode.h>
 
 class SlotEditor
 {
