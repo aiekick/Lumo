@@ -80,6 +80,8 @@ int main(int, char** argv)
 		LogVarLightInfo("Exception %s", e.what());
 		Logger::Instance()->Close();
 
+		CTOOL_DEBUG_BREAK;
+
 		/*if (App::Instance()->GetWindowPtr())
 		{
 			const auto& main_window = App::Instance()->GetWindowPtr()->getWindowPtr();

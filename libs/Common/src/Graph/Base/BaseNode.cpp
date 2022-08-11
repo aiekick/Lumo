@@ -72,6 +72,10 @@ void BaseNode::OpenGraph_Callback(const BaseNodeWeak& vNode)
 	{
 		BaseNode::sOpenGraphCallback(vNode);
 	}
+	else
+	{
+		LogVarWarning("BaseNode::sOpenGraphCallback is null");
+	}
 }
 
 std::function<void(const NodeSlotWeak&, const ImGuiMouseButton&)> BaseNode::sSelectSlotCallback;
@@ -80,6 +84,10 @@ void BaseNode::SelectSlot_Callback(const NodeSlotWeak& vSlot, const ImGuiMouseBu
 	if (BaseNode::sSelectSlotCallback)
 	{
 		BaseNode::sSelectSlotCallback(vSlot, vMouseButton);
+	}
+	else
+	{
+		LogVarWarning("BaseNode::sSelectSlotCallback is null");
 	}
 }
 
@@ -91,6 +99,10 @@ void BaseNode::SelectForGraphOutput_Callback(const NodeSlotWeak& vSlot, const Im
 	{
 		BaseNode::sSelectForGraphOutputCallback(vSlot, vMouseButton);
 	}
+	else
+	{
+		LogVarWarning("BaseNode::sSelectForGraphOutputCallback is null");
+	}
 }
 
 std::function<void(const std::string&)> BaseNode::sOpenCodeCallback;
@@ -99,6 +111,10 @@ void BaseNode::OpenCode_Callback(const std::string& vCode)
 	if (BaseNode::sOpenCodeCallback)
 	{
 		BaseNode::sOpenCodeCallback(std::move(vCode));
+	}
+	else
+	{
+		LogVarWarning("BaseNode::sOpenCodeCallback is null");
 	}
 }
 
@@ -109,6 +125,10 @@ void BaseNode::LogErrors_Callback(const std::string& vErrors)
 	{
 		BaseNode::sLogErrorsCallback(std::move(vErrors));
 	}
+	else
+	{
+		LogVarWarning("BaseNode::sLogErrorsCallback is null");
+	}
 }
 
 std::function<void(const std::string&)> BaseNode::sLogInfosCallback;
@@ -117,6 +137,10 @@ void BaseNode::LogInfos_Callback(const std::string& vInfos)
 	if (BaseNode::sLogInfosCallback)
 	{
 		BaseNode::sLogInfosCallback(std::move(vInfos));
+	}
+	else
+	{
+		LogVarWarning("BaseNode::sLogInfosCallback is null");
 	}
 }
 
@@ -127,6 +151,10 @@ void BaseNode::Select_Callback(const BaseNodeWeak& vNode)
 	{
 		BaseNode::sSelectCallback(vNode);
 	}
+	else
+	{
+		LogVarWarning("BaseNode::sSelectCallback is null");
+	}
 }
 
 std::function<BaseNodeWeak(BaseNodeWeak vNodeGraph, BaseNodeState* vBaseNodeState)> BaseNode::sShowNewNodeMenuCallback; // new node menu
@@ -135,6 +163,12 @@ void BaseNode::ShowNewNodeMenu_Callback(const BaseNodeWeak& vNodeGraph, BaseNode
 	if (BaseNode::sShowNewNodeMenuCallback)
 	{
 		BaseNode::sShowNewNodeMenuCallback(vNodeGraph, vBaseNodeState);
+	}
+	else
+	{
+		// this one is constantly called for the menu display
+		// /so not a good target for spam an error arleady well visible for the dev
+		//LogVarWarning("BaseNode::sShowNewNodeMenuCallback is null");
 	}
 }
 
@@ -147,6 +181,10 @@ bool BaseNode::LoadNodeFromXML_Callback(const BaseNodeWeak& vBaseNodeWeak, tinyx
 	{
 		return BaseNode::sLoadNodeFromXMLCallback(vBaseNodeWeak, vElem,  vParent,
 			 vNodeName,  vNodeType,  vPos,  vNodeId);
+	}
+	else
+	{
+		LogVarWarning("BaseNode::sLoadNodeFromXMLCallback is null");
 	}
 
 	return false;
@@ -247,13 +285,13 @@ void BaseNode::UnitGraph()
 void BaseNode::FinalizeGraphLoading()
 {
 	// select outputs
-	BaseNode::sSelectForGraphOutputCallback(
+	BaseNode::SelectForGraphOutput_Callback(
 		FindNodeSlotById(m_OutputLeftSlotToSelectAfterLoading.first, m_OutputLeftSlotToSelectAfterLoading.second), 
 		ImGuiMouseButton_Left);
-	BaseNode::sSelectForGraphOutputCallback(
+	BaseNode::SelectForGraphOutput_Callback(
 		FindNodeSlotById(m_OutputMiddleSlotToSelectAfterLoading.first, m_OutputMiddleSlotToSelectAfterLoading.second),
 		ImGuiMouseButton_Middle);
-	BaseNode::sSelectForGraphOutputCallback(
+	BaseNode::SelectForGraphOutput_Callback(
 		FindNodeSlotById(m_OutputRightSlotToSelectAfterLoading.first, m_OutputRightSlotToSelectAfterLoading.second),
 		ImGuiMouseButton_Right);
 
@@ -2804,7 +2842,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 					}
 					if (!wasSet)
 					{
-						auto slotPtr = AddInput(slot_input_ptr).getValidShared();
+						auto slotPtr = AddInput(slot_input_ptr, false, slot.hideName).getValidShared();
 						if (slotPtr)
 						{
 							slotPtr->idAlreadySetbyXml = true;
@@ -2839,7 +2877,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 					}
 					if (!wasSet)
 					{
-						auto slotPtr = AddOutput(slot_output_ptr).getValidShared();
+						auto slotPtr = AddOutput(slot_output_ptr, false, slot.hideName).getValidShared();
 						if (slotPtr)
 						{
 							slotPtr->idAlreadySetbyXml = true;

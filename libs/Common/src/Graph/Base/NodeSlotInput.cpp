@@ -156,12 +156,22 @@ std::string NodeSlotInput::getXml(const std::string& vOffset, const std::string&
 {
 	std::string res;
 
+#ifndef USE_CODE_GENERATOR
 	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\"/>\n",
 		index,
 		name.c_str(),
 		slotType.c_str(),
 		NodeSlot::sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
 		(uint32_t)pinID.Get());
+#else
+	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\" hideName=\"%s\"/>\n",
+		index,
+		name.c_str(),
+		slotType.c_str(),
+		NodeSlot::sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
+		(uint32_t)pinID.Get(),
+		hideName ? "true" : "false");
+#endif
 
 	return res;
 }
@@ -186,6 +196,7 @@ bool NodeSlotInput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 		std::string _type = "NONE";
 		auto _place = NodeSlot::PlaceEnum::NONE;
 		uint32_t _pinId = 0U;
+		bool _hideName = false;
 
 		for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
 		{
@@ -202,6 +213,8 @@ bool NodeSlotInput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				_place = NodeSlot::sGetNodeSlotPlaceEnumFromString(attValue);
 			else if (attName == "id")
 				_pinId = ct::ivariant(attValue).GetU();
+			else if (attName == "hideName")
+				_hideName = ct::ivariant(attValue).GetB();
 		}
 
 		if (index == _index &&

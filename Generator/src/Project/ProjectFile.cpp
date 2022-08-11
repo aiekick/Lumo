@@ -25,12 +25,12 @@ limitations under the License.
 
 ProjectFile::ProjectFile(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	m_RootNodePtr = BaseNode::Create(vVulkanCorePtr);
+	m_RootNodePtr = GeneratorNode::Create(vVulkanCorePtr);
 }
 
 ProjectFile::ProjectFile(vkApi::VulkanCorePtr vVulkanCorePtr, const std::string& vFilePathName)
 {
-	m_RootNodePtr = BaseNode::Create(vVulkanCorePtr);
+	m_RootNodePtr = GeneratorNode::Create(vVulkanCorePtr);
 
 	m_ProjectFilePathName = FileHelper::Instance()->SimplifyFilePath(vFilePathName);
 	auto ps = FileHelper::Instance()->ParsePathFileName(m_ProjectFilePathName);
@@ -223,7 +223,6 @@ std::string ProjectFile::getXml(const std::string& vOffset, const std::string& /
 
 	str += vOffset + "\t<scene>\n";
 
-	str += CommonSystem::Instance()->getXml(vOffset + "\t\t", "project");
 	str += m_RootNodePtr->getXml(vOffset + "\t\t", "project");
 
 	str += vOffset + "\t</scene>\n";
@@ -258,13 +257,9 @@ bool ProjectFile::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 	{
 		return true;
 	}
-	else if (strName == "CommonSystem")
-	{
-		CommonSystem::Instance()->RecursParsingConfigChilds(vElem, "project");
-	}
 	else if (strName == "graph")
 	{
-		m_RootNodePtr->setFromXml(vElem, vParent, "project");
+		m_RootNodePtr->RecursParsingConfigChilds(vElem, "project");
 	}
 
 	return false;

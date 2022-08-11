@@ -46,6 +46,7 @@ limitations under the License.
 #include <ImWidgets/ImWidgets.h>
 
 #include <Gui/MainFrame.h>
+#include <Project/ProjectFile.h>
 
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
 #include <Systems/CommonSystem.h>
@@ -111,6 +112,8 @@ bool App::Init(GLFWwindow* vWindow)
 			m_VulkanCorePtr = vkApi::VulkanCore::Create(m_VulkanWindowPtr, "Lumo", 1, "Lumo Engine", 1, true, true);
 			if (m_VulkanCorePtr)
 			{
+				ProjectFile::Instance(m_VulkanCorePtr);
+
 				// apres la creation du core
 				CommonSystem::Instance()->CreateBufferObject(m_VulkanCorePtr);
 

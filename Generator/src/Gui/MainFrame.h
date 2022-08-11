@@ -24,12 +24,13 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <Editor/SlotEditor.h>
+#include <ImWidgets/ImWidgets.h>
 #include <ctools/ConfigAbstract.h>
 #include <vkFramework/VulkanCore.h>
-#include <Graph/Base/NodeSlotInput.h>
-#include <Graph/Base/NodeSlotOutput.h>
 #include <Generator/NodeGenerator.h>
-#include <ImWidgets/ImWidgets.h>
+#include <Graph/Base/NodeSlotInput.h>
+#include <Systems/FrameActionSystem.h>
+#include <Graph/Base/NodeSlotOutput.h>
 
 struct GLFWwindow;
 class MainFrame : public conf::ConfigAbstract
@@ -49,6 +50,7 @@ private:
 	bool m_NeedToCloseApp = false;			// whenn app closing app is required
 	bool m_SaveDialogIfRequired = false;	// open save options dialog (save / save as / continue without saving / cancel)
 	bool m_SaveDialogActionWasDone = false;	// if action was done by save options dialog
+	FrameActionSystem m_ActionSystem;
 
 private:
 	bool m_NeedToNewProject = false;
@@ -57,11 +59,9 @@ private:
 	std::string m_FilePathNameToLoad;
 
 private: // generation
-	GeneratorStruct m_GeneratorDatas;
 	NodeGenerator m_NodeGenerator;
 
 private:
-	BaseNodePtr m_RootNodePtr = nullptr;
 	SlotEditor m_InputSlotEditor;
 	SlotEditor m_OutputSlotEditor;
 	NodeSlotInputWeak m_SelectedNodeSlotInput;
@@ -80,7 +80,15 @@ public:
 	void Unit();
 
 	void Display(const uint32_t& vCurrentFrame, ct::ivec4 vViewport);
+
+	void NeedToNewProject(const std::string& vFilePathName);
+	void NeedToLoadProject(const std::string& vFilePathName);
+	void NeedToCloseProject();
+
 	void PostRenderingActions();
+
+	bool SaveProject();
+	void SaveAsProject(const std::string& vFilePathName);
 
 	GLFWwindow* GetGLFWwindow() { return m_Window; }
 
@@ -94,12 +102,47 @@ private: // imgui pane / dialogs
 	void SelectNode(const BaseNodeWeak& vNode);
 	void SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton);
 
+private: // save : on quit or project loading
+	void OpenUnSavedDialog(); // show a dialog because the project file is not saved
+	void CloseUnSavedDialog(); // show a dialog because the project file is not saved
+	bool ShowUnSavedDialog(); // show a dilaog because the project file is not saved
+
+public: // actions
+	// via menu
+	void Action_Menu_NewProject();
+	void Action_Menu_OpenProject();
+	void Action_Menu_ReOpenProject();
+	void Action_Menu_SaveProject();
+	void Action_Menu_SaveAsProject();
+	void Action_Menu_CloseProject();
+	// view the window
+	void Action_Window_CloseApp();
+	// via the unsaved dialog
+	bool Action_UnSavedDialog_SaveProject();
+	void Action_UnSavedDialog_SaveAsProject();
+	void Action_UnSavedDialog_Cancel();
+	// others
+	void Action_OpenUnSavedDialog_IfNeeded();
+	void Action_Cancel();
+	// dialog funcs to be in actions
+	bool Display_NewProjectDialog();
+	bool Display_OpenProjectDialog();
+	bool Display_SaveProjectDialog();
+
 private:
 	void SetAppTitle(const std::string& vFilePathName = std::string());
 
 public: // configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "");
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "");
+	bool LoadNodeFromXML(
+		BaseNodeWeak vBaseNodeWeak,
+		tinyxml2::XMLElement* vElem,
+		tinyxml2::XMLElement* vParent,
+		const std::string& vNodeName,
+		const std::string& vNodeType,
+		const ct::fvec2& vPos,
+		const size_t& vNodeId);
 
 public: // singleton
 	static MainFrame* Instance(GLFWwindow* vWin = 0)

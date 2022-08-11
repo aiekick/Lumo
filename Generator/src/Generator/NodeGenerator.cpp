@@ -2,38 +2,27 @@
 
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
-
 #include <ImWidgets/ImWidgets.h>
-
 #include <Graph/Base/NodeSlot.h>
-
 #include <Graph/Base/BaseNode.h>
-
 #include <Graph/Base/NodeSlotInput.h>
 #include <Graph/Base/NodeSlotOutput.h>
-
 #include <Graph/Slots/NodeSlotModelInput.h>
 #include <Graph/Slots/NodeSlotModelOutput.h>
-
 #include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
-
 #include <Graph/Slots/NodeSlotVariableInput.h>
 #include <Graph/Slots/NodeSlotVariableOutput.h>
-
 #include <Graph/Slots/NodeSlotLightGroupInput.h>
 #include <Graph/Slots/NodeSlotLightGroupOutput.h>
-
 #include <Graph/Slots/NodeSlotTexelBufferInput.h>
 #include <Graph/Slots/NodeSlotTexelBufferOutput.h>
-
-#include <Graph/Slots/NodeSlotTextureGroupOutput.h>
 #include <Graph/Slots/NodeSlotTextureGroupInput.h>
-
+#include <Graph/Slots/NodeSlotTextureGroupOutput.h>
 #include <Graph/Slots/NodeSlotStorageBufferInput.h>
 #include <Graph/Slots/NodeSlotStorageBufferOutput.h>
 
-void NodeGenerator::GenerateNodeClasses(const std::string& vPath, const GeneratorStruct& vDatas)
+void NodeGenerator::GenerateNodeClasses(const std::string& vPath, const ProjectFile& vDatas)
 {
 	auto nodePtr = vDatas.m_SelectedNode.getValidShared();
 	if (nodePtr)
@@ -145,7 +134,6 @@ NODE_CLASS_NAME::~NODE_CLASS_NAME()
 bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "NODE_DISPLAY_NAME";
-
 )";
 
 		std::map<uint32_t, uint32_t> _inputCounter;
@@ -205,6 +193,10 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 			}
 		}
 
+		cpp_node_file_code += u8R"(
+
+)";
+
 		if (_inputCounter[BaseTypeEnum::BASE_TYPE_LightGroup] > 0)
 			h_node_file_code += u8R"(
 	public LightGroupInputInterface,)";
@@ -226,9 +218,6 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 		if (_inputCounter[BaseTypeEnum::BASE_TYPE_Variable] > 0)
 			h_node_file_code += u8R"(
 	public VariableInputInterface,)";
-
-		cpp_node_file_code += u8R"(
-)";
 
 		std::map<uint32_t, uint32_t> _outputCounter;
 		for (const auto& outputSlot : nodePtr->m_Outputs)
@@ -620,12 +609,12 @@ public:
 	}
 }
 
-void NodeGenerator::GenerateModules(const std::string& vPath, const GeneratorStruct& vDatas)
+void NodeGenerator::GenerateModules(const std::string& vPath, const ProjectFile& vDatas)
 {
 
 }
 
-void NodeGenerator::GeneratePasses(const std::string& vPath, const GeneratorStruct& vDatas)
+void NodeGenerator::GeneratePasses(const std::string& vPath, const ProjectFile& vDatas)
 {
 
 }

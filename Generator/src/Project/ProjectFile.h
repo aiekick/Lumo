@@ -21,7 +21,7 @@ limitations under the License.
 #include <imgui/imgui.h>
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
-#include <Graph/Base/BaseNode.h>
+#include <Graph/GeneratorNode.h>
 #include <ctools/ConfigAbstract.h>
 
 class ProjectFile : public conf::ConfigAbstract
@@ -29,13 +29,24 @@ class ProjectFile : public conf::ConfigAbstract
 private: // to save
 	std::string m_ProjectFilePathName;
 	std::string m_ProjectFileName;
-	std::string m_ProjectFilePath;
+	std::string m_ProjectFilePath; 
+	
+public: // to save
+	std::string m_FilePathNameToLoad;
+	std::string m_ClassName = "NewClass";
+	std::string m_Category = "None";
+	std::string m_NodeCreationName = "NEW_NODE"; // node name maj ex : 2D_SIMULATION_GRAY_SCOTT
+	std::string m_NodeDisplayName = "New Node"; // node name maj ex : Gray Scott
+	bool m_GenerateAModule = false;
+	bool m_GenerateAPass = false;
+	std::string m_RendererType;
+	BaseNodeWeak m_SelectedNode;
+	GeneratorNodePtr m_RootNodePtr = nullptr;
 
 private: // dont save
 	bool m_IsLoaded = false; // jsute pour avancer
 	bool m_NeverSaved = false;
 	bool m_IsThereAnyNotSavedChanged = false;
-	BaseNodePtr m_RootNodePtr = nullptr;
 
 public:
 	ProjectFile(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -65,9 +76,9 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 public:
-	static ProjectFile* Instance()
+	static ProjectFile* Instance(vkApi::VulkanCorePtr vVulkanCorePtr = nullptr)
 	{
-		static ProjectFile _instance;
+		static ProjectFile _instance(vVulkanCorePtr);
 		return &_instance;
 	}
 };

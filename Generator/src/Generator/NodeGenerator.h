@@ -41,20 +41,7 @@ public:
 #include <Graph/Base/NodeSlotInput.h>
 #include <Graph/Base/NodeSlotOutput.h>
 #include <Generator/NodeGenerator.h>
-
-struct GeneratorStruct
-{
-public:
-	std::string m_FilePathNameToLoad;
-	std::string m_ClassName = "NewClass";
-	std::string m_Category = "None";
-	std::string m_NodeCreationName = "NEW_NODE"; // node name maj ex : 2D_SIMULATION_GRAY_SCOTT
-	std::string m_NodeDisplayName= "New Node"; // node name maj ex : Gray Scott
-	bool m_GenerateAModule = false;
-	bool m_GenerateAPass = false;
-	std::string m_RendererType;
-	BaseNodeWeak m_SelectedNode;
-};
+#include <Project/ProjectFile.h>
 
 class NodeGenerator
 {
@@ -62,9 +49,9 @@ private:
 	BaseTypes m_BaseTypes;
 
 public:
-	void GenerateNodeClasses(const std::string& vPath, const GeneratorStruct& vDatas);
-	void GenerateModules(const std::string& vPath, const GeneratorStruct& vDatas);
-	void GeneratePasses(const std::string& vPath, const GeneratorStruct& vDatas);
+	void GenerateNodeClasses(const std::string& vPath, const ProjectFile& vDatas);
+	void GenerateModules(const std::string& vPath, const ProjectFile& vDatas);
+	void GeneratePasses(const std::string& vPath, const ProjectFile& vDatas);
 
 private:
 	std::string GetLicenceHeader();
