@@ -480,7 +480,6 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath, const ProjectF
 	{
 		cpp_node_file_code += ct::toStr(u8R"(#include <Modules/%s/%s.h>
 )", m_CategoryName.c_str(), module_class_name.c_str());
-		GenerateModules(vPath, vDatas);
 	}
 
 	cpp_node_file_code += GetNodeSlotsInputIncludesSlots(slotDico);
@@ -689,10 +688,8 @@ void NODE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 )";
-
 	cpp_node_file_code += GetNodeSlotsInputCppFuncs(slotDico);
 	cpp_node_file_code += GetNodeSlotsOutputCppFuncs(slotDico);
-
 	cpp_node_file_code += u8R"(
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -872,7 +869,7 @@ public:
 
 	if (m_GenerateAModule)
 	{
-		GenerateModules(vPath, vDatas);
+		GenerateModules(vPath, vDatas, slotDico);
 	}
 }
 
@@ -880,7 +877,7 @@ public:
 //// GENERATOR MODULLE ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void GeneratorNode::GenerateModules(const std::string& vPath, const ProjectFile* vDatas)
+void GeneratorNode::GenerateModules(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico)
 {
 	std::string module_class_name = m_ClassName + "Module";
 	std::string cpp_module_file_name = module_class_name + ".cpp";
@@ -1206,42 +1203,10 @@ void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint3
 	
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
-
-void MODULE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
 )";
-
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
-		m_PASS_CLASS_NAME_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
-)";
-	}
-
+	cpp_module_file_code += GetModuleInputCppFuncs(vDico);
+	cpp_module_file_code += GetModuleOutputCppFuncs(vDico);
 	cpp_module_file_code += u8R"(
-}
-
-vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
-)";
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
-		return m_PASS_CLASS_NAME_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
-)";
-	}
-
-	cpp_module_file_code += u8R"(
-	return nullptr;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
@@ -1338,7 +1303,7 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 //// GENERATOR PASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* vDatas)
+void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico)
 {
 
 }
@@ -1516,18 +1481,13 @@ SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot)
 
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
-
+	res.cpp_node_func = u8R"()";
+	res.cpp_module_func = u8R"()";
+	res.cpp_pass_func = u8R"()";
 	res.h_func = u8R"()";
-
-	res.include_interface = u8R"(
-#include <Interfaces/NoneInputInterface.h>)";
-
-	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotNoneInput.h>)";
-
+	res.include_interface = u8R"()";
+	res.include_slot = u8R"()";
 	res.node_public_interface = u8R"()";
-
 	res.node_slot_func = u8R"()";
 
 	return res;
@@ -1539,18 +1499,13 @@ SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot)
 
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
-
+	res.cpp_node_func = u8R"()";
+	res.cpp_module_func = u8R"()";
+	res.cpp_pass_func = u8R"()";
 	res.h_func = u8R"()";
-
-	res.include_interface = u8R"(
-#include <Interfaces/NoneOutputInterface.h>)";
-
-	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotNoneOutput.h>)";
-
+	res.include_interface = u8R"()";
+	res.include_slot = u8R"()";
 	res.node_public_interface = u8R"()";
-
 	res.node_slot_func = u8R"()";
 
 	return res;
@@ -1560,7 +1515,11 @@ SlotStringStruct GeneratorNode::GetSlotLightGroupInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1571,7 +1530,7 @@ void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetLightGroup(vSceneLightGroup);
@@ -1579,11 +1538,70 @@ void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	}
 	else
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		m_PASS_CLASS_NAMEPtr->SetLightGroup(vSceneLightGroup);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{	
+	ZoneScoped;
+
+	m_SceneLightGroup = vSceneLightGroup;
+
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+
+	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	if (lightGroupPtr && 
+		lightGroupPtr->GetBufferInfo())
+	{
+		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
+	}
+
+	UpdateBufferInfoInRessourceDescriptor();
 }
 )";
 
@@ -1610,7 +1628,11 @@ SlotStringStruct GeneratorNode::GetSlotLightGroupOutput(NodeSlotOutputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP OUTPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1621,7 +1643,7 @@ SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetLightGroup();
@@ -1629,8 +1651,53 @@ SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
 	return SceneLightGroupWeak();
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// LIGHT GROUP OUTPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneLightGroupWeak MODULE_CLASS_NAME::GetLightGroup()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetLightGroup();
+	}
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+	return SceneLightGroupWeak();
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// LIGHT GROUP OUTPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
+{	
+	ZoneScoped;
+
+	return m_SceneLightGroup;
 }
 )";
 
@@ -1657,7 +1724,11 @@ SlotStringStruct GeneratorNode::GetSlotModelInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1668,7 +1739,7 @@ void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetModel(vSceneModel);
@@ -1676,11 +1747,59 @@ void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 	}
 	else
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		m_PASS_CLASS_NAMEPtr->SetModel(vSceneModel);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
+{	
+	ZoneScoped;
+
+	m_SceneModel = vSceneModel;
 }
 )";
 
@@ -1707,7 +1826,11 @@ SlotStringStruct GeneratorNode::GetSlotModelOutput(NodeSlotOutputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1718,7 +1841,7 @@ SceneModelWeak NODE_CLASS_NAME::GetModel()
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetModel();
@@ -1726,8 +1849,53 @@ SceneModelWeak NODE_CLASS_NAME::GetModel()
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
 	return SceneModelWeak();
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneModelWeak MODULE_CLASS_NAME::GetModel()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetModel();
+	}
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+	return SceneModelWeak();
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneModelWeak NODE_CLASS_NAME::GetModel()
+{	
+	ZoneScoped;
+
+	return m_SceneModelPtr;
 }
 )";
 
@@ -1754,7 +1922,11 @@ SlotStringStruct GeneratorNode::GetSlotStorageBufferInput(NodeSlotInputPtr vSlot
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STORAGE BUFFER INPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1765,7 +1937,7 @@ void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetStorageBuffer(vBindingPoint, vStorageBuffer, vStorageBufferSize);
@@ -1773,11 +1945,59 @@ void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 	}
 	else
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// STORAGE BUFFER INPUT ////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::DescriptorBufferInfo* vStorageBuffer, uint32_t* vStorageBufferSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		m_PASS_CLASS_NAMEPtr->SetStorageBuffer(vBindingPoint, vStorageBuffer, vStorageBufferSize);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// STORAGE BUFFER INPUT ////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::DescriptorBufferInfo* vStorageBuffer, uint32_t* vStorageBufferSize)
+{	
+	ZoneScoped;
+
+
 }
 )";
 
@@ -1804,7 +2024,11 @@ SlotStringStruct GeneratorNode::GetSlotStorageBufferOutput(NodeSlotOutputPtr vSl
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STORAGE BUFFER OUTPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1815,7 +2039,7 @@ vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetStorageBuffer(vBindingPoint, vOutSize);
@@ -1823,7 +2047,52 @@ vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// STORAGE BUFFER OUTPUT ///////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorBufferInfo* MODULE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetStorageBuffer(vBindingPoint, vOutSize);
+	}
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// STORAGE BUFFER OUTPUT ///////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize)
+{	
+	ZoneScoped;
+
 	return nullptr;
 }
 )";
@@ -1851,7 +2120,11 @@ SlotStringStruct GeneratorNode::GetSlotTexelBufferInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXEL BUFFER INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1862,7 +2135,7 @@ void NODE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* 
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexelBuffer(vBindingPoint, vTexelBuffer, vTexelBufferSize);
@@ -1870,11 +2143,11 @@ void NODE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* 
 	}
 	else
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
 }
 
 void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
@@ -1883,7 +2156,7 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexelBufferView(vBindingPoint, vTexelBufferView, vTexelBufferSize);
@@ -1891,11 +2164,87 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 	}
 	else
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXEL BUFFER INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		m_PASS_CLASS_NAMEPtr->SetTexelBuffer(vBindingPoint, vTexelBuffer, vTexelBufferSize);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+
+void MODULE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		m_PASS_CLASS_NAMEPtr->SetTexelBufferView(vBindingPoint, vTexelBufferView, vTexelBufferSize);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXEL BUFFER INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
+{	
+	ZoneScoped;
+
+
+}
+
+void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
+{	
+	ZoneScoped;
+
+
 }
 )";
 
@@ -1923,7 +2272,11 @@ SlotStringStruct GeneratorNode::GetSlotTexelBufferOutput(NodeSlotOutputPtr vSlot
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXEL BUFFER OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1934,7 +2287,7 @@ vk::Buffer* NODE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct::u
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTexelBuffer(vBindingPoint, vOutSize);
@@ -1942,7 +2295,7 @@ vk::Buffer* NODE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct::u
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
 	return nullptr;
 }
 
@@ -1952,7 +2305,7 @@ vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTexelBufferView(vBindingPoint, vOutSize);
@@ -1960,7 +2313,77 @@ vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXEL BUFFER OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::Buffer* MODULE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetTexelBuffer(vBindingPoint, vOutSize);
+	}
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+	return nullptr;
+}
+
+vk::BufferView* MODULE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetTexelBufferView(vBindingPoint, vOutSize);
+	}
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXEL BUFFER OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::Buffer* NODE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
+{	
+	ZoneScoped;
+
+	return nullptr;
+}
+
+vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
+{	
+	ZoneScoped;
+
 	return nullptr;
 }
 )";
@@ -1989,7 +2412,11 @@ SlotStringStruct GeneratorNode::GetSlotTextureInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2000,7 +2427,7 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
@@ -2008,11 +2435,58 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 	}
 	else
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		m_PASS_CLASS_NAMEPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+{	
+	ZoneScoped;
+
 }
 )";
 
@@ -2041,7 +2515,11 @@ SlotStringStruct GeneratorNode::GetSlotTextureOutput(NodeSlotOutputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2052,7 +2530,7 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
@@ -2060,7 +2538,52 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+	}
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+{	
+	ZoneScoped;
+
 	return nullptr;
 }
 )";
@@ -2088,7 +2611,11 @@ SlotStringStruct GeneratorNode::GetSlotTextureGroupInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE GROUP SLOT INPUT ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2099,7 +2626,7 @@ void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
@@ -2107,11 +2634,59 @@ void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 	}
 	else
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE GROUP SLOT INPUT ////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		m_PASS_CLASS_NAMEPtr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE GROUP SLOT INPUT ////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+{	
+	ZoneScoped;
+
+
 }
 )";
 
@@ -2138,7 +2713,11 @@ SlotStringStruct GeneratorNode::GetSlotTextureGroupOutput(NodeSlotOutputPtr vSlo
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE GROUP SLOT OUTPUT ///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2149,7 +2728,7 @@ DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
@@ -2157,7 +2736,52 @@ DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE GROUP SLOT OUTPUT ///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+DescriptorImageInfoVector* MODULE_CLASS_NAME::GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
+	}
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE GROUP SLOT OUTPUT ///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes)
+{	
+	ZoneScoped;
+
 	return nullptr;
 }
 )";
@@ -2185,7 +2809,11 @@ SlotStringStruct GeneratorNode::GetSlotVariableInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2196,7 +2824,7 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetVariable(vVarIndex, vSceneVariable);
@@ -2204,11 +2832,59 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 	}
 	else
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		m_PASS_CLASS_NAMEPtr->SetVariable(vVarIndex, vSceneVariable);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
+{	
+	ZoneScoped;
+
+
 }
 )";
 
@@ -2238,7 +2914,11 @@ SlotStringStruct GeneratorNode::GetSlotVariableOutput(NodeSlotOutputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"(
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2249,7 +2929,7 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 
 	if (m_GenerateAModule)
 	{
-		res.cpp_func += u8R"(
+		res.cpp_node_func += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetVariable(vVariableIndex)
@@ -2257,7 +2937,52 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 )";
 	}
 
-	res.cpp_func += u8R"(
+	res.cpp_node_func += u8R"(
+	return SceneVariableWeak();
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetVariable(vVariableIndex)
+	}
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+	return SceneVariableWeak();
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
+{	
+	ZoneScoped;
+
 	return SceneVariableWeak();
 }
 )";
@@ -2290,18 +3015,13 @@ SlotStringStruct GeneratorNode::GetSlotCustomInput(NodeSlotInputPtr vSlot)
 
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
-
+	res.cpp_node_func = u8R"()";
+	res.cpp_module_func = u8R"()";
+	res.cpp_pass_func = u8R"()";
 	res.h_func = u8R"()";
-
-	res.include_interface = u8R"(
-#include <Interfaces/CustomInputInterface.h>)";
-
-	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotCustomInput.h>)";
-
+	res.include_interface = u8R"()";
+	res.include_slot = u8R"()";
 	res.node_public_interface = u8R"()";
-
 	res.node_slot_func = u8R"()";
 
 	return res;
@@ -2313,18 +3033,13 @@ SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot)
 
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
-
+	res.cpp_node_func = u8R"()";
+	res.cpp_module_func = u8R"()";
+	res.cpp_pass_func = u8R"()";
 	res.h_func = u8R"()";
-
-	res.include_interface = u8R"(
-#include <Interfaces/CustomOutputInterface.h>)";
-
-	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotCustomOutput.h>)";
-
+	res.include_interface = u8R"()";
+	res.include_slot = u8R"()";
 	res.node_public_interface = u8R"()";
-
 	res.node_slot_func = u8R"()";
 
 	return res;
@@ -2685,7 +3400,7 @@ std::string GeneratorNode::GetNodeSlotsInputCppFuncs(const SlotDico& vDico)
 				{
 					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).cpp_func;
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).cpp_node_func;
 					}
 					else
 					{
@@ -2726,7 +3441,171 @@ std::string GeneratorNode::GetNodeSlotsOutputCppFuncs(const SlotDico& vDico)
 				{
 					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).cpp_func;
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).cpp_node_func;
+					}
+					else
+					{
+						CTOOL_DEBUG_BREAK;
+					}
+				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+				}
+			}
+		}
+	}
+
+	return res;
+}
+
+std::string GeneratorNode::GetModuleInputCppFuncs(const SlotDico& vDico)
+{
+	std::string res;
+
+	for (const auto& inputSlot : m_Inputs)
+	{
+		if (inputSlot.second)
+		{
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+			if (slotDatasPtr)
+			{
+				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+				if (typeString == "None" ||
+					typeString == "Custom")
+				{
+					continue;
+				}
+
+				if (vDico.find(type) != vDico.end())
+				{
+					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					{
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).cpp_module_func;
+					}
+					else
+					{
+						CTOOL_DEBUG_BREAK;
+					}
+				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+				}
+			}
+		}
+	}
+
+	return res;
+}
+
+std::string GeneratorNode::GetModuleOutputCppFuncs(const SlotDico& vDico)
+{
+	std::string res;
+
+	for (const auto& outputSlot : m_Outputs)
+	{
+		if (outputSlot.second)
+		{
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+			if (slotDatasPtr)
+			{
+				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+				if (typeString == "None" ||
+					typeString == "Custom")
+				{
+					continue;
+				}
+
+				if (vDico.find(type) != vDico.end())
+				{
+					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					{
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).cpp_module_func;
+					}
+					else
+					{
+						CTOOL_DEBUG_BREAK;
+					}
+				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+				}
+			}
+		}
+	}
+
+	return res;
+}
+
+std::string GeneratorNode::GetPassInputCppFuncs(const SlotDico& vDico)
+{
+	std::string res;
+
+	for (const auto& inputSlot : m_Inputs)
+	{
+		if (inputSlot.second)
+		{
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+			if (slotDatasPtr)
+			{
+				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+				if (typeString == "None" ||
+					typeString == "Custom")
+				{
+					continue;
+				}
+
+				if (vDico.find(type) != vDico.end())
+				{
+					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					{
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).cpp_pass_func;
+					}
+					else
+					{
+						CTOOL_DEBUG_BREAK;
+					}
+				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+				}
+			}
+		}
+	}
+
+	return res;
+}
+
+std::string GeneratorNode::GetPassOutputCppFuncs(const SlotDico& vDico)
+{
+	std::string res;
+
+	for (const auto& outputSlot : m_Outputs)
+	{
+		if (outputSlot.second)
+		{
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+			if (slotDatasPtr)
+			{
+				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+				if (typeString == "None" ||
+					typeString == "Custom")
+				{
+					continue;
+				}
+
+				if (vDico.find(type) != vDico.end())
+				{
+					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					{
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).cpp_pass_func;
 					}
 					else
 					{

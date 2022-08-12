@@ -68,7 +68,9 @@ struct SlotStringStruct
 	std::string node_public_interface;
 	std::string include_slot;
 	std::string include_interface;
-	std::string cpp_func;
+	std::string cpp_node_func;
+	std::string cpp_module_func;
+	std::string cpp_pass_func;
 	std::string h_func;
 };
 typedef std::map<BaseTypeEnum, std::map<NodeSlot::PlaceEnum, SlotStringStruct>> SlotDico;
@@ -106,8 +108,8 @@ public:
 
 public:
 	void GenerateNodeClasses(const std::string& vPath, const ProjectFile* vDatas);
-	void GenerateModules(const std::string& vPath, const ProjectFile* vDatas);
-	void GeneratePasses(const std::string& vPath, const ProjectFile* vDatas);
+	void GenerateModules(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico);
+	void GeneratePasses(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico);
 
 private:
 	std::string GetLicenceHeader();
@@ -146,6 +148,10 @@ private:
 	std::string GetNodeSlotsOutputIncludesInterfaces(const SlotDico& vDico);
 	std::string GetNodeSlotsInputCppFuncs(const SlotDico& vDico);
 	std::string GetNodeSlotsOutputCppFuncs(const SlotDico& vDico);
+	std::string GetModuleInputCppFuncs(const SlotDico& vDico);
+	std::string GetModuleOutputCppFuncs(const SlotDico& vDico);
+	std::string GetPassInputCppFuncs(const SlotDico& vDico);
+	std::string GetPassOutputCppFuncs(const SlotDico& vDico);
 	std::string GetNodeSlotsInputHFuncs(const SlotDico& vDico);
 	std::string GetNodeSlotsOutputHFuncs(const SlotDico& vDico);
 
