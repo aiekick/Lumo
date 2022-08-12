@@ -55,9 +55,6 @@ class ShadowMapModule_Mesh_Pass :
 	public LightGroupOutputInterface
 {
 protected:
-	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
-	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
-
 	VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
 	struct UBOVert {

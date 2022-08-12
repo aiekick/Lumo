@@ -124,7 +124,7 @@ void SpecularModule_Comp_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGrou
 {
 	m_SceneLightGroup = vSceneLightGroup;
 
-	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
 	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
 	if (lightGroupPtr &&

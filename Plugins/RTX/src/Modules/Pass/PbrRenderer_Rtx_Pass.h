@@ -60,8 +60,6 @@ class PbrRenderer_Rtx_Pass :
 	public AccelStructureInputInterface
 {
 private:
-	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
-	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
 	const vk::WriteDescriptorSetAccelerationStructureKHR m_EmptyAccelStructureTopDescriptorInfo = { 1U, VK_NULL_HANDLE };
 
 	VulkanBufferObjectPtr m_ModelAdressesPtr = nullptr;

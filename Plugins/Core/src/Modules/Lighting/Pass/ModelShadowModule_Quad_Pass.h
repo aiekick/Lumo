@@ -54,9 +54,6 @@ class ModelShadowModule_Quad_Pass :
 	public LightGroupInputInterface
 {
 protected:
-	const vk::DescriptorBufferInfo m_SceneEmptyLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
-	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
-
 	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 	struct UBOFrag {

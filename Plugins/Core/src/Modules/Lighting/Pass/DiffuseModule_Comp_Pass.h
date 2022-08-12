@@ -51,10 +51,6 @@ class DiffuseModule_Comp_Pass :
 	public TextureInputInterface<2U>,
 	public TextureOutputInterface
 {
-private:
-	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
-	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
-
 public:
 	DiffuseModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~DiffuseModule_Comp_Pass() override;

@@ -61,9 +61,6 @@ class PBRRenderer_Quad_Pass :
 	public TextureOutputInterface
 {
 private:
-	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
-	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
-
 	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 

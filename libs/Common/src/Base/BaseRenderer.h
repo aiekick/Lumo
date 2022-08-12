@@ -131,12 +131,6 @@ public: // contructor
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
 	bool ResizeIfNeeded();
 
-	/// <summary>
-	/// imgui draw for resize the buffer by hand
-	/// </summary>
-	/// <returns></returns>
-	bool DrawResizeWidget();
-
 	// Base : one render for one FBO
 	bool BeginRender(const char* vSectionLabel);
 	void EndRender();

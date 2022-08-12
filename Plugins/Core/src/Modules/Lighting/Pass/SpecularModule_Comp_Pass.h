@@ -52,8 +52,6 @@ class SpecularModule_Comp_Pass :
 	public TextureOutputInterface
 {
 private:
-	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
-	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOComp {

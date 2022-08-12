@@ -22,8 +22,8 @@ class LightGroupInputInterface
 {
 protected:
 	SceneLightGroupWeak m_SceneLightGroup;
-	const vk::DescriptorBufferInfo m_SceneLightGroupDescriptorInfo = {VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE};
-	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+	const vk::DescriptorBufferInfo m_SceneEmptyLightGroupDescriptorInfo = {VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE};
+	const vk::DescriptorBufferInfo* m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
 public:
 	virtual void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) = 0;

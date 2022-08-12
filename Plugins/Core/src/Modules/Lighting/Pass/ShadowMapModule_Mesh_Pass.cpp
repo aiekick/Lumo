@@ -143,7 +143,7 @@ void ShadowMapModule_Mesh_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGro
 {
 	m_SceneLightGroup = vSceneLightGroup;
 
-	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
 	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
 	if (lightGroupPtr && lightGroupPtr->GetBufferInfo())

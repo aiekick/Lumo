@@ -123,7 +123,7 @@ void PbrRenderer_Rtx_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 
 	m_SceneLightGroup = vSceneLightGroup;
 
-	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
 	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
 	if (lightGroupPtr &&
