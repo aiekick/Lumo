@@ -839,14 +839,13 @@ public:
 )";
 
 	h_node_file_code += GetNodeSlotsInputHFuncs(slotDico);
-	cpp_node_file_code += u8R"(
+	h_node_file_code += u8R"(
 )";
 	h_node_file_code += GetNodeSlotsOutputHFuncs(slotDico);
-	cpp_node_file_code += u8R"(
+	h_node_file_code += u8R"(
 )";
 
 	h_node_file_code += u8R"(
-
 	// Configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
@@ -1513,6 +1512,8 @@ SlotDico GeneratorNode::GetSlotDico()
 
 SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot)
 {
+	CTOOL_DEBUG_BREAK;
+
 	SlotStringStruct res;
 
 	res.cpp_func = u8R"()";
@@ -1534,6 +1535,8 @@ SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot)
 
 SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot)
 {
+	CTOOL_DEBUG_BREAK;
+
 	SlotStringStruct res;
 
 	res.cpp_func = u8R"()";
@@ -1557,9 +1560,35 @@ SlotStringStruct GeneratorNode::GetSlotLightGroupInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->SetLightGroup(vSceneLightGroup);
+	})";
+	}
+	else
+	{
+		res.cpp_func += u8R"(
+)";
+	}
+
+	res.cpp_func += u8R"(
+}
+)";
+
+	res.h_func = u8R"(
+	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/LightGroupInputInterface.h>)";
@@ -1581,9 +1610,32 @@ SlotStringStruct GeneratorNode::GetSlotLightGroupOutput(NodeSlotOutputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// LIGHT GROUP OUTPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetLightGroup();
+	}
+)";
+	}
+
+	res.cpp_func += u8R"(
+	return SceneLightGroupWeak();
+}
+)";
+
+	res.h_func = u8R"(
+	SceneLightGroupWeak GetLightGroup() override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/LightGroupOutputInterface.h>)";
@@ -1605,9 +1657,35 @@ SlotStringStruct GeneratorNode::GetSlotModelInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->SetModel(vSceneModel);
+	})";
+	}
+	else
+	{
+		res.cpp_func += u8R"(
+)";
+	}
+
+	res.cpp_func += u8R"(
+}
+)";
+
+	res.h_func = u8R"(
+	void SetModel(SceneModelWeak vSceneModel) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/ModelInputInterface.h>)";
@@ -1629,9 +1707,32 @@ SlotStringStruct GeneratorNode::GetSlotModelOutput(NodeSlotOutputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+SceneModelWeak NODE_CLASS_NAME::GetModel()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetModel();
+	}
+)";
+	}
+
+	res.cpp_func += u8R"(
+	return SceneModelWeak();
+}
+)";
+
+	res.h_func = u8R"(
+	SceneModelWeak GetModel() override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/ModelOutputInterface.h>)";
@@ -1653,9 +1754,35 @@ SlotStringStruct GeneratorNode::GetSlotStorageBufferInput(NodeSlotInputPtr vSlot
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// STORAGE BUFFER INPUT ////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::DescriptorBufferInfo* vStorageBuffer, uint32_t* vStorageBufferSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->SetStorageBuffer(vBindingPoint, vStorageBuffer, vStorageBufferSize);
+	})";
+	}
+	else
+	{
+		res.cpp_func += u8R"(
+)";
+	}
+
+	res.cpp_func += u8R"(
+}
+)";
+
+	res.h_func = u8R"(
+	void SetStorageBuffer(const uint32_t& vBindingPoint, vk::DescriptorBufferInfo* vStorageBuffer, uint32_t* vStorageBufferSize = nullptr) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/StorageBufferInputInterface.h>)";
@@ -1677,9 +1804,32 @@ SlotStringStruct GeneratorNode::GetSlotStorageBufferOutput(NodeSlotOutputPtr vSl
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// STORAGE BUFFER OUTPUT ///////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetStorageBuffer(vBindingPoint, vOutSize);
+	}
+)";
+	}
+
+	res.cpp_func += u8R"(
+	return nullptr;
+}
+)";
+
+	res.h_func = u8R"(
+	vk::DescriptorBufferInfo* GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize = nullptr) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/StorageBufferOutputInterface.h>)";
@@ -1701,9 +1851,57 @@ SlotStringStruct GeneratorNode::GetSlotTexelBufferInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXEL BUFFER INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+void NODE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->SetTexelBuffer(vBindingPoint, vTexelBuffer, vTexelBufferSize);
+	})";
+	}
+	else
+	{
+		res.cpp_func += u8R"(
+)";
+	}
+
+	res.cpp_func += u8R"(
+}
+
+void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->SetTexelBufferView(vBindingPoint, vTexelBufferView, vTexelBufferSize);
+	})";
+	}
+	else
+	{
+		res.cpp_func += u8R"(
+)";
+	}
+
+	res.cpp_func += u8R"(
+}
+)";
+
+	res.h_func = u8R"(
+	void SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize = nullptr) override;
+	void SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize = nullptr) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/TexelBufferInputInterface.h>)";
@@ -1725,9 +1923,51 @@ SlotStringStruct GeneratorNode::GetSlotTexelBufferOutput(NodeSlotOutputPtr vSlot
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXEL BUFFER OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+vk::Buffer* NODE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetTexelBuffer(vBindingPoint, vOutSize);
+	}
+)";
+	}
+
+	res.cpp_func += u8R"(
+	return nullptr;
+}
+
+vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetTexelBufferView(vBindingPoint, vOutSize);
+	}
+)";
+	}
+
+	res.cpp_func += u8R"(
+	return nullptr;
+}
+)";
+
+	res.h_func = u8R"(
+	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
+	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/TexelBufferOutputInterface.h>)";
@@ -1777,7 +2017,7 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 )";
 
 	res.h_func = u8R"(
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;)";
+	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/TextureInputInterface.h>)";
@@ -1848,9 +2088,35 @@ SlotStringStruct GeneratorNode::GetSlotTextureGroupInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE GROUP SLOT INPUT ////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
+	})";
+	}
+	else
+	{
+		res.cpp_func += u8R"(
+)";
+	}
+
+	res.cpp_func += u8R"(
+}
+)";
+
+	res.h_func = u8R"(
+	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes = nullptr) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/TextureGroupInputInterface.h>)";
@@ -1872,9 +2138,32 @@ SlotStringStruct GeneratorNode::GetSlotTextureGroupOutput(NodeSlotOutputPtr vSlo
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE GROUP SLOT OUTPUT ///////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
+	}
+)";
+	}
+
+	res.cpp_func += u8R"(
+	return nullptr;
+}
+)";
+
+	res.h_func = u8R"(
+	DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes = nullptr) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/TextureGroupOutputInterface.h>)";
@@ -1896,9 +2185,35 @@ SlotStringStruct GeneratorNode::GetSlotVariableInput(NodeSlotInputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->SetVariable(vVarIndex, vSceneVariable);
+	})";
+	}
+	else
+	{
+		res.cpp_func += u8R"(
+)";
+	}
+
+	res.cpp_func += u8R"(
+}
+)";
+
+	res.h_func = u8R"(
+	void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/VariableInputInterface.h>)";
@@ -1923,9 +2238,32 @@ SlotStringStruct GeneratorNode::GetSlotVariableOutput(NodeSlotOutputPtr vSlot)
 {
 	SlotStringStruct res;
 
-	res.cpp_func = u8R"()";
+	res.cpp_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
-	res.h_func = u8R"()";
+SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetVariable(vVariableIndex)
+	}
+)";
+	}
+
+	res.cpp_func += u8R"(
+	return SceneVariableWeak();
+}
+)";
+
+	res.h_func = u8R"(
+	SceneVariableWeak GetVariable(const uint32_t& vVariableIndex) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/VariableOutputInterface.h>)";
@@ -1948,6 +2286,8 @@ SlotStringStruct GeneratorNode::GetSlotVariableOutput(NodeSlotOutputPtr vSlot)
 
 SlotStringStruct GeneratorNode::GetSlotCustomInput(NodeSlotInputPtr vSlot)
 {
+	CTOOL_DEBUG_BREAK;
+
 	SlotStringStruct res;
 
 	res.cpp_func = u8R"()";
@@ -1969,6 +2309,8 @@ SlotStringStruct GeneratorNode::GetSlotCustomInput(NodeSlotInputPtr vSlot)
 
 SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot)
 {
+	CTOOL_DEBUG_BREAK;
+
 	SlotStringStruct res;
 
 	res.cpp_func = u8R"()";
@@ -2407,8 +2749,7 @@ std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico)
 	std::string res;
 
 	res += u8R"(
-	// Interfaces Setters
-)";
+	// Interfaces Setters)";
 
 	for (const auto& inputSlot : m_Inputs)
 	{
@@ -2452,8 +2793,7 @@ std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico)
 	std::string res;
 
 	res += u8R"(
-	// Interfaces Getters
-)";
+	// Interfaces Getters)";
 
 	for (const auto& outputSlot : m_Outputs)
 	{
