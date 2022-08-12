@@ -280,7 +280,7 @@ void ProjectFile::GenerateGraphFiles(const std::string& vPath)
 				auto genNodePtr = std::dynamic_pointer_cast<GeneratorNode>(node.second);
 				if (genNodePtr)
 				{
-					genNodePtr->GenerateNodeClasses(vPath,this);
+					genNodePtr->GenerateNodeClasses(vPath, this);
 				}
 			}
 		}

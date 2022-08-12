@@ -519,24 +519,38 @@ void MainFrame::DrawNodeCreationPane()
 
 		if (nodePtr->m_GenerateAModule)
 		{
+			if (m_ModuleDisplayNameInputText.DisplayInputText(aw * 0.5f, "Module Display Name :", "New Node"))
+			{
+				nodePtr->m_ModuleDisplayName = m_ModuleDisplayNameInputText.GetText();
+				m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleDisplayName);
+			}
+
+			if (m_ModuleXmlNameInputText.DisplayInputText(aw * 0.5f, "Module Xml Name :", "toto_module"))
+			{
+				nodePtr->m_ModuleXmlName = m_ModuleXmlNameInputText.GetText();
+				ct::replaceString(nodePtr->m_ClassName, " ", "");
+				m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleXmlName);
+			}
+
 			ImGui::Text("Renderer Type");
 
-			if (ImGui::RadioButtonLabeled(0.0f, "Pixel 2D", nodePtr->m_RendererType == "Pixel 2D", false))
-				nodePtr->m_RendererType = "Pixel 2D";
 			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Compute 1D", nodePtr->m_RendererType == "Compute 1D", false))
-				nodePtr->m_RendererType = "Compute 1D";
-			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Compute 2D", nodePtr->m_RendererType == "Compute 2D", false))
-				nodePtr->m_RendererType = "Compute 2D";
-			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Compute 3D", nodePtr->m_RendererType == "Compute 3D", false))
-				nodePtr->m_RendererType = "Compute 3D";
-			ImGui::SameLine();
-			if (ImGui::RadioButtonLabeled(0.0f, "Rtx", nodePtr->m_RendererType == "Rtx", false))
-				nodePtr->m_RendererType = "Rtx";
-		}
 
+			if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D, nodePtr->m_RendererType == RENDERER_TYPE_PIXEL_2D, false))
+				nodePtr->m_RendererType = RENDERER_TYPE_PIXEL_2D;
+			ImGui::SameLine();
+			if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_COMPUTE_1D, nodePtr->m_RendererType == RENDERER_TYPE_COMPUTE_1D, false))
+				nodePtr->m_RendererType = RENDERER_TYPE_COMPUTE_1D;
+			ImGui::SameLine();
+			if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_COMPUTE_2D, nodePtr->m_RendererType == RENDERER_TYPE_COMPUTE_2D, false))
+				nodePtr->m_RendererType = RENDERER_TYPE_COMPUTE_2D;
+			ImGui::SameLine();
+			if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_COMPUTE_3D, nodePtr->m_RendererType == RENDERER_TYPE_COMPUTE_3D, false))
+				nodePtr->m_RendererType = RENDERER_TYPE_COMPUTE_3D;
+			ImGui::SameLine();
+			if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_RTX, nodePtr->m_RendererType == RENDERER_TYPE_RTX, false))
+				nodePtr->m_RendererType = RENDERER_TYPE_RTX;
+		}
 
 		ImGui::CheckBoxBoolDefault("Generate a Pass ?", &nodePtr->m_GenerateAPass, true);
 

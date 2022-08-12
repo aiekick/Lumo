@@ -120,6 +120,7 @@ public: // contructor
 
 	// init/unit
 	bool InitPixel(const ct::uvec2& vSize);
+	bool InitCompute1D(const uint32_t& vSize);
 	bool InitCompute2D(const ct::uvec2& vSize);
 	bool InitCompute3D(const ct::uvec3& vSize);
 	bool InitRtx(const ct::uvec2& vSize);

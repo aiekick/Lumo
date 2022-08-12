@@ -231,6 +231,57 @@ bool ShaderPass::InitPixel(
 	return m_Loaded;
 }
 
+bool ShaderPass::InitCompute1D(
+	const uint32_t& vDispatchSize)
+{
+	m_RendererType = GenericType::COMPUTE_1D;
+
+	Resize(vDispatchSize); // will update m_RenderArea and m_Viewport
+
+	ActionBeforeInit();
+
+	m_Loaded = false;
+
+	m_Device = m_VulkanCorePtr->getDevice();
+	m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+	m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+	m_CommandPool = m_Queue.cmdPools;
+
+	// ca peut ne pas compiler, masi c'est plus bloquant
+	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
+	CompilCompute();
+
+	SetDispatchSize1D(vDispatchSize);
+
+	if (BuildModel()) {
+		if (CreateSBO()) {
+			if (CreateUBO()) {
+				if (CreateRessourceDescriptor()) {
+					// si ca compile pas
+					// c'est pas bon mais on renvoi true car on va afficher 
+					// l'erreur dans le node et on pourra le corriger en editant le shader
+					CreateComputePipeline();
+
+					WasJustResized();
+
+					m_Loaded = true;
+				}
+			}
+		}
+	}
+
+	if (m_Loaded)
+	{
+		ActionAfterInitSucceed();
+	}
+	else
+	{
+		ActionAfterInitFail();
+	}
+
+	return m_Loaded;
+}
+
 bool ShaderPass::InitCompute2D(
 	const ct::uvec2& vDispatchSize,
 	const uint32_t& vCountColorBuffers,

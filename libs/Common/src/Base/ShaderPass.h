@@ -44,6 +44,7 @@ enum class GenericType : uint8_t
 {
 	NONE = 0,
 	PIXEL,				// vertex + fragment
+	COMPUTE_1D,			// compute image
 	COMPUTE_2D,			// compute image
 	COMPUTE_3D,			// compute free
 	RTX,				// compute free
@@ -175,6 +176,8 @@ public:
 		const bool& vMultiPassMode,
 		const vk::Format& vFormat = vk::Format::eR32G32B32A32Sfloat,
 		const vk::SampleCountFlagBits& vSampleCount = vk::SampleCountFlagBits::e1);
+	virtual bool InitCompute1D(
+		const uint32_t& vDispatchSize);
 	virtual bool InitCompute2D(
 		const ct::uvec2& vDispatchSize,
 		const uint32_t& vCountColorBuffers,

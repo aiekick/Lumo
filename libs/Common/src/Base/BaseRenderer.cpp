@@ -167,6 +167,48 @@ bool BaseRenderer::InitPixel(const ct::uvec2& vSize)
 	return m_Loaded;
 }
 
+bool BaseRenderer::InitCompute1D(const uint32_t& vSize)
+{
+	ZoneScoped;
+
+	ActionBeforeInit();
+
+	m_Loaded = false;
+
+	m_Device = m_VulkanCorePtr->getDevice();
+	if (vSize)
+	{
+		m_UniformSectionToShow = {"COMPUTE"}; // pour afficher les uniforms
+
+		m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
+		m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+		m_CommandPool = m_Queue.cmdPools;
+
+		if (CreateCommanBuffer()) {
+			if (CreateSyncObjects()) {
+				m_Loaded = true;
+			}
+		}
+	}
+
+	if (m_Loaded)
+	{
+		m_TracyContext = TracyVkContext(
+			m_VulkanCorePtr->getPhysicalDevice(),
+			m_Device,
+			m_Queue.vkQueue,
+			m_CommandBuffers[0]);
+
+		ActionAfterInitSucceed();
+	}
+	else
+	{
+		ActionAfterInitFail();
+	}
+
+	return m_Loaded;
+}
+
 bool BaseRenderer::InitCompute2D(const ct::uvec2& vSize)
 {
 	ZoneScoped;

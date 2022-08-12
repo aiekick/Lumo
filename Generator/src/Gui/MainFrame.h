@@ -65,6 +65,8 @@ private:
 	ImWidgets::InputText m_NodeDisplayNameInputText;
 	ImWidgets::InputText m_NodeCreationNameInputText;
 	ImWidgets::InputText m_ClassNameInputText;
+	ImWidgets::InputText m_ModuleDisplayNameInputText;
+	ImWidgets::InputText m_ModuleXmlNameInputText;
 
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 

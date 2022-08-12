@@ -122,6 +122,8 @@ bool GrayScottModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 		{
 			bool change = false;
 
+			change |= DrawResizeWidget();
+
 			if (m_GrayScottModule_Comp_Pass_Ptr)
 			{
 				change |= m_GrayScottModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
