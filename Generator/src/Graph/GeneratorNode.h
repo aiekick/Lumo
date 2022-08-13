@@ -86,7 +86,7 @@ struct SlotStringStruct
 	std::string cpp_pass_func;
 	std::string h_func;
 };
-typedef std::map<BaseTypeEnum, std::map<NodeSlot::PlaceEnum, SlotStringStruct>> SlotDico;
+typedef std::map<BaseTypeEnum, std::map<NodeSlot::PlaceEnum, std::vector<SlotStringStruct>>> SlotDico;
 
 class ProjectFile;
 class GeneratorNode : public BaseNode

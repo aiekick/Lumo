@@ -525,9 +525,18 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath, const ProjectF
 	h_node_file_code += u8R"(
 )";
 	h_node_file_code += u8R"(
+#include <Interfaces/ShaderUpdateInterface.h>
+
 class MODULE_CLASS_NAME;
 class NODE_CLASS_NAME :
 	public BaseNode,)";
+
+	h_node_file_code += GetNodeSlotsInputPublicInterfaces(slotDico);
+	h_node_file_code += GetNodeSlotsOutputPublicInterfaces(slotDico);
+	h_node_file_code += u8R"(
+	public ShaderUpdateInterface
+)";
+
 	cpp_node_file_code += u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
@@ -2690,37 +2699,48 @@ SlotDico GeneratorNode::GetSlotDico()
 			if (slotDatasPtr)
 			{
 				m_InputSlotCounter[slotDatasPtr->editorSlotTypeIndex]++;
+			}
+		}
+	}
+
+	for (const auto& inputSlot : m_Inputs)
+	{
+		if (inputSlot.second)
+		{
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+			if (slotDatasPtr)
+			{
 				switch(slotDatasPtr->editorSlotTypeIndex)
 				{
 				case BaseTypeEnum::BASE_TYPE_None: // None
-					res[BASE_TYPE_None][NodeSlot::PlaceEnum::INPUT] = GetSlotNoneInput(inputSlot.second);
+					res[BASE_TYPE_None][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotNoneInput(inputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_AccelStructure: // AccelStructure
-					res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::INPUT] = GetSlotAccelStructureInput(inputSlot.second);
+					res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotAccelStructureInput(inputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
-					res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::INPUT] = GetSlotLightGroupInput(inputSlot.second);
+					res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotLightGroupInput(inputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_Model: // Model
-					res[BASE_TYPE_Model][NodeSlot::PlaceEnum::INPUT] = GetSlotModelInput(inputSlot.second);
+					res[BASE_TYPE_Model][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotModelInput(inputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
-					res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::INPUT] = GetSlotStorageBufferInput(inputSlot.second);
+					res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotStorageBufferInput(inputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
-					res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::INPUT] = GetSlotTexelBufferInput(inputSlot.second);
+					res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTexelBufferInput(inputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_Texture: // Texture
-					res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::INPUT] = GetSlotTextureInput(inputSlot.second);
+					res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureInput(inputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
-					res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::INPUT] = GetSlotTextureGroupInput(inputSlot.second);
+					res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureGroupInput(inputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_Variable: // Variable
-					res[BASE_TYPE_Variable][NodeSlot::PlaceEnum::INPUT] = GetSlotVariableInput(inputSlot.second);
+					res[BASE_TYPE_Variable][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotVariableInput(inputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_Custom: // Custom
-					res[BASE_TYPE_Custom][NodeSlot::PlaceEnum::INPUT] = GetSlotCustomInput(inputSlot.second);
+					res[BASE_TYPE_Custom][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotCustomInput(inputSlot.second));
 					break;
 				}
 				
@@ -2736,37 +2756,48 @@ SlotDico GeneratorNode::GetSlotDico()
 			if (slotDatasPtr)
 			{
 				m_OutputSlotCounter[slotDatasPtr->editorSlotTypeIndex]++;
+			}
+		}
+	}
+
+	for (const auto& outputSlot : m_Outputs)
+	{
+		if (outputSlot.second)
+		{
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+			if (slotDatasPtr)
+			{
 				switch (slotDatasPtr->editorSlotTypeIndex)
 				{
 				case BaseTypeEnum::BASE_TYPE_None: // None
-					res[BASE_TYPE_None][NodeSlot::PlaceEnum::OUTPUT] = GetSlotNoneOutput(outputSlot.second);
+					res[BASE_TYPE_None][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotNoneOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_AccelStructure: // AccelStructure
-					res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::OUTPUT] = GetSlotAccelStructureOutput(outputSlot.second);
+					res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotAccelStructureOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
-					res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::OUTPUT] = GetSlotLightGroupOutput(outputSlot.second);
+					res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotLightGroupOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_Model: // Model
-					res[BASE_TYPE_Model][NodeSlot::PlaceEnum::OUTPUT] = GetSlotModelOutput(outputSlot.second);
+					res[BASE_TYPE_Model][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotModelOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
-					res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::OUTPUT] = GetSlotStorageBufferOutput(outputSlot.second);
+					res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotStorageBufferOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
-					res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::OUTPUT] = GetSlotTexelBufferOutput(outputSlot.second);
+					res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTexelBufferOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_Texture: // Texture
-					res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::OUTPUT] = GetSlotTextureOutput(outputSlot.second);
+					res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
-					res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::OUTPUT] = GetSlotTextureGroupOutput(outputSlot.second);
+					res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureGroupOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_Variable: // Variable
-					res[BASE_TYPE_Variable][NodeSlot::PlaceEnum::OUTPUT] = GetSlotVariableOutput(outputSlot.second);
+					res[BASE_TYPE_Variable][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotVariableOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_Custom: // Custom
-					res[BASE_TYPE_Custom][NodeSlot::PlaceEnum::OUTPUT] = GetSlotCustomOutput(outputSlot.second);
+					res[BASE_TYPE_Custom][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotCustomOutput(outputSlot.second));
 					break;
 				}
 			}
@@ -2791,7 +2822,7 @@ SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot)
 	res.include_slot = u8R"()";
 	res.node_module_public_interface = u8R"()";
 	res.pass_public_interface = u8R"()";
-	res.node_slot_func = u8R"()";
+	res.node_slot_func += u8R"()";
 
 	return res;
 }
@@ -2810,7 +2841,7 @@ SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot)
 	res.include_slot = u8R"()";
 	res.node_module_public_interface = u8R"()";
 	res.pass_public_interface = u8R"()";
-	res.node_slot_func = u8R"()";
+	res.node_slot_func += u8R"()";
 
 	return res;
 }
@@ -2913,7 +2944,7 @@ void PASS_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStruc
 	res.pass_public_interface = u8R"(
 	public AccelStructureInputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotAccelStructureInput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -3100,7 +3131,7 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetBufferAddressInfo()
 	res.pass_public_interface = u8R"(
 	public AccelStructureOutputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotAccelStructureOutput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -3216,7 +3247,7 @@ void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	res.pass_public_interface = u8R"(
 	public LightGroupInputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotLightGroupInput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -3315,7 +3346,7 @@ SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
 	res.pass_public_interface = u8R"(
 	public LightGroupOutputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotLightGroupOutput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -3420,7 +3451,7 @@ void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 	res.pass_public_interface = u8R"(
 	public ModelInputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotModelInput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -3519,7 +3550,7 @@ SceneModelWeak NODE_CLASS_NAME::GetModel()
 	res.pass_public_interface = u8R"(
 	public ModelOutputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotModelOutput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -3642,7 +3673,7 @@ void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 	res.pass_public_interface = ct::toStr(u8R"(
 	public StorageBufferInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer]);
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotStorageBufferInput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -3741,7 +3772,7 @@ vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 	res.pass_public_interface = u8R"(
 	public StorageBufferOutputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotStorageBufferOutput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -3932,7 +3963,7 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 	res.pass_public_interface = ct::toStr(u8R"(
 	public TexelBufferInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer]);
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotTexelBufferInput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -4075,7 +4106,7 @@ vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 	res.pass_public_interface = u8R"(
 	public TexelBufferOutputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotTexelBufferOutput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -4198,7 +4229,7 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 	res.pass_public_interface = ct::toStr(u8R"(
 	public TextureInputInterface<%u>,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotTextureInput::Create("%s", %u), false, %s);)",
 		vSlot->name.c_str(),
 		vSlot->descriptorBinding,
@@ -4330,9 +4361,9 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 	res.pass_public_interface = u8R"(
 	public TextureOutputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
-	AddOutput(NodeSlotTextureGroupOutput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+	res.node_slot_func += ct::toStr(u8R"(
+	AddOutput(NodeSlotTextureOutput::Create("%s", %u), false, %s);)",
+		vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -4453,7 +4484,7 @@ void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 	res.pass_public_interface = ct::toStr(u8R"(
 	public TextureGroupInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup]);
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotTextureGroupInput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -4552,7 +4583,7 @@ DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32
 	res.pass_public_interface = u8R"(
 	public TextureGroupOutputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotTextureGroupOutput::Create("%s"), false, %s);)",
 		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
@@ -4660,7 +4691,7 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 	res.pass_public_interface = ct::toStr(u8R"(
 	public VariableInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Variable]);
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotVariableInput::Create("%s", %s, %u), false, %s);)",
 		vSlot->name.c_str(),
 		vSlot->slotType.c_str(),
@@ -4762,7 +4793,7 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 	res.pass_public_interface = u8R"(
 	public VariableOutputInterface,)";
 
-	res.node_slot_func = ct::toStr(u8R"(
+	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotVariableOutput::Create("%s", %s, %u), false, %s);)",
 		vSlot->name.c_str(),
 		vSlot->slotType.c_str(),
@@ -4786,7 +4817,7 @@ SlotStringStruct GeneratorNode::GetSlotCustomInput(NodeSlotInputPtr vSlot)
 	res.include_slot = u8R"()";
 	res.node_module_public_interface = u8R"()";
 	res.pass_public_interface = u8R"()";
-	res.node_slot_func = u8R"()";
+	res.node_slot_func += u8R"()";
 
 	return res;
 }
@@ -4805,7 +4836,7 @@ SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot)
 	res.include_slot = u8R"()";
 	res.node_module_public_interface = u8R"()";
 	res.pass_public_interface = u8R"()";
-	res.node_slot_func = u8R"()";
+	res.node_slot_func += u8R"()";
 
 	return res;
 }
@@ -4818,6 +4849,8 @@ std::string GeneratorNode::GetNodeSlotsInputFuncs(const SlotDico& vDico)
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& inputSlot : m_Inputs)
 	{
 		if (inputSlot.second)
@@ -4833,20 +4866,28 @@ std::string GeneratorNode::GetNodeSlotsInputFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).node_slot_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							for (auto item : vDico.at(type).at(NodeSlot::PlaceEnum::INPUT))
+							{
+								res += item.node_slot_func;
+							}
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -4859,6 +4900,8 @@ std::string GeneratorNode::GetNodeSlotsOutputFuncs(const SlotDico& vDico)
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& outputSlot : m_Outputs)
 	{
 		if (outputSlot.second)
@@ -4874,20 +4917,28 @@ std::string GeneratorNode::GetNodeSlotsOutputFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).node_slot_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							for (auto item : vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT))
+							{
+								res += item.node_slot_func;
+							}
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -4900,6 +4951,8 @@ std::string GeneratorNode::GetNodeSlotsInputPublicInterfaces(const SlotDico& vDi
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& inputSlot : m_Inputs)
 	{
 		if (inputSlot.second)
@@ -4915,20 +4968,25 @@ std::string GeneratorNode::GetNodeSlotsInputPublicInterfaces(const SlotDico& vDi
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).node_module_public_interface;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].node_module_public_interface;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -4941,6 +4999,8 @@ std::string GeneratorNode::GetNodeSlotsOutputPublicInterfaces(const SlotDico& vD
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& outputSlot : m_Outputs)
 	{
 		if (outputSlot.second)
@@ -4956,20 +5016,25 @@ std::string GeneratorNode::GetNodeSlotsOutputPublicInterfaces(const SlotDico& vD
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).node_module_public_interface;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].node_module_public_interface;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -4982,6 +5047,8 @@ std::string GeneratorNode::GetNodeSlotsInputIncludesSlots(const SlotDico& vDico)
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& inputSlot : m_Inputs)
 	{
 		if (inputSlot.second)
@@ -4997,20 +5064,25 @@ std::string GeneratorNode::GetNodeSlotsInputIncludesSlots(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).include_slot;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].include_slot;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5023,6 +5095,8 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& outputSlot : m_Outputs)
 	{
 		if (outputSlot.second)
@@ -5038,20 +5112,25 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).include_slot;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].include_slot;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5064,6 +5143,8 @@ std::string GeneratorNode::GetNodeSlotsInputIncludesInterfaces(const SlotDico& v
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& inputSlot : m_Inputs)
 	{
 		if (inputSlot.second)
@@ -5079,20 +5160,25 @@ std::string GeneratorNode::GetNodeSlotsInputIncludesInterfaces(const SlotDico& v
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).include_interface;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].include_interface;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5105,6 +5191,8 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesInterfaces(const SlotDico& 
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& outputSlot : m_Outputs)
 	{
 		if (outputSlot.second)
@@ -5120,20 +5208,25 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesInterfaces(const SlotDico& 
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).include_interface;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].include_interface;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5145,6 +5238,8 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesInterfaces(const SlotDico& 
 std::string GeneratorNode::GetNodeSlotsInputCppFuncs(const SlotDico& vDico)
 {
 	std::string res;
+
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
 
 	for (const auto& inputSlot : m_Inputs)
 	{
@@ -5161,20 +5256,25 @@ std::string GeneratorNode::GetNodeSlotsInputCppFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).cpp_node_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].cpp_node_func;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5186,6 +5286,8 @@ std::string GeneratorNode::GetNodeSlotsInputCppFuncs(const SlotDico& vDico)
 std::string GeneratorNode::GetNodeSlotsOutputCppFuncs(const SlotDico& vDico)
 {
 	std::string res;
+
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
 
 	for (const auto& outputSlot : m_Outputs)
 	{
@@ -5202,20 +5304,25 @@ std::string GeneratorNode::GetNodeSlotsOutputCppFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).cpp_node_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].cpp_node_func;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5231,6 +5338,8 @@ std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico)
 	res += u8R"(
 	// Interfaces Setters)";
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& inputSlot : m_Inputs)
 	{
 		if (inputSlot.second)
@@ -5246,20 +5355,25 @@ std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).h_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].h_func;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5275,6 +5389,8 @@ std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico)
 	res += u8R"(
 	// Interfaces Getters)";
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& outputSlot : m_Outputs)
 	{
 		if (outputSlot.second)
@@ -5290,20 +5406,25 @@ std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).h_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].h_func;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5316,6 +5437,8 @@ std::string GeneratorNode::GetModuleInputCppFuncs(const SlotDico& vDico)
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& inputSlot : m_Inputs)
 	{
 		if (inputSlot.second)
@@ -5331,20 +5454,25 @@ std::string GeneratorNode::GetModuleInputCppFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).cpp_module_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].cpp_module_func;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5357,6 +5485,8 @@ std::string GeneratorNode::GetModuleOutputCppFuncs(const SlotDico& vDico)
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& outputSlot : m_Outputs)
 	{
 		if (outputSlot.second)
@@ -5372,20 +5502,25 @@ std::string GeneratorNode::GetModuleOutputCppFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).cpp_module_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].cpp_module_func;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5398,6 +5533,8 @@ std::string GeneratorNode::GetPassInputPublicInterfaces(const SlotDico& vDico)
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& inputSlot : m_Inputs)
 	{
 		if (inputSlot.second)
@@ -5413,20 +5550,25 @@ std::string GeneratorNode::GetPassInputPublicInterfaces(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).pass_public_interface;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].pass_public_interface;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5439,6 +5581,8 @@ std::string GeneratorNode::GetPassInputCppFuncs(const SlotDico& vDico)
 {
 	std::string res;
 
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
+
 	for (const auto& inputSlot : m_Inputs)
 	{
 		if (inputSlot.second)
@@ -5454,20 +5598,25 @@ std::string GeneratorNode::GetPassInputCppFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).cpp_pass_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].cpp_pass_func;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}
@@ -5479,6 +5628,8 @@ std::string GeneratorNode::GetPassInputCppFuncs(const SlotDico& vDico)
 std::string GeneratorNode::GetPassOutputCppFuncs(const SlotDico& vDico)
 {
 	std::string res;
+
+	std::set<BaseTypeEnum> _alreadyKnowTypes;
 
 	for (const auto& outputSlot : m_Outputs)
 	{
@@ -5495,20 +5646,25 @@ std::string GeneratorNode::GetPassOutputCppFuncs(const SlotDico& vDico)
 					continue;
 				}
 
-				if (vDico.find(type) != vDico.end())
+				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
 				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					if (vDico.find(type) != vDico.end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).cpp_pass_func;
+						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+						{
+							_alreadyKnowTypes.emplace(type);
+
+							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].cpp_pass_func;
+						}
+						else
+						{
+							CTOOL_DEBUG_BREAK;
+						}
 					}
 					else
 					{
 						CTOOL_DEBUG_BREAK;
 					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
 				}
 			}
 		}

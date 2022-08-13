@@ -513,6 +513,13 @@ void MainFrame::DrawNodeCreationPane()
 			m_ClassNameInputText.SetText(nodePtr->m_ClassName);
 		}
 
+		if (m_NodeCategoryNameInputText.DisplayInputText(aw * 0.5f, "Category name :", "TestNodes"))
+		{
+			nodePtr->m_CategoryName = m_NodeCategoryNameInputText.GetText();
+			ct::replaceString(nodePtr->m_CategoryName, " ", "");
+			m_NodeCategoryNameInputText.SetText(nodePtr->m_CategoryName);
+		}
+		
 		ImGui::Separator();
 
 		ImGui::CheckBoxBoolDefault("Generate a Module ?", &nodePtr->m_GenerateAModule, true);
@@ -528,8 +535,8 @@ void MainFrame::DrawNodeCreationPane()
 			if (m_ModuleXmlNameInputText.DisplayInputText(aw * 0.5f, "Module Xml Name :", "toto_module"))
 			{
 				nodePtr->m_ModuleXmlName = m_ModuleXmlNameInputText.GetText();
-				ct::replaceString(nodePtr->m_ClassName, " ", "");
-				m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleXmlName);
+				ct::replaceString(nodePtr->m_ModuleXmlName, " ", "");
+				m_ModuleXmlNameInputText.SetText(nodePtr->m_ModuleXmlName);
 			}
 
 			ImGui::Text("Renderer Type");
@@ -597,7 +604,10 @@ void MainFrame::SelectNode(const BaseNodeWeak& vNode)
 
 		m_NodeDisplayNameInputText.SetText(nodePtr->m_NodeDisplayName);
 		m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
+		m_NodeCategoryNameInputText.SetText(nodePtr->m_CategoryName);
 		m_ClassNameInputText.SetText(nodePtr->m_ClassName);
+		m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleDisplayName);
+		m_ModuleXmlNameInputText.SetText(nodePtr->m_ModuleXmlName);
 
 		if (currentNodePtr && nodePtr != currentNodePtr)
 		{

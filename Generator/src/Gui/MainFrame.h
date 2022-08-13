@@ -64,6 +64,7 @@ private:
 	NodeSlotOutputWeak m_SelectedNodeSlotOutput;
 	ImWidgets::InputText m_NodeDisplayNameInputText;
 	ImWidgets::InputText m_NodeCreationNameInputText;
+	ImWidgets::InputText m_NodeCategoryNameInputText;
 	ImWidgets::InputText m_ClassNameInputText;
 	ImWidgets::InputText m_ModuleDisplayNameInputText;
 	ImWidgets::InputText m_ModuleXmlNameInputText;
