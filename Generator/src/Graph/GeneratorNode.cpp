@@ -1141,7 +1141,8 @@ bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 {
 	ZoneScoped;
 
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContext); 
+	ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -1274,6 +1275,98 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 }
 )";
 
+	/////////////////////////////////////////////////////////////////
+	////// HEADER ///////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
+	h_module_file_code += GetLicenceHeader();
+	h_module_file_code += u8R"(
+
+#pragma once
+
+#include <set>
+#include <array>
+#include <string>
+#include <memory>
+
+#include <Headers/Globals.h>
+
+#include <ctools/cTools.h>
+#include <ctools/ConfigAbstract.h>
+
+#include <Base/BaseRenderer.h>
+#include <Base/QuadShaderPass.h>
+
+#include <vulkan/vulkan.hpp>
+#include <vkFramework/Texture2D.h>
+#include <vkFramework/VulkanCore.h>
+#include <vkFramework/VulkanDevice.h>
+#include <vkFramework/vk_mem_alloc.h>
+#include <vkFramework/VulkanShader.h>
+#include <vkFramework/ImGuiTexture.h>
+#include <vkFramework/VulkanRessource.h>
+#include <vkFramework/VulkanFrameBuffer.h>
+)";
+
+	h_module_file_code += u8R"(
+#include <Interfaces/GuiInterface.h>
+#include <Interfaces/TaskInterface.h>
+#include <Interfaces/ResizerInterface.h>
+)";
+	h_module_file_code += GetNodeSlotsInputIncludesSlots(vDico);
+
+	h_module_file_code += u8R"(
+)";
+	h_module_file_code += GetNodeSlotsOutputIncludesSlots(vDico);
+	h_module_file_code += u8R"(
+class PASS_CLASS_NAME;
+class MODULE_CLASS_NAME :
+	public BaseRenderer,
+	public GuiInterface,
+	public TaskInterface,
+	public ResizerInterface,)";
+	h_module_file_code += GetNodeSlotsInputPublicInterfaces(vDico);
+	h_module_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
+	h_module_file_code += u8R"(
+{
+public:
+	static std::shared_ptr<MODULE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+
+private:
+	ct::cWeak<MODULE_CLASS_NAME> m_This;)";
+	if (m_GenerateAPass)
+	{
+		h_module_file_code += u8R"(
+	std::shared_ptr<PASS_CLASS_NAME> m_PASS_CLASS_NAME_Ptr = nullptr;
+)";
+	}
+
+	h_module_file_code += u8R"(
+public:
+	MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~MODULE_CLASS_NAME() override;
+
+	bool Init();
+
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
+	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
+	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+)";
+	h_module_file_code += GetNodeSlotsInputHFuncs(vDico);
+	h_module_file_code += u8R"(
+)";
+	h_module_file_code += GetNodeSlotsOutputHFuncs(vDico);
+	h_module_file_code += u8R"(
+
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+};
+)";
+
 	ct::replaceString(cpp_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
 	ct::replaceString(h_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
 
@@ -1297,6 +1390,11 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 
 	FileHelper::Instance()->SaveStringToFile(cpp_module_file_code, cpp_module_file_name);
 	FileHelper::Instance()->SaveStringToFile(h_module_file_code, h_module_file_name);
+
+	if (m_GenerateAPass)
+	{
+		GeneratePasses(vPath, vDatas, vDico);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1305,7 +1403,517 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 
 void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico)
 {
+	std::string module_class_name = m_ClassName + "Module";
+	std::string cpp_module_file_name = module_class_name + ".cpp";
+	std::string h_module_file_name = module_class_name + ".h";
 
+	std::string pass_renderer_display_type = GetRendererDisplayName();
+	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "_Pass";
+	std::string cpp_pass_file_name = pass_class_name + ".cpp";
+	std::string h_pass_file_name = pass_class_name + ".h";
+
+	std::string cpp_module_file_code;
+	std::string h_module_file_code;
+
+	cpp_module_file_code += GetLicenceHeader();
+	h_module_file_code += GetLicenceHeader();
+	cpp_module_file_code += GetPVSStudioHeader();
+
+	// MODULE_XML_NAME							grayscott_module_sim
+	// MODULE_DISPLAY_NAME						Gray Scott
+	// MODULE_CATEGORY_NAME						Simulation
+	// MODULE_CLASS_NAME		
+	// PASS_CLASS_NAME
+	// MODULE_RENDERER_INIT_FUNC				InitCompute2D
+	// RENDERER_DISPLAY_TYPE (ex (Comp)			Comp
+
+	cpp_module_file_code += u8R"(
+#include "MODULE_CLASS_NAME.h"
+
+#include <cinttypes>
+#include <functional>
+#include <ctools/Logger.h>
+#include <ctools/FileHelper.h>
+#include <ImWidgets/ImWidgets.h>
+#include <Systems/CommonSystem.h>
+#include <Profiler/vkProfiler.hpp>
+#include <vkFramework/VulkanCore.h>
+#include <vkFramework/VulkanShader.h>
+#include <vkFramework/VulkanSubmitter.h>
+#include <utils/Mesh/VertexStruct.h>
+#include <Base/FrameBuffer.h>
+)";
+	if (m_GenerateAPass)
+	{
+		cpp_module_file_code += u8R"(
+#include <Modules/MODULE_CATEGORY_NAME/Pass/PASS_CLASS_NAME.h>
+)";
+	}
+
+	cpp_module_file_code += u8R"(
+using namespace vkApi;
+
+//////////////////////////////////////////////////////////////
+//// STATIC //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+{
+	ZoneScoped;
+
+	if (!vVulkanCorePtr) return nullptr;
+	auto res = std::make_shared<MODULE_CLASS_NAME>(vVulkanCorePtr);
+	res->m_This = res;
+	if (!res->Init())
+	{
+		res.reset();
+	}
+	return res;
+}
+
+//////////////////////////////////////////////////////////////
+//// CTOR / DTOR /////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+MODULE_CLASS_NAME::MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: BaseRenderer(vVulkanCorePtr)
+{
+	ZoneScoped;
+}
+
+MODULE_CLASS_NAME::~MODULE_CLASS_NAME()
+{
+	ZoneScoped;
+
+	Unit();
+}
+
+//////////////////////////////////////////////////////////////
+//// INIT / UNIT /////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+bool MODULE_CLASS_NAME::Init()
+{
+	ZoneScoped;
+
+	m_Loaded = false;
+
+)";
+
+	if (m_GenerateAPass)
+	{
+		if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+		{
+			cpp_module_file_code += u8R"(
+
+	ct::uvec2 map_size = 512;
+
+	if (BaseRenderer::InitPixel(map_size))
+	{
+		//SetExecutionWhenNeededOnly(true);
+
+		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr)
+		{
+			// by default but can be changed via widget
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+
+			if (m_PASS_CLASS_NAME_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+			{
+				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+				m_Loaded = true;
+			}
+		}
+	}
+)";
+		}
+		else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
+		{
+			cpp_module_file_code += u8R"(
+
+	uint32_t map_size = 512;
+
+	if (BaseRenderer::InitCompute1D(map_size))
+	{
+		//SetExecutionWhenNeededOnly(true);
+
+		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr)
+		{
+			// by default but can be changed via widget
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+
+			if (m_PASS_CLASS_NAME_Ptr->InitCompute1D(map_size))
+			{
+				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+				m_Loaded = true;
+			}
+		}
+	}
+)";
+		}
+		else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
+		{
+			cpp_module_file_code += u8R"(
+
+	ct::uvec2 map_size = 512;
+
+	if (BaseRenderer::InitCompute2D(map_size))
+	{
+		//SetExecutionWhenNeededOnly(true);
+
+		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr)
+		{
+			// by default but can be changed via widget
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+
+			if (m_PASS_CLASS_NAME_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			{
+				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+				m_Loaded = true;
+			}
+		}
+	}
+)";
+		}
+		else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+		{
+			cpp_module_file_code += u8R"(
+
+	ct::uvec3 map_size = 512;
+
+	if (BaseRenderer::InitCompute3D(map_size))
+	{
+		//SetExecutionWhenNeededOnly(true);
+
+		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr)
+		{
+			// by default but can be changed via widget
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+
+			if (m_PASS_CLASS_NAME_Ptr->InitCompute3D(map_size))
+			{
+				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+				m_Loaded = true;
+			}
+		}
+	}
+)";
+		}
+		else if (m_RendererType == RENDERER_TYPE_RTX)
+		{
+			cpp_module_file_code += u8R"(
+
+	ct::uvec2 map_size = 512;
+
+	if (BaseRenderer::InitRtx(map_size))
+	{
+		//SetExecutionWhenNeededOnly(true);
+
+		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr)
+		{
+			// by default but can be changed via widget
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+
+			if (m_PASS_CLASS_NAME_Ptr->InitRtx(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			{
+				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+				m_Loaded = true;
+			}
+		}
+	}
+)";
+		}
+	}
+
+	cpp_module_file_code += u8R"(
+	return m_Loaded;
+}
+
+//////////////////////////////////////////////////////////////
+//// OVERRIDES ///////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+bool MODULE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+{
+	ZoneScoped;
+
+	BaseRenderer::Render("MODULE_DISPLAY_NAME", vCmd);
+
+	return true;
+}
+
+bool MODULE_CLASS_NAME::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+{
+	ZoneScoped;
+
+	BaseRenderer::Render("MODULE_DISPLAY_NAME", vCmd);
+
+	return true;
+}
+
+bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+{
+	ZoneScoped;
+
+	assert(vContext); 
+	ImGui::SetCurrentContext(vContext);
+
+	if (m_LastExecutedFrame == vCurrentFrame)
+	{
+		if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME", -1.0f, true, true, &m_CanWeRender))
+		{
+			bool change = false;
+
+			change |= DrawResizeWidget();
+)";
+	if (m_GenerateAPass)
+	{
+		cpp_module_file_code += u8R"(
+			if (m_PASS_CLASS_NAME_Ptr)
+			{
+				change |= m_PASS_CLASS_NAME_Ptr->DrawWidgets(vCurrentFrame, vContext);
+			}
+)";
+	}
+
+	cpp_module_file_code += u8R"(
+			return change;
+		}
+	}
+
+	return false;
+}
+
+void MODULE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+{
+	ZoneScoped;
+
+	assert(vContext); 
+	ImGui::SetCurrentContext(vContext);
+
+	if (m_LastExecutedFrame == vCurrentFrame)
+	{
+
+	}
+}
+
+void MODULE_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+{
+	ZoneScoped;
+
+	assert(vContext); 
+	ImGui::SetCurrentContext(vContext);
+
+	if (m_LastExecutedFrame == vCurrentFrame)
+	{
+
+	}
+}
+
+void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+{
+	ZoneScoped;
+
+	// do some code
+	
+	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+}
+)";
+	cpp_module_file_code += GetModuleInputCppFuncs(vDico);
+	cpp_module_file_code += GetModuleOutputCppFuncs(vDico);
+	cpp_module_file_code += u8R"(
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
+{
+	ZoneScoped;
+
+	std::string str;
+
+	str += vOffset + "<MODULE_XML_NAME>\n";
+
+	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+)";
+	if (m_GenerateAPass)
+	{
+		cpp_module_file_code += u8R"(
+	if (m_PASS_CLASS_NAME_Ptr)
+	{
+		str += m_PASS_CLASS_NAME_Ptr->getXml(vOffset + "\t", vUserDatas);
+	}
+)";
+	}
+
+	cpp_module_file_code += u8R"(
+	str += vOffset + "</MODULE_XML_NAME>\n";
+
+	return str;
+}
+
+bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+{
+	ZoneScoped;
+
+	// The value of this child identifies the name of this element
+	std::string strName;
+	std::string strValue;
+	std::string strParentName;
+
+	strName = vElem->Value();
+	if (vElem->GetText())
+		strValue = vElem->GetText();
+	if (vParent != nullptr)
+		strParentName = vParent->Value();
+
+	if (strParentName == "MODULE_XML_NAME")
+	{
+		if (strName == "can_we_render")
+			m_CanWeRender = ct::ivariant(strValue).GetB();
+	}
+)";
+	if (m_GenerateAPass)
+	{
+		cpp_module_file_code += u8R"(
+	if (m_PASS_CLASS_NAME_Ptr)
+	{
+		m_PASS_CLASS_NAME_Ptr->setFromXml(vElem, vParent, vUserDatas);
+	}
+)";
+	}
+
+	cpp_module_file_code += u8R"(
+	return true;
+}
+)";
+
+	/////////////////////////////////////////////////////////////////
+	////// HEADER ///////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////
+	h_module_file_code += GetLicenceHeader();
+	h_module_file_code += u8R"(
+
+#pragma once
+
+#include <set>
+#include <array>
+#include <string>
+#include <memory>
+
+#include <Headers/Globals.h>
+
+#include <ctools/cTools.h>
+#include <ctools/ConfigAbstract.h>
+
+#include <Base/BaseRenderer.h>
+#include <Base/QuadShaderPass.h>
+
+#include <vulkan/vulkan.hpp>
+#include <vkFramework/Texture2D.h>
+#include <vkFramework/VulkanCore.h>
+#include <vkFramework/VulkanDevice.h>
+#include <vkFramework/vk_mem_alloc.h>
+#include <vkFramework/VulkanShader.h>
+#include <vkFramework/ImGuiTexture.h>
+#include <vkFramework/VulkanRessource.h>
+#include <vkFramework/VulkanFrameBuffer.h>
+)";
+
+	h_module_file_code += u8R"(
+#include <Interfaces/GuiInterface.h>
+#include <Interfaces/TaskInterface.h>
+#include <Interfaces/ResizerInterface.h>
+)";
+	h_module_file_code += GetNodeSlotsInputIncludesSlots(vDico);
+
+	h_module_file_code += u8R"(
+)";
+	h_module_file_code += GetNodeSlotsOutputIncludesSlots(vDico);
+	h_module_file_code += u8R"(
+class PASS_CLASS_NAME;
+class MODULE_CLASS_NAME :
+	public BaseRenderer,
+	public GuiInterface,
+	public TaskInterface,
+	public ResizerInterface,)";
+	h_module_file_code += GetNodeSlotsInputPublicInterfaces(vDico);
+	h_module_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
+	h_module_file_code += u8R"(
+{
+public:
+	static std::shared_ptr<MODULE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+
+private:
+	ct::cWeak<MODULE_CLASS_NAME> m_This;)";
+	if (m_GenerateAPass)
+	{
+		h_module_file_code += u8R"(
+	std::shared_ptr<PASS_CLASS_NAME> m_PASS_CLASS_NAME_Ptr = nullptr;
+)";
+	}
+
+	h_module_file_code += u8R"(
+public:
+	MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~MODULE_CLASS_NAME() override;
+
+	bool Init();
+
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
+	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
+	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+)";
+	h_module_file_code += GetNodeSlotsInputHFuncs(vDico);
+	h_module_file_code += u8R"(
+)";
+	h_module_file_code += GetNodeSlotsOutputHFuncs(vDico);
+	h_module_file_code += u8R"(
+
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+};
+)";
+
+	ct::replaceString(cpp_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
+	ct::replaceString(h_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
+
+	ct::replaceString(cpp_module_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
+	ct::replaceString(h_module_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
+
+	ct::replaceString(cpp_module_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
+	ct::replaceString(h_module_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
+
+	ct::replaceString(cpp_module_file_code, "MODULE_CLASS_NAME", module_class_name);
+	ct::replaceString(h_module_file_code, "MODULE_CLASS_NAME", module_class_name);
+
+	ct::replaceString(cpp_module_file_code, "PASS_CLASS_NAME", pass_class_name);
+	ct::replaceString(h_module_file_code, "PASS_CLASS_NAME", pass_class_name);
+
+	ct::replaceString(cpp_module_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
+	ct::replaceString(h_module_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
+
+	ct::replaceString(cpp_module_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
+	ct::replaceString(h_module_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
+
+	FileHelper::Instance()->SaveStringToFile(cpp_module_file_code, cpp_module_file_name);
+	FileHelper::Instance()->SaveStringToFile(h_module_file_code, h_module_file_name);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1487,7 +2095,8 @@ SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot)
 	res.h_func = u8R"()";
 	res.include_interface = u8R"()";
 	res.include_slot = u8R"()";
-	res.node_public_interface = u8R"()";
+	res.node_module_public_interface = u8R"()";
+	res.pass_public_interface = u8R"()";
 	res.node_slot_func = u8R"()";
 
 	return res;
@@ -1505,7 +2114,8 @@ SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot)
 	res.h_func = u8R"()";
 	res.include_interface = u8R"()";
 	res.include_slot = u8R"()";
-	res.node_public_interface = u8R"()";
+	res.node_module_public_interface = u8R"()";
+	res.pass_public_interface = u8R"()";
 	res.node_slot_func = u8R"()";
 
 	return res;
@@ -1614,7 +2224,10 @@ void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotLightGroupInput.h>)";
 
-	res.node_public_interface = u8R"(
+	res.node_module_public_interface = u8R"(
+	public LightGroupInputInterface,)";
+
+	res.pass_public_interface = u8R"(
 	public LightGroupInputInterface,)";
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -1710,7 +2323,10 @@ SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotLightGroupOutput.h>)";
 
-	res.node_public_interface = u8R"(
+	res.node_module_public_interface = u8R"(
+	public LightGroupOutputInterface,)";
+
+	res.pass_public_interface = u8R"(
 	public LightGroupOutputInterface,)";
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -1812,7 +2428,10 @@ void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotModelInput.h>)";
 
-	res.node_public_interface = u8R"(
+	res.node_module_public_interface = u8R"(
+	public ModelInputInterface,)";
+
+	res.pass_public_interface = u8R"(
 	public ModelInputInterface,)";
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -1908,7 +2527,10 @@ SceneModelWeak NODE_CLASS_NAME::GetModel()
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotModelOutput.h>)";
 
-	res.node_public_interface = u8R"(
+	res.node_module_public_interface = u8R"(
+	public ModelOutputInterface,)";
+
+	res.pass_public_interface = u8R"(
 	public ModelOutputInterface,)";
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -2010,8 +2632,11 @@ void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotStorageBufferInput.h>)";
 
-	res.node_public_interface = u8R"(
-	public StorageBufferInputInterface,)";
+	res.node_module_public_interface = u8R"(
+	public StorageBufferInputInterface<0U>,)";
+
+	res.pass_public_interface = ct::toStr(u8R"(
+	public StorageBufferInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer]);
 
 	res.node_slot_func = ct::toStr(u8R"(
 	AddInput(NodeSlotStorageBufferInput::Create("%s"), false, %s);)",
@@ -2106,7 +2731,10 @@ vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotStorageBufferOutput.h>)";
 
-	res.node_public_interface = u8R"(
+	res.node_module_public_interface = u8R"(
+	public StorageBufferOutputInterface,)";
+
+	res.pass_public_interface = u8R"(
 	public StorageBufferOutputInterface,)";
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -2258,8 +2886,11 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotTexelBufferInput.h>)";
 
-	res.node_public_interface = u8R"(
-	public TexelBufferInputInterface,)";
+	res.node_module_public_interface = u8R"(
+	public TexelBufferInputInterface<0U>,)";
+
+	res.pass_public_interface = ct::toStr(u8R"(
+	public TexelBufferInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer]);
 
 	res.node_slot_func = ct::toStr(u8R"(
 	AddInput(NodeSlotTexelBufferInput::Create("%s"), false, %s);)",
@@ -2398,7 +3029,10 @@ vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotTexelBufferOutput.h>)";
 
-	res.node_public_interface = u8R"(
+	res.node_module_public_interface = u8R"(
+	public TexelBufferOutputInterface,)";
+
+	res.pass_public_interface = u8R"(
 	public TexelBufferOutputInterface,)";
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -2499,7 +3133,10 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotTextureInput.h>)";
 
-	res.node_public_interface = ct::toStr(u8R"(
+	res.node_module_public_interface = u8R"(
+	public TextureInputInterface<0U>,)";
+
+	res.pass_public_interface = ct::toStr(u8R"(
 	public TextureInputInterface<%u>,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -2597,7 +3234,10 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotTextureOutput.h>)";
 
-	res.node_public_interface = u8R"(
+	res.node_module_public_interface = u8R"(
+	public TextureOutputInterface,)";
+
+	res.pass_public_interface = u8R"(
 	public TextureOutputInterface,)";
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -2699,8 +3339,11 @@ void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotTextureGroupInput.h>)";
 
-	res.node_public_interface = u8R"(
-	public TextureGroupInputInterface,)";
+	res.node_module_public_interface = u8R"(
+	public TextureGroupInputInterface<0U>,)";
+
+	res.pass_public_interface = ct::toStr(u8R"(
+	public TextureGroupInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup]);
 
 	res.node_slot_func = ct::toStr(u8R"(
 	AddInput(NodeSlotTextureGroupInput::Create("%s"), false, %s);)",
@@ -2795,7 +3438,10 @@ DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotTextureGroupOutput.h>)";
 
-	res.node_public_interface = u8R"(
+	res.node_module_public_interface = u8R"(
+	public TextureGroupOutputInterface,)";
+
+	res.pass_public_interface = u8R"(
 	public TextureGroupOutputInterface,)";
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -2897,8 +3543,11 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotVariableInput.h>)";
 
-	res.node_public_interface = u8R"(
-	public VariableInputInterface,)";
+	res.node_module_public_interface = u8R"(
+	public VariableInputInterface<0U>,)";
+
+	res.pass_public_interface = ct::toStr(u8R"(
+	public VariableInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Variable]);
 
 	res.node_slot_func = ct::toStr(u8R"(
 	AddInput(NodeSlotVariableInput::Create("%s", %s, %u), false, %s);)",
@@ -2996,7 +3645,10 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 	res.include_slot = u8R"(
 #include <Graph/Slots/NodeSlotVariableOutput.h>)";
 
-	res.node_public_interface = u8R"(
+	res.node_module_public_interface = u8R"(
+	public VariableOutputInterface,)";
+
+	res.pass_public_interface = u8R"(
 	public VariableOutputInterface,)";
 
 	res.node_slot_func = ct::toStr(u8R"(
@@ -3021,7 +3673,8 @@ SlotStringStruct GeneratorNode::GetSlotCustomInput(NodeSlotInputPtr vSlot)
 	res.h_func = u8R"()";
 	res.include_interface = u8R"()";
 	res.include_slot = u8R"()";
-	res.node_public_interface = u8R"()";
+	res.node_module_public_interface = u8R"()";
+	res.pass_public_interface = u8R"()";
 	res.node_slot_func = u8R"()";
 
 	return res;
@@ -3039,7 +3692,8 @@ SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot)
 	res.h_func = u8R"()";
 	res.include_interface = u8R"()";
 	res.include_slot = u8R"()";
-	res.node_public_interface = u8R"()";
+	res.node_module_public_interface = u8R"()";
+	res.pass_public_interface = u8R"()";
 	res.node_slot_func = u8R"()";
 
 	return res;
@@ -3154,7 +3808,7 @@ std::string GeneratorNode::GetNodeSlotsInputPublicInterfaces(const SlotDico& vDi
 				{
 					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).node_public_interface;
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).node_module_public_interface;
 					}
 					else
 					{
@@ -3195,7 +3849,7 @@ std::string GeneratorNode::GetNodeSlotsOutputPublicInterfaces(const SlotDico& vD
 				{
 					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
 					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).node_public_interface;
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).node_module_public_interface;
 					}
 					else
 					{
@@ -3459,6 +4113,94 @@ std::string GeneratorNode::GetNodeSlotsOutputCppFuncs(const SlotDico& vDico)
 	return res;
 }
 
+std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico)
+{
+	std::string res;
+
+	res += u8R"(
+	// Interfaces Setters)";
+
+	for (const auto& inputSlot : m_Inputs)
+	{
+		if (inputSlot.second)
+		{
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+			if (slotDatasPtr)
+			{
+				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+				if (typeString == "None" ||
+					typeString == "Custom")
+				{
+					continue;
+				}
+
+				if (vDico.find(type) != vDico.end())
+				{
+					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					{
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).h_func;
+					}
+					else
+					{
+						CTOOL_DEBUG_BREAK;
+					}
+				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+				}
+			}
+		}
+	}
+
+	return res;
+}
+
+std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico)
+{
+	std::string res;
+
+	res += u8R"(
+	// Interfaces Getters)";
+
+	for (const auto& outputSlot : m_Outputs)
+	{
+		if (outputSlot.second)
+		{
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+			if (slotDatasPtr)
+			{
+				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+				if (typeString == "None" ||
+					typeString == "Custom")
+				{
+					continue;
+				}
+
+				if (vDico.find(type) != vDico.end())
+				{
+					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
+					{
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).h_func;
+					}
+					else
+					{
+						CTOOL_DEBUG_BREAK;
+					}
+				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+				}
+			}
+		}
+	}
+
+	return res;
+}
+
 std::string GeneratorNode::GetModuleInputCppFuncs(const SlotDico& vDico)
 {
 	std::string res;
@@ -3541,6 +4283,47 @@ std::string GeneratorNode::GetModuleOutputCppFuncs(const SlotDico& vDico)
 	return res;
 }
 
+std::string GeneratorNode::GetPassInputPublicInterfaces(const SlotDico& vDico)
+{
+	std::string res;
+
+	for (const auto& inputSlot : m_Inputs)
+	{
+		if (inputSlot.second)
+		{
+			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+			if (slotDatasPtr)
+			{
+				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+				if (typeString == "None" ||
+					typeString == "Custom")
+				{
+					continue;
+				}
+
+				if (vDico.find(type) != vDico.end())
+				{
+					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
+					{
+						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).pass_public_interface;
+					}
+					else
+					{
+						CTOOL_DEBUG_BREAK;
+					}
+				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+				}
+			}
+		}
+	}
+
+	return res;
+}
+
 std::string GeneratorNode::GetPassInputCppFuncs(const SlotDico& vDico)
 {
 	std::string res;
@@ -3606,94 +4389,6 @@ std::string GeneratorNode::GetPassOutputCppFuncs(const SlotDico& vDico)
 					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
 					{
 						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).cpp_pass_func;
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
-				}
-			}
-		}
-	}
-
-	return res;
-}
-
-std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico)
-{
-	std::string res;
-
-	res += u8R"(
-	// Interfaces Setters)";
-
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
-				{
-					continue;
-				}
-
-				if (vDico.find(type) != vDico.end())
-				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT).h_func;
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-				else
-				{
-					CTOOL_DEBUG_BREAK;
-				}
-			}
-		}
-	}
-
-	return res;
-}
-
-std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico)
-{
-	std::string res;
-
-	res += u8R"(
-	// Interfaces Getters)";
-
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
-				{
-					continue;
-				}
-
-				if (vDico.find(type) != vDico.end())
-				{
-					if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
-					{
-						res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT).h_func;
 					}
 					else
 					{

@@ -65,7 +65,8 @@ typedef std::shared_ptr<GeneratorNode> GeneratorNodePtr;
 struct SlotStringStruct
 {
 	std::string node_slot_func;
-	std::string node_public_interface;
+	std::string node_module_public_interface;
+	std::string pass_public_interface;
 	std::string include_slot;
 	std::string include_interface;
 	std::string cpp_node_func;
@@ -148,12 +149,15 @@ private:
 	std::string GetNodeSlotsOutputIncludesInterfaces(const SlotDico& vDico);
 	std::string GetNodeSlotsInputCppFuncs(const SlotDico& vDico);
 	std::string GetNodeSlotsOutputCppFuncs(const SlotDico& vDico);
-	std::string GetModuleInputCppFuncs(const SlotDico& vDico);
-	std::string GetModuleOutputCppFuncs(const SlotDico& vDico);
-	std::string GetPassInputCppFuncs(const SlotDico& vDico);
-	std::string GetPassOutputCppFuncs(const SlotDico& vDico);
 	std::string GetNodeSlotsInputHFuncs(const SlotDico& vDico);
 	std::string GetNodeSlotsOutputHFuncs(const SlotDico& vDico);
+
+	std::string GetModuleInputCppFuncs(const SlotDico& vDico);
+	std::string GetModuleOutputCppFuncs(const SlotDico& vDico);
+
+	std::string GetPassInputPublicInterfaces(const SlotDico& vDico);
+	std::string GetPassInputCppFuncs(const SlotDico& vDico);
+	std::string GetPassOutputCppFuncs(const SlotDico& vDico);
 
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
