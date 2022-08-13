@@ -1,5 +1,6 @@
 #include "GeneratorNode.h"
 
+#include <filesystem>
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
@@ -22,6 +23,8 @@
 #include <Graph/Slots/NodeSlotTextureGroupOutput.h>
 #include <Graph/Slots/NodeSlotStorageBufferInput.h>
 #include <Graph/Slots/NodeSlotStorageBufferOutput.h>
+
+namespace fs = std::filesystem;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
@@ -458,13 +461,33 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 
 void GeneratorNode::GenerateNodeClasses(const std::string& vPath, const ProjectFile* vDatas)
 {
+	fs::path root_path = vPath;
+	if (!std::filesystem::exists(vPath))
+		return;
+
+	fs::path nodes_path = vPath + "/Nodes/";
+	if (!std::filesystem::exists(nodes_path))
+		fs::create_directory(nodes_path);
+
+	nodes_path = vPath + "/Nodes/" + m_CategoryName;
+	if (!std::filesystem::exists(nodes_path))
+		fs::create_directory(nodes_path);
+
+	fs::path module_path = vPath + "/Modules/";
+	if (!std::filesystem::exists(module_path))
+		fs::create_directory(module_path);
+	
+	module_path = vPath + "/Modules/" + m_CategoryName;
+	if (!std::filesystem::exists(module_path))
+		fs::create_directory(module_path);
+
 	std::string node_class_name = m_ClassName + "Node";
-	std::string cpp_node_file_name = node_class_name + ".cpp";
-	std::string h_node_file_name = node_class_name + ".h";
+	std::string cpp_node_file_name = nodes_path.string() + "/" + node_class_name + ".cpp";
+	std::string h_node_file_name = nodes_path.string() + "/" + node_class_name + ".h";
 
 	std::string module_class_name = m_ClassName + "Module";
-	std::string cpp_module_file_name = module_class_name + ".cpp";
-	std::string h_module_file_name = module_class_name + ".h";
+	std::string cpp_module_file_name = module_path.string() + "/" + module_class_name + ".cpp";
+	std::string h_module_file_name = module_path.string() + "/" + module_class_name + ".h";
 
 	std::string cpp_node_file_code;
 	std::string h_node_file_code;
@@ -888,9 +911,13 @@ public:
 
 void GeneratorNode::GenerateModules(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico)
 {
+	fs::path module_path = vPath + "/Modules/" + m_CategoryName;
+	if (!std::filesystem::exists(module_path))
+		fs::create_directory(module_path);
+
 	std::string module_class_name = m_ClassName + "Module";
-	std::string cpp_module_file_name = module_class_name + ".cpp";
-	std::string h_module_file_name = module_class_name + ".h";
+	std::string cpp_module_file_name = module_path.string() + "/" + module_class_name + ".cpp";
+	std::string h_module_file_name = module_path.string() + "/" + module_class_name + ".h";
 
 	std::string pass_renderer_display_type = GetRendererDisplayName();
 	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "_Pass";
@@ -1411,10 +1438,14 @@ public:
 
 void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico)
 {
+	fs::path path_path = vPath + "/Modules/" + m_CategoryName + "/Pass/";
+	if (!std::filesystem::exists(path_path))
+		fs::create_directory(path_path);
+
 	std::string pass_renderer_display_type = GetRendererDisplayName();
 	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "_Pass";
-	std::string cpp_pass_file_name = pass_class_name + ".cpp";
-	std::string h_pass_file_name = pass_class_name + ".h";
+	std::string cpp_pass_file_name = path_path.string() + "/" + pass_class_name + ".cpp";
+	std::string h_pass_file_name = path_path.string() + "/" + pass_class_name + ".h";
 
 	std::string cpp_pass_file_code;
 	std::string h_pass_file_code;

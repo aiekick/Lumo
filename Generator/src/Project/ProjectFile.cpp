@@ -227,6 +227,8 @@ std::string ProjectFile::getXml(const std::string& vOffset, const std::string& /
 
 	str += vOffset + "\t</scene>\n";
 
+	str += vOffset + ct::toStr("\t<root_path>%s</root_path>\n", m_GenerationRootPath.c_str());
+
 	str += vOffset + "</project>\n";
 
 	return str;
@@ -265,14 +267,21 @@ bool ProjectFile::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 	{
 		m_RootNodePtr->RecursParsingConfigChilds(vElem, "project");
 	}
+	else if (strParentName == "project")
+	{
+		if (strName == "root_path")
+			m_GenerationRootPath = strValue;
+	}
 
 	return false;
 }
 
-void ProjectFile::GenerateGraphFiles(const std::string& vPath)
+void ProjectFile::GenerateGraphFiles(const std::string& vRootPath)
 {
 	if (m_RootNodePtr)
 	{
+		m_GenerationRootPath = vRootPath;
+
 		for (auto node : m_RootNodePtr->m_ChildNodes)
 		{
 			if (node.second)
@@ -280,7 +289,7 @@ void ProjectFile::GenerateGraphFiles(const std::string& vPath)
 				auto genNodePtr = std::dynamic_pointer_cast<GeneratorNode>(node.second);
 				if (genNodePtr)
 				{
-					genNodePtr->GenerateNodeClasses(vPath, this);
+					genNodePtr->GenerateNodeClasses(m_GenerationRootPath, this);
 				}
 			}
 		}

@@ -32,7 +32,8 @@ private: // to save
 	std::string m_ProjectFilePath; 
 	
 public: // to save
-	std::string m_FilePathNameToLoad;
+	std::string m_FilePathNameToLoad;	
+	std::string m_GenerationRootPath;
 	GeneratorNodeWeak m_SelectedNode;
 	GeneratorNodePtr m_RootNodePtr = nullptr;
 
@@ -64,7 +65,7 @@ public:
 	std::string GetRelativePath(const std::string& vFilePathName) const;
 	std::string GetProjectFilepathName() const;
 
-	void GenerateGraphFiles(const std::string& vPath);
+	void GenerateGraphFiles(const std::string& vRootPath);
 
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

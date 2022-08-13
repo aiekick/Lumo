@@ -95,6 +95,7 @@ private:
 	BaseTypes m_BaseTypes;
 	std::map<uint32_t, uint32_t> m_InputSlotCounter;
 	std::map<uint32_t, uint32_t> m_OutputSlotCounter;
+
 public:
 	// Node
 	std::string m_ClassName = "NewClass";

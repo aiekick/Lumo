@@ -581,7 +581,8 @@ void MainFrame::DrawNodeCreationPane()
 
 		if (ImGui::ContrastedButton("Generate"))
 		{
-			ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", nullptr, ".");
+			ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", 
+				nullptr, ProjectFile::Instance()->m_GenerationRootPath);
 		}
 	}
 }
