@@ -180,6 +180,9 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 		res += vOffset + ct::toStr("\t\t<renderer_type>%s</renderer_type>\n", m_RendererType.c_str());
 		res += vOffset + ct::toStr("\t\t<module_display_name>%s</module_display_name>\n", m_ModuleDisplayName.c_str());
 		res += vOffset + ct::toStr("\t\t<module_xml_name>%s</module_xml_name>\n", m_ModuleXmlName.c_str());
+		res += vOffset + ct::toStr("\t\t<pass_specialization_type>%s</pass_specialization_type>\n", m_RendererTypePixel2DSpecializationType.c_str());
+		res += vOffset + ct::toStr("\t\t<pass_use_ubo>%s</pass_use_ubo>\n", m_UseAUbo ? "true" : "false");
+		res += vOffset + ct::toStr("\t\t<pass_use_sbo>%s</pass_use_sbo>\n", m_UseASbo ? "true" : "false");
 		
 		res += vOffset + "\t</generation>\n";
 
@@ -436,6 +439,12 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 			m_ModuleDisplayName = strValue;
 		else if (strName == "module_xml_name")
 			m_ModuleXmlName = strValue;
+		else if (strName == "pass_specialization_type")
+			m_RendererTypePixel2DSpecializationType = strValue;
+		else if (strName == "pass_use_ubo")
+			m_UseAUbo = ct::ivariant(strValue).GetB();
+		else if (strName == "pass_use_sbo")
+			m_UseASbo = ct::ivariant(strValue).GetB();
 
 		return true;
 	}
@@ -1278,7 +1287,6 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 	/////////////////////////////////////////////////////////////////
 	////// HEADER ///////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////
-	h_module_file_code += GetLicenceHeader();
 	h_module_file_code += u8R"(
 
 #pragma once
@@ -1403,21 +1411,17 @@ public:
 
 void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico)
 {
-	std::string module_class_name = m_ClassName + "Module";
-	std::string cpp_module_file_name = module_class_name + ".cpp";
-	std::string h_module_file_name = module_class_name + ".h";
-
 	std::string pass_renderer_display_type = GetRendererDisplayName();
 	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "_Pass";
 	std::string cpp_pass_file_name = pass_class_name + ".cpp";
 	std::string h_pass_file_name = pass_class_name + ".h";
 
-	std::string cpp_module_file_code;
-	std::string h_module_file_code;
+	std::string cpp_pass_file_code;
+	std::string h_pass_file_code;
 
-	cpp_module_file_code += GetLicenceHeader();
-	h_module_file_code += GetLicenceHeader();
-	cpp_module_file_code += GetPVSStudioHeader();
+	cpp_pass_file_code += GetLicenceHeader();
+	h_pass_file_code += GetLicenceHeader();
+	cpp_pass_file_code += GetPVSStudioHeader();
 
 	// MODULE_XML_NAME							grayscott_module_sim
 	// MODULE_DISPLAY_NAME						Gray Scott
@@ -1427,11 +1431,12 @@ void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* 
 	// MODULE_RENDERER_INIT_FUNC				InitCompute2D
 	// RENDERER_DISPLAY_TYPE (ex (Comp)			Comp
 
-	cpp_module_file_code += u8R"(
-#include "MODULE_CLASS_NAME.h"
+	cpp_pass_file_code += u8R"(
+#include "PASS_CLASS_NAME.h"
 
 #include <cinttypes>
 #include <functional>
+#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
@@ -1442,328 +1447,211 @@ void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* 
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
 #include <Base/FrameBuffer.h>
-)";
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-#include <Modules/MODULE_CATEGORY_NAME/Pass/PASS_CLASS_NAME.h>
-)";
-	}
 
-	cpp_module_file_code += u8R"(
 using namespace vkApi;
 
 //////////////////////////////////////////////////////////////
-//// STATIC //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
-{
-	ZoneScoped;
+PASS_CLASS_NAME::PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr)
+	: ShaderPass(vVulkanCorePtr)
+{)";
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MODULE_CLASS_NAME>(vVulkanCorePtr);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+	cpp_pass_file_code += u8R"(
+	SetRenderDocDebugName("RENDERER_DISPLAY_TYPE Pass : MODULE_DISPLAY_NAME", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+)";
+
+	cpp_pass_file_code += u8R"(
+	//m_DontUseShaderFilesOnDisk = true;
 }
 
-//////////////////////////////////////////////////////////////
-//// CTOR / DTOR /////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-MODULE_CLASS_NAME::MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+PASS_CLASS_NAME::~PASS_CLASS_NAME()
 {
-	ZoneScoped;
-}
-
-MODULE_CLASS_NAME::~MODULE_CLASS_NAME()
-{
-	ZoneScoped;
-
 	Unit();
 }
 
-//////////////////////////////////////////////////////////////
-//// INIT / UNIT /////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-bool MODULE_CLASS_NAME::Init()
+void PASS_CLASS_NAME::ActionBeforeInit()
 {
-	ZoneScoped;
+	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
-	m_Loaded = false;
+	//m_PrimitiveTopology = vk::PrimitiveTopology::eLineList;
+	//m_LineWidth.x = 0.5f;		// min value
+	//m_LineWidth.y = 10.0f;	// max value
+	//m_LineWidth.z = 2.0f;		// default value
 
-)";
-
-	if (m_GenerateAPass)
+	for (auto& info : m_ImageInfos)
 	{
-		if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-		{
-			cpp_module_file_code += u8R"(
-
-	ct::uvec2 map_size = 512;
-
-	if (BaseRenderer::InitPixel(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
-
-			if (m_PASS_CLASS_NAME_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
-		}
+		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 	}
-)";
-		}
-		else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-		{
-			cpp_module_file_code += u8R"(
-
-	uint32_t map_size = 512;
-
-	if (BaseRenderer::InitCompute1D(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
-
-			if (m_PASS_CLASS_NAME_Ptr->InitCompute1D(map_size))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
-)";
-		}
-		else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-		{
-			cpp_module_file_code += u8R"(
-
-	ct::uvec2 map_size = 512;
-
-	if (BaseRenderer::InitCompute2D(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
-
-			if (m_PASS_CLASS_NAME_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
-)";
-		}
-		else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-		{
-			cpp_module_file_code += u8R"(
-
-	ct::uvec3 map_size = 512;
-
-	if (BaseRenderer::InitCompute3D(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
-
-			if (m_PASS_CLASS_NAME_Ptr->InitCompute3D(map_size))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
-)";
-		}
-		else if (m_RendererType == RENDERER_TYPE_RTX)
-		{
-			cpp_module_file_code += u8R"(
-
-	ct::uvec2 map_size = 512;
-
-	if (BaseRenderer::InitRtx(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
-
-			if (m_PASS_CLASS_NAME_Ptr->InitRtx(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
-)";
-		}
-	}
-
-	cpp_module_file_code += u8R"(
-	return m_Loaded;
 }
 
-//////////////////////////////////////////////////////////////
-//// OVERRIDES ///////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
+bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+{
+	assert(vContext); 
+	ImGui::SetCurrentContext(vContext);
 
-bool MODULE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+	ZoneScoped;
+
+	bool change = false;
+
+	change |= DrawResizeWidget();
+
+	if (change)
+	{
+		//NeedNewUBOUpload();
+		//NeedNewSBOUpload();
+	}
+
+	return change;
+}
+
+void PASS_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+{
+	assert(vContext); 
+	ImGui::SetCurrentContext(vContext);
+
+	ZoneScoped;
+}
+
+void PASS_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+{
+	assert(vContext); 
+	ImGui::SetCurrentContext(vContext);
+
+	ZoneScoped;
+})";
+
+	cpp_pass_file_code += GetPassInputCppFuncs(vDico);
+	cpp_pass_file_code += GetPassOutputCppFuncs(vDico);
+
+	cpp_pass_file_code += u8R"(
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void PASS_CLASS_NAME::WasJustResized()
+{
+	ZoneScoped;
+}
+)";
+	cpp_pass_file_code += GetPassRendererFunctionHeader();
+
+	if (m_UseAUbo)
+	{
+		cpp_pass_file_code += u8R"(
+bool PASS_CLASS_NAME::CreateUBO()
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("MODULE_DISPLAY_NAME", vCmd);
+	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	if (m_UBOCompPtr)
+	{
+		m_UBO_Comp_BufferInfos.buffer = m_UBOCompPtr->buffer;
+		m_UBO_Comp_BufferInfos.range = sizeof(UBOComp);
+		m_UBO_Comp_BufferInfos.offset = 0;
+	}
+
+	NeedNewUBOUpload();
 
 	return true;
 }
 
-bool MODULE_CLASS_NAME::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+void PASS_CLASS_NAME::UploadUBO()
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("MODULE_DISPLAY_NAME", vCmd);
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+}
+
+void PASS_CLASS_NAME::DestroyUBO()
+{
+	ZoneScoped;
+
+	m_UBOCompPtr.reset();
+	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+}
+)";
+	}
+
+	if (m_UseASbo)
+	{
+		cpp_pass_file_code += u8R"(
+bool PASS_CLASS_NAME::CreateSBO()
+{
+	ZoneScoped;
+
+	NeedNewSBOUpload();
 
 	return true;
 }
 
-bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+void PASS_CLASS_NAME::UploadSBO()
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	//VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+}
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+void PASS_CLASS_NAME::DestroySBO()
+{
+	ZoneScoped;
 
-			change |= DrawResizeWidget();
-)";
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-			if (m_PASS_CLASS_NAME_Ptr)
-			{
-				change |= m_PASS_CLASS_NAME_Ptr->DrawWidgets(vCurrentFrame, vContext);
-			}
+	//m_SBOCompPtr.reset();
+	//m_SBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+}
 )";
 	}
 
-	cpp_module_file_code += u8R"(
-			return change;
-		}
-	}
-
-	return false;
-}
-
-void MODULE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+	cpp_pass_file_code += u8R"(
+bool PASS_CLASS_NAME::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	m_LayoutBindings.clear();)";
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
+	cpp_pass_file_code += GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
+	cpp_pass_file_code += u8R"(
 
-	}
+	return true;
 }
 
-void MODULE_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	writeDescriptorSets.clear();
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
+	assert(m_ComputeBufferPtr);)";
 
-	}
-}
-
-void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
-
-	// do some code
+	cpp_pass_file_code += GetPassUpdateBufferInfoInRessourceDescriptorHeader();
+	cpp_pass_file_code += u8R"(
 	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	return true;
+})";
+
+	cpp_pass_file_code += GetPassShaderCodeHeader();
+
+	cpp_pass_file_code += u8R"(";
 }
-)";
-	cpp_module_file_code += GetModuleInputCppFuncs(vDico);
-	cpp_module_file_code += GetModuleOutputCppFuncs(vDico);
-	cpp_module_file_code += u8R"(
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
-	ZoneScoped;
-
 	std::string str;
 
-	str += vOffset + "<MODULE_XML_NAME>\n";
-
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
-)";
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
-		str += m_PASS_CLASS_NAME_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
-)";
-	}
-
-	cpp_module_file_code += u8R"(
-	str += vOffset + "</MODULE_XML_NAME>\n";
-
+	str += ShaderPass::getXml(vOffset, vUserDatas);
+	//str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
+	
 	return str;
 }
 
-bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -1778,33 +1666,19 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
+	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+
 	if (strParentName == "MODULE_XML_NAME")
 	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-	}
-)";
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
-		m_PASS_CLASS_NAME_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
-)";
+		//if (strName == "mouse_radius")
+		//	m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
 	}
 
-	cpp_module_file_code += u8R"(
 	return true;
 }
 )";
 
-	/////////////////////////////////////////////////////////////////
-	////// HEADER ///////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////
-	h_module_file_code += GetLicenceHeader();
-	h_module_file_code += u8R"(
-
+	h_pass_file_code += u8R"(
 #pragma once
 
 #include <set>
@@ -1818,8 +1692,41 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
+)";
 
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			h_pass_file_code += u8R"(#include <Base/QuadShaderPass.h>)";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			h_pass_file_code += u8R"(#include <Base/MeshShaderPass.h>)";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			h_pass_file_code += u8R"(#include <Base/VertexShaderPass.h>)";
+		}
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
+	{
+		h_pass_file_code += u8R"(#include <Base/ShaderPass.h>)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
+	{
+		h_pass_file_code += u8R"(#include <Base/ShaderPass.h>)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+	{
+		h_pass_file_code += u8R"(#include <Base/ShaderPass.h>)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		h_pass_file_code += u8R"(#include <Base/RtxShaderPass.h>)";
+	}
+
+	h_pass_file_code += u8R"(
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -1829,91 +1736,171 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 #include <vkFramework/ImGuiTexture.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
-)";
 
-	h_module_file_code += u8R"(
 #include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/ResizerInterface.h>
-)";
-	h_module_file_code += GetNodeSlotsInputIncludesSlots(vDico);
+#include <Interfaces/TextureInputInterface.h>
+#include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
 
-	h_module_file_code += u8R"(
+class PASS_CLASS_NAME :
 )";
-	h_module_file_code += GetNodeSlotsOutputIncludesSlots(vDico);
-	h_module_file_code += u8R"(
-class PASS_CLASS_NAME;
-class MODULE_CLASS_NAME :
-	public BaseRenderer,
-	public GuiInterface,
-	public TaskInterface,
-	public ResizerInterface,)";
-	h_module_file_code += GetNodeSlotsInputPublicInterfaces(vDico);
-	h_module_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
-	h_module_file_code += u8R"(
-{
-public:
-	static std::shared_ptr<MODULE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
-private:
-	ct::cWeak<MODULE_CLASS_NAME> m_This;)";
-	if (m_GenerateAPass)
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
-		h_module_file_code += u8R"(
-	std::shared_ptr<PASS_CLASS_NAME> m_PASS_CLASS_NAME_Ptr = nullptr;
-)";
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			h_pass_file_code += u8R"(
+	public QuadShaderPass,)";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			h_pass_file_code += u8R"(
+	public MeshShaderPass,)";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			h_pass_file_code += u8R"(
+	public VertexShaderPass,)";
+		}
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
+	{
+		h_pass_file_code += u8R"(
+	public ShaderPass,)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
+	{
+		h_pass_file_code += u8R"(
+	public ShaderPass,)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+	{
+		h_pass_file_code += u8R"(
+	public ShaderPass,)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		h_pass_file_code += u8R"(
+	public RtxShaderPass,)";
 	}
 
-	h_module_file_code += u8R"(
+	h_pass_file_code += u8R"(
+	public GuiInterface,)";
+
+	h_pass_file_code += GetPassInputPublicInterfaces(vDico);
+
+	h_pass_file_code += u8R"(
+{
+private:
+
+	//VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
+	//vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	struct UBOComp {
+		//alignas(4) float mouse_radius = 10.0f;
+	} m_UBOComp;
+
 public:
-	MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~MODULE_CLASS_NAME() override;
+	PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~PASS_CLASS_NAME() override;
 
-	bool Init();
-
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-
+	void ActionBeforeInit() override;
+	void WasJustResized() override;
+)";
+	
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			// nothing because derived
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			h_pass_file_code += u8R"(
+		void DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber) override;)";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			// nothing because derived
+		}
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D ||
+		m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
+		m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+	{
+		h_pass_file_code += u8R"(
+		void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		// nothing because derived
+	}
+	
+	h_pass_file_code += u8R"(
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-)";
-	h_module_file_code += GetNodeSlotsInputHFuncs(vDico);
-	h_module_file_code += u8R"(
-)";
-	h_module_file_code += GetNodeSlotsOutputHFuncs(vDico);
-	h_module_file_code += u8R"(
-
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-};
 )";
 
-	ct::replaceString(cpp_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
-	ct::replaceString(h_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
+	h_pass_file_code += GetNodeSlotsInputHFuncs(vDico);
+	h_pass_file_code += GetNodeSlotsOutputHFuncs(vDico);
 
-	ct::replaceString(cpp_module_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
-	ct::replaceString(h_module_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
+	h_pass_file_code += u8R"(
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
-	ct::replaceString(cpp_module_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
-	ct::replaceString(h_module_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
+protected:
+)";
 
-	ct::replaceString(cpp_module_file_code, "MODULE_CLASS_NAME", module_class_name);
-	ct::replaceString(h_module_file_code, "MODULE_CLASS_NAME", module_class_name);
+	if (m_UseAUbo)
+	{
+		h_pass_file_code += u8R"(
+		bool CreateUBO() override;
+		void UploadUBO() override;
+		void DestroyUBO() override;
+)";
+	}
 
-	ct::replaceString(cpp_module_file_code, "PASS_CLASS_NAME", pass_class_name);
-	ct::replaceString(h_module_file_code, "PASS_CLASS_NAME", pass_class_name);
+	if (m_UseASbo)
+	{
+		h_pass_file_code += u8R"(
+		bool CreateSBO() override;
+		void UploadSBO() override;
+		void DestroySBO() override;
+)";
+	}
 
-	ct::replaceString(cpp_module_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
-	ct::replaceString(h_module_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
+	h_pass_file_code += u8R"(
+	bool UpdateLayoutBindingInRessourceDescriptor() override;
+	bool UpdateBufferInfoInRessourceDescriptor() override;
+)";
 
-	ct::replaceString(cpp_module_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
-	ct::replaceString(h_module_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
+	h_pass_file_code += u8R"(
+	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+};)";
 
-	FileHelper::Instance()->SaveStringToFile(cpp_module_file_code, cpp_module_file_name);
-	FileHelper::Instance()->SaveStringToFile(h_module_file_code, h_module_file_name);
+	ct::replaceString(cpp_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
+	ct::replaceString(h_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
+
+	ct::replaceString(cpp_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
+	ct::replaceString(h_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
+
+	ct::replaceString(cpp_pass_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
+	ct::replaceString(h_pass_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
+
+	ct::replaceString(cpp_pass_file_code, "NODE_CLASS_NAME", pass_class_name);
+	ct::replaceString(h_pass_file_code, "NODE_CLASS_NAME", pass_class_name);
+
+	ct::replaceString(cpp_pass_file_code, "PASS_CLASS_NAME", pass_class_name);
+	ct::replaceString(h_pass_file_code, "PASS_CLASS_NAME", pass_class_name);
+
+	ct::replaceString(cpp_pass_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
+	ct::replaceString(h_pass_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
+
+	ct::replaceString(cpp_pass_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
+	ct::replaceString(h_pass_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
+
+	FileHelper::Instance()->SaveStringToFile(cpp_pass_file_code, cpp_pass_file_name);
+	FileHelper::Instance()->SaveStringToFile(h_pass_file_code, h_pass_file_name);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1986,6 +1973,676 @@ std::string GeneratorNode::GetRendererDisplayName()
 	return res;
 }
 
+std::string GeneratorNode::GetPassRendererFunctionHeader()
+{
+	std::string res;
+
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			// nothing because derived
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			res += u8R"(
+void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber)
+{
+	ZoneScoped;
+
+	if (!m_Loaded) return;
+
+	if (vCmdBuffer)
+	{
+		auto modelPtr = m_SceneModel.getValidShared();
+		if (!modelPtr || modelPtr->empty()) return;
+
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		{
+			VKFPScoped(*vCmdBuffer, "MODULE_DISPLAY_NAME", "DrawModel");
+
+			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+
+			for (auto meshPtr : *modelPtr)
+			{
+				if (meshPtr)
+				{
+					vk::DeviceSize offsets = 0;
+					vCmdBuffer->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
+
+					if (meshPtr->GetIndicesCount())
+					{
+						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
+						vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
+					}
+					else
+					{
+						vCmdBuffer->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
+					}
+				}
+			}
+		}
+	}
+}
+)";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			// nothing because derived
+		}
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D ||
+		m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
+		m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+	{
+		res += u8R"(
+void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+{
+	if (vCmdBuffer)
+	{
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
+		{
+			VKFPScoped(*vCmdBuffer, "MODULE_DISPLAY_NAME", "Compute");
+
+			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+
+			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
+			{
+				Dispatch(vCmdBuffer);
+			}
+		}
+	}
+}
+)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		// nothing because derived
+	}
+
+	return res;
+}
+
+std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader()
+{
+	std::string res;
+
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			res += u8R"()";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			res += u8R"()";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			res += u8R"()";
+		}
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
+	{
+		res += u8R"()";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
+	{
+		res += u8R"(
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+	{
+		res += u8R"()";
+	}
+	else if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		res += u8R"(
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, 
+		vk::ShaderStageFlagBits::eRaygenKHR); // output
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eAccelerationStructureKHR, 1, 
+		vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, 
+		vk::ShaderStageFlagBits::eRaygenKHR); // camera
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1,
+		vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, 
+		vk::ShaderStageFlagBits::eClosestHitKHR);)";
+	}
+
+	return res;
+}
+
+std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
+{
+	std::string res;
+
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			res += u8R"()";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			res += u8R"()";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			res += u8R"()";
+		}
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
+	{
+		res += u8R"()";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
+	{
+		res += u8R"(
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, 
+		m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+	{
+		res += u8R"()";
+	}
+	else if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		res += u8R"(
+	auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+	if (accelStructurePtr && 
+		accelStructurePtr->GetTLASInfo() && 
+		accelStructurePtr->GetBufferAddressInfo())
+	{
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
+			m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+		// The acceleration structure descriptor has to be chained via pNext
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR,
+			nullptr, nullptr, nullptr, accelStructurePtr->GetTLASInfo()); // accel struct
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer,
+			nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
+			nullptr, accelStructurePtr->GetBufferAddressInfo()); // model device address
+		writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+			nullptr, m_SceneLightGroupDescriptorInfoPtr);
+
+		return true; // pas de maj si pas de structure acceleratrice
+	})";
+	}
+
+	return res;
+}
+
+std::string GeneratorNode::GetPassShaderCodeHeader()
+{
+	std::string res;
+
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			res += u8R"(
+std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Vertex";
+
+	return u8R"(#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) in vec2 vertPosition;
+layout(location = 1) in vec2 vertUv;
+layout(location = 0) out vec2 v_uv;
+
+void main() 
+{
+	v_uv = vertUv;
+	gl_Position = vec4(vertPosition, 0.0, 1.0);
+}
+)"; res += u8R"(";
+}
+
+std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Fragment";
+
+	return u8R"(#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) out vec4 fragColor;
+layout(location = 0) in vec2 v_uv;
+
+layout (std140, binding = 0) uniform UBO_Frag 
+{ 
+	//float u_param_0;
+};
+
+void main() 
+{
+	fragColor = vec4(0);
+}
+)"; res += u8R"(";
+}
+)";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			res += u8R"(
+std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Vertex";
+
+	return u8R"(#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec3 aNormal;
+layout(location = 2) in vec3 aTangent;
+layout(location = 3) in vec3 aBiTangent;
+layout(location = 4) in vec2 aUv;
+layout(location = 5) in vec4 aColor;
+
+layout(location = 0) out vec4 vertColor;
+)"; res += u8R"(
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
+u8R"(
+layout (std140, binding = 1) uniform UBO_Vert 
+{ 
+	mat4 transform;
+};
+
+void main() 
+{
+	vertColor = aColor;
+	gl_Position = cam * transform * vec4(aPosition, 1.0);
+}
+)"; res += u8R"(
+}
+
+std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Fragment";
+
+	return u8R"(#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) out vec4 fragColor;
+
+layout(location = 0) in vec4 vertColor;
+)"; res += u8R"(
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
+u8R"(
+layout(std140, binding = 2) uniform UBO_Frag 
+{ 
+	//uint channel_idx;	// 0..3
+	//uint color_count;	// 0..N
+};
+
+
+void main() 
+{
+	fragColor = vec4(0);
+}
+)"; res += u8R"(
+})";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			res += u8R"(
+std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Vertex";
+
+	return u8R"(
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) out vec4 vertColor;
+) "
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
+u8R"(
+layout(std140, binding = 1) uniform UBOStruct {
+	
+	float axisSize;
+};
+
+void main() 
+{
+	float vertexId = float(gl_VertexIndex);
+	
+	float astep = 3.14159 * 2.0 / 70.;
+	float a = astep * float(vertexId) * (uTime+10.) * .3;
+	vec2 d = a  * vec2(cos(a), sin(a)) / 100.;
+	d.x *= screenSize.y/screenSize.x;
+	if (vertexId<150.) gl_Position = cam * vec4(d,0,1);
+	else gl_Position = cam * vec4(0,0,0,1);
+	vertColor = vec4(1,1,1,1);
+))";
+	res += u8R"(";
+		}
+
+		std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
+		{
+			vOutShaderName = "PASS_CLASS_NAME_Fragment";
+
+			return u8R"(
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) out vec4 fragColor;
+layout(location = 0) in vec4 vertColor;
+
+void main() 
+{
+	fragColor = vertColor; 
+}
+))";
+	res += u8R"(";
+		})";
+		}
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
+	{
+		res += u8R"()";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
+	{
+		res += u8R"(
+std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Compute";
+
+	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
+
+	return u8R"(
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
+
+layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+
+layout(std140, binding = 0) uniform UBO_Comp
+{
+	float mouse_radius;
+	ivec2 image_size;
+};
+
+layout(binding = 1) uniform sampler2D input_mask;
+
+void main()
+{
+	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+
+	vec4 color = vec4(coords, 0, 1);
+
+	imageStore(colorBuffer, coords, color); 
+}
+))";
+		res += u8R"(";
+		})";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+	{
+		res += u8R"()";
+	}
+	else if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+	res += u8R"(
+std::string PbrRenderer_Rtx_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName)
+{
+	ZoneScoped;
+
+	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	return u8R"(
+#version 460
+#extension GL_EXT_ray_tracing : enable
+
+layout(binding = 0, rgba32f) uniform writeonly image2D out_color;
+layout(binding = 1) uniform accelerationStructureEXT tlas;
+) "
++ CommonSystem::GetBufferObjectStructureHeader(2U) +
+u8R"(
+
+struct hitPayload
+{
+	vec4 color;
+	vec3 ro;
+	vec3 rd;
+};
+
+layout(location = 0) rayPayloadEXT hitPayload prd;
+
+vec3 getRayOrigin()
+{
+	vec3 ro = view[3].xyz + model[3].xyz;
+	ro *= mat3(model);
+	return -ro;
+}
+
+vec3 getRayDirection(vec2 uv)
+{
+	uv = uv * 2.0 - 1.0;
+	vec4 ray_clip = vec4(uv.x, uv.y, -1.0, 0.0);
+	vec4 ray_eye = inverse(proj) * ray_clip;
+	vec3 rd = normalize(vec3(ray_eye.x, ray_eye.y, -1.0));
+	rd *= mat3(view * model);
+	return rd;
+}
+
+void main()
+{
+	const vec2 p = vec2(gl_LaunchIDEXT.xy);
+	const vec2 s = vec2(gl_LaunchSizeEXT.xy);
+
+	const vec2 pc = p + 0.5; // pixel center
+	const vec2 uv = pc / s;
+	const vec2 uvc = uv * 2.0 - 1.0;
+	
+	mat4 imv = inverse(model * view);
+	mat4 ip = inverse(proj);
+
+	vec4 origin    = imv * vec4(0, 0, 0, 1);
+	vec4 target    = ip * vec4(uvc.x, uvc.y, 1, 1);
+	vec4 direction = imv * vec4(normalize(target.xyz), 0);
+
+	float tmin = 0.001;
+	float tmax = 1e32;
+
+	prd.ro = getRayOrigin();		// origin.xyz;
+	prd.rd = getRayDirection(uv);	// direction.xyz;
+	prd.color = vec4(0.0);
+
+	traceRayEXT(tlas, gl_RayFlagsOpaqueEXT, 0xff, 0, 0, 0, prd.ro, tmin, prd.rd, tmax, 0);
+	
+	imageStore(out_color, ivec2(gl_LaunchIDEXT.xy), prd.color);
+}
+)"; res += u8R"(";
+}
+
+std::string PbrRenderer_Rtx_Pass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
+{
+	ZoneScoped;
+
+	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	return u8R"()"; res += u8R"(";
+}
+
+std::string PbrRenderer_Rtx_Pass::GetRayMissShaderCode(std::string& vOutShaderName)
+{
+	ZoneScoped;
+
+	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	return u8R"(
+#version 460
+#extension GL_EXT_ray_tracing : enable
+
+struct hitPayload
+{
+	vec4 color;
+	vec3 ro;
+	vec3 rd;
+	float ao;
+	float diff;
+	float spec;
+	float sha;
+};
+
+layout(location = 0) rayPayloadInEXT hitPayload prd;
+layout(location = 1) rayPayloadEXT bool isShadowed;
+
+void main()
+{
+	prd.color = vec4(0.0, 0.0, 0.0, 1.0);
+	prd.diff = 0.0;
+	prd.spec = 0.0;
+	prd.sha = 0.0;
+	isShadowed = false;
+}
+)"; res += u8R"(";
+}
+
+std::string PbrRenderer_Rtx_Pass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	return u8R"()"; res += u8R"(";
+}
+
+std::string PbrRenderer_Rtx_Pass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
+{
+	ZoneScoped;
+
+	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	return u8R"(
+
+#version 460
+#extension GL_EXT_ray_tracing : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_EXT_nonuniform_qualifier : enable
+
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference2 : require
+
+struct hitPayload
+{
+	vec4 color;
+	vec3 ro;
+	vec3 rd;
+	float ao;
+	float diff;
+	float spec;
+	float sha;
+};
+
+layout(location = 0) rayPayloadInEXT hitPayload prd;
+layout(location = 1) rayPayloadEXT bool isShadowed;
+
+hitAttributeEXT vec3 attribs;
+
+struct V3N3T3B3T2C4 
+{
+	float px, py, pz;
+	float nx, ny, nz;
+	float tax, tay, taz;
+	float btax, btay, btaz;
+	float tx, ty;
+	float cx, cy, cz, cw;
+};
+
+layout(buffer_reference, scalar) readonly buffer Vertices
+{
+	V3N3T3B3T2C4 vdatas[];
+};
+
+layout(buffer_reference, scalar, buffer_reference_align = 4) readonly buffer Indices
+{
+	uvec3 idatas[];
+};
+
+layout(binding = 1) uniform accelerationStructureEXT tlas; // same as raygen shader
+
+struct SceneMeshBuffers
+{
+	uint64_t vertices;
+	uint64_t indices;
+};
+
+layout(binding = 3) buffer ModelAddresses 
+{ 
+	SceneMeshBuffers datas[]; 
+} sceneMeshBuffers;
+)"; res += u8R"(";
++
+SceneLightGroup::GetBufferObjectStructureHeader(4U)
++
+u8R"(
+float ShadowTest(vec3 p, vec3 n, vec3 ld)
+{
+	if (dot(n, ld) > 0.0)
+	{
+		p += n * 0.1;
+		uint flags  = 
+			gl_RayFlagsTerminateOnFirstHitEXT | 
+			gl_RayFlagsOpaqueEXT | 
+			gl_RayFlagsSkipClosestHitShaderEXT;
+		isShadowed = true; 
+		traceRayEXT(tlas,        // acceleration structure
+		            flags,             // rayFlags
+		            0xFF,              // cullMask
+		            0,                 // sbtRecordOffset
+		            0,                 // sbtRecordStride
+		            0,                 // missIndex
+		            p,            	   // ray origin
+		            0.1,              // ray min range
+		            ld,            // ray direction
+		            1e32,              // ray max range
+		            1                  // payload (location = 1)
+		);
+		if (isShadowed)
+			return 0.5;
+	}
+	
+	return 1.0;
+}
+
+void main()
+{
+	// When contructing the TLAS, we stored the model id in InstanceCustomIndexEXT, so the
+	// the instance can quickly have access to the data
+
+	// Object data
+	SceneMeshBuffers meshRes = sceneMeshBuffers.datas[gl_InstanceCustomIndexEXT];
+	Indices indices = Indices(meshRes.indices);
+	Vertices vertices = Vertices(meshRes.vertices);
+
+	// Indices of the triangle
+	uvec3 ind = indices.idatas[gl_PrimitiveID];
+
+	// Vertex of the triangle
+	V3N3T3B3T2C4 v0 = vertices.vdatas[ind.x];
+	V3N3T3B3T2C4 v1 = vertices.vdatas[ind.y];
+	V3N3T3B3T2C4 v2 = vertices.vdatas[ind.z];
+
+	// Barycentric coordinates of the triangle
+	const vec3 barycentrics = vec3(1.0f - attribs.x - attribs.y, attribs.x, attribs.y);
+
+	vec3 normal = 
+		vec3(v0.nx, v0.ny, v0.nz) * barycentrics.x + 
+		vec3(v1.nx, v1.ny, v1.nz) * barycentrics.y + 
+		vec3(v2.nx, v2.ny, v2.nz) * barycentrics.z;
+    
+	// Transforming the normal to world space
+	normal = normalize(vec3(normal * gl_WorldToObjectEXT)); 
+	
+	prd.color = vec4(normal * 0.5 + 0.5, 1.0); // return normal
+}
+)"; res += u8R"(;
+})";
+	}
+
+	return res;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// GENERATOR SLOTS DICO ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2006,6 +2663,9 @@ SlotDico GeneratorNode::GetSlotDico()
 				{
 				case BaseTypeEnum::BASE_TYPE_None: // None
 					res[BASE_TYPE_None][NodeSlot::PlaceEnum::INPUT] = GetSlotNoneInput(inputSlot.second);
+					break;
+				case BaseTypeEnum::BASE_TYPE_AccelStructure: // AccelStructure
+					res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::INPUT] = GetSlotAccelStructureInput(inputSlot.second);
 					break;
 				case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
 					res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::INPUT] = GetSlotLightGroupInput(inputSlot.second);
@@ -2049,6 +2709,9 @@ SlotDico GeneratorNode::GetSlotDico()
 				{
 				case BaseTypeEnum::BASE_TYPE_None: // None
 					res[BASE_TYPE_None][NodeSlot::PlaceEnum::OUTPUT] = GetSlotNoneOutput(outputSlot.second);
+					break;
+				case BaseTypeEnum::BASE_TYPE_AccelStructure: // AccelStructure
+					res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::OUTPUT] = GetSlotAccelStructureOutput(outputSlot.second);
 					break;
 				case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
 					res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::OUTPUT] = GetSlotLightGroupOutput(outputSlot.second);
@@ -2117,6 +2780,298 @@ SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot)
 	res.node_module_public_interface = u8R"()";
 	res.pass_public_interface = u8R"()";
 	res.node_slot_func = u8R"()";
+
+	return res;
+}
+
+SlotStringStruct GeneratorNode::GetSlotAccelStructureInput(NodeSlotInputPtr vSlot)
+{
+	SlotStringStruct res;
+
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// ACCEL STRUCTURE INPUT ///////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->SetAccelStructure(vSceneAccelStructure);
+	})";
+	}
+	else
+	{
+		res.cpp_node_func += u8R"(
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// ACCEL STRUCTURE INPUT ///////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		m_PASS_CLASS_NAMEPtr->SetAccelStructure(vSceneAccelStructure);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// ACCEL STRUCTURE INPUT ///////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void PASS_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
+{	
+	ZoneScoped;
+
+	m_SceneAccelStructure = vSceneAccelStructure;
+}
+)";
+
+	res.h_func = u8R"(
+	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;)";
+
+	res.include_interface = u8R"(
+#include <Interfaces/AccelStructureInputInterface.h>)";
+
+	res.include_slot = u8R"(
+#include <Graph/Slots/NodeSlotAccelStructureInput.h>)";
+
+	res.node_module_public_interface = u8R"(
+	public AccelStructureInputInterface,)";
+
+	res.pass_public_interface = u8R"(
+	public AccelStructureInputInterface,)";
+
+	res.node_slot_func = ct::toStr(u8R"(
+	AddInput(NodeSlotAccelStructureInput::Create("%s"), false, %s);)",
+		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+
+	return res;
+}
+
+SlotStringStruct GeneratorNode::GetSlotAccelStructureOutput(NodeSlotOutputPtr vSlot)
+{
+	SlotStringStruct res;
+
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// ACCEL STRUCTURE OUTPUT //////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneAccelStructureWeak NODE_CLASS_NAME::GetAccelStruct()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetAccelStruct();
+	}
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+	return SceneAccelStructureWeak();
+}
+
+vk::WriteDescriptorSetAccelerationStructureKHR* NODE_CLASS_NAME::GetTLASInfo()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetTLASInfo();
+	}
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+	return nullptr;
+}
+
+vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetBufferAddressInfo()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetBufferAddressInfo();
+	}
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// ACCEL STRUCTURE OUTPUT //////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneAccelStructureWeak MODULE_CLASS_NAME::GetAccelStruct()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetAccelStruct();
+	}
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+	return SceneAccelStructureWeak();
+}
+
+vk::WriteDescriptorSetAccelerationStructureKHR* MODULE_CLASS_NAME::GetTLASInfo()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetTLASInfo();
+	}
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+	return nullptr;
+}
+
+vk::DescriptorBufferInfo* MODULE_CLASS_NAME::GetBufferAddressInfo()
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += u8R"(
+	if (m_PASS_CLASS_NAMEPtr)
+	{
+		return m_PASS_CLASS_NAMEPtr->GetBufferAddressInfo();
+	}
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// ACCEL STRUCTURE OUTPUT //////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneAccelStructureWeak PASS_CLASS_NAME::GetAccelStruct()
+{	
+	ZoneScoped;
+
+	return SceneAccelStructureWeak();
+}
+
+vk::WriteDescriptorSetAccelerationStructureKHR* PASS_CLASS_NAME::GetTLASInfo()
+{	
+	ZoneScoped;
+
+	return nullptr;
+}
+
+vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetBufferAddressInfo()
+{	
+	ZoneScoped;
+
+	return nullptr;
+}
+)";
+
+	res.h_func = u8R"(
+	SceneAccelStructureWeak GetAccelStruct() override;
+	vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() override;
+	vk::DescriptorBufferInfo* GetBufferAddressInfo() override;)";
+
+	res.include_interface = u8R"(
+#include <Interfaces/AccelStructureOutputInterface.h>)";
+
+	res.include_slot = u8R"(
+#include <Graph/Slots/NodeSlotAccelStructureOutput.h>)";
+
+	res.node_module_public_interface = u8R"(
+	public AccelStructureOutputInterface,)";
+
+	res.pass_public_interface = u8R"(
+	public AccelStructureOutputInterface,)";
+
+	res.node_slot_func = ct::toStr(u8R"(
+	AddOutput(NodeSlotAccelStructureOutput::Create("%s"), false, %s);)",
+		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -2202,7 +3157,7 @@ void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 
 	m_SceneLightGroup = vSceneLightGroup;
 
-	m_SceneLightGroupDescriptorInfoPtr = &m_SceneLightGroupDescriptorInfo;
+	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
 	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
 	if (lightGroupPtr && 
@@ -2619,7 +3574,25 @@ void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 {	
 	ZoneScoped;
 
+	if (m_Loaded)
+	{
+		if (vBindingPoint < m_StorageBuffers.size())
+		{
+			if (vStorageBuffer)
+			{
+				if (vStorageBufferSize)
+				{
+					m_ImageInfosSize[vBindingPoint] = *vStorageBufferSize;
+				}
 
+				m_StorageBufferSize[vBindingPoint] = *vStorageBuffer;
+			}
+			else
+			{
+				m_StorageBuffers[vBindingPoint] = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
+			}
+		}
+	}
 }
 )";
 
@@ -2865,14 +3838,50 @@ void NODE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* 
 {	
 	ZoneScoped;
 
+	if (m_Loaded)
+	{
+		if (vBindingPoint < m_StorageBuffers.size())
+		{
+			if (vTexelBuffer)
+			{
+				if (vTexelBufferSize)
+				{
+					m_TexelBufferViewsSize[vBindingPoint] = *vTexelBufferSize;
+				}
 
+				m_TexelBuffers[vBindingPoint] = *vTexelBuffer;
+			}
+			else
+			{
+				m_TexelBuffers[vBindingPoint] = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
+			}
+		}
+	}
 }
 
 void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
 {	
 	ZoneScoped;
 
+	if (m_Loaded)
+	{
+		if (vBindingPoint < m_StorageBuffers.size())
+		{
+			if (vTexelvTexelBufferViewuffer)
+			{
+				if (vTexelBufferSize)
+				{
+					m_TexelBufferViewsSize[vBindingPoint] = *vTexelBufferSize;
+				}
 
+				m_TexelBufferViews[vBindingPoint] = *vTexelBufferView;
+			}
+			else
+			{
+				m_TexelBufferViews[vBindingPoint] = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
+			}
+		}
+	}
 }
 )";
 
@@ -3121,6 +4130,25 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 {	
 	ZoneScoped;
 
+	if (m_Loaded)
+	{
+		if (vBindingPoint < m_ImageInfos.size())
+		{
+			if (vImageInfo)
+			{
+				if (vTextureSize)
+				{
+					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+				}
+
+				m_ImageInfos[vBindingPoint] = *vImageInfo;
+			}
+			else
+			{
+				m_ImageInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+			}
+		}
+	}
 }
 )";
 
@@ -3219,8 +4247,39 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 
 vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
-	ZoneScoped;
+	ZoneScoped;)";
 
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		res.cpp_pass_func += u8R"(
+	if (m_FrameBufferPtr)
+	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
+		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+	})";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D ||
+		m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
+		m_RendererType == RENDERER_TYPE_COMPUTE_3D ||
+		m_RendererType == RENDERER_TYPE_RTX)
+	{
+		res.cpp_pass_func += u8R"(
+	if (m_ComputeBufferPtr)
+	{
+		if (vOutSize)
+		{
+			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
+		}
+
+		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+	})";
+	}
+
+	res.cpp_pass_func += u8R"(
 	return nullptr;
 }
 )";
@@ -3326,7 +4385,25 @@ void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 {	
 	ZoneScoped;
 
+	if (m_Loaded)
+	{
+		if (vBindingPoint < m_ImageInfos.size())
+		{
+			if (vImageInfos)
+			{
+				if (vOutSizes)
+				{
+					m_ImageGroupSizes[vBindingPoint] = *vOutSizes;
+				}
 
+				m_ImageGroups[vBindingPoint] = *vImageInfos;
+			}
+			else
+			{
+				m_ImageGroups[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+			}
+		}
+	}
 }
 )";
 
@@ -3530,7 +4607,10 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 {	
 	ZoneScoped;
 
-
+	if (vVarIndex < m_SceneVariables.size()))
+	{
+		m_SceneVariables[vVarIndex] = vSceneVariable;
+	}
 }
 )";
 

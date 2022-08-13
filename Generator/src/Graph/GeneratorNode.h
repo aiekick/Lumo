@@ -14,6 +14,7 @@ enum BaseTypeEnum : uint32_t
 	BASE_TYPE_Texture,
 	BASE_TYPE_TextureGroup,
 	BASE_TYPE_Variable,
+	BASE_TYPE_AccelStructure,
 	BASE_TYPE_Custom
 };
 
@@ -30,6 +31,7 @@ public:
 		"Texture",
 		"TextureGroup",
 		"Variable",
+		"AccelStructure",
 		"Custom"
 	};
 };
@@ -60,6 +62,16 @@ typedef std::shared_ptr<GeneratorNode> GeneratorNodePtr;
 #endif
 #ifndef RENDERER_TYPE_RTX
 #define RENDERER_TYPE_RTX "Rtx"
+#endif
+
+#ifndef RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD
+#define RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD "Quad"
+#endif
+#ifndef RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH
+#define RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH "Mesh"
+#endif
+#ifndef RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX
+#define RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX "Vertex"
 #endif
 
 struct SlotStringStruct
@@ -95,11 +107,14 @@ public:
 	std::string m_ModuleDisplayName = "New Node"; // node name maj ex : Gray Scott
 	std::string m_RendererType = "Comp";
 	std::string m_ModuleXmlName = "toto_module";
-	std::string m_ModuleRendererInitFunc = "InitCompute2D"; // from m_RendererType
-	std::string m_ModuleRendererDisplayType = "Comp"; // from m_RendererType
+	std::string m_ModuleRendererInitFunc = "InitCompute2D"; // from m_RendererType // dont save
+	std::string m_ModuleRendererDisplayType = "Comp"; // from m_RendererType // dont save
 
 	// Pass
 	bool m_GenerateAPass = false;
+	std::string m_RendererTypePixel2DSpecializationType = "Quad";
+	bool m_UseAUbo = false;
+	bool m_UseASbo = false;
 
 public:
 	static GeneratorNodePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -116,11 +131,17 @@ private:
 	std::string GetLicenceHeader();
 	std::string GetPVSStudioHeader();
 	std::string GetRendererDisplayName();
+	std::string GetPassRendererFunctionHeader();
+	std::string GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
+	std::string GetPassUpdateBufferInfoInRessourceDescriptorHeader();
+	std::string GetPassShaderCodeHeader();
 	
 private:
 	SlotDico GetSlotDico();
 	SlotStringStruct GetSlotNoneInput(NodeSlotInputPtr vSlot);
 	SlotStringStruct GetSlotNoneOutput(NodeSlotOutputPtr vSlot);
+	SlotStringStruct GetSlotAccelStructureInput(NodeSlotInputPtr vSlot);
+	SlotStringStruct GetSlotAccelStructureOutput(NodeSlotOutputPtr vSlot);
 	SlotStringStruct GetSlotLightGroupInput(NodeSlotInputPtr vSlot);
 	SlotStringStruct GetSlotLightGroupOutput(NodeSlotOutputPtr vSlot);
 	SlotStringStruct GetSlotModelInput(NodeSlotInputPtr vSlot);

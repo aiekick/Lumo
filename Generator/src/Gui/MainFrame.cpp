@@ -554,6 +554,31 @@ void MainFrame::DrawNodeCreationPane()
 
 		ImGui::CheckBoxBoolDefault("Generate a Pass ?", &nodePtr->m_GenerateAPass, true);
 
+		if (nodePtr->m_GenerateAPass)
+		{
+			if (nodePtr->m_RendererType == RENDERER_TYPE_PIXEL_2D)
+			{
+				ImGui::Text("Renderer Specialization Type");
+
+				ImGui::SameLine();
+
+				if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD,
+					nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD, false))
+					nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD;
+				ImGui::SameLine();
+				if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH,
+					nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH, false))
+					nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH;
+				ImGui::SameLine();
+				if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX,
+					nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX, false))
+					nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX;
+			}
+
+			ImGui::CheckBoxBoolDefault("Use A UBO", &nodePtr->m_UseAUbo, false);
+			ImGui::CheckBoxBoolDefault("Use A SBO", &nodePtr->m_UseASbo, false);
+		}
+
 		if (ImGui::ContrastedButton("Generate"))
 		{
 			ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", nullptr, ".");
@@ -577,6 +602,7 @@ void MainFrame::SelectNode(const BaseNodeWeak& vNode)
 		{
 			NodeSlot::sSlotGraphOutputMouseLeft.reset();
 			m_SelectedNodeSlotInput.reset();
+
 			// selection of the first slot
 			if (!nodePtr->m_Inputs.empty())
 			{
@@ -585,6 +611,7 @@ void MainFrame::SelectNode(const BaseNodeWeak& vNode)
 
 			NodeSlot::sSlotGraphOutputMouseRight.reset();
 			m_SelectedNodeSlotOutput.reset();
+			
 			// selection of the first slot
 			if (!nodePtr->m_Outputs.empty())
 			{
