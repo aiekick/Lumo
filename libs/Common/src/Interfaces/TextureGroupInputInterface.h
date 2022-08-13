@@ -39,6 +39,9 @@ template<size_t size_of_array>
 class TextureGroupInputInterface : public TextureGroupInputFunctions
 {
 protected:
+	std::array<DescriptorImageInfoVector, size_of_array> m_ImageGroups;
+	std::array<fvec2Vector, size_of_array> m_ImageGroupSizes;
+
 	std::array<vk::DescriptorImageInfo, size_of_array> m_ImageGroupInfos;
 	std::array<ImGuiTexture, size_of_array> m_ImGuiGroupTextures;
 };
