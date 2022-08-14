@@ -80,11 +80,11 @@ bool VulkanRessource::hasStencilComponent(vk::Format format)
 		format == vk::Format::eD32SfloatS8Uint;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createSharedImageObject(vkApi::VulkanCorePtr vVulkanCorePtr, const vk::ImageCreateInfo& image_info, const VmaAllocationCreateInfo& alloc_info)
+VulkanImageObjectPtr VulkanRessource::createSharedImageObject(vkApi::VulkanCorePtr vVulkanCorePtr, const vk::ImageCreateInfo& image_info, const VmaAllocationCreateInfo& alloc_info)
 {
 	ZoneScoped;
 
-	auto ret = VulkanRessourceObjectPtr(new VulkanRessourceObject, [](VulkanRessourceObject* obj)
+	auto ret = VulkanImageObjectPtr(new VulkanImageObject, [](VulkanImageObject* obj)
 		{
 			vmaDestroyImage(vkApi::VulkanCore::sAllocator, (VkImage)obj->image, obj->alloc_meta);
 		});
@@ -93,7 +93,7 @@ VulkanRessourceObjectPtr VulkanRessource::createSharedImageObject(vkApi::VulkanC
 	return ret;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, void* hostdata_ptr)
+VulkanImageObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, void* hostdata_ptr)
 {
 	ZoneScoped;
 
@@ -192,9 +192,110 @@ VulkanRessourceObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCore
 	return nullptr;
 }
 
+
+VulkanImageObjectPtr VulkanRessource::createTextureImageCube(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, std::array<std::vector<uint8_t>, 6U> hostdatas)
+{
+	ZoneScoped;
+
+	uint32_t channels = 0;
+	uint32_t elem_size = 0;
+
+	mipLevelCount = ct::maxi(mipLevelCount, 1u);
+
+	switch (format)
+	{
+	case vk::Format::eB8G8R8A8Unorm:
+	case vk::Format::eR8G8B8A8Unorm:
+		channels = 4;
+		elem_size = 8 / 8;
+		break;
+	case vk::Format::eB8G8R8Unorm:
+	case vk::Format::eR8G8B8Unorm:
+		channels = 3;
+		elem_size = 8 / 8;
+		break;
+	case vk::Format::eR8Unorm:
+		channels = 1;
+		elem_size = 8 / 8;
+		break;
+	case vk::Format::eD16Unorm:
+		channels = 1;
+		elem_size = 16 / 8;
+		break;
+	case vk::Format::eR32G32B32A32Sfloat:
+		channels = 4;
+		elem_size = 32 / 8;
+		break;
+	case vk::Format::eR32G32B32Sfloat:
+		channels = 3;
+		elem_size = 32 / 8;
+		break;
+	case vk::Format::eR32Sfloat:
+		channels = 1;
+		elem_size = 32 / 8;
+		break;
+	default:
+		LogVarError("unsupported type: %s", vk::to_string(format).c_str());
+		throw std::invalid_argument("unsupported fomat type!");
+	}
+
+	vk::BufferCreateInfo stagingBufferInfo = {};
+	VmaAllocationCreateInfo stagingAllocInfo = {};
+	stagingBufferInfo.size = width * height * channels * elem_size * 6U;
+	stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc;
+	stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
+	auto stagebufferPtr = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+	if (stagebufferPtr)
+	{
+		upload(vVulkanCorePtr, stagebufferPtr, hostdatas.data(), stagingBufferInfo.size);
+
+		VmaAllocationCreateInfo image_alloc_info = {};
+		image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
+		auto familyQueueIndex = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics).familyQueueIndex;
+		auto texturePtr = createSharedImageObject(vVulkanCorePtr, vk::ImageCreateInfo(
+			vk::ImageCreateFlags(),
+			vk::ImageType::e2D,
+			format,
+			vk::Extent3D(vk::Extent2D(width, height), 1),
+			mipLevelCount, 6u,
+			vk::SampleCountFlagBits::e1,
+			vk::ImageTiling::eOptimal,
+			vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+			vk::SharingMode::eExclusive,
+			1,
+			&familyQueueIndex,
+			vk::ImageLayout::eUndefined),
+			image_alloc_info);
+		if (texturePtr)
+		{
+			vk::BufferImageCopy copyParams(
+				0u, 0u, 0u,
+				vk::ImageSubresourceLayers(vk::ImageAspectFlagBits::eColor, 0u, 0u, 6U),
+				vk::Offset3D(0, 0, 0),
+				vk::Extent3D(width, height, 1));
+
+			// on va copier que le mip level 0, on fera les autre dans GenerateMipmaps juste apres ce block
+			transitionImageLayout(vVulkanCorePtr, texturePtr->image, format, mipLevelCount, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, 6U);
+			copy(vVulkanCorePtr, texturePtr->image, stagebufferPtr->buffer, copyParams);
+			if (mipLevelCount > 1)
+			{
+				//todo for 6 images
+				//GenerateMipmaps(vVulkanCorePtr, texturePtr->image, format, width, height, mipLevelCount);
+			}
+			else
+			{
+				transitionImageLayout(vVulkanCorePtr, texturePtr->image, format, mipLevelCount, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal, 6U);
+			}
+
+			return texturePtr;
+		}
+	}
+	return nullptr;
+}
+
 void VulkanRessource::getDatasFromTextureImage2D(
 	VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, 
-	vk::Format format, std::shared_ptr<VulkanRessourceObject> vImage, 
+	vk::Format format, std::shared_ptr<VulkanImageObject> vImage, 
 	void* vDatas, uint32_t* vSize)
 {
 	UNUSED(width);
@@ -207,7 +308,7 @@ void VulkanRessource::getDatasFromTextureImage2D(
 	ZoneScoped;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createColorAttachment2D(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount)
+VulkanImageObjectPtr VulkanRessource::createColorAttachment2D(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount)
 {
 	ZoneScoped;
 
@@ -249,7 +350,7 @@ VulkanRessourceObjectPtr VulkanRessource::createColorAttachment2D(vkApi::VulkanC
 	return vkoPtr;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createComputeTarget2D(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount)
+VulkanImageObjectPtr VulkanRessource::createComputeTarget2D(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount)
 {
 	ZoneScoped;
 
@@ -291,7 +392,7 @@ VulkanRessourceObjectPtr VulkanRessource::createComputeTarget2D(vkApi::VulkanCor
 	return vkoPtr;
 }
 
-VulkanRessourceObjectPtr VulkanRessource::createDepthAttachment(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, vk::Format format, vk::SampleCountFlagBits vSampleCount)
+VulkanImageObjectPtr VulkanRessource::createDepthAttachment(vkApi::VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, vk::Format format, vk::SampleCountFlagBits vSampleCount)
 {
 	ZoneScoped;
 
@@ -423,7 +524,7 @@ void VulkanRessource::GenerateMipmaps(vkApi::VulkanCorePtr vVulkanCorePtr, vk::I
 	}
 }
 
-void VulkanRessource::transitionImageLayout(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Image image, vk::Format format, uint32_t mipLevel, vk::ImageLayout oldLayout, vk::ImageLayout newLayout)
+void VulkanRessource::transitionImageLayout(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Image image, vk::Format format, uint32_t mipLevel, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t layersCount)
 {
 	ZoneScoped;
 
@@ -432,7 +533,7 @@ void VulkanRessource::transitionImageLayout(vkApi::VulkanCorePtr vVulkanCorePtr,
 	subresourceRange.baseMipLevel = 0;
 	subresourceRange.levelCount = mipLevel;
 	subresourceRange.baseArrayLayer = 0;
-	subresourceRange.layerCount = 1;
+	subresourceRange.layerCount = layersCount;
 
 	VulkanRessource::transitionImageLayout(vVulkanCorePtr, image, format, oldLayout, newLayout, subresourceRange);
 }

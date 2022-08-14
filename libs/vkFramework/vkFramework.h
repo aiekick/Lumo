@@ -10,6 +10,10 @@ class Texture2D;
 typedef std::shared_ptr<Texture2D> Texture2DPtr;
 typedef ct::cWeak<Texture2D> Texture2DWeak;
 
+class TextureCube;
+typedef std::shared_ptr<TextureCube> TextureCubePtr;
+typedef ct::cWeak<TextureCube> TextureCubeWeak;
+
 class VulkanImGuiRenderer;
 typedef std::shared_ptr<VulkanImGuiRenderer> VulkanImGuiRendererPtr;
 typedef ct::cWeak<VulkanImGuiRenderer> VulkanImGuiRendererWeak;

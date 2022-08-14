@@ -316,6 +316,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 					slot.hideName = ct::ivariant(attValue).GetB();
 				else if (attName == "typeIndex")
 					slotDatas.editorSlotTypeIndex = ct::ivariant(attValue).GetU();
+				else if (attName == "bindingIndex")
+					slot.descriptorBinding = ct::ivariant(attValue).GetU();
 			}
 
 			if (slot.slotPlace == NodeSlot::PlaceEnum::INPUT)
@@ -327,6 +329,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				slot_input_ptr->slotPlace = slot.slotPlace;
 				slot_input_ptr->pinID = slot.pinID;
 				slot_input_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
+				slot_input_ptr->descriptorBinding = slot.descriptorBinding;
 
 				bool wasSet = false;
 				for (auto input : m_Inputs)
@@ -360,6 +363,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				slot_output_ptr->slotPlace = slot.slotPlace;
 				slot_output_ptr->pinID = slot.pinID;
 				slot_output_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
+				slot_output_ptr->descriptorBinding = slot.descriptorBinding;
 
 				bool wasSet = false;
 				for (auto output : m_Outputs)
@@ -2810,6 +2814,9 @@ SlotDico GeneratorNode::GetSlotDico()
 				case BaseTypeEnum::BASE_TYPE_Texture: // Texture
 					res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureInput(inputSlot.second));
 					break;
+				case BaseTypeEnum::BASE_TYPE_TextureCube: // TextureCube
+					res[BASE_TYPE_TextureCube][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureCubeInput(inputSlot.second));
+					break;
 				case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
 					res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureGroupInput(inputSlot.second));
 					break;
@@ -2866,6 +2873,9 @@ SlotDico GeneratorNode::GetSlotDico()
 					break;
 				case BaseTypeEnum::BASE_TYPE_Texture: // Texture
 					res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureOutput(outputSlot.second));
+					break;
+				case BaseTypeEnum::BASE_TYPE_TextureCube: // TextureCube
+					res[BASE_TYPE_TextureCube][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureCubeOutput(outputSlot.second));
 					break;
 				case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
 					res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureGroupOutput(outputSlot.second));
@@ -4440,6 +4450,230 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotTextureOutput::Create("%s", %u), false, %s);)",
+		vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
+
+	return res;
+}
+
+SlotStringStruct GeneratorNode::GetSlotTextureCubeInput(NodeSlotInputPtr vSlot)
+{
+	SlotStringStruct res;
+
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
+	})";
+	}
+	else
+	{
+		res.cpp_node_func += u8R"(
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAME_Ptr)
+	{
+		m_PASS_CLASS_NAME_Ptr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
+	})";
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
+{	
+	ZoneScoped;
+
+	if (m_Loaded)
+	{
+		if (vBindingPoint < m_ImageCubeInfos.size())
+		{
+			if (vImageCubeInfo)
+			{
+				if (vTextureSize)
+				{
+					m_ImageCubeInfosSize[vBindingPoint] = *vTextureSize;
+				}
+
+				m_ImageCubeInfos[vBindingPoint] = *vImageInfo;
+			}
+			else
+			{
+				m_ImageCubeInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+			}
+		}
+	}
+}
+)";
+
+	res.h_func = u8R"(
+	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;)";
+
+	res.include_interface = u8R"(
+#include <Interfaces/TextureCubeInputInterface.h>)";
+
+	res.include_slot = u8R"(
+#include <Graph/Slots/NodeSlotTextureCubeInput.h>)";
+
+	res.node_module_public_interface = u8R"(
+	public TextureCubeInputInterface<0U>,)";
+
+	res.pass_public_interface = ct::toStr(u8R"(
+	public TextureCubeInputInterface<%u>,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube]);
+
+	res.node_slot_func += ct::toStr(u8R"(
+	AddInput(NodeSlotTextureCubeInput::Create("%s", %u), false, %s);)",
+		vSlot->name.c_str(),
+		vSlot->descriptorBinding,
+		vSlot->hideName ? "true" : "false");
+
+	return res;
+}
+
+SlotStringStruct GeneratorNode::GetSlotTextureCubeOutput(NodeSlotOutputPtr vSlot)
+{
+	SlotStringStruct res;
+
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE CUBE SLOT OUTPUT ////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorImageInfo* NODE_CLASS_NAME::GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->GetTextureCube(vBindingPoint, vOutSize);
+	}
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE CUBE SLOT OUTPUT ////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+{	
+	ZoneScoped;)";
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += u8R"(
+	if (m_PASS_CLASS_NAME_Ptr)
+	{
+		return m_PASS_CLASS_NAME_Ptr->GetTextureCube(vBindingPoint, vOutSize);
+	}
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+	return nullptr;
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE CUBE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorImageInfo* NODE_CLASS_NAME::GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+{	
+	ZoneScoped;
+
+	return nullptr;
+}
+)";
+
+	res.h_func = u8R"(
+	vk::DescriptorImageInfo* GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;)";
+
+	res.include_interface = u8R"(
+#include <Interfaces/TextureCubeOutputInterface.h>)";
+
+	res.include_slot = u8R"(
+#include <Graph/Slots/NodeSlotTextureCubeOutput.h>)";
+
+	res.node_module_public_interface = u8R"(
+	public TextureCubeOutputInterface,)";
+
+	res.pass_public_interface = u8R"(
+	public TextureCubeOutputInterface,)";
+
+	res.node_slot_func += ct::toStr(u8R"(
+	AddOutput(NodeSlotTextureCubeOutput::Create("%s", %u), false, %s);)",
 		vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
 	return res;

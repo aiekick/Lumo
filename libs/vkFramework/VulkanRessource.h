@@ -20,9 +20,10 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/vkFramework.h>
 
+#include <array>
 #include <vector>
+#include <string>
 
-//#ifdef USE_RTX
 struct VulkanAccelStructObject
 {
 	vk::AccelerationStructureKHR handle = nullptr;
@@ -33,14 +34,13 @@ struct VulkanAccelStructObject
 	uint64_t device_address = 0U;
 };
 typedef std::shared_ptr<VulkanAccelStructObject> VulkanAccelStructObjectPtr;
-//#endif
 
-struct VulkanRessourceObject
+struct VulkanImageObject
 {
 	vk::Image image = nullptr;
 	VmaAllocation alloc_meta = nullptr;
 };
-typedef std::shared_ptr<VulkanRessourceObject> VulkanRessourceObjectPtr;
+typedef std::shared_ptr<VulkanImageObject> VulkanImageObjectPtr;
 
 class VulkanBufferObject
 {
@@ -72,20 +72,21 @@ public: // image
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Image  src, const vk::BufferImageCopy& region, vk::ImageLayout layout = vk::ImageLayout::eTransferSrcOptimal);
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Image  src, const std::vector<vk::BufferImageCopy>& regions, vk::ImageLayout layout = vk::ImageLayout::eTransferSrcOptimal);
 
-	static VulkanRessourceObjectPtr createSharedImageObject(VulkanCorePtr vVulkanCorePtr, const vk::ImageCreateInfo& image_info, const VmaAllocationCreateInfo& alloc_info);
-	static VulkanRessourceObjectPtr createTextureImage2D(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, void* hostdata_ptr);
-	static VulkanRessourceObjectPtr createColorAttachment2D(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount);
-	static VulkanRessourceObjectPtr createComputeTarget2D(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount);
-	static VulkanRessourceObjectPtr createDepthAttachment(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, vk::Format format, vk::SampleCountFlagBits vSampleCount);
+	static VulkanImageObjectPtr createSharedImageObject(VulkanCorePtr vVulkanCorePtr, const vk::ImageCreateInfo& image_info, const VmaAllocationCreateInfo& alloc_info);
+	static VulkanImageObjectPtr createTextureImage2D(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, void* hostdata_ptr);
+	static VulkanImageObjectPtr createTextureImageCube(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, std::array<std::vector<uint8_t>, 6U> hostdatas);
+	static VulkanImageObjectPtr createColorAttachment2D(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount);
+	static VulkanImageObjectPtr createComputeTarget2D(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, uint32_t mipLevelCount, vk::Format format, vk::SampleCountFlagBits vSampleCount);
+	static VulkanImageObjectPtr createDepthAttachment(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, vk::Format format, vk::SampleCountFlagBits vSampleCount);
 
 	static void GenerateMipmaps(VulkanCorePtr vVulkanCorePtr, vk::Image image, vk::Format imageFormat, int32_t texWidth, int32_t texHeight, uint32_t mipLevels);
 
-	static void transitionImageLayout(VulkanCorePtr vVulkanCorePtr, vk::Image image, vk::Format format, uint32_t mipLevel, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+	static void transitionImageLayout(VulkanCorePtr vVulkanCorePtr, vk::Image image, vk::Format format, uint32_t mipLevel, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, uint32_t layersCount = 1U);
 	static void transitionImageLayout(VulkanCorePtr vVulkanCorePtr, vk::Image image, vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout, vk::ImageSubresourceRange subresourceRange);
 
 	static bool hasStencilComponent(vk::Format format);
 
-	static void getDatasFromTextureImage2D(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, vk::Format format, std::shared_ptr<VulkanRessourceObject> vImage, void* vDatas, uint32_t* vSize);
+	static void getDatasFromTextureImage2D(VulkanCorePtr vVulkanCorePtr, uint32_t width, uint32_t height, vk::Format format, std::shared_ptr<VulkanImageObject> vImage, void* vDatas, uint32_t* vSize);
 
 public: // buffers
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const vk::BufferCopy& region, vk::CommandPool* vCommandPool = 0);

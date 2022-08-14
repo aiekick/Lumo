@@ -23,7 +23,6 @@ limitations under the License.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/vkFramework.h>
 
-
 class Texture2D
 {
 public:
@@ -38,7 +37,7 @@ public:
 	static Texture2DPtr CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat);
 
 public:
-	std::shared_ptr<VulkanRessourceObject> m_Texture2D = nullptr;
+	std::shared_ptr<VulkanImageObject> m_Texture2D = nullptr;
 	vk::ImageView m_TextureView = {};
 	vk::Sampler m_Sampler = {};
 	vk::DescriptorImageInfo m_DescriptorImageInfo = {};

@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "Texture2D.h"
+#include "TextureCube.h"
 #include <lodepng/lodepng.h>
 #include <ctools/Logger.h>
 
@@ -43,7 +43,7 @@ using namespace vkApi;
 ///// STATIC /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Texture2D::loadPNG(const std::string& inFile, std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight)
+bool TextureCube::loadPNG(const std::string& inFile, std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight)
 {
 	ZoneScoped;
 
@@ -57,7 +57,7 @@ bool Texture2D::loadPNG(const std::string& inFile, std::vector<uint8_t>& outBuff
 	return true;
 }
 
-bool Texture2D::loadImage(const std::string& inFile, std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight, uint32_t& outChannels)
+bool TextureCube::loadImage(const std::string& inFile, std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight, uint32_t& outChannels)
 {
 	ZoneScoped;
 
@@ -79,16 +79,25 @@ bool Texture2D::loadImage(const std::string& inFile, std::vector<uint8_t>& outBu
 	return true;
 }
 
-vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels)
+/*vk::DescriptorImageInfo TextureCube::GetImageInfoFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, std::array<uint8_t*, 6U> vBuffers, const uint32_t& width, const uint32_t& height, const uint32_t& channels)
 {
 	vk::DescriptorImageInfo imgInfo;
 
-	if (buffer)
-	{
-		if (width == 0 || height == 0 || channels == 0)
-			return imgInfo;
+	if (width == 0 || height == 0 || channels == 0)
+		return imgInfo;
 
-		// tofix : tex2d is released at end of func, becaused not stored..
+	bool isok = true;
+	for (auto buffer : vBuffers)
+	{
+		if (!buffer)
+		{
+			isok = false;
+			break;
+		}
+	}
+
+	if (isok)
+	{
 		auto tex2d = VulkanRessource::createTextureImage2D(vVulkanCorePtr, width, height, 1U, vk::Format::eR8G8B8A8Unorm, buffer);
 
 		vk::ImageViewCreateInfo imViewInfo = {};
@@ -123,19 +132,19 @@ vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCorePtr v
 
 	return imgInfo;
 }
-
+*/
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Texture2DPtr Texture2D::CreateFromFile(vkApi::VulkanCorePtr vVulkanCorePtr, std::string vFilePathName)
+TextureCubePtr TextureCube::CreateFromFiles(vkApi::VulkanCorePtr vVulkanCorePtr, std::array<std::string,6U> vFilePathNames)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
+	auto res = std::make_shared<TextureCube>(vVulkanCorePtr);
 
-	if (!res->LoadFile(vFilePathName))
+	if (!res->LoadFiles(vFilePathNames))
 	{
 		res.reset();
 	}
@@ -143,12 +152,13 @@ Texture2DPtr Texture2D::CreateFromFile(vkApi::VulkanCorePtr vVulkanCorePtr, std:
 	return res;
 }
 
-Texture2DPtr Texture2D::CreateFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels)
+/*
+TextureCubePtr TextureCube::CreateFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
+	auto res = std::make_shared<TextureCube>(vVulkanCorePtr);
 
 	if (!res->LoadMemory(buffer, width, height, channels))
 	{
@@ -157,13 +167,15 @@ Texture2DPtr Texture2D::CreateFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, ui
 
 	return res;
 }
+*/
 
-Texture2DPtr Texture2D::CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat)
+/*
+TextureCubePtr TextureCube::CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
+	auto res = std::make_shared<TextureCube>(vVulkanCorePtr);
 
 	if (!res->LoadEmptyTexture(vSize, vFormat))
 	{
@@ -172,13 +184,15 @@ Texture2DPtr Texture2D::CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCorePtr, 
 
 	return res;
 }
+*/
 
-Texture2DPtr Texture2D::CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat)
+/*
+TextureCubePtr TextureCube::CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
+	auto res = std::make_shared<TextureCube>(vVulkanCorePtr);
 
 	if (!res->LoadEmptyImage(vSize, vFormat))
 	{
@@ -187,17 +201,18 @@ Texture2DPtr Texture2D::CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr, ct
 
 	return res;
 }
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-Texture2D::Texture2D(vkApi::VulkanCorePtr vVulkanCorePtr)
+TextureCube::TextureCube(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	ZoneScoped;
 }
 
-Texture2D::~Texture2D()
+TextureCube::~TextureCube()
 {
 	ZoneScoped;
 
@@ -220,32 +235,49 @@ static inline uint32_t GetMiplevelCount(uint32_t width, uint32_t height)
 	return levels;
 }
 
-bool Texture2D::LoadFile(const std::string& vFilePathName, const vk::Format& vFormat, const uint32_t& vMipLevelCount)
+bool TextureCube::LoadFiles(const std::array<std::string, 6U>& vFilePathNames, const vk::Format& vFormat, const uint32_t& vMipLevelCount)
 {
 	ZoneScoped;
 
 	m_Loaded = false;
 
-	if (!vFilePathName.empty())
+	bool isok = true;
+	for (auto filePathName : vFilePathNames)
+	{
+		if (filePathName.empty())
+		{
+			isok = false;
+			break;
+		}
+	}
+
+	if (isok)
 	{
 		Destroy();
+		std::array<std::vector<uint8_t>, 6U> buffers;
 
 		uint32_t channels = 4;
-		std::vector<uint8_t> image_data;
-		if (!loadImage(vFilePathName, image_data, m_Width, m_Height, channels))
-			return false;
+		for (size_t idx = 0U; idx < 6U; ++idx)
+		{
+			std::vector<uint8_t> image_data;
+			if (!loadImage(vFilePathNames[idx], image_data, m_Width, m_Height, channels))
+				return false;
+			{
+				buffers[idx] = image_data;
+			}
 
-		if (m_Width == 0 || m_Height == 0)
-			return false;
+			if (m_Width == 0 || m_Height == 0)
+				return false;
+		}
 
-		LoadMemory(image_data.data(), m_Width, m_Height, channels, vFormat, vMipLevelCount);
+		LoadMemories(buffers, m_Width, m_Height, channels, vFormat, vMipLevelCount);
 	}
 
 	return m_Loaded;
 }
 
-bool Texture2D::LoadMemory(
-	uint8_t* buffer,
+bool TextureCube::LoadMemories(
+	const std::array<std::vector<uint8_t>, 6U>& buffers,
 	const uint32_t& width, const uint32_t& height, const uint32_t& channels,
 	const vk::Format& vFormat, const uint32_t& vMipLevelCount)
 {
@@ -253,11 +285,21 @@ bool Texture2D::LoadMemory(
 
 	m_Loaded = false;
 
-	if (buffer)
-	{
-		if (width == 0 || height == 0 || channels == 0)
-			return false;
+	if (width == 0 || height == 0 || channels == 0)
+		return false;
 
+	bool isok = true;
+	for (auto buffer : buffers)
+	{
+		if (buffer.empty())
+		{
+			isok = false;
+			break;
+		}
+	}
+
+	if (isok)
+	{
 		m_Width = width;
 		m_Height = height;
 
@@ -265,48 +307,51 @@ bool Texture2D::LoadMemory(
 
 		m_MipLevelCount = ct::clamp(vMipLevelCount, 1u, maxMipLevelCount);
 
-		m_Texture2D = VulkanRessource::createTextureImage2D(m_VulkanCorePtr, m_Width, m_Height, m_MipLevelCount, vFormat, buffer);
+		m_TextureCubePtr = VulkanRessource::createTextureImageCube(m_VulkanCorePtr, m_Width, m_Height, m_MipLevelCount, vFormat, buffers);
+		if (m_TextureCubePtr)
+		{
+			vk::ImageViewCreateInfo imViewInfo = {};
+			imViewInfo.flags = vk::ImageViewCreateFlags();
+			imViewInfo.image = m_TextureCubePtr->image;
+			imViewInfo.viewType = vk::ImageViewType::eCube;
+			imViewInfo.format = vFormat;
+			imViewInfo.components = vk::ComponentMapping();
+			imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, m_MipLevelCount, 0, 1);
+			m_TextureView = m_VulkanCorePtr->getDevice().createImageView(imViewInfo);
 
-		vk::ImageViewCreateInfo imViewInfo = {};
-		imViewInfo.flags = vk::ImageViewCreateFlags();
-		imViewInfo.image = m_Texture2D->image;
-		imViewInfo.viewType = vk::ImageViewType::e2D;
-		imViewInfo.format = vFormat;
-		imViewInfo.components = vk::ComponentMapping();
-		imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, m_MipLevelCount, 0, 1);
-		m_TextureView = m_VulkanCorePtr->getDevice().createImageView(imViewInfo);
+			vk::SamplerCreateInfo samplerInfo = {};
+			samplerInfo.flags = vk::SamplerCreateFlags();
+			samplerInfo.magFilter = vk::Filter::eLinear;
+			samplerInfo.minFilter = vk::Filter::eLinear;
+			samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
+			samplerInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge; // U
+			samplerInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge; // V
+			samplerInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge; // W
+			samplerInfo.mipLodBias = 0.0f;
+			//samplerInfo.anisotropyEnable = false;
+			//samplerInfo.maxAnisotropy = 0.0f;
+			//samplerInfo.compareEnable = false;
+			//samplerInfo.compareOp = vk::CompareOp::eAlways;
+			samplerInfo.minLod = 0.0f;
+			samplerInfo.maxLod = static_cast<float>(m_MipLevelCount);
+			//samplerInfo.unnormalizedCoordinates = false;
+			m_Sampler = m_VulkanCorePtr->getDevice().createSampler(samplerInfo);
 
-		vk::SamplerCreateInfo samplerInfo = {};
-		samplerInfo.flags = vk::SamplerCreateFlags();
-		samplerInfo.magFilter = vk::Filter::eLinear;
-		samplerInfo.minFilter = vk::Filter::eLinear;
-		samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
-		samplerInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge; // U
-		samplerInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge; // V
-		samplerInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge; // W
-		samplerInfo.mipLodBias = 0.0f;
-		//samplerInfo.anisotropyEnable = false;
-		//samplerInfo.maxAnisotropy = 0.0f;
-		//samplerInfo.compareEnable = false;
-		//samplerInfo.compareOp = vk::CompareOp::eAlways;
-		samplerInfo.minLod = 0.0f;
-		samplerInfo.maxLod = static_cast<float>(m_MipLevelCount);
-		//samplerInfo.unnormalizedCoordinates = false;
-		m_Sampler = m_VulkanCorePtr->getDevice().createSampler(samplerInfo);
+			m_DescriptorImageInfo.sampler = m_Sampler;
+			m_DescriptorImageInfo.imageView = m_TextureView;
+			m_DescriptorImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
-		m_DescriptorImageInfo.sampler = m_Sampler;
-		m_DescriptorImageInfo.imageView = m_TextureView;
-		m_DescriptorImageInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
+			m_Ratio = (float)m_Width / (float)m_Height;
 
-		m_Ratio = (float)m_Width / (float)m_Height;
-
-		m_Loaded = true;
+			m_Loaded = true;
+		}
 	}
 
 	return m_Loaded;
 }
 
-bool Texture2D::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vFormat)
+/*
+bool TextureCube::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vFormat)
 {
 	ZoneScoped;
 
@@ -369,11 +414,11 @@ bool Texture2D::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vForm
 		memset(image_data.data(), 0, image_data.size());
 	}
 
-	m_Texture2D = VulkanRessource::createTextureImage2D(m_VulkanCorePtr, vSize.x, vSize.y, 1, vFormat, image_data.data());
+	m_TextureCube = VulkanRessource::createTextureImage2D(m_VulkanCorePtr, vSize.x, vSize.y, 1, vFormat, image_data.data());
 
 	vk::ImageViewCreateInfo imViewInfo = {};
 	imViewInfo.flags = vk::ImageViewCreateFlags();
-	imViewInfo.image = m_Texture2D->image;
+	imViewInfo.image = m_TextureCube->image;
 	imViewInfo.viewType = vk::ImageViewType::e2D;
 	imViewInfo.format = vFormat;
 	imViewInfo.components = vk::ComponentMapping();
@@ -408,9 +453,11 @@ bool Texture2D::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vForm
 
 	return m_Loaded;
 }
+*/
 
 // for compute
-bool Texture2D::LoadEmptyImage(const ct::uvec2& vSize, const vk::Format& vFormat)
+/*
+bool TextureCube::LoadEmptyImage(const ct::uvec2& vSize, const vk::Format& vFormat)
 {
 	ZoneScoped;
 
@@ -418,11 +465,11 @@ bool Texture2D::LoadEmptyImage(const ct::uvec2& vSize, const vk::Format& vFormat
 
 	Destroy();
 
-	m_Texture2D = VulkanRessource::createComputeTarget2D(m_VulkanCorePtr, vSize.x, vSize.y, 1U, vFormat, vk::SampleCountFlagBits::e1);
+	m_TextureCube = VulkanRessource::createComputeTarget2D(m_VulkanCorePtr, vSize.x, vSize.y, 1U, vFormat, vk::SampleCountFlagBits::e1);
 
 	vk::ImageViewCreateInfo imViewInfo = {};
 	imViewInfo.flags = vk::ImageViewCreateFlags();
-	imViewInfo.image = m_Texture2D->image;
+	imViewInfo.image = m_TextureCube->image;
 	imViewInfo.viewType = vk::ImageViewType::e2D;
 	imViewInfo.format = vFormat;
 	imViewInfo.components = vk::ComponentMapping();
@@ -457,8 +504,9 @@ bool Texture2D::LoadEmptyImage(const ct::uvec2& vSize, const vk::Format& vFormat
 
 	return m_Loaded;
 }
+*/
 
-void Texture2D::Destroy()
+void TextureCube::Destroy()
 {
 	ZoneScoped;
 
@@ -467,7 +515,7 @@ void Texture2D::Destroy()
 	m_VulkanCorePtr->getDevice().waitIdle();
 	m_VulkanCorePtr->getDevice().destroySampler(m_Sampler);
 	m_VulkanCorePtr->getDevice().destroyImageView(m_TextureView);
-	m_Texture2D.reset();
+	m_TextureCubePtr.reset();
 
 	m_Loaded = false;
 }
@@ -476,7 +524,8 @@ void Texture2D::Destroy()
 ///// SAVE TO PICTURE FILES (PBG, BMP, TGA, HDR) SO STB EXPORT FILES //////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Texture2D::SaveToPng(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const ct::uvec2& vNewSize)
+/*
+bool TextureCube::SaveToPng(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const ct::uvec2& vNewSize)
 {
 	ZoneScoped;
 
@@ -578,8 +627,10 @@ bool Texture2D::SaveToPng(const std::string& vFilePathName, const bool& vFlipY, 
 
 	return res;
 }
+*/
 
-bool Texture2D::SaveToBmp(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const ct::uvec2& vNewSize)
+/*
+bool TextureCube::SaveToBmp(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const ct::uvec2& vNewSize)
 {
 	ZoneScoped;
 
@@ -677,8 +728,10 @@ bool Texture2D::SaveToBmp(const std::string& vFilePathName, const bool& vFlipY, 
 
 	return res;
 }
+*/
 
-bool Texture2D::SaveToJpg(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const int& vQualityFrom0To100, const ct::uvec2& vNewSize)
+/*
+bool TextureCube::SaveToJpg(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const int& vQualityFrom0To100, const ct::uvec2& vNewSize)
 {
 	ZoneScoped;
 
@@ -777,120 +830,22 @@ bool Texture2D::SaveToJpg(const std::string& vFilePathName, const bool& vFlipY, 
 
 	return res;
 }
+*/
 
-bool Texture2D::SaveToHdr(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const ct::uvec2& vNewSize)
+/*
+bool TextureCube::SaveToHdr(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const ct::uvec2& vNewSize)
 {
 	UNUSED(vNewSize);
 	UNUSED(vSubSamplesCount);
 	UNUSED(vFlipY);
 	UNUSED(vFilePathName);
 
-	ZoneScoped;
-
-	bool res = false;
-
-	// on force la creation d'un nouveau FloatBuffer, donc il faudra qu'on le detruise nous meme
-	/*FloatBuffer *bmFloatRGBA = GetFloatBufferFromColorAttachment_4_Chan(vAttachmentId, true, 0, true);
-	if (bmFloatRGBA)
-	{
-		int width = bmFloatRGBA->w;
-		int height = bmFloatRGBA->h;
-		int bytesPerPixel = bmFloatRGBA->bytesPerPixel;
-		int bufSize = (int)bmFloatRGBA->size;
-
-		int ss = vSubSamplesCount;
-
-		// Sub Sampling
-		if (ss > 0)
-		{
-			FloatBuffer* tempdata = GetFloatBufferFromColorAttachment_4_Chan(vAttachmentId, true, 0, true);
-			if (tempdata)
-			{
-				unsigned indexMaxSize = width * height;
-				for (unsigned int index = 0; index < indexMaxSize; ++index)
-				{
-					float count = 0;
-					float r = 0, g = 0, b = 0, a = 0;
-
-					for (int i = -ss; i <= ss; i += ss)
-					{
-						for (int j = -ss; j <= ss; j += ss)
-						{
-							int ssIndex = index + width * j + i;
-							if (ssIndex > 0 && (unsigned int)ssIndex < indexMaxSize)
-							{
-								r += tempdata->buf[ssIndex * bytesPerPixel + 0];
-								g += tempdata->buf[ssIndex * bytesPerPixel + 1];
-								b += tempdata->buf[ssIndex * bytesPerPixel + 2];
-								if (bytesPerPixel > 3)
-									a += tempdata->buf[ssIndex * bytesPerPixel + 3];
-
-								++count;
-							}
-						}
-					}
-
-					bmFloatRGBA->buf[index * bytesPerPixel + 0] = r / count;
-					bmFloatRGBA->buf[index * bytesPerPixel + 1] = g / count;
-					bmFloatRGBA->buf[index * bytesPerPixel + 2] = b / count;
-					if (bytesPerPixel > 3)
-						bmFloatRGBA->buf[index * bytesPerPixel + 3] = a / count;
-				}
-
-				SAFE_DELETE(tempdata);
-			}
-		}
-
-		// resize
-		if (vNewSize.x != width || vNewSize.y != height)
-		{
-			// resize
-			int newWidth = vNewSize.x;
-			int newHeight = vNewSize.y;
-			unsigned int newBufSize = newWidth * newHeight * bytesPerPixel;
-			float* resizedData = new float[newBufSize];
-
-			int resizeRes = stbir_resize_float(bmFloatRGBA->buf, width, height, width * bytesPerPixel,
-				resizedData, newWidth, newHeight, newWidth * bytesPerPixel,
-				bytesPerPixel);
-
-			if (resizeRes)
-			{
-				if (vFlipY)
-					stbi_flip_vertically_on_write(1);
-				int resWrite = stbi_write_hdr(vFilePathName.c_str(),
-					newWidth,
-					newHeight,
-					bytesPerPixel,
-					resizedData);
-
-				if (resWrite)
-					res = true;
-			}
-
-			SAFE_DELETE_ARRAY(resizedData);
-		}
-		else
-		{
-			if (vFlipY)
-				stbi_flip_vertically_on_write(1);
-			int resWrite = stbi_write_hdr(vFilePathName.c_str(),
-				width,
-				height,
-				bytesPerPixel,
-				bmFloatRGBA->buf);
-
-			if (resWrite)
-				res = true;
-		}
-
-		SAFE_DELETE(bmFloatRGBA);
-	}*/
-
 	return res;
 }
+*/
+/*
 
-bool Texture2D::SaveToTga(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const ct::uvec2& vNewSize)
+bool TextureCube::SaveToTga(const std::string& vFilePathName, const bool& vFlipY, const int& vSubSamplesCount, const ct::uvec2& vNewSize)
 {
 	ZoneScoped;
 
@@ -990,3 +945,4 @@ bool Texture2D::SaveToTga(const std::string& vFilePathName, const bool& vFlipY, 
 
 	return res;
 }
+*/

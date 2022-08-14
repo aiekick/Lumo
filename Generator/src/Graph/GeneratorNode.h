@@ -7,14 +7,15 @@
 enum BaseTypeEnum : uint32_t
 {
 	BASE_TYPE_None = 0,
+	BASE_TYPE_AccelStructure,
 	BASE_TYPE_LightGroup,
 	BASE_TYPE_Model,
 	BASE_TYPE_StorageBuffer,
 	BASE_TYPE_TexelBuffer,
 	BASE_TYPE_Texture,
+	BASE_TYPE_TextureCube,
 	BASE_TYPE_TextureGroup,
 	BASE_TYPE_Variable,
-	BASE_TYPE_AccelStructure,
 	BASE_TYPE_Custom
 };
 
@@ -24,14 +25,15 @@ public:
 	std::vector<std::string> m_TypeArray =
 	{
 		"None",
+		"AccelStructure",
 		"LightGroup",
 		"Model",
 		"StorageBuffer",
 		"TexelBuffer",
 		"Texture",
+		"TextureCube",
 		"TextureGroup",
 		"Variable",
-		"AccelStructure",
 		"Custom"
 	};
 };
@@ -154,6 +156,8 @@ private:
 	SlotStringStruct GetSlotTexelBufferOutput(NodeSlotOutputPtr vSlot);
 	SlotStringStruct GetSlotTextureInput(NodeSlotInputPtr vSlot);
 	SlotStringStruct GetSlotTextureOutput(NodeSlotOutputPtr vSlot);
+	SlotStringStruct GetSlotTextureCubeInput(NodeSlotInputPtr vSlot);
+	SlotStringStruct GetSlotTextureCubeOutput(NodeSlotOutputPtr vSlot);
 	SlotStringStruct GetSlotTextureGroupInput(NodeSlotInputPtr vSlot);
 	SlotStringStruct GetSlotTextureGroupOutput(NodeSlotOutputPtr vSlot);
 	SlotStringStruct GetSlotVariableInput(NodeSlotInputPtr vSlot);

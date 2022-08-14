@@ -46,14 +46,15 @@ std::string GeneratorNodeSlotOutput::getXml(const std::string& vOffset, const st
 {
 	std::string res;
 
-	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\" hideName=\"%s\" typeIndex=\"%u\"/>\n",
+	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\" hideName=\"%s\" typeIndex=\"%u\" bindingIndex=\"%u\"/>\n",
 		index,
 		name.c_str(),
 		slotType.c_str(),
 		NodeSlot::sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
 		(uint32_t)pinID.Get(),
 		hideName ? "true" : "false",
-		editorSlotTypeIndex);
+		editorSlotTypeIndex,
+		descriptorBinding);
 
 	return res;
 }

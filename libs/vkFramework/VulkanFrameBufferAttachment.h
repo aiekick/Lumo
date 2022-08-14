@@ -26,7 +26,7 @@ namespace vkApi
 	class VulkanFrameBufferAttachment
 	{
 	public:
-		std::shared_ptr<VulkanRessourceObject> attachment = nullptr;
+		std::shared_ptr<VulkanImageObject> attachment = nullptr;
 		vk::ImageView attachmentView = {};
 		vk::Sampler attachmentSampler = {};
 		vk::DescriptorImageInfo attachmentDescriptorInfo = {};

@@ -24,6 +24,9 @@
 #include <Graph/Slots/NodeSlotTextureGroupOutput.h>
 #include <Graph/Slots/NodeSlotTextureGroupInput.h>
 
+#include <Graph/Slots/NodeSlotTextureCubeOutput.h>
+#include <Graph/Slots/NodeSlotTextureCubeInput.h>
+
 #include <Graph/Slots/NodeSlotStorageBufferInput.h>
 #include <Graph/Slots/NodeSlotStorageBufferOutput.h>
 
@@ -130,8 +133,10 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 				ImGui::CheckBoxBoolDefault("Hide Name", &slotPtr->hideName, false);
 				ImGui::CheckBoxBoolDefault("Show widget", &slotPtr->showWidget, false);
 
-				if (m_SelectedType == "TexelBuffer" ||
+				if (m_SelectedType == "StorageBuffer" || 
+					m_SelectedType == "TexelBuffer" ||
 					m_SelectedType == "Texture" ||
+					m_SelectedType == "TextureCube" ||
 					m_SelectedType == "TextureGroup")
 				{
 					ImGui::InputUIntDefault(0.0f, "Descriptor Binding", &slotPtr->descriptorBinding, 1U, 2U, 0U);
@@ -178,15 +183,23 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::
 				}
 				else if (vType == "StorageBuffer")
 				{
+					if (slotPtr->slotType.empty())
+						slotPtr->slotType = "NONE";
 					resPtr = NodeSlotStorageBufferInput::Create(slotPtr->name, slotPtr->slotType);
 				}
 				else if (vType == "TexelBuffer")
 				{
+					if (slotPtr->slotType.empty())
+						slotPtr->slotType = "NONE";
 					resPtr = NodeSlotTexelBufferInput::Create(slotPtr->name, slotPtr->slotType);
 				}
 				else if (vType == "Texture")
 				{
 					resPtr = NodeSlotTextureInput::Create(slotPtr->name, slotPtr->descriptorBinding);
+				}
+				else if (vType == "TextureCube")
+				{
+					resPtr = NodeSlotTextureCubeInput::Create(slotPtr->name, slotPtr->descriptorBinding);
 				}
 				else if (vType == "TextureGroup")
 				{
@@ -194,6 +207,8 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::
 				}
 				else if (vType == "Variable")
 				{
+					if (slotPtr->slotType.empty())
+						slotPtr->slotType = "NONE";
 					resPtr = NodeSlotVariableInput::Create(slotPtr->name, slotPtr->slotType, slotPtr->variableIndex);
 				}
 
@@ -243,15 +258,23 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(BaseNodeWeak vRootNode, const std:
 				}
 				else if (vType == "StorageBuffer")
 				{
+					if (slotPtr->slotType.empty())
+						slotPtr->slotType = "NONE";
 					resPtr = NodeSlotStorageBufferOutput::Create(slotPtr->name, slotPtr->slotType);
 				}
 				else if (vType == "TexelBuffer")
 				{
+					if (slotPtr->slotType.empty())
+						slotPtr->slotType = "NONE";
 					resPtr = NodeSlotTexelBufferOutput::Create(slotPtr->name, slotPtr->slotType);
 				}
 				else if (vType == "Texture")
 				{
 					resPtr = NodeSlotTextureOutput::Create(slotPtr->name, slotPtr->descriptorBinding);
+				}
+				else if (vType == "TextureCube")
+				{
+					resPtr = NodeSlotTextureCubeOutput::Create(slotPtr->name, slotPtr->descriptorBinding);
 				}
 				else if (vType == "TextureGroup")
 				{
@@ -259,6 +282,8 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(BaseNodeWeak vRootNode, const std:
 				}
 				else if (vType == "Variable")
 				{
+					if (slotPtr->slotType.empty())
+						slotPtr->slotType = "NONE";
 					resPtr = NodeSlotVariableOutput::Create(slotPtr->name, slotPtr->slotType, slotPtr->descriptorBinding);
 				}
 
