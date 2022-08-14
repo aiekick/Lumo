@@ -1194,8 +1194,6 @@ bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 		if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
-
-			change |= DrawResizeWidget();
 )";
 	if (m_GenerateAPass)
 	{
@@ -1356,21 +1354,21 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/ResizerInterface.h>
 )";
-	h_module_file_code += GetNodeSlotsInputIncludesSlots(vDico);
+	h_module_file_code += GetNodeSlotsInputIncludesInterfaces(vDico);
 
 	h_module_file_code += u8R"(
 )";
-	h_module_file_code += GetNodeSlotsOutputIncludesSlots(vDico);
+	h_module_file_code += GetNodeSlotsOutputIncludesInterfaces(vDico);
 	h_module_file_code += u8R"(
 class PASS_CLASS_NAME;
 class MODULE_CLASS_NAME :
 	public BaseRenderer,
 	public GuiInterface,
-	public TaskInterface,
-	public ResizerInterface,)";
+	public TaskInterface,)";
 	h_module_file_code += GetNodeSlotsInputPublicInterfaces(vDico);
 	h_module_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
 	h_module_file_code += u8R"(
+	public ResizerInterface
 {
 public:
 	static std::shared_ptr<MODULE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -1494,8 +1492,48 @@ using namespace vkApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PASS_CLASS_NAME::PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+PASS_CLASS_NAME::PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
+
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			cpp_pass_file_code += u8R"(
+	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL))";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			cpp_pass_file_code += u8R"(
+	: MeshShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL))";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			cpp_pass_file_code += u8R"(
+	: VertexShaderPass(vVulkanCorePtr))";
+		}
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
+	{
+		cpp_pass_file_code += u8R"(
+	: ShaderPass(vVulkanCorePtr))";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
+	{
+		cpp_pass_file_code += u8R"(
+	: ShaderPass(vVulkanCorePtr))";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+	{
+		cpp_pass_file_code += u8R"(
+	: ShaderPass(vVulkanCorePtr))";
+	}
+	else if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		cpp_pass_file_code += u8R"(
+	: RtxShaderPass(vVulkanCorePtr))";
+	}
+
+	cpp_pass_file_code += u8R"(
 {)";
 
 	cpp_pass_file_code += u8R"(
@@ -1585,6 +1623,7 @@ bool PASS_CLASS_NAME::CreateUBO()
 {
 	ZoneScoped;
 
+	/*
 	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBOCompPtr)
@@ -1593,6 +1632,7 @@ bool PASS_CLASS_NAME::CreateUBO()
 		m_UBO_Comp_BufferInfos.range = sizeof(UBOComp);
 		m_UBO_Comp_BufferInfos.offset = 0;
 	}
+	*/
 
 	NeedNewUBOUpload();
 
@@ -1603,15 +1643,17 @@ void PASS_CLASS_NAME::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+	//VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void PASS_CLASS_NAME::DestroyUBO()
 {
 	ZoneScoped;
 
+	/*
 	m_UBOCompPtr.reset();
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	*/
 }
 )";
 	}
@@ -1672,10 +1714,9 @@ bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
 	return true;
 })";
 
-	cpp_pass_file_code += GetPassShaderCodeHeader();
+	cpp_pass_file_code += GetPassShaderCode();
 
-	cpp_pass_file_code += u8R"(";
-}
+	cpp_pass_file_code += u8R"(
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
@@ -1777,13 +1818,12 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/GuiInterface.h>)";
+	h_pass_file_code += GetNodeSlotsInputIncludesInterfaces(vDico);
+	h_pass_file_code += GetNodeSlotsOutputIncludesInterfaces(vDico);
+	h_pass_file_code += u8R"(
 
-class PASS_CLASS_NAME :
-)";
+class PASS_CLASS_NAME :)";
 
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
@@ -1824,15 +1864,15 @@ class PASS_CLASS_NAME :
 	public RtxShaderPass,)";
 	}
 
-	h_pass_file_code += u8R"(
-	public GuiInterface,)";
-
 	h_pass_file_code += GetPassInputPublicInterfaces(vDico);
+	h_pass_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
+
+	h_pass_file_code += u8R"(
+	public GuiInterface)";
 
 	h_pass_file_code += u8R"(
 {
 private:
-
 	//VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
 	//vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOComp {
@@ -1885,27 +1925,27 @@ public:
 	h_pass_file_code += GetNodeSlotsOutputHFuncs(vDico);
 
 	h_pass_file_code += u8R"(
+
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
-protected:
-)";
+protected:)";
 
 	if (m_UseAUbo)
 	{
 		h_pass_file_code += u8R"(
-		bool CreateUBO() override;
-		void UploadUBO() override;
-		void DestroyUBO() override;
+	bool CreateUBO() override;
+	void UploadUBO() override;
+	void DestroyUBO() override;
 )";
 	}
 
 	if (m_UseASbo)
 	{
 		h_pass_file_code += u8R"(
-		bool CreateSBO() override;
-		void UploadSBO() override;
-		void DestroySBO() override;
+	bool CreateSBO() override;
+	void UploadSBO() override;
+	void DestroySBO() override;
 )";
 	}
 
@@ -1914,8 +1954,10 @@ protected:
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 )";
 
+
+	h_pass_file_code += GetPassShaderHeader();
+
 	h_pass_file_code += u8R"(
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };)";
 
 	ct::replaceString(cpp_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
@@ -2214,7 +2256,7 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 	return res;
 }
 
-std::string GeneratorNode::GetPassShaderCodeHeader()
+std::string GeneratorNode::GetPassShaderCode()
 {
 	std::string res;
 
@@ -2239,7 +2281,7 @@ void main()
 	v_uv = vertUv;
 	gl_Position = vec4(vertPosition, 0.0, 1.0);
 }
-)"; res += u8R"(";
+))"; res += u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
@@ -2261,9 +2303,8 @@ void main()
 {
 	fragColor = vec4(0);
 }
-)"; res += u8R"(";
-}
-)";
+))"; res += u8R"(";
+})";
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
 		{
@@ -2283,7 +2324,7 @@ layout(location = 4) in vec2 aUv;
 layout(location = 5) in vec4 aColor;
 
 layout(location = 0) out vec4 vertColor;
-)"; res += u8R"(
+))"; res += u8R"(
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout (std140, binding = 1) uniform UBO_Vert 
@@ -2296,7 +2337,7 @@ void main()
 	vertColor = aColor;
 	gl_Position = cam * transform * vec4(aPosition, 1.0);
 }
-)"; res += u8R"(
+))"; res += u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
@@ -2318,12 +2359,11 @@ layout(std140, binding = 2) uniform UBO_Frag
 	//uint color_count;	// 0..N
 };
 
-
 void main() 
 {
 	fragColor = vec4(0);
 }
-)"; res += u8R"(
+))"; res += u8R"(";
 })";
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
@@ -2357,8 +2397,7 @@ void main()
 	if (vertexId<150.) gl_Position = cam * vec4(d,0,1);
 	else gl_Position = cam * vec4(0,0,0,1);
 	vertColor = vec4(1,1,1,1);
-))";
-	res += u8R"(";
+))"; res += u8R"(";
 		}
 
 		std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
@@ -2683,6 +2722,44 @@ void main()
 	return res;
 }
 
+std::string GeneratorNode::GetPassShaderHeader()
+{
+	std::string res;
+
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		res += u8R"(
+	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
+	{
+		res += u8R"(
+	std::string GetComputeShaderCode(std::string& vOutShaderName) override;)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
+	{
+		res += u8R"(
+	std::string GetComputeShaderCode(std::string& vOutShaderName) override;)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
+	{
+		res += u8R"(
+	std::string GetComputeShaderCode(std::string& vOutShaderName) override;)";
+	}
+	else if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		res += u8R"(
+	std::string GetRayGenerationShaderCode(std::string& vOutShaderName) override;
+	std::string GetRayIntersectionShaderCode(std::string& vOutShaderName) override;
+	std::string GetRayMissShaderCode(std::string& vOutShaderName) override;
+	std::string GetRayAnyHitShaderCode(std::string& vOutShaderName) override;
+	std::string GetRayClosestHitShaderCode(std::string& vOutShaderName) override;)";
+	}
+
+	return res;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// GENERATOR SLOTS DICO ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2897,9 +2974,9 @@ void MODULE_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStr
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		m_PASS_CLASS_NAMEPtr->SetAccelStructure(vSceneAccelStructure);
+		m_PASS_CLASS_NAME_Ptr->SetAccelStructure(vSceneAccelStructure);
 	})";
 	}
 	else
@@ -3035,9 +3112,9 @@ SceneAccelStructureWeak MODULE_CLASS_NAME::GetAccelStruct()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetAccelStruct();
+		return m_PASS_CLASS_NAME_Ptr->GetAccelStruct();
 	}
 )";
 	}
@@ -3053,9 +3130,9 @@ vk::WriteDescriptorSetAccelerationStructureKHR* MODULE_CLASS_NAME::GetTLASInfo()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetTLASInfo();
+		return m_PASS_CLASS_NAME_Ptr->GetTLASInfo();
 	}
 )";
 	}
@@ -3071,9 +3148,9 @@ vk::DescriptorBufferInfo* MODULE_CLASS_NAME::GetBufferAddressInfo()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetBufferAddressInfo();
+		return m_PASS_CLASS_NAME_Ptr->GetBufferAddressInfo();
 	}
 )";
 	}
@@ -3189,9 +3266,9 @@ void MODULE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		m_PASS_CLASS_NAMEPtr->SetLightGroup(vSceneLightGroup);
+		m_PASS_CLASS_NAME_Ptr->SetLightGroup(vSceneLightGroup);
 	})";
 	}
 	else
@@ -3302,9 +3379,9 @@ SceneLightGroupWeak MODULE_CLASS_NAME::GetLightGroup()
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetLightGroup();
+		return m_PASS_CLASS_NAME_Ptr->GetLightGroup();
 	}
 )";
 	}
@@ -3404,9 +3481,9 @@ void MODULE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		m_PASS_CLASS_NAMEPtr->SetModel(vSceneModel);
+		m_PASS_CLASS_NAME_Ptr->SetModel(vSceneModel);
 	})";
 	}
 	else
@@ -3506,9 +3583,9 @@ SceneModelWeak MODULE_CLASS_NAME::GetModel()
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetModel();
+		return m_PASS_CLASS_NAME_Ptr->GetModel();
 	}
 )";
 	}
@@ -3608,9 +3685,9 @@ void MODULE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Desc
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		m_PASS_CLASS_NAMEPtr->SetStorageBuffer(vBindingPoint, vStorageBuffer, vStorageBufferSize);
+		m_PASS_CLASS_NAME_Ptr->SetStorageBuffer(vBindingPoint, vStorageBuffer, vStorageBufferSize);
 	})";
 	}
 	else
@@ -3728,9 +3805,9 @@ vk::DescriptorBufferInfo* MODULE_CLASS_NAME::GetStorageBuffer(const uint32_t& vB
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetStorageBuffer(vBindingPoint, vOutSize);
+		return m_PASS_CLASS_NAME_Ptr->GetStorageBuffer(vBindingPoint, vOutSize);
 	}
 )";
 	}
@@ -3851,9 +3928,9 @@ void MODULE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		m_PASS_CLASS_NAMEPtr->SetTexelBuffer(vBindingPoint, vTexelBuffer, vTexelBufferSize);
+		m_PASS_CLASS_NAME_Ptr->SetTexelBuffer(vBindingPoint, vTexelBuffer, vTexelBufferSize);
 	})";
 	}
 	else
@@ -3872,9 +3949,9 @@ void MODULE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Bu
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		m_PASS_CLASS_NAMEPtr->SetTexelBufferView(vBindingPoint, vTexelBufferView, vTexelBufferSize);
+		m_PASS_CLASS_NAME_Ptr->SetTexelBufferView(vBindingPoint, vTexelBufferView, vTexelBufferSize);
 	})";
 	}
 	else
@@ -4036,9 +4113,9 @@ vk::Buffer* MODULE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct:
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetTexelBuffer(vBindingPoint, vOutSize);
+		return m_PASS_CLASS_NAME_Ptr->GetTexelBuffer(vBindingPoint, vOutSize);
 	}
 )";
 	}
@@ -4054,9 +4131,9 @@ vk::BufferView* MODULE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPo
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetTexelBufferView(vBindingPoint, vOutSize);
+		return m_PASS_CLASS_NAME_Ptr->GetTexelBufferView(vBindingPoint, vOutSize);
 	}
 )";
 	}
@@ -4164,9 +4241,9 @@ void MODULE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::Descriptor
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		m_PASS_CLASS_NAMEPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_PASS_CLASS_NAME_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	})";
 	}
 	else
@@ -4286,9 +4363,9 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_PASS_CLASS_NAME_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 )";
 	}
@@ -4419,9 +4496,9 @@ void MODULE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorIma
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		m_PASS_CLASS_NAMEPtr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
+		m_PASS_CLASS_NAME_Ptr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
 	})";
 	}
 	else
@@ -4539,9 +4616,9 @@ DescriptorImageInfoVector* MODULE_CLASS_NAME::GetDescriptorImageInfos(const uint
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
+		return m_PASS_CLASS_NAME_Ptr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
 	}
 )";
 	}
@@ -4641,9 +4718,9 @@ void MODULE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		m_PASS_CLASS_NAMEPtr->SetVariable(vVarIndex, vSceneVariable);
+		m_PASS_CLASS_NAME_Ptr->SetVariable(vVarIndex, vSceneVariable);
 	})";
 	}
 	else
@@ -4749,9 +4826,9 @@ SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-	if (m_PASS_CLASS_NAMEPtr)
+	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAMEPtr->GetVariable(vVariableIndex)
+		return m_PASS_CLASS_NAME_Ptr->GetVariable(vVariableIndex)
 	}
 )";
 	}

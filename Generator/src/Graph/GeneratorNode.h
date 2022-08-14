@@ -135,7 +135,8 @@ private:
 	std::string GetPassRendererFunctionHeader();
 	std::string GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
 	std::string GetPassUpdateBufferInfoInRessourceDescriptorHeader();
-	std::string GetPassShaderCodeHeader();
+	std::string GetPassShaderCode();
+	std::string GetPassShaderHeader();
 	
 private:
 	SlotDico GetSlotDico();
