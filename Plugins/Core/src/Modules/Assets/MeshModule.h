@@ -39,6 +39,7 @@ public:
 
 private:
 	ct::cWeak<MeshModule> m_This;
+	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 	std::string m_FilePathName;
 	std::string m_FilePath;
@@ -53,7 +54,6 @@ private:
 	bool m_NeedModelUpdate = false;
 
 	SceneModelPtr m_SceneModelPtr = nullptr;
-	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 	std::string unique_OpenMeshFileDialog_id;
 
