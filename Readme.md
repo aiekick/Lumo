@@ -112,7 +112,7 @@ thats all
 | :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Primitves / UV Sphere | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitves / ICO Sphere | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitves / Ico Sphere | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitves / Cube | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitves / Torus | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
