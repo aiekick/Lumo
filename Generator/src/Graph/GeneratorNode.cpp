@@ -186,6 +186,7 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 		res += vOffset + ct::toStr("\t\t<pass_specialization_type>%s</pass_specialization_type>\n", m_RendererTypePixel2DSpecializationType.c_str());
 		res += vOffset + ct::toStr("\t\t<pass_use_ubo>%s</pass_use_ubo>\n", m_UseAUbo ? "true" : "false");
 		res += vOffset + ct::toStr("\t\t<pass_use_sbo>%s</pass_use_sbo>\n", m_UseASbo ? "true" : "false");
+		res += vOffset + ct::toStr("\t\t<node_is_a_task>%s</node_is_a_task>\n", m_IsATask ? "true" : "false");
 		
 		res += vOffset + "\t</generation>\n";
 
@@ -314,6 +315,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 					slot.pinID = ct::ivariant(attValue).GetU();
 				else if (attName == "hideName")
 					slot.hideName = ct::ivariant(attValue).GetB();
+				else if (attName == "showWidget")
+					slot.showWidget = ct::ivariant(attValue).GetB();
 				else if (attName == "typeIndex")
 					slotDatas.editorSlotTypeIndex = ct::ivariant(attValue).GetU();
 				else if (attName == "bindingIndex")
@@ -328,6 +331,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				slot_input_ptr->slotType = slot.slotType;
 				slot_input_ptr->slotPlace = slot.slotPlace;
 				slot_input_ptr->pinID = slot.pinID;
+				slot_input_ptr->showWidget = slot.showWidget;
 				slot_input_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
 				slot_input_ptr->descriptorBinding = slot.descriptorBinding;
 
@@ -362,6 +366,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				slot_output_ptr->slotType = slot.slotType;
 				slot_output_ptr->slotPlace = slot.slotPlace;
 				slot_output_ptr->pinID = slot.pinID;
+				slot_output_ptr->showWidget = slot.showWidget;
 				slot_output_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
 				slot_output_ptr->descriptorBinding = slot.descriptorBinding;
 
@@ -452,6 +457,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 			m_UseAUbo = ct::ivariant(strValue).GetB();
 		else if (strName == "pass_use_sbo")
 			m_UseASbo = ct::ivariant(strValue).GetB();
+		else if (strName == "node_is_a_task")
+			m_IsATask = ct::ivariant(strValue).GetB();
 
 		return true;
 	}
@@ -505,43 +512,34 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath, const ProjectF
 
 	h_node_file_code += u8R"(
 #include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
-)";
+#include <Graph/Base/BaseNode.h>)";
 
 	cpp_node_file_code += ct::toStr(u8R"(
-#include "%s.h"
-)", node_class_name.c_str());
+#include "%s.h")", node_class_name.c_str());
 
 	if (m_GenerateAModule)
 	{
-		cpp_node_file_code += ct::toStr(u8R"(#include <Modules/%s/%s.h>
-)", m_CategoryName.c_str(), module_class_name.c_str());
+		cpp_node_file_code += ct::toStr(u8R"(
+#include <Modules/%s/%s.h>)", m_CategoryName.c_str(), module_class_name.c_str());
 	}
 
 	cpp_node_file_code += GetNodeSlotsInputIncludesSlots(slotDico);
-	cpp_node_file_code += u8R"(
-)";
 	cpp_node_file_code += GetNodeSlotsOutputIncludesSlots(slotDico);
 	h_node_file_code += GetNodeSlotsInputIncludesInterfaces(slotDico);
-	h_node_file_code += u8R"(
-)";
 	h_node_file_code += GetNodeSlotsOutputIncludesInterfaces(slotDico);
-	h_node_file_code += u8R"(
-)";
 	h_node_file_code += u8R"(
 #include <Interfaces/ShaderUpdateInterface.h>
 
 class MODULE_CLASS_NAME;
 class NODE_CLASS_NAME :
 	public BaseNode,)";
-
 	h_node_file_code += GetNodeSlotsInputPublicInterfaces(slotDico);
 	h_node_file_code += GetNodeSlotsOutputPublicInterfaces(slotDico);
 	h_node_file_code += u8R"(
-	public ShaderUpdateInterface
-)";
+	public ShaderUpdateInterface)";
 
 	cpp_node_file_code += u8R"(
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -583,8 +581,7 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	name = "NODE_DISPLAY_NAME";
-)";
+	name = "NODE_DISPLAY_NAME";)";
 
 	cpp_node_file_code += GetNodeSlotsInputFuncs(slotDico);
 	cpp_node_file_code += u8R"(
@@ -596,7 +593,6 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	if (m_GenerateAModule)
 	{
 		cpp_node_file_code += u8R"(
-
 	m_MODULE_CLASS_NAMEPtr = MODULE_CLASS_NAME::Create(vVulkanCorePtr);
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
@@ -608,7 +604,11 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	return res;
 }
+)";
 
+	if (m_IsATask)
+	{
+		cpp_node_file_code += u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -620,25 +620,37 @@ bool NODE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	bool res = false;
 
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
-
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 )";
 
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += u8R"(
+		if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture])
+		{
+			cpp_node_file_code += u8R"(
+	// for update input texture buffer infos => avoid vk crash
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);)";
+		}
+		/*else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
+		{
+			cpp_node_file_code += u8R"(
+		// for update input texture buffer infos => avoid vk crash
+		UpdateTextureCubeInputDescriptorImageInfos(m_Inputs);)";
+		}*/
+
+		if (m_GenerateAModule)
+		{
+			cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		res = m_MODULE_CLASS_NAMEPtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 )";
-	}
-		
-	cpp_node_file_code += u8R"(
-	return res;
-}
+		}
 
+		cpp_node_file_code += u8R"(
+	return res;
+})";
+	}
+
+	cpp_node_file_code += u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -686,7 +698,51 @@ void NODE_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 
 	cpp_node_file_code += u8R"(
 }
+)";
+	if (m_ShowInputWidgets || m_ShowOutputWidgets)
+	{
+		cpp_node_file_code += u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// DRAW SLOTS WIDGET ///////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+)";
+	}
 
+	if (m_ShowInputWidgets)
+	{
+		cpp_node_file_code += u8R"(
+void NODE_CLASS_NAME::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
+{
+	auto slotPtr = vSlot.getValidShared();
+	if (slotPtr && slotPtr->showWidget)
+	{
+		if (m_MODULE_CLASS_NAMEPtr)
+		{
+			//m_MODULE_CLASS_NAMEPtr->DrawTexture(50);
+		}
+	}
+}
+)";
+	}
+
+	if (m_ShowOutputWidgets)
+	{
+		cpp_node_file_code += u8R"(
+void NODE_CLASS_NAME::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
+{
+	auto slotPtr = vSlot.getValidShared();
+	if (slotPtr && slotPtr->showWidget)
+	{
+		if (m_MODULE_CLASS_NAMEPtr)
+		{
+			//m_MODULE_CLASS_NAMEPtr->DrawTexture(50);
+		}
+	}
+}
+)";
+	}
+
+	cpp_node_file_code += u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -708,7 +764,11 @@ void NODE_CLASS_NAME::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
 		}
 	}
-}
+})";
+
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		cpp_node_file_code += u8R"(
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
@@ -718,25 +778,26 @@ void NODE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 {
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += u8R"(
+		if (m_GenerateAModule)
+		{
+			cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 )";
-	}
+		}
 
-	cpp_node_file_code += u8R"(
+		cpp_node_file_code += u8R"(
 	// on fait ca apres
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 )";
+	}
+
 	cpp_node_file_code += GetNodeSlotsInputCppFuncs(slotDico);
 	cpp_node_file_code += GetNodeSlotsOutputCppFuncs(slotDico);
 	cpp_node_file_code += u8R"(
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -819,7 +880,11 @@ bool NODE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	// continue recurse child exploring
 	return true;
 }
+)";
 
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		cpp_node_file_code += u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -828,23 +893,24 @@ void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += u8R"(
+		if (m_GenerateAModule)
+		{
+			cpp_node_file_code += u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->UpdateShaders(vFiles);
 	})";
-	}
-	else
-	{
-		cpp_node_file_code += u8R"(
+		}
+		else
+		{
+			cpp_node_file_code += u8R"(
 )";
-	}
+		}
 
-	cpp_node_file_code += u8R"(
+		cpp_node_file_code += u8R"(
 }
 )";
+	}
 
 	h_node_file_code += u8R"(
 {
@@ -867,18 +933,28 @@ public:
 
 	// Init / Unit
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
-	
+)";
+	if (m_IsATask)
+	{
+		h_node_file_code += u8R"(
 	// Execute Task
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;
+)";
+	}
 	
+	h_node_file_code += u8R"(
 	// Draw Widgets
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	
+	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;)";
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		h_node_file_code += u8R"(
+
 	// Resize
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+	void NeedResizeByResizeEvent(ct::ivec2 * vNewSize, const uint32_t * vCountColorBuffers) override;
 )";
+	}
 
 	h_node_file_code += GetNodeSlotsInputHFuncs(slotDico);
 	h_node_file_code += u8R"(
@@ -886,6 +962,29 @@ public:
 	h_node_file_code += GetNodeSlotsOutputHFuncs(slotDico);
 	h_node_file_code += u8R"(
 )";
+	if (m_ShowInputWidgets || m_ShowOutputWidgets)
+	{
+		h_node_file_code += u8R"(
+	// Input / Ouput slot widgets)";
+	}
+
+	if (m_ShowInputWidgets)
+	{
+		h_node_file_code += u8R"(
+	void DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;)";
+	}
+
+	if (m_ShowOutputWidgets)
+	{
+		h_node_file_code += u8R"(
+	void DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;)";
+	}
+
+	if (m_ShowInputWidgets || m_ShowOutputWidgets)
+	{
+		h_node_file_code += u8R"(
+)";
+	}
 
 	h_node_file_code += u8R"(
 	// Configuration
@@ -933,7 +1032,7 @@ void GeneratorNode::GenerateModules(const std::string& vPath, const ProjectFile*
 	std::string h_module_file_name = module_path.string() + "/" + module_class_name + ".h";
 
 	std::string pass_renderer_display_type = GetRendererDisplayName();
-	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "_Pass";
+	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "Pass";
 	std::string cpp_pass_file_name = pass_class_name + ".cpp";
 	std::string h_pass_file_name = pass_class_name + ".h";
 
@@ -1000,10 +1099,21 @@ std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(vkApi::VulkanCorePt
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MODULE_CLASS_NAME::MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+MODULE_CLASS_NAME::MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		cpp_module_file_code += u8R"(
+	: BaseRenderer(vVulkanCorePtr))";
+	}
+		cpp_module_file_code += u8R"(
 {
-	ZoneScoped;
+	ZoneScoped;)";
+	if (!m_GenerateAPass)
+	{
+		cpp_module_file_code += u8R"(
+	m_VulkanCorePtr = vVulkanCorePtr;)";
+	}
+	cpp_module_file_code += u8R"(
 }
 
 MODULE_CLASS_NAME::~MODULE_CLASS_NAME()
@@ -1020,10 +1130,13 @@ MODULE_CLASS_NAME::~MODULE_CLASS_NAME()
 bool MODULE_CLASS_NAME::Init()
 {
 	ZoneScoped;
-
-	m_Loaded = false;
-
 )";
+	if (m_GenerateAPass)
+	{
+		cpp_module_file_code += u8R"(
+	m_Loaded = false;
+)";
+	}
 
 	if (m_GenerateAPass)
 	{
@@ -1160,10 +1273,34 @@ bool MODULE_CLASS_NAME::Init()
 		}
 	}
 
-	cpp_module_file_code += u8R"(
+	if (m_GenerateAPass)
+	{
+		cpp_module_file_code += u8R"(
 	return m_Loaded;
 }
+)";
+	}
+	else
+	{
+		cpp_module_file_code += u8R"(
+	return true;
+}
+)";
+	}
 
+	if (!m_GenerateAPass && m_RendererType == RENDERER_TYPE_NONE)
+	{
+		cpp_module_file_code += u8R"(
+void MODULE_CLASS_NAME::Unit()
+{
+	ZoneScoped;
+}
+)";
+	}
+
+	if (m_IsATask)
+	{
+		cpp_module_file_code += u8R"(
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -1184,7 +1321,13 @@ bool MODULE_CLASS_NAME::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Com
 	BaseRenderer::Render("MODULE_DISPLAY_NAME", vCmd);
 
 	return true;
-}
+})";
+	}
+
+	cpp_module_file_code += u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
@@ -1192,28 +1335,44 @@ bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
-	if (m_LastExecutedFrame == vCurrentFrame)
+)";
+	if (m_IsATask)
 	{
+		cpp_module_file_code += u8R"(
+	if (m_LastExecutedFrame == vCurrentFrame)
+	{)";
+	}
+	
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		cpp_module_file_code += u8R"(
 		if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 )";
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
+		if (m_GenerateAPass)
+		{
+			cpp_module_file_code += u8R"(
 			if (m_PASS_CLASS_NAME_Ptr)
 			{
 				change |= m_PASS_CLASS_NAME_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 )";
-	}
+		}
 
-	cpp_module_file_code += u8R"(
+		cpp_module_file_code += u8R"(
 			return change;
 		}
+)";
 	}
 
+	if (m_IsATask)
+	{
+		cpp_module_file_code += u8R"(
+	}
+)";
+	}
+	cpp_module_file_code += u8R"(
 	return false;
 }
 
@@ -1223,11 +1382,17 @@ void MODULE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fr
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
+)";
+	if (m_IsATask)
+	{
+		cpp_module_file_code += u8R"(
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+)";
+	}
+	cpp_module_file_code += u8R"(
 }
 
 void MODULE_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
@@ -1236,13 +1401,24 @@ void MODULE_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
+)";
+	if (m_IsATask)
+	{
+		cpp_module_file_code += u8R"(
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+)";
+	}
+	cpp_module_file_code += u8R"(
 }
+)";
 
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+
+		cpp_module_file_code += u8R"(
 void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
@@ -1252,10 +1428,11 @@ void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint3
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 )";
+	}
+
 	cpp_module_file_code += GetModuleInputCppFuncs(vDico);
 	cpp_module_file_code += GetModuleOutputCppFuncs(vDico);
 	cpp_module_file_code += u8R"(
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1267,9 +1444,14 @@ std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::str
 	std::string str;
 
 	str += vOffset + "<MODULE_XML_NAME>\n";
-
+)";
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		cpp_module_file_code += u8R"(
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 )";
+	}
+
 	if (m_GenerateAPass)
 	{
 		cpp_module_file_code += u8R"(
@@ -1302,10 +1484,14 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 		strParentName = vParent->Value();
 
 	if (strParentName == "MODULE_XML_NAME")
+	{)";
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
+		cpp_module_file_code += u8R"(
 		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+			m_CanWeRender = ct::ivariant(strValue).GetB();)";
 	}
+	cpp_module_file_code += u8R"(
 )";
 	if (m_GenerateAPass)
 	{
@@ -1318,6 +1504,8 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 	}
 
 	cpp_module_file_code += u8R"(
+	}
+
 	return true;
 }
 )";
@@ -1359,26 +1547,53 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 #include <Interfaces/ResizerInterface.h>
 )";
 	h_module_file_code += GetNodeSlotsInputIncludesInterfaces(vDico);
-
-	h_module_file_code += u8R"(
-)";
 	h_module_file_code += GetNodeSlotsOutputIncludesInterfaces(vDico);
 	h_module_file_code += u8R"(
-class PASS_CLASS_NAME;
-class MODULE_CLASS_NAME :
+)";
+	if (m_GenerateAPass)
+	{
+		h_module_file_code += u8R"(
+class PASS_CLASS_NAME;)";
+	}
+
+	h_module_file_code += u8R"(
+class MODULE_CLASS_NAME :)";
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		h_module_file_code += u8R"(
 	public BaseRenderer,
-	public GuiInterface,
+	public ResizerInterface,)";
+	}
+	else
+	{
+		h_module_file_code += u8R"(
+	public conf::ConfigAbstract,)";
+	}
+
+	if (m_IsATask)
+	{
+		h_module_file_code += u8R"(
 	public TaskInterface,)";
+	}
+
 	h_module_file_code += GetNodeSlotsInputPublicInterfaces(vDico);
 	h_module_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
+
 	h_module_file_code += u8R"(
-	public ResizerInterface
+	public GuiInterface
 {
 public:
 	static std::shared_ptr<MODULE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	ct::cWeak<MODULE_CLASS_NAME> m_This;)";
+	ct::cWeak<MODULE_CLASS_NAME> m_This;
+)";
+	if (!m_GenerateAPass)
+	{
+		h_module_file_code += u8R"(	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+)";
+	}
+
 	if (m_GenerateAPass)
 	{
 		h_module_file_code += u8R"(
@@ -1389,25 +1604,50 @@ private:
 	h_module_file_code += u8R"(
 public:
 	MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~MODULE_CLASS_NAME() override;
+	~MODULE_CLASS_NAME())";
+	if (m_GenerateAPass)
+	{
+		h_module_file_code += u8R"( override;
+)";
+	}
+	else
+	{
+		h_module_file_code += u8R"(;
+)";
+	}
+	h_module_file_code += u8R"(
+	bool Init();)";
 
-	bool Init();
+	if (!m_GenerateAPass)
+	{
+		h_module_file_code += u8R"(
+	void Unit();)";
+	}
+	h_module_file_code += u8R"(
+)";
 
+	if (m_IsATask)
+	{
+		h_module_file_code += u8R"(
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-
+)";
+	}
+		h_module_file_code += u8R"(
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-
+)";
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		h_module_file_code += u8R"(
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 )";
+	}
+
 	h_module_file_code += GetNodeSlotsInputHFuncs(vDico);
-	h_module_file_code += u8R"(
-)";
 	h_module_file_code += GetNodeSlotsOutputHFuncs(vDico);
 	h_module_file_code += u8R"(
-
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };
@@ -1454,7 +1694,7 @@ void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* 
 		fs::create_directory(path_path);
 
 	std::string pass_renderer_display_type = GetRendererDisplayName();
-	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "_Pass";
+	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "Pass";
 	std::string cpp_pass_file_name = path_path.string() + "/" + pass_class_name + ".cpp";
 	std::string h_pass_file_name = path_path.string() + "/" + pass_class_name + ".h";
 
@@ -1556,16 +1796,69 @@ PASS_CLASS_NAME::~PASS_CLASS_NAME()
 void PASS_CLASS_NAME::ActionBeforeInit()
 {
 	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+)";
 
-	//m_PrimitiveTopology = vk::PrimitiveTopology::eLineList;
-	//m_LineWidth.x = 0.5f;		// min value
-	//m_LineWidth.y = 10.0f;	// max value
-	//m_LineWidth.z = 2.0f;		// default value
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			cpp_pass_file_code += u8R"(
+	m_PrimitiveTopology = vk::PrimitiveTopology::eLineList; // display lines
+	m_LineWidth.x = 0.5f;	// min value
+	m_LineWidth.y = 10.0f;	// max value
+	m_LineWidth.z = 2.0f;	// default value)";
+		}
+	}
 
+	if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer])
+	{
+		cpp_pass_file_code += u8R"(
+	for (auto& info : m_StorageBuffers)
+	{
+		info = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
+	})";
+	}
+	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer])
+	{
+		cpp_pass_file_code += u8R"(
+	for (auto& info : m_TexelBuffers)
+	{
+		info = nullptr;
+	}
+	for (auto& info : m_TexelBufferViews)
+	{
+		info = m_VulkanCorePtr->getEmptyBufferView();
+	})";
+	}
+	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture])
+	{
+		cpp_pass_file_code += u8R"(
 	for (auto& info : m_ImageInfos)
 	{
 		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+	})";
 	}
+	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
+	{
+		cpp_pass_file_code += u8R"(
+	for (auto& info : m_ImageCubeInfos)
+	{
+		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+	})";
+	}
+	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup])
+	{
+		cpp_pass_file_code += u8R"(
+	for (auto& infos : m_ImageGroups)
+	{
+		for(auto& info : infos)
+		{
+			info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		}
+	})";
+	}
+
+	cpp_pass_file_code += u8R"(
 }
 
 bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -2037,23 +2330,34 @@ std::string GeneratorNode::GetRendererDisplayName()
 
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
-		res = "Pixel";
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			res = "Quad_";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			res = "Mesh_";
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			res = "Vertex_";
+		}
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
 	{
-		res = "Comp_1D";
+		res = "Comp_1D_";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 	{
-		res = "Comp_2D";
+		res = "Comp_2D_";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
-		res = "Comp_3D";
+		res = "Comp_3D_";
 	}
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{
-		res = "Rtx";
+		res = "Rtx_";
 	}
 
 	return res;
@@ -2772,6 +3076,7 @@ SlotDico GeneratorNode::GetSlotDico()
 {
 	SlotDico res;
 
+	m_ShowInputWidgets = false;
 	for (const auto& inputSlot : m_Inputs)
 	{
 		if (inputSlot.second)
@@ -2779,8 +3084,10 @@ SlotDico GeneratorNode::GetSlotDico()
 			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
 			if (slotDatasPtr)
 			{
-				m_InputSlotCounter[slotDatasPtr->editorSlotTypeIndex]++;
+				m_InputSlotCounter[(BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex]++;
 			}
+
+			m_ShowInputWidgets |= inputSlot.second->showWidget;
 		}
 	}
 
@@ -2832,6 +3139,7 @@ SlotDico GeneratorNode::GetSlotDico()
 		}
 	}
 
+	m_ShowOutputWidgets = false;
 	for (const auto& outputSlot : m_Outputs)
 	{
 		if (outputSlot.second)
@@ -2839,8 +3147,10 @@ SlotDico GeneratorNode::GetSlotDico()
 			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
 			if (slotDatasPtr)
 			{
-				m_OutputSlotCounter[slotDatasPtr->editorSlotTypeIndex]++;
+				m_OutputSlotCounter[(BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex]++;
 			}
+
+			m_ShowOutputWidgets |= outputSlot.second->showWidget;
 		}
 	}
 
@@ -4545,7 +4855,7 @@ void NODE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 					m_ImageCubeInfosSize[vBindingPoint] = *vTextureSize;
 				}
 
-				m_ImageCubeInfos[vBindingPoint] = *vImageInfo;
+				m_ImageCubeInfos[vBindingPoint] = *vImageCubeInfo;
 			}
 			else
 			{
@@ -5646,8 +5956,11 @@ std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico)
 {
 	std::string res;
 
-	res += u8R"(
+	if (!m_Inputs.empty())
+	{
+		res += u8R"(
 	// Interfaces Setters)";
+	}
 
 	std::set<BaseTypeEnum> _alreadyKnowTypes;
 
@@ -5690,6 +6003,12 @@ std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico)
 		}
 	}
 
+	if (!m_Inputs.empty())
+	{
+		res += u8R"(
+)";
+	}
+
 	return res;
 }
 
@@ -5697,8 +6016,11 @@ std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico)
 {
 	std::string res;
 
-	res += u8R"(
+	if (!m_Outputs.empty())
+	{
+		res += u8R"(
 	// Interfaces Getters)";
+	}
 
 	std::set<BaseTypeEnum> _alreadyKnowTypes;
 
@@ -5739,6 +6061,12 @@ std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico)
 				}
 			}
 		}
+	}
+
+	if (!m_Outputs.empty())
+	{
+		res += u8R"(
+)";
 	}
 
 	return res;

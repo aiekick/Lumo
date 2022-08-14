@@ -46,7 +46,7 @@ std::string GeneratorNodeSlotInput::getXml(const std::string& vOffset, const std
 {
 	std::string res;
 
-	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\" hideName=\"%s\" typeIndex=\"%u\" bindingIndex=\"%u\"/>\n",
+	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\" hideName=\"%s\" typeIndex=\"%u\" bindingIndex=\"%u\" showWidget=\"%s\"/>\n",
 		index,
 		name.c_str(),
 		slotType.c_str(),
@@ -54,7 +54,8 @@ std::string GeneratorNodeSlotInput::getXml(const std::string& vOffset, const std
 		(uint32_t)pinID.Get(),
 		hideName ? "true" : "false",
 		editorSlotTypeIndex,
-		descriptorBinding);
+		descriptorBinding,
+		showWidget ? "true" : "false");
 
 	return res;
 }

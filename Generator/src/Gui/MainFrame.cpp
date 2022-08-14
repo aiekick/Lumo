@@ -486,6 +486,8 @@ void MainFrame::DrawNodeCreationPane()
 			m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
 		}
 
+		ImGui::CheckBoxBoolDefault("Is a Task ?", &nodePtr->m_IsATask, true);
+
 		ImGui::Separator();
 
 		m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(
@@ -543,6 +545,9 @@ void MainFrame::DrawNodeCreationPane()
 
 			ImGui::SameLine();
 
+			if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_NONE, nodePtr->m_RendererType == RENDERER_TYPE_NONE, false))
+				nodePtr->m_RendererType = RENDERER_TYPE_NONE;
+			ImGui::SameLine();
 			if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D, nodePtr->m_RendererType == RENDERER_TYPE_PIXEL_2D, false))
 				nodePtr->m_RendererType = RENDERER_TYPE_PIXEL_2D;
 			ImGui::SameLine();
@@ -582,7 +587,7 @@ void MainFrame::DrawNodeCreationPane()
 					nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX;
 			}
 
-			ImGui::CheckBoxBoolDefault("Use A UBO", &nodePtr->m_UseAUbo, false);
+			ImGui::CheckBoxBoolDefault("Use A UBO", &nodePtr->m_UseAUbo, true);
 			ImGui::CheckBoxBoolDefault("Use A SBO", &nodePtr->m_UseASbo, false);
 		}
 

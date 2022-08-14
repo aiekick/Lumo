@@ -50,6 +50,9 @@ typedef std::shared_ptr<GeneratorNode> GeneratorNodePtr;
 #include <Project/ProjectFile.h>
 #include <Graph/Base/NodeSlot.h>
 
+#ifndef RENDERER_TYPE_NONE
+#define RENDERER_TYPE_NONE "None"
+#endif
 #ifndef RENDERER_TYPE_PIXEL_2D
 #define RENDERER_TYPE_PIXEL_2D "Pixel 2D"
 #endif
@@ -93,20 +96,23 @@ typedef std::map<BaseTypeEnum, std::map<NodeSlot::PlaceEnum, std::vector<SlotStr
 class ProjectFile;
 class GeneratorNode : public BaseNode
 {
-private:
+private: // not to save
 	BaseTypes m_BaseTypes;
-	std::map<uint32_t, uint32_t> m_InputSlotCounter;
-	std::map<uint32_t, uint32_t> m_OutputSlotCounter;
+	std::map<BaseTypeEnum, uint32_t> m_InputSlotCounter;
+	std::map<BaseTypeEnum, uint32_t> m_OutputSlotCounter;
+	bool m_ShowInputWidgets = false;
+	bool m_ShowOutputWidgets = false;
 
-public:
+public: // to save
 	// Node
 	std::string m_ClassName = "NewClass";
 	std::string m_CategoryName = "None";
 	std::string m_NodeCreationName = "NEW_NODE"; // node name maj ex : 2D_SIMULATION_GRAY_SCOTT
 	std::string m_NodeDisplayName = "New Node"; // node name maj ex : Gray Scott
-	
+	bool m_IsATask = true;
+
 	// Module
-	bool m_GenerateAModule = false;
+	bool m_GenerateAModule = true;
 	std::string m_ModuleDisplayName = "New Node"; // node name maj ex : Gray Scott
 	std::string m_RendererType = "Comp";
 	std::string m_ModuleXmlName = "toto_module";
@@ -114,9 +120,9 @@ public:
 	std::string m_ModuleRendererDisplayType = "Comp"; // from m_RendererType // dont save
 
 	// Pass
-	bool m_GenerateAPass = false;
+	bool m_GenerateAPass = true;
 	std::string m_RendererTypePixel2DSpecializationType = "Quad";
-	bool m_UseAUbo = false;
+	bool m_UseAUbo = true;
 	bool m_UseASbo = false;
 
 public:
