@@ -527,16 +527,24 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath, const ProjectF
 	cpp_node_file_code += GetNodeSlotsOutputIncludesSlots(slotDico);
 	h_node_file_code += GetNodeSlotsInputIncludesInterfaces(slotDico);
 	h_node_file_code += GetNodeSlotsOutputIncludesInterfaces(slotDico);
-	h_node_file_code += u8R"(
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		h_node_file_code += u8R"(
 #include <Interfaces/ShaderUpdateInterface.h>
-
+)";
+	}
+	h_node_file_code += u8R"(
 class MODULE_CLASS_NAME;
-class NODE_CLASS_NAME :
-	public BaseNode,)";
+class NODE_CLASS_NAME :)";
 	h_node_file_code += GetNodeSlotsInputPublicInterfaces(slotDico);
 	h_node_file_code += GetNodeSlotsOutputPublicInterfaces(slotDico);
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		h_node_file_code += u8R"(
+	public ShaderUpdateInterface,)";
+	}
 	h_node_file_code += u8R"(
-	public ShaderUpdateInterface)";
+	public BaseNode)";
 
 	cpp_node_file_code += u8R"(
 
@@ -990,9 +998,15 @@ public:
 	// Configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	
+)";
+	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+	{
+		h_node_file_code += u8R"(
 	// Shader Update
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
+)";
+	}
+	h_node_file_code += u8R"(
 };
 )";
 
