@@ -93,6 +93,10 @@ thats all
 | :white_square_button: | Assets / Cube Map Node  | ![img](https://progress-bar.dev/20) |
 | :white_square_button: | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Exporters / Export Texture to file | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Exporters / Export Cube Map to files | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Exporters / Export Mesh to file | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Exporters / Export Mesh to file (Transform feedback) | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Lighting / Attenuation Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/50) |
@@ -126,6 +130,7 @@ thats all
 | :white_square_button: | Utils / Mesh Attributes Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Utils / Pos To Depth Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Utils / Cube Map to LongLat | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Utils / LongLat to Cube Map  | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/20) |
 
