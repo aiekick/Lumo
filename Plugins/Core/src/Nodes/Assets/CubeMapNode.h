@@ -17,13 +17,10 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/TextureCubeOutputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
-
 class CubeMapModule;
 class CubeMapNode :
-	public BaseNode,
 	public TextureCubeOutputInterface,
-	public ShaderUpdateInterface
+	public BaseNode
 {
 public:
 	static std::shared_ptr<CubeMapNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -53,7 +50,5 @@ public:
 	// Configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	
-	// Shader Update
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
+
 };

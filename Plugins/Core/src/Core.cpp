@@ -14,6 +14,7 @@
 
 #include <Nodes/Assets/MeshNode.h>
 #include <Nodes/Assets/Texture2DNode.h>
+#include <Nodes/Assets/CubeMapNode.h>
 
 #include <Nodes/Breaks/BreakTexturesGroupNode.h>
 
@@ -89,6 +90,7 @@ void Core::ActionAfterInit()
 	NodeSlot::sGetSlotColors()->AddSlotColor("ENVIRONMENT", ImVec4(0.1f, 0.9f, 0.1f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("MERGED", ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D", ImVec4(0.9f, 0.5f, 0.1f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_CUBE", ImVec4(0.9f, 0.7f, 0.2f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D_GROUP", ImVec4(0.2f, 0.9f, 0.2f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_3D", ImVec4(0.9f, 0.8f, 0.3f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("MIXED", ImVec4(0.3f, 0.5f, 0.1f, 1.0f));
@@ -143,6 +145,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 
 	res.push_back(AddLibraryEntry("Core/3D/Assets", "3D Model", "MESH"));
 	res.push_back(AddLibraryEntry("Core/2D/Assets", "2D Texture", "TEXTURE_2D"));
+	res.push_back(AddLibraryEntry("Core/3D/Assets", "CubeMap", "CUBE_MAP"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
 
@@ -190,6 +193,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	// assets
 	if (vPluginNodeName == "MESH")								return MeshNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "TEXTURE_2D")					return Texture2DNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "CUBE_MAP")						return CubeMapNode::Create(vkCorePtr);
 
 	// Divers
 	else if (vPluginNodeName == "BREAK_TEXTURE_2D_GROUP")		return BreakTexturesGroupNode::Create(vkCorePtr);
