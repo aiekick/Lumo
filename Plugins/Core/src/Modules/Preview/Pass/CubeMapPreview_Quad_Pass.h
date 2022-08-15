@@ -47,11 +47,11 @@ class CubeMapPreview_Quad_Pass :
 	public GuiInterface
 {
 private:
-	//VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	//vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	struct UBOComp {
-		//alignas(4) float mouse_radius = 10.0f;
-	} m_UBOComp;
+	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
+	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	struct UBOFrag {
+		alignas(4) float u_use_cube_map = 0.0f;
+	} m_UBOFrag;
 
 public:
 	CubeMapPreview_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);

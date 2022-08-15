@@ -97,6 +97,7 @@ void CubeMapPreview_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentF
 
 	ZoneScoped;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,15 +118,24 @@ void CubeMapPreview_Quad_Pass::SetTextureCube(const uint32_t& vBindingPoint, vk:
 				}
 
 				m_ImageCubeInfos[vBindingPoint] = *vImageCubeInfo;
+
+				if (vBindingPoint == 0U)
+				{
+					m_UBOFrag.u_use_cube_map = 1.0f;
+				}
 			}
 			else
 			{
+				if (vBindingPoint == 0U)
+				{
+					m_UBOFrag.u_use_cube_map =0.0f;
+				}
+
 				m_ImageCubeInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
 			}
 		}
 	}
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,16 +150,14 @@ bool CubeMapPreview_Quad_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	/*
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBOCompPtr)
+	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
+	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	if (m_UBOFragPtr)
 	{
-		m_UBO_Comp_BufferInfos.buffer = m_UBOCompPtr->buffer;
-		m_UBO_Comp_BufferInfos.range = sizeof(UBOComp);
-		m_UBO_Comp_BufferInfos.offset = 0;
+		m_UBO_Frag_BufferInfos.buffer = m_UBOFragPtr->buffer;
+		m_UBO_Frag_BufferInfos.range = sizeof(UBOFrag);
+		m_UBO_Frag_BufferInfos.offset = 0;
 	}
-	*/
 
 	NeedNewUBOUpload();
 
@@ -160,17 +168,15 @@ void CubeMapPreview_Quad_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	//VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void CubeMapPreview_Quad_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	/*
-	m_UBOCompPtr.reset();
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	*/
+	m_UBOFragPtr.reset();
+	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
 bool CubeMapPreview_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -178,6 +184,9 @@ bool CubeMapPreview_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_LayoutBindings.clear();
+	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
@@ -187,11 +196,13 @@ bool CubeMapPreview_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageCubeInfos[0], nullptr); // cube map
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_Frag_BufferInfos); // ubo frag
 
-	assert(m_ComputeBufferPtr);
-	
 	return true;
 }
+
 std::string CubeMapPreview_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "CubeMapPreview_Quad_Pass_Vertex";
@@ -201,11 +212,25 @@ std::string CubeMapPreview_Quad_Pass::GetVertexShaderCode(std::string& vOutShade
 
 layout(location = 0) in vec2 vertPosition;
 layout(location = 1) in vec2 vertUv;
-layout(location = 0) out vec2 v_uv;
+layout(location = 0) out vec3 v_rd;
+)"
++
+CommonSystem::Instance()->GetBufferObjectStructureHeader(0U);
++
+u8R"(
+vec3 getRayDirection(vec2 uv)
+{
+	uv = uv * 2.0 - 1.0;
+	vec4 ray_clip = vec4(uv.x, uv.y, -1.0, 0.0);
+	vec4 ray_eye = inverse(proj) * ray_clip;
+	vec3 rd = normalize(vec3(ray_eye.x, ray_eye.y, -1.0));
+	rd *= mat3(view * model);
+	return rd;
+}
 
 void main() 
 {
-	v_uv = vertUv;
+	v_rd = getRayDirection(vertUv);
 	gl_Position = vec4(vertPosition, 0.0, 1.0);
 }
 )";
@@ -219,16 +244,23 @@ std::string CubeMapPreview_Quad_Pass::GetFragmentShaderCode(std::string& vOutSha
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
-layout(location = 0) in vec2 v_uv;
+layout(location = 0) in vec3 v_rd;
 
-layout (std140, binding = 0) uniform UBO_Frag 
+layout(binding = 1) uniform samplerCube cube_map_sampler;
+
+layout (std140, binding = 2) uniform UBO_Frag 
 { 
-	//float u_param_0;
+	float u_use_cube_map;
 };
 
 void main() 
 {
 	fragColor = vec4(0);
+
+	if (u_use_cube_map > 0.5)
+	{
+		fragColor = texture(cube_map_sampler, v_rd);
+	}
 }
 )";
 }
