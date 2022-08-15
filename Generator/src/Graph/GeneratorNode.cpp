@@ -1119,14 +1119,18 @@ MODULE_CLASS_NAME::MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
 		cpp_module_file_code += u8R"(
 	: BaseRenderer(vVulkanCorePtr))";
 	}
+	if (!m_GenerateAPass)
+	{
+		if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
+		{
+			cpp_module_file_code += u8R"(,)";
+		}
+		cpp_module_file_code += u8R"(
+	m_VulkanCorePtr(vVulkanCorePtr))";
+	}
 		cpp_module_file_code += u8R"(
 {
 	ZoneScoped;)";
-	if (!m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-	m_VulkanCorePtr = vVulkanCorePtr;)";
-	}
 	cpp_module_file_code += u8R"(
 }
 

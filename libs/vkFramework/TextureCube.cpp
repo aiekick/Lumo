@@ -21,17 +21,8 @@ limitations under the License.
 #include <lodepng/lodepng.h>
 #include <ctools/Logger.h>
 
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#endif
 #include <stb/stb_image.h>
-#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#endif
 #include "stb/stb_image_write.h"
-#ifndef STB_IMAGE_RESIZE_IMPLEMENTATION
-#define STB_IMAGE_RESIZE_IMPLEMENTATION
-#endif
 #include "stb/stb_image_resize.h"
 
 #define TRACE_MEMORY
@@ -316,7 +307,7 @@ bool TextureCube::LoadMemories(
 			imViewInfo.viewType = vk::ImageViewType::eCube;
 			imViewInfo.format = vFormat;
 			imViewInfo.components = vk::ComponentMapping();
-			imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, m_MipLevelCount, 0, 1);
+			imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0U, m_MipLevelCount, 0U, 6U);
 			m_TextureView = m_VulkanCorePtr->getDevice().createImageView(imViewInfo);
 
 			vk::SamplerCreateInfo samplerInfo = {};

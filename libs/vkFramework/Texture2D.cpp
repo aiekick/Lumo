@@ -62,7 +62,7 @@ bool Texture2D::loadImage(const std::string& inFile, std::vector<uint8_t>& outBu
 	ZoneScoped;
 
 	int w, h, chans;
-	unsigned char* data = stbi_load(inFile.c_str(), &w, &h, &chans, STBI_rgb_alpha);
+	uint8_t* data = stbi_load(inFile.c_str(), &w, &h, &chans, STBI_rgb_alpha);
 
 	outWidth = static_cast<uint32_t>(w);
 	outHeight = static_cast<uint32_t>(h);
@@ -79,6 +79,53 @@ bool Texture2D::loadImage(const std::string& inFile, std::vector<uint8_t>& outBu
 	return true;
 }
 
+
+bool Texture2D::loadImageWithMaxH(const std::string& inFile, const uint32_t& maxHeight, uint32_t& outWidth, std::vector<uint8_t>& outBuffer)
+{
+	ZoneScoped;
+
+	int w, h, chans;
+	uint8_t* datas = stbi_load(inFile.c_str(), &w, &h, &chans, STBI_rgb_alpha);
+	if (datas)
+	{
+		if (w && h && chans)
+		{
+			// resize with respect to glyph ratio
+			const float ratioX = (float)w / (float)h;
+			const float newX = maxHeight * ratioX;
+			float newY = w / ratioX;
+			if (newX < w)
+				newY = maxHeight;
+
+			outWidth = (uint32_t)newX;
+			const auto newHeight = (uint32_t)newY;
+			const auto newBufSize = (size_t)(outWidth * newHeight * 4U); //-V112 //-V1028
+			auto resizedData = new uint8_t[newBufSize];
+
+			const int resizeSucceeded = stbir_resize_uint8(
+				datas, w, h, 0,
+				resizedData, outWidth, newHeight, 0,
+				4); //-V112
+
+			if (resizeSucceeded)
+			{
+				auto size = (size_t)outWidth * (size_t)newHeight * 4U;
+				outBuffer.resize(size);
+				memcpy(outBuffer.data(), resizedData, size);
+			}
+		}
+		else
+		{
+			LogVarError("image loading fail : %s - w:%i h:%i c:%i\n", inFile.c_str(), w, h, 4); //-V112
+		}
+
+		stbi_image_free(datas);
+	}
+
+	return true;
+}
+
+/*
 vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, uint8_t* buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels)
 {
 	vk::DescriptorImageInfo imgInfo;
@@ -123,19 +170,20 @@ vk::DescriptorImageInfo Texture2D::GetImageInfoFromMemory(vkApi::VulkanCorePtr v
 
 	return imgInfo;
 }
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Texture2DPtr Texture2D::CreateFromFile(vkApi::VulkanCorePtr vVulkanCorePtr, std::string vFilePathName)
+Texture2DPtr Texture2D::CreateFromFile(vkApi::VulkanCorePtr vVulkanCorePtr, std::string vFilePathName, const uint32_t& vMaxHeight)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<Texture2D>(vVulkanCorePtr);
 
-	if (!res->LoadFile(vFilePathName))
+	if (!res->LoadFile(vFilePathName, vk::Format::eR8G8B8A8Unorm, 1u, vMaxHeight))
 	{
 		res.reset();
 	}
@@ -220,7 +268,7 @@ static inline uint32_t GetMiplevelCount(uint32_t width, uint32_t height)
 	return levels;
 }
 
-bool Texture2D::LoadFile(const std::string& vFilePathName, const vk::Format& vFormat, const uint32_t& vMipLevelCount)
+bool Texture2D::LoadFile(const std::string& vFilePathName, const vk::Format& vFormat, const uint32_t& vMipLevelCount, const uint32_t& vMaxHeight)
 {
 	ZoneScoped;
 
@@ -230,15 +278,27 @@ bool Texture2D::LoadFile(const std::string& vFilePathName, const vk::Format& vFo
 	{
 		Destroy();
 
+		uint32_t w;
+		uint32_t h;
 		uint32_t channels = 4;
 		std::vector<uint8_t> image_data;
-		if (!loadImage(vFilePathName, image_data, m_Width, m_Height, channels))
+
+		if (vMaxHeight)
+		{
+			if (!loadImageWithMaxH(vFilePathName, vMaxHeight, w, image_data))
+				return false;
+			h = vMaxHeight;
+		}
+		else
+		{
+			if (!loadImage(vFilePathName, image_data, w, h, channels))
+				return false;
+		}
+
+		if (w == 0 || h == 0)
 			return false;
 
-		if (m_Width == 0 || m_Height == 0)
-			return false;
-
-		LoadMemory(image_data.data(), m_Width, m_Height, channels, vFormat, vMipLevelCount);
+		LoadMemory(image_data.data(), w, h, channels, vFormat, vMipLevelCount);
 	}
 
 	return m_Loaded;

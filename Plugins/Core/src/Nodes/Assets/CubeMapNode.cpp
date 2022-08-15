@@ -64,9 +64,11 @@ bool CubeMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "CubeMap";
 
-	AddOutput(NodeSlotTextureCubeOutput::Create("New Slot", 0), false, true);
+	auto ptr = NodeSlotTextureCubeOutput::Create("New Slot", 0);
+	ptr->showWidget = true;
+	AddOutput(ptr, false, true);
 
-	m_CubeMapModulePtr = CubeMapModule::Create(vVulkanCorePtr);
+	m_CubeMapModulePtr = CubeMapModule::Create(vVulkanCorePtr, m_This);
 	if (m_CubeMapModulePtr)
 	{
 		res = true;
@@ -120,7 +122,7 @@ void CubeMapNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak v
 	{
 		if (m_CubeMapModulePtr)
 		{
-			//m_CubeMapModulePtr->DrawTexture(50);
+			m_CubeMapModulePtr->DrawTextures(ct::ivec2(100, 75));
 		}
 	}
 }

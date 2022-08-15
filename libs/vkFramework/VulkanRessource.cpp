@@ -247,13 +247,19 @@ VulkanImageObjectPtr VulkanRessource::createTextureImageCube(vkApi::VulkanCorePt
 	auto stagebufferPtr = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
 	if (stagebufferPtr)
 	{
-		upload(vVulkanCorePtr, stagebufferPtr, hostdatas.data(), stagingBufferInfo.size);
-
+		uint32_t off = 0U;
+		const uint32_t& siz = width * height * channels * elem_size;
+		for (auto& datas : hostdatas)
+		{
+			upload(vVulkanCorePtr, stagebufferPtr, datas.data(), siz, off);
+			off += siz;
+		}
+		
 		VmaAllocationCreateInfo image_alloc_info = {};
 		image_alloc_info.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 		auto familyQueueIndex = vVulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics).familyQueueIndex;
 		auto texturePtr = createSharedImageObject(vVulkanCorePtr, vk::ImageCreateInfo(
-			vk::ImageCreateFlags(),
+			vk::ImageCreateFlagBits::eCubeCompatible,
 			vk::ImageType::e2D,
 			format,
 			vk::Extent3D(vk::Extent2D(width, height), 1),

@@ -231,28 +231,29 @@ ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 
 	ct::fvec2 outSize;
 
-	m_TextureOutputSlot = vTextureOutputSlot;
-
-	NodeSlot::sSlotGraphOutputMouseLeft = vTextureOutputSlot;
-
 	auto slotPtr = vTextureOutputSlot.getValidShared();
 	if (slotPtr)
 	{
 		auto otherNodePtr = std::dynamic_pointer_cast<TextureOutputInterface>(slotPtr->parentNode.getValidShared());
 		if (otherNodePtr)
 		{
+			NodeSlot::sSlotGraphOutputMouseLeft = vTextureOutputSlot;
+			m_TextureOutputSlot = vTextureOutputSlot;
 			NodeManager::Instance()->m_RootNodePtr->m_GraphRoot3DNode = slotPtr->parentNode;
-
 			m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize));
 			m_ImGuiTexture.ratio = outSize.ratioXY<float>();
 		}
 		else
 		{
+			NodeSlot::sSlotGraphOutputMouseLeft.reset();
+			m_TextureOutputSlot.reset();
 			m_ImGuiTexture.ClearDescriptor();
 		}
 	}
 	else
 	{
+		NodeSlot::sSlotGraphOutputMouseLeft.reset();
+		m_TextureOutputSlot.reset();
 		m_ImGuiTexture.ClearDescriptor();
 	}
 

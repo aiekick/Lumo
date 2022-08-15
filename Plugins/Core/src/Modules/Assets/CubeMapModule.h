@@ -32,6 +32,7 @@ limitations under the License.
 
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
+#include <vkFramework/TextureCube.h>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanDevice.h>
 #include <vkFramework/vk_mem_alloc.h>
@@ -42,21 +43,30 @@ limitations under the License.
 
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
+#include <Interfaces/NodeInterface.h>
 #include <Interfaces/ResizerInterface.h>
-
 #include <Interfaces/TextureCubeOutputInterface.h>
 
 class CubeMapModule :
 	public conf::ConfigAbstract,
+	public NodeInterface,
 	public TextureCubeOutputInterface,
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<CubeMapModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<CubeMapModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
 	ct::cWeak<CubeMapModule> m_This;
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	std::string unique_OpenPictureFileDialog_id;
+	TextureCubePtr m_TextureCubePtr = nullptr;
+	std::string m_SelectedFilePathName; // to save
+	std::string m_SelectedFilePath; // to save
+	std::array<Texture2DPtr, 6U> m_Texture2Ds;
+	std::array<ImGuiTexture, 6U> m_ImGuiTextures;
+	std::array<std::string, 6U> m_FilePathNames;
+	std::array<std::string, 6U> m_FileNames;
 
 public:
 	CubeMapModule(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -74,4 +84,10 @@ public:
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+
+	void DrawTextures(const ct::ivec2& vMaxSize, const float& vRounding = 0.0f);
+
+private:
+	void LoadTextures(const std::string& vFilePathName);
+	void ClearTextures();
 };
