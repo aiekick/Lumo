@@ -45,7 +45,7 @@ limitations under the License.
 
 class Reflection_Quad_Pass :
 	public QuadShaderPass,
-	public TextureInputInterface<3>,
+	public TextureInputInterface<2>,
 	public TextureCubeInputInterface<1>,
 	public TextureOutputInterface,
 	public GuiInterface
@@ -54,9 +54,8 @@ private:
 	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOFrag {
-		alignas(4) float u_use_position_map = 0.0f; // tex2D 0
-		alignas(4) float u_use_normal_map = 0.0f; // tex2D 1
-		alignas(4) float u_use_longlat_map = 0.0f; // tex2D 2
+		alignas(4) float u_use_normal_map = 0.0f; // tex2D 0
+		alignas(4) float u_use_longlat_map = 0.0f; // tex2D 1
 		alignas(4) float u_use_cubemap_map = 0.0f; // cubemap 0
 	} m_UBOFrag;
 

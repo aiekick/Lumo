@@ -285,7 +285,7 @@ void main()
 		vec3 rd = normalize(v_rd);
 		float theta = atan(rd.x,rd.z);
 		float phi =  asin(rd.y);
-		vec2 uv = 0.5 + vec2(theta / _2pi, -phi / _pi);
+		vec2 uv = 0.5 + vec2(-theta / _2pi, -phi / _pi);
 		fragColor = texture(longlat_map_sampler, uv);
 	}
 }

@@ -66,9 +66,8 @@ bool ReflectionNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "Reflection";
 
-	AddInput(NodeSlotTextureInput::Create("Position", 0), false, false);
-	AddInput(NodeSlotTextureInput::Create("Normal", 1), false, false);
-	m_LongLatInputSlot = AddInput(NodeSlotTextureInput::Create("LongLat", 2), false, false);
+	AddInput(NodeSlotTextureInput::Create("Normal", 0), false, false);
+	m_LongLatInputSlot = AddInput(NodeSlotTextureInput::Create("LongLat", 1), false, false);
 	m_CubeMapInputSlot = AddInput(NodeSlotTextureCubeInput::Create("CubeMap", 0), false, false);
 
 	AddOutput(NodeSlotTextureOutput::Create("New Slot", 0), false, true);
@@ -191,7 +190,7 @@ void ReflectionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIma
 	{
 		m_ReflectionModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 
-		if (vBindingPoint == 2U) // connect/disconnet to longlat
+		if (vBindingPoint == 1U) // connect/disconnet to longlat
 		{
 			// show/hide cube map
 			auto slotPtr = m_CubeMapInputSlot.getValidShared();
@@ -215,9 +214,9 @@ void ReflectionNode::SetTextureCube(const uint32_t& vBindingPoint, vk::Descripto
 	{
 		m_ReflectionModulePtr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
 
-		if (vBindingPoint == 0U) // connect/disconnet to cuebmap
+		if (vBindingPoint == 0U) // connect/disconnet to cubemap
 		{
-			// show/hide cube map
+			// show/hide long lat
 			auto slotPtr = m_LongLatInputSlot.getValidShared();
 			if (slotPtr)
 			{

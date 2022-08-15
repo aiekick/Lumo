@@ -121,17 +121,17 @@ void Reflection_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if ((&m_UBOFrag.u_use_position_map)[vBindingPoint] < 1.0f)
+				if ((&m_UBOFrag.u_use_normal_map)[vBindingPoint] < 1.0f)
 				{
-					(&m_UBOFrag.u_use_position_map)[vBindingPoint] = 1.0f;
+					(&m_UBOFrag.u_use_normal_map)[vBindingPoint] = 1.0f;
 					NeedNewUBOUpload();
 				}
 			}
 			else
 			{
-				if ((&m_UBOFrag.u_use_position_map)[vBindingPoint] > 0.0f)
+				if ((&m_UBOFrag.u_use_normal_map)[vBindingPoint] > 0.0f)
 				{
-					(&m_UBOFrag.u_use_position_map)[vBindingPoint] = 0.0f;
+					(&m_UBOFrag.u_use_normal_map)[vBindingPoint] = 0.0f;
 					NeedNewUBOUpload();
 				}
 
@@ -170,7 +170,7 @@ void Reflection_Quad_Pass::SetTextureCube(const uint32_t& vBindingPoint, vk::Des
 			}
 			else
 			{
-				if (m_UBOFrag.u_use_cubemap_map > 1.0f)
+				if (m_UBOFrag.u_use_cubemap_map > 0.0f)
 				{
 					m_UBOFrag.u_use_cubemap_map = 0.0f;
 					NeedNewUBOUpload();
@@ -253,10 +253,9 @@ bool Reflection_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	m_LayoutBindings.clear();
 	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);				// camera
 	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);			// ubo frag
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// Pos
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// Nor
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// LongLat
-	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// CubeMap
+	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// Nor
+	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// LongLat
+	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// CubeMap
 	
 	return true;
 }
@@ -269,9 +268,8 @@ bool Reflection_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());	// camera
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_Frag_BufferInfos);						// ubo frag
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);						// Pos
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);						// Nor
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2], nullptr);						// LongLat
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageCubeInfos[0], nullptr);					// CubeMap
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);							// LongLat
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageCubeInfos[0], nullptr);					// CubeMap
 	
 	return true;
 }
@@ -325,54 +323,46 @@ layout(location = 1) in vec3 v_rd;
 
 layout (std140, binding = 1) uniform UBO_Frag 
 { 
-	float u_use_position_map;
 	float u_use_normal_map;
 	float u_use_longlat_map;
 	float u_use_cubemap_map;
 };
 
-layout(binding = 2) uniform sampler2D position_map_sampler;
-layout(binding = 3) uniform sampler2D normal_map_sampler;
-layout(binding = 4) uniform sampler2D longlat_map_sampler;
-layout(binding = 5) uniform samplerCube cubemap_map_sampler;
+layout(binding = 2) uniform sampler2D normal_map_sampler;
+layout(binding = 3) uniform sampler2D longlat_map_sampler;
+layout(binding = 4) uniform samplerCube cubemap_map_sampler;
 
 void main() 
 {
 	fragColor = vec4(0);
 
-	vec3 pos = vec3(0.0);
-	if (u_use_position_map > 0.5)
+	if (u_use_normal_map > 0.5)
 	{
-		pos = texture(position_map_sampler, v_uv).xyz;
-	}
-
-	vec3 nor = vec3(0.0);
-	if (u_use_position_map > 0.5)
-	{
-		nor = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
-	}
-
-	if (dot(pos, pos) > 0.0)
-	{
-		if (u_use_longlat_map > 0.5)
+		vec4 tex = texture(normal_map_sampler, v_uv);
+		if (tex.a > 0.0)
 		{
-			const float _pi = radians(180.0);
-			const float _2pi = radians(360.0);
+			vec3 nor = normalize(tex.xyz * 2.0 - 1.0);
+	
+			if (u_use_longlat_map > 0.5)
+			{
+				const float _pi = radians(180.0);
+				const float _2pi = radians(360.0);
 
-			vec3 rd = normalize(v_rd);
-			vec3 reflected_rd = reflect(rd, nor);
+				vec3 rd = normalize(v_rd);
+				vec3 reflected_rd = reflect(rd, nor);
 
-			float theta = atan(reflected_rd.x,reflected_rd.z);
-			float phi = asin(reflected_rd.y);
-			vec2 uv = 0.5 + vec2(theta / _2pi, -phi / _pi);
-			fragColor = texture(longlat_map_sampler, uv);
-		}
+				float theta = atan(reflected_rd.x,reflected_rd.z);
+				float phi = asin(reflected_rd.y);
+				vec2 uv = 0.5 + vec2(-theta / _2pi, -phi / _pi);
+				fragColor = texture(longlat_map_sampler, uv);
+			}
 		
-		if (u_use_cubemap_map > 0.5)
-		{
-			vec3 rd = normalize(v_rd);
-			vec3 reflected_rd = reflect(rd, nor);
-			fragColor = texture(cubemap_map_sampler, reflected_rd);
+			if (u_use_cubemap_map > 0.5)
+			{
+				vec3 rd = normalize(v_rd);
+				vec3 reflected_rd = reflect(rd, nor);
+				fragColor = texture(cubemap_map_sampler, reflected_rd);
+			}
 		}
 	}
 }
