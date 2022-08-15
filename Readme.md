@@ -97,14 +97,14 @@ thats all
 | :black_square_button: | Exporters / Export Cube Map to files | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file (Transform feedback) | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Lighting / Attenuation Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Lighting / Deferred Attenuation Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Lighting / Deferred Diffuse Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/50) |
-| :black_square_button: | Lighting / Reflection Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Lighting / Deferred Reflection Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Model Shadow Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Lighting / RoughNess Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Lighting / Deferred RoughNess Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Lighting / Deferred Specular Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Mesh Ops / Extrusion along path | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Misc / 2D Layering | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
@@ -119,6 +119,8 @@ thats all
 | :black_square_button: | Primitves / Ico Sphere | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitves / Cube | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitves / Torus | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Preview / Cube Map Preview | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Preview / LongLat Preview | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Deferred Renderer Node (WIP) | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
