@@ -601,7 +601,7 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	if (m_GenerateAModule)
 	{
 		cpp_node_file_code += u8R"(
-	m_MODULE_CLASS_NAMEPtr = MODULE_CLASS_NAME::Create(vVulkanCorePtr);
+	m_MODULE_CLASS_NAMEPtr = MODULE_CLASS_NAME::Create(vVulkanCorePtr, m_This);
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		res = true;
@@ -1072,6 +1072,7 @@ void GeneratorNode::GenerateModules(const std::string& vPath, const ProjectFile*
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
+#include <Graph/Base/BaseNode.h>
 #include <ImWidgets/ImWidgets.h>
 #include <Systems/CommonSystem.h>
 #include <Profiler/vkProfiler.hpp>
@@ -1095,12 +1096,13 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<MODULE_CLASS_NAME>(vVulkanCorePtr);
+	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -1562,6 +1564,7 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 	h_module_file_code += u8R"(
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>
+#include <Interfaces/NodeInterface.h>
 #include <Interfaces/ResizerInterface.h>
 )";
 	h_module_file_code += GetNodeSlotsInputIncludesInterfaces(vDico);
@@ -1575,7 +1578,8 @@ class PASS_CLASS_NAME;)";
 	}
 
 	h_module_file_code += u8R"(
-class MODULE_CLASS_NAME :)";
+class MODULE_CLASS_NAME :
+	public NodeInterface,)";
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		h_module_file_code += u8R"(
@@ -1601,14 +1605,14 @@ class MODULE_CLASS_NAME :)";
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<MODULE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<MODULE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
 	ct::cWeak<MODULE_CLASS_NAME> m_This;
 )";
 	if (!m_GenerateAPass)
 	{
-		h_module_file_code += u8R"(	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+		h_module_file_code += u8R"(\tvkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 )";
 	}
 
