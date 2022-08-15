@@ -93,8 +93,9 @@ NodeSlot::PlaceEnum NodeSlot::sGetNodeSlotPlaceEnumFromString(const std::string&
 
 size_t NodeSlot::sGetNewSlotId()
 {
-	#define SLOT_ID_OFFSET 100000
-	return SLOT_ID_OFFSET + (++BaseNode::freeNodeId);
+	//#define SLOT_ID_OFFSET 100000
+	//return SLOT_ID_OFFSET + (++BaseNode::freeNodeId);
+	return ++BaseNode::freeNodeId;
 }
 
 // static are null when a plugin is loaded
@@ -728,11 +729,12 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			slotPlace == _place && 
 			!idAlreadySetbyXml)
 		{
+
 			pinID = _pinId;
 			idAlreadySetbyXml = true;
 
 			// pour eviter que des slots aient le meme id qu'un nodePtr
-			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)pinID.Get());
+			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)pinID.Get()) + 1U;
 
 			return false;
 		}

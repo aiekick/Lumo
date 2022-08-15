@@ -245,6 +245,14 @@ public:
 	BaseNodeState m_BaseNodeState;
 	std::string m_NodeTypeString = "NONE";
 
+public:
+	// only during laodibg for change slots
+	// will save originals slot pin and new slot pin
+	// duing loading new slot pin id are created and msut repalce slot pins form the xml
+	// but the pin from xml must be saved for create the links from xml
+	// so the frist is those from xml and the second is those from new slot pin
+	std::unordered_map<NodeSlot::PlaceEnum, std::unordered_map<uint32_t, uint32_t>> m_SlotPinsFromXMLToNew;
+
 public: // used by layout
 	ImVec2 pos; // position absolue du node
 	ImVec2 size; // taille du node

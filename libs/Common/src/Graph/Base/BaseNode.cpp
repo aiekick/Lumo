@@ -2819,33 +2819,21 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			{
 				if (!m_Inputs.empty())
 				{
-					auto slot_input_ptr = NodeSlotInput::Create();
-					slot_input_ptr->index = slot.index;
-					slot_input_ptr->name = slot.name;
-					slot_input_ptr->slotType = slot.slotType;
-					slot_input_ptr->slotPlace = slot.slotPlace;
-					slot_input_ptr->pinID = slot.pinID;
-
-					bool wasSet = false;
-					for (auto input : m_Inputs)
+					for (auto& input : m_Inputs)
 					{
-						if (input.second->index == slot_input_ptr->index)
+						if (input.second->index == slot.index)
 						{
-							wasSet = !input.second->setFromXml(vElem, vParent);
+							const bool wasSet = !input.second->setFromXml(vElem, vParent);
 							if (wasSet)
 							{
+								auto savePtr = input.second;
+
+								// pin not already changed by xml 
+								// so we change it
 								m_Inputs.erase(input.first);
-								m_Inputs[(uint32_t)input.second->pinID.Get()] = input.second;
+								m_Inputs[(uint32_t)savePtr->pinID.Get()] = savePtr;
 								break;
 							}
-						}
-					}
-					if (!wasSet)
-					{
-						auto slotPtr = AddInput(slot_input_ptr, false, slot.hideName).getValidShared();
-						if (slotPtr)
-						{
-							slotPtr->idAlreadySetbyXml = true;
 						}
 					}
 				}
@@ -2854,33 +2842,21 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			{
 				if (!m_Outputs.empty())
 				{
-					auto slot_output_ptr = NodeSlotOutput::Create();
-					slot_output_ptr->index = slot.index;
-					slot_output_ptr->name = slot.name;
-					slot_output_ptr->slotType = slot.slotType;
-					slot_output_ptr->slotPlace = slot.slotPlace;
-					slot_output_ptr->pinID = slot.pinID;
-
-					bool wasSet = false;
-					for (auto output : m_Outputs)
+					for (auto& output : m_Outputs)
 					{
-						if (output.second->index == slot_output_ptr->index)
+						if (output.second->index == slot.index)
 						{
-							wasSet = !output.second->setFromXml(vElem, vParent);
+							const bool wasSet = !output.second->setFromXml(vElem, vParent);
 							if (wasSet)
 							{
+								auto savePtr = output.second;
+
+								// pin not already changed by xml 
+								// so we change it
 								m_Outputs.erase(output.first);
-								m_Outputs[(uint32_t)output.second->pinID.Get()] = output.second;
+								m_Outputs[(uint32_t)savePtr->pinID.Get()] = savePtr;
 								break;
 							}
-						}
-					}
-					if (!wasSet)
-					{
-						auto slotPtr = AddOutput(slot_output_ptr, false, slot.hideName).getValidShared();
-						if (slotPtr)
-						{
-							slotPtr->idAlreadySetbyXml = true;
 						}
 					}
 				}

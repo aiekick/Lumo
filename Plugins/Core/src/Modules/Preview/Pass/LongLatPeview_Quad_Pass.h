@@ -39,12 +39,12 @@ limitations under the License.
 #include <vkFramework/VulkanFrameBuffer.h>
 
 #include <Interfaces/GuiInterface.h>
-#include <Interfaces/TextureCubeInputInterface.h>
+#include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-class CubeMapPreview_Quad_Pass :
+class LongLatPeview_Quad_Pass :
 	public QuadShaderPass,
-	public TextureCubeInputInterface<1>,
+	public TextureInputInterface<1>,
 	public TextureOutputInterface,
 	public GuiInterface
 {
@@ -52,12 +52,12 @@ private:
 	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOFrag {
-		alignas(4) float u_use_cube_map = 0.0f;
+		alignas(4) float u_use_longlat_map = 0.0f;
 	} m_UBOFrag;
 
 public:
-	CubeMapPreview_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~CubeMapPreview_Quad_Pass() override;
+	LongLatPeview_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~LongLatPeview_Quad_Pass() override;
 
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
@@ -67,7 +67,7 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 
 	// Interfaces Setters
-	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;
+	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
 
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;

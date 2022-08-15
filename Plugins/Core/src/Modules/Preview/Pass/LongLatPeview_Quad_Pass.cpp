@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "CubeMapPreview_Quad_Pass.h"
+#include "LongLatPeview_Quad_Pass.h"
 
 #include <cinttypes>
 #include <functional>
@@ -39,28 +39,28 @@ using namespace vkApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CubeMapPreview_Quad_Pass::CubeMapPreview_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+LongLatPeview_Quad_Pass::LongLatPeview_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Quad Pass : CubeMap Preview", QUAD_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Quad Pass : LongLat Peview", QUAD_SHADER_PASS_DEBUG_COLOR);
 
 	m_DontUseShaderFilesOnDisk = true;
 }
 
-CubeMapPreview_Quad_Pass::~CubeMapPreview_Quad_Pass()
+LongLatPeview_Quad_Pass::~LongLatPeview_Quad_Pass()
 {
 	Unit();
 }
 
-void CubeMapPreview_Quad_Pass::ActionBeforeInit()
+void LongLatPeview_Quad_Pass::ActionBeforeInit()
 {
-	for (auto& info : m_ImageCubeInfos)
+	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 }
 
-bool CubeMapPreview_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool LongLatPeview_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
@@ -80,7 +80,7 @@ bool CubeMapPreview_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 	return change;
 }
 
-void CubeMapPreview_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void LongLatPeview_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
@@ -88,50 +88,51 @@ void CubeMapPreview_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const
 	ZoneScoped;
 }
 
-void CubeMapPreview_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void LongLatPeview_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
 }
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CubeMapPreview_Quad_Pass::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
+void LongLatPeview_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBindingPoint < m_ImageCubeInfos.size())
+		if (vBindingPoint < m_ImageInfos.size())
 		{
-			if (vImageCubeInfo)
+			if (vImageInfo)
 			{
 				if (vTextureSize)
 				{
-					m_ImageCubeInfosSize[vBindingPoint] = *vTextureSize;
+					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 				}
 
-				m_ImageCubeInfos[vBindingPoint] = *vImageCubeInfo;
+				m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if (m_UBOFrag.u_use_cube_map < 1.0f)
+				if (vBindingPoint == 0U)
 				{
-					m_UBOFrag.u_use_cube_map = 1.0f;
+					m_UBOFrag.u_use_longlat_map = 1.0f;
 					NeedNewUBOUpload();
 				}
+
+
 			}
 			else
 			{
-				if (m_UBOFrag.u_use_cube_map > 0.0f)
+				if (vBindingPoint == 0U)
 				{
-					m_UBOFrag.u_use_cube_map = 0.0f;
+					m_UBOFrag.u_use_longlat_map = 0.0f;
 					NeedNewUBOUpload();
 				}
 
-				m_ImageCubeInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -141,10 +142,9 @@ void CubeMapPreview_Quad_Pass::SetTextureCube(const uint32_t& vBindingPoint, vk:
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* CubeMapPreview_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* LongLatPeview_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
-
 	if (m_FrameBufferPtr)
 	{
 		if (vOutSize)
@@ -162,12 +162,12 @@ vk::DescriptorImageInfo* CubeMapPreview_Quad_Pass::GetDescriptorImageInfo(const 
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CubeMapPreview_Quad_Pass::WasJustResized()
+void LongLatPeview_Quad_Pass::WasJustResized()
 {
 	ZoneScoped;
 }
 
-bool CubeMapPreview_Quad_Pass::CreateUBO()
+bool LongLatPeview_Quad_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -185,14 +185,14 @@ bool CubeMapPreview_Quad_Pass::CreateUBO()
 	return true;
 }
 
-void CubeMapPreview_Quad_Pass::UploadUBO()
+void LongLatPeview_Quad_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void CubeMapPreview_Quad_Pass::DestroyUBO()
+void LongLatPeview_Quad_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -200,7 +200,7 @@ void CubeMapPreview_Quad_Pass::DestroyUBO()
 	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
-bool CubeMapPreview_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool LongLatPeview_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -212,21 +212,20 @@ bool CubeMapPreview_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	return true;
 }
 
-bool CubeMapPreview_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool LongLatPeview_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	writeDescriptorSets.clear();
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageCubeInfos[0], nullptr); // cube map
+	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // longlat
 	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_Frag_BufferInfos); // ubo frag
-
+	
 	return true;
 }
-
-std::string CubeMapPreview_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName)
+std::string LongLatPeview_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "CubeMapPreview_Quad_Pass_Vertex";
+	vOutShaderName = "LongLatPeview_Quad_Pass_Vertex";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -257,9 +256,9 @@ void main()
 )";
 }
 
-std::string CubeMapPreview_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string LongLatPeview_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "CubeMapPreview_Quad_Pass_Fragment";
+	vOutShaderName = "LongLatPeview_Quad_Pass_Fragment";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -267,21 +266,27 @@ std::string CubeMapPreview_Quad_Pass::GetFragmentShaderCode(std::string& vOutSha
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec3 v_rd;
 
-layout(binding = 1) uniform samplerCube cube_map_sampler;
+layout(binding = 1) uniform sampler2D longlat_map_sampler;
 
 layout (std140, binding = 2) uniform UBO_Frag 
 { 
-	float u_use_cube_map;
+	float u_use_longlat_map;
 };
 
 void main() 
 {
 	fragColor = vec4(0);
 
-	if (u_use_cube_map > 0.5)
+	if (u_use_longlat_map > 0.5)
 	{
+		const float _pi = radians(180.0);
+		const float _2pi = radians(360.0);
+
 		vec3 rd = normalize(v_rd);
-		fragColor = texture(cube_map_sampler, rd);
+		float theta = atan(rd.x,rd.z);
+		float phi =  asin(rd.y);
+		vec2 uv = 0.5 + vec2(theta / _2pi, -phi / _pi);
+		fragColor = texture(longlat_map_sampler, uv);
 	}
 }
 )";
@@ -291,7 +296,7 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CubeMapPreview_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string LongLatPeview_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
@@ -301,7 +306,7 @@ std::string CubeMapPreview_Quad_Pass::getXml(const std::string& vOffset, const s
 	return str;
 }
 
-bool CubeMapPreview_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool LongLatPeview_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -318,7 +323,7 @@ bool CubeMapPreview_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
 
 	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "cubemap_preview_module")
+	if (strParentName == "longlat_preview_module")
 	{
 		//if (strName == "mouse_radius")
 		//	m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();

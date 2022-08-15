@@ -28,6 +28,7 @@ limitations under the License.
 
 #include <Base/BaseRenderer.h>
 #include <Base/QuadShaderPass.h>
+
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -39,50 +40,52 @@ limitations under the License.
 #include <vkFramework/VulkanFrameBuffer.h>
 
 #include <Interfaces/GuiInterface.h>
-#include <Interfaces/TextureCubeInputInterface.h>
+#include <Interfaces/TaskInterface.h>
+#include <Interfaces/NodeInterface.h>
+#include <Interfaces/ResizerInterface.h>
+
+#include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-class CubeMapPreview_Quad_Pass :
-	public QuadShaderPass,
-	public TextureCubeInputInterface<1>,
+class LongLatPeview_Quad_Pass;
+class LongLatPeviewModule :
+	public NodeInterface,
+	public BaseRenderer,
+	public ResizerInterface,
+	public TaskInterface,
+	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public GuiInterface
 {
+public:
+	static std::shared_ptr<LongLatPeviewModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+
 private:
-	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	struct UBOFrag {
-		alignas(4) float u_use_cube_map = 0.0f;
-	} m_UBOFrag;
+	ct::cWeak<LongLatPeviewModule> m_This;
+
+	std::shared_ptr<LongLatPeview_Quad_Pass> m_LongLatPeview_Quad_Pass_Ptr = nullptr;
 
 public:
-	CubeMapPreview_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~CubeMapPreview_Quad_Pass() override;
+	LongLatPeviewModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~LongLatPeviewModule() override;
 
-	void ActionBeforeInit() override;
-	void WasJustResized() override;
+	bool Init();
+
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+
 	// Interfaces Setters
-	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;
+	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
 
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-
-protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
-
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
-
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

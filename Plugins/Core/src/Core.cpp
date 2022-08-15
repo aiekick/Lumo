@@ -26,6 +26,7 @@
 #include <Nodes/Lighting/ShadowMapNode.h>
 #include <Nodes/Lighting/ModelShadowNode.h>
 #include <Nodes/Lighting/Normal2DNode.h>
+#include <Nodes/Lighting/ReflectionNode.h>
 
 #include <Nodes/Modifiers/SmoothNormalNode.h>
 
@@ -37,6 +38,7 @@
 #include <Nodes/PostPro/ToneMapNode.h>
 
 #include <Nodes/Preview/CubeMapPreviewNode.h>
+#include <Nodes/Preview/LongLatPeviewNode.h>
 
 #include <Nodes/Renderers/MatcapRendererNode.h>
 #include <Nodes/Renderers/ChannelRendererNode.h>
@@ -161,12 +163,14 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting/Shadow", "Model Shadow", "MODEL_SHADOW"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Diffuse", "DIFFUSE"));
+	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Reflection", "REFLECTION"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Specular", "SPECULAR"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "SSAO", "SSAO"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Modifiers", "Smooth Normals", "SMOOTH_NORMAL"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Preview", "CubeMap Preview", "CUBE_MAP_PREVIEW"));
+	res.push_back(AddLibraryEntry("Core/3D/Preview", "LongLat Preview", "LONG_LAT_PREVIEW"));
 
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Blur", "BLUR"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Laplacian", "LAPLACIAN"));
@@ -211,6 +215,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "SHADOW_MAPPING")				return ShadowMapNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "MODEL_SHADOW")					return ModelShadowNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "DIFFUSE")						return DiffuseNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "REFLECTION")					return ReflectionNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "SPECULAR")						return SpecularNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "SSAO")							return SSAONode::Create(vkCorePtr);
 
@@ -224,6 +229,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 
 	// Preview
 	else if (vPluginNodeName == "CUBE_MAP_PREVIEW")				return CubeMapPreviewNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "LONG_LAT_PREVIEW")				return LongLatPeviewNode::Create(vkCorePtr);
 
 	// renderers
 	else if (vPluginNodeName == "CHANNEL_RENDERER")				return ChannelRendererNode::Create(vkCorePtr);
