@@ -40,7 +40,7 @@ bool RenderDocController::Init()
             int major, minor, patch;
             m_RDdocPtr->GetAPIVersion(&major, &minor, &patch);
             printf("-----------\n");
-            printf("Renderdoc DLL Loaded\n", major, minor, patch);
+            printf("Renderdoc DLL Loaded\n");
             printf("Renderdoc Api Version : %i.%i.%i\n", major, minor, patch);
             printf("-----------\n");
         }

@@ -92,10 +92,10 @@ bool Texture2D::loadImageWithMaxH(const std::string& inFile, const uint32_t& max
 		{
 			// resize with respect to glyph ratio
 			const float ratioX = (float)w / (float)h;
-			const float newX = maxHeight * ratioX;
+			const float newX = (float)maxHeight * ratioX;
 			float newY = w / ratioX;
 			if (newX < w)
-				newY = maxHeight;
+				newY = (float)maxHeight;
 
 			outWidth = (uint32_t)newX;
 			const auto newHeight = (uint32_t)newY;

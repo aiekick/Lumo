@@ -362,6 +362,7 @@ static void check_vk_result(VkResult err)
         v->CheckVkResultFn(err);
 }
 
+/*
 static void CreateOrResizeBuffer(VkBuffer& buffer, VkDeviceMemory& buffer_memory, VkDeviceSize& p_buffer_size, size_t new_size, VkBufferUsageFlagBits usage)
 {
     ImGui_ImplVulkan_InitInfo* v = &g_VulkanInitInfo;
@@ -394,6 +395,7 @@ static void CreateOrResizeBuffer(VkBuffer& buffer, VkDeviceMemory& buffer_memory
     check_vk_result(err);
     p_buffer_size = req.size;
 }
+*/
 
 static void ImGui_ImplVulkan_SetupRenderState(ImDrawData* draw_data, VkPipeline pipeline, VkCommandBuffer command_buffer, ImGui_ImplVulkanH_FrameRenderBuffers* rb, int fb_width, int fb_height)
 {

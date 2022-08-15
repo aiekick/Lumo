@@ -87,7 +87,7 @@ void BaseNode::SelectSlot_Callback(const NodeSlotWeak& vSlot, const ImGuiMouseBu
 	}
 	else
 	{
-		LogVarWarning("BaseNode::sSelectSlotCallback is null");
+		//LogVarWarning("BaseNode::sSelectSlotCallback is null");
 	}
 }
 

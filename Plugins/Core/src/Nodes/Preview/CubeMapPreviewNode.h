@@ -17,11 +17,13 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/TextureCubeInputInterface.h>
+#include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
 class CubeMapPreviewModule;
 class CubeMapPreviewNode :
 	public TextureCubeInputInterface<0U>,
+	public TextureOutputInterface,
 	public ShaderUpdateInterface,
 	public BaseNode
 {
@@ -38,6 +40,9 @@ public:
 	// Init / Unit
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 
+	// Execute Task
+	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;
+
 	// Draw Widgets
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
@@ -49,6 +54,9 @@ public:
 	// Interfaces Setters
 	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;
 
+
+	// Interfaces Getters
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
 
 	// Configuration

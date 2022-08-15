@@ -186,7 +186,7 @@ vk::DescriptorImageInfo* CubeMapModule::GetTextureCube(const uint32_t& vBindingP
 		return &m_TextureCubePtr->m_DescriptorImageInfo;
 	}
 
-	return nullptr;
+	return m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -272,63 +272,72 @@ void CubeMapModule::LoadTextures(const std::string& vFilePathName)
 
 void CubeMapModule::ClearTextures()
 {
-	for (auto tex : m_ImGuiTextures)
+	for (auto& tex : m_ImGuiTextures)
 	{
 		tex.ClearDescriptor();
 	}
 
 	m_TextureCubePtr.reset();
+
+	auto parentNodePtr = GetParentNode().getValidShared();
+	if (parentNodePtr)
+	{
+		parentNodePtr->SendFrontNotification(TextureUpdateDone);
+	}
 }
 
 void CubeMapModule::DrawTextures(const ct::ivec2& vMaxSize, const float& vRounding)
 {
-	ImGuiWindow* window = ImGui::GetCurrentWindow();
-	if (window->SkipItems)
-		return;
-
-	static const uint32_t _x_pos = 0U;
-	static const uint32_t _x_neg = 1U;
-	static const uint32_t _y_pos = 2U;
-	static const uint32_t _y_neg = 3U;
-	static const uint32_t _z_pos = 4U;
-	static const uint32_t _z_neg = 5U;
-	static int32_t faces[3U][4U] =
+	if (m_TextureCubePtr)
 	{
-		{ -1,		_y_pos,		-1,			-1},
-		{_x_neg,	_z_pos,		_x_pos,		_z_neg},
-		{-1,		_y_neg,		-1,			-1}
-	};
-	static int32_t roundedCorners[3U][4U] = {
-		{0,								ImDrawFlags_RoundCornersTop,	0,	0},
-		{ImDrawFlags_RoundCornersLeft,	0,								0,	ImDrawFlags_RoundCornersRight},
-		{0,								ImDrawFlags_RoundCornersBottom,	0,	0}};
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return;
 
-	const ImVec2 size = ImVec2((float)vMaxSize.x / 4.0f, (float)vMaxSize.y / 3.0f);
-	const ImVec2 spos = window->DC.CursorPos;
-	const ImRect bb(spos, spos + ImVec2((float)vMaxSize.x, (float)vMaxSize.y));
-	ImGui::ItemSize(bb);
-	if (!ImGui::ItemAdd(bb, 0))
-		return;
-	
-	const auto borders_color = ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
-	for (size_t row = 0U; row < 3U; ++row)
-	{
-		for (size_t col = 0U; col < 4U; ++col)
+		static const uint32_t _x_pos = 0U;
+		static const uint32_t _x_neg = 1U;
+		static const uint32_t _y_pos = 2U;
+		static const uint32_t _y_neg = 3U;
+		static const uint32_t _z_pos = 4U;
+		static const uint32_t _z_neg = 5U;
+		static int32_t faces[3U][4U] =
 		{
-			const auto& idx = faces[row][col];
-			if (idx > -1)
+			{ -1,		_y_pos,		-1,			-1},
+			{_x_neg,	_z_pos,		_x_pos,		_z_neg},
+			{-1,		_y_neg,		-1,			-1}
+		};
+		static int32_t roundedCorners[3U][4U] = {
+			{0,								ImDrawFlags_RoundCornersTop,	0,	0},
+			{ImDrawFlags_RoundCornersLeft,	0,								0,	ImDrawFlags_RoundCornersRight},
+			{0,								ImDrawFlags_RoundCornersBottom,	0,	0}};
+
+		const ImVec2 size = ImVec2((float)vMaxSize.x / 4.0f, (float)vMaxSize.y / 3.0f);
+		const ImVec2 spos = window->DC.CursorPos;
+		const ImRect bb(spos, spos + ImVec2((float)vMaxSize.x, (float)vMaxSize.y));
+		ImGui::ItemSize(bb);
+		if (!ImGui::ItemAdd(bb, 0))
+			return;
+
+		const auto borders_color = ImGui::GetColorU32(ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+		for (size_t row = 0U; row < 3U; ++row)
+		{
+			for (size_t col = 0U; col < 4U; ++col)
 			{
-				if (m_ImGuiTextures[idx].canDisplayPreview)
+				const auto& idx = faces[row][col];
+				if (idx > -1)
 				{
-					const ImVec2 pos = ImVec2(spos.x + size.x * col, spos.y + size.y * row);
-					if (vRounding > 0.0f)
+					if (m_ImGuiTextures[idx].canDisplayPreview)
 					{
-						window->DrawList->AddImageRounded((ImTextureID)&m_ImGuiTextures[idx].descriptor, pos, pos + size,
-							ImVec2(0, 0), ImVec2(1, 1), borders_color, vRounding, roundedCorners[row][col]);
-					}
-					else
-					{
-						window->DrawList->AddImage((ImTextureID)&m_ImGuiTextures[idx].descriptor, pos, pos + size);
+						const ImVec2 pos = ImVec2(spos.x + size.x * col, spos.y + size.y * row);
+						if (vRounding > 0.0f)
+						{
+							window->DrawList->AddImageRounded((ImTextureID)&m_ImGuiTextures[idx].descriptor, pos, pos + size,
+								ImVec2(0, 0), ImVec2(1, 1), borders_color, vRounding, roundedCorners[row][col]);
+						}
+						else
+						{
+							window->DrawList->AddImage((ImTextureID)&m_ImGuiTextures[idx].descriptor, pos, pos + size);
+						}
 					}
 				}
 			}

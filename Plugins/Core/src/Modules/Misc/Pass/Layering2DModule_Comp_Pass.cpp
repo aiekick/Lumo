@@ -128,7 +128,7 @@ void Layering2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::D
 					m_UBOComp.use_input_color_buffer = 0.0f;
 				}
 
-				m_ImageInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -192,7 +192,7 @@ bool Layering2DModule_Comp_Pass::CreateUBO()
 
 	for (auto& info : m_ImageInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();

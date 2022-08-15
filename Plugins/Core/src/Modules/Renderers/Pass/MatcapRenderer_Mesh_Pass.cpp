@@ -139,7 +139,7 @@ void MatcapRenderer_Mesh_Pass::SetTexture(const uint32_t& vBinding, vk::Descript
 			}
 			else
 			{
-				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -196,7 +196,7 @@ bool MatcapRenderer_Mesh_Pass::CreateUBO()
 
 	for (auto& info : m_ImageInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();

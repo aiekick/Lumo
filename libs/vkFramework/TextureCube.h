@@ -33,7 +33,7 @@ public:
 public:
 	static TextureCubePtr CreateFromFiles(vkApi::VulkanCorePtr vVulkanCorePtr, std::array<std::string, 6U> vFilePathNames);
 	//static TextureCubePtr CreateFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr, std::array<uint8_t*, 6U> vBuffers, const uint32_t& width, const uint32_t& height, const uint32_t& channels);
-	//static TextureCubePtr CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat);
+	static TextureCubePtr CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat);
 	//static TextureCubePtr CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat);
 
 public:
@@ -56,7 +56,7 @@ public:
 	~TextureCube();
 	bool LoadFiles(const std::array<std::string, 6U>& vFilePathName, const vk::Format& vFormat = vk::Format::eR8G8B8A8Unorm, const uint32_t& vMipLevelCount = 1u);
 	bool LoadMemories(const std::array<std::vector<uint8_t>, 6U>& buffer, const uint32_t& width, const uint32_t& height, const uint32_t& channels, const vk::Format& vFormat = vk::Format::eR8G8B8A8Unorm, const uint32_t& vMipLevelCount = 1u);
-	//bool LoadEmptyTexture(const ct::uvec2& vSize = 1, const vk::Format& vFormat = vk::Format::eR8G8B8A8Unorm);
+	bool LoadEmptyTexture(const ct::uvec2& vSize = 1, const vk::Format& vFormat = vk::Format::eR8G8B8A8Unorm);
 	//bool LoadEmptyImage(const ct::uvec2& vSize = 1, const vk::Format& vFormat = vk::Format::eR8G8B8A8Unorm);
 	void Destroy();
 

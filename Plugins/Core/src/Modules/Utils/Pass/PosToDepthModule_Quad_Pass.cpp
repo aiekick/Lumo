@@ -98,7 +98,7 @@ void PosToDepthModule_Quad_Pass::SetTexture(const uint32_t& vBinding, vk::Descri
 					NeedNewUBOUpload();
 				}
 
-				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -164,7 +164,7 @@ bool PosToDepthModule_Quad_Pass::CreateUBO()
 
 	for (auto& info : m_ImageInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();

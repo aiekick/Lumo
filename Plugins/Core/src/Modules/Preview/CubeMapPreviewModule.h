@@ -46,13 +46,16 @@ limitations under the License.
 #include <Interfaces/ResizerInterface.h>
 
 #include <Interfaces/TextureCubeInputInterface.h>
+#include <Interfaces/TextureOutputInterface.h>
 
 class CubeMapPreview_Quad_Pass;
 class CubeMapPreviewModule :
 	public NodeInterface,
 	public BaseRenderer,
 	public ResizerInterface,
+	public TaskInterface,
 	public TextureCubeInputInterface<0U>,
+	public TextureOutputInterface,
 	public GuiInterface
 {
 public:
@@ -69,6 +72,9 @@ public:
 
 	bool Init();
 
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
@@ -77,6 +83,9 @@ public:
 
 	// Interfaces Setters
 	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;
+
+	// Interfaces Getters
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

@@ -40,10 +40,12 @@ limitations under the License.
 
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureCubeInputInterface.h>
+#include <Interfaces/TextureOutputInterface.h>
 
 class CubeMapPreview_Quad_Pass :
 	public QuadShaderPass,
-	public TextureCubeInputInterface<2>,
+	public TextureCubeInputInterface<1>,
+	public TextureOutputInterface,
 	public GuiInterface
 {
 private:
@@ -66,6 +68,9 @@ public:
 
 	// Interfaces Setters
 	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;
+
+	// Interfaces Getters
+	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;

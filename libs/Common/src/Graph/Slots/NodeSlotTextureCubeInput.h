@@ -50,8 +50,6 @@ public:
 		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
 		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) override;
-
 	void DrawDebugInfos();
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

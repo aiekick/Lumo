@@ -175,7 +175,7 @@ void GrayScottModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::De
 			}
 			else
 			{
-				m_ImageInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -269,7 +269,7 @@ bool GrayScottModule_Comp_Pass::CreateUBO()
 
 	for (auto& info : m_ImageInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();

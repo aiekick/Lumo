@@ -20,6 +20,7 @@ limitations under the License.
 #include "CubeMapPreviewNode.h"
 #include <Modules/Preview/CubeMapPreviewModule.h>
 #include <Graph/Slots/NodeSlotTextureCubeInput.h>
+#include <Graph/Slots/NodeSlotTextureOutput.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
@@ -63,13 +64,36 @@ bool CubeMapPreviewNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	bool res = false;
 
 	name = "CubeMap Preview";
-	AddInput(NodeSlotTextureCubeInput::Create("CubeMap", 0), false, false);
 
+	AddInput(NodeSlotTextureCubeInput::Create("CubeMap", 0), false, false);
+	AddOutput(NodeSlotTextureOutput::Create("New Slot", 0), false, true);
 
 	m_CubeMapPreviewModulePtr = CubeMapPreviewModule::Create(vVulkanCorePtr, m_This);
 	if (m_CubeMapPreviewModulePtr)
 	{
 		res = true;
+	}
+
+	return res;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+bool CubeMapPreviewNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+{
+	ZoneScoped;
+
+	bool res = false;
+
+	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+
+	UpdateTextureCubeInputDescriptorImageInfos(m_Inputs);
+
+	if (m_CubeMapPreviewModulePtr)
+	{
+		res = m_CubeMapPreviewModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return res;
@@ -159,6 +183,21 @@ void CubeMapPreviewNode::SetTextureCube(const uint32_t& vBindingPoint, vk::Descr
 	{
 		m_CubeMapPreviewModulePtr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorImageInfo* CubeMapPreviewNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+{	
+	ZoneScoped;
+	if (m_CubeMapPreviewModulePtr)
+	{
+		return m_CubeMapPreviewModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+	}
+
+	return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

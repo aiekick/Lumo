@@ -198,7 +198,7 @@ void MathModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 					NeedNewUBOUpload();
 				}
 
-				m_ImageInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -231,7 +231,7 @@ bool MathModule_Quad_Pass::CreateUBO()
 
 	for (auto& info : m_ImageInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();

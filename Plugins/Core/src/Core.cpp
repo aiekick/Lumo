@@ -18,10 +18,7 @@
 
 #include <Nodes/Breaks/BreakTexturesGroupNode.h>
 
-#include <Nodes/Misc/GridNode.h>
-#include <Nodes/Misc/Layering2DNode.h>
-
-#include <Nodes/Simulation/GrayScottNode.h>
+#include <Nodes/DiffOperators/LaplacianNode.h>
 
 #include <Nodes/Lighting/LightGroupNode.h>
 #include <Nodes/Lighting/DiffuseNode.h>
@@ -32,16 +29,22 @@
 
 #include <Nodes/Modifiers/SmoothNormalNode.h>
 
+#include <Nodes/Misc/GridNode.h>
+#include <Nodes/Misc/Layering2DNode.h>
+
 #include <Nodes/PostPro/SSAONode.h>
 #include <Nodes/PostPro/BlurNode.h>
-#include <Nodes/DiffOperators/LaplacianNode.h>
 #include <Nodes/PostPro/ToneMapNode.h>
+
+#include <Nodes/Preview/CubeMapPreviewNode.h>
 
 #include <Nodes/Renderers/MatcapRendererNode.h>
 #include <Nodes/Renderers/ChannelRendererNode.h>
 #include <Nodes/Renderers/HeatmapRendererNode.h>
 #include <Nodes/Renderers/DeferredRendererNode.h>
 #include <Nodes/Renderers/PBRRendererNode.h>
+
+#include <Nodes/Simulation/GrayScottNode.h>
 
 #include <Nodes/Utils/MathNode.h>
 #include <Nodes/Utils/DepthToPosNode.h>
@@ -163,6 +166,8 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 
 	res.push_back(AddLibraryEntry("Core/3D/Modifiers", "Smooth Normals", "SMOOTH_NORMAL"));
 
+	res.push_back(AddLibraryEntry("Core/3D/Preview", "CubeMap Preview", "CUBE_MAP_PREVIEW"));
+
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Blur", "BLUR"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Laplacian", "LAPLACIAN"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Tone Map", "TONE_MAP"));
@@ -216,6 +221,9 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "BLUR")							return BlurNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "LAPLACIAN")					return LaplacianNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "TONE_MAP")						return ToneMapNode::Create(vkCorePtr);
+
+	// Preview
+	else if (vPluginNodeName == "CUBE_MAP_PREVIEW")				return CubeMapPreviewNode::Create(vkCorePtr);
 
 	// renderers
 	else if (vPluginNodeName == "CHANNEL_RENDERER")				return ChannelRendererNode::Create(vkCorePtr);

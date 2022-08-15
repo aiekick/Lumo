@@ -42,9 +42,9 @@ using namespace vkApi;
 CubeMapPreview_Quad_Pass::CubeMapPreview_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
-	SetRenderDocDebugName("Comp Pass : CubeMapPreview", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Quad Pass : CubeMap Preview", QUAD_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 CubeMapPreview_Quad_Pass::~CubeMapPreview_Quad_Pass()
@@ -54,11 +54,9 @@ CubeMapPreview_Quad_Pass::~CubeMapPreview_Quad_Pass()
 
 void CubeMapPreview_Quad_Pass::ActionBeforeInit()
 {
-	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
-
 	for (auto& info : m_ImageCubeInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
 	}
 }
 
@@ -71,7 +69,7 @@ bool CubeMapPreview_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 
 	bool change = false;
 
-	change |= DrawResizeWidget();
+	//change |= DrawResizeWidget();
 
 	if (change)
 	{
@@ -122,20 +120,43 @@ void CubeMapPreview_Quad_Pass::SetTextureCube(const uint32_t& vBindingPoint, vk:
 				if (vBindingPoint == 0U)
 				{
 					m_UBOFrag.u_use_cube_map = 1.0f;
+					NeedNewUBOUpload();
 				}
 			}
 			else
 			{
 				if (vBindingPoint == 0U)
 				{
-					m_UBOFrag.u_use_cube_map =0.0f;
+					m_UBOFrag.u_use_cube_map = 0.0f;
+					NeedNewUBOUpload();
 				}
 
-				m_ImageCubeInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageCubeInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
 			}
 		}
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorImageInfo* CubeMapPreview_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+{	
+	ZoneScoped;
+
+	if (m_FrameBufferPtr)
+	{
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
+		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+	}
+	return nullptr;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +236,7 @@ layout(location = 1) in vec2 vertUv;
 layout(location = 0) out vec3 v_rd;
 )"
 +
-CommonSystem::Instance()->GetBufferObjectStructureHeader(0U);
+CommonSystem::Instance()->GetBufferObjectStructureHeader(0U)
 +
 u8R"(
 vec3 getRayDirection(vec2 uv)
@@ -257,7 +278,7 @@ void main()
 {
 	fragColor = vec4(0);
 
-	if (u_use_cube_map > 0.5)
+	//if (u_use_cube_map > 0.5)
 	{
 		fragColor = texture(cube_map_sampler, v_rd);
 	}

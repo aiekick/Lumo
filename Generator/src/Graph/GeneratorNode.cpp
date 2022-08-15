@@ -1857,7 +1857,7 @@ void PASS_CLASS_NAME::ActionBeforeInit()
 		cpp_pass_file_code += u8R"(
 	for (auto& info : m_ImageInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
@@ -1865,7 +1865,7 @@ void PASS_CLASS_NAME::ActionBeforeInit()
 		cpp_pass_file_code += u8R"(
 	for (auto& info : m_ImageCubeInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup])
@@ -1875,7 +1875,7 @@ void PASS_CLASS_NAME::ActionBeforeInit()
 	{
 		for(auto& info : infos)
 		{
-			info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+			info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 		}
 	})";
 	}
@@ -4626,7 +4626,7 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 			}
 			else
 			{
-				m_ImageInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -4881,7 +4881,7 @@ void NODE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 			}
 			else
 			{
-				m_ImageCubeInfos[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageCubeInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -5105,7 +5105,7 @@ void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 			}
 			else
 			{
-				m_ImageGroups[vBindingPoint] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageGroups[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}

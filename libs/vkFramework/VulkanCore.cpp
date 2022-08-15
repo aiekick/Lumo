@@ -22,6 +22,7 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include "VulkanSubmitter.h"
 #include "Texture2D.h"
+#include "TextureCube.h"
 
 #define RECORD_VM_ALLOCATION
 
@@ -166,7 +167,8 @@ namespace vkApi
 
 			tracy::SetThreadName("Main");
 #endif
-			m_EmptyTexturePtr = Texture2D::CreateEmptyTexture(m_This.getValidShared(), ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+			m_EmptyTexture2DPtr = Texture2D::CreateEmptyTexture(m_This.getValidShared(), ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
+			m_EmptyTextureCubePtr = TextureCube::CreateEmptyTexture(m_This.getValidShared(), ct::uvec2(1, 1), vk::Format::eR8G8B8A8Unorm);
 
 			return true;
 		}
@@ -180,7 +182,8 @@ namespace vkApi
 
 		m_VulkanDevicePtr->WaitIdle();
 
-		m_EmptyTexturePtr.reset();
+		m_EmptyTexture2DPtr.reset();
+		m_EmptyTextureCubePtr.reset();
 
 		TracyVkDestroy(m_TracyContext);
 
@@ -213,8 +216,10 @@ namespace vkApi
 	std::vector<vk::Semaphore> VulkanCore::getRenderSemaphores() { return m_VulkanSwapChainPtr->m_PresentCompleteSemaphores; }
 	vk::SampleCountFlagBits VulkanCore::getSwapchainFrameBufferSampleCount() const { return m_VulkanSwapChainPtr->getSwapchainFrameBufferSampleCount(); }
 
-	Texture2DWeak VulkanCore::getEmptyTexture() const { return m_EmptyTexturePtr; }
-	vk::DescriptorImageInfo VulkanCore::getEmptyTextureDescriptorImageInfo() const { return m_EmptyTexturePtr->m_DescriptorImageInfo; }
+	Texture2DWeak VulkanCore::getEmptyTexture2D() const { return m_EmptyTexture2DPtr; }
+	TextureCubeWeak VulkanCore::getEmptyTextureCube() const { return m_EmptyTextureCubePtr; }
+	vk::DescriptorImageInfo* VulkanCore::getEmptyTexture2DDescriptorImageInfo() const { return &m_EmptyTexture2DPtr->m_DescriptorImageInfo; }
+	vk::DescriptorImageInfo* VulkanCore::getEmptyTextureCubeDescriptorImageInfo() const { return &m_EmptyTextureCubePtr->m_DescriptorImageInfo; }
 
 	// when the NullDescriptor Feature is enabled
 	vk::DescriptorBufferInfo* VulkanCore::getEmptyDescriptorBufferInfo() { return &m_EmptyDescriptorBufferInfo; }

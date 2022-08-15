@@ -108,7 +108,7 @@ void PBRRenderer_Quad_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorI
 					NeedNewUBOUpload();
 				}
 				
-				m_ImageInfos[vBinding] = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+				m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -156,7 +156,7 @@ void PBRRenderer_Quad_Pass::SetTextures(const uint32_t& vBinding, DescriptorImag
 			{
 				for (auto& info : m_ImageGroupInfos)
 				{
-					info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+					info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 				}
 
 				if (m_UBOFrag.use_sampler_position > 0.0f)
@@ -248,12 +248,12 @@ bool PBRRenderer_Quad_Pass::CreateUBO()
 
 	for (auto& info : m_ImageInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	for (auto& info : m_ImageGroupInfos)
 	{
-		info = m_VulkanCorePtr->getEmptyTextureDescriptorImageInfo();
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();

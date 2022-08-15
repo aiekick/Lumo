@@ -83,7 +83,6 @@ bool CubeMapPreviewModule::Init()
 
 	m_Loaded = false;
 
-
 	ct::uvec2 map_size = 512;
 
 	if (BaseRenderer::InitPixel(map_size))
@@ -109,6 +108,28 @@ bool CubeMapPreviewModule::Init()
 	return m_Loaded;
 }
 
+//////////////////////////////////////////////////////////////
+//// OVERRIDES ///////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+bool CubeMapPreviewModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+{
+	ZoneScoped;
+
+	BaseRenderer::Render("CubeMapPreview", vCmd);
+
+	return true;
+}
+
+bool CubeMapPreviewModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+{
+	ZoneScoped;
+
+	BaseRenderer::Render("CubeMapPreview", vCmd);
+
+	return true;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +141,8 @@ bool CubeMapPreviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
+	if (m_LastExecutedFrame == vCurrentFrame)
+	{
 		if (ImGui::CollapsingHeader_CheckBox("CubeMapPreview", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
@@ -131,6 +154,7 @@ bool CubeMapPreviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 
 			return change;
 		}
+	}
 
 	return false;
 }
@@ -142,6 +166,10 @@ void CubeMapPreviewModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct:
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
+	if (m_LastExecutedFrame == vCurrentFrame)
+	{
+
+	}
 }
 
 void CubeMapPreviewModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
@@ -151,6 +179,10 @@ void CubeMapPreviewModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
+	if (m_LastExecutedFrame == vCurrentFrame)
+	{
+
+	}
 }
 
 void CubeMapPreviewModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
@@ -169,10 +201,27 @@ void CubeMapPreviewModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const ui
 void CubeMapPreviewModule::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
+
 	if (m_CubeMapPreview_Quad_Pass_Ptr)
 	{
 		m_CubeMapPreview_Quad_Pass_Ptr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+vk::DescriptorImageInfo* CubeMapPreviewModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+{	
+	ZoneScoped;
+
+	if (m_CubeMapPreview_Quad_Pass_Ptr)
+	{
+		return m_CubeMapPreview_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+	}
+
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

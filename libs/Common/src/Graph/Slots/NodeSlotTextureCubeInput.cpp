@@ -223,14 +223,6 @@ void NodeSlotTextureCubeInput::TreatNotification(
 	}
 }
 
-void NodeSlotTextureCubeInput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton)
-{
-	if (!linkedSlots.empty())
-	{
-		BaseNode::SelectForGraphOutput_Callback(linkedSlots[0], vMouseButton);
-	}
-}
-
 void NodeSlotTextureCubeInput::DrawDebugInfos()
 {
 	ImGui::Text("--------------------");

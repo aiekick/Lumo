@@ -160,7 +160,6 @@ TextureCubePtr TextureCube::CreateFromMemory(vkApi::VulkanCorePtr vVulkanCorePtr
 }
 */
 
-/*
 TextureCubePtr TextureCube::CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat)
 {
 	ZoneScoped;
@@ -175,7 +174,6 @@ TextureCubePtr TextureCube::CreateEmptyTexture(vkApi::VulkanCorePtr vVulkanCoreP
 
 	return res;
 }
-*/
 
 /*
 TextureCubePtr TextureCube::CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr, ct::uvec2 vSize, vk::Format vFormat)
@@ -197,6 +195,7 @@ TextureCubePtr TextureCube::CreateEmptyImage(vkApi::VulkanCorePtr vVulkanCorePtr
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 TextureCube::TextureCube(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
@@ -341,7 +340,6 @@ bool TextureCube::LoadMemories(
 	return m_Loaded;
 }
 
-/*
 bool TextureCube::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vFormat)
 {
 	ZoneScoped;
@@ -350,7 +348,7 @@ bool TextureCube::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vFo
 
 	Destroy();
 
-	std::vector<uint8_t> image_data;
+	std::array<std::vector<uint8_t>, 6U> image_datas;
 
 	uint32_t channels = 0;
 	uint32_t elem_size = 0;
@@ -396,24 +394,31 @@ bool TextureCube::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vFo
 	size_t dataSize = vSize.x * vSize.y;
 	if (dataSize > 1)
 	{
-		image_data.resize(dataSize * channels * elem_size);
-		memset(image_data.data(), 0, image_data.size());
+		for (auto& image_data : image_datas)
+		{
+			image_data.resize(dataSize * channels * elem_size);
+			memset(image_data.data(), 0, image_data.size());
+		}
 	}
 	else
 	{
-		image_data.resize(channels * elem_size);
-		memset(image_data.data(), 0, image_data.size());
+		for (auto& image_data : image_datas)
+		{
+			image_data.resize(channels * elem_size);
+			memset(image_data.data(), 0, image_data.size());
+		}
 	}
-
-	m_TextureCube = VulkanRessource::createTextureImage2D(m_VulkanCorePtr, vSize.x, vSize.y, 1, vFormat, image_data.data());
+	
+	m_TextureCubePtr = VulkanRessource::createTextureImageCube(
+		m_VulkanCorePtr, vSize.x, vSize.y, 1, vFormat, image_datas);
 
 	vk::ImageViewCreateInfo imViewInfo = {};
 	imViewInfo.flags = vk::ImageViewCreateFlags();
-	imViewInfo.image = m_TextureCube->image;
-	imViewInfo.viewType = vk::ImageViewType::e2D;
+	imViewInfo.image = m_TextureCubePtr->image;
+	imViewInfo.viewType = vk::ImageViewType::eCube;
 	imViewInfo.format = vFormat;
 	imViewInfo.components = vk::ComponentMapping();
-	imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, m_MipLevelCount, 0, 1);
+	imViewInfo.subresourceRange = vk::ImageSubresourceRange(vk::ImageAspectFlagBits::eColor, 0, m_MipLevelCount, 0, 6U);
 	m_TextureView = m_VulkanCorePtr->getDevice().createImageView(imViewInfo);
 
 	vk::SamplerCreateInfo samplerInfo = {};
@@ -444,7 +449,6 @@ bool TextureCube::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vFo
 
 	return m_Loaded;
 }
-*/
 
 // for compute
 /*
