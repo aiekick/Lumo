@@ -39,6 +39,7 @@ thats all
 | :white_square_button: | Plugin system | ![img](https://progress-bar.dev/90) |
 | :black_square_button: | Sdf Merging | ![img](https://progress-bar.dev/80) |
 | :white_square_button: | Node Graph | ![img](https://progress-bar.dev/80) |
+| :black_square_button: | Sub Node Graph | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Instancing | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | SkyBox (Cubemap, LongLat) | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Cell Shading | ![img](https://progress-bar.dev/0) |
@@ -89,22 +90,35 @@ thats all
 | - | - | - |
 | :white_square_button: | Assets / Mesh Node | ![img](https://progress-bar.dev/90) |
 | :white_square_button: | Assets / Texture 2D Node  | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Assets / Cube Map Node  | ![img](https://progress-bar.dev/20) |
 | :white_square_button: | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Exporters / Export Texture to file | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Exporters / Export Cube Map to files | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Exporters / Export Mesh to file | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Exporters / Export Mesh to file (Transform feedback) | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Lighting / Attenuation Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/50) |
-| :black_square_button: | Lighting / MetalNess Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Lighting / Reflection Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Model Shadow Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Lighting / RoughNess Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Mesh Ops / Extrusion along path | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Misc / 2D Layering | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Misc / Parametric Curve | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Misc / Parametric Differential Curve | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Misc / Parametric UV Surface | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Blur Node (WIP) | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Primitves / UV Sphere | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitves / Ico Sphere | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitves / Cube | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitves / Torus | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Deferred Renderer Node (WIP) | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
@@ -115,6 +129,8 @@ thats all
 | :white_square_button: | Utils / Math Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Utils / Mesh Attributes Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Utils / Pos To Depth Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Utils / Cube Map to LongLat | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Utils / LongLat to Cube Map  | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/20) |
 
