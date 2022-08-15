@@ -100,6 +100,7 @@ thats all
 | :black_square_button: | Lighting / Deferred Attenuation Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Deferred Diffuse Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/50) |
+| :black_square_button: | Lighting / Deferred Refraction Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Deferred Reflection Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Model Shadow Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Lighting / Deferred RoughNess Node | ![img](https://progress-bar.dev/0) |
