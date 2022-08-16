@@ -66,7 +66,7 @@ bool LongLatPeviewNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "LongLat Peview";
 
 	AddInput(NodeSlotTextureInput::Create("LongLat", 0), false, false);
-	AddOutput(NodeSlotTextureOutput::Create("New Slot", 0), false, true);
+	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
 	m_LongLatPeviewModulePtr = LongLatPeviewModule::Create(vVulkanCorePtr, m_This);
 	if (m_LongLatPeviewModulePtr)

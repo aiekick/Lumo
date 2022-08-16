@@ -27,6 +27,7 @@
 #include <Nodes/Lighting/ModelShadowNode.h>
 #include <Nodes/Lighting/Normal2DNode.h>
 #include <Nodes/Lighting/ReflectionNode.h>
+#include <Nodes/Lighting/RefractionNode.h>
 
 #include <Nodes/Modifiers/SmoothNormalNode.h>
 
@@ -164,6 +165,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Lighting/Shadow", "Model Shadow", "MODEL_SHADOW"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Diffuse", "DIFFUSE"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Reflection", "REFLECTION"));
+	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Refraction", "REFRACTION"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Specular", "SPECULAR"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "SSAO", "SSAO"));
 
@@ -216,6 +218,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "MODEL_SHADOW")					return ModelShadowNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "DIFFUSE")						return DiffuseNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "REFLECTION")					return ReflectionNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "REFRACTION")					return RefractionNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "SPECULAR")						return SpecularNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "SSAO")							return SSAONode::Create(vkCorePtr);
 

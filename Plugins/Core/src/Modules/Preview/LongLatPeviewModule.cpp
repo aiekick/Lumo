@@ -96,7 +96,7 @@ bool LongLatPeviewModule::Init()
 			//m_LongLatPeview_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
 			//m_LongLatPeview_Quad_Pass_Ptr->AllowResizeByHand(true);
 
-			if (m_LongLatPeview_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_LongLatPeview_Quad_Pass_Ptr->InitPixel(map_size, 1U, false, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_LongLatPeview_Quad_Pass_Ptr);

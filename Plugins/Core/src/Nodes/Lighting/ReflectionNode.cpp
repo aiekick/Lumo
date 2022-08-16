@@ -70,7 +70,7 @@ bool ReflectionNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	m_LongLatInputSlot = AddInput(NodeSlotTextureInput::Create("LongLat", 1), false, false);
 	m_CubeMapInputSlot = AddInput(NodeSlotTextureCubeInput::Create("CubeMap", 0), false, false);
 
-	AddOutput(NodeSlotTextureOutput::Create("New Slot", 0), false, true);
+	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
 	m_ReflectionModulePtr = ReflectionModule::Create(vVulkanCorePtr, m_This);
 	if (m_ReflectionModulePtr)

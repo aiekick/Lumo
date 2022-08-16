@@ -17,8 +17,9 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "CubeMapPreviewNode.h"
-#include <Modules/Preview/CubeMapPreviewModule.h>
+#include "RefractionNode.h"
+#include <Modules/Lighting/RefractionModule.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureCubeInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 
@@ -26,11 +27,11 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<CubeMapPreviewNode> CubeMapPreviewNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RefractionNode> RefractionNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<CubeMapPreviewNode>();
+	auto res = std::make_shared<RefractionNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -39,14 +40,14 @@ std::shared_ptr<CubeMapPreviewNode> CubeMapPreviewNode::Create(vkApi::VulkanCore
 	return res;
 }
 
-CubeMapPreviewNode::CubeMapPreviewNode() : BaseNode()
+RefractionNode::RefractionNode() : BaseNode()
 {
 	ZoneScoped;
 
-	m_NodeTypeString = "CUBE_MAP_PREVIEW";
+	m_NodeTypeString = "REFRACTION";
 }
 
-CubeMapPreviewNode::~CubeMapPreviewNode()
+RefractionNode::~RefractionNode()
 {
 	ZoneScoped;
 
@@ -57,19 +58,22 @@ CubeMapPreviewNode::~CubeMapPreviewNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapPreviewNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool RefractionNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	name = "CubeMap Preview";
+	name = "Refraction";
 
-	AddInput(NodeSlotTextureCubeInput::Create("CubeMap", 0), false, false);
+	AddInput(NodeSlotTextureInput::Create("Normal", 0), false, false);
+	m_LongLatInputSlot = AddInput(NodeSlotTextureInput::Create("LongLat", 1), false, false);
+	m_CubeMapInputSlot = AddInput(NodeSlotTextureCubeInput::Create("CubeMap", 0), false, false);
+
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_CubeMapPreviewModulePtr = CubeMapPreviewModule::Create(vVulkanCorePtr, m_This);
-	if (m_CubeMapPreviewModulePtr)
+	m_RefractionModulePtr = RefractionModule::Create(vVulkanCorePtr, m_This);
+	if (m_RefractionModulePtr)
 	{
 		res = true;
 	}
@@ -81,7 +85,7 @@ bool CubeMapPreviewNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapPreviewNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool RefractionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -89,21 +93,22 @@ bool CubeMapPreviewNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
+	// for update input texture buffer infos => avoid vk crash
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 	UpdateTextureCubeInputDescriptorImageInfos(m_Inputs);
 
-	if (m_CubeMapPreviewModulePtr)
+	if (m_RefractionModulePtr)
 	{
-		res = m_CubeMapPreviewModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_RefractionModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return res;
 }
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapPreviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool RefractionNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -112,24 +117,24 @@ bool CubeMapPreviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	if (m_CubeMapPreviewModulePtr)
+	if (m_RefractionModulePtr)
 	{
-		res = m_CubeMapPreviewModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_RefractionModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return res;
 }
 
-void CubeMapPreviewNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void RefractionNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	if (m_CubeMapPreviewModulePtr)
+	if (m_RefractionModulePtr)
 	{
-		m_CubeMapPreviewModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_RefractionModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
@@ -137,7 +142,7 @@ void CubeMapPreviewNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, 
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CubeMapPreviewNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void RefractionNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -160,12 +165,13 @@ void CubeMapPreviewNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeStat
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CubeMapPreviewNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void RefractionNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
-	if (m_CubeMapPreviewModulePtr)
+
+	if (m_RefractionModulePtr)
 	{
-		m_CubeMapPreviewModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+		m_RefractionModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
@@ -176,12 +182,47 @@ void CubeMapPreviewNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CubeMapPreviewNode::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
+void RefractionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
-	if (m_CubeMapPreviewModulePtr)
+
+	if (m_RefractionModulePtr)
 	{
-		m_CubeMapPreviewModulePtr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
+		m_RefractionModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+
+		if (vBindingPoint == 1U) // connect/disconnet to longlat
+		{
+			// show/hide cube map
+			auto slotPtr = m_CubeMapInputSlot.getValidShared();
+			if (slotPtr)
+			{
+				slotPtr->hidden = (vImageInfo != nullptr);
+			}
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void RefractionNode::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
+{	
+	ZoneScoped;
+
+	if (m_RefractionModulePtr)
+	{
+		m_RefractionModulePtr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
+
+		if (vBindingPoint == 0U) // connect/disconnet to cubemap
+		{
+			// show/hide long lat
+			auto slotPtr = m_LongLatInputSlot.getValidShared();
+			if (slotPtr)
+			{
+				slotPtr->hidden = (vImageCubeInfo != nullptr);
+			}
+		}
 	}
 }
 
@@ -189,12 +230,13 @@ void CubeMapPreviewNode::SetTextureCube(const uint32_t& vBindingPoint, vk::Descr
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* CubeMapPreviewNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* RefractionNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
-	if (m_CubeMapPreviewModulePtr)
+
+	if (m_RefractionModulePtr)
 	{
-		return m_CubeMapPreviewModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_RefractionModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -204,7 +246,7 @@ vk::DescriptorImageInfo* CubeMapPreviewNode::GetDescriptorImageInfo(const uint32
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CubeMapPreviewNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string RefractionNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -232,9 +274,9 @@ std::string CubeMapPreviewNode::getXml(const std::string& vOffset, const std::st
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_CubeMapPreviewModulePtr)
+		if (m_RefractionModulePtr)
 		{
-			res += m_CubeMapPreviewModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_RefractionModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -243,7 +285,7 @@ std::string CubeMapPreviewNode::getXml(const std::string& vOffset, const std::st
 	return res;
 }
 
-bool CubeMapPreviewNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool RefractionNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -260,9 +302,9 @@ bool CubeMapPreviewNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_CubeMapPreviewModulePtr)
+	if (m_RefractionModulePtr)
 	{
-		m_CubeMapPreviewModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_RefractionModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	// continue recurse child exploring
@@ -273,11 +315,12 @@ bool CubeMapPreviewNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CubeMapPreviewNode::UpdateShaders(const std::set<std::string>& vFiles)
+void RefractionNode::UpdateShaders(const std::set<std::string>& vFiles)
 {	
 	ZoneScoped;
-	if (m_CubeMapPreviewModulePtr)
+
+	if (m_RefractionModulePtr)
 	{
-		m_CubeMapPreviewModulePtr->UpdateShaders(vFiles);
+		m_RefractionModulePtr->UpdateShaders(vFiles);
 	}
 }
