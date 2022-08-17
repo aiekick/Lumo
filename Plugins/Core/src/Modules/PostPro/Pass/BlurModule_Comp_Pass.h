@@ -43,8 +43,6 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-
-
 class BlurModule_Comp_Pass :
 	public ShaderPass,
 	public GuiInterface,
@@ -56,31 +54,37 @@ private:
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
 
 	struct UBOComp {
-		alignas(4) uint32_t u_blur_radius = 4;
-		alignas(4) uint32_t u_blur_offset = 1;
+		alignas(4) uint32_t u_blur_radius = 4; // default is 4
 	} m_UBOComp;
 
 public:
 	BlurModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~BlurModule_Comp_Pass() override;
-
+	void ActionBeforeInit();
+	void ActionBeforeCompilation();
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	void SwapMultiPassFrontBackDescriptors() override;
+	bool CanUpdateDescriptors() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
+	void Compute_Blur_H(vk::CommandBuffer* vCmdBuffer);
+	void Compute_Blur_V(vk::CommandBuffer* vCmdBuffer);
+
 	bool CreateUBO() override;
 	void UploadUBO() override;
 	void DestroyUBO() override;
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
+
+	bool CreateComputePipeline();
 
 	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

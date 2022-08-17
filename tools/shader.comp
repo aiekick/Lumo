@@ -1,0 +1,53 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
+
+layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
+
+layout(std140, binding = 1) uniform UBO_Comp
+{
+	int u_blur_radius; // default is 4
+	uint u_h_or_v; // H is 1, V is 0
+};
+
+layout(binding = 2) uniform sampler2D input_map_sampler;
+
+void blur_H()
+{
+	vec4 res = vec4(0.0);
+	
+	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+	const int blur_radius = int(u_blur_radius);
+
+	ivec2 iv = coords;
+	for(int idx = -blur_radius; idx < blur_radius; ++idx)
+	{
+		iv.x = coords.x + idx;
+		res += texelFetch(input_map_sampler, iv, 0);
+	}
+
+	res /= float(u_blur_radius * 2);
+
+	imageStore(outColor, coords, res); 
+}
+
+void blur_V()
+{
+	vec4 res = vec4(0.0);
+	
+	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+	const int blur_radius = int(u_blur_radius);
+
+	ivec2 iv = coords;
+	for(int idx = -blur_radius; idx < blur_radius; ++idx)
+	{
+		iv.y = coords.y + idx;
+		res += texelFetch(input_map_sampler, iv, 0);
+	}
+
+	res /= float(u_blur_radius * 2);
+
+
+	imageStore(outColor, coords, res); 
+}

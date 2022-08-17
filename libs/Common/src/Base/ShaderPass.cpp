@@ -1526,7 +1526,7 @@ bool ShaderPass::CanUpdateDescriptors()
 	return true;
 }
 
-void ShaderPass::UpdateRessourceDescriptor(const uint32_t& vRessourceIndex)
+void ShaderPass::UpdateRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -1570,12 +1570,12 @@ void ShaderPass::UpdateRessourceDescriptor(const uint32_t& vRessourceIndex)
 	m_DescriptorWasUpdated = false;
 	if (CanUpdateDescriptors())
 	{
-		if (vRessourceIndex < (uint32_t)m_DescriptorSets.size())
+		// update descriptor
+		for (auto& descriptor : m_DescriptorSets)
 		{
-			// update descriptor
-			m_Device.updateDescriptorSets(m_DescriptorSets[(size_t)vRessourceIndex].m_WriteDescriptorSets, nullptr);
-			m_DescriptorWasUpdated = true;
+			m_Device.updateDescriptorSets(descriptor.m_WriteDescriptorSets, nullptr);
 		}
+		m_DescriptorWasUpdated = true;
 	}
 
 	// on le met la avant le rendu plutot qu'apres sinon au reload la 1ere
@@ -1596,6 +1596,9 @@ void ShaderPass::DestroyRessourceDescriptor()
 			m_Device.freeDescriptorSets(m_DescriptorPool, descriptor.m_DescriptorSet);
 		if (descriptor.m_DescriptorSetLayout)
 			m_Device.destroyDescriptorSetLayout(descriptor.m_DescriptorSetLayout);
+
+		descriptor.m_DescriptorSetLayout = vk::DescriptorSetLayout{};
+		descriptor.m_DescriptorSet = vk::DescriptorSet{};
 	}
 	
 	m_DescriptorSets[0] = DescriptorSetStruct{};

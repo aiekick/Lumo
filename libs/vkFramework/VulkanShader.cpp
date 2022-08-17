@@ -28,6 +28,7 @@ limitations under the License.
 #include <glslang/OSDependent/osinclude.h>
 
 #include <ctools/Logger.h>
+#include <ctools/FileHelper.h>
 #include "IRUniformsLocator.h"
 
 #include <cstdio>			// printf, fprintf
@@ -185,7 +186,7 @@ std::string GetFullShaderStageString(const EShLanguage& stage)
 //TODO: Multithread, manage SpirV that doesn't need recompiling (only recompile when dirty)
 const std::vector<unsigned int> VulkanShader::CompileGLSLFile(
 	const std::string& filename,
-	const std::string& vEntryPoint,
+	const ShaderEntryPoint& vEntryPoint,
 	ShaderMessagingFunction vMessagingFunction,
 	std::string* vShaderCode,
 	std::unordered_map<std::string, bool>* vUsedUniforms)
@@ -223,7 +224,7 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 	const std::string& vCode,
 	const std::string& vShaderSuffix,
 	const std::string& vOriginalFileName,
-	const std::string& vEntryPoint,
+	const ShaderEntryPoint& vEntryPoint,
 	ShaderMessagingFunction vMessagingFunction,
 	std::string* vShaderCode,
 	std::unordered_map<std::string, bool>* vUsedUniforms)
@@ -243,13 +244,10 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 
 	if (!InputGLSL.empty() && shaderType != EShLanguage::EShLangCount)
 	{
+		glslang::TShader Shader(shaderType);
+		
 		if (vShaderCode)
 			*vShaderCode = InputGLSL;
-
-		const char* InputCString = InputGLSL.c_str();
-
-		glslang::TShader Shader(shaderType);
-		Shader.setStrings(&InputCString, 1);
 
 		//Set up Vulkan/SpirV Environment
 		int ClientInputSemanticsVersion = 100; // maps to, say, #define VULKAN 100
@@ -263,12 +261,13 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 		Shader.setEnvInput(glslang::EShSourceGlsl, shaderType, glslang::EShClientVulkan, ClientInputSemanticsVersion);
 		Shader.setEnvClient(glslang::EShClientVulkan, VulkanClientVersion);
 		Shader.setEnvTarget(glslang::EShTargetSpv, TargetVersion);
-		auto entry = vEntryPoint;
-		if (entry.empty())
-			entry = "main";
-		Shader.setEntryPoint(entry.c_str());
+		
+		const char* InputCString = InputGLSL.c_str();
+
+		Shader.setStrings(&InputCString, 1);
 
 		EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+		//EShMessages messages = (EShMessages)(EShMsgDefault);
 
 		const int DefaultVersion = 110; // 110 for desktop, 100 for es
 
@@ -280,13 +279,12 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 
 		if (!Shader.preprocess(&glslang::DefaultTBuiltInResource, DefaultVersion, ENoProfile, false, false, messages, &PreprocessedGLSL, Includer))
 		{
-			LogVarDebug("Debug : GLSL stage %s Preprocessing Failed for : %s", vShaderSuffix.c_str(), vOriginalFileName.c_str());
-			LogVarDebug("Debug : %s", Shader.getInfoLog());
-			LogVarDebug("Debug : %s", Shader.getInfoDebugLog());
-
+			LogVarDebug("Debug Preprocessing : GLSL stage %s Preprocessing Failed for : %s", vShaderSuffix.c_str(), vOriginalFileName.c_str());
+			
 			std::string log = Shader.getInfoLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Preprocessing Errors : %s", log.c_str());
 				m_Error[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -297,6 +295,7 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 			log = Shader.getInfoDebugLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Preprocessing Errors : %s", log.c_str());
 				m_Error[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -316,6 +315,7 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 			std::string log = Shader.getInfoLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Preprocessing Warnings : %s", log.c_str());
 				m_Warnings[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -326,6 +326,7 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 			log = Shader.getInfoDebugLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Preprocessing Warnings : %s", log.c_str());
 				m_Warnings[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -338,25 +339,31 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 		const char* PreprocessedCStr = PreprocessedGLSL.c_str();
 		Shader.setStrings(&PreprocessedCStr, 1);
 
+		auto entry = vEntryPoint;
+		if (entry.empty())
+			entry = "main";
+		Shader.setEntryPoint(entry.c_str());
+		Shader.setSourceEntryPoint("main");
+
 		if (!Shader.parse(&glslang::DefaultTBuiltInResource, 100, false, messages))
 		{
-			LogVarDebug("Debug : GLSL stage %s Parse Failed for stage : %s", vShaderSuffix.c_str(), vOriginalFileName.c_str());
-			LogVarDebug("Debug : %s", Shader.getInfoLog());
-			LogVarDebug("Debug : %s", Shader.getInfoDebugLog());
-
+			LogVarDebug("Debug Parse (%s) : GLSL stage %s Parse Failed for stage : %s", entry.c_str(), vShaderSuffix.c_str(), vOriginalFileName.c_str());
+			
 			std::string log = Shader.getInfoLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Parse Errors (%s) : %s", entry.c_str(), log.c_str());
 				m_Error[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
-					vMessagingFunction("Parse Errors", shaderTypeString, log);
+					vMessagingFunction("Parse Parse Errors", shaderTypeString, log);
 				}
 			}
 #ifdef VERBOSE_DEBUG
 			log = Shader.getInfoDebugLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debu Parse Errors (%s) : %s", entry.c_str(), log.c_str());
 				m_Error[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -376,6 +383,7 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 			std::string log = Shader.getInfoLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Parse Warnings (%s) : %s", entry.c_str(), log.c_str());
 				m_Warnings[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -386,6 +394,7 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 			log = Shader.getInfoDebugLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Parse Warnings (%s) : %s", entry.c_str(), log.c_str());
 				m_Warnings[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -400,13 +409,12 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 
 		if (!Program.link(messages))
 		{
-			LogVarDebug("Debug : GLSL stage %s Linking Failed for : %s", vShaderSuffix.c_str(), vOriginalFileName.c_str());
-			LogVarDebug("Debug : %s", Shader.getInfoLog());
-			LogVarDebug("Debug : %s", Shader.getInfoDebugLog());
+			LogVarDebug("Debug Linking (%s) : GLSL stage %s Linking Failed for : %s", entry.c_str(), vShaderSuffix.c_str(), vOriginalFileName.c_str());
 
-			std::string log = Shader.getInfoLog();
+			std::string log = Program.getInfoLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Linking Errors (%s) : %s", entry.c_str(), log.c_str());
 				m_Error[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -414,9 +422,10 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 				}
 			}
 #ifdef VERBOSE_DEBUG
-			log = Shader.getInfoDebugLog();
+			log = Program.getInfoDebugLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Linking Errors (%s) : %s", entry.c_str(), log.c_str());
 				m_Error[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -436,16 +445,18 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 			std::string log = Shader.getInfoLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Linking Warnings (%s) : %s", entry.c_str(), log.c_str());
 				m_Warnings[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
-					vMessagingFunction("Linking Warnings", shaderTypeString, log);
+					vMessagingFunction("Warnings", shaderTypeString, log);
 				}
 			}
 #ifdef VERBOSE_DEBUG
 			log = Shader.getInfoDebugLog();
 			if (!log.empty())
 			{
+				LogVarDebug("Debug Linking Warnings (%s) : %s", entry.c_str(), log.c_str());
 				m_Warnings[shaderType].push_back(log);
 				if (vMessagingFunction)
 				{
@@ -474,6 +485,8 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 
 		if (logger.getAllMessages().length() > 0)
 		{
+			CTOOL_DEBUG_BREAK;
+
 			std::string allmsgs = logger.getAllMessages();
 			std::cout << allmsgs << std::endl;
 		}
@@ -497,11 +510,13 @@ void VulkanShader::ParseGLSLString(
 	const std::string& vCode,
 	const std::string& vShaderSuffix,
 	const std::string& vOriginalFileName,
-	const std::string& vEntryPoint,
+	const ShaderEntryPoint& vEntryPoint,
 	ShaderMessagingFunction vMessagingFunction,
 	TraverserFunction vTraverser)
 {
 	ZoneScoped;
+
+	CTOOL_DEBUG_BREAK;
 
 	std::string InputGLSL = vCode;
 
@@ -526,6 +541,7 @@ void VulkanShader::ParseGLSLString(
 		if (entry.empty())
 			entry = "main";
 		Shader.setEntryPoint(entry.c_str());
+		Shader.setSourceEntryPoint("main");
 
 		EShMessages messages = (EShMessages)(EShMsgAST);
 

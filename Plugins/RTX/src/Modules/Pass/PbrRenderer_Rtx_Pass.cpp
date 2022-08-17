@@ -61,9 +61,9 @@ PbrRenderer_Rtx_Pass::~PbrRenderer_Rtx_Pass()
 
 void PbrRenderer_Rtx_Pass::ActionBeforeCompilation()
 {
-	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR));
-	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR));
-	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR));
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR, "main"), "main");
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR, "main"), "main");
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR, "main"), "main");
 }
 
 bool PbrRenderer_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -209,16 +209,16 @@ bool PbrRenderer_Rtx_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, 
+	m_DescriptorSets[0].m_LayoutBindings.clear();
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, 
 		vk::ShaderStageFlagBits::eRaygenKHR); // output
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eAccelerationStructureKHR, 1, 
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eAccelerationStructureKHR, 1, 
 		vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, 
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, 
 		vk::ShaderStageFlagBits::eRaygenKHR); // camera
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1,
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1,
 		vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, 
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, 
 		vk::ShaderStageFlagBits::eClosestHitKHR);
 
 	return true;
@@ -228,22 +228,22 @@ bool PbrRenderer_Rtx_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	writeDescriptorSets.clear();
+	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
 	auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
 	if (accelStructurePtr && 
 		accelStructurePtr->GetTLASInfo() && 
 		accelStructurePtr->GetBufferAddressInfo())
 	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
 			m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
 		// The acceleration structure descriptor has to be chained via pNext
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR,
 			nullptr, nullptr, nullptr, accelStructurePtr->GetTLASInfo()); // accel struct
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer,
 			nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, accelStructurePtr->GetBufferAddressInfo()); // model device address
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, 
 			nullptr, m_SceneLightGroupDescriptorInfoPtr);
 
 		return true; // pas de maj si pas de structure acceleratrice

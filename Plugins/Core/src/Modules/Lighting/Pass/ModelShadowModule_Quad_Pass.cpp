@@ -297,15 +297,15 @@ bool ModelShadowModule_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_DescriptorSets[0].m_LayoutBindings.clear();
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1U, vk::ShaderStageFlagBits::eFragment);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1U, vk::ShaderStageFlagBits::eFragment);
 
 	// the shadow maps
-	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eCombinedImageSampler,
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eCombinedImageSampler,
 		(uint32_t)m_ImageGroupInfos.size(), vk::ShaderStageFlagBits::eFragment);
 
 	// next binding will be 4 + 8 => 12
@@ -317,15 +317,15 @@ bool ModelShadowModule_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	writeDescriptorSets.clear();
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
+	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
 	
 	// the shadow maps
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0,
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 5U, 0,
 		(uint32_t)m_ImageGroupInfos.size(), vk::DescriptorType::eCombinedImageSampler, m_ImageGroupInfos.data(), nullptr);
 	
 	// next binding will be 4 + 8 => 12

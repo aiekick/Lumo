@@ -32,7 +32,7 @@ limitations under the License.
 
 using namespace vkApi;
 
-#define COUNT_BUFFERS 2
+
 
 /*
 use the code from https://dmnsgn.github.io/glsl-tone-map/
@@ -58,7 +58,6 @@ ToneMapModule_Quad_Pass::~ToneMapModule_Quad_Pass()
 void ToneMapModule_Quad_Pass::ActionBeforeInit()
 {
 	m_ToneMap_Algos = { "Aces", "Filmic",  "Lottes",  "Reinhard",  "Reinhard 2",  "Uchimura",  "Uncharted 2",  "Unreal" };
-
 }
 
 bool ToneMapModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -218,9 +217,9 @@ bool ToneMapModule_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
+	m_DescriptorSets[0].m_LayoutBindings.clear();
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
@@ -229,9 +228,9 @@ bool ToneMapModule_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	writeDescriptorSets.clear();
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // ssao
+	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // ssao
 
 	return true;
 }

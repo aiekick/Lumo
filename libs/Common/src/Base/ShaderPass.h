@@ -315,7 +315,7 @@ public:
 	virtual void TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 
 	virtual bool CanUpdateDescriptors();
-	virtual void UpdateRessourceDescriptor(const uint32_t& vRessourceIndex = 0U);
+	virtual void UpdateRessourceDescriptor();
 
 	// shader update from file
 	void UpdateShaders(const std::set<std::string>& vFiles) override;

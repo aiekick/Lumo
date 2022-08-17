@@ -35,6 +35,8 @@ limitations under the License.
 todo : to Refactor and Convert for use of Vulkan.hpp
 */
 
+typedef std::string ShaderEntryPoint;
+
 class VulkanShader
 {
 public:
@@ -51,7 +53,7 @@ public: // errors
 public:
 	const std::vector<unsigned int> CompileGLSLFile(
 		const std::string& filename,
-		const std::string& vEntryPoint = "main",
+		const ShaderEntryPoint& vEntryPoint = "main",
 		ShaderMessagingFunction vMessagingFunction = nullptr,
 		std::string* vShaderCode = nullptr,
 		std::unordered_map<std::string, bool>* vUsedUniforms = nullptr);
@@ -59,7 +61,7 @@ public:
 		const std::string& vCode,
 		const std::string& vShaderSuffix,
 		const std::string& vOriginalFileName,
-		const std::string& vEntryPoint = "main",
+		const ShaderEntryPoint& vEntryPoint = "main",
 		ShaderMessagingFunction vMessagingFunction = nullptr,
 		std::string* vShaderCode = nullptr,
 		std::unordered_map<std::string, bool>* vUsedUniforms = nullptr);
@@ -67,7 +69,7 @@ public:
 		const std::string& vCode,
 		const std::string& vShaderSuffix,
 		const std::string& vOriginalFileName,
-		const std::string& vEntryPoint,
+		const ShaderEntryPoint& vEntryPoint,
 		ShaderMessagingFunction vMessagingFunction,
 		TraverserFunction vTraverser);
 	vk::ShaderModule CreateShaderModule(vk::Device vLogicalDevice, std::vector<unsigned int> vSPIRVCode);

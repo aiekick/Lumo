@@ -32,7 +32,7 @@ limitations under the License.
 
 using namespace vkApi;
 
-#define COUNT_BUFFERS 2
+
 
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
@@ -51,6 +51,19 @@ BlurModule_Comp_Pass::~BlurModule_Comp_Pass()
 	Unit();
 }
 
+void BlurModule_Comp_Pass::ActionBeforeInit()
+{
+	m_Pipelines.resize(2U);
+	m_DescriptorSets.resize(2U);
+}
+
+void BlurModule_Comp_Pass::ActionBeforeCompilation()
+{
+	ClearShaderEntryPoints();
+	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "blur_H");
+	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "blur_V");
+}
+
 bool BlurModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
@@ -61,13 +74,11 @@ bool BlurModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 
 		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_UBOComp.u_blur_radius, 1U, 10U, 4U);
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Offset", &m_UBOComp.u_blur_offset, 1U, 10U, 1U);
-
+			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_UBOComp.u_blur_radius, 1U, 32U, 4U);
+			
 			if (change)
 			{
 				m_UBOComp.u_blur_radius = ct::maxi(m_UBOComp.u_blur_radius, 1U);
-				m_UBOComp.u_blur_offset = ct::maxi(m_UBOComp.u_blur_offset, 1U);
 				NeedNewUBOUpload();
 			}
 		}
@@ -130,16 +141,52 @@ vk::DescriptorImageInfo* BlurModule_Comp_Pass::GetDescriptorImageInfo(const uint
 
 void BlurModule_Comp_Pass::SwapMultiPassFrontBackDescriptors()
 {
-	writeDescriptorSets[0].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // output
+	m_DescriptorSets[0].m_WriteDescriptorSets[0].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // output
+}
+
+bool BlurModule_Comp_Pass::CanUpdateDescriptors()
+{
+	return (m_ComputeBufferPtr != nullptr);
+}
+
+void BlurModule_Comp_Pass::Compute_Blur_H(vk::CommandBuffer* vCmdBuffer)
+{
+	if (vCmdBuffer)
+	{
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+		Dispatch(vCmdBuffer);
+	}
+
+}
+
+void BlurModule_Comp_Pass::Compute_Blur_V(vk::CommandBuffer* vCmdBuffer)
+{
+	if (vCmdBuffer)
+	{
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[1].m_Pipeline);
+		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[1].m_DescriptorSet, nullptr);
+		Dispatch(vCmdBuffer);
+	}
 }
 
 void BlurModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (vCmdBuffer)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
-		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
-		Dispatch(vCmdBuffer);
+
+		Compute_Blur_H(vCmdBuffer);
+
+		#undef MemoryBarrier
+		vCmdBuffer->pipelineBarrier(
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::PipelineStageFlagBits::eComputeShader,
+			vk::DependencyFlags(),
+			vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead),
+			nullptr,
+			nullptr);
+
+		Compute_Blur_V(vCmdBuffer);
 	}
 }
 
@@ -181,26 +228,52 @@ bool BlurModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
+	if (m_ComputeBufferPtr)
+	{
+		m_DescriptorSets[0].m_LayoutBindings.clear();
+		m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
+		m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+		m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
 
-	return true;
+		m_DescriptorSets[1].m_LayoutBindings.clear();
+		m_DescriptorSets[1].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
+		m_DescriptorSets[1].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+		m_DescriptorSets[1].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
+
+		return true;
+	}
+
+	return false;
 }
 
 bool BlurModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	writeDescriptorSets.clear();
+	if (m_ComputeBufferPtr)
+	{
+		// blur H
+		m_DescriptorSets[0].m_WriteDescriptorSets.clear();
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1,
+			vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), nullptr); // output
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1,
+			vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1,
+			vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // image to blur
 
-	assert(m_ComputeBufferPtr);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // ssao
+		// blur V
+		m_DescriptorSets[1].m_WriteDescriptorSets.clear();
+		m_DescriptorSets[1].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[1].m_DescriptorSet, 0U, 0, 1,
+			vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+		m_DescriptorSets[1].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[1].m_DescriptorSet, 1U, 0, 1,
+			vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
+		m_DescriptorSets[1].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[1].m_DescriptorSet, 2U, 0, 1,
+			vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), nullptr); // image to blur
 
-	return true;
+		return true;
+	}
+
+	return false;
 }
 
 std::string BlurModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
@@ -220,39 +293,115 @@ layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
 layout(std140, binding = 1) uniform UBO_Comp
 {
 	uint u_blur_radius; // default is 4
-	uint u_blur_offset; // default is 1
 };
 
 layout(binding = 2) uniform sampler2D input_map_sampler;
 
-void main()
+void blur_H()
 {
 	vec4 res = vec4(0.0);
 	
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
-	vec4 tex = texelFetch(input_map_sampler, coords, 0);
-	if (dot(tex, tex) > 0.0)
+	const int blur_radius = int(u_blur_radius);
+
+	ivec2 iv = coords;
+	for(int idx = -blur_radius; idx < blur_radius; ++idx)
 	{
-		const uint blur_radius = u_blur_radius;
-		const uint blur_radius_radius = u_blur_radius * u_blur_radius;
-
-		const float blur_radius_f = float(blur_radius);
-
-		vec2 texSize = textureSize(input_map_sampler, 0);
-
-		for (uint i = 0 ; i < blur_radius_radius; ++i)
-		{
-			int x = int(floor(i * u_blur_offset / blur_radius_f) / blur_radius_f);
-			int y = int((mod(float(i * u_blur_offset), blur_radius_f)) / blur_radius_f);
-			res += texelFetch(input_map_sampler, coords + ivec2(x,y), 0);
-		}
-
-		res /= float(blur_radius_radius);
+		iv.x = coords.x + idx;
+		res += texelFetch(input_map_sampler, iv, 0);
 	}
+
+	res /= float(u_blur_radius * 2);
+
+	imageStore(outColor, coords, res); 
+}
+
+void blur_V()
+{
+	vec4 res = vec4(0.0);
+	
+	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+	const int blur_radius = int(u_blur_radius);
+
+	ivec2 iv = coords;
+	for(int idx = -blur_radius; idx < blur_radius; ++idx)
+	{
+		iv.y = coords.y + idx;
+		res += texelFetch(input_map_sampler, iv, 0);
+	}
+
+	res /= float(u_blur_radius * 2);
+
 
 	imageStore(outColor, coords, res); 
 }
 )";
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PRIVATE / PIPELINE ////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool BlurModule_Comp_Pass::CreateComputePipeline()
+{
+	ZoneScoped;
+
+	if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute].empty()) return false;
+	if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_H"][0].m_SPIRV.empty()) return false;
+	if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_V"][0].m_SPIRV.empty()) return false;
+
+	std::vector<vk::PushConstantRange> push_constants;
+	if (m_Internal_PushConstants.size)
+	{
+		push_constants.push_back(m_Internal_PushConstants);
+	}
+
+	m_Pipelines[0].m_PipelineLayout =
+		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
+			vk::PipelineLayoutCreateFlags(),
+			1, &m_DescriptorSets[0].m_DescriptorSetLayout,
+			(uint32_t)push_constants.size(), push_constants.data()
+		)); 
+
+	m_Pipelines[1].m_PipelineLayout =
+		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
+			vk::PipelineLayoutCreateFlags(),
+			1, &m_DescriptorSets[1].m_DescriptorSetLayout,
+			(uint32_t)push_constants.size(), push_constants.data()
+		));
+
+	auto cs_H = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_H"][0].m_SPIRV);
+	
+	auto cs_V = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_V"][0].m_SPIRV);
+
+
+	m_ShaderCreateInfos = {
+	   vk::PipelineShaderStageCreateInfo(
+		   vk::PipelineShaderStageCreateFlags(),
+		   vk::ShaderStageFlagBits::eCompute,
+		   cs_H, "blur_H"
+	   ),
+	   vk::PipelineShaderStageCreateInfo(
+		   vk::PipelineShaderStageCreateFlags(),
+		   vk::ShaderStageFlagBits::eCompute,
+		   cs_V, "blur_V"
+	   )
+	};
+
+	vk::ComputePipelineCreateInfo computePipeInfo_H = vk::ComputePipelineCreateInfo()
+		.setStage(m_ShaderCreateInfos[0]).setLayout(m_Pipelines[0].m_PipelineLayout);
+	m_Pipelines[0].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_H).value;
+	
+	vk::ComputePipelineCreateInfo computePipeInfo_V = vk::ComputePipelineCreateInfo()
+		.setStage(m_ShaderCreateInfos[1]).setLayout(m_Pipelines[1].m_PipelineLayout);
+	m_Pipelines[1].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_V).value;
+
+	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_H);
+	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_V);
+
+	return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -264,8 +413,7 @@ std::string BlurModule_Comp_Pass::getXml(const std::string& vOffset, const std::
 	std::string str;
 
 	str += vOffset + "<blur_radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</blur_radius>\n";
-	str += vOffset + "<blur_offset>" + ct::toStr(m_UBOComp.u_blur_offset) + "</blur_offset>\n";
-
+	
 	return str;
 }
 
@@ -286,8 +434,6 @@ bool BlurModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 	{
 		if (strName == "blur_radius")
 			m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
-		else if (strName == "blur_offset")
-			m_UBOComp.u_blur_offset = ct::uvariant(strValue).GetU();
 
 		NeedNewUBOUpload();
 	}

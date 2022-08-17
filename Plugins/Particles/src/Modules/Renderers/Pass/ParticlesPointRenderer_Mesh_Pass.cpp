@@ -77,12 +77,12 @@ void ParticlesPointRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, 
 					auto indirectBufferPtr = particlesPtr->GetDrawIndirectCommandBuffer();
 					if (indirectBufferPtr)
 					{
-						vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+						vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 						{
 							VKFPScoped(*vCmdBuffer, "Particles Point Renderer", "DrawModel Indexed Indirect");
 
 							vk::DeviceSize offset = 0;
-							vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+							vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 							vCmdBuffer->bindVertexBuffers(0, 1, vertexInputBufferPtr, &offset);
 							vCmdBuffer->bindIndexBuffer(*indexInputBufferPtr, 0, vk::IndexType::eUint32);
 							vCmdBuffer->drawIndexedIndirect(*indirectBufferPtr, 0, 1, sizeof(VkDrawIndexedIndirectCommand));
@@ -165,8 +165,8 @@ bool ParticlesPointRenderer_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor(
 {
 	ZoneScoped;
 
-	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+	m_DescriptorSets[0].m_LayoutBindings.clear();
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
 
 	return true;
 }
@@ -175,8 +175,8 @@ bool ParticlesPointRenderer_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	writeDescriptorSets.clear();
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
+	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
 
 	return true;
 }

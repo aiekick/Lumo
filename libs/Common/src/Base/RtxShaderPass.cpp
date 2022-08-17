@@ -90,6 +90,8 @@ bool RtxShaderPass::CreateRtxPipeline()
 {
 	ZoneScoped;
 
+	//if (!m_IsShaderCompiled) return false;
+
 	for (const auto& shaders : m_ShaderCodes)
 	{
 		for (auto& shaderEntryPoint : shaders.second)

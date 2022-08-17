@@ -32,7 +32,7 @@ limitations under the License.
 
 using namespace vkApi;
 
-#define COUNT_BUFFERS 2
+
 
 //////////////////////////////////////////////////////////////
 //// SSAO FIRST PASS : AO ////////////////////////////////////
@@ -120,7 +120,7 @@ void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const 
 				UpdateModel(true);
 				UpdateRessourceDescriptor();
 
-				vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
+				vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 
 				vCmdBuffer->pipelineBarrier(
 					vk::PipelineStageFlagBits::eVertexInput,
@@ -152,10 +152,10 @@ void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const 
 
 void SmoothNormalModule_Comp_Pass::ComputePass(vk::CommandBuffer* vCmd, const uint32_t& vPassNumber)
 {
-	vCmd->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+	vCmd->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 	m_PushConstants.pass_number = vPassNumber;
-	vCmd->pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, sizeof(PushConstants), &m_PushConstants);
+	vCmd->pushConstants(m_Pipelines[0].m_PipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, sizeof(PushConstants), &m_PushConstants);
 
 	Dispatch(vCmd);
 }
@@ -210,10 +210,10 @@ bool SmoothNormalModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_DescriptorSets[0].m_LayoutBindings.clear();
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
 }
@@ -222,31 +222,31 @@ bool SmoothNormalModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	writeDescriptorSets.clear();
+	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
 
 	auto outputMeshPtr = m_InputMesh.getValidShared();
 	if (outputMeshPtr && outputMeshPtr->GetVerticesBufferInfo()->range > 0U)
 	{
 		// VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, outputMeshPtr->GetVerticesBufferInfo());
 		// VertexStruct::I1
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, outputMeshPtr->GetIndicesBufferInfo());
 		// Normals
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, &m_SBO_Normals_Compute_Helper_BufferInfos);
 	}
 	else
 	{
 		// empty version, almost empty because his size is thr size of 1 VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 		// empty version, almost empty because his size is thr size of 1 VertexStruct::I1
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 		// empty version, almost empty because his size is thr size of 1 uvec3
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 	}
 

@@ -735,7 +735,8 @@ namespace vkApi
 			m_ApiVersion != VK_API_VERSION_1_1)
 		{
 			// not needed because in core since VK_API_VERSION_1_2
-			//wantedDeviceExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME); // VK_API_VERSION_1_2
+			// WARNING, if i disable it, the devieadress is not loaded by the dispatcher for the moment
+			wantedDeviceExtensions.push_back(VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME); // VK_API_VERSION_1_2
 
 			// needed by VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME
 			// not needed because in core since VK_API_VERSION_1_1

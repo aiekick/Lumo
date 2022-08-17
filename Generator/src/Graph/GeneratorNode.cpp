@@ -2011,7 +2011,7 @@ bool PASS_CLASS_NAME::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_LayoutBindings.clear();)";
+	m_DescriptorSets[0].m_LayoutBindings.clear();)";
 
 	cpp_pass_file_code += GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
 	cpp_pass_file_code += u8R"(
@@ -2023,7 +2023,7 @@ bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	writeDescriptorSets.clear();
+	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
 
 	assert(m_ComputeBufferPtr);)";
 
@@ -2409,11 +2409,11 @@ void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIter
 		auto modelPtr = m_SceneModel.getValidShared();
 		if (!modelPtr || modelPtr->empty()) return;
 
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 		{
 			VKFPScoped(*vCmdBuffer, "MODULE_DISPLAY_NAME", "DrawModel");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 			for (auto meshPtr : *modelPtr)
 			{
@@ -2452,11 +2452,11 @@ void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterati
 {
 	if (vCmdBuffer)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		{
 			VKFPScoped(*vCmdBuffer, "MODULE_DISPLAY_NAME", "Compute");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
 			{
@@ -2501,7 +2501,7 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 	{
 		res += u8R"(
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);)";
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);)";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
@@ -2510,15 +2510,15 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{
 		res += u8R"(
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, 
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, 
 		vk::ShaderStageFlagBits::eRaygenKHR); // output
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eAccelerationStructureKHR, 1, 
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eAccelerationStructureKHR, 1, 
 		vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, 
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, 
 		vk::ShaderStageFlagBits::eRaygenKHR); // camera
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1,
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1,
 		vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, 
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, 
 		vk::ShaderStageFlagBits::eClosestHitKHR);)";
 	}
 
@@ -2551,7 +2551,7 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 	{
 		res += u8R"(
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, 
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, 
 		m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
 )";
 	}
@@ -2567,16 +2567,16 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 		accelStructurePtr->GetTLASInfo() && 
 		accelStructurePtr->GetBufferAddressInfo())
 	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
 			m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
 		// The acceleration structure descriptor has to be chained via pNext
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR,
 			nullptr, nullptr, nullptr, accelStructurePtr->GetTLASInfo()); // accel struct
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer,
 			nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
 			nullptr, accelStructurePtr->GetBufferAddressInfo()); // model device address
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, 
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, 
 			nullptr, m_SceneLightGroupDescriptorInfoPtr);
 
 		return true; // pas de maj si pas de structure acceleratrice
@@ -3365,7 +3365,7 @@ void PASS_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStruc
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotAccelStructureInput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -3552,7 +3552,7 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetBufferAddressInfo()
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotAccelStructureOutput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -3668,7 +3668,7 @@ void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotLightGroupInput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -3767,7 +3767,7 @@ SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotLightGroupOutput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -3872,7 +3872,7 @@ void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotModelInput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -3971,7 +3971,7 @@ SceneModelWeak NODE_CLASS_NAME::GetModel()
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotModelOutput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -4094,7 +4094,7 @@ void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotStorageBufferInput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -4193,7 +4193,7 @@ vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotStorageBufferOutput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -4384,7 +4384,7 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotTexelBufferInput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -4527,7 +4527,7 @@ vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotTexelBufferOutput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -4650,7 +4650,7 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotTextureInput::Create("%s", %u), false, %s);)",
-		vSlot->name.c_str(),
+		vSlot->hideName ? "" : vSlot->name.c_str(),
 		vSlot->descriptorBinding,
 		vSlot->hideName ? "true" : "false");
 
@@ -4782,7 +4782,7 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotTextureOutput::Create("%s", %u), false, %s);)",
-		vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -4905,7 +4905,7 @@ void NODE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotTextureCubeInput::Create("%s", %u), false, %s);)",
-		vSlot->name.c_str(),
+		vSlot->hideName ? "" : vSlot->name.c_str(),
 		vSlot->descriptorBinding,
 		vSlot->hideName ? "true" : "false");
 
@@ -5006,7 +5006,7 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetTextureCube(const uint32_t& vBindin
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotTextureCubeOutput::Create("%s", %u), false, %s);)",
-		vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -5129,7 +5129,7 @@ void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotTextureGroupInput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -5228,7 +5228,7 @@ DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotTextureGroupOutput::Create("%s"), false, %s);)",
-		vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -5336,7 +5336,7 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddInput(NodeSlotVariableInput::Create("%s", %s, %u), false, %s);)",
-		vSlot->name.c_str(),
+		vSlot->hideName ? "" : vSlot->name.c_str(),
 		vSlot->slotType.c_str(),
 		vSlot->variableIndex,
 		vSlot->hideName ? "true" : "false");
@@ -5438,7 +5438,7 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 
 	res.node_slot_func += ct::toStr(u8R"(
 	AddOutput(NodeSlotVariableOutput::Create("%s", %s, %u), false, %s);)",
-		vSlot->name.c_str(),
+		vSlot->hideName ? "" : vSlot->name.c_str(),
 		vSlot->slotType.c_str(),
 		vSlot->variableIndex,
 		vSlot->hideName ? "true" : "false");

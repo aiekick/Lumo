@@ -80,9 +80,9 @@ void MeshShaderPass<T_VertexType>::DrawModel(vk::CommandBuffer* vCmdBuffer, cons
 
 	if (vCmdBuffer && m_Vertices.m_Count)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0]);
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 
-		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 		vk::DeviceSize offsets = 0;
 		vCmdBuffer->bindVertexBuffers(0, m_Vertices.m_Buffer->buffer, offsets);

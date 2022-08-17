@@ -34,7 +34,7 @@ limitations under the License.
 
 using namespace vkApi;
 
-#define COUNT_BUFFERS 2
+
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
@@ -84,7 +84,7 @@ bool BlurModule::Init()
 		m_BlurModule_Comp_Pass_Ptr = std::make_shared<BlurModule_Comp_Pass>(m_VulkanCorePtr);
 		if (m_BlurModule_Comp_Pass_Ptr)
 		{
-			if (m_BlurModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			if (m_BlurModule_Comp_Pass_Ptr->InitCompute2D(map_size, 2U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_BlurModule_Comp_Pass_Ptr);
 				m_Loaded = true;

@@ -172,7 +172,7 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 {
 	if (vCmdBuffer)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipeline);
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 
 		vCmdBuffer->pipelineBarrier(
 			vk::PipelineStageFlagBits::eVertexInput,
@@ -182,7 +182,7 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 			nullptr,
 			nullptr);
 
-		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 		m_PushConstants.delta_time = m_VulkanCorePtr->GetDeltaTime();
 		m_PushConstants.absolute_time += m_PushConstants.delta_time;
@@ -226,10 +226,10 @@ void MeshEmitterModule_Comp_Pass::ComputePass(vk::CommandBuffer* vCmd, const uin
 {
 	ZoneScoped;
 
-	vCmd->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
+	vCmd->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 	m_PushConstants.pass_number = vPassNumber;
-	vCmd->pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, sizeof(PushConstants), &m_PushConstants);
+	vCmd->pushConstants(m_Pipelines[0].m_PipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, sizeof(PushConstants), &m_PushConstants);
 
 	Dispatch(vCmd);
 }
@@ -310,13 +310,13 @@ bool MeshEmitterModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_LayoutBindings.clear();
-	m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Mesh vertexs
-	m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// UbO
-	m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles datas buffer
-	m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles alive index buffer
-	m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles counter buffer
-	m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// indirect drawing buffer
+	m_DescriptorSets[0].m_LayoutBindings.clear();
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Mesh vertexs
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// UbO
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles datas buffer
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles alive index buffer
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// Particles counter buffer
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);	// indirect drawing buffer
 
 	return true;
 }
@@ -325,37 +325,37 @@ bool MeshEmitterModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	writeDescriptorSets.clear();
+	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
 
 	// Mesh vertexs
 	auto inputMeshPtr = m_InputMesh.getValidShared();
 	if (inputMeshPtr && inputMeshPtr->GetVerticesBufferInfo()->range > 0U )
 	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, 
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, 
 			vk::DescriptorType::eStorageBuffer, 
 			nullptr, inputMeshPtr->GetVerticesBufferInfo());
 	}
 	else
 	{
-		writeDescriptorSets.emplace_back(m_DescriptorSet, 0U, 0, 1, 
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, 
 			vk::DescriptorType::eStorageBuffer, 
 			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 	}
 
 	// Ubo
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 1U, 0, 1, 
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, 
 		vk::DescriptorType::eUniformBuffer,
 		nullptr, &m_DescriptorBufferInfo_Comp);
 
 	// Particles datas buffer
 	// not existence == no update nor rendering => secured by CanUpdateDescriptors()
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 2U, 0, 1,
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1,
 		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetParticlesDatasBufferInfo());
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 3U, 0, 1,
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1,
 		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetAliveParticlesIndexBufferInfo());
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 4U, 0, 1,
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1,
 		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetCountersBufferInfo());
-	writeDescriptorSets.emplace_back(m_DescriptorSet, 5U, 0, 1,
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 5U, 0, 1,
 		vk::DescriptorType::eStorageBuffer, nullptr, m_ParticlesPtr->GetDrawIndirectCommandBufferInfo());
 
 	return true;
