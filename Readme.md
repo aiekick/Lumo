@@ -113,7 +113,7 @@ thats all
 | :black_square_button: | Misc / Parametric Differential Curve | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Misc / Parametric UV Surface | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Postpro / Blur Node (WIP) | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Postpro / Blur Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Primitves / UV Sphere | ![img](https://progress-bar.dev/0) |
