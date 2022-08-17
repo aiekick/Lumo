@@ -22,8 +22,8 @@ limitations under the License.
 enum class MeshShaderPassType : uint8_t
 {
 	NONE = 0,
-	PIXEL,			// vertex + fragment (shader + m_Pipeline + ubo + fbo + renderpass + command buffer)
-	PIXEL_MERGER,		// pas de shader ni m_Pipeline ni ubo, mais command buffer, fbo et renderpass
+	PIXEL,			// vertex + fragment (shader + m_Pipelines[0] + ubo + fbo + renderpass + command buffer)
+	PIXEL_MERGER,		// pas de shader ni m_Pipelines[0] ni ubo, mais command buffer, fbo et renderpass
 	Count
 };
 
@@ -80,7 +80,7 @@ void MeshShaderPass<T_VertexType>::DrawModel(vk::CommandBuffer* vCmdBuffer, cons
 
 	if (vCmdBuffer && m_Vertices.m_Count)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0]);
 
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 

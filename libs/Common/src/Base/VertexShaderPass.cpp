@@ -40,7 +40,7 @@ void VertexShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIter
 	{
 		vCmdBuffer->setLineWidth(m_LineWidth.w);
 		//vCmdBuffer->setPrimitiveTopologyEXT(m_PrimitiveTopology);
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0]);
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, m_DescriptorSet, nullptr);
 		vCmdBuffer->draw(m_CountVertexs.w, m_CountInstances.w, 0, 0);
 	}

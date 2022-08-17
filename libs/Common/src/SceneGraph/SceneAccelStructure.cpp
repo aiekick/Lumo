@@ -315,7 +315,7 @@ bool SceneAccelStructure::CreateTopLevelAccelerationStructure(const std::vector<
 	accelStructureCreateInfo.type = vk::AccelerationStructureTypeKHR::eTopLevel;
 	m_AccelStructure_Top_Ptr->handle = m_Device.createAccelerationStructureKHR(accelStructureCreateInfo);
 
-	// for the writeDescriptorSets
+	// for the m_WriteDescriptorSets
 	m_AccelStructureTopDescriptorInfo = vk::WriteDescriptorSetAccelerationStructureKHR{};
 	m_AccelStructureTopDescriptorInfo.accelerationStructureCount = 1;
 	m_AccelStructureTopDescriptorInfo.pAccelerationStructures = &m_AccelStructure_Top_Ptr->handle;

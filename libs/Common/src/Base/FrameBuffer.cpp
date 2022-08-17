@@ -69,7 +69,7 @@ FrameBuffer::~FrameBuffer()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // un mode pour merger
-// donc pas de code car pas de shader, pas de m_Pipeline, ni ressources
+// donc pas de code car pas de shader, pas de m_Pipelines[0], ni ressources
 // mais un command buffer, un fbo et une renderpass
 
 bool FrameBuffer::Init(

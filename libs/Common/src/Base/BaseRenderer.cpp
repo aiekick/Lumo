@@ -42,7 +42,7 @@ using namespace vkApi;
 //#define VERBOSE_DEBUG
 //#define BLEND_ENABLED
 
-#define COUNT_BUFFERS 2
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PUBLIC / CONSTRUCTOR //////////////////////////////////////////////////////////////////////////////////
@@ -788,7 +788,7 @@ bool BaseRenderer::CreateCommanBuffer()
 		vk::CommandBufferAllocateInfo(
 			m_CommandPool,
 			vk::CommandBufferLevel::ePrimary,
-			COUNT_BUFFERS
+			2U
 		)
 	);
 
@@ -814,9 +814,9 @@ bool BaseRenderer::CreateSyncObjects()
 {
 	ZoneScoped;
 
-	m_RenderCompleteSemaphores.resize(COUNT_BUFFERS);
-	m_WaitFences.resize(COUNT_BUFFERS);
-	for (size_t i = 0; i < COUNT_BUFFERS; ++i)
+	m_RenderCompleteSemaphores.resize(2U);
+	m_WaitFences.resize(2U);
+	for (size_t i = 0; i < 2U; ++i)
 	{
 		m_RenderCompleteSemaphores[i] = m_Device.createSemaphore(vk::SemaphoreCreateInfo());
 		m_WaitFences[i] = m_Device.createFence(vk::FenceCreateInfo(vk::FenceCreateFlagBits::eSignaled));
@@ -829,7 +829,7 @@ void BaseRenderer::DestroySyncObjects()
 {
 	ZoneScoped;
 
-	for (size_t i = 0; i < COUNT_BUFFERS; ++i)
+	for (size_t i = 0; i < 2U; ++i)
 	{
 		if (i < m_RenderCompleteSemaphores.size())
 			m_Device.destroySemaphore(m_RenderCompleteSemaphores[i]);

@@ -67,9 +67,24 @@ protected: // internal struct
 		std::vector<unsigned int> m_SPIRV;	// SPIRV Bytes
 		std::string m_Code;					// Shader Code (in clear)
 		std::string m_FilePathName;			// file path name on disk drive
+		std::string m_EntryPoint;			// entry point
 		vk::ShaderModule m_ShaderModule = nullptr;
 		bool m_Used = false;				// say if a sahder mut be take into account
 		vk::ShaderStageFlagBits m_ShaderId = vk::ShaderStageFlagBits::eVertex;
+	};
+
+	struct DescriptorSetStruct
+	{
+		vk::DescriptorSet m_DescriptorSet = {};
+		vk::DescriptorSetLayout m_DescriptorSetLayout = {};
+		std::vector<vk::DescriptorSetLayoutBinding> m_LayoutBindings = {};
+		std::vector<vk::WriteDescriptorSet> m_WriteDescriptorSets = {};
+	};
+
+	struct PipelineStruct
+	{
+		vk::PipelineLayout m_PipelineLayout = {};
+		vk::Pipeline m_Pipeline = {};
 	};
 
 private:
@@ -114,20 +129,17 @@ protected:
 	ct::fvec2 m_OutputSize;
 	float m_OutputRatio = 1.0f;
 
-	std::map<vk::ShaderStageFlagBits, std::vector<ShaderCode>> m_ShaderCodes;
+	std::map<vk::ShaderStageFlagBits, std::set<ShaderEntryPoint>> m_ShaderEntryPoints;
+	std::map<vk::ShaderStageFlagBits, std::map<ShaderEntryPoint, std::vector<ShaderCode>>> m_ShaderCodes;
 
 	bool m_IsShaderCompiled = false;
 	bool m_DescriptorWasUpdated = false;
 
 	// ressources
-	std::vector<vk::DescriptorSetLayoutBinding> m_LayoutBindings;
-	vk::DescriptorSetLayout m_DescriptorSetLayout = {};
-	vk::DescriptorSet m_DescriptorSet = {};
-	std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
-
-	// m_Pipeline
-	vk::PipelineLayout m_PipelineLayout = {};
-	vk::Pipeline m_Pipeline = {};
+	std::vector<DescriptorSetStruct> m_DescriptorSets = {DescriptorSetStruct()};
+	
+	// m_Pipelines[0]
+	std::vector<PipelineStruct> m_Pipelines = {PipelineStruct() }; // one entry by default
 	vk::PipelineCache m_PipelineCache = {};
 	std::vector<vk::PipelineShaderStageCreateInfo> m_ShaderCreateInfos;
 	std::vector<vk::PipelineColorBlendAttachmentState> m_BlendAttachmentStates;
@@ -303,7 +315,7 @@ public:
 	virtual void TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 
 	virtual bool CanUpdateDescriptors();
-	virtual void UpdateRessourceDescriptor();
+	virtual void UpdateRessourceDescriptor(const uint32_t& vRessourceIndex = 0U);
 
 	// shader update from file
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
@@ -322,7 +334,9 @@ protected:
 	virtual void ActionBeforeCompilation();
 	virtual void ActionAfterCompilation();
 
-	void SetShaderUse(vk::ShaderStageFlagBits vShaderId, bool vUsed);
+	void ClearShaderEntryPoints();
+	void AddShaderEntryPoints(const vk::ShaderStageFlagBits& vShaderId, const ShaderEntryPoint& vEntryPoint);
+	void SetShaderUse(const vk::ShaderStageFlagBits& vShaderId, const ShaderEntryPoint& vEntryPoint, const bool& vUsed);
 
 	// Get Shaders
 	virtual std::string GetVertexShaderCode(std::string& vOutShaderName);
@@ -337,13 +351,15 @@ protected:
 	virtual std::string GetRayAnyHitShaderCode(std::string& vOutShaderName);
 	virtual std::string GetRayClosestHitShaderCode(std::string& vOutShaderName);
 
-	ShaderCode& AddShaderCode(const ShaderCode& vShaderCode);
+	ShaderCode& AddShaderCode(const ShaderCode& vShaderCode, const ShaderEntryPoint& vEntryPoint);
 	ShaderCode CompilShaderCode(
 		const vk::ShaderStageFlagBits& vShaderType,
 		const std::string& vCode,
-		const std::string& vShaderName);
+		const std::string& vShaderName,
+		const std::string& vEntryPoint = "main");
 	ShaderCode CompilShaderCode(
-		const vk::ShaderStageFlagBits& vShaderType);
+		const vk::ShaderStageFlagBits& vShaderType,
+		const std::string& vEntryPoint = "main");
 	virtual bool CompilPixel();
 	virtual bool CompilCompute();
 	virtual bool CompilRtx();
