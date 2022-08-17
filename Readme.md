@@ -90,7 +90,7 @@ thats all
 | - | - | - |
 | :white_square_button: | Assets / Mesh Node | ![img](https://progress-bar.dev/90) |
 | :white_square_button: | Assets / Texture 2D Node  | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Assets / Cube Map Node  | ![img](https://progress-bar.dev/20) |
+| :white_square_button: | Assets / Cube Map Node  | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Exporters / Export Texture to file | ![img](https://progress-bar.dev/0) |
