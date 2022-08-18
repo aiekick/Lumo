@@ -23,6 +23,7 @@ limitations under the License.
 #include <imgui/imgui.h>
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
+#include <Editor/UBOEditor.h>
 #include <Editor/SlotEditor.h>
 #include <ImWidgets/ImWidgets.h>
 #include <ctools/ConfigAbstract.h>
@@ -132,8 +133,8 @@ private:
 	void SetAppTitle(const std::string& vFilePathName = std::string());
 
 public: // configuration
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "");
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "");
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	bool LoadNodeFromXML(
 		BaseNodeWeak vBaseNodeWeak,
 		tinyxml2::XMLElement* vElem,

@@ -171,7 +171,6 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-
 		res += vOffset + "\t<generation>\n";
 
 		res += vOffset + ct::toStr("\t\t<class_name>%s</class_name>\n", m_ClassName.c_str());
@@ -189,6 +188,11 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 		res += vOffset + ct::toStr("\t\t<node_is_a_task>%s</node_is_a_task>\n", m_IsATask ? "true" : "false");
 		
 		res += vOffset + "\t</generation>\n";
+
+		for (auto& editor : m_UBOEditors)
+		{
+			res += editor.getXml(vOffset + "\t", vUserDatas);
+		}
 
 		res += vOffset + "</node>\n";
 	}
@@ -396,6 +400,15 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 
 			return false;
 		}
+
+		if (strName == "UBO")
+		{
+			m_CurrentXMLEditor = UBOEditor();
+			m_CurrentXMLEditor.setFromXml(vElem, vParent, vUserDatas);
+			m_UBOEditors.push_back(m_CurrentXMLEditor);
+
+			return false;
+		}
 	}
 	else if (strParentName == "outputs")
 	{
@@ -461,6 +474,10 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 			m_IsATask = ct::ivariant(strValue).GetB();
 
 		return true;
+	}
+	else if (strParentName == "UBO")
+	{
+		m_CurrentXMLEditor.setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
@@ -1923,8 +1940,17 @@ bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 	bool change = false;
 
-	change |= DrawResizeWidget();
+	//change |= DrawResizeWidget();
+)";
+	if (m_UseAUbo)
+	{
+		for (auto& editor : m_UBOEditors)
+		{
+			cpp_pass_file_code += editor.GetUBOCode_Widgets();
+		}
+	}
 
+	cpp_pass_file_code += u8R"(
 	if (change)
 	{
 		//NeedNewUBOUpload();
@@ -1969,43 +1995,52 @@ void PASS_CLASS_NAME::WasJustResized()
 	if (m_UseAUbo)
 	{
 		cpp_pass_file_code += u8R"(
+
 bool PASS_CLASS_NAME::CreateUBO()
 {
 	ZoneScoped;
+)";
 
-	/*
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBOCompPtr)
-	{
-		m_UBO_Comp_BufferInfos.buffer = m_UBOCompPtr->buffer;
-		m_UBO_Comp_BufferInfos.range = sizeof(UBOComp);
-		m_UBO_Comp_BufferInfos.offset = 0;
-	}
-	*/
+		for (auto& editor : m_UBOEditors)
+		{
+			cpp_pass_file_code += editor.GetFunction_CreateUBO();
+		}
+
+		cpp_pass_file_code += u8R"(
 
 	NeedNewUBOUpload();
 
 	return true;
-}
+})";
 
-void PASS_CLASS_NAME::UploadUBO()
+		cpp_pass_file_code += u8R"(
+
+bool PASS_CLASS_NAME::UploadUBO()
 {
 	ZoneScoped;
-
-	//VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
-}
-
-void PASS_CLASS_NAME::DestroyUBO()
-{
-	ZoneScoped;
-
-	/*
-	m_UBOCompPtr.reset();
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	*/
-}
 )";
+
+		for (auto& editor : m_UBOEditors)
+		{
+			cpp_pass_file_code += editor.GetFunction_UploadUBO();
+		}
+
+		cpp_pass_file_code += u8R"(
+})";
+
+		cpp_pass_file_code += u8R"(
+
+bool PASS_CLASS_NAME::DestroyUBO()
+{
+	ZoneScoped;)";
+
+		for (auto& editor : m_UBOEditors)
+		{
+			cpp_pass_file_code += editor.GetFunction_DestroyUBO();
+		}
+		
+		cpp_pass_file_code += u8R"(
+})";
 	}
 
 	if (m_UseASbo)
@@ -2227,12 +2262,17 @@ class PASS_CLASS_NAME :)";
 	public GuiInterface,
 	public NodeInterface
 {
-private:
-	//VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	//vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	struct UBOComp {
-		//alignas(4) float mouse_radius = 10.0f;
-	} m_UBOComp;
+private:)";
+
+	if (m_UseAUbo)
+	{
+		for (auto& editor : m_UBOEditors)
+		{
+			h_pass_file_code += editor.GetUBOHeader();
+		}
+	}
+
+	h_pass_file_code += u8R"(
 
 public:
 	PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -2392,31 +2432,38 @@ std::string GeneratorNode::GetRendererDisplayName()
 		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
 		{
 			res = "Quad_";
+			m_ModuleRendererDisplayType = "Quad";
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
 		{
 			res = "Mesh_";
+			m_ModuleRendererDisplayType = "Mesh";
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
 		{
 			res = "Vertex_";
+			m_ModuleRendererDisplayType = "Vertex";
 		}
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
 	{
 		res = "Comp_1D_";
+		m_ModuleRendererDisplayType = "Comp";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 	{
 		res = "Comp_2D_";
+		m_ModuleRendererDisplayType = "Comp";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
 		res = "Comp_3D_";
+		m_ModuleRendererDisplayType = "Comp";
 	}
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{
 		res = "Rtx_";
+		m_ModuleRendererDisplayType = "Rtx";
 	}
 
 	return res;

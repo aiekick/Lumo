@@ -52,16 +52,15 @@ class BloomModule_Comp_2D_Pass :
 	public TextureOutputInterface
 {
 private:
-	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
-
 	struct UBOComp {
 		alignas(16) ct::fvec3 u_high_freq_threshold = 0.8f;
 		alignas(4) uint32_t u_blur_radius = 4; // default is 4
 		alignas(4) float u_exposure = 1.0f;
 		alignas(4) float u_gamma_correction = 2.2f;// linear to srgb correction 
 	} m_UBOComp;
-
+	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
+	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
+	
 	bool m_GaussianSigmAuto = true;
 	float m_GaussianSigma = 1.0f;
 	std::vector<float> m_GaussianWeights;

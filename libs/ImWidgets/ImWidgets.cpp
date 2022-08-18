@@ -3629,7 +3629,32 @@ IMGUI_API void ImWidgets::InputText::SetText(const std::string& vText)
 #endif
 }
 
-IMGUI_API std::string ImWidgets::InputText::GetText()
+IMGUI_API std::string ImWidgets::InputText::GetText(const std::string& vNumericType)
 { 
+	if (vNumericType == "float")
+	{
+		auto pos = m_Text.find('.');
+		if (pos == std::string::npos)
+		{
+			return m_Text + ".0f";
+		}
+		else
+		{
+			auto pos = m_Text.find('f');
+			if (pos == std::string::npos)
+			{
+				return m_Text + "f";
+			}
+			else
+			{
+				return m_Text;
+			}
+		}
+	}
+	else if (vNumericType == "uint")
+	{
+		return m_Text + "U";
+	}
+
 	return m_Text; 
 }

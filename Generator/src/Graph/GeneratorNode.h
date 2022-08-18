@@ -56,6 +56,7 @@ typedef std::shared_ptr<GeneratorNode> GeneratorNodePtr;
 #include <vkFramework/VulkanCore.h>
 #include <Project/ProjectFile.h>
 #include <Graph/Base/NodeSlot.h>
+#include <Editor/UBOEditor.h>
 
 #ifndef RENDERER_TYPE_NONE
 #define RENDERER_TYPE_NONE "None"
@@ -109,6 +110,7 @@ private: // not to save
 	std::map<BaseTypeEnum, uint32_t> m_OutputSlotCounter;
 	bool m_ShowInputWidgets = false;
 	bool m_ShowOutputWidgets = false;
+	UBOEditor m_CurrentXMLEditor;
 
 public: // to save
 	// Node
@@ -131,6 +133,7 @@ public: // to save
 	std::string m_RendererTypePixel2DSpecializationType = "Quad";
 	bool m_UseAUbo = true;
 	bool m_UseASbo = false;
+	std::vector<UBOEditor> m_UBOEditors;
 
 public:
 	static GeneratorNodePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);

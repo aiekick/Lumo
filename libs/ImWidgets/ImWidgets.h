@@ -411,6 +411,6 @@ namespace ImWidgets
 	public:
 		IMGUI_API bool DisplayInputText(const float& vWidth, const std::string& vLabel, const std::string& vDefaultText);
 		IMGUI_API void SetText(const std::string& vText);
-		IMGUI_API std::string GetText();
+		IMGUI_API std::string GetText(const std::string& vNumericType = "");
 	};
 }
