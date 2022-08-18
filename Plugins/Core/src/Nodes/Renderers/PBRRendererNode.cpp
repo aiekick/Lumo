@@ -55,7 +55,7 @@ bool PBRRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("Mask", 0U), true, false);
 	AddInput(NodeSlotTextureInput::Create("AO", 0U), true, false);
 	AddInput(NodeSlotTextureGroupInput::Create("Shadow Maps"), true, false);
-	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 

@@ -193,12 +193,9 @@ std::string BlurModule::getXml(const std::string& vOffset, const std::string& vU
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_BlurModule_Comp_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			str += passPtr->getXml(vOffset + "\t", vUserDatas);
-		}
+		str += m_BlurModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
 	str += vOffset + "</blur_module>\n";
@@ -225,13 +222,18 @@ bool BlurModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto passPtr : m_ShaderPass)
+	if (m_BlurModule_Comp_Pass_Ptr)
 	{
-		if (passPtr)
-		{
-			passPtr->setFromXml(vElem, vParent, vUserDatas);
-		}
+		m_BlurModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
+}
+
+void BlurModule::AfterNodeXmlLoading()
+{
+	if (m_BlurModule_Comp_Pass_Ptr)
+	{
+		m_BlurModule_Comp_Pass_Ptr->AfterNodeXmlLoading();
+	}
 }

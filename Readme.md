@@ -205,6 +205,11 @@ thats all
 
 # ScreenShots
 
+v0.3.802 (Vulkan 1.4) :
+
+A bloom effect implemented whit nodes 
+![v0_3_802](doc/screenshots/Lumo_Windows_Debug_x64_0_3_802.png)
+
 v0.2.798 (Vulkan 1.0) :
 
 My Shadow mapping (max 8 lights), diffuse, specular and SSAO

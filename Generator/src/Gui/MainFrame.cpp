@@ -477,12 +477,26 @@ void MainFrame::DrawNodeCreationPane()
 		{
 			nodePtr->m_NodeDisplayName = m_NodeDisplayNameInputText.GetText();
 			nodePtr->name = nodePtr->m_NodeDisplayName;
+
+			nodePtr->m_NodeCreationName = ct::toUpper(nodePtr->m_NodeDisplayName);
+			ct::replaceString(nodePtr->m_NodeCreationName, " ", "_");
+			m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
+
+			nodePtr->m_ClassName = nodePtr->m_NodeDisplayName;
+			ct::replaceString(nodePtr->m_ClassName, " ", "_");
+			m_ClassNameInputText.SetText(nodePtr->m_ClassName);
+
+			nodePtr->m_ModuleDisplayName = nodePtr->m_NodeDisplayName;
+			m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleDisplayName);
+
+			nodePtr->m_ModuleXmlName = ct::toLower(nodePtr->m_NodeDisplayName) + "_module";
+			m_ModuleXmlNameInputText.SetText(nodePtr->m_ModuleXmlName);
 		}
 
 		if (m_NodeCreationNameInputText.DisplayInputText(aw * 0.5f, "Node Creation Name :", "NEW_NODE"))
 		{
 			nodePtr->m_NodeCreationName = m_NodeCreationNameInputText.GetText();
-			ct::replaceString(nodePtr->m_ClassName, " ", "_");
+			ct::replaceString(nodePtr->m_NodeCreationName, " ", "_");
 			m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
 		}
 
@@ -491,7 +505,7 @@ void MainFrame::DrawNodeCreationPane()
 		ImGui::Separator();
 
 		m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(
-			m_InputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 7.0f), 
+			m_InputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 10.0f), 
 				ProjectFile::Instance()->m_SelectedNode,
 				m_SelectedNodeSlotInput,
 				NodeSlot::PlaceEnum::INPUT).getValidShared());
@@ -499,7 +513,7 @@ void MainFrame::DrawNodeCreationPane()
 		ImGui::SameLine();
 
 		m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(
-			m_OutputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 7.0f),
+			m_OutputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 10.0f),
 				ProjectFile::Instance()->m_SelectedNode,
 				m_SelectedNodeSlotOutput,
 				NodeSlot::PlaceEnum::OUTPUT).getValidShared());

@@ -47,7 +47,7 @@ bool SSAONode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
 	AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
 	AddInput(NodeSlotTextureInput::Create("Noise", 2U), true, false);
-	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 

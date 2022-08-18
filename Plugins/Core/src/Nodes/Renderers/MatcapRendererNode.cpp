@@ -48,7 +48,7 @@ bool MatcapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddInput(NodeSlotModelInput::Create("Model"), true, false);
 	AddInput(NodeSlotTextureInput::Create("Matcap", 0U), true, false);
-	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 

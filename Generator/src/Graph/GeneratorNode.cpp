@@ -888,6 +888,20 @@ bool NODE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	// continue recurse child exploring
 	return true;
 }
+
+void NODE_CLASS_NAME::AfterNodeXmlLoading()
+{)";
+	if (m_GenerateAModule)
+	{
+		cpp_node_file_code += u8R"(
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->AfterNodeXmlLoading();
+	})";
+	}
+
+	cpp_node_file_code += u8R"(
+}
 )";
 
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
@@ -998,6 +1012,7 @@ public:
 	// Configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+	void AfterNodeXmlLoading() override;
 )";
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
@@ -1046,7 +1061,7 @@ void GeneratorNode::GenerateModules(const std::string& vPath, const ProjectFile*
 	std::string h_module_file_name = module_path.string() + "/" + module_class_name + ".h";
 
 	std::string pass_renderer_display_type = GetRendererDisplayName();
-	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "Pass";
+	std::string pass_class_name = m_ClassName + "Module_" + pass_renderer_display_type + "Pass";
 	std::string cpp_pass_file_name = pass_class_name + ".cpp";
 	std::string h_pass_file_name = pass_class_name + ".h";
 
@@ -1366,7 +1381,7 @@ bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		cpp_module_file_code += u8R"(
-		if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##MODULE_CLASS_NAME", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 )";
@@ -1528,6 +1543,20 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 
 	return true;
 }
+
+void MODULE_CLASS_NAME::AfterNodeXmlLoading()
+{)";
+	if (m_GenerateAModule)
+	{
+		cpp_module_file_code += u8R"(
+	if (m_PASS_CLASS_NAME_Ptr)
+	{
+		m_PASS_CLASS_NAME_Ptr->AfterNodeXmlLoading();
+	})";
+	}
+
+	cpp_module_file_code += u8R"(
+}
 )";
 
 	/////////////////////////////////////////////////////////////////
@@ -1563,6 +1592,7 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 
 	h_module_file_code += u8R"(
 #include <Interfaces/GuiInterface.h>
+#include <Interfaces/NodeInterface.h>
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/NodeInterface.h>
 #include <Interfaces/ResizerInterface.h>
@@ -1672,6 +1702,7 @@ public:
 	h_module_file_code += u8R"(
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+	void AfterNodeXmlLoading() override;
 };
 )";
 
@@ -1716,7 +1747,7 @@ void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* 
 		fs::create_directory(path_path);
 
 	std::string pass_renderer_display_type = GetRendererDisplayName();
-	std::string pass_class_name = m_ClassName + "_" + pass_renderer_display_type + "Pass";
+	std::string pass_class_name = m_ClassName + "Module_" + pass_renderer_display_type + "Pass";
 	std::string cpp_pass_file_name = path_path.string() + "/" + pass_class_name + ".cpp";
 	std::string h_pass_file_name = path_path.string() + "/" + pass_class_name + ".h";
 
@@ -2076,6 +2107,11 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 
 	return true;
 }
+
+void PASS_CLASS_NAME::AfterNodeXmlLoading()
+{
+	// code to do after end of the wml loading of this node
+}
 )";
 
 	h_pass_file_code += u8R"(
@@ -2137,7 +2173,8 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 
-#include <Interfaces/GuiInterface.h>)";
+#include <Interfaces/GuiInterface.h>
+#include <Interfaces/NodeInterface.h>)";
 	h_pass_file_code += GetNodeSlotsInputIncludesInterfaces(vDico);
 	h_pass_file_code += GetNodeSlotsOutputIncludesInterfaces(vDico);
 	h_pass_file_code += u8R"(
@@ -2187,9 +2224,8 @@ class PASS_CLASS_NAME :)";
 	h_pass_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
 
 	h_pass_file_code += u8R"(
-	public GuiInterface)";
-
-	h_pass_file_code += u8R"(
+	public GuiInterface,
+	public NodeInterface
 {
 private:
 	//VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
@@ -2247,6 +2283,7 @@ public:
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+	void AfterNodeXmlLoading() override;
 
 protected:)";
 

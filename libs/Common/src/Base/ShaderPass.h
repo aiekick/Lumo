@@ -384,6 +384,26 @@ protected:
 
 	// Ressource Descriptor
 	virtual bool UpdateLayoutBindingInRessourceDescriptor();
+
+	/*bool AddOrSetDescriptorImage(
+		const uint32_t& vBinding, 
+		const vk::DescriptorType& vType, 
+		vk::DescriptorImageInfo* vImageInfo, 
+		const uint32_t& vCount = 1U, 
+		const uint32_t& DescriptorSetIndex = 0U);
+	bool AddOrSetDescriptorBuffer(
+		const uint32_t& vBinding, 
+		const vk::DescriptorType& vType, 
+		vk::DescriptorBufferInfo* vBufferInfo, 
+		const uint32_t& vCount = 1U, 
+		const uint32_t& DescriptorSetIndex = 0U);
+	bool AddOrSetDescriptorBufferView(
+		const uint32_t& vBinding, 
+		const vk::DescriptorType& vType, 
+		vk::BufferView* vBufferView, 
+		const uint32_t& vCount = 1U, 
+		const uint32_t& DescriptorSetIndex = 0U);*/
+
 	virtual bool UpdateBufferInfoInRessourceDescriptor();
 	bool CreateRessourceDescriptor();
 	void DestroyRessourceDescriptor();

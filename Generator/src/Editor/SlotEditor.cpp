@@ -115,18 +115,46 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 				m_InputType = (int32_t)slotDatasPtr->editorSlotTypeIndex;
 				m_SelectedType = m_BaseTypes.m_TypeArray[m_InputType];
 
-				if (ImGui::ContrastedComboVectorDefault(vSize.x, "Slot Type", &m_InputType, m_BaseTypes.m_TypeArray, 0U))
+				bool _typeChanged = false;
+				if (ImGui::ContrastedComboVectorDefault(vSize.x, "Slot Type", 
+					&m_InputType, m_BaseTypes.m_TypeArray, 0U))
 				{
 					slotDatasPtr->editorSlotTypeIndex = (uint32_t)m_InputType;
 					m_SelectedType = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+					_typeChanged = true;
+				}
 
+				if (m_InputType == BASE_TYPE_Variable)
+				{
+					m_InputSubType = (int32_t)slotDatasPtr->editorSlotSubTypeIndex;
+					m_SelectedSubType = m_BaseTypes.m_VariableTypeArray[m_InputSubType];
+
+					if (ImGui::ContrastedComboVectorDefault(vSize.x, "Variable Slot Type",
+						&m_InputSubType, m_BaseTypes.m_VariableTypeArray, 0U))
+					{
+						slotDatasPtr->editorSlotSubTypeIndex = (uint32_t)m_InputSubType;
+						m_SelectedSubType = m_BaseTypes.m_VariableTypeArray[slotDatasPtr->editorSlotSubTypeIndex];
+						_typeChanged = true;
+					}
+				}
+				else
+				{
+					m_SelectedSubType = "";
+				}
+
+				if (_typeChanged)
+				{
 					if (vPlace == NodeSlot::PlaceEnum::INPUT)
 					{
-						res = std::dynamic_pointer_cast<GeneratorNodeSlotInput>(ChangeInputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
+						res = std::dynamic_pointer_cast<GeneratorNodeSlotInput>(
+							ChangeInputSlotType(vNode, m_SelectedType, 
+								m_SelectedSubType, vNodeSlot).getValidShared());
 					}
 					else if (vPlace == NodeSlot::PlaceEnum::OUTPUT)
 					{
-						res = std::dynamic_pointer_cast<GeneratorNodeSlotOutput>(ChangeOutputSlotType(vNode, m_SelectedType, vNodeSlot).getValidShared());
+						res = std::dynamic_pointer_cast<GeneratorNodeSlotOutput>(
+							ChangeOutputSlotType(vNode, m_SelectedType, 
+								m_SelectedSubType, vNodeSlot).getValidShared());
 					}
 				}
 
@@ -156,7 +184,7 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 	return res;
 }
 
-NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::string& vType, const NodeSlotWeak& vSlot)
+NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::string& vType, const std::string& vSubType, const NodeSlotWeak& vSlot)
 {
 	auto nodePtr = vRootNode.getValidShared();
 	if (nodePtr)
@@ -164,6 +192,8 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::
 		auto slotPtr = vSlot.getValidShared();
 		if (slotPtr)
 		{
+			slotPtr->slotType = vSubType;
+
 			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(slotPtr);
 			if (slotDatasPtr)
 			{
@@ -231,7 +261,7 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::
 	return NodeSlotWeak();
 }
 
-NodeSlotWeak SlotEditor::ChangeOutputSlotType(BaseNodeWeak vRootNode, const std::string& vType, const NodeSlotWeak& vSlot)
+NodeSlotWeak SlotEditor::ChangeOutputSlotType(BaseNodeWeak vRootNode, const std::string& vType, const std::string& vSubType, const NodeSlotWeak& vSlot)
 {
 	auto nodePtr = vRootNode.getValidShared();
 	if (nodePtr)
@@ -239,6 +269,8 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(BaseNodeWeak vRootNode, const std:
 		auto slotPtr = vSlot.getValidShared();
 		if (slotPtr)
 		{
+			slotPtr->slotType = vSubType;
+
 			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(slotPtr);
 			if (slotDatasPtr)
 			{

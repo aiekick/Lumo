@@ -26,6 +26,7 @@ limitations under the License.
 #include <Graph/Base/NodeLink.h>
 #include <ctools/ConfigAbstract.h>
 #include <Interfaces/GuiInterface.h>
+#include <Interfaces/NodeInterface.h>
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/NotifyInterface.h>
 #include <Interfaces/ResizerInterface.h>
@@ -175,6 +176,7 @@ struct BaseNodeState
 class BaseNode : 
 	public conf::ConfigAbstract, 
 	public GuiInterface,
+	public NodeInterface,
 	public TaskInterface,
 	public ResizerInterface
 {
@@ -275,7 +277,6 @@ public: // Code Generation
 
 public: // glslang and links
 	int m_Depth = 0; // glslang
-	BaseNodeWeak m_ParentNode; // node parent dans le cas d'un ndoe enfant d'un graph
 	std::unordered_map<uint32_t, BaseNodePtr> m_ChildNodes; // node du graphn  // for query only
 	//std::string m_lastChildNodeName; // le nom du dernier node pour le layout
 	
@@ -453,6 +454,9 @@ public:
 
 	// need to save
 	void SetChanged(bool vFlag = true);
+
+	// when the xml laoding of the node is finished
+	void AfterNodeXmlLoading() override;
 
 public:
 	void DoLayout();

@@ -36,6 +36,13 @@ public:
 		"Variable",
 		"Custom"
 	};
+	std::vector<std::string> m_VariableTypeArray =
+	{
+		"WIDGET_BOOLEAN",
+		"WIDGET_FLOAT",
+		"WIDGET_INT",
+		"WIDGET_UINT"
+	};
 };
 
 #include <ctools/cTools.h>

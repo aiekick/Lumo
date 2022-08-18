@@ -222,6 +222,8 @@ bool NodeManager::LoadNodeFromXML(
 			// pour eviter que des slots aient le meme id qu'un nodePtr
 			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)vNodeId);
 
+			nodePtr->AfterNodeXmlLoading();
+
 			continueXMLParsing = true;
 		}
 	}

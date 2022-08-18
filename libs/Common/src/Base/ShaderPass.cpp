@@ -1492,6 +1492,95 @@ bool ShaderPass::UpdateLayoutBindingInRessourceDescriptor()
 	return res;
 }
 
+/*
+bool ShaderPass::AddOrSetDescriptorImage(
+	const uint32_t& vBinding, 
+	const vk::DescriptorType& vType, 
+	vk::DescriptorImageInfo* vImageInfo, 
+	const uint32_t& vCount, 
+	const uint32_t& DescriptorSetIndex)
+{
+	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
+	{
+		if (vBinding < (uint32_t)m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.size())
+		{
+			if (vImageInfo && vImageInfo->imageView)
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, vImageInfo);
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool ShaderPass::AddOrSetDescriptorBuffer(
+	const uint32_t& vBinding,
+	const vk::DescriptorType& vType,
+	vk::DescriptorBufferInfo* vBufferInfo,
+	const uint32_t& vCount,
+	const uint32_t& DescriptorSetIndex)
+{
+	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
+	{
+		if (vBinding < (uint32_t)m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.size())
+		{
+			if (vBufferInfo && vBufferInfo->buffer)
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, vBufferInfo);
+			}
+			else
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ShaderPass::AddOrSetDescriptorBufferView(
+	const uint32_t& vBinding,
+	const vk::DescriptorType& vType,
+	vk::BufferView* vBufferView,
+	const uint32_t& vCount,
+	const uint32_t& DescriptorSetIndex)
+{
+	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
+	{
+		if (vBinding < (uint32_t)m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.size())
+		{
+			if (vBufferView)
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, nullptr, vBufferView);
+			}
+			else
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, nullptr, vBufferView);
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+*/
+
 bool ShaderPass::CreateRessourceDescriptor()
 {
 	ZoneScoped;

@@ -45,7 +45,7 @@ bool LaplacianNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Laplacian";
 
 	AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
-	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 

@@ -1916,6 +1916,11 @@ void BaseNode::SetChanged(bool vFlag)
 	}
 }
 
+void BaseNode::AfterNodeXmlLoading()
+{
+
+}
+
 void BaseNode::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
 {
 

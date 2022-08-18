@@ -184,7 +184,7 @@ void NodeSlot::Unit()
 			auto parentNodePtr = parentNode.lock();
 			if (parentNodePtr)
 			{
-				auto graph = parentNodePtr->m_ParentNode;
+				auto graph = parentNodePtr->GetParentNode();
 				if (!graph.expired())
 				{
 					auto graphPtr = graph.lock();

@@ -22,8 +22,8 @@ limitations under the License.
 
 class NodeInterface
 {
-private:
-	BaseNodeWeak m_ParentNode;
+protected:
+	BaseNodeWeak m_ParentNode; // node parent dans le cas d'un ndoe enfant d'un graph
 
 public:
 	void SetParentNode(BaseNodeWeak vBaseNodeWeak = BaseNodeWeak())
@@ -36,5 +36,14 @@ public:
 		return m_ParentNode;
 	}
 
-	virtual bool DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) { return false; }
+	// draw the widget of the node (so not related to input or output widgets)
+	virtual bool DrawNodeWidget(const uint32_t& /*vCurrentFrame*/, ImGuiContext* vContext)
+	{
+		assert(vContext);
+		ImGui::SetCurrentContext(vContext);
+		return false; 
+	}
+
+	// wbehn XML loading of the node is finished
+	virtual void AfterNodeXmlLoading() {}
 };

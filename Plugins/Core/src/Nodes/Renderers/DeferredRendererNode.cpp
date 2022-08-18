@@ -53,7 +53,7 @@ bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("Mask", 6U), true, false);
 	AddInput(NodeSlotTextureInput::Create("AO", 7U), true, false);
 	AddInput(NodeSlotTextureInput::Create("Shadow", 8U), true, false); 
-	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, false);
+	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;
 

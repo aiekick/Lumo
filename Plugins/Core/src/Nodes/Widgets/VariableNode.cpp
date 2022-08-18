@@ -57,7 +57,7 @@ bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	if (slotPtr)
 	{
 		slotPtr->showWidget = true;
-		AddOutput(slotPtr, true, false);
+		AddOutput(slotPtr, true, true);
 	}
 
 	m_VariableModulePtr = VariableModule::Create(m_NodeTypeString, m_This);

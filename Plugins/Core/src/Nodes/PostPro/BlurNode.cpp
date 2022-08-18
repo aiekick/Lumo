@@ -204,6 +204,14 @@ bool BlurNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 	return true;
 }
 
+void BlurNode::AfterNodeXmlLoading()
+{
+	if (m_BlurModulePtr)
+	{
+		m_BlurModulePtr->AfterNodeXmlLoading();
+	}
+}
+
 void BlurNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	if (m_BlurModulePtr)
