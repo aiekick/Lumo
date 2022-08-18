@@ -36,6 +36,7 @@
 
 #include <Nodes/PostPro/SSAONode.h>
 #include <Nodes/PostPro/BlurNode.h>
+#include <Nodes/PostPro/BloomNode.h>
 #include <Nodes/PostPro/ToneMapNode.h>
 
 #include <Nodes/Preview/CubeMapPreviewNode.h>
@@ -175,6 +176,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Preview", "LongLat Preview", "LONG_LAT_PREVIEW"));
 
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Blur", "BLUR"));
+	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Bloom", "BLOOM"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Laplacian", "LAPLACIAN"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Tone Map", "TONE_MAP"));
 
@@ -227,6 +229,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 
 	// Post Processing
 	else if (vPluginNodeName == "BLUR")							return BlurNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "BLOOM")						return BloomNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "LAPLACIAN")					return LaplacianNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "TONE_MAP")						return ToneMapNode::Create(vkCorePtr);
 

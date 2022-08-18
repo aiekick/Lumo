@@ -888,6 +888,9 @@ void ShaderPass::ClearShaderEntryPoints()
 void ShaderPass::AddShaderEntryPoints(const vk::ShaderStageFlagBits& vShaderId, const ShaderEntryPoint& vEntryPoint)
 {
 	m_ShaderEntryPoints[vShaderId].emplace(vEntryPoint);
+
+	m_Pipelines.resize(m_ShaderEntryPoints[vShaderId].size());
+	m_DescriptorSets.resize(m_ShaderEntryPoints[vShaderId].size());
 }
 
 // will set if a shader is used or not

@@ -64,9 +64,7 @@ bool BloomNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	bool res = false;
 
 	name = "Bloom";
-	AddInput(NodeSlotTextureInput::Create("Input", 0), false, false);
-	AddInput(NodeSlotTextureInput::Create("Threshold", 1), false, false);
-
+	AddInput(NodeSlotTextureInput::Create("", 0), false, true);
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
 	m_BloomModulePtr = BloomModule::Create(vVulkanCorePtr, m_This);

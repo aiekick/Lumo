@@ -32,8 +32,6 @@ limitations under the License.
 
 using namespace vkApi;
 
-
-
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -559,17 +557,14 @@ bool BlurModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 		if (strName == "blur_radius")
 		{
 			m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
-			//ReComputeGaussianBlurWeights();
 		}
 		else if (strName == "blur_gaussian_sigma")
 		{
 			m_GaussianSigma = ct::fvariant(strValue).GetF();
-			//ReComputeGaussianBlurWeights();
 		}
 		else if (strName == "blur_gaussian_sigma_auto")
 		{
 			m_GaussianSigmAuto = ct::ivariant(strValue).GetB();
-			//ReComputeGaussianBlurWeights();
 		}
 
 		NeedNewUBOUpload();

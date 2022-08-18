@@ -97,7 +97,7 @@ bool BloomModule::Init()
 			//m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
 			//m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeByHand(true);
 
-			if (m_BloomModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			if (m_BloomModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 2U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
 				AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);
 				m_Loaded = true;
@@ -129,6 +129,7 @@ bool BloomModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBu
 
 	return true;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////

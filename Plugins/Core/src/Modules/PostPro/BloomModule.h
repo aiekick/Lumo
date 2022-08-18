@@ -49,6 +49,13 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
+// for a bloom effect
+// we need 4 op
+// 1) threshold an input image brightness
+// 2) blur H on this result => blur pass
+// 3) blur V on this result => blur pass
+// 4) add first input to the alst result and apply tone mapping and gamma correction
+
 class BloomModule_Comp_2D_Pass;
 class BloomModule :
 	public NodeInterface,
@@ -75,7 +82,7 @@ public:
 
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-
+	
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
