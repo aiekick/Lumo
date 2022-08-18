@@ -6,8 +6,6 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-add_definitions(-DPROJECT_NAME="Lumo")
-
 option(USE_PLUGINS "Enable the plugins building" OFF)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 
@@ -101,7 +99,6 @@ add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(-DIMGUI_ENABLE_FREETYPE)
 add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Gui/CustomImGuiFileDialogConfig.h")
 add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/3rdparty/imgui/imgui.h")
 add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
@@ -181,6 +178,10 @@ add_executable(${PROJECT}
 	${IMGUI_FREETYPE_SOURCES}
 	${PROJECT_SHADERS_RECURSE}
 )
+
+target_compile_definitions(${PROJECT} PUBLIC -DPROJECT_NAME=${PROJECT})
+target_compile_definitions(${PROJECT} PUBLIC -DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Gui/CustomImGuiFileDialogConfig.h")
+target_compile_definitions(${IMGUIFILEDIALOG_LIBRARIES} PUBLIC -DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Gui/CustomImGuiFileDialogConfig.h")
 
 set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Z_Apps)
 

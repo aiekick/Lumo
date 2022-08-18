@@ -47,7 +47,6 @@ add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(-DIMGUI_ENABLE_FREETYPE)
 add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/Generator/src/Gui/CustomImGuiFileDialogConfig.h")
 add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/3rdparty/imgui/imgui.h")
 add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
@@ -105,6 +104,10 @@ add_executable(${PROJECT}
 	${PROJECT_SRC_RECURSE}
 	${IMGUI_FREETYPE_SOURCES}
 )
+
+target_compile_definitions(${PROJECT} PUBLIC -DPROJECT_NAME=${PROJECT})
+target_compile_definitions(${PROJECT} PUBLIC -DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/Generator/src/Gui/CustomImGuiFileDialogConfig.h")
+target_compile_definitions(${IMGUIFILEDIALOG_LIBRARIES} PUBLIC -DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/Generator/src/Gui/CustomImGuiFileDialogConfig.h")
 
 set(${PROJECT}_Output_Name "${PROJECT}_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${${PROJECT}_Output_Name}")
