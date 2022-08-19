@@ -32,7 +32,7 @@ thats all
 | - | - | - |
 | :black_square_button: | Geometry Shader | ![img](https://progress-bar.dev/60) |
 | :black_square_button: | Tesselation Shader | ![img](https://progress-bar.dev/50) |
-| :white_square_button: | Compute Shader | ![img](https://progress-bar.dev/90) |
+| :white_square_button: | Compute Shader | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Vulkan Framework | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Mesh Use | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Mesh Texturing | ![img](https://progress-bar.dev/50) |
@@ -62,44 +62,47 @@ thats all
 | :black_square_button: | Light Point | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Light Spot | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Light Area | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Bloom | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Bloom | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | SSAO | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | SSS | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | SSS | ![img](https://progress-bar.dev/50) |
 | :black_square_button: | VR | ![img](https://progress-bar.dev/20) |
-| :black_square_button: | Particles System | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Particles System | ![img](https://progress-bar.dev/50) |
 
 # Plugin Nodes :
 
 | Published | Plugin | status |
 | - | - | - |
-| :white_square_button: | Core | ![img](https://progress-bar.dev/50) |
-| :black_square_button: | MeshSim | ![img](https://progress-bar.dev/90) |
-| :black_square_button: | MeshSSS | ![img](https://progress-bar.dev/10) |
-| :black_square_button: | MorphoGenesis | ![img](https://progress-bar.dev/20) |
-| :black_square_button: | VDBTools | ![img](https://progress-bar.dev/10) |
-| :white_square_button: | Particles | ![img](https://progress-bar.dev/20) |
-| :white_square_button: | RTX | ![img](https://progress-bar.dev/40) |
-| :black_square_button: | SdfMesher | ![img](https://progress-bar.dev/40) |
-| :black_square_button: | Smoke | ![img](https://progress-bar.dev/20) |
-| :black_square_button: | Voxel | ![img](https://progress-bar.dev/10) |
-| :black_square_button: | VR | ![img](https://progress-bar.dev/60) |
+| :white_square_button: | Core | ![img](https://progress-bar.dev/60) |
+| :black_square_button: | MeshSim | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | MeshSSS | ![img](https://progress-bar.dev/30) |
+| :black_square_button: | MorphoGenesis | ![img](https://progress-bar.dev/30) |
+| :black_square_button: | VDBTools | ![img](https://progress-bar.dev/20) |
+| :white_square_button: | Particles | ![img](https://progress-bar.dev/50) |
+| :white_square_button: | RTX | ![img](https://progress-bar.dev/60) |
+| :black_square_button: | SdfMesher | ![img](https://progress-bar.dev/50) |
+| :black_square_button: | Smoke | ![img](https://progress-bar.dev/30) |
+| :black_square_button: | Voxel | ![img](https://progress-bar.dev/20) |
+| :black_square_button: | VR | ![img](https://progress-bar.dev/70) |
 
 ## Core Plugin :
 
 | Published | Node | status |
 | - | - | - |
-| :white_square_button: | Assets / Mesh Node | ![img](https://progress-bar.dev/90) |
+| :white_square_button: | Assets / Mesh Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Assets / Texture 2D Node  | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Assets / Cube Map Node  | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Differential Operators / Divergence Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Differential Operators / Gradient Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Differential Operators / Rotational Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Texture to file | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Cube Map to files | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file (Transform feedback) | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Lighting / Attenuation Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Lighting / Fog Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/50) |
+| :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Refraction Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Reflection Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Model Shadow Node | ![img](https://progress-bar.dev/100) |
@@ -114,6 +117,8 @@ thats all
 | :black_square_button: | Misc / Parametric UV Surface | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Blur Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Postpro / Bloom Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Postpro / Vignette Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Primitves / UV Sphere | ![img](https://progress-bar.dev/0) |
@@ -133,9 +138,11 @@ thats all
 | :white_square_button: | Utils / Mesh Attributes Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Utils / Pos To Depth Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Utils / Cube Map to LongLat | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Utils / Cube Map To MatCap | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Utils / LongLat to Cube Map  | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Utils / LongLat To MatCap | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/20) |
+| :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/30) |
 
 ## MeshSim Plugin : 
 
