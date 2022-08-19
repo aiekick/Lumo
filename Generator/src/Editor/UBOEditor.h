@@ -39,7 +39,8 @@ private:
 public:
 	UBOItem() = default;
 	void DrawItem(const std::string& vStage);
-	std::string GetItemHeader();
+	std::string GetGlslItemHeader();
+	std::string GetCppItemHeader();
 	std::string GetItemWidget();
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
@@ -51,34 +52,55 @@ class UBOEditor :
 private:
 	// name, type, default value
 	std::vector<UBOItem> m_Items;
+	std::string m_RendererType;
 
 public:
-	std::vector<std::string> m_StageArray =
-	{
-		"Common",
-		"Vert",
-		"Frag",
-		"Geom",
-		"TessCtrl",
-		"tessEval",
-		"Comp",
-		"RGen",
-		"Miss",
-		"Ahit",
-		"Chit",
-		"Inter",
-	};
 	int m_InputStageIndex = 0U;
 
 public:
-	void DrawStageSelection();
-	void DrawPane(const ImVec2& vSize);
-	std::string GetUBOCode_Widgets();
-	std::string GetUBOHeader();
-	std::string GetFunction_CreateUBO();
-	std::string GetFunction_UploadUBO();
-	std::string GetFunction_DestroyUBO();
+	UBOEditor();
+	bool DrawStageSelection(const std::string& vRendererType);
+	void DrawPane(const std::string& vRendererType);
+	/*std::string Get_Widgets_Header();
+	std::string Get_Glsl_Header();
+	std::string Get_Cpp_Header();
+	std::string Get_Create_Header();
+	std::string Get_Upload_Header();
+	std::string Get_Destroy_Header();*/
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+};
+
+class UBOEditors :
+	public conf::ConfigAbstract
+{
+public:
+	static std::map<std::string, std::vector<std::string>> m_StageArray;
+
+private:
+	// ubo stage type, ubos per stage
+	std::map<std::string, std::vector<UBOEditor>> m_UBOEditors;
+	std::string m_RendererType;
+
+public:
+	bool m_UseUbos = false;
+
+public:
+	UBOEditors();
+	void DrawPane(const std::string& vRendererType);
+
+	std::string Get_Cpp_Functions_Imp();
+	std::string Get_Cpp_Functions_Header();
+	std::string Get_Widgets_Header();
+	std::string Get_Glsl_Header(const std::string& vStage);
+	std::string Get_Cpp_Header();
+
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+
+private:
+	std::string Get_Create_Header();
+	std::string Get_Upload_Header();
+	std::string Get_Destroy_Header();
 };

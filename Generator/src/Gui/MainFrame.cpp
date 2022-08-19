@@ -601,39 +601,13 @@ void MainFrame::DrawNodeCreationPane()
 					nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX;
 			}
 
-			ImGui::CheckBoxBoolDefault("Use A UBO", &nodePtr->m_UseAUbo, true);
-			if (nodePtr->m_UseAUbo)
-			{
-				if (ImGui::ContrastedButton("Add UBO"))
-				{
-					nodePtr->m_UBOEditors.push_back(UBOEditor());
-				}
+			nodePtr->m_UBOEditors.DrawPane(nodePtr->m_RendererType);
 
-				int32_t idx_to_erase = -1;
-				for (size_t idx = 0U; idx < nodePtr->m_UBOEditors.size(); ++idx)
-				{
-					if (ImGui::ContrastedButton("X"))
-					{
-						idx_to_erase = (int32_t)idx;
-					}
-
-					ImGui::SameLine();
-
-					nodePtr->m_UBOEditors[idx].DrawPane(ImVec2(ImGui::GetContentRegionAvail().x, 0.0f));
-				}
-
-				if (idx_to_erase > -1)
-				{
-					nodePtr->m_UBOEditors.erase(nodePtr->m_UBOEditors.begin() + (size_t)idx_to_erase);
-					idx_to_erase = -1;
-				}
-			}
-
-			ImGui::CheckBoxBoolDefault("Use A SBO", &nodePtr->m_UseASbo, false);
+			/*ImGui::CheckBoxBoolDefault("Use A SBO", &nodePtr->m_UseASbo, false);
 			if (nodePtr->m_UseASbo)
 			{
 				
-			}
+			}*/
 		}
 
 		if (ImGui::ContrastedButton("Generate"))

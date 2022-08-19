@@ -3,6 +3,7 @@
 #include <ImWidgets/ImWidgets.h>
 #include <Graph/Base/BaseNode.h>
 
+#include <Graph/GeneratorNode.h>
 #include <Graph/GeneratorCommon.h>
 #include <Graph/GeneratorNodeSlotInput.h>
 #include <Graph/GeneratorNodeSlotOutput.h>
@@ -55,7 +56,7 @@ void UBOItem::DrawItem(const std::string& vStage)
 	}
 }
 
-std::string UBOItem::GetItemHeader()
+std::string UBOItem::GetCppItemHeader()
 {
 	std::string res;
 	uint32_t _alignas = 4;
@@ -69,7 +70,13 @@ std::string UBOItem::GetItemHeader()
 	if (m_InputTypeIndex > 0 && m_InputTypeIndex < 4)
 		type = "f" + type;
 
-	if (inputIdx == 1)
+	if (inputIdx == 0)
+	{
+		if (type == "int" ||
+			type == "uint")
+			type += "32_t";
+	}
+	else if (inputIdx == 1)
 	{
 		_alignas = 8;
 		type = "ct::" + type;
@@ -93,6 +100,21 @@ std::string UBOItem::GetItemHeader()
 
 	res += ct::toStr(u8R"(
 		alignas(%u) %s u_%s = %s)", _alignas, type.c_str(), m_InputName.GetText().c_str(), value.c_str());
+
+	return res;
+}
+
+std::string UBOItem::GetGlslItemHeader()
+{
+	std::string res;
+	
+	uint32_t inputIdx = m_InputTypeIndex % 4;
+	int baseTypeIdx = m_InputTypeIndex - inputIdx;
+	auto baseType = m_TypeArray[baseTypeIdx];
+	std::string type = m_TypeArray[m_InputTypeIndex];
+
+	res += ct::toStr(u8R"(
+	%s u_%s)", type.c_str(), m_InputName.GetText().c_str());
 
 	return res;
 }
@@ -227,20 +249,21 @@ bool UBOItem::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPar
 //// UBOEditor ////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-void UBOEditor::DrawStageSelection()
+UBOEditor::UBOEditor()
 {
-	const float& aaw = ImGui::GetContentRegionAvail().x;
-	ImGui::ContrastedComboVectorDefault(aaw, "Stage type", &m_InputStageIndex, m_StageArray, 0);
+	m_InputStageIndex = 0;
 }
 
-void UBOEditor::DrawPane(const ImVec2& vSize)
+void UBOEditor::DrawPane(const std::string& vRendererType)
 {
-	DrawStageSelection();
+	auto stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
 
 	if (ImGui::ContrastedButton("Add Item"))
 	{
 		m_Items.push_back(UBOItem());
 	}
+
+	ImGui::Indent();
 
 	int32_t idx_to_erase = -1;
 	for (size_t idx = 0U; idx < m_Items.size(); ++idx)
@@ -252,8 +275,10 @@ void UBOEditor::DrawPane(const ImVec2& vSize)
 
 		ImGui::SameLine();
 
-		m_Items[idx].DrawItem(m_StageArray[m_InputStageIndex]);
+		m_Items[idx].DrawItem(stage);
 	}
+
+	ImGui::Unindent();
 
 	if (idx_to_erase > -1)
 	{
@@ -262,7 +287,25 @@ void UBOEditor::DrawPane(const ImVec2& vSize)
 	}
 }
 
-std::string UBOEditor::GetUBOCode_Widgets()
+bool UBOEditor::DrawStageSelection(const std::string& vRendererType)
+{
+	bool change = false;
+
+	if (m_RendererType != vRendererType)
+	{
+		m_InputStageIndex = 0U;
+		change = true;
+	}
+
+	m_RendererType = vRendererType;
+
+	change |= ImGui::ContrastedComboVectorDefault(ImGui::GetContentRegionAvail().x, 
+		"Stage type", &m_InputStageIndex, UBOEditors::m_StageArray[vRendererType], 0);
+
+	return change;
+}
+
+/*std::string UBOEditor::GetUBOCode_Widgets()
 {
 	std::string res;
 
@@ -284,36 +327,55 @@ std::string UBOEditor::GetUBOCode_Widgets()
 	return res;
 }
 
-std::string UBOEditor::GetUBOHeader()
+std::string UBOEditor::GetUBOCppHeader()
 {
-	std::string stage = m_StageArray[m_InputStageIndex];
-	
+	std::string stage = m_StageArray[m_RendererType][m_InputStageIndex];
+
 	std::string res = ct::toStr(u8R"(
 	struct UBO%s {)", stage.c_str());
 
 	for (auto item : m_Items)
 	{
-		res += item.GetItemHeader();
+		res += item.GetCppItemHeader();
+	}
+
+	res += ct::toStr(u8R"(
+	} m_UBO%s;
+	VulkanBufferObjectPtr m_UBO%s_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBO_%s_BufferInfos;)", stage.c_str(), stage.c_str(), stage.c_str());
+
+	return res;
+}
+
+std::string UBOEditor::GetUBOGlslHeader()
+{
+	std::string stage = m_StageArray[m_RendererType][m_InputStageIndex];
+	
+	std::string res = ct::toStr(u8R"(
+layout(std140, binding = 0) uniform UBO_%S
+{)", stage.c_str());
+
+	for (auto item : m_Items)
+	{
+		res += item.GetGlslItemHeader();
 	}
 
 	res+= ct::toStr(u8R"(
-	} m_UBO%s;
-	VulkanBufferObjectPtr m_UBO%s_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_%s;)", stage.c_str(), stage.c_str(), stage.c_str());
+};)");
 
 	return res;
 }
 
 std::string UBOEditor::GetFunction_CreateUBO()
 {
-	std::string stage = m_StageArray[m_InputStageIndex];
+	std::string stage = m_StageArray[m_RendererType][m_InputStageIndex];
 
 	return ct::toStr(u8R"(
-	m_UBO%sPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO%s));
+	m_UBO%s_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO%s));
 	m_UBO_%s_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO%sPtr)
+	if (m_UBO%s_Ptr)
 	{
-		m_UBO_%s_BufferInfos.buffer = m_UBO%sPtr->buffer;
+		m_UBO_%s_BufferInfos.buffer = m_UBO%s_Ptr->buffer;
 		m_UBO_%s_BufferInfos.range = sizeof(UBO%s);
 		m_UBO_%s_BufferInfos.offset = 0;
 	}
@@ -322,22 +384,22 @@ std::string UBOEditor::GetFunction_CreateUBO()
 
 std::string UBOEditor::GetFunction_UploadUBO()
 {
-	std::string stage = m_StageArray[m_InputStageIndex];
+	std::string stage = m_StageArray[m_RendererType][m_InputStageIndex];
 
 	return ct::toStr(u8R"(
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO%sPtr, &m_UBO%s, sizeof(UBO%s));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBO%s_Ptr, &m_UBO%s, sizeof(UBO%s));
 )", stage.c_str(), stage.c_str(), stage.c_str());
 }
 
 std::string UBOEditor::GetFunction_DestroyUBO()
 {
-	std::string stage = m_StageArray[m_InputStageIndex];
+	std::string stage = m_StageArray[m_RendererType][m_InputStageIndex];
 
 	return ct::toStr(u8R"(
-	m_UBO%sPtr.reset();
+	m_UBO%s_Ptr.reset();
 	m_UBO_%s_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 )", stage.c_str(), stage.c_str());
-}
+}*/
 
 std::string UBOEditor::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
@@ -345,14 +407,14 @@ std::string UBOEditor::getXml(const std::string& vOffset, const std::string& vUs
 
 	std::string str;
 
-	str += vOffset + ct::toStr("<UBO stage=\"%u\">\n", m_InputStageIndex);
+	/*str += vOffset + ct::toStr("<UBO stage=\"%u\">\n", m_InputStageIndex);
 
 	for (auto item : m_Items)
 	{
 		str += item.getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</UBO>\n";
+	str += vOffset + "</UBO>\n";*/
 
 	return str;
 }
@@ -372,7 +434,7 @@ bool UBOEditor::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vP
 	if (vParent != 0)
 		strParentName = vParent->Value();
 
-	if (strName == "UBO")
+	/*if (strName == "UBO")
 	{
 		for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
 		{
@@ -394,7 +456,312 @@ bool UBOEditor::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vP
 			item.setFromXml(vElem, vParent, vUserDatas);
 			m_Items.push_back(item);
 		}
+	}*/
+
+	return false;
+}
+
+///////////////////////////////////////////////////////
+//// UBOEditors : STATIC //////////////////////////////
+///////////////////////////////////////////////////////
+
+std::map<std::string, std::vector<std::string>> UBOEditors::m_StageArray;
+
+///////////////////////////////////////////////////////
+//// UBOEditors ///////////////////////////////////////
+///////////////////////////////////////////////////////
+
+UBOEditors::UBOEditors()
+{
+	UBOEditors::m_StageArray[RENDERER_TYPE_PIXEL_2D] =
+	{
+		"Vert",
+		"Frag",
+		//"Geom",
+		//"TessCtrl",
+		//"tessEval"
+	};
+	UBOEditors::m_StageArray[RENDERER_TYPE_COMPUTE_1D] =
+		UBOEditors::m_StageArray[RENDERER_TYPE_COMPUTE_2D] =
+		UBOEditors::m_StageArray[RENDERER_TYPE_COMPUTE_3D] =
+	{
+		"Comp"
+	};
+	UBOEditors::m_StageArray[RENDERER_TYPE_RTX] =
+	{
+		"RGen",
+		"Miss",
+		"Ahit",
+		"Chit",
+		"Inter",
+	};
+}
+
+void UBOEditors::DrawPane(const std::string& vRendererType)
+{
+	ImGui::Separator();
+
+	ImGui::CheckBoxBoolDefault("Use A UBO", &m_UseUbos, true);
+
+	if (!m_UseUbos) return;
+
+	if (ImGui::ContrastedButton("Add UBO"))
+	{
+		if (UBOEditors::m_StageArray.find(vRendererType) != UBOEditors::m_StageArray.end())
+		{
+			if (!UBOEditors::m_StageArray[vRendererType].empty())
+			{
+				auto defaultStage = *m_StageArray[vRendererType].begin();
+				m_UBOEditors[defaultStage].push_back(UBOEditor());
+			}
+		}
+	}
+
+	uint32_t idx = 0U;
+	std::pair<std::string, uint32_t> _editorToMove;
+	std::pair<std::string, uint32_t> _editorToDelete;
+
+	ImGui::Indent();
+	
+	for (auto& uboEditors : m_UBOEditors)
+	{
+		idx = 0U;
+		for (auto& uboEditor : uboEditors.second)
+		{
+			ImGui::Separator();
+
+			if (ImGui::ContrastedButton("X"))
+			{
+				_editorToDelete.first = uboEditors.first;
+				_editorToDelete.second = idx;
+			}
+
+			ImGui::SameLine();
+
+			if (uboEditor.DrawStageSelection(vRendererType))
+			{
+				_editorToMove.first = uboEditors.first;
+				_editorToMove.second = idx;
+			}
+			else
+			{
+				uboEditor.DrawPane(vRendererType);
+			}
+
+			++idx;
+		}
+	}
+
+	ImGui::Unindent();
+
+	if (!_editorToMove.first.empty())
+	{
+		UBOEditor save;
+
+		if (m_UBOEditors.find(_editorToMove.first) != m_UBOEditors.end())
+		{
+			// save + deletion
+			auto& vec = m_UBOEditors[_editorToMove.first];
+			if (vec.size() > _editorToMove.second)
+			{
+				// save
+				save = vec[_editorToDelete.second];
+
+				// deletion
+				vec.erase(vec.begin() + (size_t)_editorToDelete.second);
+			}
+
+			// no more UBo's in the vector, clear the stage
+			if (m_UBOEditors.at(_editorToMove.first).size() == 0)
+			{
+				m_UBOEditors.erase(_editorToMove.first);
+			}
+
+			// move
+			if (UBOEditors::m_StageArray.find(vRendererType) != UBOEditors::m_StageArray.end())
+			{
+				if (!UBOEditors::m_StageArray[vRendererType].empty())
+				{
+					auto stage = UBOEditors::m_StageArray[vRendererType][save.m_InputStageIndex];
+					if (!stage.empty())
+					{
+						m_UBOEditors[stage].push_back(save);
+					}
+				}
+			}
+		}
+
+		// clear move situation
+		_editorToMove.first.clear();
+	}
+
+	if (!_editorToDelete.first.empty())
+	{
+		// deletion
+		if (m_UBOEditors.find(_editorToDelete.first) != m_UBOEditors.end())
+		{
+			auto& vec = m_UBOEditors[_editorToDelete.first];
+			if (vec.size() > _editorToDelete.second)
+			{
+				// deletion
+				vec.erase(vec.begin() + (size_t)_editorToDelete.second);
+			}
+		}
+
+		// clear delete situation
+		_editorToDelete.first.clear();
+	}
+	
+	ImGui::Separator();
+}
+
+std::string UBOEditors::Get_Widgets_Header()
+{
+	return "";
+}
+
+std::string UBOEditors::Get_Glsl_Header(const std::string& vStage)
+{
+	return "";
+}
+
+std::string UBOEditors::Get_Cpp_Functions_Imp()
+{
+	std::string res;
+
+	if (m_UseUbos)
+	{
+		res += u8R"(
+
+bool PASS_CLASS_NAME::CreateUBO()
+{
+	ZoneScoped;
+)";
+
+		res += Get_Create_Header();
+
+		res += u8R"(
+
+	NeedNewUBOUpload();
+
+	return true;
+})";
+
+		res += u8R"(
+
+void PASS_CLASS_NAME::UploadUBO()
+{
+	ZoneScoped;
+)";
+
+		res += Get_Upload_Header();
+
+		res += u8R"(
+})";
+
+		res += u8R"(
+
+void PASS_CLASS_NAME::DestroyUBO()
+{
+	ZoneScoped;)";
+
+		res += Get_Destroy_Header();
+
+		res += u8R"(
+})";
+	}
+
+	return res;
+}
+
+std::string UBOEditors::Get_Cpp_Functions_Header()
+{
+	std::string res;
+
+	if (m_UseUbos)
+	{
+		res = u8R"(
+	bool CreateUBO() override;
+	void UploadUBO() override;
+	void DestroyUBO() override;
+)";
+	}
+
+	return res;
+}
+
+std::string UBOEditors::Get_Cpp_Header()
+{
+	return "";
+}
+
+std::string UBOEditors::getXml(const std::string& vOffset, const std::string& vUserDatas)
+{
+	UNUSED(vUserDatas);
+
+	std::string str;
+
+	str += vOffset + "<UBOS>\n";
+
+	str += vOffset + "</UBOS>\n";
+
+	return str;
+}
+
+bool UBOEditors::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+{
+	UNUSED(vUserDatas);
+
+	// The value of this child identifies the name of this element
+	std::string strName;
+	std::string strValue;
+	std::string strParentName;
+
+	strName = vElem->Value();
+	if (vElem->GetText())
+		strValue = vElem->GetText();
+	if (vParent != 0)
+		strParentName = vParent->Value();
+
+	if (strParentName == "UBOS")
+	{
+		if (strName == "UBO")
+		{
+			/*for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
+			{
+				std::string attName = attr->Name();
+				std::string attValue = attr->Value();
+
+				if (attName == "stage")
+					m_InputStageIndex = ct::ivariant(attValue).GetI();
+			}
+
+			RecursParsingConfigChilds(vElem, vUserDatas);*/
+		}
+
+		if (strName == "UBO")
+		{
+
+			UBOEditor editor;
+			//editor.setFromXml(vElem, vParent, vUserDatas);
+			//m_UBOEditors.push_back(editor);
+		}
 	}
 
 	return false;
+}
+
+std::string UBOEditors::Get_Create_Header()
+{
+	return "";
+}
+
+std::string UBOEditors::Get_Upload_Header()
+{
+	return "";
+}
+
+std::string UBOEditors::Get_Destroy_Header()
+{
+	return "";
 }

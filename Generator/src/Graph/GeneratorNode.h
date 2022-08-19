@@ -110,7 +110,6 @@ private: // not to save
 	std::map<BaseTypeEnum, uint32_t> m_OutputSlotCounter;
 	bool m_ShowInputWidgets = false;
 	bool m_ShowOutputWidgets = false;
-	UBOEditor m_CurrentXMLEditor;
 
 public: // to save
 	// Node
@@ -131,9 +130,8 @@ public: // to save
 	// Pass
 	bool m_GenerateAPass = true;
 	std::string m_RendererTypePixel2DSpecializationType = "Quad";
-	bool m_UseAUbo = true;
 	bool m_UseASbo = false;
-	std::vector<UBOEditor> m_UBOEditors;
+	UBOEditors m_UBOEditors;
 
 public:
 	static GeneratorNodePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
