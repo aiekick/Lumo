@@ -51,18 +51,9 @@ class VignetteModule_Comp_2D_Pass :
 	public NodeInterface
 {
 private:
-	struct UBO_0_Comp {
-		alignas(4) int32_t u_A = 10;
-		alignas(4) float u_B = 20.0f;
-		alignas(4) bool u_C = false;
-	} m_UBO_0_Comp;
-	VulkanBufferObjectPtr m_UBO_0_Comp_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_0_Comp_BufferInfos;
-
 	struct UBO_1_Comp {
-		alignas(16) ct::ivec4 u_toto = ct::ivec4(1, 2, 03, 04);
-		alignas(16) ct::ivec3 u_tata = ct::ivec3(05, 02, -1);
-		alignas(8) ct::bvec2 u_titi = ct::bvec2(false, true);
+		alignas(4) float u_Width = 0.25f;
+		alignas(4) float u_Intensity = 15.0f;
 	} m_UBO_1_Comp;
 	VulkanBufferObjectPtr m_UBO_1_Comp_Ptr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_1_Comp_BufferInfos;

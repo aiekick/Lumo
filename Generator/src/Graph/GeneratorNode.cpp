@@ -2078,7 +2078,7 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 
 void PASS_CLASS_NAME::AfterNodeXmlLoading()
 {
-	// code to do after end of the wml loading of this node
+	// code to do after end of the xml loading of this node
 }
 )";
 

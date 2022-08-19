@@ -38,6 +38,7 @@
 #include <Nodes/PostPro/BlurNode.h>
 #include <Nodes/PostPro/BloomNode.h>
 #include <Nodes/PostPro/ToneMapNode.h>
+#include <Nodes/PostPro/VignetteNode.h>
 
 #include <Nodes/Preview/CubeMapPreviewNode.h>
 #include <Nodes/Preview/LongLatPeviewNode.h>
@@ -179,6 +180,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Bloom", "BLOOM"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Laplacian", "LAPLACIAN"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Tone Map", "TONE_MAP"));
+	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Vignette", "VIGNETTE"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Channels", "CHANNEL_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Deferred", "DEFERRED_RENDERER"));
@@ -232,6 +234,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "BLOOM")						return BloomNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "LAPLACIAN")					return LaplacianNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "TONE_MAP")						return ToneMapNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "VIGNETTE")						return VignetteNode::Create(vkCorePtr);
 
 	// Preview
 	else if (vPluginNodeName == "CUBE_MAP_PREVIEW")				return CubeMapPreviewNode::Create(vkCorePtr);

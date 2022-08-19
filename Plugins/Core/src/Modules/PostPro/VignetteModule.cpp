@@ -94,8 +94,8 @@ bool VignetteModule::Init()
 		if (m_VignetteModule_Comp_2D_Pass_Ptr)
 		{
 			// by default but can be changed via widget
-			//m_VignetteModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_VignetteModule_Comp_2D_Pass_Ptr->AllowResizeByHand(true);
+			m_VignetteModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			m_VignetteModule_Comp_2D_Pass_Ptr->AllowResizeByHand(true);
 
 			if (m_VignetteModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{

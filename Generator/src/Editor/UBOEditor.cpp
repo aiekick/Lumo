@@ -211,7 +211,7 @@ std::string UBOItem::Get_Glsl_Item_Header()
 	std::string type = m_TypeArray[m_InputTypeIndex];
 
 	res += ct::toStr(u8R"(
-	%s u_%s)", type.c_str(), m_InputName.GetText().c_str());
+	%s u_%s;)", type.c_str(), m_InputName.GetText().c_str());
 
 	return res;
 }

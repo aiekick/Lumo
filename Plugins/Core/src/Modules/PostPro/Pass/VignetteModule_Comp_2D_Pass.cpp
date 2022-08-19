@@ -44,7 +44,7 @@ VignetteModule_Comp_2D_Pass::VignetteModule_Comp_2D_Pass(vkApi::VulkanCorePtr vV
 {
 	SetRenderDocDebugName("Comp Pass : Vignette", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 VignetteModule_Comp_2D_Pass::~VignetteModule_Comp_2D_Pass()
@@ -73,12 +73,8 @@ bool VignetteModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 
 	//change |= DrawResizeWidget();
 
-	change |= ImGui::SliderIntDefaultCompact(0.0f, "A", &m_UBO_0_Comp.u_A, 0, 20, 10);
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "B", &m_UBO_0_Comp.u_B, 0.000f, 40.000f, 20.000f, 0.0f, "%.3f");
-	change |= ImGui::CheckBoxBoolDefault("C", &m_UBO_0_Comp.u_C, false);
-	// change |= ct::ivec4 => ("toto", &m_UBO_1_Comp.u_toto => ct::ivec4(1, 2, 03, 04));
-	// change |= ct::ivec3 => ("tata", &m_UBO_1_Comp.u_tata => ct::ivec3(05, 02, -1));
-	// change |= ct::bvec2 => ("titi", &m_UBO_1_Comp.u_titi => ct::bvec2(false, true));
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Width", &m_UBO_1_Comp.u_Width, 0.000f, 0.500f, 0.250f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &m_UBO_1_Comp.u_Intensity, 0.000f, 30.000f, 15.000f, 0.0f, "%.3f");
 	if (change)
 	{
 		NeedNewUBOUpload();
@@ -120,6 +116,8 @@ void VignetteModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::
 				if (vTextureSize)
 				{
 					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
 				}
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
@@ -184,15 +182,6 @@ bool VignetteModule_Comp_2D_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_0_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_0_Comp));
-	m_UBO_0_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_0_Comp_Ptr)
-	{
-		m_UBO_0_Comp_BufferInfos.buffer = m_UBO_0_Comp_Ptr->buffer;
-		m_UBO_0_Comp_BufferInfos.range = sizeof(UBO_0_Comp);
-		m_UBO_0_Comp_BufferInfos.offset = 0;
-	}
-
 	m_UBO_1_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_1_Comp));
 	m_UBO_1_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBO_1_Comp_Ptr)
@@ -212,8 +201,6 @@ void VignetteModule_Comp_2D_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_0_Comp_Ptr, &m_UBO_0_Comp, sizeof(UBO_0_Comp));
-
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_1_Comp_Ptr, &m_UBO_1_Comp, sizeof(UBO_1_Comp));
 
 }
@@ -221,9 +208,6 @@ void VignetteModule_Comp_2D_Pass::UploadUBO()
 void VignetteModule_Comp_2D_Pass::DestroyUBO()
 {
 	ZoneScoped;
-	m_UBO_0_Comp_Ptr.reset();
-	m_UBO_0_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-
 	m_UBO_1_Comp_Ptr.reset();
 	m_UBO_1_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
@@ -233,9 +217,9 @@ bool VignetteModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_DescriptorSets[0].m_LayoutBindings.clear();
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
 }
@@ -244,56 +228,54 @@ bool VignetteModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
+	if (m_ComputeBufferPtr)
+	{
+		m_DescriptorSets[0].m_WriteDescriptorSets.clear();
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+			m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+			m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_1_Comp_BufferInfos);
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+			m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);
 
-	assert(m_ComputeBufferPtr);
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_0_Comp_BufferInfos);
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_1_Comp_BufferInfos);
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+		return true;
+	}
 
-	
-	return true;
+	return false;
 }
 std::string VignetteModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "VignetteModule_Comp_2D_Pass_Compute";
 
-	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
+	SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
 
 	return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
 
 layout(binding = 0, rgba32f) uniform image2D colorBuffer;
 
-
-layout(std140, binding = 0) uniform UBO_0_Comp
-{
-	int u_A
-	float u_B
-	bool u_C
-};
 layout(std140, binding = 1) uniform UBO_1_Comp
 {
-	ivec4 u_toto
-	ivec3 u_tata
-	bvec2 u_titi
+	float u_Width;
+	float u_Intensity;
 };
 
-layout(binding = 1) uniform sampler2D input_mask;
+layout(binding = 2) uniform sampler2D input_mask;
 
 void main()
 {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 
-	vec4 color = vec4(coords, 0, 1);
+	vec2 uv = vec2(coords) / textureSize(input_mask, 0);
+    uv *= 1.0 - uv.yx;
+    float vignette_effect = pow(uv.x * uv.y * u_Intensity, u_Width);
 
-	imageStore(colorBuffer, coords, color); 
+	vec4 res = texelFetch(input_mask, coords, 0) * vignette_effect;
+
+	imageStore(colorBuffer, coords, res); 
 }
 )";
 		}
@@ -308,12 +290,8 @@ std::string VignetteModule_Comp_2D_Pass::getXml(const std::string& vOffset, cons
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<a>" + ct::toStr(m_UBO_0_Comp.u_A) + "</a>\n";
-	str += vOffset + "<b>" + ct::toStr(m_UBO_0_Comp.u_B) + "</b>\n";
-	str += vOffset + "<c>" + (m_UBO_0_Comp.u_C ? "true" : "false") + "</c>\n";
-	str += vOffset + "<toto>" + m_UBO_1_Comp.u_toto.string() + "</toto>\n";
-	str += vOffset + "<tata>" + m_UBO_1_Comp.u_tata.string() + "</tata>\n";
-	str += vOffset + "<titi>" + m_UBO_1_Comp.u_titi.string() + "</titi>\n";
+	str += vOffset + "<width>" + ct::toStr(m_UBO_1_Comp.u_Width) + "</width>\n";
+	str += vOffset + "<intensity>" + ct::toStr(m_UBO_1_Comp.u_Intensity) + "</intensity>\n";
 	return str;
 }
 
@@ -336,19 +314,10 @@ bool VignetteModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxm
 
 	if (strParentName == "vignette_module")
 	{
-
-		if (strName == "a")
-			m_UBO_0_Comp.u_A = ct::ivariant(strValue).GetI();
-		else if (strName == "b")
-			m_UBO_0_Comp.u_B = ct::fvariant(strValue).GetF();
-		else if (strName == "c")
-			m_UBO_0_Comp.u_C = ct::ivariant(strValue).GetB();
-		else if (strName == "toto")
-			m_UBO_1_Comp.u_toto = ct::fvariant(strValue).GetV4();
-		else if (strName == "tata")
-			m_UBO_1_Comp.u_tata = ct::fvariant(strValue).GetV3();
-		else if (strName == "titi")
-			m_UBO_1_Comp.u_titi = ct::fvariant(strValue).GetV2();
+		if (strName == "width")
+			m_UBO_1_Comp.u_Width = ct::fvariant(strValue).GetF();
+		else if (strName == "intensity")
+			m_UBO_1_Comp.u_Intensity = ct::fvariant(strValue).GetF();
 	}
 
 	return true;
@@ -356,5 +325,5 @@ bool VignetteModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxm
 
 void VignetteModule_Comp_2D_Pass::AfterNodeXmlLoading()
 {
-	// code to do after end of the wml loading of this node
+	// code to do after end of the xml loading of this node
 }
