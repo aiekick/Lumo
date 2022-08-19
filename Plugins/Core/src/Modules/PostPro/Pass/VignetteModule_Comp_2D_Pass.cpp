@@ -73,18 +73,17 @@ bool VignetteModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 
 	//change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "power", &m_UBOComp.u_power, 0.000f, 0.500f, 0.250f, 0.0f, "%.3f");
-	change |= ImGui::SliderUIntDefaultCompact(0.0f, "shape", &m_UBOComp.u_shape, 0U, 0U, 0U);
+	change |= ImGui::SliderIntDefaultCompact(0.0f, "A", &m_UBO_0_Comp.u_A, 0, 20, 10);
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "B", &m_UBO_0_Comp.u_B, 0.000f, 40.000f, 20.000f, 0.0f, "%.3f");
+	change |= ImGui::CheckBoxBoolDefault("C", &m_UBO_0_Comp.u_C, false);
+	// change |= ct::ivec4 => ("toto", &m_UBO_1_Comp.u_toto => ct::ivec4(1, 2, 03, 04));
+	// change |= ct::ivec3 => ("tata", &m_UBO_1_Comp.u_tata => ct::ivec3(05, 02, -1));
+	// change |= ct::bvec2 => ("titi", &m_UBO_1_Comp.u_titi => ct::bvec2(false, true));
 	if (change)
 	{
 		NeedNewUBOUpload();
 	}
 
-	if (change)
-	{
-		//NeedNewUBOUpload();
-		//NeedNewSBOUpload();
-	}
 
 	return change;
 }
@@ -185,13 +184,22 @@ bool VignetteModule_Comp_2D_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOComp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBOComp_Ptr)
+	m_UBO_0_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_0_Comp));
+	m_UBO_0_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	if (m_UBO_0_Comp_Ptr)
 	{
-		m_UBO_Comp_BufferInfos.buffer = m_UBOComp_Ptr->buffer;
-		m_UBO_Comp_BufferInfos.range = sizeof(UBOComp);
-		m_UBO_Comp_BufferInfos.offset = 0;
+		m_UBO_0_Comp_BufferInfos.buffer = m_UBO_0_Comp_Ptr->buffer;
+		m_UBO_0_Comp_BufferInfos.range = sizeof(UBO_0_Comp);
+		m_UBO_0_Comp_BufferInfos.offset = 0;
+	}
+
+	m_UBO_1_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_1_Comp));
+	m_UBO_1_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	if (m_UBO_1_Comp_Ptr)
+	{
+		m_UBO_1_Comp_BufferInfos.buffer = m_UBO_1_Comp_Ptr->buffer;
+		m_UBO_1_Comp_BufferInfos.range = sizeof(UBO_1_Comp);
+		m_UBO_1_Comp_BufferInfos.offset = 0;
 	}
 
 
@@ -204,15 +212,20 @@ void VignetteModule_Comp_2D_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOComp_Ptr, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_0_Comp_Ptr, &m_UBO_0_Comp, sizeof(UBO_0_Comp));
+
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_1_Comp_Ptr, &m_UBO_1_Comp, sizeof(UBO_1_Comp));
 
 }
 
 void VignetteModule_Comp_2D_Pass::DestroyUBO()
 {
 	ZoneScoped;
-	m_UBOComp_Ptr.reset();
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	m_UBO_0_Comp_Ptr.reset();
+	m_UBO_0_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+
+	m_UBO_1_Comp_Ptr.reset();
+	m_UBO_1_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 }
 bool VignetteModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -220,6 +233,8 @@ bool VignetteModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	m_DescriptorSets[0].m_LayoutBindings.clear();
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
 	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
 
 	return true;
@@ -232,8 +247,12 @@ bool VignetteModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
 
 	assert(m_ComputeBufferPtr);
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, 
-		m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_0_Comp_BufferInfos);
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+		m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_1_Comp_BufferInfos);
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
 
 	
 	return true;
@@ -252,10 +271,18 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 layout(binding = 0, rgba32f) uniform image2D colorBuffer;
 
-layout(std140, binding = 0) uniform UBO_Comp
+
+layout(std140, binding = 0) uniform UBO_0_Comp
 {
-	float mouse_radius;
-	ivec2 image_size;
+	int u_A
+	float u_B
+	bool u_C
+};
+layout(std140, binding = 1) uniform UBO_1_Comp
+{
+	ivec4 u_toto
+	ivec3 u_tata
+	bvec2 u_titi
 };
 
 layout(binding = 1) uniform sampler2D input_mask;
@@ -280,8 +307,13 @@ std::string VignetteModule_Comp_2D_Pass::getXml(const std::string& vOffset, cons
 	std::string str;
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
-	//str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
-	
+
+	str += vOffset + "<a>" + ct::toStr(m_UBO_0_Comp.u_A) + "</a>\n";
+	str += vOffset + "<b>" + ct::toStr(m_UBO_0_Comp.u_B) + "</b>\n";
+	str += vOffset + "<c>" + (m_UBO_0_Comp.u_C ? "true" : "false") + "</c>\n";
+	str += vOffset + "<toto>" + m_UBO_1_Comp.u_toto.string() + "</toto>\n";
+	str += vOffset + "<tata>" + m_UBO_1_Comp.u_tata.string() + "</tata>\n";
+	str += vOffset + "<titi>" + m_UBO_1_Comp.u_titi.string() + "</titi>\n";
 	return str;
 }
 
@@ -304,8 +336,19 @@ bool VignetteModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxm
 
 	if (strParentName == "vignette_module")
 	{
-		//if (strName == "mouse_radius")
-		//	m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
+
+		if (strName == "a")
+			m_UBO_0_Comp.u_A = ct::ivariant(strValue).GetI();
+		else if (strName == "b")
+			m_UBO_0_Comp.u_B = ct::fvariant(strValue).GetF();
+		else if (strName == "c")
+			m_UBO_0_Comp.u_C = ct::ivariant(strValue).GetB();
+		else if (strName == "toto")
+			m_UBO_1_Comp.u_toto = ct::fvariant(strValue).GetV4();
+		else if (strName == "tata")
+			m_UBO_1_Comp.u_tata = ct::fvariant(strValue).GetV3();
+		else if (strName == "titi")
+			m_UBO_1_Comp.u_titi = ct::fvariant(strValue).GetV2();
 	}
 
 	return true;

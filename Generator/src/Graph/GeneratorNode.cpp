@@ -250,6 +250,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 
 			return false;
 		}
+
+		return false;
 	}
 	else if (strParentName == "links")
 	{
@@ -465,7 +467,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 	}
 	else if (strParentName == "UBOS")
 	{
-		m_UBOEditors.setFromXml(vElem, vParent, vUserDatas);
+		m_UBOEditors.setFromXml(vElem, vParent, m_RendererType);
 	}
 
 	return true;
@@ -1933,11 +1935,6 @@ bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	cpp_pass_file_code += m_UBOEditors.Get_Widgets_Header();
 
 	cpp_pass_file_code += u8R"(
-	if (change)
-	{
-		//NeedNewUBOUpload();
-		//NeedNewSBOUpload();
-	}
 
 	return change;
 }
@@ -2044,8 +2041,10 @@ std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::strin
 	std::string str;
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
-	//str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
+)";
+	cpp_pass_file_code += m_UBOEditors.Get_Cpp_GetXML();
 	
+	cpp_pass_file_code += u8R"(
 	return str;
 }
 
@@ -2068,8 +2067,10 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 
 	if (strParentName == "MODULE_XML_NAME")
 	{
-		//if (strName == "mouse_radius")
-		//	m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
+)";
+	cpp_pass_file_code += m_UBOEditors.Get_Cpp_SetXML();
+
+	cpp_pass_file_code += u8R"(
 	}
 
 	return true;
@@ -2482,6 +2483,8 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
 {
 	std::string res;
 
+	res += m_UBOEditors.Get_Cpp_LayoutBindings();
+
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
 		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
@@ -2513,16 +2516,11 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{
 		res += u8R"(
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, 
-		vk::ShaderStageFlagBits::eRaygenKHR); // output
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eAccelerationStructureKHR, 1, 
-		vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, 
-		vk::ShaderStageFlagBits::eRaygenKHR); // camera
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1,
-		vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, 
-		vk::ShaderStageFlagBits::eClosestHitKHR);)";
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eRaygenKHR); // output
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eAccelerationStructureKHR, 1, vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eRaygenKHR); // camera
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eClosestHitKHR);)";
 	}
 
 	return res;
@@ -2531,6 +2529,8 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
 std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 {
 	std::string res;
+
+	res += m_UBOEditors.Get_Cpp_WriteDescriptors();
 
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
@@ -2554,8 +2554,8 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 	{
 		res += u8R"(
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, 
-		m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
 )";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
@@ -2570,17 +2570,17 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 		accelStructurePtr->GetTLASInfo() && 
 		accelStructurePtr->GetBufferAddressInfo())
 	{
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
-			m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+			m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
 		// The acceleration structure descriptor has to be chained via pNext
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR,
-			nullptr, nullptr, nullptr, accelStructurePtr->GetTLASInfo()); // accel struct
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer,
-			nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, accelStructurePtr->GetBufferAddressInfo()); // model device address
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, 
-			nullptr, m_SceneLightGroupDescriptorInfoPtr);
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+			m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR, nullptr, nullptr, nullptr, accelStructurePtr->GetTLASInfo()); // accel struct
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+			m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+			m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, accelStructurePtr->GetBufferAddressInfo()); // model device address
+		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+			m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
 
 		return true; // pas de maj si pas de structure acceleratrice
 	})";
