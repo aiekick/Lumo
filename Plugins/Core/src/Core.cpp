@@ -51,8 +51,7 @@
 #include <Nodes/Renderers/DeferredRendererNode.h>
 #include <Nodes/Renderers/PBRRendererNode.h>
 #include <Nodes/Renderers/BillBoardRendererNode.h>
-#include <Nodes/Renderers/CurveRendererNode.h>
-#include <Nodes/Renderers/PointRendererNode.h>
+#include <Nodes/Renderers/ModelRendererNode.h>
 
 #include <Nodes/Simulation/GrayScottNode.h>
 
@@ -195,8 +194,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Matcap", "MATCAP_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "PBR", "PBR_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Billboard", "BILLBOARD_RENDERER"));
-	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Curves", "CURVE_RENDERER"));
-	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Point", "POINT_RENDERER"));
+	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Model", "MODEL_RENDERER"));
 
 	res.push_back(AddLibraryEntry("Core/2D/Simulation", "GrayScott", "2D_SIMULATION_GRAY_SCOTT"));
 
@@ -260,8 +258,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "MATCAP_RENDERER")				return MatcapRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "PBR_RENDERER")					return PBRRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "BILLBOARD_RENDERER")			return BillBoardRendererNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "CURVE_RENDERER")				return CurveRendererNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "POINT_RENDERER")				return PointRendererNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "MODEL_RENDERER")				return ModelRendererNode::Create(vkCorePtr);
 
 	// Simulations
 	else if (vPluginNodeName == "2D_SIMULATION_GRAY_SCOTT")		return GrayScottNode::Create(vkCorePtr);

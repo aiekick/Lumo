@@ -46,7 +46,7 @@ GridModule_Vertex_Pass::~GridModule_Vertex_Pass()
 
 void GridModule_Vertex_Pass::ActionBeforeInit()
 {
-	m_PrimitiveTopology = vk::PrimitiveTopology::eLineList;
+	SetPrimitveTopology(vk::PrimitiveTopology::eLineList);
 	m_LineWidth.x = 0.5f;	// min value
 	m_LineWidth.y = 10.0f;	// max value
 	m_LineWidth.z = 2.0f;	// default value

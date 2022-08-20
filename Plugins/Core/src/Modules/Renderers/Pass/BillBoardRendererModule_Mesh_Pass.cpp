@@ -62,7 +62,7 @@ void BillBoardRendererModule_Mesh_Pass::ActionBeforeInit()
 
 	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
-	m_PrimitiveTopology = vk::PrimitiveTopology::eTriangleList; // display Triangles
+	SetPrimitveTopology(vk::PrimitiveTopology::eLineList);
 	m_LineWidth.x = 0.5f;	// min value
 	m_LineWidth.y = 10.0f;	// max value
 	m_LineWidth.z = 2.0f;	// default value

@@ -77,7 +77,9 @@ void ChannelRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const i
 		{
 			VKFPScoped(*vCmdBuffer, "MatcapRenderer", "DrawModel");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, 
+				m_Pipelines[0].m_PipelineLayout, 0, 
+				m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 			for (auto meshPtr : *modelPtr)
 			{

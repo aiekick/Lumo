@@ -50,7 +50,7 @@ ParticlesPointRenderer_Mesh_Pass::~ParticlesPointRenderer_Mesh_Pass()
 
 void ParticlesPointRenderer_Mesh_Pass::ActionBeforeInit()
 {
-	m_PrimitiveTopology = vk::PrimitiveTopology::ePointList;
+	SetPrimitveTopology(vk::PrimitiveTopology::ePointList);
 }
 
 //////////////////////////////////////////////////////////////
