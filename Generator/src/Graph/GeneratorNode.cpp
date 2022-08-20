@@ -2026,9 +2026,7 @@ bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
-
-	assert(m_ComputeBufferPtr);)";
+	m_DescriptorSets[0].m_WriteDescriptorSets.clear();)";
 
 	cpp_pass_file_code += GetPassUpdateBufferInfoInRessourceDescriptorHeader();
 	cpp_pass_file_code += u8R"(
