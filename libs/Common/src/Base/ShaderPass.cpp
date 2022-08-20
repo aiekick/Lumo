@@ -1739,30 +1739,35 @@ bool ShaderPass::DrawResizeWidget()
 {
 	bool resize = false;
 
-	ImGui::Header("Buffers resize");
-
-	ImGui::CheckBoxBoolDefault("Auto Resize by 3D viewport", &m_ResizingByResizeEventIsAllowed, true);
-	ImGui::CheckBoxBoolDefault("Resize by Hand", &m_ResizingByHandIsAllowed, true);
-
-	if (m_ResizingByHandIsAllowed)
+	if (ImGui::CollapsingHeader("Resizing"))
 	{
-		const float aw = ImGui::GetContentRegionAvail().x;
+		ImGui::Indent();
 
-		if (ImGui::SliderFloatDefaultCompact(aw, "Quality (smaller value is better)", &m_BufferQuality, 0.5f, 4.0f, 1.0f, 0.25f))
+		ImGui::CheckBoxBoolDefault("Auto Resize by 3D viewport", &m_ResizingByResizeEventIsAllowed, true);
+		ImGui::CheckBoxBoolDefault("Resize by Hand", &m_ResizingByHandIsAllowed, true);
+
+		if (m_ResizingByHandIsAllowed)
 		{
-			m_BufferQuality = ct::clamp(m_BufferQuality, 0.25f, 4.0f);
-			resize = true;
+			const float aw = ImGui::GetContentRegionAvail().x;
+
+			if (ImGui::SliderFloatDefaultCompact(aw, "Quality (smaller value is better)", &m_BufferQuality, 0.5f, 4.0f, 1.0f, 0.25f))
+			{
+				m_BufferQuality = ct::clamp(m_BufferQuality, 0.25f, 4.0f);
+				resize = true;
+			}
+
+			ct::uvec2 size = m_OutputSize;
+			resize |= ImGui::SliderUIntDefaultCompact(aw, "Width", &size.x, 1U, 2048U, 512U);
+			resize |= ImGui::SliderUIntDefaultCompact(aw, "Height", &size.y, 1U, 2048U, 512U);
+			if (resize)
+			{
+				ct::fvec2 new_quality_size = ct::clamp(ct::fvec2(size) / m_BufferQuality, 1.0f, 4096.0f); // 2048 / 0.5 => 4096
+				ct::ivec2 new_size = ct::clamp(ct::ivec2(new_quality_size), 1, 2048);
+				NeedResizeByHand(&new_size);
+			}
 		}
-		
-		ct::uvec2 size = m_OutputSize;
-		resize |= ImGui::SliderUIntDefaultCompact(aw, "Width", &size.x, 1U, 2048U, 512U);
-		resize |= ImGui::SliderUIntDefaultCompact(aw, "Height", &size.y, 1U, 2048U, 512U);
-		if (resize)
-		{
-			ct::fvec2 new_quality_size = ct::clamp(ct::fvec2(size) / m_BufferQuality, 1.0f, 4096.0f); // 2048 / 0.5 => 4096
-			ct::ivec2 new_size = ct::clamp(ct::ivec2(new_quality_size), 1, 2048);
-			NeedResizeByHand(&new_size);
-		}
+
+		ImGui::Unindent();
 	}
 
 	return resize;
