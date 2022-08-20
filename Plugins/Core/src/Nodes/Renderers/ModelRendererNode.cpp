@@ -17,8 +17,8 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "PointRendererNode.h"
-#include <Modules/Renderers/PointRendererModule.h>
+#include "ModelRendererNode.h"
+#include <Modules/Renderers/ModelRendererModule.h>
 #include <Graph/Slots/NodeSlotModelInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 
@@ -26,27 +26,28 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<PointRendererNode> PointRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ModelRendererNode> ModelRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<PointRendererNode>();
+	auto res = std::make_shared<ModelRendererNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
 		res.reset();
 	}
+
 	return res;
 }
 
-PointRendererNode::PointRendererNode() : BaseNode()
+ModelRendererNode::ModelRendererNode() : BaseNode()
 {
 	ZoneScoped;
 
-	m_NodeTypeString = "POINT_RENDERER";
+	m_NodeTypeString = "MODEL_RENDERER";
 }
 
-PointRendererNode::~PointRendererNode()
+ModelRendererNode::~ModelRendererNode()
 {
 	ZoneScoped;
 
@@ -57,19 +58,19 @@ PointRendererNode::~PointRendererNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PointRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ModelRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	name = "Point Renderer";
+	name = "Model Renderer";
 	AddInput(NodeSlotModelInput::Create("Mesh"), false, false);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_PointRendererModulePtr = PointRendererModule::Create(vVulkanCorePtr, m_This);
-	if (m_PointRendererModulePtr)
+	m_ModelRendererModulePtr = ModelRendererModule::Create(vVulkanCorePtr, m_This);
+	if (m_ModelRendererModulePtr)
 	{
 		res = true;
 	}
@@ -81,7 +82,7 @@ bool PointRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PointRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ModelRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -89,9 +90,9 @@ bool PointRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
-	if (m_PointRendererModulePtr)
+	if (m_ModelRendererModulePtr)
 	{
-		res = m_PointRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_ModelRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return res;
@@ -100,7 +101,7 @@ bool PointRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PointRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ModelRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -109,24 +110,24 @@ bool PointRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	if (m_PointRendererModulePtr)
+	if (m_ModelRendererModulePtr)
 	{
-		res = m_PointRendererModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_ModelRendererModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return res;
 }
 
-void PointRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ModelRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	if (m_PointRendererModulePtr)
+	if (m_ModelRendererModulePtr)
 	{
-		m_PointRendererModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_ModelRendererModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
@@ -134,7 +135,7 @@ void PointRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PointRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void ModelRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -157,12 +158,13 @@ void PointRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PointRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ModelRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
-	if (m_PointRendererModulePtr)
+
+	if (m_ModelRendererModulePtr)
 	{
-		m_PointRendererModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+		m_ModelRendererModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
@@ -173,12 +175,13 @@ void PointRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint3
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PointRendererNode::SetModel(SceneModelWeak vSceneModel)
+void ModelRendererNode::SetModel(SceneModelWeak vSceneModel)
 {	
 	ZoneScoped;
-	if (m_PointRendererModulePtr)
+
+	if (m_ModelRendererModulePtr)
 	{
-		m_PointRendererModulePtr->SetModel(vSceneModel);
+		m_ModelRendererModulePtr->SetModel(vSceneModel);
 	}
 }
 
@@ -186,12 +189,13 @@ void PointRendererNode::SetModel(SceneModelWeak vSceneModel)
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* PointRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* ModelRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
-	if (m_PointRendererModulePtr)
+
+	if (m_ModelRendererModulePtr)
 	{
-		return m_PointRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ModelRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -201,7 +205,7 @@ vk::DescriptorImageInfo* PointRendererNode::GetDescriptorImageInfo(const uint32_
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string PointRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string ModelRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -229,9 +233,9 @@ std::string PointRendererNode::getXml(const std::string& vOffset, const std::str
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_PointRendererModulePtr)
+		if (m_ModelRendererModulePtr)
 		{
-			res += m_PointRendererModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_ModelRendererModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -240,7 +244,7 @@ std::string PointRendererNode::getXml(const std::string& vOffset, const std::str
 	return res;
 }
 
-bool PointRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool ModelRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -257,20 +261,22 @@ bool PointRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_PointRendererModulePtr)
+	if (m_ModelRendererModulePtr)
 	{
-		m_PointRendererModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_ModelRendererModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	// continue recurse child exploring
 	return true;
 }
 
-void PointRendererNode::AfterNodeXmlLoading()
+void ModelRendererNode::AfterNodeXmlLoading()
 {
-	if (m_PointRendererModulePtr)
+	ZoneScoped;
+
+	if (m_ModelRendererModulePtr)
 	{
-		m_PointRendererModulePtr->AfterNodeXmlLoading();
+		m_ModelRendererModulePtr->AfterNodeXmlLoading();
 	}
 }
 
@@ -278,11 +284,12 @@ void PointRendererNode::AfterNodeXmlLoading()
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PointRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
+void ModelRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
 {	
 	ZoneScoped;
-	if (m_PointRendererModulePtr)
+
+	if (m_ModelRendererModulePtr)
 	{
-		m_PointRendererModulePtr->UpdateShaders(vFiles);
+		m_ModelRendererModulePtr->UpdateShaders(vFiles);
 	}
 }

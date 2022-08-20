@@ -53,6 +53,7 @@ std::shared_ptr<BillBoardRendererModule> BillBoardRendererModule::Create(vkApi::
 	{
 		res.reset();
 	}
+
 	return res;
 }
 
@@ -82,7 +83,6 @@ bool BillBoardRendererModule::Init()
 	ZoneScoped;
 
 	m_Loaded = false;
-
 
 	ct::uvec2 map_size = 512;
 
@@ -130,6 +130,7 @@ bool BillBoardRendererModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, v
 
 	return true;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +155,6 @@ bool BillBoardRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 
 			return change;
 		}
-
 	}
 
 	return false;
@@ -171,7 +171,6 @@ void BillBoardRendererModule::DrawOverlays(const uint32_t& vCurrentFrame, const 
 	{
 
 	}
-
 }
 
 void BillBoardRendererModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
@@ -185,7 +184,6 @@ void BillBoardRendererModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFr
 	{
 
 	}
-
 }
 
 void BillBoardRendererModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
@@ -204,6 +202,7 @@ void BillBoardRendererModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const
 void BillBoardRendererModule::SetModel(SceneModelWeak vSceneModel)
 {	
 	ZoneScoped;
+
 	if (m_BillBoardRendererModule_Mesh_Pass_Ptr)
 	{
 		m_BillBoardRendererModule_Mesh_Pass_Ptr->SetModel(vSceneModel);
@@ -217,6 +216,7 @@ void BillBoardRendererModule::SetModel(SceneModelWeak vSceneModel)
 void BillBoardRendererModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
+
 	if (m_BillBoardRendererModule_Mesh_Pass_Ptr)
 	{
 		m_BillBoardRendererModule_Mesh_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
@@ -230,6 +230,7 @@ void BillBoardRendererModule::SetTexture(const uint32_t& vBindingPoint, vk::Desc
 vk::DescriptorImageInfo* BillBoardRendererModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
+
 	if (m_BillBoardRendererModule_Mesh_Pass_Ptr)
 	{
 		return m_BillBoardRendererModule_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
@@ -282,11 +283,10 @@ bool BillBoardRendererModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 
-	if (m_BillBoardRendererModule_Mesh_Pass_Ptr)
-	{
-		m_BillBoardRendererModule_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
-
+		if (m_BillBoardRendererModule_Mesh_Pass_Ptr)
+		{
+			m_BillBoardRendererModule_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		}
 	}
 
 	return true;
@@ -294,6 +294,8 @@ bool BillBoardRendererModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 
 void BillBoardRendererModule::AfterNodeXmlLoading()
 {
+	ZoneScoped;
+
 	if (m_BillBoardRendererModule_Mesh_Pass_Ptr)
 	{
 		m_BillBoardRendererModule_Mesh_Pass_Ptr->AfterNodeXmlLoading();

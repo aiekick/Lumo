@@ -14,6 +14,7 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
+
 #pragma once
 
 #include <set>
@@ -27,7 +28,8 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/MeshShaderPass.h>
+#include <Base/QuadShaderPass.h>
+
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -40,35 +42,45 @@ limitations under the License.
 
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/NodeInterface.h>
+#include <Interfaces/TaskInterface.h>
+#include <Interfaces/NodeInterface.h>
+#include <Interfaces/ResizerInterface.h>
+
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-class PointRendererModule_Mesh_Pass :
-	public MeshShaderPass<VertexStruct::P3_N3_TA3_BTA3_T2_C4>,
+class ModelRendererModule_Mesh_Pass;
+class ModelRendererModule :
+	public NodeInterface,
+	public BaseRenderer,
+	public ResizerInterface,
+	public TaskInterface,
 	public ModelInputInterface,
 	public TextureOutputInterface,
-	public GuiInterface,
-	public NodeInterface
+	public GuiInterface
 {
-private:
-	struct UBO_0_Vert {
-		alignas(4) float u_point_size = 1.0f;
-	} m_UBO_0_Vert;
-	VulkanBufferObjectPtr m_UBO_0_Vert_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_0_Vert_BufferInfos;
+public:
+	static std::shared_ptr<ModelRendererModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
+private:
+	ct::cWeak<ModelRendererModule> m_This;
+
+	std::shared_ptr<ModelRendererModule_Mesh_Pass> m_ModelRendererModule_Mesh_Pass_Ptr = nullptr;
 
 public:
-	PointRendererModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~PointRendererModule_Mesh_Pass() override;
+	ModelRendererModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~ModelRendererModule() override;
 
-	void ActionBeforeInit() override;
-	void WasJustResized() override;
+	bool Init();
 
-	void DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber) override;
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 
 	// Interfaces Setters
 	void SetModel(SceneModelWeak vSceneModel) override;
@@ -76,19 +88,7 @@ public:
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	void AfterNodeXmlLoading() override;
-
-protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
-
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
-
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 };

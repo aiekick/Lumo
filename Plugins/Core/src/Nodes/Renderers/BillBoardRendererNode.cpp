@@ -37,6 +37,7 @@ std::shared_ptr<BillBoardRendererNode> BillBoardRendererNode::Create(vkApi::Vulk
 	{
 		res.reset();
 	}
+
 	return res;
 }
 
@@ -164,6 +165,7 @@ void BillBoardRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeS
 void BillBoardRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
+
 	if (m_BillBoardRendererModulePtr)
 	{
 		m_BillBoardRendererModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
@@ -180,6 +182,7 @@ void BillBoardRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const u
 void BillBoardRendererNode::SetModel(SceneModelWeak vSceneModel)
 {	
 	ZoneScoped;
+
 	if (m_BillBoardRendererModulePtr)
 	{
 		m_BillBoardRendererModulePtr->SetModel(vSceneModel);
@@ -193,6 +196,7 @@ void BillBoardRendererNode::SetModel(SceneModelWeak vSceneModel)
 void BillBoardRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
+
 	if (m_BillBoardRendererModulePtr)
 	{
 		m_BillBoardRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
@@ -206,6 +210,7 @@ void BillBoardRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::Descri
 vk::DescriptorImageInfo* BillBoardRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
+
 	if (m_BillBoardRendererModulePtr)
 	{
 		return m_BillBoardRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
@@ -285,6 +290,8 @@ bool BillBoardRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XM
 
 void BillBoardRendererNode::AfterNodeXmlLoading()
 {
+	ZoneScoped;
+
 	if (m_BillBoardRendererModulePtr)
 	{
 		m_BillBoardRendererModulePtr->AfterNodeXmlLoading();
@@ -298,6 +305,7 @@ void BillBoardRendererNode::AfterNodeXmlLoading()
 void BillBoardRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
 {	
 	ZoneScoped;
+
 	if (m_BillBoardRendererModulePtr)
 	{
 		m_BillBoardRendererModulePtr->UpdateShaders(vFiles);

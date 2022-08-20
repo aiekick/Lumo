@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "CurveRendererModule.h"
+#include "ModelRendererModule.h"
 
 #include <cinttypes>
 #include <functional>
@@ -33,7 +33,7 @@ limitations under the License.
 #include <utils/Mesh/VertexStruct.h>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/Renderers/Pass/CurveRendererModule_Mesh_Pass.h>
+#include <Modules/Renderers/Pass/ModelRendererModule_Mesh_Pass.h>
 
 using namespace vkApi;
 
@@ -41,18 +41,19 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<CurveRendererModule> CurveRendererModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<ModelRendererModule> ModelRendererModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<CurveRendererModule>(vVulkanCorePtr);
+	auto res = std::make_shared<ModelRendererModule>(vVulkanCorePtr);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
 	{
 		res.reset();
 	}
+
 	return res;
 }
 
@@ -60,13 +61,13 @@ std::shared_ptr<CurveRendererModule> CurveRendererModule::Create(vkApi::VulkanCo
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CurveRendererModule::CurveRendererModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+ModelRendererModule::ModelRendererModule(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
 }
 
-CurveRendererModule::~CurveRendererModule()
+ModelRendererModule::~ModelRendererModule()
 {
 	ZoneScoped;
 
@@ -77,12 +78,11 @@ CurveRendererModule::~CurveRendererModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool CurveRendererModule::Init()
+bool ModelRendererModule::Init()
 {
 	ZoneScoped;
 
 	m_Loaded = false;
-
 
 	ct::uvec2 map_size = 512;
 
@@ -90,17 +90,17 @@ bool CurveRendererModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_CurveRendererModule_Mesh_Pass_Ptr = std::make_shared<CurveRendererModule_Mesh_Pass>(m_VulkanCorePtr);
-		if (m_CurveRendererModule_Mesh_Pass_Ptr)
+		m_ModelRendererModule_Mesh_Pass_Ptr = std::make_shared<ModelRendererModule_Mesh_Pass>(m_VulkanCorePtr);
+		if (m_ModelRendererModule_Mesh_Pass_Ptr)
 		{
 			// by default but can be changed via widget
-			//m_CurveRendererModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_CurveRendererModule_Mesh_Pass_Ptr->AllowResizeByHand(true);
+			//m_ModelRendererModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			//m_ModelRendererModule_Mesh_Pass_Ptr->AllowResizeByHand(true);
 
-			if (m_CurveRendererModule_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
+			if (m_ModelRendererModule_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_CurveRendererModule_Mesh_Pass_Ptr);
+				AddGenericPass(m_ModelRendererModule_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -113,28 +113,29 @@ bool CurveRendererModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool CurveRendererModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ModelRendererModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Curve Renderer", vCmd);
+	BaseRenderer::Render("Model Renderer", vCmd);
 
 	return true;
 }
 
-bool CurveRendererModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ModelRendererModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Curve Renderer", vCmd);
+	BaseRenderer::Render("Model Renderer", vCmd);
 
 	return true;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CurveRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ModelRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -143,24 +144,23 @@ bool CurveRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("Curve Renderer##CurveRendererModule", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("Model Renderer##ModelRendererModule", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 
-			if (m_CurveRendererModule_Mesh_Pass_Ptr)
+			if (m_ModelRendererModule_Mesh_Pass_Ptr)
 			{
-				change |= m_CurveRendererModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_ModelRendererModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 
 			return change;
 		}
-
 	}
 
 	return false;
 }
 
-void CurveRendererModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void ModelRendererModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -171,10 +171,9 @@ void CurveRendererModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::
 	{
 
 	}
-
 }
 
-void CurveRendererModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ModelRendererModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -185,10 +184,9 @@ void CurveRendererModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame,
 	{
 
 	}
-
 }
 
-void CurveRendererModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ModelRendererModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
 
@@ -201,12 +199,13 @@ void CurveRendererModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uin
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CurveRendererModule::SetModel(SceneModelWeak vSceneModel)
+void ModelRendererModule::SetModel(SceneModelWeak vSceneModel)
 {	
 	ZoneScoped;
-	if (m_CurveRendererModule_Mesh_Pass_Ptr)
+
+	if (m_ModelRendererModule_Mesh_Pass_Ptr)
 	{
-		m_CurveRendererModule_Mesh_Pass_Ptr->SetModel(vSceneModel);
+		m_ModelRendererModule_Mesh_Pass_Ptr->SetModel(vSceneModel);
 	}
 }
 
@@ -214,12 +213,13 @@ void CurveRendererModule::SetModel(SceneModelWeak vSceneModel)
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* CurveRendererModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* ModelRendererModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
-	if (m_CurveRendererModule_Mesh_Pass_Ptr)
+
+	if (m_ModelRendererModule_Mesh_Pass_Ptr)
 	{
-		return m_CurveRendererModule_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ModelRendererModule_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -229,27 +229,27 @@ vk::DescriptorImageInfo* CurveRendererModule::GetDescriptorImageInfo(const uint3
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CurveRendererModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string ModelRendererModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	std::string str;
 
-	str += vOffset + "<curve_renderer_module>\n";
+	str += vOffset + "<model_renderer_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_CurveRendererModule_Mesh_Pass_Ptr)
+	if (m_ModelRendererModule_Mesh_Pass_Ptr)
 	{
-		str += m_CurveRendererModule_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_ModelRendererModule_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</curve_renderer_module>\n";
+	str += vOffset + "</model_renderer_module>\n";
 
 	return str;
 }
 
-bool CurveRendererModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool ModelRendererModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -264,25 +264,26 @@ bool CurveRendererModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "curve_renderer_module")
+	if (strParentName == "model_renderer_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 
-	if (m_CurveRendererModule_Mesh_Pass_Ptr)
-	{
-		m_CurveRendererModule_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
-
+		if (m_ModelRendererModule_Mesh_Pass_Ptr)
+		{
+			m_ModelRendererModule_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		}
 	}
 
 	return true;
 }
 
-void CurveRendererModule::AfterNodeXmlLoading()
+void ModelRendererModule::AfterNodeXmlLoading()
 {
-	if (m_CurveRendererModule_Mesh_Pass_Ptr)
+	ZoneScoped;
+
+	if (m_ModelRendererModule_Mesh_Pass_Ptr)
 	{
-		m_CurveRendererModule_Mesh_Pass_Ptr->AfterNodeXmlLoading();
+		m_ModelRendererModule_Mesh_Pass_Ptr->AfterNodeXmlLoading();
 	}
 }

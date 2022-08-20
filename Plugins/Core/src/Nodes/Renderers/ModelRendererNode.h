@@ -20,22 +20,22 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
-class PointRendererModule;
-class PointRendererNode :
+class ModelRendererModule;
+class ModelRendererNode :
 	public ModelInputInterface,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface,
 	public BaseNode
 {
 public:
-	static std::shared_ptr<PointRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ModelRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<PointRendererModule> m_PointRendererModulePtr = nullptr;
+	std::shared_ptr<ModelRendererModule> m_ModelRendererModulePtr = nullptr;
 
 public:
-	PointRendererNode();
-	~PointRendererNode() override;
+	ModelRendererNode();
+	~ModelRendererNode() override;
 
 	// Init / Unit
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;

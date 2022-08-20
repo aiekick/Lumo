@@ -53,17 +53,17 @@ class BillBoardRendererModule_Mesh_Pass :
 	public NodeInterface
 {
 private:
-	struct UBO_0_Frag {
+	struct UBO_Frag {
 		alignas(4) float u_alpha_power = 1.0f;
-	} m_UBO_0_Frag;
-	VulkanBufferObjectPtr m_UBO_0_Frag_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_0_Frag_BufferInfos;
+	} m_UBO_Frag;
+	VulkanBufferObjectPtr m_UBO_Frag_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos;
 
-	struct UBO_1_Vert {
+	struct UBO_Vert {
 		alignas(4) float u_scale = 1.0f;
-	} m_UBO_1_Vert;
-	VulkanBufferObjectPtr m_UBO_1_Vert_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_1_Vert_BufferInfos;
+	} m_UBO_Vert;
+	VulkanBufferObjectPtr m_UBO_Vert_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBO_Vert_BufferInfos;
 
 
 public:

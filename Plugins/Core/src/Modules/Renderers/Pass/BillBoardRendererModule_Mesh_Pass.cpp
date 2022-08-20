@@ -42,6 +42,8 @@ using namespace vkApi;
 BillBoardRendererModule_Mesh_Pass::BillBoardRendererModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: MeshShaderPass<VertexStruct::P3_N3_TA3_BTA3_T2_C4>(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
+	ZoneScoped;
+
 	SetRenderDocDebugName("Mesh Pass : BillBoard Renderer", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
 	//m_DontUseShaderFilesOnDisk = true;
@@ -49,13 +51,21 @@ BillBoardRendererModule_Mesh_Pass::BillBoardRendererModule_Mesh_Pass(vkApi::Vulk
 
 BillBoardRendererModule_Mesh_Pass::~BillBoardRendererModule_Mesh_Pass()
 {
+	ZoneScoped;
+
 	Unit();
 }
 
 void BillBoardRendererModule_Mesh_Pass::ActionBeforeInit()
 {
+	ZoneScoped;
+
 	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
+	m_PrimitiveTopology = vk::PrimitiveTopology::eTriangleList; // display Triangles
+	m_LineWidth.x = 0.5f;	// min value
+	m_LineWidth.y = 10.0f;	// max value
+	m_LineWidth.z = 2.0f;	// default value
 	for (auto& info : m_ImageInfos)
 	{
 		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
@@ -64,41 +74,42 @@ void BillBoardRendererModule_Mesh_Pass::ActionBeforeInit()
 
 bool BillBoardRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	ZoneScoped;
-
 	bool change = false;
 
-	//change |= DrawResizeWidget();
+	change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "alpha_power", &m_UBO_0_Frag.u_alpha_power, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "scale", &m_UBO_1_Vert.u_scale, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "alpha_power", &m_UBO_Frag.u_alpha_power, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "scale", &m_UBO_Vert.u_scale, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
+
 	if (change)
 	{
 		NeedNewUBOUpload();
 	}
-
 
 	return change;
 }
 
 void BillBoardRendererModule_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
-	ZoneScoped;
 }
 
 void BillBoardRendererModule_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
-	ZoneScoped;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,6 +138,8 @@ void BillBoardRendererModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint
 				if (vTextureSize)
 				{
 					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
 				}
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
@@ -146,6 +159,7 @@ void BillBoardRendererModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint
 vk::DescriptorImageInfo* BillBoardRendererModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
+
 	if (m_FrameBufferPtr)
 	{
 		if (vOutSize)
@@ -155,9 +169,9 @@ vk::DescriptorImageInfo* BillBoardRendererModule_Mesh_Pass::GetDescriptorImageIn
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
+
 	return nullptr;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,24 +226,23 @@ bool BillBoardRendererModule_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_0_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_0_Frag));
-	m_UBO_0_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_0_Frag_Ptr)
+	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Frag));
+	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	if (m_UBO_Frag_Ptr)
 	{
-		m_UBO_0_Frag_BufferInfos.buffer = m_UBO_0_Frag_Ptr->buffer;
-		m_UBO_0_Frag_BufferInfos.range = sizeof(UBO_0_Frag);
-		m_UBO_0_Frag_BufferInfos.offset = 0;
+		m_UBO_Frag_BufferInfos.buffer = m_UBO_Frag_Ptr->buffer;
+		m_UBO_Frag_BufferInfos.range = sizeof(UBO_Frag);
+		m_UBO_Frag_BufferInfos.offset = 0;
 	}
 
-	m_UBO_1_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_1_Vert));
-	m_UBO_1_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_1_Vert_Ptr)
+	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Vert));
+	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	if (m_UBO_Vert_Ptr)
 	{
-		m_UBO_1_Vert_BufferInfos.buffer = m_UBO_1_Vert_Ptr->buffer;
-		m_UBO_1_Vert_BufferInfos.range = sizeof(UBO_1_Vert);
-		m_UBO_1_Vert_BufferInfos.offset = 0;
+		m_UBO_Vert_BufferInfos.buffer = m_UBO_Vert_Ptr->buffer;
+		m_UBO_Vert_BufferInfos.range = sizeof(UBO_Vert);
+		m_UBO_Vert_BufferInfos.offset = 0;
 	}
-
 
 	NeedNewUBOUpload();
 
@@ -240,22 +253,21 @@ void BillBoardRendererModule_Mesh_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_0_Frag_Ptr, &m_UBO_0_Frag, sizeof(UBO_0_Frag));
-
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_1_Vert_Ptr, &m_UBO_1_Vert, sizeof(UBO_1_Vert));
-
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
 }
 
 void BillBoardRendererModule_Mesh_Pass::DestroyUBO()
 {
 	ZoneScoped;
-	m_UBO_0_Frag_Ptr.reset();
-	m_UBO_0_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
-	m_UBO_1_Vert_Ptr.reset();
-	m_UBO_1_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	m_UBO_Frag_Ptr.reset();
+	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
+	m_UBO_Vert_Ptr.reset();
+	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
+
 bool BillBoardRendererModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
@@ -273,12 +285,13 @@ bool BillBoardRendererModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
 	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_0_Frag_BufferInfos);
+		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_Frag_BufferInfos);
 	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_1_Vert_BufferInfos);
+		m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_Vert_BufferInfos);
 	
 	return true;
 }
+
 std::string BillBoardRendererModule_Mesh_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "BillBoardRendererModule_Mesh_Pass_Vertex";
@@ -292,26 +305,20 @@ layout(location = 2) in vec3 aTangent;
 layout(location = 3) in vec3 aBiTangent;
 layout(location = 4) in vec2 aUv;
 layout(location = 5) in vec4 aColor;
+layout(location = 0) out vec4 vertColor;
 
-
-layout(std140, binding = 0) uniform UBO_0_Vert
+layout(std140, binding = 1) uniform UBO_Vert
 {
 	float u_scale;
 };
 
-layout(location = 0) out vec4 vertColor;
-)
+)"
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
-layout (std140, binding = 1) uniform UBO_Vert 
-{ 
-	mat4 transform;
-};
-
 void main() 
 {
 	vertColor = aColor;
-	gl_Position = cam * transform * vec4(aPosition, 1.0);
+	gl_Position = cam * vec4(aPosition, 1.0);
 }
 )";
 }
@@ -324,21 +331,11 @@ std::string BillBoardRendererModule_Mesh_Pass::GetFragmentShaderCode(std::string
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
-
 layout(location = 0) in vec4 vertColor;
 
-layout(std140, binding = 0) uniform UBO_0_Frag
+layout(std140, binding = 0) uniform UBO_Frag
 {
 	float u_alpha_power;
-};
-
-
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
-u8R"(
-layout(std140, binding = 2) uniform UBO_Frag 
-{ 
-	//uint channel_idx;	// 0..3
-	//uint color_count;	// 0..N
 };
 
 void main() 
@@ -354,12 +351,15 @@ void main()
 
 std::string BillBoardRendererModule_Mesh_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
+	ZoneScoped;
+
 	std::string str;
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<alpha_power>" + ct::toStr(m_UBO_0_Frag.u_alpha_power) + "</alpha_power>\n";
-	str += vOffset + "<scale>" + ct::toStr(m_UBO_1_Vert.u_scale) + "</scale>\n";
+	str += vOffset + "<alpha_power>" + ct::toStr(m_UBO_Frag.u_alpha_power) + "</alpha_power>\n";
+	str += vOffset + "<scale>" + ct::toStr(m_UBO_Vert.u_scale) + "</scale>\n";
+
 	return str;
 }
 
@@ -384,9 +384,9 @@ bool BillBoardRendererModule_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, 
 	{
 
 		if (strName == "alpha_power")
-			m_UBO_0_Frag.u_alpha_power = ct::fvariant(strValue).GetF();
+			m_UBO_Frag.u_alpha_power = ct::fvariant(strValue).GetF();
 		else if (strName == "scale")
-			m_UBO_1_Vert.u_scale = ct::fvariant(strValue).GetF();
+			m_UBO_Vert.u_scale = ct::fvariant(strValue).GetF();
 	}
 
 	return true;
@@ -394,5 +394,7 @@ bool BillBoardRendererModule_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, 
 
 void BillBoardRendererModule_Mesh_Pass::AfterNodeXmlLoading()
 {
+	ZoneScoped;
+
 	// code to do after end of the xml loading of this node
 }
