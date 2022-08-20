@@ -51,13 +51,48 @@ class ModelRendererModule_Mesh_Pass :
 	public NodeInterface
 {
 private:
+	std::vector<std::string> m_PolygonModes =
+	{
+		"Fill",
+		"Line",
+		"Point"
+	};
+	int32_t m_PolygonModesIndex = 0;
+
+	std::vector<std::string> m_PrimitiveTopologies =
+	{
+		"Point List",
+		"Line List",
+		"Line Strip",
+		"Triangle List",
+		"Triangle Strip",
+		"Triangle Fan",
+	};
+	int32_t m_PrimitiveTopologiesIndex = 5; // Triangle Fan
+	
+	std::vector<std::string> m_Channels =
+	{
+		"Position",
+		"Normal",
+		"Tangeant",
+		"Bi-Tangeant",
+		"Uv",
+		"Color"
+	};
+
 	struct UBO_Vert {
-		alignas(4) float u_line_thickness = 1.0f;
 		alignas(4) float u_point_size = 1.0f;
 	} m_UBO_Vert;
+
 	VulkanBufferObjectPtr m_UBO_Vert_Ptr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Vert_BufferInfos;
 
+	struct UBO_Frag {
+		alignas(4) int32_t u_show_layer = 0;
+	} m_UBO_Frag;
+
+	VulkanBufferObjectPtr m_UBO_Frag_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos;
 
 public:
 	ModelRendererModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);

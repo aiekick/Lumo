@@ -46,7 +46,7 @@ ModelRendererModule_Mesh_Pass::ModelRendererModule_Mesh_Pass(vkApi::VulkanCorePt
 
 	SetRenderDocDebugName("Mesh Pass : Model Renderer", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ModelRendererModule_Mesh_Pass::~ModelRendererModule_Mesh_Pass()
@@ -62,10 +62,13 @@ void ModelRendererModule_Mesh_Pass::ActionBeforeInit()
 
 	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
-	m_PrimitiveTopology = vk::PrimitiveTopology::eTriangleList; // display Triangles
+	SetDynamicallyChangePrimitiveTopology(true);
+	SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList);
+	m_PrimitiveTopologiesIndex = (int32_t)vk::PrimitiveTopology::eTriangleList;
 	m_LineWidth.x = 0.5f;	// min value
 	m_LineWidth.y = 10.0f;	// max value
 	m_LineWidth.z = 2.0f;	// default value
+	m_LineWidth.w; // value to change
 }
 
 bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -79,9 +82,25 @@ bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 
 	change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "line_thickness", &m_UBO_Vert.u_line_thickness, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "point_size", &m_UBO_Vert.u_point_size, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
+	ImGui::Separator();
 
+	if (ImGui::ContrastedComboVectorDefault(0.0f, "Display Mode", &m_PrimitiveTopologiesIndex, m_PrimitiveTopologies, 0))
+	{
+		ChangeDynamicPrimitiveTopology((vk::PrimitiveTopology)m_PrimitiveTopologiesIndex, true);
+	}
+	
+	change |= ImGui::ContrastedComboVectorDefault(0.0f, "Channel", &m_UBO_Frag.u_show_layer, m_Channels, 0);
+
+	if (m_PrimitiveTopologiesIndex == 1 ||
+		m_PrimitiveTopologiesIndex == 2)
+	{
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Line Thickness", &m_LineWidth.w, m_LineWidth.x, m_LineWidth.y, m_LineWidth.z);
+	}
+	else if (m_PrimitiveTopologiesIndex == 0)
+	{
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "point_size", &m_UBO_Vert.u_point_size, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
+	}
+	
 	if (change)
 	{
 		NeedNewUBOUpload();
@@ -162,7 +181,9 @@ void ModelRendererModule_Mesh_Pass::DrawModel(vk::CommandBuffer * vCmdBuffer, co
 		{
 			VKFPScoped(*vCmdBuffer, "Model Renderer", "DrawModel");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, 
+				m_Pipelines[0].m_PipelineLayout, 0, 
+				m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 			for (auto meshPtr : *modelPtr)
 			{
@@ -186,7 +207,6 @@ void ModelRendererModule_Mesh_Pass::DrawModel(vk::CommandBuffer * vCmdBuffer, co
 	}
 }
 
-
 bool ModelRendererModule_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
@@ -200,6 +220,15 @@ bool ModelRendererModule_Mesh_Pass::CreateUBO()
 		m_UBO_Vert_BufferInfos.offset = 0;
 	}
 
+	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Frag));
+	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+	if (m_UBO_Frag_Ptr)
+	{
+		m_UBO_Frag_BufferInfos.buffer = m_UBO_Frag_Ptr->buffer;
+		m_UBO_Frag_BufferInfos.range = sizeof(UBO_Frag);
+		m_UBO_Frag_BufferInfos.offset = 0;
+	}
+
 	NeedNewUBOUpload();
 
 	return true;
@@ -210,6 +239,7 @@ void ModelRendererModule_Mesh_Pass::UploadUBO()
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
 }
 
 void ModelRendererModule_Mesh_Pass::DestroyUBO()
@@ -218,6 +248,9 @@ void ModelRendererModule_Mesh_Pass::DestroyUBO()
 
 	m_UBO_Vert_Ptr.reset();
 	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+
+	m_UBO_Frag_Ptr.reset();
+	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
 bool ModelRendererModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -226,6 +259,8 @@ bool ModelRendererModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
 
 	m_DescriptorSets[0].m_LayoutBindings.clear();
 	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
@@ -236,8 +271,12 @@ bool ModelRendererModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
 	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_Vert_BufferInfos);
-	
+		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+		m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_Vert_BufferInfos);
+	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
+		m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_Frag_BufferInfos);
+
 	return true;
 }
 
@@ -254,20 +293,32 @@ layout(location = 2) in vec3 aTangent;
 layout(location = 3) in vec3 aBiTangent;
 layout(location = 4) in vec2 aUv;
 layout(location = 5) in vec4 aColor;
-layout(location = 0) out vec4 vertColor;
 
-layout(std140, binding = 0) uniform UBO_Vert
-{
-	float u_line_thickness;
-	float u_point_size;
-};
-
+layout(location = 0) out vec3 vertPosition;
+layout(location = 1) out vec3 vertNormal;
+layout(location = 2) out vec3 vertTangent;
+layout(location = 3) out vec3 vertBiTangent;
+layout(location = 4) out vec2 vertUv;
+layout(location = 5) out vec4 vertColor;
 )"
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
+layout(std140, binding = 1) uniform UBO_Vert
+{
+	float u_point_size;
+};
+
 void main() 
 {
+	gl_PointSize = u_point_size;
+
+	vertPosition = aPosition;
+	vertNormal = aNormal;
+	vertTangent = aTangent;
+	vertBiTangent = aBiTangent;
+	vertUv = aUv;
 	vertColor = aColor;
+
 	gl_Position = cam * vec4(aPosition, 1.0);
 }
 )";
@@ -281,12 +332,53 @@ std::string ModelRendererModule_Mesh_Pass::GetFragmentShaderCode(std::string& vO
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
-layout(location = 0) in vec4 vertColor;
 
+layout(location = 0) in vec3 vertPosition;
+layout(location = 1) in vec3 vertNormal;
+layout(location = 2) in vec3 vertTangent;
+layout(location = 3) in vec3 vertBiTangent;
+layout(location = 4) in vec2 vertUv;
+layout(location = 5) in vec4 vertColor;
+
+layout(std140, binding = 2) uniform UBO_Frag
+{
+	int u_show_layer;
+};
 
 void main() 
 {
 	fragColor = vec4(0);
+
+	switch(u_show_layer)
+	{
+	case 0: // pos
+		fragColor.xyz = vertPosition;
+		break;
+	case 1: // normal
+		fragColor.xyz = vertNormal * 0.5 + 0.5;
+		break;
+	case 2: // tan
+		fragColor.xyz = vertTangent;
+		break;
+	case 3: // bi tan
+		fragColor.xyz = vertBiTangent;
+		break;
+	case 4: // uv
+		fragColor.xyz = vec3(vertUv, 0.0);
+		break;
+	case 5: // vertex color
+		fragColor = vertColor;
+		break;
+	}
+
+	if (dot(fragColor.xyz, fragColor.xyz) > 0.0)
+	{
+		fragColor.a = 1.0;
+	}
+	else
+	{
+		//discard;
+	}
 }
 )";
 }
@@ -303,9 +395,10 @@ std::string ModelRendererModule_Mesh_Pass::getXml(const std::string& vOffset, co
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<line_thickness>" + ct::toStr(m_UBO_Vert.u_line_thickness) + "</line_thickness>\n";
+	str += vOffset + "<line_thickness>" + ct::toStr(m_LineWidth.w) + "</line_thickness>\n";
 	str += vOffset + "<point_size>" + ct::toStr(m_UBO_Vert.u_point_size) + "</point_size>\n";
-
+	str += vOffset + "<show_layer>" + ct::toStr(m_UBO_Frag.u_show_layer) + "</show_layer>\n";
+	
 	return str;
 }
 
@@ -328,11 +421,12 @@ bool ModelRendererModule_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tiny
 
 	if (strParentName == "model_renderer_module")
 	{
-
 		if (strName == "line_thickness")
-			m_UBO_Vert.u_line_thickness = ct::fvariant(strValue).GetF();
+			m_LineWidth.w = ct::fvariant(strValue).GetF();
 		else if (strName == "point_size")
 			m_UBO_Vert.u_point_size = ct::fvariant(strValue).GetF();
+		else if (strName == "show_layer")
+			m_UBO_Frag.u_show_layer = ct::ivariant(strValue).GetI();
 	}
 
 	return true;
