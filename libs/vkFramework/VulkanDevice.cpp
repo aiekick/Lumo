@@ -727,6 +727,7 @@ namespace vkApi
 		std::vector<const char*> wantedDeviceExtensions = { 
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
 			VK_EXT_ROBUSTNESS_2_EXTENSION_NAME,
+			VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME
 		};
 
 		// RTX
@@ -759,9 +760,6 @@ namespace vkApi
 			wantedDeviceExtensions.push_back(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
 
 			wantedDeviceExtensions.push_back(VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME);
-
-			// dynamic state
-			wantedDeviceExtensions.push_back(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME);
 		}
 
 		std::vector<const char*> deviceExtensions = {};
@@ -797,7 +795,7 @@ namespace vkApi
 
 		LogVarLightInfo("Feature vk 1.0 : (RTX) Ray Tracing Pipeline");
 		m_DynamicStates.setExtendedDynamicState(true);
-		m_PhysDeviceFeatures2.setPNext(&m_DynamicStates);
+		m_Robustness2Feature.setPNext(&m_DynamicStates);
 
 		LogVarLightInfo("Feature vk 1.2 : Buffer Device Address");
 		m_BufferDeviceAddress.setBufferDeviceAddress(true);
