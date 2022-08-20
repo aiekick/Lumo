@@ -34,16 +34,15 @@ private:
 	ImWidgets::InputText m_InputValue_y;
 	ImWidgets::InputText m_InputValue_z;
 	ImWidgets::InputText m_InputValue_w;
-	std::string m_Stage;
 
 public:
 	UBOItem() = default;
 	void DrawItem(const std::string& vStage);
 	std::string Get_Glsl_Item_Header();
 	std::string Get_Cpp_Item_Header();
-	std::string Get_Cpp_GetXML(const uint32_t& vUboIndex);
-	std::string Get_Cpp_SetXML(const uint32_t& vUboIndex, const bool& vIsFirst);
-	std::string Get_Cpp_Item_Widget(const uint32_t& vUboIndex);
+	std::string Get_Cpp_GetXML(const std::string& vStage, const uint32_t& vUboIndex);
+	std::string Get_Cpp_SetXML(const std::string& vStage, const uint32_t& vUboIndex, const bool& vIsFirst);
+	std::string Get_Cpp_Item_Widget(const std::string& vStage, const uint32_t& vUboIndex);
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };
@@ -59,23 +58,22 @@ private:
 public:
 	int m_InputStageIndex = 0U;
 	std::string m_RendererType;
-	uint32_t m_UboIndex = 0U;
 
 public:
 	UBOEditor();
 	bool DrawStageSelection(const std::string& vRendererType);
 	void DrawPane(const std::string& vRendererType);
 	
-	std::string Get_Widgets_Header();
-	std::string Get_Glsl_Header();
-	std::string Get_Cpp_Header();
-	std::string Get_Cpp_WriteDescriptors();
-	std::string Get_Cpp_LayoutBindings();
-	std::string Get_Cpp_GetXML();
-	std::string Get_Cpp_SetXML(const bool& vIsFirst);
-	std::string Get_Create_Header();
-	std::string Get_Upload_Header();
-	std::string Get_Destroy_Header();
+	std::string Get_Widgets_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
+	std::string Get_Glsl_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
+	std::string Get_Cpp_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
+	std::string Get_Cpp_WriteDescriptors(const std::string& vRendererType, const uint32_t& vUboIndex);
+	std::string Get_Cpp_LayoutBindings(const std::string& vRendererType, const uint32_t& vUboIndex);
+	std::string Get_Cpp_GetXML(const std::string& vRendererType, const uint32_t& vUboIndex);
+	std::string Get_Cpp_SetXML(const std::string& vRendererType, const uint32_t& vUboIndex, const bool& vIsFirst);
+	std::string Get_Create_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
+	std::string Get_Upload_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
+	std::string Get_Destroy_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

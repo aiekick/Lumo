@@ -483,13 +483,13 @@ void MainFrame::DrawNodeCreationPane()
 			m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
 
 			nodePtr->m_ClassName = nodePtr->m_NodeDisplayName;
-			ct::replaceString(nodePtr->m_ClassName, " ", "_");
+			ct::replaceString(nodePtr->m_ClassName, " ", "");
 			m_ClassNameInputText.SetText(nodePtr->m_ClassName);
 
 			nodePtr->m_ModuleDisplayName = nodePtr->m_NodeDisplayName;
 			m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleDisplayName);
 
-			nodePtr->m_ModuleXmlName = ct::toLower(nodePtr->m_NodeDisplayName) + "_module";
+			nodePtr->m_ModuleXmlName = ct::toLower(nodePtr->m_NodeCreationName) + "_module";
 			m_ModuleXmlNameInputText.SetText(nodePtr->m_ModuleXmlName);
 		}
 
@@ -599,6 +599,12 @@ void MainFrame::DrawNodeCreationPane()
 				if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX,
 					nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX, false))
 					nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX;
+			}
+
+			if (nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+			{
+				ImGui::ContrastedComboVectorDefault(0.0f,
+					"VertexStruct type", &nodePtr->m_VertexStructTypesIndex, nodePtr->m_BaseTypes.m_VertexStructTypes, 0);
 			}
 
 			nodePtr->m_UBOEditors.DrawPane(nodePtr->m_RendererType);

@@ -186,7 +186,8 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 		res += vOffset + ct::toStr("\t\t<pass_use_ubo>%s</pass_use_ubo>\n", m_UBOEditors.m_UseUbos ? "true" : "false");
 		res += vOffset + ct::toStr("\t\t<pass_use_sbo>%s</pass_use_sbo>\n", m_UseASbo ? "true" : "false");
 		res += vOffset + ct::toStr("\t\t<node_is_a_task>%s</node_is_a_task>\n", m_IsATask ? "true" : "false");
-		
+		res += vOffset + ct::toStr("\t\t<vertex_struct_type>%i</vertex_struct_type>\n", m_VertexStructTypesIndex);
+
 		res += vOffset + "\t</generation>\n";
 
 		res += m_UBOEditors.getXml(vOffset + "\t", vUserDatas);
@@ -399,6 +400,10 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 
 			return false;
 		}
+		else if (strName == "UBOS")
+		{
+			m_UBOEditors.setFromXml(vElem, vParent, m_RendererType);
+		}
 	}
 	else if (strParentName == "outputs")
 	{
@@ -462,6 +467,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 			m_UseASbo = ct::ivariant(strValue).GetB();
 		else if (strName == "node_is_a_task")
 			m_IsATask = ct::ivariant(strValue).GetB();
+		else if (strName == "vertex_struct_type")
+			m_VertexStructTypesIndex = ct::ivariant(strValue).GetI();
 
 		return true;
 	}
@@ -1807,8 +1814,9 @@ PASS_CLASS_NAME::PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
 		{
-			cpp_pass_file_code += u8R"(
-	: MeshShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL))";
+			cpp_pass_file_code += ct::toStr(u8R"(
+	: MeshShaderPass<VertexStruct::%s>(vVulkanCorePtr, MeshShaderPassType::PIXEL))", 
+				m_BaseTypes.m_VertexStructTypes[m_VertexStructTypesIndex].c_str());
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
 		{
@@ -2158,8 +2166,9 @@ class PASS_CLASS_NAME :)";
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
 		{
-			h_pass_file_code += u8R"(
-	public MeshShaderPass,)";
+			h_pass_file_code += ct::toStr(u8R"(
+	public MeshShaderPass<VertexStruct::%s>,)",
+				m_BaseTypes.m_VertexStructTypes[m_VertexStructTypesIndex].c_str());
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
 		{
@@ -2771,7 +2780,38 @@ void main()
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
 	{
-		res += u8R"()";
+	res += u8R"(
+std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Compute";
+
+	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
+
+	return u8R"(
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
+
+layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+
+)";
+	res += m_UBOEditors.Get_Glsl_Header("Comp");
+	res += u8R"(
+
+layout(binding = 1) uniform sampler2D input_mask;
+
+void main()
+{
+	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+
+	vec4 color = vec4(coords, 0, 1);
+
+	imageStore(colorBuffer, coords, color); 
+}
+))";
+	res += u8R"(";
+		})";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 	{
@@ -2810,7 +2850,38 @@ void main()
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
-		res += u8R"()";
+	res += u8R"(
+std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Compute";
+
+	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
+
+	return u8R"(
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
+
+layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+
+)";
+	res += m_UBOEditors.Get_Glsl_Header("Comp");
+	res += u8R"(
+
+layout(binding = 1) uniform sampler2D input_mask;
+
+void main()
+{
+	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+
+	vec4 color = vec4(coords, 0, 1);
+
+	imageStore(colorBuffer, coords, color); 
+}
+))";
+	res += u8R"(";
+		})";
 	}
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{

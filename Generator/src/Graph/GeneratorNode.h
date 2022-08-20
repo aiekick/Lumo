@@ -42,6 +42,16 @@ public:
 		"WIDGET_FLOAT",
 		"WIDGET_INT",
 		"WIDGET_UINT"
+	}; 
+	std::vector<std::string> m_VertexStructTypes = 
+	{
+		"P3_N3_TA3_BTA3_T2_C4", // LEGACY MESH
+		"P3_N3_T2_C4",
+		"P3_N3_T2",
+		"P3_N3_C4_D1",
+		"P3_N3_C4",				// BASE PROCEDURAL MESH
+		"P3_C4",
+		"P2_T2",
 	};
 };
 
@@ -104,8 +114,10 @@ typedef std::map<BaseTypeEnum, std::map<NodeSlot::PlaceEnum, std::vector<SlotStr
 class ProjectFile;
 class GeneratorNode : public BaseNode
 {
-private: // not to save
+public: // not to save
 	BaseTypes m_BaseTypes;
+
+private: // not to save
 	std::map<BaseTypeEnum, uint32_t> m_InputSlotCounter;
 	std::map<BaseTypeEnum, uint32_t> m_OutputSlotCounter;
 	bool m_ShowInputWidgets = false;
@@ -131,6 +143,7 @@ public: // to save
 	bool m_GenerateAPass = true;
 	std::string m_RendererTypePixel2DSpecializationType = "Quad";
 	bool m_UseASbo = false;
+	int32_t m_VertexStructTypesIndex = 0;
 	UBOEditors m_UBOEditors;
 
 public:

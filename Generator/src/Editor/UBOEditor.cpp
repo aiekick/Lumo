@@ -14,8 +14,6 @@
 
 void UBOItem::DrawItem(const std::string& vStage)
 {
-	m_Stage = vStage;
-
 	const float& aaw = (ImGui::GetContentRegionAvail().x - 150.0f) * 0.5f;
 
 	m_InputName.DisplayInputText(aaw, "", "Name");
@@ -104,7 +102,7 @@ std::string UBOItem::Get_Cpp_Item_Header()
 	return res;
 }
 
-std::string UBOItem::Get_Cpp_GetXML(const uint32_t& vUboIndex)
+std::string UBOItem::Get_Cpp_GetXML(const std::string& vStage, const uint32_t& vUboIndex)
 {
 	auto uniform_name = m_InputName.GetText();
 	auto lower_uniform_name = ct::toLower(uniform_name);
@@ -119,25 +117,25 @@ std::string UBOItem::Get_Cpp_GetXML(const uint32_t& vUboIndex)
 	{
 		return ct::toStr(u8R"(
 	str += vOffset + "<%s>" + ct::toStr(m_UBO_%u_%s.u_%s) + "</%s>\n";)",
-			lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str(), lower_uniform_name.c_str());
+			lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str(), lower_uniform_name.c_str());
 	}
 	else if (type == "bool")
 	{
 		return ct::toStr(u8R"(
 	str += vOffset + "<%s>" + (m_UBO_%u_%s.u_%s ? "true" : "false") + "</%s>\n";)",
-			lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str(), lower_uniform_name.c_str());
+			lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str(), lower_uniform_name.c_str());
 	}
 	else if (inputIdx > 0) // for help, but not functionnal
 	{
 		return ct::toStr(u8R"(
 	str += vOffset + "<%s>" + m_UBO_%u_%s.u_%s.string() + "</%s>\n";)",
-			lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str(), lower_uniform_name.c_str());
+			lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str(), lower_uniform_name.c_str());
 	}
 
 	return "";
 }
 
-std::string UBOItem::Get_Cpp_SetXML(const uint32_t& vUboIndex, const bool& vIsFirst)
+std::string UBOItem::Get_Cpp_SetXML(const std::string& vStage, const uint32_t& vUboIndex, const bool& vIsFirst)
 {
 	auto uniform_name = m_InputName.GetText();
 	auto lower_uniform_name = ct::toLower(uniform_name);
@@ -153,49 +151,49 @@ std::string UBOItem::Get_Cpp_SetXML(const uint32_t& vUboIndex, const bool& vIsFi
 		return ct::toStr(u8R"(
 		%sif (strName == "%s")
 			m_UBO_%u_%s.u_%s = ct::fvariant(strValue).GetF();)",
-			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str());
+			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str());
 	}
 	else if (type == "uint")
 	{
 		return ct::toStr(u8R"(
 		%sif (strName == "%s")
 			m_UBO_%u_%s.u_%s = ct::uvariant(strValue).GetU();)",
-			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str());
+			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str());
 	}
 	else if(type == "int")
 	{
 		return ct::toStr(u8R"(
 		%sif (strName == "%s")
 			m_UBO_%u_%s.u_%s = ct::ivariant(strValue).GetI();)",
-			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str());
+			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str());
 	}
 	else if (type == "bool")
 	{
 		return ct::toStr(u8R"(
 		%sif (strName == "%s")
 			m_UBO_%u_%s.u_%s = ct::ivariant(strValue).GetB();)",
-			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str());
+			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str());
 	}
 	else if (inputIdx == 1)
 	{
 		return ct::toStr(u8R"(
 		%sif (strName == "%s")
 			m_UBO_%u_%s.u_%s = ct::fvariant(strValue).GetV2();)",
-			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str());
+			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str());
 	}
 	else if (inputIdx == 2)
 	{
 		return ct::toStr(u8R"(
 		%sif (strName == "%s")
 			m_UBO_%u_%s.u_%s = ct::fvariant(strValue).GetV3();)",
-			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str());
+			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str());
 	}
 	else if (inputIdx == 3)
 	{
 		return ct::toStr(u8R"(
 		%sif (strName == "%s")
 			m_UBO_%u_%s.u_%s = ct::fvariant(strValue).GetV4();)",
-			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, m_Stage.c_str(), uniform_name.c_str());
+			vIsFirst ? "" : "else ", lower_uniform_name.c_str(), vUboIndex, vStage.c_str(), uniform_name.c_str());
 	}
 
 	return "";
@@ -216,7 +214,7 @@ std::string UBOItem::Get_Glsl_Item_Header()
 	return res;
 }
 
-std::string UBOItem::Get_Cpp_Item_Widget(const uint32_t& vUboIndex)
+std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const uint32_t& vUboIndex)
 {
 	std::string res;
 
@@ -234,52 +232,76 @@ std::string UBOItem::Get_Cpp_Item_Widget(const uint32_t& vUboIndex)
 		float fv = ct::fvariant(value).GetF();
 		res += ct::toStr(u8R"(
 	change |= ImGui::SliderFloatDefaultCompact(0.0f, "%s", &m_UBO_%u_%s.u_%s, %.3ff, %.3ff, %.3ff, 0.0f, "%%.3f");)",
-			m_InputName.GetText().c_str(), vUboIndex, m_Stage.c_str(), m_InputName.GetText().c_str(), 0.0f, fv * 2.0f, fv);
+			m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), 0.0f, fv * 2.0f, fv);
 	}
 	else if (type == "uint")
 	{
 		uint32_t uv = ct::uvariant(value).GetU();
 		res += ct::toStr(u8R"(
 	change |= ImGui::SliderUIntDefaultCompact(0.0f, "%s", &m_UBO_%u_%s.u_%s, %uU, %uU, %uU);)",
-			m_InputName.GetText().c_str(), vUboIndex, m_Stage.c_str(), m_InputName.GetText().c_str(), 0U, uv * 2U, uv);
+			m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), 0U, uv * 2U, uv);
 	}
 	else if (type == "int")
 	{
 		int32_t iv = ct::uvariant(value).GetI();
 		res += ct::toStr(u8R"(
 	change |= ImGui::SliderIntDefaultCompact(0.0f, "%s", &m_UBO_%u_%s.u_%s, %i, %i, %i);)",
-			m_InputName.GetText().c_str(), vUboIndex, m_Stage.c_str(), m_InputName.GetText().c_str(), 0, iv * 2, iv);
+			m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), 0, iv * 2, iv);
 	}
 	else if (type == "bool")
 	{
 		bool bv = ct::ivariant(value).GetB();
 		res += ct::toStr(u8R"(
 	change |= ImGui::CheckBoxBoolDefault("%s", &m_UBO_%u_%s.u_%s, %s);)",
-			m_InputName.GetText().c_str(), vUboIndex, m_Stage.c_str(), m_InputName.GetText().c_str(), bv ? "true" : "false");
+			m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), bv ? "true" : "false");
 	}
 	else if (inputIdx == 1) // for help, but not functionnal
 	{
+		std::string widget;
+		if (baseType == "float") widget = "InputFloatDefault";
+		else if (baseType == "int") widget = "InputIntDefault";
+		else if (baseType == "uint") widget = "InputUIntDefault";
+
 		type = "ct::" + type;
-		value = type + "(" + value + ", " + m_InputValue_y.GetText(baseType) + ")"; 
 		res += ct::toStr(u8R"(
-	// change |= %s => ("%s", &m_UBO_%u_%s.u_%s => %s);)",
-			type.c_str(), m_InputName.GetText().c_str(), vUboIndex, m_Stage.c_str(), m_InputName.GetText().c_str(), value.c_str());
+	change |= ImGui::%s(0.0f, "%s x", &m_UBO_%u_%s.u_%s.x, %s);
+	change |= ImGui::%s(0.0f, "%s y", &m_UBO_%u_%s.u_%s.y, %s);)",
+			widget.c_str(), m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), m_InputValue_x.GetText(baseType).c_str(),
+			widget.c_str(), m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), m_InputValue_y.GetText(baseType).c_str());
 	}
 	else if (inputIdx == 2) // for help, but not functionnal
 	{
+		std::string widget;
+		if (baseType == "float") widget = "InputFloatDefault";
+		else if (baseType == "int") widget = "InputIntDefault";
+		else if (baseType == "uint") widget = "InputUIntDefault";
+
 		type = "ct::" + type;
-		value = type + "(" + value + ", " + m_InputValue_y.GetText(baseType) + ", " + m_InputValue_z.GetText(baseType) + ")";
 		res += ct::toStr(u8R"(
-	// change |= %s => ("%s", &m_UBO_%u_%s.u_%s => %s);)",
-			type.c_str(), m_InputName.GetText().c_str(), vUboIndex, m_Stage.c_str(), m_InputName.GetText().c_str(), value.c_str());
+	change |= ImGui::%s(0.0f, "%s x", &m_UBO_%u_%s.u_%s.x, %s);
+	change |= ImGui::%s(0.0f, "%s y", &m_UBO_%u_%s.u_%s.y, %s);
+	change |= ImGui::%s(0.0f, "%s z", &m_UBO_%u_%s.u_%s.z, %s);)",
+			widget.c_str(), m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), m_InputValue_x.GetText(baseType).c_str(),
+			widget.c_str(), m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), m_InputValue_y.GetText(baseType).c_str(),
+			widget.c_str(), m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), m_InputValue_z.GetText(baseType).c_str());
 	}
 	else if (inputIdx == 3) // for help, but not functionnal
 	{
+		std::string widget;
+		if (baseType == "float") widget = "InputFloatDefault";
+		else if (baseType == "int") widget = "InputIntDefault";
+		else if (baseType == "uint") widget = "InputUIntDefault";
+
 		type = "ct::" + type;
-		value = type + "(" + value + ", " + m_InputValue_y.GetText(baseType) + ", " + m_InputValue_z.GetText(baseType) + ", " + m_InputValue_w.GetText(baseType) + ")";
 		res += ct::toStr(u8R"(
-	// change |= %s => ("%s", &m_UBO_%u_%s.u_%s => %s);)",
-			type.c_str(), m_InputName.GetText().c_str(), vUboIndex, m_Stage.c_str(), m_InputName.GetText().c_str(), value.c_str());
+	change |= ImGui::%s(0.0f, "%s x", &m_UBO_%u_%s.u_%s.x, %s);
+	change |= ImGui::%s(0.0f, "%s y", &m_UBO_%u_%s.u_%s.y, %s);
+	change |= ImGui::%s(0.0f, "%s z", &m_UBO_%u_%s.u_%s.z, %s);
+	change |= ImGui::%s(0.0f, "%s w", &m_UBO_%u_%s.u_%s.w, %s);)",
+			widget.c_str(), m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), m_InputValue_x.GetText(baseType).c_str(),
+			widget.c_str(), m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), m_InputValue_y.GetText(baseType).c_str(),
+			widget.c_str(), m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), m_InputValue_z.GetText(baseType).c_str(),
+			widget.c_str(), m_InputName.GetText().c_str(), vUboIndex, vStage.c_str(), m_InputName.GetText().c_str(), m_InputValue_w.GetText(baseType).c_str());
 	}
 
 	return res;
@@ -402,27 +424,33 @@ bool UBOEditor::DrawStageSelection(const std::string& vRendererType)
 	return change;
 }
 
-std::string UBOEditor::Get_Widgets_Header()
+std::string UBOEditor::Get_Widgets_Header(const std::string& vRendererType, const uint32_t& vUboIndex)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	std::string res;
 
 	for (auto item : m_Items)
 	{
-		res += item.Get_Cpp_Item_Widget(m_UboIndex);
+		res += item.Get_Cpp_Item_Widget(m_Stage, vUboIndex);
 	}
 
 	return res;
 }
 
-std::string UBOEditor::Get_Cpp_WriteDescriptors()
+std::string UBOEditor::Get_Cpp_WriteDescriptors(const std::string& vRendererType, const uint32_t& vUboIndex)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	return ct::toStr(u8R"(
 	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, %uU, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_%u_%s_BufferInfos);)", m_UboIndex, m_UboIndex, m_Stage.c_str());
+		m_DescriptorSets[0].m_DescriptorSet, %uU, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_%u_%s_BufferInfos);)", vUboIndex, vUboIndex, m_Stage.c_str());
 }
 
-std::string UBOEditor::Get_Cpp_LayoutBindings()
+std::string UBOEditor::Get_Cpp_LayoutBindings(const std::string& vRendererType, const uint32_t& vUboIndex)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	vk::ShaderStageFlagBits::eFragment;
 	std::string _ShaderStageFlagBits;
 	if (m_Stage == "Vert") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eVertex";
@@ -435,35 +463,41 @@ std::string UBOEditor::Get_Cpp_LayoutBindings()
 	else if (m_Stage == "Inter") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eIntersectionKHR";
 
 	return ct::toStr(u8R"(
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(%uU, vk::DescriptorType::eUniformBuffer, 1, %s);)", m_UboIndex, _ShaderStageFlagBits.c_str());
+	m_DescriptorSets[0].m_LayoutBindings.emplace_back(%uU, vk::DescriptorType::eUniformBuffer, 1, %s);)", vUboIndex, _ShaderStageFlagBits.c_str());
 }
 
-std::string UBOEditor::Get_Cpp_GetXML()
+std::string UBOEditor::Get_Cpp_GetXML(const std::string& vRendererType, const uint32_t& vUboIndex)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	std::string res;
 
 	for (auto item : m_Items)
 	{
-		res += item.Get_Cpp_GetXML(m_UboIndex);
+		res += item.Get_Cpp_GetXML(m_Stage, vUboIndex);
 	}
 
 	return res;
 }
 
-std::string UBOEditor::Get_Cpp_SetXML(const bool& vIsFirst)
+std::string UBOEditor::Get_Cpp_SetXML(const std::string& vRendererType, const uint32_t& vUboIndex, const bool& vIsFirst)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	std::string res;
 
 	for (auto item : m_Items)
 	{
-		res += item.Get_Cpp_SetXML(m_UboIndex, vIsFirst && res.empty());
+		res += item.Get_Cpp_SetXML(m_Stage, vUboIndex, vIsFirst && res.empty());
 	}
 
 	return res;
 }
 
-std::string UBOEditor::Get_Cpp_Header()
+std::string UBOEditor::Get_Cpp_Header(const std::string& vRendererType, const uint32_t& vUboIndex)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	std::string res = u8R"(
 	struct UBO_@INDEX@_@STAGE@ {)";
 
@@ -478,16 +512,18 @@ std::string UBOEditor::Get_Cpp_Header()
 	vk::DescriptorBufferInfo m_UBO_@INDEX@_@STAGE@_BufferInfos;)";
 
 	ct::replaceString(res, "@STAGE@", m_Stage);
-	ct::replaceString(res, "@INDEX@", ct::toStr(m_UboIndex));
+	ct::replaceString(res, "@INDEX@", ct::toStr(vUboIndex));
 
 	return res;
 }
 
-std::string UBOEditor::Get_Glsl_Header()
+std::string UBOEditor::Get_Glsl_Header(const std::string& vRendererType, const uint32_t& vUboIndex)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	std::string res = ct::toStr(u8R"(
 layout(std140, binding = %u) uniform UBO_%u_%s
-{)", m_UboIndex, m_UboIndex, m_Stage.c_str());
+{)", vUboIndex, vUboIndex, m_Stage.c_str());
 
 	for (auto item : m_Items)
 	{
@@ -500,8 +536,10 @@ layout(std140, binding = %u) uniform UBO_%u_%s
 	return res;
 }
 
-std::string UBOEditor::Get_Create_Header()
+std::string UBOEditor::Get_Create_Header(const std::string& vRendererType, const uint32_t& vUboIndex)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	std::string res = u8R"(
 	m_UBO_@INDEX@_@STAGE@_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_@INDEX@_@STAGE@));
 	m_UBO_@INDEX@_@STAGE@_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
@@ -513,28 +551,32 @@ std::string UBOEditor::Get_Create_Header()
 	}
 )";
 	ct::replaceString(res, "@STAGE@", m_Stage);
-	ct::replaceString(res, "@INDEX@", ct::toStr(m_UboIndex));
+	ct::replaceString(res, "@INDEX@", ct::toStr(vUboIndex));
 	return res;
 }
 
-std::string UBOEditor::Get_Upload_Header()
+std::string UBOEditor::Get_Upload_Header(const std::string& vRendererType, const uint32_t& vUboIndex)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	std::string res = u8R"(
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_@INDEX@_@STAGE@_Ptr, &m_UBO_@INDEX@_@STAGE@, sizeof(UBO_@INDEX@_@STAGE@));
 )";
 	ct::replaceString(res, "@STAGE@", m_Stage);
-	ct::replaceString(res, "@INDEX@", ct::toStr(m_UboIndex));
+	ct::replaceString(res, "@INDEX@", ct::toStr(vUboIndex));
 	return res;
 }
 
-std::string UBOEditor::Get_Destroy_Header()
+std::string UBOEditor::Get_Destroy_Header(const std::string& vRendererType, const uint32_t& vUboIndex)
 {
+	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
+
 	std::string res = u8R"(
 	m_UBO_@INDEX@_@STAGE@_Ptr.reset();
 	m_UBO_@INDEX@_@STAGE@_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 )";
 	ct::replaceString(res, "@STAGE@", m_Stage);
-	ct::replaceString(res, "@INDEX@", ct::toStr(m_UboIndex));
+	ct::replaceString(res, "@INDEX@", ct::toStr(vUboIndex));
 	return res;
 }
 
@@ -652,7 +694,6 @@ void UBOEditors::DrawPane(const std::string& vRendererType)
 				
 				UBOEditor editor;
 				editor.m_RendererType = vRendererType;
-				editor.m_UboIndex = (uint32_t)m_UBOEditors[defaultStage].size();
 				m_UBOEditors[defaultStage].push_back(editor);
 			}
 		}
@@ -762,11 +803,12 @@ std::string UBOEditors::Get_Widgets_Header()
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		for (auto& uboEditors : m_UBOEditors)
 		{
 			for (auto& uboEditor : uboEditors.second)
 			{
-				res += uboEditor.Get_Widgets_Header();
+				res += uboEditor.Get_Widgets_Header(m_RendererType,_uboIndex++);
 			}
 		}
 
@@ -790,11 +832,12 @@ std::string UBOEditors::Get_Glsl_Header(const std::string& vStage)
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		if (m_UBOEditors.find(vStage) != m_UBOEditors.end())
 		{
 			for (auto& uboEditor : m_UBOEditors[vStage])
 			{
-				res += uboEditor.Get_Glsl_Header();
+				res += uboEditor.Get_Glsl_Header(m_RendererType, _uboIndex++);
 			}
 		}
 	}
@@ -873,11 +916,12 @@ std::string UBOEditors::Get_Cpp_WriteDescriptors()
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		for (auto& uboEditors : m_UBOEditors)
 		{
 			for (auto& uboEditor : uboEditors.second)
 			{
-				res += uboEditor.Get_Cpp_WriteDescriptors();
+				res += uboEditor.Get_Cpp_WriteDescriptors(m_RendererType, _uboIndex++);
 			}
 		}
 	}
@@ -891,11 +935,12 @@ std::string UBOEditors::Get_Cpp_LayoutBindings()
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		for (auto& uboEditors : m_UBOEditors)
 		{
 			for (auto& uboEditor : uboEditors.second)
 			{
-				res += uboEditor.Get_Cpp_LayoutBindings();
+				res += uboEditor.Get_Cpp_LayoutBindings(m_RendererType, _uboIndex++);
 			}
 		}
 	}
@@ -909,11 +954,12 @@ std::string UBOEditors::Get_Cpp_GetXML()
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		for (auto& uboEditors : m_UBOEditors)
 		{
 			for (auto& uboEditor : uboEditors.second)
 			{
-				res += uboEditor.Get_Cpp_GetXML();
+				res += uboEditor.Get_Cpp_GetXML(m_RendererType, _uboIndex++);
 			}
 		}
 	}
@@ -927,11 +973,12 @@ std::string UBOEditors::Get_Cpp_SetXML()
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		for (auto& uboEditors : m_UBOEditors)
 		{
 			for (auto& uboEditor : uboEditors.second)
 			{
-				res += uboEditor.Get_Cpp_SetXML(res.empty());
+				res += uboEditor.Get_Cpp_SetXML(m_RendererType, _uboIndex++, res.empty());
 			}
 		}
 	}
@@ -945,11 +992,12 @@ std::string UBOEditors::Get_Cpp_Header()
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		for (auto& uboEditors : m_UBOEditors)
 		{
 			for (auto& uboEditor : uboEditors.second)
 			{
-				res += uboEditor.Get_Cpp_Header();
+				res += uboEditor.Get_Cpp_Header(m_RendererType, _uboIndex++);
 				res += u8R"(
 )";
 			}
@@ -963,7 +1011,7 @@ std::string UBOEditors::getXml(const std::string& vOffset, const std::string& vU
 {
 	std::string str;
 
-	str += vOffset + "<UBOS>\n";
+	str += vOffset + ct::toStr("<UBOS renderer=\"%s\">\n", m_RendererType.c_str());
 
 	for (auto& uboEditors : m_UBOEditors)
 	{
@@ -990,6 +1038,18 @@ bool UBOEditors::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 		strValue = vElem->GetText();
 	if (vParent != 0)
 		strParentName = vParent->Value();
+
+	if (strName == "UBOS")
+	{
+		for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
+		{
+			std::string attName = attr->Name();
+			std::string attValue = attr->Value();
+
+			if (attName == "renderer")
+				m_RendererType = attValue;
+		}
+	}
 
 	if (strParentName == "UBOS")
 	{
@@ -1025,7 +1085,6 @@ bool UBOEditors::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 				{
 					UBOEditor editor;
 					editor.m_RendererType = vUserDatas; 
-					editor.m_UboIndex = (uint32_t)m_UBOEditors[stage].size();
 					editor.setFromXml(vElem, vParent, vUserDatas);
 					m_UBOEditors[stage].push_back(editor);
 				}
@@ -1042,11 +1101,12 @@ std::string UBOEditors::Get_Create_Header()
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		for (auto& uboEditors : m_UBOEditors)
 		{
 			for (auto& uboEditor : uboEditors.second)
 			{
-				res += uboEditor.Get_Create_Header();
+				res += uboEditor.Get_Create_Header(m_RendererType, _uboIndex++);
 			}
 		}
 	}
@@ -1060,11 +1120,12 @@ std::string UBOEditors::Get_Upload_Header()
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		for (auto& uboEditors : m_UBOEditors)
 		{
 			for (auto& uboEditor : uboEditors.second)
 			{
-				res += uboEditor.Get_Upload_Header();
+				res += uboEditor.Get_Upload_Header(m_RendererType, _uboIndex++);
 			}
 		}
 	}
@@ -1078,11 +1139,12 @@ std::string UBOEditors::Get_Destroy_Header()
 
 	if (m_UseUbos)
 	{
+		uint32_t _uboIndex = 0U;
 		for (auto& uboEditors : m_UBOEditors)
 		{
 			for (auto& uboEditor : uboEditors.second)
 			{
-				res += uboEditor.Get_Destroy_Header();
+				res += uboEditor.Get_Destroy_Header(m_RendererType,_uboIndex++);
 			}
 		}
 	}
