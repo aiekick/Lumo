@@ -1210,8 +1210,9 @@ bool MODULE_CLASS_NAME::Init()
 		if (m_PASS_CLASS_NAME_Ptr)
 		{
 			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+			m_BillBoardRendererModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
+			m_BillBoardRendererModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+
 
 			if (m_PASS_CLASS_NAME_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
@@ -1237,7 +1238,7 @@ bool MODULE_CLASS_NAME::Init()
 		{
 			// by default but can be changed via widget
 			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_PASS_CLASS_NAME_Ptr->InitCompute1D(map_size))
 			{
@@ -1262,7 +1263,7 @@ bool MODULE_CLASS_NAME::Init()
 		{
 			// by default but can be changed via widget
 			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_PASS_CLASS_NAME_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
@@ -1287,7 +1288,7 @@ bool MODULE_CLASS_NAME::Init()
 		{
 			// by default but can be changed via widget
 			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_PASS_CLASS_NAME_Ptr->InitCompute3D(map_size))
 			{
@@ -1312,7 +1313,7 @@ bool MODULE_CLASS_NAME::Init()
 		{
 			// by default but can be changed via widget
 			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHand(true);
+			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_PASS_CLASS_NAME_Ptr->InitRtx(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
@@ -1883,11 +1884,11 @@ void PASS_CLASS_NAME::ActionBeforeInit()
 		//if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
 		{
 			cpp_pass_file_code += u8R"(
-	SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList); // display Triangles
-	m_LineWidth.x = 0.5f;	// min value
-	m_LineWidth.y = 10.0f;	// max value
-	m_LineWidth.z = 2.0f;	// default value
-	m_LineWidth.w;			// value to change)";
+	//SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList); // display Triangles
+	//m_LineWidth.x = 0.5f;	// min value
+	//m_LineWidth.y = 10.0f;	// max value
+	//m_LineWidth.z = 2.0f;	// default value
+	//m_LineWidth.w;			// value to change)";
 		}
 	}
 
@@ -2104,6 +2105,8 @@ void PASS_CLASS_NAME::AfterNodeXmlLoading()
 	ZoneScoped;
 
 	// code to do after end of the xml loading of this node
+	// by ex :
+	NeedNewUBOUpload();
 }
 )";
 

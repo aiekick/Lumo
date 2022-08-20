@@ -518,7 +518,7 @@ std::string UBOEditor::Get_Cpp_Header(const std::string& vRendererType, const in
 	res += u8R"(
 	} m_@UBO_NAME@;
 	VulkanBufferObjectPtr m_@UBO_NAME@_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_@UBO_NAME@_BufferInfos;)";
+	vk::DescriptorBufferInfo m_@UBO_NAME@_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };)";
 	ct::replaceString(res, "@UBO_NAME@", "UBO_" + (vUboIndex < 0 ? "" : ct::toStr(vUboIndex) + "_") + m_Stage);
 
 	return res;
