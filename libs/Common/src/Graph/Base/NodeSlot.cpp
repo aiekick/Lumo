@@ -476,14 +476,14 @@ void NodeSlot::SendNotification(const std::string& vSlotType, const NotifyEvent&
 void NodeSlot::Connect(NodeSlotWeak /*vOtherSlot*/)
 {
 #ifdef _DEBUG
-	LogVarInfo("NodeSlot::Connect catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+	//LogVarInfo("NodeSlot::Connect catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 #endif
 }
 
 void NodeSlot::DisConnect(NodeSlotWeak /*vOtherSlot*/)
 {
 #ifdef _DEBUG
-	LogVarInfo("NodeSlot::DisConnect catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+	//LogVarInfo("NodeSlot::DisConnect catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 #endif
 }
 
