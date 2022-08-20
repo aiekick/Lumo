@@ -159,6 +159,8 @@ protected:
 
 	GenericType m_RendererType = GenericType::NONE;					// Renderer Type
 	
+	bool m_BlendingEnabled = false;
+
 	ct::fvec4 m_LineWidth = ct::fvec4(0.0f, 0.0f, 0.0f, 1.0f);		// line width
 	vk::PolygonMode m_PolygonMode = vk::PolygonMode::eFill;
 	vk::CullModeFlagBits m_CullMode = vk::CullModeFlagBits::eNone;
@@ -224,7 +226,7 @@ public:
 	/// allod of block reisze by hand only
 	/// </summary>
 	/// <param name="vResizing"></param>
-	void AllowResizeByHand(const bool& vResizing); // allow or block the resize
+	void AllowResizeByHandOrByInputs(const bool& vResizing); // allow or block the resize
 
 	/// <summary>
 	/// to call when from resize event
@@ -414,28 +416,44 @@ protected:
 	virtual void DestroySBO();
 
 	// Ressource Descriptor
+	virtual bool UpdateRessourceDescriptors();
 	virtual bool UpdateLayoutBindingInRessourceDescriptor();
+	virtual bool UpdateBufferInfoInRessourceDescriptor();
 
-	/*bool AddOrSetDescriptorImage(
+	void ClearWriteDescriptors();
+	void ClearWriteDescriptors(const uint32_t& DescriptorSetIndex);
+	bool AddOrSetWriteDescriptorImage(
 		const uint32_t& vBinding, 
 		const vk::DescriptorType& vType, 
 		vk::DescriptorImageInfo* vImageInfo, 
 		const uint32_t& vCount = 1U, 
 		const uint32_t& DescriptorSetIndex = 0U);
-	bool AddOrSetDescriptorBuffer(
+	bool AddOrSetWriteDescriptorBuffer(
 		const uint32_t& vBinding, 
 		const vk::DescriptorType& vType, 
 		vk::DescriptorBufferInfo* vBufferInfo, 
 		const uint32_t& vCount = 1U, 
 		const uint32_t& DescriptorSetIndex = 0U);
-	bool AddOrSetDescriptorBufferView(
+	bool AddOrSetWriteDescriptorBufferView(
 		const uint32_t& vBinding, 
 		const vk::DescriptorType& vType, 
 		vk::BufferView* vBufferView, 
 		const uint32_t& vCount = 1U, 
-		const uint32_t& DescriptorSetIndex = 0U);*/
+		const uint32_t& DescriptorSetIndex = 0U);
 
-	virtual bool UpdateBufferInfoInRessourceDescriptor();
+	void ClearLayoutDescriptors();
+	void ClearLayoutDescriptors(const uint32_t& DescriptorSetIndex);
+	bool AddOrSetLayoutDescriptor(
+		const uint32_t& vBinding,
+		const vk::DescriptorType& vType,
+		const vk::ShaderStageFlags& vStage,
+		const uint32_t& vCount = 1U,
+		const uint32_t& DescriptorSetIndex = 0U);
+
+	// will produce errors eventually only in debug, for dev debugging
+	void CheckLayoutBinding(const uint32_t& DescriptorSetIndex = 0U);
+	void CheckWriteDescriptors(const uint32_t& DescriptorSetIndex = 0U);
+
 	bool CreateRessourceDescriptor();
 	void DestroyRessourceDescriptor();
 

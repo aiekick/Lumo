@@ -20,6 +20,7 @@ limitations under the License.
 #include "ShaderPass.h"
 
 #include <functional>
+#include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
 #include <vkFramework/VulkanSubmitter.h>
@@ -502,7 +503,7 @@ void ShaderPass::AllowResizeOnResizeEvents(const bool& vResizing)
 	m_ResizingByResizeEventIsAllowed = vResizing;
 }
 
-void ShaderPass::AllowResizeByHand(const bool& vResizing)
+void ShaderPass::AllowResizeByHandOrByInputs(const bool& vResizing)
 {
 	m_ResizingByHandIsAllowed = vResizing;
 }
@@ -1540,6 +1541,11 @@ void ShaderPass::DestroySBO()
 //// PRIVATE / RESSOURCE DESCRIPTORS ///////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+bool ShaderPass::UpdateRessourceDescriptors()
+{
+	return UpdateBufferInfoInRessourceDescriptor() && UpdateLayoutBindingInRessourceDescriptor();
+}
+
 bool ShaderPass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
@@ -1568,8 +1574,27 @@ bool ShaderPass::UpdateLayoutBindingInRessourceDescriptor()
 	return res;
 }
 
-/*
-bool ShaderPass::AddOrSetDescriptorImage(
+/////////////////////////////////////////////////////////////////////
+//// WRITE DESCRIPTORS //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+void ShaderPass::ClearWriteDescriptors()
+{
+	for (uint32_t idx = 0U; idx < m_DescriptorSets.size(); ++idx)
+	{
+		ClearWriteDescriptors(idx);
+	}
+}
+
+void ShaderPass::ClearWriteDescriptors(const uint32_t& DescriptorSetIndex)
+{
+	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
+	{
+		m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.clear();
+	}
+}
+
+bool ShaderPass::AddOrSetWriteDescriptorImage(
 	const uint32_t& vBinding, 
 	const vk::DescriptorType& vType, 
 	vk::DescriptorImageInfo* vImageInfo, 
@@ -1578,23 +1603,44 @@ bool ShaderPass::AddOrSetDescriptorImage(
 {
 	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
 	{
-		if (vBinding < (uint32_t)m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.size())
+		if (vImageInfo && vImageInfo->imageView)
 		{
-			if (vImageInfo && vImageInfo->imageView)
+			bool _needUpdate = false;
+			uint32_t indexToUpdate = 0U;
+			for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets)
+			{
+				if (desc.dstBinding == vBinding)
+				{
+					_needUpdate = true;
+					break;
+				}
+				++indexToUpdate;
+			}
+
+			// update
+			if (_needUpdate)
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, vImageInfo);
+			}
+			else // add
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
 					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
 					vType, vImageInfo);
-
-				return true;
 			}
 		}
+
+		CheckWriteDescriptors(DescriptorSetIndex);
+
+		return true;
 	}
 
 	return false;
 }
 
-bool ShaderPass::AddOrSetDescriptorBuffer(
+bool ShaderPass::AddOrSetWriteDescriptorBuffer(
 	const uint32_t& vBinding,
 	const vk::DescriptorType& vType,
 	vk::DescriptorBufferInfo* vBufferInfo,
@@ -1603,7 +1649,35 @@ bool ShaderPass::AddOrSetDescriptorBuffer(
 {
 	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
 	{
-		if (vBinding < (uint32_t)m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.size())
+		bool _needUpdate = false;
+		uint32_t indexToUpdate = 0U;
+		for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets)
+		{
+			if (desc.dstBinding == vBinding)
+			{
+				_needUpdate = true;
+				break;
+			}
+			++indexToUpdate;
+		}
+
+		// update
+		if (_needUpdate)
+		{
+			if (vBufferInfo && vBufferInfo->buffer)
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, vBufferInfo);
+			}
+			else
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+			}
+		}
+		else // add
 		{
 			if (vBufferInfo && vBufferInfo->buffer)
 			{
@@ -1617,15 +1691,17 @@ bool ShaderPass::AddOrSetDescriptorBuffer(
 					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
 					vType, nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 			}
-
-			return true;
 		}
+
+		CheckWriteDescriptors(DescriptorSetIndex);
+
+		return true;
 	}
 
 	return false;
 }
 
-bool ShaderPass::AddOrSetDescriptorBufferView(
+bool ShaderPass::AddOrSetWriteDescriptorBufferView(
 	const uint32_t& vBinding,
 	const vk::DescriptorType& vType,
 	vk::BufferView* vBufferView,
@@ -1634,7 +1710,35 @@ bool ShaderPass::AddOrSetDescriptorBufferView(
 {
 	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
 	{
-		if (vBinding < (uint32_t)m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.size())
+		bool _needUpdate = false;
+		uint32_t indexToUpdate = 0U;
+		for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets)
+		{
+			if (desc.dstBinding == vBinding)
+			{
+				_needUpdate = true;
+				break;
+			}
+			++indexToUpdate;
+		}
+
+		// update
+		if (_needUpdate)
+		{
+			if (vBufferView)
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, nullptr, vBufferView);
+			}
+			else
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
+			}
+		}
+		else // Add
 		{
 			if (vBufferView)
 			{
@@ -1646,16 +1750,124 @@ bool ShaderPass::AddOrSetDescriptorBufferView(
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
 					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
-					vType, nullptr, nullptr, vBufferView);
+					vType, nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
 			}
-
-			return true;
 		}
+
+		CheckWriteDescriptors(DescriptorSetIndex);
+
+		return true;
 	}
 
 	return false;
 }
-*/
+
+void ShaderPass::CheckWriteDescriptors(const uint32_t& DescriptorSetIndex)
+{
+#ifdef _DEBUG
+	// en debug, au moment de la creation du node
+	// il est interressant de verifier les collisions de binding points
+	std::set<uint32_t> vBindingPoints;
+	for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets)
+	{
+		if (vBindingPoints.find(desc.dstBinding) == vBindingPoints.end())
+		{
+			vBindingPoints.emplace(desc.dstBinding);
+		}
+		else
+		{
+			LogVarError("Duplicated bidning point %u found in the WriteDescriptorSet", desc.dstBinding);
+			CTOOL_DEBUG_BREAK;
+		}
+	}
+#endif
+}
+
+/////////////////////////////////////////////////////////////////////
+//// LAYOUT DESCRIPTORS /////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+void ShaderPass::ClearLayoutDescriptors()
+{
+	for (uint32_t idx = 0U; idx < m_DescriptorSets.size(); ++idx)
+	{
+		ClearLayoutDescriptors(idx);
+	}
+}
+
+void ShaderPass::ClearLayoutDescriptors(const uint32_t& DescriptorSetIndex)
+{
+	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
+	{
+		m_DescriptorSets[DescriptorSetIndex].m_LayoutBindings.clear();
+	}
+}
+
+bool ShaderPass::AddOrSetLayoutDescriptor(
+	const uint32_t& vBinding,
+	const vk::DescriptorType& vType,
+	const vk::ShaderStageFlags& vStage,
+	const uint32_t& vCount,
+	const uint32_t& DescriptorSetIndex)
+{
+	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
+	{
+		bool _needUpdate = false;
+		uint32_t indexToUpdate = 0U;
+		for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_LayoutBindings)
+		{
+			if (desc.binding == vBinding)
+			{
+				_needUpdate = true;
+				break;
+			}
+			++indexToUpdate;
+		}
+
+		// update
+		if (_needUpdate)
+		{
+			m_DescriptorSets[DescriptorSetIndex].m_LayoutBindings[indexToUpdate] =
+				vk::DescriptorSetLayoutBinding(vBinding, vType, vCount, vStage);
+		}
+		else // Add
+		{
+			m_DescriptorSets[DescriptorSetIndex].m_LayoutBindings.emplace_back(
+				vBinding, vType, vCount, vStage);
+		}
+
+		CheckLayoutBinding(DescriptorSetIndex);
+
+		return true;
+	}
+
+	return false;
+}
+
+void ShaderPass::CheckLayoutBinding(const uint32_t& DescriptorSetIndex)
+{
+#ifdef _DEBUG
+	// en debug, au moment de la creation du node
+	// il est interressant de verifier les collisions de binding points
+	std::set<uint32_t> vBindingPoints;
+	for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_LayoutBindings)
+	{
+		if (vBindingPoints.find(desc.binding) == vBindingPoints.end())
+		{
+			vBindingPoints.emplace(desc.binding);
+		}
+		else
+		{
+			LogVarError("Duplicated bidning point %u found in the WriteDescriptorSet", desc.binding);
+			CTOOL_DEBUG_BREAK;
+		}
+	}
+#endif
+}
+
+/////////////////////////////////////////////////////////////////////
+//// RESSOURCE DESCRIPTORS //////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 bool ShaderPass::CreateRessourceDescriptor()
 {
@@ -1769,6 +1981,10 @@ void ShaderPass::DestroyRessourceDescriptor()
 	m_DescriptorSets[0] = DescriptorSetStruct{};
 }
 
+/////////////////////////////////////////////////////////////////////
+//// RESSOURCE DESCRIPTORS //////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
 void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	bool needReCompil = false;
@@ -1803,10 +2019,18 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 	}
 }
 
+/////////////////////////////////////////////////////////////////////
+//// FBO CLEARING ///////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
 void ShaderPass::NeedToClearFBOThisFrame()
 {
 	m_ForceFBOClearing = true;
 }
+
+/////////////////////////////////////////////////////////////////////
+//// RESIZING ///////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
 
 bool ShaderPass::DrawResizeWidget()
 {
@@ -1985,72 +2209,85 @@ bool ShaderPass::CreatePixelPipeline()
 	//multisampleState.sampleShadingEnable = VK_TRUE;
 	//multisampleState.minSampleShading = 0.2f;
 
-	auto depthStencilState = vk::PipelineDepthStencilStateCreateInfo(
-		vk::PipelineDepthStencilStateCreateFlags(),
-		VK_TRUE,
-		VK_TRUE,
-		vk::CompareOp::eLessOrEqual,
-		VK_FALSE,
-		VK_FALSE,
-		vk::StencilOpState(),
-		vk::StencilOpState(),
-		0,
-		0
-	);
-
-#ifdef BLEND_ENABLED
 	m_BlendAttachmentStates.clear();
-	for (uint32_t i = 0; i < m_CountColorBuffers; ++i)
+	vk::PipelineDepthStencilStateCreateInfo depthStencilState;
+	vk::PipelineColorBlendStateCreateInfo colorBlendState;
+	if (m_BlendingEnabled)
 	{
-		m_BlendAttachmentStates.emplace_back(
-			VK_TRUE,
-			vk::BlendFactor::eSrcAlpha,
-			vk::BlendFactor::eOneMinusSrcAlpha,
-			vk::BlendOp::eAdd,
-			vk::BlendFactor::eOne,
-			vk::BlendFactor::eZero,
-			vk::BlendOp::eAdd,
-			vk::ColorComponentFlags(
-				vk::ColorComponentFlagBits::eR |
-				vk::ColorComponentFlagBits::eG |
-				vk::ColorComponentFlagBits::eB |
-				vk::ColorComponentFlagBits::eA));
-	}
+		for (uint32_t i = 0; i < m_CountColorBuffers; ++i)
+		{
+			m_BlendAttachmentStates.emplace_back(
+				VK_TRUE,
+				vk::BlendFactor::eOne,
+				vk::BlendFactor::eOne,
+				vk::BlendOp::eAdd,
+				vk::BlendFactor::eSrcAlpha,
+				vk::BlendFactor::eDstAlpha,
+				vk::BlendOp::eAdd,
+				vk::ColorComponentFlags(
+					vk::ColorComponentFlagBits::eR |
+					vk::ColorComponentFlagBits::eG |
+					vk::ColorComponentFlagBits::eB |
+					vk::ColorComponentFlagBits::eA));
+		}
 
-	auto colorBlendState = vk::PipelineColorBlendStateCreateInfo(
-		vk::PipelineColorBlendStateCreateFlags(),
-		VK_FALSE,
-		vk::LogicOp::eCopy,
-		static_cast<uint32_t>(m_BlendAttachmentStates.size()),
-		m_BlendAttachmentStates.data()
-	);
-#else
-	m_BlendAttachmentStates.clear();
-	for (uint32_t i = 0; i < m_CountColorBuffers; ++i)
-	{
-		m_BlendAttachmentStates.emplace_back(
+		colorBlendState = vk::PipelineColorBlendStateCreateInfo(
+			vk::PipelineColorBlendStateCreateFlags(),
 			VK_FALSE,
-			vk::BlendFactor::eZero,
-			vk::BlendFactor::eOne,
-			vk::BlendOp::eAdd,
-			vk::BlendFactor::eZero,
-			vk::BlendFactor::eZero,
-			vk::BlendOp::eAdd,
-			vk::ColorComponentFlags(
-				vk::ColorComponentFlagBits::eR |
-				vk::ColorComponentFlagBits::eG |
-				vk::ColorComponentFlagBits::eB |
-				vk::ColorComponentFlagBits::eA));
+			vk::LogicOp::eCopy,
+			static_cast<uint32_t>(m_BlendAttachmentStates.size()),
+			m_BlendAttachmentStates.data()
+		);
+
+		depthStencilState = vk::PipelineDepthStencilStateCreateInfo(
+			vk::PipelineDepthStencilStateCreateFlags(),
+			VK_FALSE,
+			VK_FALSE,
+			vk::CompareOp::eAlways
+		);
+	}
+	
+	else
+	{
+		for (uint32_t i = 0; i < m_CountColorBuffers; ++i)
+		{
+			m_BlendAttachmentStates.emplace_back(
+				VK_FALSE,
+				vk::BlendFactor::eOne,
+				vk::BlendFactor::eZero,
+				vk::BlendOp::eAdd,
+				vk::BlendFactor::eOne,
+				vk::BlendFactor::eZero,
+				vk::BlendOp::eAdd,
+				vk::ColorComponentFlags(
+					vk::ColorComponentFlagBits::eR |
+					vk::ColorComponentFlagBits::eG |
+					vk::ColorComponentFlagBits::eB |
+					vk::ColorComponentFlagBits::eA));
+		}
+
+		colorBlendState = vk::PipelineColorBlendStateCreateInfo(
+			vk::PipelineColorBlendStateCreateFlags(),
+			VK_FALSE,
+			vk::LogicOp::eClear,
+			static_cast<uint32_t>(m_BlendAttachmentStates.size()),
+			m_BlendAttachmentStates.data()
+		);
+
+		depthStencilState = vk::PipelineDepthStencilStateCreateInfo(
+			vk::PipelineDepthStencilStateCreateFlags(),
+			VK_TRUE,
+			VK_TRUE,
+			vk::CompareOp::eLessOrEqual,
+			VK_FALSE,
+			VK_FALSE,
+			vk::StencilOpState(),
+			vk::StencilOpState(),
+			0.0f,
+			0.0f
+		);
 	}
 
-	auto colorBlendState = vk::PipelineColorBlendStateCreateInfo(
-		vk::PipelineColorBlendStateCreateFlags(),
-		VK_FALSE,
-		vk::LogicOp::eClear,
-		static_cast<uint32_t>(m_BlendAttachmentStates.size()),
-		m_BlendAttachmentStates.data()
-	);
-#endif
 	auto dynamicStateList = std::vector<vk::DynamicState>{
 		vk::DynamicState::eViewport
 		,vk::DynamicState::eScissor
