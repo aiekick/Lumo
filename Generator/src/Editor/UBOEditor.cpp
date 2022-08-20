@@ -682,6 +682,8 @@ UBOEditors::UBOEditors()
 
 void UBOEditors::DrawPane(const std::string& vRendererType)
 {
+	m_RendererType = vRendererType;
+
 	ImGui::Separator();
 
 	ImGui::CheckBoxBoolDefault("Use A UBO", &m_UseUbos, true);
