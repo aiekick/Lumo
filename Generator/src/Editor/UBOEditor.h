@@ -40,9 +40,9 @@ public:
 	void DrawItem(const std::string& vStage);
 	std::string Get_Glsl_Item_Header();
 	std::string Get_Cpp_Item_Header();
-	std::string Get_Cpp_GetXML(const std::string& vStage, const uint32_t& vUboIndex);
-	std::string Get_Cpp_SetXML(const std::string& vStage, const uint32_t& vUboIndex, const bool& vIsFirst);
-	std::string Get_Cpp_Item_Widget(const std::string& vStage, const uint32_t& vUboIndex);
+	std::string Get_Cpp_GetXML(const std::string& vStage, const int32_t& vUboIndex);
+	std::string Get_Cpp_SetXML(const std::string& vStage, const int32_t& vUboIndex, const bool& vIsFirst);
+	std::string Get_Cpp_Item_Widget(const std::string& vStage, const int32_t& vUboIndex);
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };
@@ -64,16 +64,16 @@ public:
 	bool DrawStageSelection(const std::string& vRendererType);
 	void DrawPane(const std::string& vRendererType);
 	
-	std::string Get_Widgets_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
-	std::string Get_Glsl_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
-	std::string Get_Cpp_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
-	std::string Get_Cpp_WriteDescriptors(const std::string& vRendererType, const uint32_t& vUboIndex);
-	std::string Get_Cpp_LayoutBindings(const std::string& vRendererType, const uint32_t& vUboIndex);
-	std::string Get_Cpp_GetXML(const std::string& vRendererType, const uint32_t& vUboIndex);
-	std::string Get_Cpp_SetXML(const std::string& vRendererType, const uint32_t& vUboIndex, const bool& vIsFirst);
-	std::string Get_Create_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
-	std::string Get_Upload_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
-	std::string Get_Destroy_Header(const std::string& vRendererType, const uint32_t& vUboIndex);
+	std::string Get_Widgets_Header(const std::string& vRendererType, const int32_t& vUboIndex);
+	std::string Get_Glsl_Header(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex);
+	std::string Get_Cpp_Header(const std::string& vRendererType, const int32_t& vUboIndex);
+	std::string Get_Cpp_WriteDescriptors(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex);
+	std::string Get_Cpp_LayoutBindings(const std::string& vRendererType, const int32_t& vUboBindingIndex);
+	std::string Get_Cpp_GetXML(const std::string& vRendererType, const int32_t& vUboIndex);
+	std::string Get_Cpp_SetXML(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsFirst);
+	std::string Get_Create_Header(const std::string& vRendererType, const int32_t& vUboIndex);
+	std::string Get_Upload_Header(const std::string& vRendererType, const int32_t& vUboIndex);
+	std::string Get_Destroy_Header(const std::string& vRendererType, const int32_t& vUboIndex);
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

@@ -576,6 +576,7 @@ std::shared_ptr<NODE_CLASS_NAME> NODE_CLASS_NAME::Create(vkApi::VulkanCorePtr vV
 	{
 		res.reset();
 	}
+
 	return res;
 }
 
@@ -735,6 +736,8 @@ void NODE_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 		cpp_node_file_code += u8R"(
 void NODE_CLASS_NAME::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
+	ZoneScoped;
+
 	auto slotPtr = vSlot.getValidShared();
 	if (slotPtr && slotPtr->showWidget)
 	{
@@ -752,6 +755,8 @@ void NODE_CLASS_NAME::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWea
 		cpp_node_file_code += u8R"(
 void NODE_CLASS_NAME::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
+	ZoneScoped;
+
 	auto slotPtr = vSlot.getValidShared();
 	if (slotPtr && slotPtr->showWidget)
 	{
@@ -798,12 +803,12 @@ void NODE_CLASS_NAME::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 
 void NODE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	ZoneScoped;)";
+	ZoneScoped;
+)";
 
 		if (m_GenerateAModule)
 		{
 			cpp_node_file_code += u8R"(
-
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
@@ -905,7 +910,9 @@ bool NODE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 }
 
 void NODE_CLASS_NAME::AfterNodeXmlLoading()
-{)";
+{
+	ZoneScoped;
+)";
 	if (m_GenerateAModule)
 	{
 		cpp_node_file_code += u8R"(
@@ -928,12 +935,12 @@ void NODE_CLASS_NAME::AfterNodeXmlLoading()
 
 void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
 {	
-	ZoneScoped;)";
+	ZoneScoped;
+)";
 
 		if (m_GenerateAModule)
 		{
 			cpp_node_file_code += u8R"(
-
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->UpdateShaders(vFiles);
@@ -941,8 +948,6 @@ void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
 		}
 		else
 		{
-			cpp_node_file_code += u8R"(
-)";
 		}
 
 		cpp_node_file_code += u8R"(
@@ -1139,6 +1144,7 @@ std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(vkApi::VulkanCorePt
 	{
 		res.reset();
 	}
+
 	return res;
 }
 
@@ -1194,7 +1200,6 @@ bool MODULE_CLASS_NAME::Init()
 		if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 		{
 			cpp_module_file_code += u8R"(
-
 	ct::uvec2 map_size = 512;
 
 	if (BaseRenderer::InitPixel(map_size))
@@ -1221,7 +1226,6 @@ bool MODULE_CLASS_NAME::Init()
 		else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
 		{
 			cpp_module_file_code += u8R"(
-
 	uint32_t map_size = 512;
 
 	if (BaseRenderer::InitCompute1D(map_size))
@@ -1247,7 +1251,6 @@ bool MODULE_CLASS_NAME::Init()
 		else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 		{
 			cpp_module_file_code += u8R"(
-
 	ct::uvec2 map_size = 512;
 
 	if (BaseRenderer::InitCompute2D(map_size))
@@ -1273,7 +1276,6 @@ bool MODULE_CLASS_NAME::Init()
 		else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 		{
 			cpp_module_file_code += u8R"(
-
 	ct::uvec3 map_size = 512;
 
 	if (BaseRenderer::InitCompute3D(map_size))
@@ -1299,7 +1301,6 @@ bool MODULE_CLASS_NAME::Init()
 		else if (m_RendererType == RENDERER_TYPE_RTX)
 		{
 			cpp_module_file_code += u8R"(
-
 	ct::uvec2 map_size = 512;
 
 	if (BaseRenderer::InitRtx(map_size))
@@ -1372,7 +1373,8 @@ bool MODULE_CLASS_NAME::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Com
 	BaseRenderer::Render("MODULE_DISPLAY_NAME", vCmd);
 
 	return true;
-})";
+}
+)";
 	}
 
 	cpp_module_file_code += u8R"(
@@ -1413,8 +1415,7 @@ bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 		cpp_module_file_code += u8R"(
 			return change;
-		}
-)";
+		})";
 	}
 
 	if (m_IsATask)
@@ -1432,16 +1433,15 @@ void MODULE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fr
 	ZoneScoped;
 
 	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
-)";
+	ImGui::SetCurrentContext(vContext);)";
 	if (m_IsATask)
 	{
 		cpp_module_file_code += u8R"(
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
-	}
-)";
+	})";
 	}
 	cpp_module_file_code += u8R"(
 }
@@ -1451,16 +1451,15 @@ void MODULE_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 	ZoneScoped;
 
 	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
-)";
+	ImGui::SetCurrentContext(vContext);)";
 	if (m_IsATask)
 	{
 		cpp_module_file_code += u8R"(
+
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
-	}
-)";
+	})";
 	}
 	cpp_module_file_code += u8R"(
 }
@@ -1542,16 +1541,19 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();)";
 	}
-	cpp_module_file_code += u8R"(
-)";
 	if (m_GenerateAPass)
 	{
+		if (m_RendererType != RENDERER_TYPE_NONE)
+		{
+			cpp_module_file_code += u8R"(
+)";
+		}
+
 		cpp_module_file_code += u8R"(
 		if (m_PASS_CLASS_NAME_Ptr)
 		{
 			m_PASS_CLASS_NAME_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
-)";
+		})";
 	}
 
 	cpp_module_file_code += u8R"(
@@ -1561,7 +1563,9 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 }
 
 void MODULE_CLASS_NAME::AfterNodeXmlLoading()
-{)";
+{
+	ZoneScoped;
+)";
 	if (m_GenerateAModule)
 	{
 		cpp_module_file_code += u8R"(
@@ -1851,6 +1855,8 @@ PASS_CLASS_NAME::PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
 {)";
 
 	cpp_pass_file_code += u8R"(
+	ZoneScoped;
+
 	SetRenderDocDebugName("RENDERER_DISPLAY_TYPE Pass : MODULE_DISPLAY_NAME", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 )";
 
@@ -1860,11 +1866,15 @@ PASS_CLASS_NAME::PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
 
 PASS_CLASS_NAME::~PASS_CLASS_NAME()
 {
+	ZoneScoped;
+
 	Unit();
 }
 
 void PASS_CLASS_NAME::ActionBeforeInit()
 {
+	ZoneScoped;
+
 	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 )";
 
@@ -1933,10 +1943,10 @@ void PASS_CLASS_NAME::ActionBeforeInit()
 
 bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
-	ZoneScoped;
 
 	bool change = false;
 
@@ -1951,18 +1961,18 @@ bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 void PASS_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
-	ZoneScoped;
 }
 
 void PASS_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
-	ZoneScoped;
 }
 )";
 
@@ -2047,6 +2057,8 @@ bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
 
 std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
+	ZoneScoped;
+
 	std::string str;
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
@@ -2088,6 +2100,8 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 
 void PASS_CLASS_NAME::AfterNodeXmlLoading()
 {
+	ZoneScoped;
+
 	// code to do after end of the xml loading of this node
 }
 )";
@@ -4723,7 +4737,7 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 				{
 					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
-					NeedResizeByHandIfChanged(m_ImageGroupSizes[0]);
+					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
 				}
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
@@ -4776,12 +4790,12 @@ SlotStringStruct GeneratorNode::GetSlotTextureOutput(NodeSlotOutputPtr vSlot)
 
 vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
-	ZoneScoped;)";
+	ZoneScoped;
+)";
 
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
-
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
@@ -4790,7 +4804,6 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 	}
 
 	res.cpp_node_func += u8R"(
-
 	return nullptr;
 }
 )";
@@ -4806,12 +4819,12 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 
 vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
-	ZoneScoped;)";
+	ZoneScoped;
+)";
 
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
-
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
@@ -4820,7 +4833,6 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 	}
 
 	res.cpp_module_func += u8R"(
-
 	return nullptr;
 }
 )";
