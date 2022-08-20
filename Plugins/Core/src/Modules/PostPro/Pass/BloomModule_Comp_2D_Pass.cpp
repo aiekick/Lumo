@@ -713,7 +713,7 @@ bool BloomModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "blur_module")
+	if (strParentName == "bloom_module")
 	{
 		if (strName == "blur_radius")
 			m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
