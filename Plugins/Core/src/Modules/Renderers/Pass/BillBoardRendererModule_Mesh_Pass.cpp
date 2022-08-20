@@ -363,8 +363,10 @@ std::string BillBoardRendererModule_Mesh_Pass::getXml(const std::string& vOffset
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<alpha_power>" + ct::toStr(m_UBO_Frag.u_alpha_power) + "</alpha_power>\n";
+	str += vOffset + "<count_instances>" + ct::toStr(m_UBO_Vert.u_count_instances) + "</count_instances>\n";
 	str += vOffset + "<scale>" + ct::toStr(m_UBO_Vert.u_scale) + "</scale>\n";
+	str += vOffset + "<alpha_power>" + ct::toStr(m_UBO_Frag.u_alpha_power) + "</alpha_power>\n";
+	str += vOffset + "<tint_color>" + m_UBO_Frag.u_tint_color.string() + "</tint_color>\n";
 
 	return str;
 }
@@ -389,10 +391,14 @@ bool BillBoardRendererModule_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, 
 	if (strParentName == "billboard_renderer_module")
 	{
 
-		if (strName == "alpha_power")
-			m_UBO_Frag.u_alpha_power = ct::fvariant(strValue).GetF();
+		if (strName == "count_instances")
+			m_UBO_Vert.u_count_instances = ct::uvariant(strValue).GetU();
 		else if (strName == "scale")
 			m_UBO_Vert.u_scale = ct::fvariant(strValue).GetF();
+		else if (strName == "alpha_power")
+			m_UBO_Frag.u_alpha_power = ct::fvariant(strValue).GetF();
+		else if (strName == "tint_color")
+			m_UBO_Frag.u_tint_color = ct::fvariant(strValue).GetV3();
 	}
 
 	return true;

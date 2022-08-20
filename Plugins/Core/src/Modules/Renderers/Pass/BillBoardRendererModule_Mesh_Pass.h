@@ -64,7 +64,7 @@ private:
 
 	struct UBO_Frag {
 		alignas(4) float u_alpha_power = 1.0f;
-		alignas(16) ct::fvec3 u_tint_color = 1.0f;
+		alignas(16) ct::fvec3 u_tint_color = 0.001f;
 	} m_UBO_Frag;
 
 	VulkanBufferObjectPtr m_UBO_Frag_Ptr = nullptr;
