@@ -38,6 +38,7 @@ public:
 	void clear();
 	bool empty();
 	size_t size();
+	SceneMeshWeak at(const size_t& vIdx) const;
 	std::vector<SceneMeshPtr>::iterator begin();
 	std::vector<SceneMeshPtr>::iterator end();
 	void Add(const SceneMeshPtr& vSubMesh);

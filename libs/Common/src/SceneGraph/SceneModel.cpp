@@ -27,6 +27,16 @@ SceneModelPtr SceneModel::Create()
 	return res;
 }
 
+SceneMeshWeak SceneModel::at(const size_t& vIdx) const
+{
+	if (vIdx < m_Meshs.size())
+	{
+		return m_Meshs[vIdx];
+	}
+
+	return SceneMeshWeak();
+}
+
 std::vector<SceneMeshPtr>::iterator SceneModel::begin()
 {
 	return m_Meshs.begin();
