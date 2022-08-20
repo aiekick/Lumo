@@ -1883,10 +1883,11 @@ void PASS_CLASS_NAME::ActionBeforeInit()
 		//if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
 		{
 			cpp_pass_file_code += u8R"(
-	m_PrimitiveTopology = vk::PrimitiveTopology::eTriangleList; // display Triangles
+	SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList); // display Triangles
 	m_LineWidth.x = 0.5f;	// min value
 	m_LineWidth.y = 10.0f;	// max value
-	m_LineWidth.z = 2.0f;	// default value)";
+	m_LineWidth.z = 2.0f;	// default value
+	m_LineWidth.w;			// value to change)";
 		}
 	}
 

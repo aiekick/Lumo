@@ -23,7 +23,7 @@ enum class MeshShaderPassType : uint8_t
 {
 	NONE = 0,
 	PIXEL,			// vertex + fragment (shader + m_Pipelines[0] + ubo + fbo + renderpass + command buffer)
-	PIXEL_MERGER,		// pas de shader ni m_Pipelines[0] ni ubo, mais command buffer, fbo et renderpass
+	PIXEL_MERGER,	// pas de shader ni m_Pipelines[0] ni ubo, mais command buffer, fbo et renderpass
 	Count
 };
 

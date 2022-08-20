@@ -661,6 +661,19 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 			devicePtr->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
 		}
 
+		if (m_CanDynamicallyChangePrimitiveTopology)
+		{
+			vCmdBuffer->setPrimitiveTopologyEXT(m_DynamicPrimitiveTopology);
+			if (GetPrimitiveTopologyFamily(m_DynamicPrimitiveTopology) == vk::PrimitiveTopology::eLineList)
+			{
+				vCmdBuffer->setLineWidth(m_LineWidth.w);
+			}
+		}
+		else if (GetPrimitiveTopologyFamily(m_BasePrimitiveTopology) == vk::PrimitiveTopology::eLineList)
+		{
+			vCmdBuffer->setLineWidth(m_LineWidth.w);
+		}
+
 		if (IsPixelRenderer())
 		{
 			if (m_FrameBufferPtr && 
@@ -714,6 +727,66 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 			devicePtr->EndDebugLabel(vCmdBuffer);
 		}
 	}
+}
+
+// dynamic change is possible only if the next topolgy is int eh same class than
+// the original provided to the CreatePipeline
+bool ShaderPass::ChangeDynamicPrimitiveTopology(const vk::PrimitiveTopology& vPrimitiveTopology, const bool& vForce)
+{
+	if (m_CanDynamicallyChangePrimitiveTopology)
+	{
+		// we will check if this is the same familly of m_BasePrimitiveTopology
+		// https://vulkan.lunarg.com/doc/view/1.2.182.0/windows/1.2-extensions/vkspec.html#drawing-primitive-topology-class
+
+		if (GetPrimitiveTopologyFamily(vPrimitiveTopology) == GetPrimitiveTopologyFamily(m_BasePrimitiveTopology))
+		{
+			m_DynamicPrimitiveTopology = vPrimitiveTopology;
+			return true;
+		}
+		else if (vForce)
+		{
+			m_BasePrimitiveTopology = vPrimitiveTopology;
+			m_DynamicPrimitiveTopology = vPrimitiveTopology;
+			DestroyPipeline();
+			CreatePixelPipeline();
+		}
+	}
+
+	return false;
+}
+
+void ShaderPass::SetDynamicallyChangePrimitiveTopology(const bool& vFlag)
+{
+	m_CanDynamicallyChangePrimitiveTopology = vFlag;
+}
+
+void ShaderPass::SetPrimitveTopology(const vk::PrimitiveTopology& vPrimitiveTopology)
+{
+	m_BasePrimitiveTopology = vPrimitiveTopology;
+}
+
+vk::PrimitiveTopology ShaderPass::GetPrimitiveTopologyFamily(const vk::PrimitiveTopology& vPrimitiveTopology)
+{
+	switch (vPrimitiveTopology)
+	{
+	case vk::PrimitiveTopology::ePointList:
+		return vk::PrimitiveTopology::ePointList;
+	case vk::PrimitiveTopology::eLineList:
+	case vk::PrimitiveTopology::eLineStrip:
+	case vk::PrimitiveTopology::eLineListWithAdjacency:
+	case vk::PrimitiveTopology::eLineStripWithAdjacency:
+		return vk::PrimitiveTopology::eLineList;
+	case vk::PrimitiveTopology::eTriangleList:
+	case vk::PrimitiveTopology::eTriangleStrip:
+	case vk::PrimitiveTopology::eTriangleFan:
+	case vk::PrimitiveTopology::eTriangleListWithAdjacency:
+	case vk::PrimitiveTopology::eTriangleStripWithAdjacency:
+		return vk::PrimitiveTopology::eTriangleList;
+	//case vk::PrimitiveTopology::ePatchList:
+	//	return vk::PrimitiveTopology::ePatchList;
+	}
+
+	return vk::PrimitiveTopology::ePatchList;
 }
 
 bool ShaderPass::CanRender()
@@ -1884,7 +1957,7 @@ bool ShaderPass::CreatePixelPipeline()
 	// setup fix functions
 	auto assemblyState = vk::PipelineInputAssemblyStateCreateInfo(
 		vk::PipelineInputAssemblyStateCreateFlags(),
-		m_PrimitiveTopology
+		m_BasePrimitiveTopology
 	);
 
 	auto viewportState = vk::PipelineViewportStateCreateInfo(
@@ -1897,9 +1970,9 @@ bool ShaderPass::CreatePixelPipeline()
 		vk::PipelineRasterizationStateCreateFlags(),
 		VK_FALSE,
 		VK_FALSE,
-		vk::PolygonMode::eFill,
-		vk::CullModeFlagBits::eNone,
-		vk::FrontFace::eCounterClockwise,
+		m_PolygonMode,
+		m_CullMode,
+		m_FrontFaceMode,
 		VK_FALSE,
 		0,
 		0,
@@ -1982,8 +2055,14 @@ bool ShaderPass::CreatePixelPipeline()
 		vk::DynamicState::eViewport
 		,vk::DynamicState::eScissor
 		,vk::DynamicState::eLineWidth
-		//,vk::DynamicState::ePrimitiveTopologyEXT
+		//,vk::DynamicState::eCullMode
+		//,vk::DynamicState::eFrontFace
 	};
+
+	if (m_CanDynamicallyChangePrimitiveTopology)
+	{
+		dynamicStateList.push_back(vk::DynamicState::ePrimitiveTopologyEXT);
+	}
 
 	auto dynamicState = vk::PipelineDynamicStateCreateInfo(
 		vk::PipelineDynamicStateCreateFlags(),

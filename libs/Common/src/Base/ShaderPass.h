@@ -97,6 +97,11 @@ private:
 	ct::uvec3 m_DispatchSize = 1U;			// COMPUTE dispatch size
 	ct::uvec3 m_LocalGroupSize = 1U;		// COMPUTE local group size
 
+private:
+	bool m_CanDynamicallyChangePrimitiveTopology = false;
+	vk::PrimitiveTopology m_BasePrimitiveTopology = vk::PrimitiveTopology::eTriangleList;
+	vk::PrimitiveTopology m_DynamicPrimitiveTopology = vk::PrimitiveTopology::eTriangleList;
+
 protected:
 	bool m_Loaded = false;
 	bool m_DontUseShaderFilesOnDisk = false;
@@ -155,7 +160,9 @@ protected:
 	GenericType m_RendererType = GenericType::NONE;					// Renderer Type
 	
 	ct::fvec4 m_LineWidth = ct::fvec4(0.0f, 0.0f, 0.0f, 1.0f);		// line width
-	vk::PrimitiveTopology m_PrimitiveTopology = vk::PrimitiveTopology::eTriangleList;
+	vk::PolygonMode m_PolygonMode = vk::PolygonMode::eFill;
+	vk::CullModeFlagBits m_CullMode = vk::CullModeFlagBits::eNone;
+	vk::FrontFace m_FrontFaceMode = vk::FrontFace::eCounterClockwise;
 
 	VertexStruct::PipelineVertexInputState m_InputState;
 
@@ -307,6 +314,30 @@ public:
 	virtual void SwapMultiPassFrontBackDescriptors(); 
 
 	void DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber = 1U);
+
+	/// <summary>
+	/// chnage the primitive topology if enebled with m_CanDynamicallyChangePrimitiveTopology
+	/// return true if the vPrimitiveTopology was accepted
+	/// vForce will recreate the pipeline
+	/// </summary>
+	/// <returns>return true if the vPrimitiveTopology was accepeted</returns>
+	bool ChangeDynamicPrimitiveTopology(const vk::PrimitiveTopology& vPrimitiveTopology, const bool& vForce = false);
+
+	/// <summary>
+	/// enable or disable the dynamic change of primitive topology
+	/// </summary>
+	void SetDynamicallyChangePrimitiveTopology(const bool& vFlag);
+
+	/// <summary>
+	/// will define the base primitive topology
+	/// </summary>
+	/// <param name="vNewSize"></param>
+	void SetPrimitveTopology(const vk::PrimitiveTopology& vPrimitiveTopology);
+
+	/// <summary>
+	/// get the family of a Primitive Topology
+	/// </summary>
+	vk::PrimitiveTopology GetPrimitiveTopologyFamily(const vk::PrimitiveTopology& vPrimitiveTopology);
 
 	// draw primitives
 	virtual bool CanRender();

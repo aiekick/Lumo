@@ -57,6 +57,7 @@ namespace vkApi
 		vk::PhysicalDeviceAccelerationStructureFeaturesKHR m_AccelerationStructureFeature;
 		vk::PhysicalDeviceRayTracingPipelineFeaturesKHR m_RayTracingPipelineFeature;
 		vk::PhysicalDeviceRayTracingPipelinePropertiesKHR m_RayTracingDeviceProperties;
+		vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT m_DynamicStates;
 		vk::PhysicalDeviceBufferDeviceAddressFeatures m_BufferDeviceAddress;
 		vk::PhysicalDeviceFeatures m_PhysDeviceFeatures;
 		vk::PhysicalDeviceFeatures2 m_PhysDeviceFeatures2;
