@@ -27,7 +27,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/MeshShaderPass.h>
+#include <Base/QuadShaderPass.h>
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -45,7 +45,7 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 
 class BillBoardRendererModule_Mesh_Pass :
-	public MeshShaderPass<VertexStruct::P3_N3_TA3_BTA3_T2_C4>,
+	public QuadShaderPass,
 	public ModelInputInterface,
 	public TextureInputInterface<1>,
 	public TextureOutputInterface,
@@ -53,18 +53,22 @@ class BillBoardRendererModule_Mesh_Pass :
 	public NodeInterface
 {
 private:
-	struct UBO_Frag {
-		alignas(4) float u_alpha_power = 1.0f;
-	} m_UBO_Frag;
-	VulkanBufferObjectPtr m_UBO_Frag_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos;
-
 	struct UBO_Vert {
 		alignas(4) float u_scale = 1.0f;
+		alignas(4) uint32_t u_count_instances = 1000U;
 	} m_UBO_Vert;
 	VulkanBufferObjectPtr m_UBO_Vert_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Vert_BufferInfos;
+	vk::DescriptorBufferInfo m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
+	vk::DescriptorBufferInfo m_Vertices_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+
+	struct UBO_Frag {
+		alignas(4) float u_alpha_power = 1.0f;
+		alignas(16) ct::fvec3 u_tint_color = 1.0f;
+	} m_UBO_Frag;
+
+	VulkanBufferObjectPtr m_UBO_Frag_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
 public:
 	BillBoardRendererModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -72,8 +76,7 @@ public:
 
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
-
-	void DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber) override;
+	bool CanRender() override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
@@ -84,7 +87,6 @@ public:
 
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
