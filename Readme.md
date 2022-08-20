@@ -13,8 +13,9 @@ Lumo is "Light" in Esperanto, its a short and pretty word to me :)
 * Can Render mesh's or sdf's in the same way
 * And finally can export rendering to picture, video, and maybe a self little portable binary form to be used everywhere
 * Implement some specific VFX algo by plugigns like (compute based mesh sim, morphogenesis, sdf meshing)
+* all these algos at max as possible in GPU only (include mesh generation)
 
-at least, support all rendering features and result of the SketchFab Renderer
+at least, support all rendering features and result of the SketchFab Renderer (yes im loving it haha)
 
 # Gettings Started 
 
@@ -23,6 +24,11 @@ at least, support all rendering features and result of the SketchFab Renderer
 - Left mouse double click on a texture slot (Orange) of nodes for show the result in the 3d viewport
 - Middle mouse double click on a texture slot (Orange) of nodes for show the result in the 2d viewport
 - select a node and you can tune it in the tuning pane
+
+## to note :
+ the resize events are propagated from the head of the graph (the head is the texture slots you selected)
+ so when you just select a texture slot from a already created node, maybe you need to reisze the 3d viewport for make it updated.
+ (to fix in few version, the resize system will be improved, but its not my priority, for the moment)
 
 thats all
 
@@ -132,6 +138,8 @@ thats all
 | :white_square_button: | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Matcap Renderer Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / PBR Renderer Node (WIP) | ![img](https://progress-bar.dev/10) |
+| :white_square_button: | Renderers / Model Renderer Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / Billboard Renderer Node | ![img](https://progress-bar.dev/50) |
 | :white_square_button: | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Utils / Depth To Pos Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Utils / Math Node | ![img](https://progress-bar.dev/100) |
