@@ -803,6 +803,7 @@ void NODE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 		if (m_GenerateAModule)
 		{
 			cpp_node_file_code += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
@@ -932,6 +933,7 @@ void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
 		if (m_GenerateAModule)
 		{
 			cpp_node_file_code += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->UpdateShaders(vFiles);
@@ -1545,10 +1547,10 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 	if (m_GenerateAPass)
 	{
 		cpp_module_file_code += u8R"(
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
-		m_PASS_CLASS_NAME_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
+		if (m_PASS_CLASS_NAME_Ptr)
+		{
+			m_PASS_CLASS_NAME_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		}
 )";
 	}
 
@@ -3391,6 +3393,7 @@ void NODE_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStruc
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetAccelStructure(vSceneAccelStructure);
@@ -3422,6 +3425,7 @@ void MODULE_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStr
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetAccelStructure(vSceneAccelStructure);
@@ -3496,6 +3500,7 @@ SceneAccelStructureWeak NODE_CLASS_NAME::GetAccelStruct()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetAccelStruct();
@@ -3514,6 +3519,7 @@ vk::WriteDescriptorSetAccelerationStructureKHR* NODE_CLASS_NAME::GetTLASInfo()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTLASInfo();
@@ -3532,6 +3538,7 @@ vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetBufferAddressInfo()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetBufferAddressInfo();
@@ -3560,6 +3567,7 @@ SceneAccelStructureWeak MODULE_CLASS_NAME::GetAccelStruct()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetAccelStruct();
@@ -3578,6 +3586,7 @@ vk::WriteDescriptorSetAccelerationStructureKHR* MODULE_CLASS_NAME::GetTLASInfo()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetTLASInfo();
@@ -3596,6 +3605,7 @@ vk::DescriptorBufferInfo* MODULE_CLASS_NAME::GetBufferAddressInfo()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetBufferAddressInfo();
@@ -3683,6 +3693,7 @@ void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetLightGroup(vSceneLightGroup);
@@ -3714,6 +3725,7 @@ void MODULE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetLightGroup(vSceneLightGroup);
@@ -3799,6 +3811,7 @@ SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetLightGroup();
@@ -3827,6 +3840,7 @@ SceneLightGroupWeak MODULE_CLASS_NAME::GetLightGroup()
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetLightGroup();
@@ -3898,6 +3912,7 @@ void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetModel(vSceneModel);
@@ -3929,6 +3944,7 @@ void MODULE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetModel(vSceneModel);
@@ -4003,6 +4019,7 @@ SceneModelWeak NODE_CLASS_NAME::GetModel()
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetModel();
@@ -4031,6 +4048,7 @@ SceneModelWeak MODULE_CLASS_NAME::GetModel()
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetModel();
@@ -4102,6 +4120,7 @@ void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetStorageBuffer(vBindingPoint, vStorageBuffer, vStorageBufferSize);
@@ -4133,6 +4152,7 @@ void MODULE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Desc
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetStorageBuffer(vBindingPoint, vStorageBuffer, vStorageBufferSize);
@@ -4225,6 +4245,7 @@ vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetStorageBuffer(vBindingPoint, vOutSize);
@@ -4253,6 +4274,7 @@ vk::DescriptorBufferInfo* MODULE_CLASS_NAME::GetStorageBuffer(const uint32_t& vB
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetStorageBuffer(vBindingPoint, vOutSize);
@@ -4324,6 +4346,7 @@ void NODE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* 
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexelBuffer(vBindingPoint, vTexelBuffer, vTexelBufferSize);
@@ -4345,6 +4368,7 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexelBufferView(vBindingPoint, vTexelBufferView, vTexelBufferSize);
@@ -4376,6 +4400,7 @@ void MODULE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTexelBuffer(vBindingPoint, vTexelBuffer, vTexelBufferSize);
@@ -4397,6 +4422,7 @@ void MODULE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Bu
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTexelBufferView(vBindingPoint, vTexelBufferView, vTexelBufferSize);
@@ -4515,6 +4541,7 @@ vk::Buffer* NODE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct::u
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTexelBuffer(vBindingPoint, vOutSize);
@@ -4533,6 +4560,7 @@ vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTexelBufferView(vBindingPoint, vOutSize);
@@ -4561,6 +4589,7 @@ vk::Buffer* MODULE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct:
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetTexelBuffer(vBindingPoint, vOutSize);
@@ -4579,6 +4608,7 @@ vk::BufferView* MODULE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPo
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetTexelBufferView(vBindingPoint, vOutSize);
@@ -4658,6 +4688,7 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
@@ -4689,6 +4720,7 @@ void MODULE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::Descriptor
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
@@ -4783,6 +4815,7 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
@@ -4811,6 +4844,7 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
@@ -4839,6 +4873,7 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
 		res.cpp_pass_func += u8R"(
+
 	if (m_FrameBufferPtr)
 	{
 		if (vOutSize)
@@ -4913,6 +4948,7 @@ void NODE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
@@ -4944,6 +4980,7 @@ void MODULE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descri
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
@@ -5038,6 +5075,7 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetTextureCube(const uint32_t& vBindin
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTextureCube(vBindingPoint, vOutSize);
@@ -5066,6 +5104,7 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetTextureCube(const uint32_t& vBind
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetTextureCube(vBindingPoint, vOutSize);
@@ -5137,6 +5176,7 @@ void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
@@ -5168,6 +5208,7 @@ void MODULE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorIma
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
@@ -5260,6 +5301,7 @@ DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
@@ -5288,6 +5330,7 @@ DescriptorImageInfoVector* MODULE_CLASS_NAME::GetDescriptorImageInfos(const uint
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
@@ -5359,6 +5402,7 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetVariable(vVarIndex, vSceneVariable);
@@ -5390,6 +5434,7 @@ void MODULE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetVariable(vVarIndex, vSceneVariable);
@@ -5470,6 +5515,7 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 	if (m_GenerateAModule)
 	{
 		res.cpp_node_func += u8R"(
+
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetVariable(vVariableIndex)
@@ -5498,6 +5544,7 @@ SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 	if (m_GenerateAPass)
 	{
 		res.cpp_module_func += u8R"(
+
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetVariable(vVariableIndex)
