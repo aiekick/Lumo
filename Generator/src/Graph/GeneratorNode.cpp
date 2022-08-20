@@ -1870,10 +1870,10 @@ void PASS_CLASS_NAME::ActionBeforeInit()
 
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		//if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
 		{
 			cpp_pass_file_code += u8R"(
-	m_PrimitiveTopology = vk::PrimitiveTopology::eLineList; // display lines
+	m_PrimitiveTopology = vk::PrimitiveTopology::eTriangleList; // display Triangles
 	m_LineWidth.x = 0.5f;	// min value
 	m_LineWidth.y = 10.0f;	// max value
 	m_LineWidth.z = 2.0f;	// default value)";
@@ -1940,7 +1940,7 @@ bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 	bool change = false;
 
-	//change |= DrawResizeWidget();
+	change |= DrawResizeWidget();
 )";
 	cpp_pass_file_code += m_UBOEditors.Get_Widgets_Header();
 
@@ -1963,13 +1963,13 @@ void PASS_CLASS_NAME::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
-})";
+}
+)";
 
 	cpp_pass_file_code += GetPassInputCppFuncs(vDico);
 	cpp_pass_file_code += GetPassOutputCppFuncs(vDico);
 
 	cpp_pass_file_code += u8R"(
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2034,7 +2034,8 @@ bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
 	cpp_pass_file_code += u8R"(
 	
 	return true;
-})";
+}
+)";
 
 	cpp_pass_file_code += GetPassShaderCode();
 
@@ -2053,6 +2054,7 @@ std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::strin
 	cpp_pass_file_code += m_UBOEditors.Get_Cpp_GetXML();
 	
 	cpp_pass_file_code += u8R"(
+
 	return str;
 }
 
@@ -2564,8 +2566,7 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 	{
 		res += u8R"(
 	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
-)";
+		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output)";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
@@ -2665,24 +2666,18 @@ layout(location = 2) in vec3 aTangent;
 layout(location = 3) in vec3 aBiTangent;
 layout(location = 4) in vec2 aUv;
 layout(location = 5) in vec4 aColor;
-
+layout(location = 0) out vec4 vertColor;
 )";
 			res += m_UBOEditors.Get_Glsl_Header("Vert");
 			res += u8R"(
 
-layout(location = 0) out vec4 vertColor;
-))"; res += u8R"(
+))"; res += u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
-layout (std140, binding = 1) uniform UBO_Vert 
-{ 
-	mat4 transform;
-};
-
 void main() 
 {
 	vertColor = aColor;
-	gl_Position = cam * transform * vec4(aPosition, 1.0);
+	gl_Position = cam * vec4(aPosition, 1.0);
 }
 ))"; res += u8R"(";
 }
@@ -2695,20 +2690,10 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
-
 layout(location = 0) in vec4 vertColor;
 )";
 			res += m_UBOEditors.Get_Glsl_Header("Frag");
 			res += u8R"(
-
-)"; res += u8R"(
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
-u8R"(
-layout(std140, binding = 2) uniform UBO_Frag 
-{ 
-	//uint channel_idx;	// 0..3
-	//uint color_count;	// 0..N
-};
 
 void main() 
 {
@@ -2733,7 +2718,7 @@ layout(location = 0) out vec4 vertColor;
 			res += m_UBOEditors.Get_Glsl_Header("Vert");
 			res += u8R"(
 
-) "
+))"; res += u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout(std140, binding = 1) uniform UBOStruct {
@@ -2792,22 +2777,13 @@ std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
-
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
-
 )";
 	res += m_UBOEditors.Get_Glsl_Header("Comp");
 	res += u8R"(
 
-layout(binding = 1) uniform sampler2D input_mask;
-
 void main()
 {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
-
-	vec4 color = vec4(coords, 0, 1);
-
-	imageStore(colorBuffer, coords, color); 
 }
 ))";
 	res += u8R"(";
@@ -2829,12 +2805,9 @@ std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 layout(binding = 0, rgba32f) uniform image2D colorBuffer;
-
 )";
 		res += m_UBOEditors.Get_Glsl_Header("Comp");
 		res += u8R"(
-
-layout(binding = 1) uniform sampler2D input_mask;
 
 void main()
 {
@@ -2862,22 +2835,13 @@ std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
-
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
-
 )";
 	res += m_UBOEditors.Get_Glsl_Header("Comp");
 	res += u8R"(
 
-layout(binding = 1) uniform sampler2D input_mask;
-
 void main()
 {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
-
-	vec4 color = vec4(coords, 0, 1);
-
-	imageStore(colorBuffer, coords, color); 
 }
 ))";
 	res += u8R"(";
@@ -2897,7 +2861,7 @@ std::string PbrRenderer_Rtx_Pass::GetRayGenerationShaderCode(std::string& vOutSh
 
 layout(binding = 0, rgba32f) uniform writeonly image2D out_color;
 layout(binding = 1) uniform accelerationStructureEXT tlas;
-) "
+))"; res += u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(2U) +
 u8R"(
 
@@ -4758,6 +4722,8 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 				if (vTextureSize)
 				{
 					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+					NeedResizeByHandIfChanged(m_ImageGroupSizes[0]);
 				}
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
@@ -4824,6 +4790,7 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 	}
 
 	res.cpp_node_func += u8R"(
+
 	return nullptr;
 }
 )";
@@ -4853,6 +4820,7 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 	}
 
 	res.cpp_module_func += u8R"(
+
 	return nullptr;
 }
 )";
@@ -4902,6 +4870,7 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 	}
 
 	res.cpp_pass_func += u8R"(
+
 	return nullptr;
 }
 )";

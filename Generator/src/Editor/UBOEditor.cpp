@@ -548,8 +548,7 @@ std::string UBOEditor::Get_Create_Header(const std::string& vRendererType, const
 		m_UBO_@INDEX@_@STAGE@_BufferInfos.buffer = m_UBO_@INDEX@_@STAGE@_Ptr->buffer;
 		m_UBO_@INDEX@_@STAGE@_BufferInfos.range = sizeof(UBO_@INDEX@_@STAGE@);
 		m_UBO_@INDEX@_@STAGE@_BufferInfos.offset = 0;
-	}
-)";
+	})";
 	ct::replaceString(res, "@STAGE@", m_Stage);
 	ct::replaceString(res, "@INDEX@", ct::toStr(vUboIndex));
 	return res;
@@ -560,8 +559,7 @@ std::string UBOEditor::Get_Upload_Header(const std::string& vRendererType, const
 	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
 
 	std::string res = u8R"(
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_@INDEX@_@STAGE@_Ptr, &m_UBO_@INDEX@_@STAGE@, sizeof(UBO_@INDEX@_@STAGE@));
-)";
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_@INDEX@_@STAGE@_Ptr, &m_UBO_@INDEX@_@STAGE@, sizeof(UBO_@INDEX@_@STAGE@));)";
 	ct::replaceString(res, "@STAGE@", m_Stage);
 	ct::replaceString(res, "@INDEX@", ct::toStr(vUboIndex));
 	return res;
@@ -573,8 +571,7 @@ std::string UBOEditor::Get_Destroy_Header(const std::string& vRendererType, cons
 
 	std::string res = u8R"(
 	m_UBO_@INDEX@_@STAGE@_Ptr.reset();
-	m_UBO_@INDEX@_@STAGE@_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-)";
+	m_UBO_@INDEX@_@STAGE@_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };)";
 	ct::replaceString(res, "@STAGE@", m_Stage);
 	ct::replaceString(res, "@INDEX@", ct::toStr(vUboIndex));
 	return res;
@@ -815,11 +812,11 @@ std::string UBOEditors::Get_Widgets_Header()
 		if (!res.empty())
 		{
 			res += u8R"(
+
 	if (change)
 	{
 		NeedNewUBOUpload();
-	}
-)";
+	})";
 		}
 	}
 
@@ -865,10 +862,10 @@ bool PASS_CLASS_NAME::CreateUBO()
 	NeedNewUBOUpload();
 
 	return true;
-})";
+}
+)";
 
 		res += u8R"(
-
 void PASS_CLASS_NAME::UploadUBO()
 {
 	ZoneScoped;
@@ -877,18 +874,20 @@ void PASS_CLASS_NAME::UploadUBO()
 		res += Get_Upload_Header();
 
 		res += u8R"(
-})";
+}
+)";
 
 		res += u8R"(
-
 void PASS_CLASS_NAME::DestroyUBO()
 {
-	ZoneScoped;)";
+	ZoneScoped;
+)";
 
 		res += Get_Destroy_Header();
 
 		res += u8R"(
-})";
+}
+)";
 	}
 
 	return res;
