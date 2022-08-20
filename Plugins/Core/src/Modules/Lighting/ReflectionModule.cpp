@@ -94,7 +94,7 @@ bool ReflectionModule::Init()
 		{
 			// by default but can be changed via widget
 			//m_Reflection_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_Reflection_Quad_Pass_Ptr->AllowResizeByHand(true);
+			//m_Reflection_Quad_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_Reflection_Quad_Pass_Ptr->InitPixel(map_size, 1U, false, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))

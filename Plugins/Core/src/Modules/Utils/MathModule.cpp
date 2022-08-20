@@ -86,7 +86,7 @@ bool MathModule::Init()
 		{
 			// will be resized ot input size
 			m_MathModule_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			m_MathModule_Quad_Pass_Ptr->AllowResizeByHand(true);
+			m_MathModule_Quad_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_MathModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))

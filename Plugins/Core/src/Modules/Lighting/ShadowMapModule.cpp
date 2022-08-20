@@ -116,7 +116,7 @@ bool ShadowMapModule::Init()
 					1024U, 1U, m_FrameBuffers[0]->GetRenderPass(),
 					vk::SampleCountFlagBits::e1))
 				{
-					m_ShadowMapModule_Mesh_Pass_Ptr->AllowResizeByHand(true);
+					m_ShadowMapModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 					m_ShadowMapModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(false); // 1024 is fixed
 					AddGenericPass(m_ShadowMapModule_Mesh_Pass_Ptr);
 					m_Loaded = true;

@@ -86,7 +86,7 @@ bool GrayScottModule::Init()
 		{
 			// by default but can be changed via widget
 			m_GrayScottModule_Comp_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			m_GrayScottModule_Comp_Pass_Ptr->AllowResizeByHand(true);
+			m_GrayScottModule_Comp_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_GrayScottModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{

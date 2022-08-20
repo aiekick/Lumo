@@ -95,7 +95,7 @@ bool ParamDiffCurveModule::Init()
 		{
 			// by default but can be changed via widget
 			//m_ParamDiffCurveModule_Comp_1D_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_ParamDiffCurveModule_Comp_1D_Pass_Ptr->AllowResizeByHand(true);
+			//m_ParamDiffCurveModule_Comp_1D_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_ParamDiffCurveModule_Comp_1D_Pass_Ptr->InitCompute1D(map_size))
 			{

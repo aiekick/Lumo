@@ -84,7 +84,7 @@ bool Normal2DModule::Init()
 		{
 			// will be resized ot input size
 			m_Normal2DModule_Comp_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			m_Normal2DModule_Comp_Pass_Ptr->AllowResizeByHand(true);
+			m_Normal2DModule_Comp_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_Normal2DModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{

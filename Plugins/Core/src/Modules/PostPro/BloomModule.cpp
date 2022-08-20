@@ -95,7 +95,7 @@ bool BloomModule::Init()
 		{
 			// by default but can be changed via widget
 			//m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeByHand(true);
+			//m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_BloomModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 2U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
