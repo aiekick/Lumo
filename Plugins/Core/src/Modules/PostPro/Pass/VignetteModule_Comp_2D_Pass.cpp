@@ -71,7 +71,7 @@ bool VignetteModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 
 	bool change = false;
 
-	//change |= DrawResizeWidget();
+	change |= DrawResizeWidget();
 
 	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Width", &m_UBO_1_Comp.u_Width, 0.000f, 0.500f, 0.250f, 0.0f, "%.3f");
 	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &m_UBO_1_Comp.u_Intensity, 0.000f, 30.000f, 15.000f, 0.0f, "%.3f");
