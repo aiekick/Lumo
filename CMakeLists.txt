@@ -8,6 +8,7 @@ project(${PROJECT} CXX)
 
 option(USE_PLUGINS "Enable the plugins building" OFF)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
+option(USE_LUMO_TEST "Enable Tests" OFF)
 
 if (USE_PLUGINS)
 	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easier dev" OFF)
@@ -245,6 +246,15 @@ add_custom_command(
 if (USE_CODE_GENERATOR)
 	add_subdirectory(Generator)
 	set_target_properties(LumoCodeGenerator PROPERTIES FOLDER Lumo_Z_Apps)
+endif()
+
+########################################################
+############# BUILD CODE GENERATOR TOOL ################
+########################################################
+
+if (USE_LUMO_TEST)
+	enable_testing()
+	add_definitions(-DTEST_ENABLED)
 endif()
 
 #############################################################
