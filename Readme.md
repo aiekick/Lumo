@@ -180,9 +180,8 @@ thats all
 
 | Published | Node | status |
 | - | - | - |
-| :white_square_button: | Emitters / Mesh Emitter Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Emitters / Point Emitter Node | ![img](https://progress-bar.dev/20) |
-| :white_square_button: | Simulation / Simulation Node | ![img](https://progress-bar.dev/50) |
+| :white_square_button: | Emitters / Point Emitter Node | ![img](https://progress-bar.dev/20) |
+| :black_square_button: | Simulation / Simulation Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Constraints / Force Node | ![img](https://progress-bar.dev/0) |
 
 ## RTX Plugin :
