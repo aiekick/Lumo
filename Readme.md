@@ -118,19 +118,19 @@ thats all
 | :black_square_button: | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Misc / 2D Layering Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Misc / Parametric Curve Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Misc / Parametric Differential Curve Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Misc / Parametric UV Surface Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Blur Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Bloom Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Vignette Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Primitves / UV Sphere Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitves / Ico Sphere Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitves / Cube Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitves / Torus Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / UV Sphere Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Cube Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Parametric Ansolute Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Parametric Differential Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
 | :white_square_button: | Preview / Cube Map Preview Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Preview / LongLat Preview Node | ![img](https://progress-bar.dev/100) |
@@ -140,7 +140,7 @@ thats all
 | :white_square_button: | Renderers / Matcap Renderer Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / PBR Renderer Node | ![img](https://progress-bar.dev/10) |
 | :white_square_button: | Renderers / Model Renderer Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / Billboard Renderer Node | ![img](https://progress-bar.dev/50) |
+| :white_square_button: | Renderers / Billboard Renderer Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Utils / Depth To Pos Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Utils / Math Node | ![img](https://progress-bar.dev/100) |
@@ -180,15 +180,9 @@ thats all
 
 | Published | Node | status |
 | - | - | - |
-| :white_square_button: | Emitters / Mesh Emitter Node | ![img](https://progress-bar.dev/90) |
-| :black_square_button: | Emitters / Point Emitter Node | ![img](https://progress-bar.dev/50) |
-| :black_square_button: |  Emitters / Mesh Fur Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: |  Renderers / Billboard Renderer Node | ![img](https://progress-bar.dev/20) |
-| :white_square_button: | Renderers / Point Renderer Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: |  Renderers / Mesh Fur Renderer Node  | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Simulation / Simulation Node | ![img](https://progress-bar.dev/50) |
-| :black_square_button: |  Simulation / Mesh Fur Simulation Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: |  Constraints / Force Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Emitters / Point Emitter Node | ![img](https://progress-bar.dev/20) |
+| :black_square_button: | Simulation / Simulation Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Constraints / Force Node | ![img](https://progress-bar.dev/0) |
 
 ## RTX Plugin :
 
