@@ -1,6 +1,6 @@
 #pragma once
 
-#define Particles_BuildNumber 339
+#define Particles_BuildNumber 340
 #define Particles_MinorNumber 0
 #define Particles_MajorNumber 0
-#define Particles_BuildId "0.0.339"
+#define Particles_BuildId "0.0.340"

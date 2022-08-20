@@ -40,6 +40,8 @@
 #include <Nodes/PostPro/ToneMapNode.h>
 #include <Nodes/PostPro/VignetteNode.h>
 
+#include <Nodes/Procedural/ParamDiffCurveNode.h>
+
 #include <Nodes/Preview/CubeMapPreviewNode.h>
 #include <Nodes/Preview/LongLatPeviewNode.h>
 
@@ -48,6 +50,9 @@
 #include <Nodes/Renderers/HeatmapRendererNode.h>
 #include <Nodes/Renderers/DeferredRendererNode.h>
 #include <Nodes/Renderers/PBRRendererNode.h>
+#include <Nodes/Renderers/BillBoardRendererNode.h>
+#include <Nodes/Renderers/CurveRendererNode.h>
+#include <Nodes/Renderers/PointRendererNode.h>
 
 #include <Nodes/Simulation/GrayScottNode.h>
 
@@ -182,11 +187,16 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Tone Map", "TONE_MAP"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Vignette", "VIGNETTE"));
 
+	res.push_back(AddLibraryEntry("Core/3D/Procedural", "Parametric Differential Curve", "PARAM_DIFF_CURVE"));
+		
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Channels", "CHANNEL_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Deferred", "DEFERRED_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Heatmap", "HEATMAP_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Matcap", "MATCAP_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "PBR", "PBR_RENDERER"));
+	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Billboard", "BILLBOARD_RENDERER"));
+	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Curves", "CURVE_RENDERER"));
+	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Point", "POINT_RENDERER"));
 
 	res.push_back(AddLibraryEntry("Core/2D/Simulation", "GrayScott", "2D_SIMULATION_GRAY_SCOTT"));
 
@@ -236,6 +246,9 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "TONE_MAP")						return ToneMapNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "VIGNETTE")						return VignetteNode::Create(vkCorePtr);
 
+	// Procedural
+	else if (vPluginNodeName == "PARAM_DIFF_CURVE")				return ParamDiffCurveNode::Create(vkCorePtr);
+	
 	// Preview
 	else if (vPluginNodeName == "CUBE_MAP_PREVIEW")				return CubeMapPreviewNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "LONG_LAT_PREVIEW")				return LongLatPeviewNode::Create(vkCorePtr);
@@ -246,6 +259,9 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "HEATMAP_RENDERER")				return HeatmapRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "MATCAP_RENDERER")				return MatcapRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "PBR_RENDERER")					return PBRRendererNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "BILLBOARD_RENDERER")			return BillBoardRendererNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "CURVE_RENDERER")				return CurveRendererNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "POINT_RENDERER")				return PointRendererNode::Create(vkCorePtr);
 
 	// Simulations
 	else if (vPluginNodeName == "2D_SIMULATION_GRAY_SCOTT")		return GrayScottNode::Create(vkCorePtr);
