@@ -177,7 +177,6 @@ void VignetteModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 	}
 }
 
-
 bool VignetteModule_Comp_2D_Pass::CreateUBO()
 {
 	ZoneScoped;
@@ -191,7 +190,6 @@ bool VignetteModule_Comp_2D_Pass::CreateUBO()
 		m_UBO_1_Comp_BufferInfos.offset = 0;
 	}
 
-
 	NeedNewUBOUpload();
 
 	return true;
@@ -202,7 +200,6 @@ void VignetteModule_Comp_2D_Pass::UploadUBO()
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_1_Comp_Ptr, &m_UBO_1_Comp, sizeof(UBO_1_Comp));
-
 }
 
 void VignetteModule_Comp_2D_Pass::DestroyUBO()
@@ -210,8 +207,8 @@ void VignetteModule_Comp_2D_Pass::DestroyUBO()
 	ZoneScoped;
 	m_UBO_1_Comp_Ptr.reset();
 	m_UBO_1_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-
 }
+
 bool VignetteModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;

@@ -40,7 +40,7 @@ ModelShadowModule_Quad_Pass::ModelShadowModule_Quad_Pass(vkApi::VulkanCorePtr vV
 {
 	SetRenderDocDebugName("Quad Pass 1 : Model Shadow", QUAD_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ModelShadowModule_Quad_Pass::~ModelShadowModule_Quad_Pass()

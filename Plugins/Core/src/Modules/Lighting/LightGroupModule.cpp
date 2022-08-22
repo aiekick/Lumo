@@ -124,6 +124,8 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 		{
 			if (lightPtr)
 			{
+				ImGui::PushID(idx);
+
 				std::string label = ct::toStr("%s##%" PRIxPTR "", 
 					lightPtr->name.c_str(), (uintptr_t)lightPtr.get());
 
@@ -171,7 +173,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						lightPtr->wasChanged = true;
 					}
 
-					lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 1.0f, 1.0f);
+					lightPtr->wasChanged |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &lightPtr->lightDatas.lightIntensity, 0.0f, 10.0f, 1.0f);
 
 					lightPtr->wasChanged |= ImGui::CheckBoxFloatDefault("Inside Mesh ?", &lightPtr->lightDatas.is_inside, true);
 
@@ -212,6 +214,8 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						m_SceneLightGroupPtr->GetSBO430().SetVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
 					}
 				}
+
+				ImGui::PopID();
 			}
 			
 			++idx;

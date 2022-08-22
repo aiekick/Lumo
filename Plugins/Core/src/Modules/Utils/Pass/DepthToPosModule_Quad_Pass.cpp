@@ -246,45 +246,22 @@ layout (std140, binding = 1) uniform UBO_Vert
 { 
 	float use_sampler_dep;
 };
-layout(binding = 2) uniform sampler2D dep_map_sampler;
 
-vec3 getRayOrigin()
-{
-	vec3 ro = view[3].xyz + model[3].xyz;
-	ro *= mat3(view * model);
-	return -ro;
-}
-
-vec3 getRayDirection(vec2 uv)
-{
-	uv = uv * 2.0 - 1.0;
-	vec4 ray_clip = vec4(uv.x, uv.y, -1.0, 0.0);
-	vec4 ray_eye = inverse(proj) * ray_clip;
-	vec3 rd = normalize(vec3(ray_eye.x, ray_eye.y, -1.0));
-	rd *= mat3(view * model);
-	return rd;
-}
+layout(binding = 2) uniform sampler2D depth_map_sampler;
 
 void main() 
 {
+	fragColor = vec4(0.0);
 	if (use_sampler_dep > 0.5)
 	{
-		float dep = texture(dep_map_sampler, v_uv).r;
+		float dep = texture(depth_map_sampler, v_uv).r;
 		if (dep > 0.0)
 		{
-			vec3 ro = getRayOrigin();
-			vec3 rd = getRayDirection(v_uv);
-			vec3 pos = ro + rd * dep * cam_far;
-			fragColor = vec4(pos, 1.0);
+			vec2 uvc = v_uv * 2.0 - 1.0;
+			vec4 clip_pos = vec4(uvc, dep, 1.0);
+			vec4 pos = inverse(cam) * clip_pos;
+			fragColor = pos / pos.w;
 		}
-		else
-		{
-			fragColor = vec4(0.0);
-		}
-	}
-	else 
-	{
-		fragColor = vec4(0.0);
 	}
 }
 
