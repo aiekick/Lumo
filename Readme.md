@@ -218,7 +218,7 @@ thats all
 
 v0.3.802 (Vulkan 1.2) :
 
-A bloom effect implemented whit nodes 
+A bloom effect implemented whith nodes 
 ![v0_3_802](doc/screenshots/Lumo_Windows_Debug_x64_0_3_802.png)
 
 v0.2.798 (Vulkan 1.0) :
