@@ -214,3 +214,11 @@ bool ShadowMapNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 
 	return true;
 }
+
+void ShadowMapNode::UpdateShaders(const std::set<std::string>& vFiles)
+{
+	if (m_ShadowMapModulePtr)
+	{
+		m_ShadowMapModulePtr->UpdateShaders(vFiles);
+	}
+}

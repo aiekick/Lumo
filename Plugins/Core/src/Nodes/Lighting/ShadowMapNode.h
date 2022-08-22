@@ -19,6 +19,7 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/ModelInputInterface.h>
+#include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 #include <Interfaces/LightGroupOutputInterface.h>
@@ -30,7 +31,8 @@ class ShadowMapNode :
 	public ModelInputInterface,
 	public TextureGroupOutputInterface,
 	public LightGroupInputInterface,
-	public LightGroupOutputInterface
+	public LightGroupOutputInterface,
+	public ShaderUpdateInterface
 {
 public:
 	static std::shared_ptr<ShadowMapNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -53,4 +55,5 @@ public:
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+	void UpdateShaders(const std::set<std::string>& vFiles) override;
 };

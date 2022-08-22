@@ -55,12 +55,6 @@ class ShadowMapModule_Mesh_Pass :
 	public LightGroupOutputInterface
 {
 protected:
-	VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
-	struct UBOVert {
-		alignas(16) uint32_t light_id_to_use = 0U;
-	} m_UBOVert;
-
 	struct PushConstants {
 		uint32_t light_id_to_use = 0U;
 	} m_PushConstants;
@@ -85,10 +79,6 @@ public:
 
 private:
 	void DestroyModel(const bool& vReleaseDatas = false) override;
-
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override; 

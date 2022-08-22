@@ -211,20 +211,6 @@ bool ShadowMapModule_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ShadowMapModule_Mesh_Pass::CreateUBO()
-{
-	ZoneScoped;
-
-	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
-	m_DescriptorBufferInfo_Vert.buffer = m_UBOVertPtr->buffer;
-	m_DescriptorBufferInfo_Vert.range = sizeof(UBOVert);
-	m_DescriptorBufferInfo_Vert.offset = 0;
-
-	NeedNewUBOUpload();
-
-	return true;
-}
-
 void ShadowMapModule_Mesh_Pass::DestroyModel(const bool& vReleaseDatas)
 {
 	ZoneScoped;
@@ -235,27 +221,12 @@ void ShadowMapModule_Mesh_Pass::DestroyModel(const bool& vReleaseDatas)
 	}
 }
 
-void ShadowMapModule_Mesh_Pass::UploadUBO()
-{
-	ZoneScoped;
-
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
-}
-
-void ShadowMapModule_Mesh_Pass::DestroyUBO()
-{
-	ZoneScoped;
-
-	m_UBOVertPtr.reset();
-}
-
 bool ShadowMapModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_LayoutBindings.clear();
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eVertex);
+	AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eVertex);
+	AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
 
 	return true;
 }
@@ -264,10 +235,9 @@ bool ShadowMapModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Vert);
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
-	
+	AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
+	AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
+
 	return true;
 }
 
@@ -296,7 +266,7 @@ layout(push_constant) uniform constants
 };
 )"
 +
-SceneLightGroup::GetBufferObjectStructureHeader(1U)
+SceneLightGroup::GetBufferObjectStructureHeader(0U)
 +
 u8R"(
 void main() 
@@ -314,7 +284,11 @@ std::string ShadowMapModule_Mesh_Pass::GetFragmentShaderCode(std::string& vOutSh
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragDepth;
-
+)"
++
+CommonSystem::Instance()->GetBufferObjectStructureHeader(1U)
++ 
+u8R"(
 void main() 
 {
 	fragDepth = vec4(vec3(gl_FragCoord.z / gl_FragCoord.w), 1.0);
