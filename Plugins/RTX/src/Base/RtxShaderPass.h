@@ -79,8 +79,6 @@ public:
 protected:
 	// https://developer.nvidia.com/blog/vulkan-raytracing/
 
-	void ActionBeforeInit() override;
-
 	uint32_t GetAlignedSize(uint32_t value, uint32_t alignment);
 
 	void TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;

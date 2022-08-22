@@ -56,12 +56,23 @@ RtxPbrRendererModule_Rtx_Pass::~RtxPbrRendererModule_Rtx_Pass()
 	Unit();
 }
 
+void RtxPbrRendererModule_Rtx_Pass::ActionBeforeCompilation()
+{
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR, "main"), "main");
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR, "main"), "main");
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR, "main"), "main");
+}
+
 void RtxPbrRendererModule_Rtx_Pass::ActionBeforeInit()
 {
 	ZoneScoped;
 
 	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
+	for (auto& info : m_ImageInfos)
+	{
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+	}
 }
 
 bool RtxPbrRendererModule_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -75,11 +86,10 @@ bool RtxPbrRendererModule_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 
 	change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name", &m_UBO_Ahit.u_Name, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name", &m_UBO_Chit.u_Name, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name", &m_UBO_Inter.u_Name, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name", &m_UBO_Miss.u_Name, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name", &m_UBO_RGen.u_Name, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "diffuse_factor", &m_UBO_Chit.u_diffuse_factor, 0.000f, 1.000f, 1.000f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "metallic_factor", &m_UBO_Chit.u_metallic_factor, 0.000f, 1.000f, 1.000f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "rugosity_factor", &m_UBO_Chit.u_rugosity_factor, 0.000f, 1.000f, 1.000f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "ao_factor", &m_UBO_Chit.u_ao_factor, 0.000f, 1.000f, 1.000f, 0.0f, "%.3f");
 
 	if (change)
 	{
@@ -114,6 +124,8 @@ void RtxPbrRendererModule_Rtx_Pass::SetAccelStructure(SceneAccelStructureWeak vS
 	ZoneScoped;
 
 	m_SceneAccelStructure = vSceneAccelStructure;
+
+	UpdateBufferInfoInRessourceDescriptor();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,6 +148,44 @@ void RtxPbrRendererModule_Rtx_Pass::SetLightGroup(SceneLightGroupWeak vSceneLigh
 	}
 
 	UpdateBufferInfoInRessourceDescriptor();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void RtxPbrRendererModule_Rtx_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+{
+	ZoneScoped;
+
+	if (m_Loaded)
+	{
+		if (vBindingPoint < m_ImageInfos.size())
+		{
+			if (vImageInfo)
+			{
+				m_ImageInfos[vBindingPoint] = *vImageInfo;
+
+				if ((&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] < 1.0f)
+				{
+					(&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] = 1.0f;
+
+					NeedNewUBOUpload();
+				}
+			}
+			else
+			{
+				if ((&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] < 1.0f)
+				{
+					(&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] = 1.0f;
+
+					NeedNewUBOUpload();
+				}
+
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+			}
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -167,19 +217,9 @@ void RtxPbrRendererModule_Rtx_Pass::WasJustResized()
 	ZoneScoped;
 }
 
-
 bool RtxPbrRendererModule_Rtx_Pass::CreateUBO()
 {
 	ZoneScoped;
-
-	m_UBO_Ahit_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Ahit));
-	m_UBO_Ahit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Ahit_Ptr)
-	{
-		m_UBO_Ahit_BufferInfos.buffer = m_UBO_Ahit_Ptr->buffer;
-		m_UBO_Ahit_BufferInfos.range = sizeof(UBO_Ahit);
-		m_UBO_Ahit_BufferInfos.offset = 0;
-	}
 
 	m_UBO_Chit_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Chit));
 	m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
@@ -188,33 +228,6 @@ bool RtxPbrRendererModule_Rtx_Pass::CreateUBO()
 		m_UBO_Chit_BufferInfos.buffer = m_UBO_Chit_Ptr->buffer;
 		m_UBO_Chit_BufferInfos.range = sizeof(UBO_Chit);
 		m_UBO_Chit_BufferInfos.offset = 0;
-	}
-
-	m_UBO_Inter_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Inter));
-	m_UBO_Inter_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Inter_Ptr)
-	{
-		m_UBO_Inter_BufferInfos.buffer = m_UBO_Inter_Ptr->buffer;
-		m_UBO_Inter_BufferInfos.range = sizeof(UBO_Inter);
-		m_UBO_Inter_BufferInfos.offset = 0;
-	}
-
-	m_UBO_Miss_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Miss));
-	m_UBO_Miss_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Miss_Ptr)
-	{
-		m_UBO_Miss_BufferInfos.buffer = m_UBO_Miss_Ptr->buffer;
-		m_UBO_Miss_BufferInfos.range = sizeof(UBO_Miss);
-		m_UBO_Miss_BufferInfos.offset = 0;
-	}
-
-	m_UBO_RGen_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_RGen));
-	m_UBO_RGen_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_RGen_Ptr)
-	{
-		m_UBO_RGen_BufferInfos.buffer = m_UBO_RGen_Ptr->buffer;
-		m_UBO_RGen_BufferInfos.range = sizeof(UBO_RGen);
-		m_UBO_RGen_BufferInfos.offset = 0;
 	}
 
 	NeedNewUBOUpload();
@@ -226,31 +239,31 @@ void RtxPbrRendererModule_Rtx_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Ahit_Ptr, &m_UBO_Ahit, sizeof(UBO_Ahit));
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Chit_Ptr, &m_UBO_Chit, sizeof(UBO_Chit));
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Inter_Ptr, &m_UBO_Inter, sizeof(UBO_Inter));
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Miss_Ptr, &m_UBO_Miss, sizeof(UBO_Miss));
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_RGen_Ptr, &m_UBO_RGen, sizeof(UBO_RGen));
 }
 
 void RtxPbrRendererModule_Rtx_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Ahit_Ptr.reset();
-	m_UBO_Ahit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-
 	m_UBO_Chit_Ptr.reset();
 	m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+}
 
-	m_UBO_Inter_Ptr.reset();
-	m_UBO_Inter_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+bool RtxPbrRendererModule_Rtx_Pass::CanUpdateDescriptors()
+{
+	ZoneScoped;
 
-	m_UBO_Miss_Ptr.reset();
-	m_UBO_Miss_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	if (!m_SceneAccelStructure.expired())
+	{
+		auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+		if (accelStructurePtr)
+		{
+			return accelStructurePtr->IsOk();
+		}
+	}
 
-	m_UBO_RGen_Ptr.reset();
-	m_UBO_RGen_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	return false;
 }
 
 bool RtxPbrRendererModule_Rtx_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -258,18 +271,20 @@ bool RtxPbrRendererModule_Rtx_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	bool res = true;
-	AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eAnyHitKHR);
-	AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
-	AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eIntersectionKHR);
-	AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eMissKHR);
-	AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR);
 	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR); // output
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
 	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR); // camera
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
-	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
+	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // ubo chit
+	res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // lights
+	res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR); // albedo
+	res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR); // ao
+	res &= AddOrSetLayoutDescriptor(8U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR); // longlat
 
-	return true;
+	res &= AddOrSetLayoutDescriptor(1U, 	vk::DescriptorType::eAccelerationStructureKHR, 
+		vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
+	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, 
+		vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
+
+	return res;
 }
 
 bool RtxPbrRendererModule_Rtx_Pass::UpdateBufferInfoInRessourceDescriptor()
@@ -277,25 +292,43 @@ bool RtxPbrRendererModule_Rtx_Pass::UpdateBufferInfoInRessourceDescriptor()
 	ZoneScoped;
 
 	bool res = true;
-	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, &m_UBO_Ahit_BufferInfos);
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Chit_BufferInfos);
-	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Inter_BufferInfos);
-	res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBO_Miss_BufferInfos);
-	res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eUniformBuffer, &m_UBO_RGen_BufferInfos);
-	auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
-	if (accelStructurePtr && 
-		accelStructurePtr->GetTLASInfo() && 
-		accelStructurePtr->GetBufferAddressInfo())
+	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
+	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
+	res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBO_Chit_BufferInfos); // ubo chit
+	res &= AddOrSetWriteDescriptorBuffer(5U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights
+	res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // albedo
+	res &= AddOrSetWriteDescriptorImage(7U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]); // ao
+	res &= AddOrSetWriteDescriptorImage(8U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]); // longlat
+
+	if (res)
 	{
-		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-		res &= AddOrSetWriteDescriptorNext(1U, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo()); // accel struct
-		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
-		res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model device address
-		res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
+		res = false;
+
+		auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+		if (accelStructurePtr &&
+			accelStructurePtr->GetTLASInfo() &&
+			accelStructurePtr->GetBufferAddressInfo())
+		{
+			res = true;
+
+			res &= AddOrSetWriteDescriptorNext(1U, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo()); // accel struct
+			res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model device address
+		}
 	}
 
-	
 	return res;
+}
+
+std::string RtxPbrRendererModule_Rtx_Pass::GetRayHitLoadCode()
+{
+	return u8R"(
+struct hitPayload
+{
+	vec3 ro;
+	vec3 rd;
+	vec4 color;
+};
+)";
 }
 
 std::string RtxPbrRendererModule_Rtx_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName)
@@ -310,40 +343,13 @@ std::string RtxPbrRendererModule_Rtx_Pass::GetRayGenerationShaderCode(std::strin
 layout(binding = 0, rgba32f) uniform writeonly image2D out_color;
 layout(binding = 1) uniform accelerationStructureEXT tlas;
 )"
-+ CommonSystem::GetBufferObjectStructureHeader(2U) +
++ 
+CommonSystem::GetBufferObjectStructureHeader(2U) 
++
+GetRayHitLoadCode()
++
 u8R"(
-
-
-layout(std140, binding = 4) uniform UBO_RGen
-{
-	float u_Name;
-};
-
-struct hitPayload
-{
-	vec4 color;
-	vec3 ro;
-	vec3 rd;
-};
-
 layout(location = 0) rayPayloadEXT hitPayload prd;
-
-vec3 getRayOrigin()
-{
-	vec3 ro = view[3].xyz + model[3].xyz;
-	ro *= mat3(model);
-	return -ro;
-}
-
-vec3 getRayDirection(vec2 uv)
-{
-	uv = uv * 2.0 - 1.0;
-	vec4 ray_clip = vec4(uv.x, uv.y, -1.0, 0.0);
-	vec4 ray_eye = inverse(proj) * ray_clip;
-	vec3 rd = normalize(vec3(ray_eye.x, ray_eye.y, -1.0));
-	rd *= mat3(view * model);
-	return rd;
-}
 
 void main()
 {
@@ -361,15 +367,28 @@ void main()
 	vec4 target    = ip * vec4(uvc.x, uvc.y, 1, 1);
 	vec4 direction = imv * vec4(normalize(target.xyz), 0);
 
+	prd.ro = origin.xyz;
+	prd.rd = direction.xyz;
+	prd.color = vec4(0.0);
+	
 	float tmin = 0.001;
 	float tmax = 1e32;
 
-	prd.ro = getRayOrigin();		// origin.xyz;
-	prd.rd = getRayDirection(uv);	// direction.xyz;
-	prd.color = vec4(0.0);
+	uint flags = gl_RayFlagsOpaqueEXT;
 
-	traceRayEXT(tlas, gl_RayFlagsOpaqueEXT, 0xff, 0, 0, 0, prd.ro, tmin, prd.rd, tmax, 0);
-	
+	traceRayEXT(tlas,			// acceleration structure
+		        flags,			// rayFlags
+		        0xFF,			// cullMask
+		        0,				// sbtRecordOffset
+		        0,				// sbtRecordStride
+		        0,				// missIndex
+		        prd.ro,			// ray origin
+		        tmin,			// ray min range
+		        prd.rd,			// ray direction
+		        tmax,			// ray max range
+		        0				// payload location
+	);
+
 	imageStore(out_color, ivec2(gl_LaunchIDEXT.xy), prd.color);
 }
 )";
@@ -382,10 +401,6 @@ std::string RtxPbrRendererModule_Rtx_Pass::GetRayIntersectionShaderCode(std::str
 	vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Inter";
 	return u8R"(
 
-layout(std140, binding = 2) uniform UBO_Inter
-{
-	float u_Name;
-};
 )";
 }
 
@@ -397,33 +412,17 @@ std::string RtxPbrRendererModule_Rtx_Pass::GetRayMissShaderCode(std::string& vOu
 	return u8R"(
 #version 460
 #extension GL_EXT_ray_tracing : enable
-
-struct hitPayload
-{
-	vec4 color;
-	vec3 ro;
-	vec3 rd;
-	float ao;
-	float diff;
-	float spec;
-	float sha;
-};
-
+)"
++
+GetRayHitLoadCode()
++
+u8R"(
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
-
-layout(std140, binding = 3) uniform UBO_Miss
-{
-	float u_Name;
-};
-
 void main()
 {
-	prd.color = vec4(0.0, 0.0, 0.0, 1.0);
-	prd.diff = 0.0;
-	prd.spec = 0.0;
-	prd.sha = 0.0;
+	prd.color = vec4(0.0, 0.0, 0.0, 0.0);
 	isShadowed = false;
 }
 )";
@@ -434,10 +433,6 @@ std::string RtxPbrRendererModule_Rtx_Pass::GetRayAnyHitShaderCode(std::string& v
 	vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Ahit";
 	return u8R"(
 
-layout(std140, binding = 0) uniform UBO_Ahit
-{
-	float u_Name;
-};
 )";
 }
 
@@ -447,7 +442,6 @@ std::string RtxPbrRendererModule_Rtx_Pass::GetRayClosestHitShaderCode(std::strin
 
 	vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Chit";
 	return u8R"(
-
 #version 460
 #extension GL_EXT_ray_tracing : enable
 #extension GL_EXT_scalar_block_layout : enable
@@ -455,26 +449,13 @@ std::string RtxPbrRendererModule_Rtx_Pass::GetRayClosestHitShaderCode(std::strin
 
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
 #extension GL_EXT_buffer_reference2 : require
-
-struct hitPayload
-{
-	vec4 color;
-	vec3 ro;
-	vec3 rd;
-	float ao;
-	float diff;
-	float spec;
-	float sha;
-};
-
+)"
++
+GetRayHitLoadCode()
++
+u8R"(
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
-
-
-layout(std140, binding = 1) uniform UBO_Chit
-{
-	float u_Name;
-};
 
 hitAttributeEXT vec3 attribs;
 
@@ -506,42 +487,84 @@ struct SceneMeshBuffers
 	uint64_t indices;
 };
 
-layout(binding = 3) buffer ModelAddresses 
+layout(std140, binding = 3) uniform UBO_Chit
+{
+	float u_diffuse_factor;
+	float u_metallic_factor;
+	float u_rugosity_factor;
+	float u_ao_factor;
+	float u_use_albedo_map;
+	float u_use_ao_map;
+	float u_use_longlat_map;
+};
+
+layout(binding = 4) buffer ModelAddresses 
 { 
 	SceneMeshBuffers datas[]; 
 } sceneMeshBuffers;
-";
+)"
 +
-SceneLightGroup::GetBufferObjectStructureHeader(4U)
+SceneLightGroup::GetBufferObjectStructureHeader(5U)
 +
 u8R"(
-float ShadowTest(vec3 p, vec3 n, vec3 ld)
+layout(binding = 6) uniform sampler2D albedo_map_sampler;
+layout(binding = 7) uniform sampler2D ao_map_sampler;
+layout(binding = 8) uniform sampler2D longlat_map_sampler;
+
+float getShadowValue(vec3 p, vec3 ld)
 {
-	if (dot(n, ld) > 0.0)
-	{
-		p += n * 0.1;
-		uint flags  = 
-			gl_RayFlagsTerminateOnFirstHitEXT | 
-			gl_RayFlagsOpaqueEXT | 
-			gl_RayFlagsSkipClosestHitShaderEXT;
-		isShadowed = true; 
-		traceRayEXT(tlas,        // acceleration structure
-		            flags,             // rayFlags
-		            0xFF,              // cullMask
-		            0,                 // sbtRecordOffset
-		            0,                 // sbtRecordStride
-		            0,                 // missIndex
-		            p,            	   // ray origin
-		            0.1,              // ray min range
-		            ld,            // ray direction
-		            1e32,              // ray max range
-		            1                  // payload (location = 1)
-		);
-		if (isShadowed)
-			return 0.5;
-	}
+	uint flags  = 
+		gl_RayFlagsTerminateOnFirstHitEXT | 
+		gl_RayFlagsOpaqueEXT | 
+		gl_RayFlagsSkipClosestHitShaderEXT;
+	
+	isShadowed = true; 
+	
+	traceRayEXT(tlas,			// acceleration structure
+		        flags,			// rayFlags
+		        0xFF,			// cullMask
+		        0,				// sbtRecordOffset
+		        0,				// sbtRecordStride
+		        0,				// missIndex
+		        p,				// ray origin
+		        0.1,			// ray min range
+		        ld,				// ray direction
+		        1e32,			// ray max range
+		        1				// payload (location = 1)
+	);
+
+	if (isShadowed)
+		return 0.5;
 	
 	return 1.0;
+}
+
+const float PI = 3.14159265359;
+
+float distributionGGX (vec3 N, vec3 H, float roughness)
+{
+    float a2    = roughness * roughness * roughness * roughness;
+    float NdotH = max (dot (N, H), 0.0);
+    float denom = (NdotH * NdotH * (a2 - 1.0) + 1.0);
+    return a2 / (PI * denom * denom);
+}
+
+float geometrySchlickGGX (float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+    return NdotV / (NdotV * (1.0 - k) + k);
+}
+
+float geometrySmith (vec3 N, vec3 V, vec3 L, float roughness)
+{
+    return geometrySchlickGGX (max (dot (N, L), 0.0), roughness) * 
+           geometrySchlickGGX (max (dot (N, V), 0.0), roughness);
+}
+
+vec3 fresnelSchlick (float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow (1.0 - cosTheta, 5.0);
 }
 
 void main()
@@ -565,15 +588,59 @@ void main()
 	// Barycentric coordinates of the triangle
 	const vec3 barycentrics = vec3(1.0f - attribs.x - attribs.y, attribs.x, attribs.y);
 
-	vec3 normal = 
+	vec3 model_pos = 
+		vec3(v0.px, v0.py, v0.pz) * barycentrics.x + 
+		vec3(v1.px, v1.py, v1.pz) * barycentrics.y + 
+		vec3(v2.px, v2.py, v2.pz) * barycentrics.z;
+    vec3 model_normal = 
 		vec3(v0.nx, v0.ny, v0.nz) * barycentrics.x + 
 		vec3(v1.nx, v1.ny, v1.nz) * barycentrics.y + 
 		vec3(v2.nx, v2.ny, v2.nz) * barycentrics.z;
+    vec3 model_color = 
+		vec3(v0.cx, v0.cy, v0.cz) * barycentrics.x + 
+		vec3(v1.cx, v1.cy, v1.cz) * barycentrics.y + 
+		vec3(v2.cx, v2.cy, v2.cz) * barycentrics.z;
     
-	// Transforming the normal to world space
-	normal = normalize(vec3(normal * gl_WorldToObjectEXT)); 
-	
-	prd.color = vec4(normal * 0.5 + 0.5, 1.0); // return normal
+	vec3 N = normalize(vec3(model_normal * gl_ObjectToWorldEXT)); 
+
+	uint count = lightsCount % 8; // maxi 8 lights in this system
+	for (uint lid = 0 ; lid < count ; ++lid)
+	{
+		if (lightDatas[lid].lightActive > 0.5)
+		{
+			vec3 lp = lightDatas[lid].lightGizmo[3].xyz;
+			float li = lightDatas[lid].lightIntensity;
+			vec4 lc = vec4(1.0);
+			vec3 ld = lp - model_pos;
+			float len = length(ld);
+			vec3 L = ld / len;
+			float atten = li * 100.0 / (len * len);
+
+			float sha = ShadowTest(pos, ldn);
+
+			vec3 V = -prd.rd;
+            vec3 H = normalize (V + L);
+                
+            // Cook-Torrance BRDF
+            vec3  F0 = mix (vec3 (0.04), pow(u_diffuse_factor, vec3(2.2)), u_metallic_factor);
+            float NDF = distributionGGX(N, H, u_rugosity_factor);
+            float G   = geometrySmith(N, V, L, u_rugosity_factor);
+            vec3  F   = fresnelSchlick(max(dot(H, V), 0.0), F0);        
+            vec3  kD  = vec3(1.0) - F;
+            kD *= 1.0 - u_metallic_factor;	  
+                
+            vec3  numerator   = NDF * G * F;
+            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+            vec3  specular    = numerator / max(denominator, 0.001);  
+                    
+            float NdotL = max(dot(N, L), 0.0);                
+            vec3 color = lc * (kD * pow(u_diffuse_factor * model_color, vec3 (2.2)) / PI + specular) * (NdotL / dot(ld, ld));
+
+			prd.color += atten * color * prd.sha;
+		}
+	}
+
+	prd.color /= float(count);
 }
 )";
 }
@@ -590,11 +657,10 @@ std::string RtxPbrRendererModule_Rtx_Pass::getXml(const std::string& vOffset, co
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<name>" + ct::toStr(m_UBO_Ahit.u_Name) + "</name>\n";
-	str += vOffset + "<name>" + ct::toStr(m_UBO_Chit.u_Name) + "</name>\n";
-	str += vOffset + "<name>" + ct::toStr(m_UBO_Inter.u_Name) + "</name>\n";
-	str += vOffset + "<name>" + ct::toStr(m_UBO_Miss.u_Name) + "</name>\n";
-	str += vOffset + "<name>" + ct::toStr(m_UBO_RGen.u_Name) + "</name>\n";
+	str += vOffset + "<diffuse_factor>" + ct::toStr(m_UBO_Chit.u_diffuse_factor) + "</diffuse_factor>\n";
+	str += vOffset + "<metallic_factor>" + ct::toStr(m_UBO_Chit.u_metallic_factor) + "</metallic_factor>\n";
+	str += vOffset + "<rugosity_factor>" + ct::toStr(m_UBO_Chit.u_rugosity_factor) + "</rugosity_factor>\n";
+	str += vOffset + "<ao_factor>" + ct::toStr(m_UBO_Chit.u_ao_factor) + "</ao_factor>\n";
 
 	return str;
 }
@@ -619,16 +685,14 @@ bool RtxPbrRendererModule_Rtx_Pass::setFromXml(tinyxml2::XMLElement* vElem, tiny
 	if (strParentName == "rtx_pbr_renderer_module")
 	{
 
-		if (strName == "name")
-			m_UBO_Ahit.u_Name = ct::fvariant(strValue).GetF();
-		else if (strName == "name")
-			m_UBO_Chit.u_Name = ct::fvariant(strValue).GetF();
-		else if (strName == "name")
-			m_UBO_Inter.u_Name = ct::fvariant(strValue).GetF();
-		else if (strName == "name")
-			m_UBO_Miss.u_Name = ct::fvariant(strValue).GetF();
-		else if (strName == "name")
-			m_UBO_RGen.u_Name = ct::fvariant(strValue).GetF();
+		if (strName == "diffuse_factor")
+			m_UBO_Chit.u_diffuse_factor = ct::fvariant(strValue).GetF();
+		else if (strName == "metallic_factor")
+			m_UBO_Chit.u_metallic_factor = ct::fvariant(strValue).GetF();
+		else if (strName == "rugosity_factor")
+			m_UBO_Chit.u_rugosity_factor = ct::fvariant(strValue).GetF();
+		else if (strName == "ao_factor")
+			m_UBO_Chit.u_ao_factor = ct::fvariant(strValue).GetF();
 	}
 
 	return true;

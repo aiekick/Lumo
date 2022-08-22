@@ -132,8 +132,6 @@ void ModelShadow_Rtx_Pass::SetAccelStructure(SceneAccelStructureWeak vSceneAccel
 	ZoneScoped;
 
 	m_SceneAccelStructure = vSceneAccelStructure;
-
-	NeedNewModelUpdate();
 }
 
 void ModelShadow_Rtx_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
@@ -485,15 +483,18 @@ layout(std140, binding = 5) uniform UBO_Rtx
 	float u_shadow_strength;
 };
 
-float ShadowTest(vec3 p, vec3 ld)
+float getShadowValue(vec3 p, vec3 ld)
 {
 	isShadowed = true; 
+	
+	const float tmin = 0.001;
+	const float tmax = 1e32;
 
 	uint flags  = 
 		gl_RayFlagsTerminateOnFirstHitEXT | 
 		gl_RayFlagsOpaqueEXT | 
 		gl_RayFlagsSkipClosestHitShaderEXT;
-
+	
 	traceRayEXT(tlas,		// acceleration structure
 		        flags,		// rayFlags
 		        0xFF,		// cullMask
@@ -501,15 +502,15 @@ float ShadowTest(vec3 p, vec3 ld)
 		        0,			// sbtRecordStride
 		        0,			// missIndex
 		        p,			// ray origin
-		        0.1,		// ray min range
+		        tmin,		// ray min range
 		        ld,			// ray direction
-		        1e32,		// ray max range
+		        tmax,		// ray max range
 		        1			// payload (location = 1)
 	);
 
 	if (isShadowed)
 	{
-		return u_shadow_strength;
+		return 0.5;
 	}	
 	
 	return 1.0;
@@ -555,7 +556,7 @@ void main()
 			ld /= len; //normalized
 			float atten = 1.0;
 
-			prd.sha = ShadowTest(pos, ld);
+			prd.sha = getShadowValue(pos, ld);
 
 			if (u_enable_light_attenuation > 0.5)
 				atten = li * u_light_intensity_factor / (len * len);

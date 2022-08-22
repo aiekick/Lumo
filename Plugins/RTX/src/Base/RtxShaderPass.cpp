@@ -30,16 +30,15 @@ using namespace vkApi;
 RtxShaderPass::RtxShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr, GenericType::RTX)
 {
-
+	auto devPtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+	if (devPtr)
+	{
+		m_RayTracingPipelineProperties = devPtr->m_RayTracingDeviceProperties;
+	}
 }
 
 RtxShaderPass::RtxShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
 	: ShaderPass(vVulkanCorePtr, GenericType::RTX, vCommandPool, vDescriptorPool)
-{
-	
-}
-
-void RtxShaderPass::ActionBeforeInit()
 {
 	auto devPtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
 	if (devPtr)
@@ -266,79 +265,82 @@ bool RtxShaderPass::CreateShaderBindingTable()
 	const uint32_t handle_alignment = m_RayTracingPipelineProperties.shaderGroupHandleAlignment;
 	const uint32_t handle_size_aligned = GetAlignedSize(handle_size, handle_alignment);
 
-	// Create binding table buffers for each shader type
-	const auto bufferUsageFlags =
-		vk::BufferUsageFlagBits::eShaderBindingTableKHR | 
-		vk::BufferUsageFlagBits::eTransferSrc | 
-		vk::BufferUsageFlagBits::eShaderDeviceAddress;
-	m_RayGenShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * (uint32_t)rgen_index.size(),
-		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	m_RayMissShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * (uint32_t)miss_index.size(),
-		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-	m_RayHitShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * (uint32_t)hit_index.size(),
-		bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
-
-	if (m_RayGenShaderBindingTablePtr && 
-		m_RayMissShaderBindingTablePtr && 
-		m_RayHitShaderBindingTablePtr)
+	if (handle_size && handle_alignment && handle_size_aligned)
 	{
-		// Copy the pipeline's shader handles into a host buffer
-		const auto           group_count = static_cast<uint32_t>(rgen_index.size() + miss_index.size() + hit_index.size());
-		const auto           sbt_size = group_count * handle_size_aligned;
-		std::vector<uint8_t> shader_handle_storage(sbt_size);
+		// Create binding table buffers for each shader type
+		const auto bufferUsageFlags =
+			vk::BufferUsageFlagBits::eShaderBindingTableKHR |
+			vk::BufferUsageFlagBits::eTransferSrc |
+			vk::BufferUsageFlagBits::eShaderDeviceAddress;
+		m_RayGenShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * (uint32_t)rgen_index.size(),
+			bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		m_RayMissShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * (uint32_t)miss_index.size(),
+			bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+		m_RayHitShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, handle_size_aligned * (uint32_t)hit_index.size(),
+			bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
 
-		if (VULKAN_HPP_DEFAULT_DISPATCHER.vkGetRayTracingShaderGroupHandlesKHR(
-			m_Device, m_Pipelines[0].m_Pipeline, 0, group_count, sbt_size, shader_handle_storage.data()) == VkResult::VK_SUCCESS)
+		if (m_RayGenShaderBindingTablePtr &&
+			m_RayMissShaderBindingTablePtr &&
+			m_RayHitShaderBindingTablePtr)
 		{
-			// Write the handles in the SBT buffer
-			auto copyHandles = [&](VulkanBufferObjectPtr vBufferPtr, std::vector<uint32_t>& indices, uint32_t stride)
+			// Copy the pipeline's shader handles into a host buffer
+			const auto           group_count = static_cast<uint32_t>(rgen_index.size() + miss_index.size() + hit_index.size());
+			const auto           sbt_size = group_count * handle_size_aligned;
+			std::vector<uint8_t> shader_handle_storage(sbt_size);
+
+			if (VULKAN_HPP_DEFAULT_DISPATCHER.vkGetRayTracingShaderGroupHandlesKHR(
+				m_Device, m_Pipelines[0].m_Pipeline, 0, group_count, sbt_size, shader_handle_storage.data()) == VkResult::VK_SUCCESS)
 			{
-				if (vBufferPtr)
+				// Write the handles in the SBT buffer
+				auto copyHandles = [&](VulkanBufferObjectPtr vBufferPtr, std::vector<uint32_t>& indices, uint32_t stride)
 				{
-					void* mapped_dst = nullptr;
-					VulkanCore::check_error(vmaMapMemory(vkApi::VulkanCore::sAllocator, vBufferPtr->alloc_meta, &mapped_dst));
-
-					auto* pBuffer = static_cast<uint8_t*>(mapped_dst);
-					for (uint32_t index = 0; index < static_cast<uint32_t>(indices.size()); index++)
+					if (vBufferPtr)
 					{
-						auto* pStart = pBuffer;
-						// Copy the handle
-						memcpy(pBuffer, shader_handle_storage.data() + (indices[(size_t)index] * handle_size), handle_size);
-						pBuffer = pStart + stride;        // Jumping to next group
+						void* mapped_dst = nullptr;
+						VulkanCore::check_error(vmaMapMemory(vkApi::VulkanCore::sAllocator, vBufferPtr->alloc_meta, &mapped_dst));
+
+						auto* pBuffer = static_cast<uint8_t*>(mapped_dst);
+						for (uint32_t index = 0; index < static_cast<uint32_t>(indices.size()); index++)
+						{
+							auto* pStart = pBuffer;
+							// Copy the handle
+							memcpy(pBuffer, shader_handle_storage.data() + (indices[(size_t)index] * handle_size), handle_size);
+							pBuffer = pStart + stride;        // Jumping to next group
+						}
+
+						vmaUnmapMemory(vkApi::VulkanCore::sAllocator, vBufferPtr->alloc_meta);
 					}
+				};
 
-					vmaUnmapMemory(vkApi::VulkanCore::sAllocator, vBufferPtr->alloc_meta);
-				}
-			};
+				copyHandles(m_RayGenShaderBindingTablePtr, rgen_index, handle_size_aligned);
+				copyHandles(m_RayMissShaderBindingTablePtr, miss_index, handle_size_aligned);
+				copyHandles(m_RayHitShaderBindingTablePtr, hit_index, handle_size_aligned);
 
-			copyHandles(m_RayGenShaderBindingTablePtr, rgen_index, handle_size_aligned);
-			copyHandles(m_RayMissShaderBindingTablePtr, miss_index, handle_size_aligned);
-			copyHandles(m_RayHitShaderBindingTablePtr, hit_index, handle_size_aligned);
+				m_RayGenShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
+				m_RayGenShaderSbtEntry.deviceAddress = m_RayGenShaderBindingTablePtr->device_address;
+				m_RayGenShaderSbtEntry.stride = handle_size_aligned;
+				m_RayGenShaderSbtEntry.size = handle_size_aligned * (uint32_t)rgen_index.size(); // * the count of shaders ion this category
 
-			m_RayGenShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
-			m_RayGenShaderSbtEntry.deviceAddress = m_RayGenShaderBindingTablePtr->device_address;
-			m_RayGenShaderSbtEntry.stride = handle_size_aligned;
-			m_RayGenShaderSbtEntry.size = handle_size_aligned * (uint32_t)rgen_index.size(); // * the count of shaders ion this category
+				m_MissShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
+				m_MissShaderSbtEntry.deviceAddress = m_RayMissShaderBindingTablePtr->device_address;
+				m_MissShaderSbtEntry.stride = handle_size_aligned;
+				m_MissShaderSbtEntry.size = handle_size_aligned * (uint32_t)miss_index.size(); // * the count of shaders ion this category
 
-			m_MissShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
-			m_MissShaderSbtEntry.deviceAddress = m_RayMissShaderBindingTablePtr->device_address;
-			m_MissShaderSbtEntry.stride = handle_size_aligned;
-			m_MissShaderSbtEntry.size = handle_size_aligned * (uint32_t)miss_index.size(); // * the count of shaders ion this category
+				m_HitShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
+				m_HitShaderSbtEntry.deviceAddress = m_RayHitShaderBindingTablePtr->device_address;
+				m_HitShaderSbtEntry.stride = handle_size_aligned;
+				m_HitShaderSbtEntry.size = handle_size_aligned * (uint32_t)hit_index.size(); // * the count of shaders ion this category
 
-			m_HitShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
-			m_HitShaderSbtEntry.deviceAddress = m_RayHitShaderBindingTablePtr->device_address;
-			m_HitShaderSbtEntry.stride = handle_size_aligned;
-			m_HitShaderSbtEntry.size = handle_size_aligned * (uint32_t)hit_index.size(); // * the count of shaders ion this category
+				m_CallableShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
+				//m_CallableShaderSbtEntry.deviceAddress = ?? ->device_address;
+				//m_CallableShaderSbtEntry.stride = handle_size_aligned;
+				//m_CallableShaderSbtEntry.size = handle_size_aligned; // * the count of shaders ion this category
 
-			m_CallableShaderSbtEntry = vk::StridedDeviceAddressRegionKHR{};
-			//m_CallableShaderSbtEntry.deviceAddress = ?? ->device_address;
-			//m_CallableShaderSbtEntry.stride = handle_size_aligned;
-			//m_CallableShaderSbtEntry.size = handle_size_aligned; // * the count of shaders ion this category
-
-			return true;
+				return true;
+			}
 		}
-	}	
-
+	}
+	
 	return false;
 }
 

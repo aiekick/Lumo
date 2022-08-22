@@ -42,52 +42,36 @@ limitations under the License.
 #include <Interfaces/NodeInterface.h>
 #include <Interfaces/AccelStructureInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
 class RtxPbrRendererModule_Rtx_Pass :
 	public RtxShaderPass,
 	public AccelStructureInputInterface,
 	public LightGroupInputInterface,
+	public TextureInputInterface<3u>,
 	public TextureOutputInterface,
 	public GuiInterface,
 	public NodeInterface
 {
 private:
-	struct UBO_Ahit {
-		alignas(4) float u_Name = 0.0f;
-	} m_UBO_Ahit;
-	VulkanBufferObjectPtr m_UBO_Ahit_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Ahit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-
 	struct UBO_Chit {
-		alignas(4) float u_Name = 0.0f;
+		alignas(4) float u_diffuse_factor = 1.0f;
+		alignas(4) float u_metallic_factor = 1.0f;
+		alignas(4) float u_rugosity_factor = 1.0f;
+		alignas(4) float u_ao_factor = 1.0f;
+		alignas(4) float u_use_albedo_map = 0.0f;
+		alignas(4) float u_use_ao_map = 0.0f;
+		alignas(4) float u_use_longlat_map = 0.0f;
 	} m_UBO_Chit;
 	VulkanBufferObjectPtr m_UBO_Chit_Ptr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-
-	struct UBO_Inter {
-		alignas(4) float u_Name = 0.0f;
-	} m_UBO_Inter;
-	VulkanBufferObjectPtr m_UBO_Inter_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Inter_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-
-	struct UBO_Miss {
-		alignas(4) float u_Name = 0.0f;
-	} m_UBO_Miss;
-	VulkanBufferObjectPtr m_UBO_Miss_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Miss_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-
-	struct UBO_RGen {
-		alignas(4) float u_Name = 0.0f;
-	} m_UBO_RGen;
-	VulkanBufferObjectPtr m_UBO_RGen_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_RGen_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-
 
 public:
 	RtxPbrRendererModule_Rtx_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~RtxPbrRendererModule_Rtx_Pass() override;
 
+	void ActionBeforeCompilation() override;
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
 
@@ -98,10 +82,10 @@ public:
 	// Interfaces Setters
 	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
+	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
@@ -112,9 +96,11 @@ protected:
 	void UploadUBO() override;
 	void DestroyUBO() override;
 
+	bool CanUpdateDescriptors() override;
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 
+	std::string GetRayHitLoadCode();
 	std::string GetRayGenerationShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayIntersectionShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayMissShaderCode(std::string& vOutShaderName) override;

@@ -18,6 +18,7 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/AccelStructureInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
@@ -25,6 +26,7 @@ class RtxPbrRendererModule;
 class RtxPbrRendererNode :
 	public AccelStructureInputInterface,
 	public LightGroupInputInterface,
+	public TextureInputInterface<0u>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface,
 	public BaseNode
@@ -56,7 +58,7 @@ public:
 	// Interfaces Setters
 	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
-
+	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;

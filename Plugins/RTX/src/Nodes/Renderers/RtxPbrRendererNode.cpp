@@ -21,6 +21,7 @@ limitations under the License.
 #include <Modules/Renderers/RtxPbrRendererModule.h>
 #include <Slots/NodeSlotAccelStructureInput.h>
 #include <Graph/Slots/NodeSlotLightGroupInput.h>
+#include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,9 +67,12 @@ bool RtxPbrRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	bool res = false;
 
 	name = "Rtx Pbr Renderer";
+
 	AddInput(NodeSlotAccelStructureInput::Create("Accel Struct"), false, false);
 	AddInput(NodeSlotLightGroupInput::Create("Lights"), false, false);
-
+	AddInput(NodeSlotTextureInput::Create("Albedo", 0U), false, false);
+	AddInput(NodeSlotTextureInput::Create("AO", 1U), false, false);
+	AddInput(NodeSlotTextureInput::Create("LongLat", 2U), false, false);
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
 	m_RtxPbrRendererModulePtr = RtxPbrRendererModule::Create(vVulkanCorePtr, m_This);
@@ -91,6 +95,9 @@ bool RtxPbrRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 	bool res = false;
 
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+
+	// for update input texture buffer infos => avoid vk crash
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_RtxPbrRendererModulePtr)
 	{
@@ -174,7 +181,7 @@ void RtxPbrRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-//// ACCEL STRUCTURE INPUT ///////////////////////////////////////////////////////////////////
+//// ACCEL STRUCTURE SLOT INPUT //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void RtxPbrRendererNode::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
@@ -188,7 +195,7 @@ void RtxPbrRendererNode::SetAccelStructure(SceneAccelStructureWeak vSceneAccelSt
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-//// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
+//// LIGHT GROUP SLOT INPUT //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void RtxPbrRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
@@ -198,6 +205,20 @@ void RtxPbrRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	if (m_RtxPbrRendererModulePtr)
 	{
 		m_RtxPbrRendererModulePtr->SetLightGroup(vSceneLightGroup);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void RtxPbrRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+{
+	ZoneScoped;
+
+	if (m_RtxPbrRendererModulePtr)
+	{
+		m_RtxPbrRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
