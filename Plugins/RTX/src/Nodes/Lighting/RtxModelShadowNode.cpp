@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 #include "RtxModelShadowNode.h"
-#include <Modules/RtxModelShadowModule.h>
+#include <Modules/Lighting/RtxModelShadowModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
 #include <Slots/NodeSlotAccelStructureInput.h>
@@ -49,7 +49,7 @@ bool RtxModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddInput(NodeSlotAccelStructureInput::Create("Accel Struct"), true, false);
 	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
-	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+	AddOutput(NodeSlotTextureOutput::Create("", 0U), true, true);
 
 	bool res = false;
 

@@ -27,8 +27,9 @@ limitations under the License.
 #include <vkFramework/VulkanWindow.h>
 #include <Graph/Base/NodeSlot.h>
 
-#include <Nodes/RtxModelShadowNode.h>
-#include <Nodes/ModelToAccelStructNode.h>
+#include <Nodes/Renderers/RtxPbrRendererNode.h>
+#include <Nodes/Lighting/RtxModelShadowNode.h>
+#include <Nodes/Builders/ModelToAccelStructNode.h>
 
 #ifndef USE_PLUGIN_STATIC_LINKING
 // needed for plugin creating / destroying
@@ -99,6 +100,7 @@ std::vector<std::string> RTX::GetNodes() const
 {
 	return
 	{
+		"RTX_PBR_RENDERER",
 		"RTX_MODEL_SHADOW",
 		"RTX_MODEL_TO_ACCELERATION_STRUCTURE"
 	};
@@ -110,7 +112,8 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 
 	res.push_back(AddLibraryEntry("RTX/3D", "AccelStruct Builder", "RTX_MODEL_TO_ACCELERATION_STRUCTURE"));
 	res.push_back(AddLibraryEntry("RTX/3D", "Model Shadw", "RTX_MODEL_SHADOW"));
-	
+	res.push_back(AddLibraryEntry("RTX/3D", "PBR Renderer", "RTX_PBR_RENDERER"));
+
 	return res;
 }
 
@@ -122,6 +125,8 @@ BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
 		return RtxModelShadowNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "RTX_MODEL_TO_ACCELERATION_STRUCTURE")
 		return ModelToAccelStructNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "RTX_PBR_RENDERER")
+		return RtxPbrRendererNode::Create(vkCorePtr);
 
 	return nullptr;
 }

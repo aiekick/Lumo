@@ -27,7 +27,7 @@ limitations under the License.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
-#include <Modules/Pass/ModelShadow_Rtx_Pass.h>
+#include <Modules/Lighting/Pass/ModelShadow_Rtx_Pass.h>
 
 using namespace vkApi;
 
