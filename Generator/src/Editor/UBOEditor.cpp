@@ -445,8 +445,7 @@ std::string UBOEditor::Get_Cpp_WriteDescriptors(const std::string& vRendererType
 	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
 
 	std::string res = ct::toStr(u8R"(
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, %iU, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_@UBO_NAME@_BufferInfos);)", vUboBindingIndex);
+	res &= AddOrSetWriteDescriptorBuffer(%iU, vk::DescriptorType::eUniformBuffer, &m_@UBO_NAME@_BufferInfos);)", vUboBindingIndex);
 
 	ct::replaceString(res, "@UBO_NAME@", "UBO_" + (vUboIndex < 0 ? "" : ct::toStr(vUboIndex) + "_") + m_Stage);
 	return res;
@@ -468,7 +467,7 @@ std::string UBOEditor::Get_Cpp_LayoutBindings(const std::string& vRendererType, 
 	else if (m_Stage == "Inter") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eIntersectionKHR";
 
 	return ct::toStr(u8R"(
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(%iU, vk::DescriptorType::eUniformBuffer, 1, %s);)", vUboBindingIndex, _ShaderStageFlagBits.c_str());
+	AddOrSetLayoutDescriptor(%iU, vk::DescriptorType::eUniformBuffer, %s);)", vUboBindingIndex, _ShaderStageFlagBits.c_str());
 }
 
 std::string UBOEditor::Get_Cpp_GetXML(const std::string& vRendererType, const int32_t& vUboIndex)

@@ -123,7 +123,7 @@ if(NOT CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX _debug)
 endif()
 
-file(GLOB PROJECT_MAIN ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
+file(GLOB PROJECT_MAIN ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 source_group(main FILES ${PROJECT_MAIN})
 
 file(GLOB_RECURSE PROJECT_SRC_RECURSE 
@@ -235,7 +235,7 @@ set_target_properties(BuildInc PROPERTIES FOLDER Lumo_Libs/tools)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=Lumo 1000:10 $<$<CONFIG:Debug>:${CMAKE_SOURCE_DIR}/src/Headers/LumoBuild.h>
+	COMMAND BuildInc -prefix=${PROJECT} 1000:10 $<$<CONFIG:Debug>:${CMAKE_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
 	DEPENDS ${PROJECT}
 )
 

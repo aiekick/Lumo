@@ -2028,7 +2028,7 @@ bool PASS_CLASS_NAME::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_LayoutBindings.clear();)";
+	bool res = true;)";
 
 	cpp_pass_file_code += GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
 	cpp_pass_file_code += u8R"(
@@ -2040,12 +2040,12 @@ bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_WriteDescriptorSets.clear();)";
+	bool res = true;)";
 
 	cpp_pass_file_code += GetPassUpdateBufferInfoInRessourceDescriptorHeader();
 	cpp_pass_file_code += u8R"(
 	
-	return true;
+	return res;
 }
 )";
 
@@ -2536,7 +2536,7 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 	{
 		res += u8R"(
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);)";
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);)";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
@@ -2545,11 +2545,11 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{
 		res += u8R"(
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eRaygenKHR); // output
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eAccelerationStructureKHR, 1, vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eRaygenKHR); // camera
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eClosestHitKHR);)";
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR); // output
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR); // camera
+	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
+	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);)";
 	}
 
 	return res;
@@ -2583,8 +2583,7 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 	{
 		res += u8R"(
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-		m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output)";
+	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output)";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
@@ -2598,20 +2597,13 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 		accelStructurePtr->GetTLASInfo() && 
 		accelStructurePtr->GetBufferAddressInfo())
 	{
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-			m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
-		// The acceleration structure descriptor has to be chained via pNext
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-			m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eAccelerationStructureKHR, nullptr, nullptr, nullptr, accelStructurePtr->GetTLASInfo()); // accel struct
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-			m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo()); // camera
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-			m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, accelStructurePtr->GetBufferAddressInfo()); // model device address
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-			m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eStorageBuffer, nullptr, m_SceneLightGroupDescriptorInfoPtr);
-
-		return true; // pas de maj si pas de structure acceleratrice
-	})";
+		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
+		res &= AddOrSetWriteDescriptorNext(1U, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo()); // accel struct
+		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
+		res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model device address
+		res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
+	}
+)";
 	}
 
 	return res;
@@ -2868,11 +2860,11 @@ void main()
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{
 	res += u8R"(
-std::string PbrRenderer_Rtx_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName)
+std::string PASS_CLASS_NAME::GetRayGenerationShaderCode(std::string& vOutShaderName)
 {
 	ZoneScoped;
 
-	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	vOutShaderName = "PASS_CLASS_NAME_RGen";
 	return u8R"(
 #version 460
 #extension GL_EXT_ray_tracing : enable
@@ -2940,26 +2932,26 @@ void main()
 	
 	imageStore(out_color, ivec2(gl_LaunchIDEXT.xy), prd.color);
 }
-)"; res += u8R"(";
+))"; res += u8R"(";
 }
 
-std::string PbrRenderer_Rtx_Pass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
+std::string PASS_CLASS_NAME::GetRayIntersectionShaderCode(std::string& vOutShaderName)
 {
 	ZoneScoped;
 
-	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	vOutShaderName = "PASS_CLASS_NAME_Inter";
 	return u8R"(
 )";
 	res += m_UBOEditors.Get_Glsl_Header("Inter");
 	res += u8R"(
-)"; res += u8R"(";
+))"; res += u8R"(";
 }
 
-std::string PbrRenderer_Rtx_Pass::GetRayMissShaderCode(std::string& vOutShaderName)
+std::string PASS_CLASS_NAME::GetRayMissShaderCode(std::string& vOutShaderName)
 {
 	ZoneScoped;
 
-	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	vOutShaderName = "PASS_CLASS_NAME_Miss";
 	return u8R"(
 #version 460
 #extension GL_EXT_ray_tracing : enable
@@ -2990,24 +2982,24 @@ void main()
 	prd.sha = 0.0;
 	isShadowed = false;
 }
-)"; res += u8R"(";
+))"; res += u8R"(";
 }
 
-std::string PbrRenderer_Rtx_Pass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
+std::string PASS_CLASS_NAME::GetRayAnyHitShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	vOutShaderName = "PASS_CLASS_NAME_Ahit";
 	return u8R"(
 )";
 	res += m_UBOEditors.Get_Glsl_Header("Ahit");
 	res += u8R"(
-)"; res += u8R"(";
+))"; res += u8R"(";
 }
 
-std::string PbrRenderer_Rtx_Pass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
+std::string PASS_CLASS_NAME::GetRayClosestHitShaderCode(std::string& vOutShaderName)
 {
 	ZoneScoped;
 
-	vOutShaderName = "PbrRenderer_Rtx_Pass";
+	vOutShaderName = "PASS_CLASS_NAME_Chit";
 	return u8R"(
 
 #version 460
@@ -3135,7 +3127,7 @@ void main()
 	
 	prd.color = vec4(normal * 0.5 + 0.5, 1.0); // return normal
 }
-)"; res += u8R"(;
+))"; res += u8R"(";
 })";
 	}
 
@@ -3447,7 +3439,7 @@ void PASS_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStruc
 #include <Interfaces/AccelStructureInputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotAccelStructureInput.h>)";
+#include <Slots/NodeSlotAccelStructureInput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public AccelStructureInputInterface,)";
