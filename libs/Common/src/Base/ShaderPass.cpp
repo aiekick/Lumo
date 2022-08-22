@@ -1597,7 +1597,7 @@ void ShaderPass::ClearWriteDescriptors(const uint32_t& DescriptorSetIndex)
 bool ShaderPass::AddOrSetWriteDescriptorImage(
 	const uint32_t& vBinding, 
 	const vk::DescriptorType& vType, 
-	vk::DescriptorImageInfo* vImageInfo, 
+	const vk::DescriptorImageInfo* vImageInfo,
 	const uint32_t& vCount, 
 	const uint32_t& DescriptorSetIndex)
 {
@@ -1643,7 +1643,7 @@ bool ShaderPass::AddOrSetWriteDescriptorImage(
 bool ShaderPass::AddOrSetWriteDescriptorBuffer(
 	const uint32_t& vBinding,
 	const vk::DescriptorType& vType,
-	vk::DescriptorBufferInfo* vBufferInfo,
+	const vk::DescriptorBufferInfo* vBufferInfo,
 	const uint32_t& vCount,
 	const uint32_t& DescriptorSetIndex)
 {
@@ -1704,7 +1704,7 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(
 bool ShaderPass::AddOrSetWriteDescriptorBufferView(
 	const uint32_t& vBinding,
 	const vk::DescriptorType& vType,
-	vk::BufferView* vBufferView,
+	const vk::BufferView* vBufferView,
 	const uint32_t& vCount,
 	const uint32_t& DescriptorSetIndex)
 {
@@ -1751,6 +1751,71 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
 					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
 					vType, nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
+			}
+		}
+
+		CheckWriteDescriptors(DescriptorSetIndex);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool ShaderPass::AddOrSetWriteDescriptorNext(
+	const uint32_t& vBinding,
+	const vk::DescriptorType& vType,
+	const void* vNext,
+	const uint32_t& vCount,
+	const uint32_t& DescriptorSetIndex)
+{
+	if (DescriptorSetIndex < (uint32_t)m_DescriptorSets.size())
+	{
+		bool _needUpdate = false;
+		uint32_t indexToUpdate = 0U;
+		for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets)
+		{
+			if (desc.dstBinding == vBinding)
+			{
+				_needUpdate = true;
+				break;
+			}
+			++indexToUpdate;
+		}
+
+		// update
+		if (_needUpdate)
+		{
+			if (vNext)
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, nullptr, nullptr, vNext);
+			}
+			else
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, nullptr, nullptr, nullptr);
+
+				return false;
+			}
+		}
+		else // Add
+		{
+			if (vNext)
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, nullptr, nullptr, vNext);
+			}
+			else
+			{
+				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					vType, nullptr, nullptr, nullptr, nullptr);
+
+				return false;
 			}
 		}
 

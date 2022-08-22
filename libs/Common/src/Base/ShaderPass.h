@@ -425,22 +425,27 @@ protected:
 	bool AddOrSetWriteDescriptorImage(
 		const uint32_t& vBinding, 
 		const vk::DescriptorType& vType, 
-		vk::DescriptorImageInfo* vImageInfo, 
+		const vk::DescriptorImageInfo* vImageInfo,
 		const uint32_t& vCount = 1U, 
 		const uint32_t& DescriptorSetIndex = 0U);
 	bool AddOrSetWriteDescriptorBuffer(
 		const uint32_t& vBinding, 
 		const vk::DescriptorType& vType, 
-		vk::DescriptorBufferInfo* vBufferInfo, 
+		const vk::DescriptorBufferInfo* vBufferInfo,
 		const uint32_t& vCount = 1U, 
 		const uint32_t& DescriptorSetIndex = 0U);
 	bool AddOrSetWriteDescriptorBufferView(
 		const uint32_t& vBinding, 
 		const vk::DescriptorType& vType, 
-		vk::BufferView* vBufferView, 
+		const vk::BufferView* vBufferView,
 		const uint32_t& vCount = 1U, 
 		const uint32_t& DescriptorSetIndex = 0U);
-
+	bool AddOrSetWriteDescriptorNext(
+		const uint32_t& vBinding,
+		const vk::DescriptorType& vType,
+		const void* vNext,
+		const uint32_t& vCount = 1U,
+		const uint32_t& DescriptorSetIndex = 0U);
 	void ClearLayoutDescriptors();
 	void ClearLayoutDescriptors(const uint32_t& DescriptorSetIndex);
 	bool AddOrSetLayoutDescriptor(

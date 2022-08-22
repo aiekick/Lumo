@@ -106,6 +106,7 @@ thats all
 | :black_square_button: | Exporters / Export Cube Map to files Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file Node (Transform feedback) | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Lighting / Fog Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/100) |
@@ -121,21 +122,21 @@ thats all
 | :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Blur Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Bloom Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Postpro / Vignette Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Postpro / Vignette Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Primitives / UV Sphere Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitives / Cube Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Parametric Ansolute Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Parametric Absolute Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitives / Parametric Differential Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
 | :white_square_button: | Preview / Cube Map Preview Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Preview / LongLat Preview Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / Deferred Renderer Node (WIP) | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / Deferred Renderer Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Matcap Renderer Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / PBR Renderer Node | ![img](https://progress-bar.dev/10) |
@@ -189,6 +190,7 @@ thats all
 | Published | Node | status |
 | - | - | - |
 | :white_square_button: | Builders / Model to Accel Structure Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Renderers / Model Shadow Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / PBR Node | ![img](https://progress-bar.dev/10) |
 | :white_square_button: | Renderers / SSS Node | ![img](https://progress-bar.dev/10) |
 
