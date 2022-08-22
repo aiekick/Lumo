@@ -106,7 +106,7 @@ thats all
 | :black_square_button: | Exporters / Export Cube Map to files Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file Node (Transform feedback) | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Lighting / Fog Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/100) |
