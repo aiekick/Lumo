@@ -291,7 +291,7 @@ bool CommonSystem::DrawImGui()
 		if (m_CameraSettings.m_CameraType == CAMERA_TYPE_Enum::CAMERA_TYPE_PERSPECTIVE)
 		{
 			change |= ImGui::SliderFloatDefaultCompact(-1.0f, "Perspective Angle##Persp", &m_CameraSettings.m_PerspAngle, 0.0f, 180.0f, 45.0f);
-			change |= ImGui::SliderFloatDefaultCompact(-1.0f, "Cam Near##Persp", &m_UBOCamera.cam_near, 0.0f, CAM_FAR * 2.0f, 0.001f);
+			//change |= ImGui::SliderFloatDefaultCompact(-1.0f, "Cam Near##Persp", &m_UBOCamera.cam_near, 0.0f, CAM_FAR * 2.0f, 0.001f);
 			change |= ImGui::SliderFloatDefaultCompact(-1.0f, "Cam Far##Persp", &m_UBOCamera.cam_far, 0.0f, CAM_FAR * 2.0f, CAM_FAR);
 		}
 
@@ -681,7 +681,7 @@ std::string CommonSystem::getXml(const std::string& vOffset, const std::string& 
 	str += vOffset + "\t<ZoomLock>" + ct::toStr(m_CameraSettings.m_ZoomLock) + "</ZoomLock>\n";
 	str += vOffset + "\t<ZoomFactor>" + ct::toStr(m_CameraSettings.m_ZoomFactor) + "</ZoomFactor>\n";
 	str += vOffset + "\t<PerspectiveAngle>" + ct::toStr(m_CameraSettings.m_PerspAngle) + "</PerspectiveAngle>\n";
-	str += vOffset + "\t<CamNear>" + ct::toStr(m_UBOCamera.cam_near) + "</CamNear>\n";
+	//str += vOffset + "\t<CamNear>" + ct::toStr(m_UBOCamera.cam_near) + "</CamNear>\n";
 	str += vOffset + "\t<CamFar>" + ct::toStr(m_UBOCamera.cam_far) + "</CamFar>\n";
 	str += vOffset + "\t<CameraType>" + ct::toStr((int)m_CameraSettings.m_CameraType) + "</CameraType>\n";
 	str += vOffset + "\t<CameraType>" + ct::toStr((int)m_CameraSettings.m_CameraType) + "</CameraType>\n";
@@ -755,9 +755,9 @@ bool CommonSystem::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 		else if (strName == "CamNear") {
 			m_UBOCamera.cam_near = ct::fvariant(strValue).GetF();
 		}
-		else if (strName == "CamFar") {
-			m_UBOCamera.cam_far = ct::fvariant(strValue).GetF();
-		}
+		//else if (strName == "CamFar") {
+		//	m_UBOCamera.cam_far = ct::fvariant(strValue).GetF();
+		//}
 		else if (strName == "CameraType") {
 			m_CameraSettings.m_CameraType = (CAMERA_TYPE_Enum)ct::ivariant(strValue).GetI();
 		}
@@ -879,16 +879,15 @@ layout(std140, binding = %u) uniform UBO_Camera
 	float cam_far;		// the cam far
 };
 
-float fragDepthToLinDepth(float vDepth)
+float LinearizeDepth(float vDepth)
 {
 	return (cam_near * cam_far) / (cam_far + cam_near - vDepth * (cam_far - cam_near));
 }
 
-float linDepthToFragDepth(float vDepth)
+float DeLinearizeDepth(float vDepth)
 {
 	return (cam_near + cam_far) * vDepth - cam_far * cam_near / (cam_near - cam_far) * vDepth;
 }
-
 )", vBindingPoint);
 }
 
