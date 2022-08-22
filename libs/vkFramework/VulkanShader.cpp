@@ -267,6 +267,10 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 		Shader.setStrings(&InputCString, 1);
 
 		EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+
+#ifdef _DEBUG
+		messages = (EShMessages)(messages | EShMsgDebugInfo);
+#endif
 		//EShMessages messages = (EShMessages)(EShMsgDefault);
 
 		const int DefaultVersion = 110; // 110 for desktop, 100 for es
@@ -478,9 +482,12 @@ const std::vector<unsigned int> VulkanShader::CompileGLSLString(
 		spv::SpvBuildLogger logger;
 		glslang::SpvOptions spvOptions;
 		spvOptions.optimizeSize = true;
-#ifndef _DEBUG
+#ifdef _DEBUG
+		spvOptions.generateDebugInfo = true;
+#else
 		spvOptions.stripDebugInfo = true;
 #endif
+
 		glslang::GlslangToSpv(*Program.getIntermediate(shaderType), SpirV, &logger, &spvOptions);
 
 		if (logger.getAllMessages().length() > 0)
