@@ -159,8 +159,8 @@ bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(const Sc
 			std::array<std::array<float, 4>, 3>
 		{
 			1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 1.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 1.0f, 0.0f
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f
 		};
 
 		auto transformMatrixBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeof(transform_matrix),
