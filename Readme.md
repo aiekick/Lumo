@@ -106,7 +106,7 @@ thats all
 | :black_square_button: | Exporters / Export Cube Map to files Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file Node (Transform feedback) | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Lighting / Fog Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/100) |
@@ -191,8 +191,8 @@ thats all
 | - | - | - |
 | :white_square_button: | Builders / Model to Accel Structure Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Model Shadow Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / PBR Node | ![img](https://progress-bar.dev/10) |
-| :white_square_button: | Renderers / SSS Node | ![img](https://progress-bar.dev/10) |
+| :black_square_button: | Renderers / PBR Node | ![img](https://progress-bar.dev/50) |
+| :black_square_button: | Renderers / SSS Node | ![img](https://progress-bar.dev/20) |
 
 ## SdfMesher Plugin : 
 
@@ -218,7 +218,7 @@ thats all
 
 v0.3.802 (Vulkan 1.2) :
 
-A bloom effect implemented whit nodes 
+A bloom effect implemented whith nodes 
 ![v0_3_802](doc/screenshots/Lumo_Windows_Debug_x64_0_3_802.png)
 
 v0.2.798 (Vulkan 1.0) :
