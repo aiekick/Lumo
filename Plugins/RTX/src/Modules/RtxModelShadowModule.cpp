@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "RtxSSSRenderer.h"
+#include "RtxModelShadowModule.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -27,7 +27,7 @@ limitations under the License.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
-#include <Modules/Pass/SssRenderer_Rtx_Pass.h>
+#include <Modules/Pass/ModelShadow_Rtx_Pass.h>
 
 using namespace vkApi;
 
@@ -37,10 +37,10 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<RtxSSSRenderer> RtxSSSRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RtxModelShadowModule> RtxModelShadowModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<RtxSSSRenderer>(vVulkanCorePtr);
+	auto res = std::make_shared<RtxModelShadowModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -53,13 +53,13 @@ std::shared_ptr<RtxSSSRenderer> RtxSSSRenderer::Create(vkApi::VulkanCorePtr vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RtxSSSRenderer::RtxSSSRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+RtxModelShadowModule::RtxModelShadowModule(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
 
-RtxSSSRenderer::~RtxSSSRenderer()
+RtxModelShadowModule::~RtxModelShadowModule()
 {
 	Unit();
 }
@@ -68,7 +68,7 @@ RtxSSSRenderer::~RtxSSSRenderer()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool RtxSSSRenderer::Init()
+bool RtxModelShadowModule::Init()
 {
 	ZoneScoped;
 
@@ -78,13 +78,13 @@ bool RtxSSSRenderer::Init()
 
 	if (BaseRenderer::InitRtx(map_size))
 	{
-		m_SssRenderer_Rtx_Pass_Ptr = std::make_shared<SssRenderer_Rtx_Pass>(m_VulkanCorePtr);
-		if (m_SssRenderer_Rtx_Pass_Ptr)
+		m_ModelShadow_Rtx_Pass_Ptr = std::make_shared<ModelShadow_Rtx_Pass>(m_VulkanCorePtr);
+		if (m_ModelShadow_Rtx_Pass_Ptr)
 		{
-			if (m_SssRenderer_Rtx_Pass_Ptr->InitRtx(map_size, 
+			if (m_ModelShadow_Rtx_Pass_Ptr->InitRtx(map_size, 
 				1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
-				AddGenericPass(m_SssRenderer_Rtx_Pass_Ptr);
+				AddGenericPass(m_ModelShadow_Rtx_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -96,26 +96,26 @@ bool RtxSSSRenderer::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool RtxSSSRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool RtxModelShadowModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("PBR Renderer", vCmd);
+	BaseRenderer::Render("Rtx Model Shadow", vCmd);
 
 	return true;
 }
 
-bool RtxSSSRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool RtxModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("PBR Renderer", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("Rtx Model Shadow", -1.0f, true, true, &m_CanWeRender))
 		{
-			if (m_SssRenderer_Rtx_Pass_Ptr)
+			if (m_ModelShadow_Rtx_Pass_Ptr)
 			{
-				return m_SssRenderer_Rtx_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_ModelShadow_Rtx_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 		}
 	}
@@ -123,7 +123,7 @@ bool RtxSSSRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 	return false;
 }
 
-void RtxSSSRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void RtxModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -133,7 +133,7 @@ void RtxSSSRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 	}
 }
 
-void RtxSSSRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void RtxModelShadowModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -143,29 +143,29 @@ void RtxSSSRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 	}
 }
 
-void RtxSSSRenderer::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
+void RtxModelShadowModule::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
 {
-	if (m_SssRenderer_Rtx_Pass_Ptr)
+	if (m_ModelShadow_Rtx_Pass_Ptr)
 	{
-		m_SssRenderer_Rtx_Pass_Ptr->SetAccelStructure(vSceneAccelStructure);
+		m_ModelShadow_Rtx_Pass_Ptr->SetAccelStructure(vSceneAccelStructure);
 	}
 }
 
-vk::DescriptorImageInfo* RtxSSSRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* RtxModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_SssRenderer_Rtx_Pass_Ptr)
+	if (m_ModelShadow_Rtx_Pass_Ptr)
 	{
-		return m_SssRenderer_Rtx_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ModelShadow_Rtx_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-void RtxSSSRenderer::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void RtxModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	if (m_SssRenderer_Rtx_Pass_Ptr)
+	if (m_ModelShadow_Rtx_Pass_Ptr)
 	{
-		m_SssRenderer_Rtx_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+		m_ModelShadow_Rtx_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -173,25 +173,25 @@ void RtxSSSRenderer::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string RtxSSSRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string RtxModelShadowModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string str;
 
-	str += vOffset + "<pbr_renderer_module>\n";
+	str += vOffset + "<rtx_model_shadow_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_SssRenderer_Rtx_Pass_Ptr)
+	if (m_ModelShadow_Rtx_Pass_Ptr)
 	{
-		str += m_SssRenderer_Rtx_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_ModelShadow_Rtx_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</pbr_renderer_module>\n";
+	str += vOffset + "</rtx_model_shadow_module>\n";
 
 	return str;
 }
 
-bool RtxSSSRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool RtxModelShadowModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -204,15 +204,15 @@ bool RtxSSSRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "pbr_renderer_module")
+	if (strParentName == "rtx_model_shadow_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	if (m_SssRenderer_Rtx_Pass_Ptr)
+	if (m_ModelShadow_Rtx_Pass_Ptr)
 	{
-		m_SssRenderer_Rtx_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		m_ModelShadow_Rtx_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;

@@ -28,7 +28,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/RtxShaderPass.h>
+#include <Base/BaseRenderer.h>
 
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -45,55 +45,42 @@ limitations under the License.
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/ShaderInterface.h>
 #include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/ResizerInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/ResizerInterface.h>
+#include <Interfaces/SerializationInterface.h>
 #include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/AccelStructureInputInterface.h>
 
-class PbrRenderer_Rtx_Pass :
-	public RtxShaderPass,
+class ModelShadow_Rtx_Pass;
+class RtxModelShadowModule : 
+	public BaseRenderer,
 	public GuiInterface,
-	public LightGroupInputInterface,
+	public TaskInterface,
 	public TextureOutputInterface,
+	public LightGroupInputInterface,
 	public AccelStructureInputInterface
 {
-private:
-	const vk::WriteDescriptorSetAccelerationStructureKHR m_EmptyAccelStructureTopDescriptorInfo = { 1U, VK_NULL_HANDLE };
+public:
+	static std::shared_ptr<RtxModelShadowModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
-	VulkanBufferObjectPtr m_ModelAdressesPtr = nullptr;
-	vk::DescriptorBufferInfo m_ModelAdressesBufferInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
+private:
+	std::shared_ptr<ModelShadow_Rtx_Pass> m_ModelShadow_Rtx_Pass_Ptr = nullptr;
 
 public:
-	PbrRenderer_Rtx_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~PbrRenderer_Rtx_Pass() override;
+	RtxModelShadowModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~RtxModelShadowModule() override;
 
-	void ActionBeforeCompilation() override;
+	bool Init();
 
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	
 	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
-
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-
-private:
-	bool CanRender() override;
-	bool CanUpdateDescriptors() override;
-
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
-
-	std::string GetRayGenerationShaderCode(std::string& vOutShaderName) override;
-	std::string GetRayIntersectionShaderCode(std::string& vOutShaderName) override;
-	std::string GetRayMissShaderCode(std::string& vOutShaderName) override;
-	std::string GetRayAnyHitShaderCode(std::string& vOutShaderName) override;
-	std::string GetRayClosestHitShaderCode(std::string& vOutShaderName) override;
-
 };

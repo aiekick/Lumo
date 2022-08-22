@@ -52,7 +52,7 @@ limitations under the License.
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/AccelStructureInputInterface.h>
 
-class SssRenderer_Rtx_Pass :
+class ModelShadow_Rtx_Pass :
 	public RtxShaderPass,
 	public GuiInterface,
 	public LightGroupInputInterface,
@@ -62,12 +62,19 @@ class SssRenderer_Rtx_Pass :
 private:
 	const vk::WriteDescriptorSetAccelerationStructureKHR m_EmptyAccelStructureTopDescriptorInfo = { 1U, VK_NULL_HANDLE };
 
-	VulkanBufferObjectPtr m_ModelAdressesPtr = nullptr;
-	vk::DescriptorBufferInfo m_ModelAdressesBufferInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
+	struct UBO_Rtx {
+		alignas(4) float u_light_intensity_factor = 100.0f;
+		alignas(4) float u_enable_light_attenuation = 1.0f;
+		alignas(4) float u_enable_light_color = 1.0f;
+		alignas(4) float u_shadow_strength = 0.5f;
+	} m_UBO_Rtx;
+	const UBO_Rtx m_Default_UBO_Rtx;
+	VulkanBufferObjectPtr m_UBO_Rtx_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBO_Rtx_BufferInfos;
 
 public:
-	SssRenderer_Rtx_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~SssRenderer_Rtx_Pass() override;
+	ModelShadow_Rtx_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~ModelShadow_Rtx_Pass() override;
 
 	void ActionBeforeCompilation() override;
 
@@ -84,12 +91,17 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 private:
+	bool CreateUBO() override;
+	void UploadUBO() override;
+	void DestroyUBO() override;
+
 	bool CanRender() override;
 	bool CanUpdateDescriptors() override;
 
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 
+	std::string GetHitPayLoadCode();
 	std::string GetRayGenerationShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayIntersectionShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayMissShaderCode(std::string& vOutShaderName) override;

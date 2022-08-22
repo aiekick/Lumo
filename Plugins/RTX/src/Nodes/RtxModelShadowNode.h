@@ -28,8 +28,8 @@ limitations under the License.
 #include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/AccelStructureInputInterface.h>
 
-class RtxSSSRenderer;
-class RtxSSSRendererNode : 
+class RtxModelShadowModule;
+class RtxModelShadowNode :
 	public BaseNode,
 	public ShaderUpdateInterface,
 	public TextureOutputInterface,
@@ -37,14 +37,14 @@ class RtxSSSRendererNode :
 	public AccelStructureInputInterface
 {
 public:
-	static std::shared_ptr<RtxSSSRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<RtxModelShadowNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<RtxSSSRenderer> m_RtxSSSRendererPtr = nullptr;
+	std::shared_ptr<RtxModelShadowModule> m_RtxModelShadowModulePtr = nullptr;
 
 public:
-	RtxSSSRendererNode();
-	~RtxSSSRendererNode() override;
+	RtxModelShadowNode();
+	~RtxModelShadowNode() override;
 	
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;

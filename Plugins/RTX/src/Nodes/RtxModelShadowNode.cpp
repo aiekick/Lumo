@@ -14,18 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "RtxSSSRendererNode.h"
-#include <Modules/RtxSSSRenderer.h>
+#include "RtxModelShadowNode.h"
+#include <Modules/RtxModelShadowModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
 #include <Slots/NodeSlotAccelStructureInput.h>
 #include <Graph/Slots/NodeSlotLightGroupInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 
-
-std::shared_ptr<RtxSSSRendererNode> RtxSSSRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RtxModelShadowNode> RtxModelShadowNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<RtxSSSRendererNode>();
+	auto res = std::make_shared<RtxModelShadowNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -34,19 +33,19 @@ std::shared_ptr<RtxSSSRendererNode> RtxSSSRendererNode::Create(vkApi::VulkanCore
 	return res;
 }
 
-RtxSSSRendererNode::RtxSSSRendererNode() : BaseNode()
+RtxModelShadowNode::RtxModelShadowNode() : BaseNode()
 {
-	m_NodeTypeString = "RTX_SSS_RENDERER";
+	m_NodeTypeString = "RTX_MODEL_SHADOW";
 }
 
-RtxSSSRendererNode::~RtxSSSRendererNode()
+RtxModelShadowNode::~RtxModelShadowNode()
 {
 	Unit();
 }
 
-bool RtxSSSRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool RtxModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "SSS Renderer";
+	name = "Rtx Model Shadow";
 
 	AddInput(NodeSlotAccelStructureInput::Create("Accel Struct"), true, false);
 	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
@@ -54,8 +53,8 @@ bool RtxSSSRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_RtxSSSRendererPtr = RtxSSSRenderer::Create(vVulkanCorePtr);
-	if (m_RtxSSSRendererPtr)
+	m_RtxModelShadowModulePtr = RtxModelShadowModule::Create(vVulkanCorePtr);
+	if (m_RtxModelShadowModulePtr)
 	{
 		res = true;
 	}
@@ -63,46 +62,46 @@ bool RtxSSSRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-void RtxSSSRendererNode::Unit()
+void RtxModelShadowNode::Unit()
 {
-	m_RtxSSSRendererPtr.reset();
+	m_RtxModelShadowModulePtr.reset();
 }
 
-bool RtxSSSRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool RtxModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
 
-	if (m_RtxSSSRendererPtr)
+	if (m_RtxModelShadowModulePtr)
 	{
-		return m_RtxSSSRendererPtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		return m_RtxModelShadowModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return false;
 }
 
-bool RtxSSSRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool RtxModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_RtxSSSRendererPtr)
+	if (m_RtxModelShadowModulePtr)
 	{
-		return m_RtxSSSRendererPtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_RtxModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void RtxSSSRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void RtxModelShadowNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_RtxSSSRendererPtr)
+	if (m_RtxModelShadowModulePtr)
 	{
-		m_RtxSSSRendererPtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_RtxModelShadowModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void RtxSSSRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void RtxModelShadowNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
@@ -119,40 +118,40 @@ void RtxSSSRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeStat
 	}
 }
 
-void RtxSSSRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void RtxModelShadowNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	if (m_RtxSSSRendererPtr)
+	if (m_RtxModelShadowModulePtr)
 	{
-		m_RtxSSSRendererPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+		m_RtxModelShadowModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-vk::DescriptorImageInfo* RtxSSSRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* RtxModelShadowNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_RtxSSSRendererPtr)
+	if (m_RtxModelShadowModulePtr)
 	{
-		return m_RtxSSSRendererPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_RtxModelShadowModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-void RtxSSSRendererNode::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
+void RtxModelShadowNode::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
 {
-	if (m_RtxSSSRendererPtr)
+	if (m_RtxModelShadowModulePtr)
 	{
-		m_RtxSSSRendererPtr->SetAccelStructure(vSceneAccelStructure);
+		m_RtxModelShadowModulePtr->SetAccelStructure(vSceneAccelStructure);
 	}
 }
 
-void RtxSSSRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void RtxModelShadowNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	if (m_RtxSSSRendererPtr)
+	if (m_RtxModelShadowModulePtr)
 	{
-		m_RtxSSSRendererPtr->SetLightGroup(vSceneLightGroup);
+		m_RtxModelShadowModulePtr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -160,7 +159,7 @@ void RtxSSSRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string RtxSSSRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string RtxModelShadowNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -186,9 +185,9 @@ std::string RtxSSSRendererNode::getXml(const std::string& vOffset, const std::st
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_RtxSSSRendererPtr)
+		if (m_RtxModelShadowModulePtr)
 		{
-			res += m_RtxSSSRendererPtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_RtxModelShadowModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -197,7 +196,7 @@ std::string RtxSSSRendererNode::getXml(const std::string& vOffset, const std::st
 	return res;
 }
 
-bool RtxSSSRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool RtxModelShadowNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -212,18 +211,18 @@ bool RtxSSSRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_RtxSSSRendererPtr)
+	if (m_RtxModelShadowModulePtr)
 	{
-		m_RtxSSSRendererPtr->setFromXml(vElem, vParent, vUserDatas);
+		m_RtxModelShadowModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
 }
 
-void RtxSSSRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
+void RtxModelShadowNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
-	if (m_RtxSSSRendererPtr)
+	if (m_RtxModelShadowModulePtr)
 	{
-		m_RtxSSSRendererPtr->UpdateShaders(vFiles);
+		m_RtxModelShadowModulePtr->UpdateShaders(vFiles);
 	}
 }

@@ -27,8 +27,7 @@ limitations under the License.
 #include <vkFramework/VulkanWindow.h>
 #include <Graph/Base/NodeSlot.h>
 
-#include <Nodes/RtxPbrRendererNode.h>
-#include <Nodes/RtxSSSRendererNode.h>
+#include <Nodes/RtxModelShadowNode.h>
 #include <Nodes/ModelToAccelStructNode.h>
 
 #ifndef USE_PLUGIN_STATIC_LINKING
@@ -100,8 +99,7 @@ std::vector<std::string> RTX::GetNodes() const
 {
 	return
 	{
-		"RTX_PBR_RENDERER",
-		"RTX_SSS_RENDERER",
+		"RTX_MODEL_SHADOW",
 		"RTX_MODEL_TO_ACCELERATION_STRUCTURE"
 	};
 }
@@ -110,10 +108,9 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	res.push_back(AddLibraryEntry("RTX/3D", "PBR", "RTX_PBR_RENDERER"));
-	res.push_back(AddLibraryEntry("RTX/3D", "SSS", "RTX_SSS_RENDERER"));
 	res.push_back(AddLibraryEntry("RTX/3D", "AccelStruct Builder", "RTX_MODEL_TO_ACCELERATION_STRUCTURE"));
-
+	res.push_back(AddLibraryEntry("RTX/3D", "Model Shadw", "RTX_MODEL_SHADOW"));
+	
 	return res;
 }
 
@@ -121,10 +118,8 @@ BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
 {
 	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
 
-	if (vPluginNodeName == "RTX_PBR_RENDERER")
-		return RtxPbrRendererNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "RTX_SSS_RENDERER")
-		return RtxSSSRendererNode::Create(vkCorePtr);
+	if (vPluginNodeName == "RTX_MODEL_SHADOW")
+		return RtxModelShadowNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "RTX_MODEL_TO_ACCELERATION_STRUCTURE")
 		return ModelToAccelStructNode::Create(vkCorePtr);
 
