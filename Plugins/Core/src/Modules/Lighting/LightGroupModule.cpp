@@ -145,6 +145,8 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 						{
 							parentNodePtr->SendFrontNotification(LightGroupUpdateDone);
 						}
+
+						ImGui::PopID();
 						break;
 					}
 				}
