@@ -1871,7 +1871,20 @@ PASS_CLASS_NAME::~PASS_CLASS_NAME()
 
 	Unit();
 }
+)";
+	if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		cpp_pass_file_code += u8R"(
+void PASS_CLASS_NAME::ActionBeforeCompilation()
+{
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR, "main"), "main");
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR, "main"), "main");
+	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR, "main"), "main");
+}
+)";
+	}
 
+		cpp_pass_file_code += u8R"(
 void PASS_CLASS_NAME::ActionBeforeInit()
 {
 	ZoneScoped;
@@ -2023,6 +2036,27 @@ void PASS_CLASS_NAME::DestroySBO()
 )";
 	}
 
+	if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		cpp_pass_file_code += u8R"(
+bool PASS_CLASS_NAME::CanUpdateDescriptors()
+{
+	ZoneScoped;
+
+	if (!m_SceneAccelStructure.expired())
+	{
+		auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+		if (accelStructurePtr)
+		{
+			return accelStructurePtr->IsOk();
+		}
+	}
+
+	return false;
+}
+)";
+	}
+
 	cpp_pass_file_code += u8R"(
 bool PASS_CLASS_NAME::UpdateLayoutBindingInRessourceDescriptor()
 {
@@ -2033,7 +2067,7 @@ bool PASS_CLASS_NAME::UpdateLayoutBindingInRessourceDescriptor()
 	cpp_pass_file_code += GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
 	cpp_pass_file_code += u8R"(
 
-	return true;
+	return res;
 }
 
 bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
@@ -2233,7 +2267,14 @@ private:)";
 public:
 	PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~PASS_CLASS_NAME() override;
+)";
 
+	if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		h_pass_file_code += u8R"(
+	void ActionBeforeCompilation() override;)";
+	}
+	h_pass_file_code += u8R"(
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
 )";
@@ -2294,6 +2335,11 @@ protected:)";
 )";
 	}
 
+	if (m_RendererType == RENDERER_TYPE_RTX)
+	{
+		h_pass_file_code += u8R"(
+	bool CanUpdateDescriptors() override;)";
+	}
 	h_pass_file_code += u8R"(
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
@@ -2592,16 +2638,17 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{
 		res += u8R"(
+	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
+	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
+	res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights
+		
 	auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
 	if (accelStructurePtr && 
 		accelStructurePtr->GetTLASInfo() && 
 		accelStructurePtr->GetBufferAddressInfo())
 	{
-		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
 		res &= AddOrSetWriteDescriptorNext(1U, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo()); // accel struct
-		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
 		res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model device address
-		res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
 	}
 )";
 	}

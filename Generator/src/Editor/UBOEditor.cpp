@@ -467,7 +467,7 @@ std::string UBOEditor::Get_Cpp_LayoutBindings(const std::string& vRendererType, 
 	else if (m_Stage == "Inter") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eIntersectionKHR";
 
 	return ct::toStr(u8R"(
-	AddOrSetLayoutDescriptor(%iU, vk::DescriptorType::eUniformBuffer, %s);)", vUboBindingIndex, _ShaderStageFlagBits.c_str());
+	res &= AddOrSetLayoutDescriptor(%iU, vk::DescriptorType::eUniformBuffer, %s);)", vUboBindingIndex, _ShaderStageFlagBits.c_str());
 }
 
 std::string UBOEditor::Get_Cpp_GetXML(const std::string& vRendererType, const int32_t& vUboIndex)
