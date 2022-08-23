@@ -1,6 +1,6 @@
 #pragma once
 
-#define RTX_BuildNumber 337
+#define RTX_BuildNumber 365
 #define RTX_MinorNumber 0
 #define RTX_MajorNumber 0
-#define RTX_BuildId "0.0.337"
+#define RTX_BuildId "0.0.365"

@@ -86,10 +86,12 @@ bool RtxPbrRendererModule_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 
 	change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "diffuse_factor", &m_UBO_Chit.u_diffuse_factor, 0.000f, 1.000f, 1.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "metallic_factor", &m_UBO_Chit.u_metallic_factor, 0.000f, 1.000f, 1.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "rugosity_factor", &m_UBO_Chit.u_rugosity_factor, 0.000f, 1.000f, 1.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "ao_factor", &m_UBO_Chit.u_ao_factor, 0.000f, 1.000f, 1.000f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Diffuse Factor", &m_UBO_Chit.u_diffuse_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Metallic Factor", &m_UBO_Chit.u_metallic_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rugosity Factor", &m_UBO_Chit.u_rugosity_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Factor", &m_UBO_Chit.u_ao_factor, 0.000f, 1.0f, 1.000f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Light Intensity Factor", &m_UBO_Chit.u_light_intensity_factor, 0.0f, 200.0f, 100.0f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Shadow Strength", &m_UBO_Chit.u_shadow_strength, 0.000f, 1.000f, 0.5f, 0.0f, "%.3f");
 
 	if (change)
 	{
@@ -271,19 +273,17 @@ bool RtxPbrRendererModule_Rtx_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	ZoneScoped;
 
 	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR); // output
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR); // camera
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // ubo chit
-	res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // lights
+	
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR);
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR);
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR);
+	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
+	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
+	res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
 	res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR); // albedo
 	res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR); // ao
 	res &= AddOrSetLayoutDescriptor(8U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR); // longlat
-
-	res &= AddOrSetLayoutDescriptor(1U, 	vk::DescriptorType::eAccelerationStructureKHR, 
-		vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
-	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, 
-		vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
-
+	
 	return res;
 }
 
@@ -292,13 +292,6 @@ bool RtxPbrRendererModule_Rtx_Pass::UpdateBufferInfoInRessourceDescriptor()
 	ZoneScoped;
 
 	bool res = true;
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
-	res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBO_Chit_BufferInfos); // ubo chit
-	res &= AddOrSetWriteDescriptorBuffer(5U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights
-	res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // albedo
-	res &= AddOrSetWriteDescriptorImage(7U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]); // ao
-	res &= AddOrSetWriteDescriptorImage(8U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]); // longlat
 
 	if (res)
 	{
@@ -311,19 +304,27 @@ bool RtxPbrRendererModule_Rtx_Pass::UpdateBufferInfoInRessourceDescriptor()
 		{
 			res = true;
 
-			res &= AddOrSetWriteDescriptorNext(1U, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo()); // accel struct
-			res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model device address
+			res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));
+			res &= AddOrSetWriteDescriptorNext(1U, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo());
+			res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
+			res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model device address
+			res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
+			res &= AddOrSetWriteDescriptorBuffer(5U, vk::DescriptorType::eUniformBuffer, &m_UBO_Chit_BufferInfos);
+			res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // albedo
+			res &= AddOrSetWriteDescriptorImage(7U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]); // ao
+			res &= AddOrSetWriteDescriptorImage(8U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]); // longlat
 		}
 	}
 
 	return res;
 }
 
-std::string RtxPbrRendererModule_Rtx_Pass::GetRayHitLoadCode()
+std::string RtxPbrRendererModule_Rtx_Pass::GetHitPayLoadCode()
 {
 	return u8R"(
 struct hitPayload
 {
+	float sha;
 	vec3 ro;
 	vec3 rd;
 	vec4 color;
@@ -346,7 +347,7 @@ layout(binding = 1) uniform accelerationStructureEXT tlas;
 + 
 CommonSystem::GetBufferObjectStructureHeader(2U) 
 +
-GetRayHitLoadCode()
+GetHitPayLoadCode()
 +
 u8R"(
 layout(location = 0) rayPayloadEXT hitPayload prd;
@@ -414,7 +415,7 @@ std::string RtxPbrRendererModule_Rtx_Pass::GetRayMissShaderCode(std::string& vOu
 #extension GL_EXT_ray_tracing : enable
 )"
 +
-GetRayHitLoadCode()
+GetHitPayLoadCode()
 +
 u8R"(
 layout(location = 0) rayPayloadInEXT hitPayload prd;
@@ -422,7 +423,7 @@ layout(location = 1) rayPayloadEXT bool isShadowed;
 
 void main()
 {
-	prd.color = vec4(0.0, 0.0, 0.0, 0.0);
+	prd.sha = 0.0;
 	isShadowed = false;
 }
 )";
@@ -451,7 +452,7 @@ std::string RtxPbrRendererModule_Rtx_Pass::GetRayClosestHitShaderCode(std::strin
 #extension GL_EXT_buffer_reference2 : require
 )"
 +
-GetRayHitLoadCode()
+GetHitPayLoadCode()
 +
 u8R"(
 layout(location = 0) rayPayloadInEXT hitPayload prd;
@@ -487,7 +488,16 @@ struct SceneMeshBuffers
 	uint64_t indices;
 };
 
-layout(std140, binding = 3) uniform UBO_Chit
+layout(binding = 3) buffer ModelAddresses 
+{ 
+	SceneMeshBuffers datas[]; 
+} sceneMeshBuffers;
+)"
++
+SceneLightGroup::GetBufferObjectStructureHeader(4U)
++
+u8R"(
+layout(std140, binding = 5) uniform UBO_Chit
 {
 	float u_diffuse_factor;
 	float u_metallic_factor;
@@ -496,45 +506,43 @@ layout(std140, binding = 3) uniform UBO_Chit
 	float u_use_albedo_map;
 	float u_use_ao_map;
 	float u_use_longlat_map;
+	float u_light_intensity_factor;
+	float u_shadow_strength;
 };
 
-layout(binding = 4) buffer ModelAddresses 
-{ 
-	SceneMeshBuffers datas[]; 
-} sceneMeshBuffers;
-)"
-+
-SceneLightGroup::GetBufferObjectStructureHeader(5U)
-+
-u8R"(
 layout(binding = 6) uniform sampler2D albedo_map_sampler;
 layout(binding = 7) uniform sampler2D ao_map_sampler;
 layout(binding = 8) uniform sampler2D longlat_map_sampler;
 
 float getShadowValue(vec3 p, vec3 ld)
 {
+	isShadowed = true; 
+
+	const float tmin = 0.001;
+	const float tmax = 1e32;
+
 	uint flags  = 
 		gl_RayFlagsTerminateOnFirstHitEXT | 
 		gl_RayFlagsOpaqueEXT | 
 		gl_RayFlagsSkipClosestHitShaderEXT;
-	
-	isShadowed = true; 
-	
-	traceRayEXT(tlas,			// acceleration structure
-		        flags,			// rayFlags
-		        0xFF,			// cullMask
-		        0,				// sbtRecordOffset
-		        0,				// sbtRecordStride
-		        0,				// missIndex
-		        p,				// ray origin
-		        0.1,			// ray min range
-		        ld,				// ray direction
-		        1e32,			// ray max range
-		        1				// payload (location = 1)
+
+	traceRayEXT(tlas,		// acceleration structure
+		        flags,		// rayFlags
+		        0xFF,		// cullMask
+		        0,			// sbtRecordOffset
+		        0,			// sbtRecordStride
+		        0,			// missIndex
+		        p,			// ray origin
+		        tmin,		// ray min range
+		        ld,			// ray direction
+		        tmax,		// ray max range
+		        1			// payload (location = 1)
 	);
 
 	if (isShadowed)
-		return 0.5;
+	{
+		return clamp(1.0 - u_shadow_strength, 0.0, 1.0);
+	}	
 	
 	return 1.0;
 }
@@ -569,6 +577,27 @@ vec3 fresnelSchlick (float cosTheta, vec3 F0)
 
 void main()
 {
+	const vec2 p = vec2(gl_LaunchIDEXT.xy);
+	const vec2 s = vec2(gl_LaunchSizeEXT.xy);
+
+	const vec2 pc = p + 0.5; // pixel center
+	const vec2 uv = pc / s;
+	const vec2 uvc = uv * 2.0 - 1.0;
+	
+	// albedo // diffuse
+	vec3 albedo_color = vec3(1.0);
+	if (u_use_albedo_map > 0.5)
+		albedo_color = texture(albedo_map_sampler, uv).rgb;
+	albedo_color *= u_diffuse_factor;
+	
+	// Ambiant Occlusion
+	float ao_value = 1.0;
+	if (u_use_ao_map > 0.5)
+		ao_value = texture(ao_map_sampler, uv).r;
+	ao_value *= u_ao_factor;
+	
+	//vec3 albedo_color = texture(longlat_map_sampler, uv).rgb;
+	
 	// When contructing the TLAS, we stored the model id in InstanceCustomIndexEXT, so the
 	// the instance can quickly have access to the data
 
@@ -601,8 +630,13 @@ void main()
 		vec3(v1.cx, v1.cy, v1.cz) * barycentrics.y + 
 		vec3(v2.cx, v2.cy, v2.cz) * barycentrics.z;
     
+	// world normal to object space
 	vec3 N = normalize(vec3(model_normal * gl_ObjectToWorldEXT)); 
+	//vec3 N = normalize(vec3(model_normal * gl_WorldToObjectEXT)); 
 
+	vec3 ambient = 0.03 * albedo_color * ao_value;
+	vec3 Lo = ambient;
+	
 	uint count = lightsCount % 8; // maxi 8 lights in this system
 	for (uint lid = 0 ; lid < count ; ++lid)
 	{
@@ -610,37 +644,48 @@ void main()
 		{
 			vec3 lp = lightDatas[lid].lightGizmo[3].xyz;
 			float li = lightDatas[lid].lightIntensity;
-			vec4 lc = vec4(1.0);
+			vec4 lc = lightDatas[lid].lightColor;
 			vec3 ld = lp - model_pos;
 			float len = length(ld);
 			vec3 L = ld / len;
-			float atten = li * 100.0 / (len * len);
+			float atten = li * u_light_intensity_factor / (len * len);
 
-			float sha = ShadowTest(pos, ldn);
-
+			prd.sha = getShadowValue(model_pos, L);
+			
 			vec3 V = -prd.rd;
-            vec3 H = normalize (V + L);
-                
-            // Cook-Torrance BRDF
-            vec3  F0 = mix (vec3 (0.04), pow(u_diffuse_factor, vec3(2.2)), u_metallic_factor);
-            float NDF = distributionGGX(N, H, u_rugosity_factor);
-            float G   = geometrySmith(N, V, L, u_rugosity_factor);
-            vec3  F   = fresnelSchlick(max(dot(H, V), 0.0), F0);        
-            vec3  kD  = vec3(1.0) - F;
-            kD *= 1.0 - u_metallic_factor;	  
-                
-            vec3  numerator   = NDF * G * F;
-            float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-            vec3  specular    = numerator / max(denominator, 0.001);  
-                    
-            float NdotL = max(dot(N, L), 0.0);                
-            vec3 color = lc * (kD * pow(u_diffuse_factor * model_color, vec3 (2.2)) / PI + specular) * (NdotL / dot(ld, ld));
+			vec3 H = normalize(V + L);
+			vec3 radiance = lc.rgb * atten; 
+			
+			vec3 F0 = vec3(0.04); 
+			F0 = mix(F0, albedo_color, u_metallic_factor);
+			vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+			float NDF = distributionGGX(N, H, u_rugosity_factor);       
+			float G = geometrySmith(N, V, L, u_rugosity_factor);       
+			vec3 numerator = NDF * G * F;
+			float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0)  + 0.0001;
+			vec3 specular = numerator / denominator;  
+			
+			vec3 kS = F;
+			vec3 kD = vec3(1.0) - kS;
+			  
+			kD *= 1.0 - u_metallic_factor;	
 
-			prd.color += atten * color * prd.sha;
+			const float PI = 3.14159265359;
+		  
+			float NdotL = max(dot(N, L), 0.0);        
+			vec3 cc = (kD * albedo_color / PI + specular) * radiance * NdotL;
+			
+			Lo += cc * prd.sha;
 		}
 	}
 
-	prd.color /= float(count);
+	prd.color /= float(lightsCount);
+	prd.color.a = 1.0;
+	
+	prd.color.rgb = Lo / float(count);
+	prd.color.rgb = prd.color.rgb / (prd.color.rgb + vec3(1.0));
+	prd.color.rgb = pow(prd.color.rgb, vec3(1.0/2.2)); 
+	prd.color.a = 1.0;
 }
 )";
 }
@@ -661,7 +706,9 @@ std::string RtxPbrRendererModule_Rtx_Pass::getXml(const std::string& vOffset, co
 	str += vOffset + "<metallic_factor>" + ct::toStr(m_UBO_Chit.u_metallic_factor) + "</metallic_factor>\n";
 	str += vOffset + "<rugosity_factor>" + ct::toStr(m_UBO_Chit.u_rugosity_factor) + "</rugosity_factor>\n";
 	str += vOffset + "<ao_factor>" + ct::toStr(m_UBO_Chit.u_ao_factor) + "</ao_factor>\n";
-
+	str += vOffset + "<light_intensity_factor>" + ct::toStr(m_UBO_Chit.u_light_intensity_factor) + "</light_intensity_factor>\n";
+	str += vOffset + "<shadow_strength>" + ct::toStr(m_UBO_Chit.u_shadow_strength) + "</shadow_strength>\n";
+	
 	return str;
 }
 
@@ -684,7 +731,6 @@ bool RtxPbrRendererModule_Rtx_Pass::setFromXml(tinyxml2::XMLElement* vElem, tiny
 
 	if (strParentName == "rtx_pbr_renderer_module")
 	{
-
 		if (strName == "diffuse_factor")
 			m_UBO_Chit.u_diffuse_factor = ct::fvariant(strValue).GetF();
 		else if (strName == "metallic_factor")
@@ -693,6 +739,10 @@ bool RtxPbrRendererModule_Rtx_Pass::setFromXml(tinyxml2::XMLElement* vElem, tiny
 			m_UBO_Chit.u_rugosity_factor = ct::fvariant(strValue).GetF();
 		else if (strName == "ao_factor")
 			m_UBO_Chit.u_ao_factor = ct::fvariant(strValue).GetF();
+		else if (strName == "light_intensity_factor")
+			m_UBO_Chit.u_light_intensity_factor = ct::fvariant(strValue).GetF();
+		else if (strName == "shadow_strength")
+			m_UBO_Chit.u_shadow_strength = ct::fvariant(strValue).GetF();
 	}
 
 	return true;

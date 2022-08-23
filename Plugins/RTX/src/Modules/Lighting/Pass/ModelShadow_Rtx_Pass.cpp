@@ -132,6 +132,8 @@ void ModelShadow_Rtx_Pass::SetAccelStructure(SceneAccelStructureWeak vSceneAccel
 	ZoneScoped;
 
 	m_SceneAccelStructure = vSceneAccelStructure;
+
+	UpdateBufferInfoInRessourceDescriptor();
 }
 
 void ModelShadow_Rtx_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
@@ -269,12 +271,14 @@ bool ModelShadow_Rtx_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR);
-	AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eAccelerationStructureKHR,	vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR);
-	AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR);
-	AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
-	AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
-	AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
+	bool res = true;
+
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR);
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eAccelerationStructureKHR,	vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR);
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR);
+	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
+	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
+	res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
 
 	return true;
 }
@@ -311,6 +315,8 @@ std::string ModelShadow_Rtx_Pass::GetHitPayLoadCode()
 struct hitPayload
 {
 	float sha;
+	vec3 ro;
+	vec3 rd;
 	vec4 color;
 };
 )";

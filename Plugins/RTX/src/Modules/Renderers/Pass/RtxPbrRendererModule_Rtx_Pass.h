@@ -63,6 +63,8 @@ private:
 		alignas(4) float u_use_albedo_map = 0.0f;
 		alignas(4) float u_use_ao_map = 0.0f;
 		alignas(4) float u_use_longlat_map = 0.0f;
+		alignas(4) float u_light_intensity_factor = 100.0f;
+		alignas(4) float u_shadow_strength = 0.5f;
 	} m_UBO_Chit;
 	VulkanBufferObjectPtr m_UBO_Chit_Ptr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
@@ -100,7 +102,7 @@ protected:
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetRayHitLoadCode();
+	std::string GetHitPayLoadCode();
 	std::string GetRayGenerationShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayIntersectionShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayMissShaderCode(std::string& vOutShaderName) override;
