@@ -191,7 +191,7 @@ thats all
 | - | - | - |
 | :white_square_button: | Builders / Model to Accel Structure Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Model Shadow Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Renderers / PBR Node | ![img](https://progress-bar.dev/50) |
+| :white_square_button: | Renderers / PBR Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Renderers / SSS Node | ![img](https://progress-bar.dev/20) |
 
 ## SdfMesher Plugin : 
