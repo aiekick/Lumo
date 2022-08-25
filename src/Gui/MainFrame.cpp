@@ -41,10 +41,11 @@ limitations under the License.
 #include <Panes/TuningPane.h>
 #include <Panes/GraphPane.h>
 #include <Panes/ProfilerPane.h>
+#include <Panes/CodePane.h>
 
 #include <imgui/imgui_internal.h>
 
-//#define USE_PROFILER
+#define USE_PROFILER
 
 MainFrame::MainFrame(GLFWwindow* vWin)
 {
@@ -65,6 +66,7 @@ void MainFrame::Init()
 	TuningPane::Instance()->Init();
 	GraphPane::Instance()->Init();
 	ScenePane::Instance()->Init();
+	CodePane::Instance()->Init();
 #ifdef USE_PROFILER
 	ProfilerPane::Instance()->Init();
 #endif
@@ -79,14 +81,16 @@ void MainFrame::Init()
 	LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::RIGHT, 200.0f);
 
 	LayoutManager::Instance()->AddPane(DebugPane::Instance(), "Debug", (1 << 1), PaneDisposal::RIGHT, false, false);
-	LayoutManager::Instance()->AddPane(ScenePane::Instance(), "Scene", (1 << 6), PaneDisposal::RIGHT, false, false);
+	LayoutManager::Instance()->AddPane(ScenePane::Instance(), "Scene", (1 << 2), PaneDisposal::RIGHT, false, false);
 
-	LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph", (1 << 5), PaneDisposal::CENTRAL, true, false);
+	LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph", (1 << 3), PaneDisposal::CENTRAL, true, false);
 	LayoutManager::Instance()->AddPane(TuningPane::Instance(), "Tuning", (1 << 4), PaneDisposal::RIGHT, true, false);
-	LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D", (1 << 3), PaneDisposal::LEFT, true, true);
-	LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D", (1 << 2), PaneDisposal::LEFT, false, false);
+	LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D", (1 << 5), PaneDisposal::LEFT, true, true);
+	LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D", (1 << 6), PaneDisposal::LEFT, false, false);
+	LayoutManager::Instance()->AddPane(CodePane::Instance(), "Code", (1 << 7), PaneDisposal::RIGHT, false, false);
+
 #ifdef USE_PROFILER
-	LayoutManager::Instance()->AddPane(ProfilerPane::Instance(), "Profiler", (1 << 7), PaneDisposal::BOTTOM, true, false);
+	LayoutManager::Instance()->AddPane(ProfilerPane::Instance(), "Profiler", (1 << 8), PaneDisposal::TOP, true, false);
 #endif
 
 	using namespace std::placeholders;
@@ -108,6 +112,7 @@ void MainFrame::Unit()
 	TuningPane::Instance()->Unit();
 	GraphPane::Instance()->Unit();
 	ScenePane::Instance()->Unit();
+	CodePane::Instance()->Unit();
 
 #ifdef USE_PROFILER
 	ProfilerPane::Instance()->Unit();

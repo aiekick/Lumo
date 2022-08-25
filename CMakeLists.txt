@@ -217,12 +217,14 @@ target_include_directories(${PROJECT} PRIVATE
 	${IMGUI_NODE_EDITOR_INCLUDE_DIR}
 	${COMMON_INCLUDE_DIR}
 	${OPENXR_INCLUDE_DIRS}
+	${ZEP_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT} PRIVATE
 	${COMMON_LIBRARIES}
 	${PROJECT_PLUGINS}
 	${OPENXR_LIBRARIES}
+	${ZEP_LIBRARIES}
 )
 
 ########################################################

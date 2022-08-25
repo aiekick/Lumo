@@ -138,3 +138,7 @@
 	path = 3rdparty/renderdoc
 	url = https://github.com/baldurk/renderdoc.git.git
 	branch = v1.x
+[submodule "3rdparty/zep"]
+	path = 3rdparty/zep
+	url = https://github.com/Rezonality/zep.git
+	branch = master

@@ -39,6 +39,7 @@ include(cmake/3rdparty/cpp_ipc.cmake)
 include(cmake/3rdparty/imguizmo.cmake)
 include(cmake/3rdparty/imgui_node_editor.cmake)
 include(cmake/3rdparty/assimp.cmake)
+include(cmake/3rdparty/zep.cmake)
 
 if (USE_VR)
 	include(cmake/3rdparty/openxr.cmake)
