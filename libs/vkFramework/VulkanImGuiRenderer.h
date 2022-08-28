@@ -205,8 +205,8 @@ public:
 	bool DestroyImGuiTexture(vk::DescriptorSet* vVkDescriptorSet);
 
 public:
-	VulkanImGuiRenderer() {} // Prevent construction
-	VulkanImGuiRenderer(const VulkanImGuiRenderer&) {}; // Prevent construction by copying
+	VulkanImGuiRenderer() = default; // Prevent construction
+	VulkanImGuiRenderer(const VulkanImGuiRenderer&) = default; // Prevent construction by copying
 	VulkanImGuiRenderer& operator =(const VulkanImGuiRenderer&) { return *this; }; // Prevent assignment
-	~VulkanImGuiRenderer() {} // Prevent unwanted destruction
+	~VulkanImGuiRenderer() = default; // Prevent unwanted destruction
 };

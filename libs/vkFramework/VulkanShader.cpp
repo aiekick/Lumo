@@ -72,8 +72,6 @@ VulkanShader::VulkanShader()
 VulkanShader::~VulkanShader()
 {
 	ZoneScoped;
-
-	Unit();
 }
 
 bool VulkanShader::Init()

@@ -67,7 +67,7 @@ namespace vkApi
 		static VulkanSwapChainPtr Create(VulkanWindowPtr vVulkanWindow, VulkanCorePtr vVulkanCorePtr, std::function<void()> vResizeFunc);
 
 	private:
-		std::function<void()> m_ResizeFunction = 0;
+		std::function<void()> m_ResizeFunction = nullptr;
 
 	public:
 		// swapchain
@@ -84,13 +84,13 @@ namespace vkApi
 #endif
 		vk::SampleCountFlagBits m_SampleCount = vk::SampleCountFlagBits::e1;
 		ct::frect m_DisplayRect;
-		std::vector<SwapChainFrameBuffer> m_SwapchainFrameBuffers;
+		std::array<SwapChainFrameBuffer, SWAPCHAIN_IMAGES_COUNT> m_SwapchainFrameBuffers;
 		uint32_t m_FrameIndex = 0;
 
 		// sync objects : graphic
-		std::vector<vk::Semaphore> m_PresentCompleteSemaphores;
-		std::vector<vk::Semaphore> m_RenderCompleteSemaphores;
-		std::vector<vk::Fence> m_WaitFences;
+		std::array<vk::Semaphore, SWAPCHAIN_IMAGES_COUNT> m_PresentCompleteSemaphores;
+		std::array<vk::Semaphore, SWAPCHAIN_IMAGES_COUNT> m_RenderCompleteSemaphores;
+		std::array<vk::Fence, SWAPCHAIN_IMAGES_COUNT> m_WaitFences;
 
 		// render pass
 		vk::RenderPass m_RenderPass;

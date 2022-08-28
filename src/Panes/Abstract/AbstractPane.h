@@ -41,6 +41,10 @@ public:
 	virtual void Select(ct::cWeak<T> vObjet) {}
 };
 
+class AbstractPane;
+typedef std::shared_ptr<AbstractPane> AbstractPanePtr;
+typedef ct::cWeak<AbstractPane> AbstractPaneWeak;
+
 class BaseNode;
 class ProjectFile;
 class AbstractPane : public Selector<BaseNode>

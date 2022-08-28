@@ -192,14 +192,16 @@ namespace vkApi
 		destroyComputeCommandsAndSynchronization();
 		destroyGraphicCommandsAndSynchronization();
 
-		if (m_CreateSwapChain)
+		if (m_VulkanSwapChainPtr)
 		{
 			m_VulkanSwapChainPtr->Unit();
+			m_VulkanSwapChainPtr.reset();
 		}
 
 		vmaDestroyAllocator(VulkanCore::sAllocator);
 
 		m_VulkanDevicePtr->Unit();
+		m_VulkanDevicePtr.reset();
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -212,8 +214,8 @@ namespace vkApi
 	VulkanSwapChainWeak VulkanCore::getSwapchain() const { return m_VulkanSwapChainPtr; }
 	vk::Viewport VulkanCore::getViewport() const { return m_VulkanSwapChainPtr->getViewport(); }
 	vk::Rect2D VulkanCore::getRenderArea() const { return m_VulkanSwapChainPtr->getRenderArea(); }
-	std::vector<vk::Semaphore>VulkanCore::getPresentSemaphores() { return m_VulkanSwapChainPtr->m_PresentCompleteSemaphores; }
-	std::vector<vk::Semaphore> VulkanCore::getRenderSemaphores() { return m_VulkanSwapChainPtr->m_PresentCompleteSemaphores; }
+	std::array<vk::Semaphore, SWAPCHAIN_IMAGES_COUNT> VulkanCore::getPresentSemaphores() { return m_VulkanSwapChainPtr->m_PresentCompleteSemaphores; }
+	std::array<vk::Semaphore, SWAPCHAIN_IMAGES_COUNT> VulkanCore::getRenderSemaphores() { return m_VulkanSwapChainPtr->m_PresentCompleteSemaphores; }
 	vk::SampleCountFlagBits VulkanCore::getSwapchainFrameBufferSampleCount() const { return m_VulkanSwapChainPtr->getSwapchainFrameBufferSampleCount(); }
 
 	Texture2DWeak VulkanCore::getEmptyTexture2D() const { return m_EmptyTexture2DPtr; }
@@ -600,6 +602,7 @@ namespace vkApi
 		ZoneScoped;
 
 		m_VulkanDevicePtr->m_LogDevice.freeCommandBuffers(m_VulkanDevicePtr->getQueue(vk::QueueFlagBits::eGraphics).cmdPools, m_CommandBuffers);
+		m_CommandBuffers.clear();
 
 		ResetCommandPools();
 	}
@@ -611,6 +614,7 @@ namespace vkApi
 		auto queue = m_VulkanDevicePtr->getQueue(vk::QueueFlagBits::eCompute);
 		m_VulkanDevicePtr->m_LogDevice.freeCommandBuffers(queue.cmdPools, m_ComputeCommandBuffers);
 		m_VulkanDevicePtr->m_LogDevice.resetCommandPool(queue.cmdPools, vk::CommandPoolResetFlagBits::eReleaseResources);
+		m_ComputeCommandBuffers.clear();
 
 		m_VulkanDevicePtr->m_LogDevice.destroySemaphore(m_ComputeCompleteSemaphores[0]);
 		m_ComputeCompleteSemaphores.clear();

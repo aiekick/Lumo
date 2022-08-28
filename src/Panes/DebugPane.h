@@ -40,13 +40,13 @@ public:
 	void Select(BaseNodeWeak vObjet) override;
 
 public: // singleton
-	static DebugPane* Instance()
+	static std::shared_ptr<DebugPane> Instance()
 	{
-		static DebugPane _instance;
-		return &_instance;
+		static std::shared_ptr<DebugPane> _instance = std::make_shared<DebugPane>();
+		return _instance;
 	}
 
-protected:
+public:
 	DebugPane(); // Prevent construction
 	DebugPane(const DebugPane&) = default; // Prevent construction by copying
 	DebugPane& operator =(const DebugPane&) { return *this; }; // Prevent assignment

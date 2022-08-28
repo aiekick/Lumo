@@ -40,13 +40,13 @@ public:
 	void Select(BaseNodeWeak vObjet) override;
 
 public: // singleton
-	static CodePane* Instance()
+	static std::shared_ptr<CodePane> Instance()
 	{
-		static CodePane _instance;
-		return &_instance;
+		static std::shared_ptr<CodePane> _instance = std::make_shared<CodePane>();
+		return _instance;
 	}
 
-protected:
+public:
 	CodePane(); // Prevent construction
 	CodePane(const CodePane&) = default; // Prevent construction by copying
 	CodePane& operator =(const CodePane&) { return *this; }; // Prevent assignment

@@ -32,7 +32,6 @@ namespace vkApi
 	public:
 		static VulkanImGuiOverlayPtr Create(
 			vkApi::VulkanCoreWeak vVulkanCoreWeak,
-			VulkanImGuiRendererWeak vVulkanImGuiRendererWeak,
 			vkApi::VulkanWindowWeak vVulkanWindowWeak);
 
 	public:
@@ -41,7 +40,6 @@ namespace vkApi
 
 		bool Init(
 			vkApi::VulkanCoreWeak vVulkanCoreWeak,
-			VulkanImGuiRendererWeak vVulkanImGuiRendererWeak,
 			vkApi::VulkanWindowWeak vVulkanWindowWeak);
 		void Unit();
 
@@ -54,9 +52,11 @@ namespace vkApi
 
 		ImGuiIO& imgui_io();
 
+		VulkanImGuiRendererWeak GetImGuiRenderer();
+
 	private:
 		vkApi::VulkanCoreWeak m_VulkanCoreWeak;
-		VulkanImGuiRendererWeak m_VulkanImGuiRendererWeak;
+		VulkanImGuiRendererPtr m_VulkanImGuiRendererPtr = nullptr;
 		vkApi::VulkanWindowWeak m_VulkanWindowWeak;
 
 	private:

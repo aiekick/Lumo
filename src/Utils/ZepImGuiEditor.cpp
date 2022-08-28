@@ -1,16 +1,10 @@
 
-#if ZEP_SINGLE_HEADER == 1
-#define ZEP_SINGLE_HEADER_BUILD
-#endif
-
-//#define ZEP_CONSOLE 
 #include "ZepImGuiEditor.h"
 #include <functional>
 #include <filesystem>
 
-#ifdef ZEP_CONSOLE
-#include <zep\imgui\console_imgui.h>
-#endif
+#include <ctools/FileHelper.h>
+
 namespace fs = std::filesystem;
 
 using namespace Zep;
@@ -95,7 +89,7 @@ static std::unordered_set<std::string> glsl_identifiers = {
 
 void zep_init(const Zep::NVec2f& pixelScale)
 {
-    spZep = std::make_shared<ZepWrapper>(PROJECT_PATH, Zep::NVec2f(pixelScale.x, pixelScale.y), 
+    spZep = std::make_shared<ZepWrapper>(FileHelper::Instance()->GetAppPath(), Zep::NVec2f(pixelScale.x, pixelScale.y),
         [](std::shared_ptr<ZepMessage> spMessage) -> void 
         {
             // to call for changes tracking

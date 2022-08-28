@@ -35,13 +35,13 @@ public:
 	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
 
 public: // singleton
-	static ScenePane* Instance()
+	static std::shared_ptr<ScenePane> Instance()
 	{
-		static ScenePane _instance;
-		return &_instance;
+		static std::shared_ptr<ScenePane> _instance = std::make_shared<ScenePane>();
+		return _instance;
 	}
 
-protected:
+public:
 	ScenePane(); // Prevent construction
 	ScenePane(const ScenePane&) = default; // Prevent construction by copying
 	ScenePane& operator =(const ScenePane&) { return *this; }; // Prevent assignment

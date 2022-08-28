@@ -36,7 +36,7 @@ private:
 	NodeSlotWeak m_TextureOutputSlot;
 	ImGuiTexture m_ImGuiTexture;
 	ct::irect m_PreviewRect;
-	VulkanImGuiRendererPtr m_VulkanImGuiRenderer = nullptr;
+	VulkanImGuiRendererWeak m_VulkanImGuiRenderer;
 
 	Texture2DPtr m_BGTexture = nullptr; // pour y afficher le damier
 	ImGuiTexture m_ImGuiBGTexture;
@@ -58,19 +58,19 @@ public:
 	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
 
 	ct::fvec2 SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot);
-	void SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer);
+	void SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRenderer);
 
 private:
 	bool CanUpdateMouse(bool vWithMouseDown, int vMouseButton);
 
 public: // singleton
-	static View2DPane* Instance()
+	static std::shared_ptr<View2DPane> Instance()
 	{
-		static View2DPane _instance;
-		return &_instance;
+		static std::shared_ptr<View2DPane> _instance = std::make_shared<View2DPane>();
+		return _instance;
 	}
 
-protected:
+public:
 	View2DPane(); // Prevent construction
 	View2DPane(const View2DPane&) = default; // Prevent construction by copying
 	View2DPane& operator =(const View2DPane&) { return *this; }; // Prevent assignment

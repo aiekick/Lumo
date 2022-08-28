@@ -51,11 +51,10 @@ namespace vkApi
 {
 	VulkanImGuiOverlayPtr VulkanImGuiOverlay::Create(
 		vkApi::VulkanCoreWeak vVulkanCoreWeak,
-		VulkanImGuiRendererWeak vVulkanImGuiRendererWeak,
 		vkApi::VulkanWindowWeak vVulkanWindowWeak)
 	{
 		auto res = std::make_shared<VulkanImGuiOverlay>();
-		if (!res->Init(vVulkanCoreWeak, vVulkanImGuiRendererWeak, vVulkanWindowWeak))
+		if (!res->Init(vVulkanCoreWeak, vVulkanWindowWeak))
 		{
 			res.reset();
 		}
@@ -64,20 +63,15 @@ namespace vkApi
 
 	VulkanImGuiOverlay::VulkanImGuiOverlay() = default;
 
-	VulkanImGuiOverlay::~VulkanImGuiOverlay()
-	{
-		Unit(); // detuit les descripteur de imgui
-	}
+	VulkanImGuiOverlay::~VulkanImGuiOverlay() = default;
 
 	bool VulkanImGuiOverlay::Init(
 		vkApi::VulkanCoreWeak vVulkanCoreWeak,
-		VulkanImGuiRendererWeak vVulkanImGuiRendererWeak,
 		vkApi::VulkanWindowWeak vVulkanWindowWeak)
 	{
 		ZoneScoped;
 
 		m_VulkanCoreWeak = vVulkanCoreWeak;
-		m_VulkanImGuiRendererWeak = vVulkanImGuiRendererWeak;
 		m_VulkanWindowWeak = vVulkanWindowWeak;
 
 		auto corePtr = m_VulkanCoreWeak.getValidShared();
@@ -117,10 +111,12 @@ namespace vkApi
 				init_info.MSAASamples = (VkSampleCountFlagBits)corePtr->getSwapchainFrameBufferSampleCount();
 				init_info.CheckVkResultFn = vkApi::VulkanCore::check_error;
 
-				auto imguiRendPtr = m_VulkanImGuiRendererWeak.getValidShared();
-				if (imguiRendPtr)
+				m_VulkanImGuiRendererPtr = std::make_shared<VulkanImGuiRenderer>();
+				if (m_VulkanImGuiRendererPtr)
 				{
-					imguiRendPtr->Init(corePtr, &init_info, (VkRenderPass)corePtr->getMainRenderPass());
+					corePtr->SetVulkanImGuiRenderer(m_VulkanImGuiRendererPtr);
+
+					m_VulkanImGuiRendererPtr->Init(corePtr, &init_info, (VkRenderPass)corePtr->getMainRenderPass());
 
 					// load memory font file
 					auto fontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_RM, 60.0f);
@@ -136,7 +132,7 @@ namespace vkApi
 					if (fontPtr)
 						fontPtr->Scale = 0.25f;
 
-					imguiRendPtr->CreateFontsTexture(corePtr);
+					m_VulkanImGuiRendererPtr->CreateFontsTexture(corePtr);
 
 					return true;
 				}
@@ -155,16 +151,16 @@ namespace vkApi
 		{
 			corePtr->getDevice().waitIdle();
 
-			if (m_PipelineCache != vk::PipelineCache(nullptr))
+			if (m_PipelineCache)
 			{
 				corePtr->getDevice().destroyPipelineCache(m_PipelineCache);
 			}
 		}
 
-		auto imguiRendPtr = m_VulkanImGuiRendererWeak.getValidShared();
-		if (imguiRendPtr)
+		if (m_VulkanImGuiRendererPtr)
 		{
-			imguiRendPtr->Unit();
+			m_VulkanImGuiRendererPtr->Unit();
+			m_VulkanImGuiRendererPtr.reset();
 		}
 
 		ImGui_ImplGlfw_Shutdown();
@@ -175,10 +171,9 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		auto imguiRendPtr = m_VulkanImGuiRendererWeak.getValidShared();
-		if (imguiRendPtr)
+		if (m_VulkanImGuiRendererPtr)
 		{
-			imguiRendPtr->NewFrame();
+			m_VulkanImGuiRendererPtr->NewFrame();
 		}
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -199,11 +194,10 @@ namespace vkApi
 		const bool main_is_minimized = (main_draw_datas->DisplaySize.x <= 0.0f || main_draw_datas->DisplaySize.y <= 0.0f);
 		if (!main_is_minimized)
 		{
-			auto imguiRendPtr = m_VulkanImGuiRendererWeak.getValidShared();
 			auto corePtr = m_VulkanCoreWeak.getValidShared();
-			if (corePtr && imguiRendPtr)
+			if (corePtr && m_VulkanImGuiRendererPtr)
 			{
-				imguiRendPtr->RenderDrawData(
+				m_VulkanImGuiRendererPtr->RenderDrawData(
 					ImGui::GetDrawData(),
 					(VkCommandBuffer)corePtr->getGraphicCommandBuffer());
 			}
@@ -244,5 +238,10 @@ namespace vkApi
 		ZoneScoped;
 
 		return ImGui::GetIO();
+	}
+
+	VulkanImGuiRendererWeak VulkanImGuiOverlay::GetImGuiRenderer()
+	{
+		return m_VulkanImGuiRendererPtr;
 	}
 }

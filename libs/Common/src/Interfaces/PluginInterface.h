@@ -28,6 +28,7 @@ class PluginInterface;
 typedef ct::cWeak<PluginInterface> PluginInterfaceWeak;
 typedef std::shared_ptr<PluginInterface> PluginInterfacePtr;
 
+
 class SlotColor;
 class FileHelper;
 class VulkanShader;

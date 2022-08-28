@@ -36,13 +36,13 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	
 public: // singleton
-	static ProfilerPane *Instance()
+	static std::shared_ptr<ProfilerPane> Instance()
 	{
-		static ProfilerPane _instance;
-		return &_instance;
+		static std::shared_ptr<ProfilerPane> _instance = std::make_shared<ProfilerPane>();
+		return _instance;
 	}
 
-protected:
+public:
 	ProfilerPane(); // Prevent construction
 	ProfilerPane(const ProfilerPane&) = default; // Prevent construction by copying
 	ProfilerPane& operator =(const ProfilerPane&) { return *this; }; // Prevent assignment

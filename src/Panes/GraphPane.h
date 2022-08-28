@@ -62,13 +62,13 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 public: // singleton
-	static GraphPane *Instance()
+	static std::shared_ptr<GraphPane> Instance()
 	{
-		static GraphPane _instance;
-		return &_instance;
+		static std::shared_ptr<GraphPane> _instance = std::make_shared<GraphPane>();
+		return _instance;
 	}
 
-protected:
+public:
 	GraphPane(); // Prevent construction
 	GraphPane(const GraphPane&) = default; // Prevent construction by copying
 	GraphPane& operator =(const GraphPane&) { return *this; }; // Prevent assignment

@@ -104,8 +104,8 @@ namespace vkApi
 		vk::CommandBuffer getComputeCommandBuffer() const;
 		vk::SurfaceKHR getSurface() const;
 		VulkanSwapChainWeak getSwapchain() const;
-		std::vector<vk::Semaphore> getPresentSemaphores();
-		std::vector<vk::Semaphore> getRenderSemaphores();
+		std::array<vk::Semaphore, SWAPCHAIN_IMAGES_COUNT> getPresentSemaphores();
+		std::array<vk::Semaphore, SWAPCHAIN_IMAGES_COUNT> getRenderSemaphores();
 		vk::Viewport getViewport() const;
 		vk::Rect2D getRenderArea() const;
 		VulkanQueue getQueue(vk::QueueFlagBits vQueueType);
@@ -132,6 +132,7 @@ namespace vkApi
 		vk::SampleCountFlagBits GetMaxUsableSampleCount();
 
 		void setupMemoryAllocator();
+
 	public:
 		void resize();
 

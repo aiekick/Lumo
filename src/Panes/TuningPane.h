@@ -42,13 +42,13 @@ public:
 	void Select(BaseNodeWeak vObjet) override;
 
 public: // singleton
-	static TuningPane* Instance()
+	static std::shared_ptr<TuningPane> Instance()
 	{
-		static TuningPane _instance;
-		return &_instance;
+		static std::shared_ptr<TuningPane> _instance = std::make_shared<TuningPane>();
+		return _instance;
 	}
 
-protected:
+public:
 	TuningPane(); // Prevent construction
 	TuningPane(const TuningPane&) = default; // Prevent construction by copying
 	TuningPane& operator =(const TuningPane&) { return *this; }; // Prevent assignment

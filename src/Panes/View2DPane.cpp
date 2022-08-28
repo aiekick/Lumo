@@ -216,7 +216,7 @@ ct::fvec2 View2DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 	return outSize;
 }
 
-void View2DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer)
+void View2DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRenderer)
 {
 	m_VulkanImGuiRenderer = vVulkanImGuiRenderer;
 }

@@ -260,7 +260,7 @@ ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 	return outSize;
 }
 
-void View3DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer)
+void View3DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRenderer)
 { 
 	m_VulkanImGuiRenderer = vVulkanImGuiRenderer; 
 }

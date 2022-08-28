@@ -308,9 +308,6 @@ namespace vkApi
 		PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = dl.getProcAddress<PFN_vkGetInstanceProcAddr>("vkGetInstanceProcAddr");
 		VULKAN_HPP_DEFAULT_DISPATCHER.init(vkGetInstanceProcAddr);
 
-		/*VULKAN_HPP_DEFAULT_DISPATCHER.vkGetRayTracingShaderGroupHandlesKHR =
-			m_DynamicLoader.getProcAddress<PFN_vkGetRayTracingShaderGroupHandlesKHR>("vkGetRayTracingShaderGroupHandlesKHR");*/
-
 		bool res = true;
 
 		SetUseRTX(vUseRTX);
@@ -327,6 +324,7 @@ namespace vkApi
 		ZoneScoped;
 
 		DestroyLogicalDevice();
+		DestroyPhysicalDevice();
 		DestroyVulkanInstance();
 	}
 
@@ -639,7 +637,10 @@ namespace vkApi
 
 #if VULKAN_DEBUG
 		if (m_DebugReport)
+		{
 			VULKAN_HPP_DEFAULT_DISPATCHER.vkDestroyDebugReportCallbackEXT((VkInstance)m_Instance, (VkDebugReportCallbackEXT)m_DebugReport, nullptr);
+			m_DebugReport = nullptr;
+		}
 #endif
 		m_Instance.destroy();
 	}
@@ -844,7 +845,12 @@ namespace vkApi
 	{
 		ZoneScoped;
 
-		for (auto& elem : m_Queues) { m_LogDevice.destroyCommandPool(elem.second.cmdPools); }
+		for (auto& elem : m_Queues) 
+		{ 
+			m_LogDevice.destroyCommandPool(elem.second.cmdPools); 
+		}
+		m_Queues.clear();
+
 		m_LogDevice.destroy();
 	}
 }

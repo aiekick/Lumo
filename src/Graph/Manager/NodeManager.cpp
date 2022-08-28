@@ -256,9 +256,12 @@ void NodeManager::UpdateShaders(const std::set<std::string>& vFiles) const
 
 std::string NodeManager::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
-	assert(m_RootNodePtr);
+	if (m_RootNodePtr)
+	{
+		return m_RootNodePtr->getXml(vOffset, vUserDatas);
+	}
 
-	return m_RootNodePtr->getXml(vOffset, vUserDatas);
+	return "";
 }
 
 bool NodeManager::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
@@ -274,7 +277,10 @@ bool NodeManager::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	assert(m_RootNodePtr);
+	if (m_RootNodePtr)
+	{
+		return m_RootNodePtr->setFromXml(vElem, vParent, vUserDatas);
+	}
 
-	return m_RootNodePtr->setFromXml(vElem, vParent, vUserDatas);
+	return false;
 }

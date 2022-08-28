@@ -37,7 +37,7 @@ private:
 	NodeSlotWeak m_TextureOutputSlot;
 	ImGuiTexture m_ImGuiTexture;
 	ct::irect m_PreviewRect;
-	VulkanImGuiRendererPtr m_VulkanImGuiRenderer = nullptr;
+	VulkanImGuiRendererWeak m_VulkanImGuiRenderer;
 
 	uint32_t m_PreviewBufferId = 0;
 	bool m_CanWeTuneCamera = true;
@@ -61,7 +61,7 @@ public:
 	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
 
 	ct::fvec2 SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot);
-	void SetVulkanImGuiRenderer(VulkanImGuiRendererPtr vVulkanImGuiRenderer);
+	void SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRenderer);
 
 private:
 	void SetDescriptor(vkApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment);
@@ -69,13 +69,13 @@ private:
 	void UpdateCamera(ImVec2 vOrg, ImVec2 vSize);
 
 public: // singleton
-	static View3DPane* Instance()
+	static std::shared_ptr<View3DPane> Instance()
 	{
-		static View3DPane _instance;
-		return &_instance;
+		static std::shared_ptr<View3DPane> _instance = std::make_shared<View3DPane>();
+		return _instance;
 	}
 
-protected:
+public:
 	View3DPane(); // Prevent construction
 	View3DPane(const View3DPane&) = default; // Prevent construction by copying
 	View3DPane& operator =(const View3DPane&) { return *this; }; // Prevent assignment

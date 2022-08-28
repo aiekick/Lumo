@@ -28,7 +28,7 @@ LayoutManager::LayoutManager() = default;
 LayoutManager::~LayoutManager() = default;
 
 void LayoutManager::AddPane(
-	AbstractPane *vPane,
+	AbstractPanePtr vPanePtr,
 	const char* vName,
 	PaneFlags vFlag,
 	PaneDisposal vPaneDisposal,
@@ -36,24 +36,24 @@ void LayoutManager::AddPane(
 	bool vIsFocusedDefault)
 {
 	assert(vFlag); // flag != 0
-	assert(vPane); // vPane != 0
+	assert(vPanePtr); // vPane != nullptr
 	assert(vName && strlen(vName)); // vPane->m_PaneName not nullptr
 	assert(m_PanesByName.find(vName) == m_PanesByName.end()); // pane name not already exist
 	assert(m_PanesByFlag.find(vFlag) == m_PanesByFlag.end()); // pane flag not already exist
 	
-	vPane->m_PaneName = vName;
-	vPane->m_PaneFlag = vFlag;
-	vPane->m_PaneDisposal = vPaneDisposal;
-	vPane->m_OpenedDefault = vIsOpenedDefault;
-	vPane->m_FocusedDefault = vIsFocusedDefault;
+	vPanePtr->m_PaneName = vName;
+	vPanePtr->m_PaneFlag = vFlag;
+	vPanePtr->m_PaneDisposal = vPaneDisposal;
+	vPanePtr->m_OpenedDefault = vIsOpenedDefault;
+	vPanePtr->m_FocusedDefault = vIsFocusedDefault;
 	if (vIsOpenedDefault)
-		m_Pane_Opened_Default |= vPane->m_PaneFlag;
+		m_Pane_Opened_Default |= vPanePtr->m_PaneFlag;
 	if (vIsFocusedDefault)
-		m_Pane_Focused_Default |= vPane->m_PaneFlag;
-	m_PanesByDisposal[vPane->m_PaneDisposal] = vPane;
-	m_PanesByName[vPane->m_PaneName] = vPane;
-	m_PanesByFlag[vPane->m_PaneFlag] = vPane;
-	m_PanesInDisplayOrder.push_back(vPane);
+		m_Pane_Focused_Default |= vPanePtr->m_PaneFlag;
+	m_PanesByDisposal[vPanePtr->m_PaneDisposal] = vPanePtr;
+	m_PanesByName[vPanePtr->m_PaneName] = vPanePtr;
+	m_PanesByFlag[vPanePtr->m_PaneFlag] = vPanePtr;
+	m_PanesInDisplayOrder.push_back(vPanePtr);
 }
 
 void LayoutManager::SetPaneDisposalSize(const PaneDisposal& vPaneDisposal, float vSize)

@@ -39,10 +39,10 @@ private:
 	};
 
 protected:
-	std::map<PaneDisposal, AbstractPane*> m_PanesByDisposal;
-	std::map<const char*, AbstractPane*> m_PanesByName;
-	std::vector<AbstractPane*> m_PanesInDisplayOrder;
-	std::map<PaneFlags, AbstractPane*> m_PanesByFlag;
+	std::map<PaneDisposal, AbstractPanePtr> m_PanesByDisposal;
+	std::map<const char*, AbstractPanePtr> m_PanesByName;
+	std::vector<AbstractPanePtr> m_PanesInDisplayOrder;
+	std::map<PaneFlags, AbstractPanePtr> m_PanesByFlag;
 	
 public:
 	PaneFlags m_Pane_Focused_Default = 0;
@@ -55,7 +55,7 @@ public:
 
 public:
 	void AddPane(
-		AbstractPane*vPane,
+		AbstractPanePtr vPanePtr,
 		const char* vName,
 		PaneFlags vFlag, 
 		PaneDisposal vPaneDisposal, 

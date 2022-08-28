@@ -267,9 +267,6 @@ namespace vkApi
 		auto logDevice = m_VulkanCorePtr->getDevice();
 
 		// Semaphore used to ensures that image presentation is complete before starting to submit again
-		m_PresentCompleteSemaphores.resize(SWAPCHAIN_IMAGES_COUNT);
-		m_RenderCompleteSemaphores.resize(SWAPCHAIN_IMAGES_COUNT);
-		m_WaitFences.resize(SWAPCHAIN_IMAGES_COUNT);
 		for (size_t i = 0; i < SWAPCHAIN_IMAGES_COUNT; ++i)
 		{
 			m_PresentCompleteSemaphores[i] = logDevice.createSemaphore(vk::SemaphoreCreateInfo());
@@ -287,8 +284,6 @@ namespace vkApi
 		auto physDevice = m_VulkanCorePtr->getPhysicalDevice();
 		auto logDevice = m_VulkanCorePtr->getDevice();
 		auto queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
-
-		m_SwapchainFrameBuffers.resize(SWAPCHAIN_IMAGES_COUNT);
 
 #ifdef SWAPCHAIN_USE_DEPTH
 		vk::ImageCreateInfo image_ci(
@@ -515,8 +510,11 @@ namespace vkApi
 		DestroySyncObjects();
 
 		logDevice.destroySwapchainKHR(m_Swapchain);
+		m_Swapchain = vk::SwapchainKHR{};
 
 		DestroySurface();
+
+		m_ResizeFunction = nullptr;
 	}
 
 	void VulkanSwapChain::DestroyFrameBuffers()
@@ -528,8 +526,11 @@ namespace vkApi
 		for (auto& elem : m_SwapchainFrameBuffers)
 		{
 			logDevice.destroyFramebuffer(elem.frameBuffer);
+			elem.frameBuffer = vk::Framebuffer{};
 			logDevice.destroyImageView(elem.views[COLOR]);
+			elem.views[COLOR] = vk::ImageView{};
 		}
+
 #ifdef SWAPCHAIN_USE_DEPTH
 		logDevice.destroyImageView(m_Depth.view);
 		vmaDestroyImage(vkApi::VulkanCore::sAllocator, (VkImage)m_Depth.image, m_Depth.meta);
@@ -543,6 +544,7 @@ namespace vkApi
 		auto logDevice = m_VulkanCorePtr->getDevice();
 
 		logDevice.destroyRenderPass(m_RenderPass);
+		m_RenderPass = vk::RenderPass{};
 	}
 
 	void VulkanSwapChain::DestroySyncObjects()
@@ -554,8 +556,11 @@ namespace vkApi
 		for (size_t i = 0; i < SWAPCHAIN_IMAGES_COUNT; ++i)
 		{
 			logDevice.destroySemaphore(m_PresentCompleteSemaphores[i]);
+			m_PresentCompleteSemaphores[i] = vk::Semaphore{};
 			logDevice.destroySemaphore(m_RenderCompleteSemaphores[i]);
+			m_RenderCompleteSemaphores[i] = vk::Semaphore{};
 			logDevice.destroyFence(m_WaitFences[i]);
+			m_WaitFences[i] = vk::Fence{};
 		}
 	}
 
@@ -566,6 +571,7 @@ namespace vkApi
 		auto instance = m_VulkanCorePtr->getInstance();
 
 		instance.destroySurfaceKHR(m_Surface);
+		m_Surface = vk::SurfaceKHR{};
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////

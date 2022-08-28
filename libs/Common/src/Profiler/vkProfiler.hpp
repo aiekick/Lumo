@@ -146,7 +146,8 @@ namespace vkprof
 
         void Unit()
         {
-            vkDestroyQueryPool(m_LogicalDevice, m_QueryPool, nullptr);
+            if (m_QueryPool)
+                vkDestroyQueryPool(m_LogicalDevice, m_QueryPool, nullptr);
         }
 
         void Collect(VkCommandBuffer vCmd)
