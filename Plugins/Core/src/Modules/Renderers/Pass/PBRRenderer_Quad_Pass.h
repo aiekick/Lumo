@@ -65,15 +65,20 @@ private:
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
 	struct UBOFrag {
+		alignas(4) float u_light_intensity_factor = 100.0f;
 		alignas(4) float u_shadow_strength = 0.5f;
 		alignas(4) float u_bias = 0.01f;
 		alignas(4) float u_poisson_scale = 5000.0f;
 		alignas(4) float u_use_pcf = 1.0f;
+		alignas(4) float u_diffuse_factor = 1.0f;
+		alignas(4) float u_metallic_factor = 1.0f;
+		alignas(4) float u_rugosity_factor = 1.0f;
+		alignas(4) float u_ao_factor = 1.0f;
 		alignas(4) float use_sampler_position = 0.0f;		// position
 		alignas(4) float use_sampler_normal = 0.0f;			// normal
 		alignas(4) float use_sampler_albedo = 0.0f;			// albedo
 		alignas(4) float use_sampler_mask = 0.0f;			// mask
-		alignas(4) float use_sampler_ssao = 0.0f;			// ao
+		alignas(4) float use_sampler_ao = 0.0f;				// ao
 		alignas(4) float use_sampler_shadow_maps = 0.0f;	// 8 shadow maps
 	} m_UBOFrag;
 

@@ -31,7 +31,6 @@ limitations under the License.
 
 using namespace vkApi;
 
-
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -57,7 +56,33 @@ bool PBRRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	/*DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
+	bool change = false;
+
+	ImGui::Header("Maps");
+	
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Diffuse Factor", &m_UBOFrag.u_diffuse_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Metallic Factor", &m_UBOFrag.u_metallic_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rugosity Factor", &m_UBOFrag.u_rugosity_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Factor", &m_UBOFrag.u_ao_factor, 0.000f, 1.0f, 1.000f, 0.0f, "%.3f");
+	
+	ImGui::Header("Lights");
+	
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Light Intensity Factor", &m_UBOFrag.u_light_intensity_factor, 0.0f, 200.0f, 100.0f, 0.0f, "%.3f");
+
+	ImGui::Header("Shadow");
+
+	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Shadow Strength", &m_UBOFrag.u_shadow_strength, 0.000f, 1.000f, 0.5f, 0.0f, "%.3f");
+	change |= ImGui::CheckBoxFloatDefault("Use PCF Filtering", &m_UBOFrag.u_use_pcf, true);
+	if (m_UBOFrag.u_use_pcf > 0.5f)
+	{
+		ImGui::Indent();
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOFrag.u_bias, 0.0f, 0.02f, 0.01f);
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_poisson_scale, 1.0f, 10000.0f, 2000.0f);
+		ImGui::Unindent();
+	}
+
+	/*
+	DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Normal", 1U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Albedo", 2U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Diffuse", 3U, m_OutputRatio);
@@ -65,7 +90,13 @@ bool PBRRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 	DrawInputTexture(m_VulkanCorePtr, "Attenuation", 5U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Mask", 6U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Ao", 7U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "shadow", 8U, m_OutputRatio);*/
+	DrawInputTexture(m_VulkanCorePtr, "shadow", 8U, m_OutputRatio);
+	*/
+
+	if (change)
+	{
+		NeedNewUBOUpload();
+	}
 
 	return false;
 }
@@ -73,13 +104,11 @@ bool PBRRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 void PBRRenderer_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
-
 }
 
 void PBRRenderer_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
-
 }
 
 void PBRRenderer_Quad_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -350,15 +379,20 @@ layout(location = 0) in vec2 v_uv;
 u8R"(
 layout (std140, binding = 1) uniform UBO_Frag 
 { 
+	float u_light_intensity_factor;
 	float u_shadow_strength;
 	float u_bias;
 	float u_poisson_scale;
 	float u_use_pcf;
+	float u_diffuse_factor;
+	float u_metallic_factor;
+	float u_rugosity_factor;
+	float u_ao_factor;
 	float use_sampler_position;		// position
 	float use_sampler_normal;		// normal
 	float use_sampler_albedo;		// albedo
 	float use_sampler_mask;			// mask
-	float use_sampler_ssao;			// ssao
+	float use_sampler_ao;			// ao
 	float use_sampler_shadow_maps;	// shadow maps
 };
 
@@ -366,12 +400,18 @@ layout(binding = 2) uniform sampler2D position_map_sampler;
 layout(binding = 3) uniform sampler2D normal_map_sampler;
 layout(binding = 4) uniform sampler2D albedo_map_sampler;
 layout(binding = 5) uniform sampler2D mask_map_sampler;
-layout(binding = 6) uniform sampler2D ssao_map_sampler;
+layout(binding = 6) uniform sampler2D ao_map_sampler;
 )"
 +
 SceneLightGroup::GetBufferObjectStructureHeader(7U)
 +
 u8R"(
+layout(std430, binding = 7) readonly buffer SBO_LightGroup
+{
+	uint lightsCount;
+	LightDatas lightDatas[];
+};
+
 layout(binding = 8) uniform sampler2D light_shadow_map_samplers[8]; // binding 8 + 8 => the next binding is 16
 
 const vec2 poissonDisk[16] = vec2[]
@@ -399,6 +439,34 @@ float random(vec3 seed, int i)
 	vec4 seed4 = vec4(seed, i);
 	float dot_product = dot(seed4, vec4(12.9898, 78.233, 45.164, 94.673));
 	return fract(sin(dot_product) * 43758.5453);
+}
+
+const float PI = 3.14159265359;
+
+float distributionGGX (vec3 N, vec3 H, float roughness)
+{
+    float a2    = roughness * roughness * roughness * roughness;
+    float NdotH = max (dot (N, H), 0.0);
+    float denom = (NdotH * NdotH * (a2 - 1.0) + 1.0);
+    return a2 / (PI * denom * denom);
+}
+
+float geometrySchlickGGX (float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r * r) / 8.0;
+    return NdotV / (NdotV * (1.0 - k) + k);
+}
+
+float geometrySmith (vec3 N, vec3 V, vec3 L, float roughness)
+{
+    return geometrySchlickGGX (max (dot (N, L), 0.0), roughness) * 
+           geometrySchlickGGX (max (dot (N, V), 0.0), roughness);
+}
+
+vec3 fresnelSchlick (float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow (1.0 - cosTheta, 5.0);
 }
 
 float getShadowPCF(uint lid, vec3 pos, vec3 nor)
@@ -456,21 +524,14 @@ float getShadowSimple(uint lid, vec3 pos, vec3 nor)
 	return 0.0;
 }
 
-vec3 getRayOrigin()
-{
-	vec3 ro = view[3].xyz + model[3].xyz;
-	ro *= mat3(view * model);
-	return -ro;
-}
-
 void main() 
 {
 	fragColor = vec4(0);
 	
 	vec3 pos = vec3(0);
-	vec3 nor = vec3(0);
-	vec4 col = vec4(1);
-	float ssao = 1.0;
+	vec3 N = vec3(0);
+	vec3 albedo_color = vec3(1.0);
+	float ao_value = 1.0;
 	
 	if (use_sampler_position > 0.5)
 		pos = texture(position_map_sampler, v_uv).xyz;
@@ -478,42 +539,76 @@ void main()
 	if (dot(pos, pos) > 0.0)
 	{
 		if (use_sampler_normal > 0.5)
-			nor = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
+			N = normalize(texture(normal_map_sampler, v_uv).xyz * 2.0 - 1.0);
+		
 		if (use_sampler_albedo > 0.5)
-			col = texture(albedo_map_sampler, v_uv);
-		if (use_sampler_ssao > 0.5)
-			ssao = texture(ssao_map_sampler, v_uv).r;
+			albedo_color = texture(albedo_map_sampler, v_uv).rgb;
+		albedo_color *= u_diffuse_factor;
+		
+		if (use_sampler_ao > 0.5)
+			ao_value = texture(ao_map_sampler, v_uv).r;
+		ao_value *= u_ao_factor;
 		
 		// ray pos, ray dir
-		vec3 ro = getRayOrigin();
-		vec3 rd = normalize(ro - pos);
-				
+		mat4 imv = inverse(model * view);
+		mat4 ip = inverse(proj);
+		vec2 uvc = v_uv * 2.0 - 1.0;
+		vec4 origin = imv * vec4(0, 0, 0, 1);
+		vec4 target = ip * vec4(uvc.x, uvc.y, 1, 1);
+		vec4 direction = imv * vec4(normalize(target.xyz), 0);
+
+		vec3 ambient = 0.03 * albedo_color * ao_value;
+		vec3 Lo = ambient;
+	
 		uint count = uint(lightsCount) % 8; // maxi 8 lights in this system
 		for (uint lid = 0 ; lid < count ; ++lid)
 		{
 			if (lightDatas[lid].lightActive > 0.5)
 			{
-				// light
-				vec3 light_pos = lightDatas[lid].lightGizmo[3].xyz;
-				float light_intensity = lightDatas[lid].lightIntensity;
-				vec4 light_col = lightDatas[lid].lightColor;
-				vec3 light_dir = normalize(light_pos - pos);
-				
-				// diffuse
-				vec4 diff = min(max(dot(nor, light_dir), 0.0) * light_intensity, 1.0) * light_col;
-				
-				// specular
-				vec3 refl = reflect(-light_dir, nor);  
-				vec4 spec = min(pow(max(dot(rd, refl), 0.0), 8.0) * light_intensity, 1.0) * light_col;
-				
+				vec3 lp = lightDatas[lid].lightGizmo[3].xyz;
+				float li = lightDatas[lid].lightIntensity;
+				vec4 lc = lightDatas[lid].lightColor;
+				vec3 ld = lp - pos;
+				float len = length(ld);
+				vec3 L = ld / len;
+				float atten = li * 100.0 / (len * len);
+
 				// shadow
 				float sha = 1.0;
-				if (u_use_pcf > 0.5) sha -= getShadowPCF(lid, pos, nor);
-				else sha -= getShadowSimple(lid, pos, nor);
+				if (u_use_pcf > 0.5) sha -= getShadowPCF(lid, pos, N);
+				else sha -= getShadowSimple(lid, pos, N);
 				
-				fragColor += (col * diff * ssao + spec) * sha;
+				vec3 V = -direction.xyz;
+				vec3 H = normalize(V + L);
+				vec3 radiance = lc.rgb * atten; 
+				
+				vec3 F0 = vec3(0.04); 
+				F0 = mix(F0, albedo_color, u_metallic_factor);
+				vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+				float NDF = distributionGGX(N, H, u_rugosity_factor);       
+				float G = geometrySmith(N, V, L, u_rugosity_factor);       
+				vec3 numerator = NDF * G * F;
+				float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0)  + 0.0001;
+				vec3 specular = numerator / denominator;  
+				
+				vec3 kS = F;
+				vec3 kD = vec3(1.0) - kS;
+				  
+				kD *= 1.0 - u_metallic_factor;	
+
+				const float PI = 3.14159265359;
+			  
+				float NdotL = max(dot(N, L), 0.0);        
+				vec3 cc = (kD * albedo_color / PI + specular) * radiance * NdotL;
+				
+				Lo += cc * sha;
 			}
 		}
+
+		fragColor.rgb = Lo / float(count);
+		fragColor.rgb = fragColor.rgb / (fragColor.rgb + vec3(1.0));
+		fragColor.rgb = pow(fragColor.rgb, vec3(1.0/2.2)); 
+		fragColor.a = 1.0;
 
 		if (use_sampler_mask > 0.5)
 		{
