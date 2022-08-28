@@ -44,7 +44,7 @@ ModelToAccelStructNode::~ModelToAccelStructNode()
 
 bool ModelToAccelStructNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Accel Struct Builder";
+	name = "Rtx BVH Builder";
 
 	AddInput(NodeSlotModelInput::Create("Model"), true, true);
 	AddOutput(NodeSlotAccelStructureOutput::Create("Output"), true, true);

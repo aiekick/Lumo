@@ -47,7 +47,7 @@ bool RtxModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Rtx Model Shadow";
 
-	AddInput(NodeSlotAccelStructureInput::Create("Accel Struct"), true, false);
+	AddInput(NodeSlotAccelStructureInput::Create("BVH"), true, false);
 	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("", 0U), true, true);
 

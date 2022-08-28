@@ -68,7 +68,7 @@ bool RtxPbrRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "Rtx Pbr Renderer";
 
-	AddInput(NodeSlotAccelStructureInput::Create("Accel Struct"), false, false);
+	AddInput(NodeSlotAccelStructureInput::Create("BVH"), false, false);
 	AddInput(NodeSlotLightGroupInput::Create("Lights"), false, false);
 	AddInput(NodeSlotTextureInput::Create("Albedo", 0U), false, false);
 	AddInput(NodeSlotTextureInput::Create("AO", 1U), false, false);

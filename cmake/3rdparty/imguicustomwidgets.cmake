@@ -8,7 +8,7 @@ include_directories(
 )
 
 set_target_properties(ImGuiCustomWidgets PROPERTIES LINKER_LANGUAGE CXX)
-set_target_properties(ImGuiCustomWidgets PROPERTIES FOLDER MainLibs)
+set_target_properties(ImGuiCustomWidgets PROPERTIES FOLDER libs)
 
 set(IMGUI_CUSTOM_WIDGETS_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/mainlibs/ImGuiCustomWidgets)
 set(IMGUI_CUSTOM_WIDGETS_LIBRARIES ImGuiCustomWidgets)
