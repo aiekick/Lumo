@@ -53,18 +53,18 @@ void DebugPane::Unit()
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-int DebugPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
+int DebugPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown)
 {
 	SourcePane_WidgetId = vWidgetId;
 
-	if (LayoutManager::Instance()->m_Pane_Shown & m_PaneFlag)
+	if (vInOutPaneShown & m_PaneFlag)
 	{
 		static ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus |
 			ImGuiWindowFlags_MenuBar;
 		if (ImGui::Begin<PaneFlags>(m_PaneName,
-			&LayoutManager::Instance()->m_Pane_Shown, m_PaneFlag, flags))
+			&vInOutPaneShown , m_PaneFlag, flags))
 		{
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 			auto win = ImGui::GetCurrentWindowRead();

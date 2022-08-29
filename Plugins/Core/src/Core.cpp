@@ -274,6 +274,13 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	return nullptr;
 }
 
+std::vector<PluginPane> Core::GetPanes() const
+{
+	std::vector<PluginPane> res;
+
+	return res;
+}
+
 int Core::ResetImGuiID(const int& vWidgetId)
 {
 	auto ids = ImGui::CustomStyle::Instance()->pushId;

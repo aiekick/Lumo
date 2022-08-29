@@ -11,7 +11,7 @@ option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 option(USE_LUMO_TEST "Enable Tests" OFF)
 
 if (USE_PLUGINS)
-	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easier dev" OFF)
+	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easier dev" ON)
 	option(USE_PLUGIN_CORE "Enable the Core Nodes" OFF)
 	option(USE_PLUGIN_MESH_SIM "Enable the plugin MeshSim" OFF)
 	option(USE_PLUGIN_MESH_SSS "Enable the plugin MeshSSS" OFF)
@@ -147,11 +147,6 @@ file(GLOB SHADER_SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.comp)
 source_group(Shaders FILES ${SHADER_SOURCES})
 
-file(GLOB IMGUI_FREETYPE_SOURCES
-		${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui/misc/freetype/imgui_freetype.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui/misc/freetype/imgui_freetype.h)
-source_group(src\\ImGui_FreeType FILES ${IMGUI_FREETYPE_SOURCES})
-
 file(GLOB_RECURSE PROJECT_SHADERS_RECURSE 
 	${CMAKE_CURRENT_SOURCE_DIR}/Builtins/*.glsl 
 	${CMAKE_CURRENT_SOURCE_DIR}/Builtins/*.scen 
@@ -217,14 +212,12 @@ target_include_directories(${PROJECT} PRIVATE
 	${IMGUI_NODE_EDITOR_INCLUDE_DIR}
 	${COMMON_INCLUDE_DIR}
 	${OPENXR_INCLUDE_DIRS}
-	${ZEP_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT} PRIVATE
 	${COMMON_LIBRARIES}
 	${PROJECT_PLUGINS}
 	${OPENXR_LIBRARIES}
-	${ZEP_LIBRARIES}
 )
 
 ########################################################

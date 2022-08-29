@@ -20,6 +20,10 @@ limitations under the License.
 #include <Panes/Abstract/AbstractPane.h>
 #include <imgui/imgui.h>
 #include <array>
+#include <string>
+#include <map>
+
+typedef std::string PaneCategoryName;
 
 class ProjectFile;
 class LayoutManager : public conf::ConfigAbstract
@@ -28,10 +32,10 @@ private:
 	ImGuiID m_DockSpaceID = 0;
 	bool m_FirstLayout = false;
 	bool m_FirstStart = true;
-	char m_MenuLabel[PANE_NAME_BUFFER_SIZE + 1] = "";
-	char m_DefaultMenuLabel[PANE_NAME_BUFFER_SIZE + 1] = "";
+	std::string m_MenuLabel;
+	std::string m_DefaultMenuLabel;
 	std::array<float, (size_t)PaneDisposal::Count> m_PaneDisposalSizes = 
-	{	0.0f, // central size is ignored because depednant of others
+	{	0.0f, // central size is ignored because dependant of others
 		200.0f, // left size
 		200.0f, // right size
 		200.0f, // bottom size
@@ -39,11 +43,12 @@ private:
 	};
 
 protected:
-	std::map<PaneDisposal, AbstractPanePtr> m_PanesByDisposal;
-	std::map<const char*, AbstractPanePtr> m_PanesByName;
-	std::vector<AbstractPanePtr> m_PanesInDisplayOrder;
-	std::map<PaneFlags, AbstractPanePtr> m_PanesByFlag;
-	
+	std::map<PaneDisposal, AbstractPaneWeak> m_PanesByDisposal;
+	std::map<std::string, AbstractPaneWeak> m_PanesByName;
+	std::map<PaneCategoryName, std::vector<AbstractPaneWeak>> m_PanesInDisplayOrder;
+	std::map<PaneFlags, AbstractPaneWeak> m_PanesByFlag;
+	int32_t m_FlagCount = 0U;
+
 public:
 	PaneFlags m_Pane_Focused_Default = 0;
 	PaneFlags m_Pane_Opened_Default = 0;
@@ -55,42 +60,54 @@ public:
 
 public:
 	void AddPane(
-		AbstractPanePtr vPanePtr,
-		const char* vName,
-		PaneFlags vFlag, 
-		PaneDisposal vPaneDisposal, 
-		bool vIsOpenedDefault, 
-		bool vIsFocusedDefault);
-	void SetPaneDisposalSize(const PaneDisposal& vPaneDisposal, float vSize);
+		AbstractPaneWeak vPane,
+		const std::string& vName,
+		const PaneCategoryName& vCategory,
+		const PaneDisposal& vPaneDisposal,
+		const bool& vIsOpenedDefault,
+		const bool& vIsFocusedDefault);
+	void AddPane(
+		AbstractPaneWeak vPane,
+		const std::string& vName,
+		const PaneCategoryName& vCategory,
+		const PaneFlags& vFlag,
+		const PaneDisposal& vPaneDisposal,
+		const bool& vIsOpenedDefault,
+		const bool& vIsFocusedDefault);
+	void SetPaneDisposalSize(const PaneDisposal& vPaneDisposal, const float& vSize);
 
 public:
-	void Init(const char* vMenuLabel, const char* vDefautlMenuLabel);
+	void Init(const std::string& vMenuLabel, const std::string& vDefaultMenuLabel);
 	void Unit();
-	void InitAfterFirstDisplay(ImVec2 vSize);
-	bool BeginDockSpace(ImGuiDockNodeFlags vFlags);
+
+	bool InitPanes();
+	void UnitPanes();
+
+	void InitAfterFirstDisplay(const ImVec2& vSize);
+	bool BeginDockSpace(const ImGuiDockNodeFlags& vFlags);
 	void EndDockSpace();
 	bool IsDockSpaceHoleHovered();
 
-	void ApplyInitialDockingLayout(ImVec2 vSize = ImVec2(0, 0));
+	void ApplyInitialDockingLayout(const ImVec2& vSize = ImVec2(0, 0));
 
-	virtual void DisplayMenu(ImVec2 vSize);
-	virtual int DisplayPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas = "");
-	virtual void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas = "");
-	virtual int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas = "");
+	virtual void DisplayMenu(const ImVec2& vSize);
+	virtual int DisplayPanes(const uint32_t& vCurrentFrame, const int& vWidgetId, const std::string& vUserDatas = "");
+	virtual void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const std::string& vUserDatas = "");
+	virtual int DrawWidgets(const uint32_t& vCurrentFrame, const int& vWidgetId, const std::string& vUserDatas = "");
 
 public:
-	void ShowSpecificPane(PaneFlags vPane);
-	void HideSpecificPane(PaneFlags vPane);
-	void FocusSpecificPane(PaneFlags vPane);
-	void FocusSpecificPane(const char* vlabel);
-	void ShowAndFocusSpecificPane(PaneFlags vPane);
-	bool IsSpecificPaneFocused(PaneFlags vPane);
-	bool IsSpecificPaneFocused(const char* vlabel);
-	void AddSpecificPaneToExisting(const char* vNewPane, const char* vExistingPane);
+	void ShowSpecificPane(const PaneFlags& vPane);
+	void HideSpecificPane(const PaneFlags& vPane);
+	void FocusSpecificPane(const PaneFlags& vPane);
+	void FocusSpecificPane(const std::string& vlabel);
+	void ShowAndFocusSpecificPane(const PaneFlags& vPane);
+	bool IsSpecificPaneFocused(const PaneFlags& vPane);
+	bool IsSpecificPaneFocused(const std::string& vlabel);
+	void AddSpecificPaneToExisting(const std::string& vNewPane, const std::string& vExistingPane);
 
 private: // configuration
 	PaneFlags Internal_GetFocusedPanes();
-	void Internal_SetFocusedPanes(PaneFlags vActivePanes);
+	void Internal_SetFocusedPanes(const PaneFlags& vActivePanes);
 
 public: // configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "");

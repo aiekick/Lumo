@@ -22,6 +22,7 @@ limitations under the License.
 #include <Systems/CommonSystem.h>
 #include <ImWidgets/ImWidgets.h>
 #include <filesystem>
+#include <ImGuiFileDialog/ImGuiFileDialog.h>
 
 namespace fs = std::filesystem;
 
@@ -84,6 +85,7 @@ bool PluginInstance::Init(vkApi::VulkanCoreWeak vVulkanCoreWeak, const std::stri
 				FileHelper::Instance(), 
 				CommonSystem::Instance(),
 				ImGui::GetCurrentContext(),
+				ImGuiFileDialog::Instance(),
 				NodeSlot::sGetSlotColors(),
 				ImGui::CustomStyle::Instance()))
 			{
@@ -309,6 +311,31 @@ BaseNodePtr PluginManager::CreatePluginNode(const std::string& vPluginNodeName)
 	return nullptr;
 }
 
+std::vector<PluginPane> PluginManager::GetPluginsPanes()
+{
+	std::vector<PluginPane> pluginsPanes;
+
+	for (auto plugin : m_Plugins)
+	{
+		if (plugin.second)
+		{
+#ifndef USE_PLUGIN_STATIC_LINKING
+			auto pluginInstancePtr = plugin.second->Get().getValidShared();
+			if (pluginInstancePtr)
+			{
+				auto pluginPanes = pluginInstancePtr->GetPanes();
+				pluginsPanes.insert(pluginsPanes.end(), pluginPanes.begin(), pluginPanes.end());
+			}
+#else // USE_PLUGIN_STATIC_LINKING
+			auto pluginPanes = plugin.second->GetPanes();
+			pluginsPanes.insert(pluginsPanes.end(), pluginPanes.begin(), pluginPanes.end());
+#endif // USE_PLUGIN_STATIC_LINKING
+		}
+	}
+
+	return pluginsPanes;
+}
+
 void PluginManager::ResetImGuiID(int vWidgetId)
 {
 	int id = vWidgetId;
@@ -357,6 +384,7 @@ void PluginManager::AddPlugin(
 {
 	if (!vPluginPtr->Init(
 		vVulkanCoreWeak,
+		nullptr,
 		nullptr,
 		nullptr,
 		nullptr,

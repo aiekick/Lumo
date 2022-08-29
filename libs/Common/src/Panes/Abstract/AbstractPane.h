@@ -30,8 +30,6 @@ enum class PaneDisposal
 	Count
 };
 
-#define PANE_NAME_BUFFER_SIZE 100
-
 #include <string>
 #include <ctools/cTools.h>
 template<typename T>
@@ -50,7 +48,7 @@ class ProjectFile;
 class AbstractPane : public Selector<BaseNode>
 {
 public:
-	const char* m_PaneName = nullptr;
+	std::string m_PaneName;
 	PaneFlags m_PaneFlag = 0;
 	PaneDisposal m_PaneDisposal = PaneDisposal::CENTRAL;
 	bool m_OpenedDefault = false;
@@ -63,7 +61,7 @@ public:
 public:
 	virtual bool Init() = 0;
 	virtual void Unit() = 0;
-	virtual int DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) = 0;
+	virtual int DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown) = 0;
 	virtual void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas) = 0;
 	virtual int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) = 0;
 

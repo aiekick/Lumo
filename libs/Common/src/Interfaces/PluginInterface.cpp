@@ -22,6 +22,7 @@ bool PluginInterface::Init(
 	FileHelper* vFileHelper, 
 	CommonSystem* vCommonSystem,
 	ImGuiContext* vContext,
+	ImGuiFileDialog* ImGuiFileDialog,
 	SlotColor *vSlotColor,
 	ImGui::CustomStyle* vCustomStyle)
 {
@@ -38,6 +39,7 @@ bool PluginInterface::Init(
 			assert(vFileHelper);
 			assert(vCommonSystem);
 			assert(vContext); ImGui::SetCurrentContext(vContext);
+			assert(ImGuiFileDialog);
 			assert(vSlotColor);
 			assert(vCustomStyle);
 
@@ -52,6 +54,7 @@ bool PluginInterface::Init(
 			FileHelper::Instance(vFileHelper);
 			CommonSystem::Instance(vCommonSystem);
 			ImGui::SetCurrentContext(vContext);
+			ImGuiFileDialog::Instance(ImGuiFileDialog);
 			NodeSlot::sGetSlotColors(vSlotColor);
 			ImGui::CustomStyle::Instance(vCustomStyle);
 			vkApi::VulkanCore::sVulkanShader = VulkanShader::Create();

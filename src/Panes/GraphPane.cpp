@@ -119,23 +119,23 @@ void GraphPane::DrawProperties()
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-int GraphPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
+int GraphPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown)
 {
 	MainPane_WidgetId = vWidgetId;
 
 	bool change = false;
 
-	if (LayoutManager::Instance()->m_Pane_Shown & m_PaneFlag)
+	if (vInOutPaneShown & m_PaneFlag)
 	{
 		// main graph
 		bool opened = true;
-		change = DrawGraph(NodeManager::Instance()->m_RootNodePtr, opened, true, 0);
+		change = DrawGraph(NodeManager::Instance()->m_RootNodePtr, opened, true, 0, vInOutPaneShown);
 		
 		// childs graph
 		size_t countPanes = m_GraphPanes.size();
 		for (auto nodeEntry : m_GraphPanes)
 		{
-			change |= DrawGraph(nodeEntry.first, nodeEntry.second, false, countPanes);
+			change |= DrawGraph(nodeEntry.first, nodeEntry.second, false, countPanes, vInOutPaneShown);
 		}
 	}
 
@@ -277,7 +277,7 @@ bool GraphPane::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vP
 //// PRIVATE //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, size_t vInitialPanesCount)
+bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, size_t vInitialPanesCount, PaneFlags& vInOutPaneShown)
 {
 	if (vCanShow)
 	{
@@ -288,7 +288,7 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 			{
 				if (!nodeEntryPtr->uniquePaneId.empty() || vRootNode)
 				{
-					if (LayoutManager::Instance()->m_Pane_Shown & m_PaneFlag)
+					if (vInOutPaneShown & m_PaneFlag)
 					{
 						if (vRootNode)
 						{
@@ -298,7 +298,7 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 								ImGuiWindowFlags_MenuBar |
 								ImGuiWindowFlags_NoScrollbar;
 							if (ImGui::Begin<PaneFlags>(m_PaneName,
-								&LayoutManager::Instance()->m_Pane_Shown, m_PaneFlag, flags))
+								&vInOutPaneShown , m_PaneFlag, flags))
 							{
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 								auto win = ImGui::GetCurrentWindowRead();
@@ -389,7 +389,7 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 								ImGuiWindowFlags_MenuBar | 
 								ImGuiWindowFlags_NoScrollbar;
 							if (ImGui::Begin<PaneFlags>(m_PaneName,
-								&LayoutManager::Instance()->m_Pane_Shown, m_PaneFlag, flags))
+								&vInOutPaneShown , m_PaneFlag, flags))
 								if (ImGui::Begin(nodeEntryPtr->uniquePaneId.c_str(), &vCanShow,	flags))
 							{
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS

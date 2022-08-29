@@ -63,6 +63,7 @@ public:
 	void LoadPlugins(vkApi::VulkanCoreWeak vVulkanCorePtr);
 	std::vector<LibraryEntry> GetLibraryEntrys();
 	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName);
+	std::vector<PluginPane> GetPluginsPanes();
 	void ResetImGuiID(int vWidgetId);
 	void Clear();
 

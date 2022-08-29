@@ -19,6 +19,11 @@ file(GLOB_RECURSE PROJECT_SRC_RECURSE
 )
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX src FILES ${PROJECT_SRC_RECURSE})
 
+file(GLOB IMGUI_FREETYPE_SOURCES
+		${CMAKE_SOURCE_DIR}/3rdparty/imgui/misc/freetype/imgui_freetype.cpp
+		${CMAKE_SOURCE_DIR}/3rdparty/imgui/misc/freetype/imgui_freetype.h)
+source_group(src\\ImGui_FreeType FILES ${IMGUI_FREETYPE_SOURCES})
+
 ## other define
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
 add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
@@ -59,7 +64,7 @@ endif ()
 find_package(Vulkan REQUIRED)
 add_definitions(-DVULKAN)
 
-add_library(${PROJECT} STATIC ${PROJECT_SRC_RECURSE})
+add_library(${PROJECT} STATIC ${PROJECT_SRC_RECURSE} ${IMGUI_FREETYPE_SOURCES})
 ##target_compile_definitions(${PROJECT} PUBLIC -DBUILD_SHARED)
 
 target_include_directories(${PROJECT} PUBLIC

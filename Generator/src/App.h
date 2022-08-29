@@ -31,8 +31,8 @@ limitations under the License.
 
 struct FileDialogAsset
 {
-	Texture2DPtr tex = nullptr;
-	vk::DescriptorSet set;
+	Texture2DPtr texturePtr = nullptr;
+	vk::DescriptorSet descriptorSet = vk::DescriptorSet{};
 };
 
 const uint32_t WIDTH = 1700;
@@ -42,7 +42,6 @@ class App
 {
 private:
 	vkApi::VulkanImGuiOverlayPtr m_VulkanImGuiOverlayPtr = nullptr;
-	VulkanImGuiRendererPtr m_VulkanImGuiRendererPtr = nullptr;
 	vkApi::VulkanWindowPtr m_VulkanWindowPtr = nullptr;
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 

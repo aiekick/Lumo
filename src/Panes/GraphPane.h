@@ -39,7 +39,7 @@ private:
 public:
 	bool Init() override;
 	void Unit() override;
-	int DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
+	int DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown) override;
 	void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas) override;
 	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
 
@@ -55,7 +55,7 @@ public:
 	void ClearGraphPanes();
 
 private:
-	bool DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, size_t vInitialPanesCount);
+	bool DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, size_t vInitialPanesCount, PaneFlags& vInOutPaneShown);
 
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

@@ -131,6 +131,13 @@ BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
 	return nullptr;
 }
 
+std::vector<PluginPane> RTX::GetPanes() const
+{
+	std::vector<PluginPane> res;
+
+	return res;
+}
+
 int RTX::ResetImGuiID(const int& vWidgetId)
 {
 	auto ids = ImGui::CustomStyle::Instance()->pushId;

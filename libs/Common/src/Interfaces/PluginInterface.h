@@ -23,11 +23,40 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <Graph/Library/LibraryCategory.h>
 #include <vkFramework/vkFramework.h>
+#include <Panes/Abstract/AbstractPane.h>
+#include <ImGuiFileDialog/ImGuiFileDialog.h>
 
 class PluginInterface;
 typedef ct::cWeak<PluginInterface> PluginInterfaceWeak;
 typedef std::shared_ptr<PluginInterface> PluginInterfacePtr;
 
+class PluginPane
+{
+public:
+	AbstractPaneWeak paneWeak;
+	std::string paneName;
+	std::string paneCategory;
+	PaneDisposal paneDisposal = PaneDisposal::CENTRAL;
+	bool isPaneOpenedDefault = false;
+	bool isPaneFocusedDefault = false;
+
+public:
+	PluginPane(
+		AbstractPaneWeak vPaneWeak,
+		std::string vName, 
+		std::string vPaneCategory,
+		PaneDisposal vPaneDisposal,
+		bool vIsOpenedDefault,
+		bool vIsFocusedDefault)
+		: 
+		paneWeak(vPaneWeak), 
+		paneName(vName),
+		paneCategory(vPaneCategory),
+		paneDisposal(vPaneDisposal),
+		isPaneOpenedDefault(vIsOpenedDefault),
+		isPaneFocusedDefault(vIsFocusedDefault)
+	{}
+};
 
 class SlotColor;
 class FileHelper;
@@ -57,6 +86,7 @@ public:
 		FileHelper* vFileHelper, 
 		CommonSystem* vCommonSystem,
 		ImGuiContext* vContext,
+		ImGuiFileDialog* vImGuiFileDialog,
 		SlotColor* vSlotColor,
 		ImGui::CustomStyle* vCustomStyle);
 	virtual void Unit();
@@ -72,6 +102,7 @@ public:
 	virtual std::vector<std::string> GetNodes() const = 0;
 	virtual std::vector<LibraryEntry> GetLibrary() const = 0;
 	virtual BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName) = 0; // factory for nodes
+	virtual std::vector<PluginPane> GetPanes() const = 0;
 
 	// will reset the ids but will return the id count pre reset
 	virtual int ResetImGuiID(const int& vWidgetId) = 0;

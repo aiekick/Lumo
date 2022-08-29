@@ -225,6 +225,16 @@ namespace ImGui
 		return res;
 	}
 
+	template<typename T>
+	IMGUI_API bool Begin(const std::string& name, T* vContainer, T vFlag, ImGuiWindowFlags flags)
+	{
+		bool check = *vContainer & vFlag;
+		const bool res = Begin(name.c_str(), &check, flags);
+		if (check) *vContainer = (T)(*vContainer | vFlag); // add
+		else *vContainer = (T)(*vContainer & ~vFlag); // remove
+		return res;
+	}
+
 	IMGUI_API bool ClickableTextUrl(const char* label, const char* url, bool vOnlined = true);
 	IMGUI_API bool ClickableTextFile(const char* label, const char* file, bool vOnlined = true);
 

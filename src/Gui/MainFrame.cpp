@@ -33,6 +33,7 @@ limitations under the License.
 #include <FontIcons/CustomFont.h>
 #include <FontIcons/CustomFont.h>
 #include <Graph/Manager/NodeManager.h>
+#include <Plugins/PluginManager.h>
 
 #include <Panes/DebugPane.h>
 #include <Panes/View2DPane.h>
@@ -41,7 +42,6 @@ limitations under the License.
 #include <Panes/TuningPane.h>
 #include <Panes/GraphPane.h>
 #include <Panes/ProfilerPane.h>
-#include <Panes/CodePane.h>
 
 #include <imgui/imgui_internal.h>
 
@@ -60,38 +60,44 @@ void MainFrame::Init()
 {
 	SetAppTitle();
 
-	DebugPane::Instance()->Init();
-	View2DPane::Instance()->Init();
-	View3DPane::Instance()->Init();
-	TuningPane::Instance()->Init();
-	GraphPane::Instance()->Init();
-	ScenePane::Instance()->Init();
-	CodePane::Instance()->Init();
-#ifdef USE_PROFILER
-	ProfilerPane::Instance()->Init();
-#endif
-
-	ThemeHelper::Instance(); // default
-	LoadConfigFile("config.xml");
-
-	ThemeHelper::Instance()->ApplyStyle();
 	LayoutManager::Instance()->Init("Layouts", "Default Layout");
 
 	LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::LEFT, 300.0f);
 	LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::RIGHT, 200.0f);
 
-	LayoutManager::Instance()->AddPane(DebugPane::Instance(), "Debug", (1 << 1), PaneDisposal::RIGHT, false, false);
-	LayoutManager::Instance()->AddPane(ScenePane::Instance(), "Scene", (1 << 2), PaneDisposal::RIGHT, false, false);
+	LayoutManager::Instance()->AddPane(DebugPane::Instance(), "Debug Pane", "", PaneDisposal::RIGHT, false, false);
+	LayoutManager::Instance()->AddPane(ScenePane::Instance(), "Scene Pane", "", PaneDisposal::RIGHT, false, false);
 
-	LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph", (1 << 3), PaneDisposal::CENTRAL, true, false);
-	LayoutManager::Instance()->AddPane(TuningPane::Instance(), "Tuning", (1 << 4), PaneDisposal::RIGHT, true, false);
-	LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D", (1 << 5), PaneDisposal::LEFT, true, true);
-	LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D", (1 << 6), PaneDisposal::LEFT, false, false);
-	LayoutManager::Instance()->AddPane(CodePane::Instance(), "Code", (1 << 7), PaneDisposal::RIGHT, false, false);
+	LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph Pane", "", PaneDisposal::CENTRAL, true, false);
+	LayoutManager::Instance()->AddPane(TuningPane::Instance(), "Tuning Pane", "", PaneDisposal::RIGHT, true, false);
+	LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D Pane", "", PaneDisposal::LEFT, true, true);
+	LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D Pane", "", PaneDisposal::LEFT, false, false);
 
 #ifdef USE_PROFILER
-	LayoutManager::Instance()->AddPane(ProfilerPane::Instance(), "Profiler", (1 << 8), PaneDisposal::TOP, true, false);
+	LayoutManager::Instance()->AddPane(ProfilerPane::Instance(), "Profiler Pane", "", PaneDisposal::TOP, true, false);
 #endif
+
+	auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
+	for (auto& pluginPane : pluginPanes)
+	{
+		if (!pluginPane.paneWeak.expired())
+		{
+			LayoutManager::Instance()->AddPane(
+				pluginPane.paneWeak,
+				pluginPane.paneName, 
+				pluginPane.paneCategory,
+				pluginPane.paneDisposal, 
+				pluginPane.isPaneOpenedDefault,
+				pluginPane.isPaneFocusedDefault);
+		}
+	}
+
+	LayoutManager::Instance()->InitPanes();
+
+	ThemeHelper::Instance(); // default
+	LoadConfigFile("config.xml");
+
+	ThemeHelper::Instance()->ApplyStyle();
 
 	using namespace std::placeholders;
 	BaseNode::sSelectCallback = std::bind(&MainFrame::SelectNode, this, _1);
@@ -106,17 +112,7 @@ void MainFrame::Unit()
 
 	SaveConfigFile("config.xml");
 
-	DebugPane::Instance()->Unit();
-	View2DPane::Instance()->Unit();
-	View3DPane::Instance()->Unit();
-	TuningPane::Instance()->Unit();
-	GraphPane::Instance()->Unit();
-	ScenePane::Instance()->Unit();
-	CodePane::Instance()->Unit();
-
-#ifdef USE_PROFILER
-	ProfilerPane::Instance()->Unit();
-#endif
+	LayoutManager::Instance()->UnitPanes();
 }
 
 void MainFrame::SelectNode(const BaseNodeWeak& vNode)
