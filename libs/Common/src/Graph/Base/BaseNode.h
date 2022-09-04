@@ -316,6 +316,8 @@ public:
 	void ClearNode();
 	void ClearGraph();
 	void ClearSlots();
+	void ClearInputSlots();
+	void ClearOutputSlots();
 
 	/// <summary>
 	/// execute all time, each frames so

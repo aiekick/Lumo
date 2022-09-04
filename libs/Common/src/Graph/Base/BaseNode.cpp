@@ -398,7 +398,18 @@ void BaseNode::ClearGraph()
 
 void BaseNode::ClearSlots()
 {
+	ClearInputSlots();
+	ClearOutputSlots();
+}
+
+void BaseNode::ClearInputSlots()
+{
 	m_Inputs.clear();
+}
+
+
+void BaseNode::ClearOutputSlots()
+{
 	m_Outputs.clear();
 }
 

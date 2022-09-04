@@ -337,6 +337,18 @@ int LayoutManager::DisplayPanes(const uint32_t& vCurrentFrame, const int& vWidge
 		auto panePtr = pane.second.getValidShared();
 		if (panePtr && panePtr->CanWeDisplay())
 		{
+			if (panePtr->m_ShowPaneAtFirstCall)
+			{
+				ShowSpecificPane(panePtr->m_PaneFlag);
+				panePtr->m_ShowPaneAtFirstCall = false;
+			}
+
+			if (panePtr->m_HidePaneAtFirstCall)
+			{
+				HideSpecificPane(panePtr->m_PaneFlag);
+				panePtr->m_HidePaneAtFirstCall = false;
+			}
+
 			widgetId = panePtr->DrawPanes(vCurrentFrame, widgetId, vUserDatas, m_Pane_Shown);
 		}
 	}

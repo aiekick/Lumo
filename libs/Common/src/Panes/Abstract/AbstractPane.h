@@ -53,6 +53,8 @@ public:
 	PaneDisposal m_PaneDisposal = PaneDisposal::CENTRAL;
 	bool m_OpenedDefault = false;
 	bool m_FocusedDefault = false;
+	bool m_ShowPaneAtFirstCall = false;
+	bool m_HidePaneAtFirstCall = false;
 
 public:
 	int m_PaneWidgetId = 0;
@@ -66,5 +68,7 @@ public:
 	virtual int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) = 0;
 
 public:
+	virtual void ShowPane() { m_ShowPaneAtFirstCall = true; };
+	virtual void HidePane() { m_HidePaneAtFirstCall = true; };
 	virtual bool CanWeDisplay() { return true; };
 };

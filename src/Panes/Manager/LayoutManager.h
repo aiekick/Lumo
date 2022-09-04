@@ -114,9 +114,18 @@ public: // configuration
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "");
 
 public: // singleton
-	static LayoutManager *Instance()
+	static LayoutManager *Instance(LayoutManager* vCopy = nullptr, bool vForce = false)
 	{
 		static LayoutManager _instance;
+		static LayoutManager* _instance_copy = nullptr;
+		if (vCopy || vForce)
+		{
+			_instance_copy = vCopy;
+		}
+		if (_instance_copy)
+		{
+			return _instance_copy;
+		}
 		return &_instance;
 	}
 
