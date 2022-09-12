@@ -986,68 +986,68 @@ void ShaderPass::SetShaderUse(const vk::ShaderStageFlagBits& vShaderId, const Sh
 std::string ShaderPass::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Vertex";
-	return "";
+	return m_VertexCode;
 }
 
 std::string ShaderPass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Fragment";
-	return "";
+	return m_FragmentCode;
 }
 
 std::string ShaderPass::GetGeometryShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Vertex";
-	return "";
+	return m_GeometryCode;
 }
 
 std::string ShaderPass::GetTesselationEvaluationShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Tesselation_Evaluation";
-	return "";
+	return m_TesselationEvaluationCode;
 }
 
 std::string ShaderPass::GetTesselationControlShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Tesselation_Control";
-	return "";
+	return m_TesselationControlCode;
 }
 
 std::string ShaderPass::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Compute";
-	return "";
+	return m_ComputeCode;
 }
 
 std::string ShaderPass::GetRayGenerationShaderCode(std::string& vOutShaderName)
 {
 
 	vOutShaderName = "ShaderPass_Ray_Generation";
-	return "";
+	return m_RayGenerationCode;
 }
 
 std::string ShaderPass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Ray_Intersection";
-	return "";
+	return m_RayIntersectionCode;
 }
 
 std::string ShaderPass::GetRayMissShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Ray_Miss";
-	return "";
+	return m_RayMissCode;
 }
 
 std::string ShaderPass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Ray_AnyHit";
-	return "";
+	return m_RayAnyHitCode;
 }
 
 std::string ShaderPass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "ShaderPass_Ray_ClosestHit";
-	return "";
+	return m_RayClosestHitCode;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1409,7 +1409,7 @@ bool ShaderPass::CompilRtx()
 	return res;
 }
 
-bool ShaderPass::ReCompil()
+bool ShaderPass::ReCompilCode()
 {
 	bool res = false;
 
@@ -2080,8 +2080,67 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 
 	if (needReCompil)
 	{
-		ReCompil();
+		ReCompilCode();
 	}
+}
+
+/////////////////////////////////////////////////////////////////////
+//// SHADER CODE ////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+void ShaderPass::SetVertexShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetFragmentShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetGeometryShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetTesselationEvaluationShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetTesselationControlShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetComputeShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetRayGenerationShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetRayIntersectionShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetRayMissShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetRayAnyHitShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
+}
+
+void ShaderPass::SetRayClosestHitShaderCode(const std::string& vShaderCode)
+{
+	m_VertexCode = vShaderCode;
 }
 
 /////////////////////////////////////////////////////////////////////

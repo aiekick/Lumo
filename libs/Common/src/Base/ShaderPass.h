@@ -170,6 +170,18 @@ protected:
 
 	vk::PushConstantRange m_Internal_PushConstants;
 
+	std::string m_VertexCode;
+	std::string m_FragmentCode;
+	std::string m_GeometryCode;
+	std::string m_TesselationEvaluationCode;
+	std::string m_TesselationControlCode;
+	std::string m_ComputeCode;
+	std::string m_RayGenerationCode;
+	std::string m_RayIntersectionCode;
+	std::string m_RayMissCode;
+	std::string m_RayAnyHitCode;
+	std::string m_RayClosestHitCode;
+
 public:
 	ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	ShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum);
@@ -355,6 +367,20 @@ public:
 
 	void NeedToClearFBOThisFrame();
 
+	void SetVertexShaderCode(const std::string& vShaderCode);
+	void SetFragmentShaderCode(const std::string& vShaderCode);
+	void SetGeometryShaderCode(const std::string& vShaderCode);
+	void SetTesselationEvaluationShaderCode(const std::string& vShaderCode);
+	void SetTesselationControlShaderCode(const std::string& vShaderCode);
+	void SetComputeShaderCode(const std::string& vShaderCode);
+	void SetRayGenerationShaderCode(const std::string& vShaderCode);
+	void SetRayIntersectionShaderCode(const std::string& vShaderCode);
+	void SetRayMissShaderCode(const std::string& vShaderCode);
+	void SetRayAnyHitShaderCode(const std::string& vShaderCode);
+	void SetRayClosestHitShaderCode(const std::string& vShaderCode);
+
+	virtual bool ReCompilCode();
+
 protected: // IMGUI
 	bool DrawResizeWidget();
 
@@ -396,7 +422,6 @@ protected:
 	virtual bool CompilPixel();
 	virtual bool CompilCompute();
 	virtual bool CompilRtx();
-	virtual bool ReCompil();
 
 	virtual bool BuildModel();
 	void NeedNewModelUpdate();

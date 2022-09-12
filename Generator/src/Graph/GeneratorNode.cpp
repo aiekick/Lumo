@@ -1210,8 +1210,8 @@ bool MODULE_CLASS_NAME::Init()
 		if (m_PASS_CLASS_NAME_Ptr)
 		{
 			// by default but can be changed via widget
-			m_BillBoardRendererModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
-			m_BillBoardRendererModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
+			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
 
 
 			if (m_PASS_CLASS_NAME_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
@@ -5487,7 +5487,7 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 {	
 	ZoneScoped;
 
-	if (vVarIndex < m_SceneVariables.size()))
+	if (vVarIndex < m_SceneVariables.size())
 	{
 		m_SceneVariables[vVarIndex] = vSceneVariable;
 	}
@@ -5507,10 +5507,10 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 	public VariableInputInterface<0U>,)";
 
 	res.pass_public_interface = ct::toStr(u8R"(
-	public VariableInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Variable]);
+	public VariableInputInterface<%u>,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Variable]);
 
 	res.node_slot_func += ct::toStr(u8R"(
-	AddInput(NodeSlotVariableInput::Create("%s", %s, %u), false, %s);)",
+	AddInput(NodeSlotVariableInput::Create("%s", "%s", %u), false, %s);)",
 		vSlot->hideName ? "" : vSlot->name.c_str(),
 		vSlot->slotType.c_str(),
 		vSlot->variableIndex,
@@ -5532,7 +5532,7 @@ SlotStringStruct GeneratorNode::GetSlotVariableOutput(NodeSlotOutputPtr vSlot)
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
+SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 {	
 	ZoneScoped;)";
 
@@ -5542,7 +5542,7 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
-		return m_MODULE_CLASS_NAMEPtr->GetVariable(vVariableIndex)
+		return m_MODULE_CLASS_NAMEPtr->GetVariable(vVarIndex);
 	}
 )";
 	}
@@ -5561,7 +5561,7 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
+SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 {	
 	ZoneScoped;)";
 
@@ -5571,7 +5571,7 @@ SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
-		return m_PASS_CLASS_NAME_Ptr->GetVariable(vVariableIndex)
+		return m_PASS_CLASS_NAME_Ptr->GetVariable(vVarIndex);
 	}
 )";
 	}
@@ -5590,16 +5590,21 @@ SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
+SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 {	
 	ZoneScoped;
+
+	if (vVarIndex < m_SceneVariables.size())
+	{
+		return m_SceneVariables[vVarIndex];
+	}
 
 	return SceneVariableWeak();
 }
 )";
 
 	res.h_func = u8R"(
-	SceneVariableWeak GetVariable(const uint32_t& vVariableIndex) override;)";
+	SceneVariableWeak GetVariable(const uint32_t& vVarIndex) override;)";
 
 	res.include_interface = u8R"(
 #include <Interfaces/VariableOutputInterface.h>)";
@@ -5614,7 +5619,7 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVariableIndex)
 	public VariableOutputInterface,)";
 
 	res.node_slot_func += ct::toStr(u8R"(
-	AddOutput(NodeSlotVariableOutput::Create("%s", %s, %u), false, %s);)",
+	AddOutput(NodeSlotVariableOutput::Create("%s", "%s", %u), false, %s);)",
 		vSlot->hideName ? "" : vSlot->name.c_str(),
 		vSlot->slotType.c_str(),
 		vSlot->variableIndex,

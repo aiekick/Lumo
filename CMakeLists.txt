@@ -37,6 +37,11 @@ if (USE_CODE_GENERATOR)
 	add_definitions(-DUSE_CODE_GENERATOR)
 endif()
 
+if (USE_LUMO_TEST)
+	enable_testing()
+	add_definitions(-DTEST_ENABLED)
+endif()
+
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MD CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_RELEASE MD CACHE STRING "" FORCE)
@@ -241,15 +246,6 @@ add_custom_command(
 if (USE_CODE_GENERATOR)
 	add_subdirectory(Generator)
 	set_target_properties(LumoCodeGenerator PROPERTIES FOLDER Lumo_Z_Apps)
-endif()
-
-########################################################
-############# BUILD CODE GENERATOR TOOL ################
-########################################################
-
-if (USE_LUMO_TEST)
-	enable_testing()
-	add_definitions(-DTEST_ENABLED)
 endif()
 
 #############################################################

@@ -102,7 +102,7 @@ protected:
 	// clear Color
 	std::vector<vk::ClearValue> m_ClearColorValues;
 
-	std::vector<ShaderPassPtr> m_ShaderPass;
+	std::vector<ShaderPassPtr> m_ShaderPasses;
 
 public: // contructor
 	BaseRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
