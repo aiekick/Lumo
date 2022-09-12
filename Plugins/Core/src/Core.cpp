@@ -33,6 +33,8 @@
 
 #include <Nodes/Misc/GridNode.h>
 #include <Nodes/Misc/Layering2DNode.h>
+#include <Nodes/Misc/CartesianToHilbertNode.h>
+#include <Nodes/Misc/HilbertToCartesianNode.h>
 
 #include <Nodes/PostPro/SSAONode.h>
 #include <Nodes/PostPro/BlurNode.h>
@@ -160,8 +162,10 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Misc", "Grid / Axis", "GRID_AXIS"));
-
 	res.push_back(AddLibraryEntry("Core/2D/Misc", "2D Layering", "2D_LAYERING"));
+	res.push_back(AddLibraryEntry("Core/2D/Misc", "Cartesian To Hilbert", "CARTESIAN_TO_HILBERT"));
+	res.push_back(AddLibraryEntry("Core/2D/Misc", "Hilbert To Cartesian", "HILBERT_TO_CARTESIAN"));
+
 	res.push_back(AddLibraryEntry("Core/2D/Lighting", "Normal 2D", "2D_NORMAL_FROM_TEXTURE"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Lights", "LIGHT_GROUP"));
@@ -217,8 +221,10 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	// Divers
 	else if (vPluginNodeName == "BREAK_TEXTURE_2D_GROUP")		return BreakTexturesGroupNode::Create(vkCorePtr);
 
-	// Divers
+	// Misc
 	else if (vPluginNodeName == "GRID_AXIS")					return GridNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "CARTESIAN_TO_HILBERT")			return CartesianToHilbertNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "HILBERT_TO_CARTESIAN")			return HilbertToCartesianNode::Create(vkCorePtr);
 
 	// Lighting
 	else if (vPluginNodeName == "LIGHT_GROUP")					return LightGroupNode::Create(vkCorePtr);

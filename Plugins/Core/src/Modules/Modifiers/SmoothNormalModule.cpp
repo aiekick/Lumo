@@ -137,7 +137,7 @@ bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 		{
 			bool change = false;
 
-			for (auto passPtr : m_ShaderPass)
+			for (auto passPtr : m_ShaderPasses)
 			{
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(passPtr);
 				if (passGuiPtr)

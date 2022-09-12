@@ -42,19 +42,6 @@ public:
 private:
 	std::shared_ptr<GridModule_Vertex_Pass> m_GridModule_Vertex_Pass_Ptr = nullptr;
 
-private:
-	VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
-
-	struct UBOVert {
-		alignas(4) float showGrid = 1.0f; // bool 0:false / 1:true
-		alignas(4) float gridSize = 7.5f;
-		alignas(4) int gridCount = 20;
-		alignas(4) float showAxis = 1.0f; // bool 0:false / 1:true
-		alignas(4) float bothSides = 0.0f; // bool 0:false / 1:true
-		alignas(4) float axisSize = 5.0f;
-	} m_UBOVert;
-
 public:
 	GridModule(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~GridModule() override;

@@ -163,7 +163,7 @@ std::string GridModule::getXml(const std::string& vOffset, const std::string& vU
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto passPtr : m_ShaderPass)
+	for (auto passPtr : m_ShaderPasses)
 	{
 		if (passPtr)
 		{
@@ -195,7 +195,7 @@ bool GridModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto passPtr : m_ShaderPass)
+	for (auto passPtr : m_ShaderPasses)
 	{
 		if (passPtr)
 		{

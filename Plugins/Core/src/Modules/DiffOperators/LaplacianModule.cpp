@@ -119,7 +119,7 @@ bool LaplacianModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 		{
 			bool change = false;
 
-			for (auto passPtr : m_ShaderPass)
+			for (auto passPtr : m_ShaderPasses)
 			{
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(passPtr);
 				if (passGuiPtr)
@@ -194,7 +194,7 @@ std::string LaplacianModule::getXml(const std::string& vOffset, const std::strin
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto passPtr : m_ShaderPass)
+	for (auto passPtr : m_ShaderPasses)
 	{
 		if (passPtr)
 		{
@@ -226,7 +226,7 @@ bool LaplacianModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto passPtr : m_ShaderPass)
+	for (auto passPtr : m_ShaderPasses)
 	{
 		if (passPtr)
 		{

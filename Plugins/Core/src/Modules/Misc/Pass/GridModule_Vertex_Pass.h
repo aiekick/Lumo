@@ -27,7 +27,6 @@ limitations under the License.
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-
 class GridModule_Vertex_Pass :
 	public VertexShaderPass,
 	public GuiInterface,
