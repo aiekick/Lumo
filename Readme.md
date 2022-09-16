@@ -30,8 +30,15 @@ at least, support all rendering features and result of the SketchFab Renderer (y
  so when you just select a texture slot from a already created node, maybe you need to reisze the 3d viewport for make it updated.
  (to fix in few version, the resize system will be improved, but its not my priority, for the moment)
 
+thats all
+
 # How to build
 
+## Build dependencies
+
+you need the [latest vulkan SDK](https://vulkan.lunarg.com/) ( at least for Vulkan 1.2) and a compatible GPU
+
+## Cmake
 You need to use cMake. 
 You can use the gui (my prefered way).
 but, if you run cmake by command line, For the 3 Os (Win, Linux, MacOs), the cMake usage is exactly the same,
@@ -45,7 +52,13 @@ cmake --build my_build_directory --config BuildMode
 
 Some cMake version need Build mode define via the directive CMAKE_BUILD_TYPE or via --Config when we launch the build. This is why i put the boths possibilities
 
-thats all
+## Platforms Support
+
+all libs and code used here are cross platform, so compatible (win, linux).
+The mac platform is not supported for the moment, due to the vulkan driver. 
+Could be tested at some stage with the Molten-VK implementation..
+But i not tested it for the moment, 
+So i know he compile fine on Windows with MSVC or clang, for the moment that's all.
 
 # Tech's to implement :
 
