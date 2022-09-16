@@ -56,11 +56,13 @@ Some cMake version need Build mode define via the directive CMAKE_BUILD_TYPE or 
 
 ## Platforms Support
 
-all libs and code used here are cross platform, so compatible (win, linux).
+all libs and code used here are cross platform, so compatible (win, linux). 
+
 The mac platform is not supported for the moment, due to the vulkan driver. 
-Could be tested at some stage with the Molten-VK implementation..
-But i not tested it for the moment, 
-So i know he compile fine on Windows with MSVC or clang, for the moment that's all.
+
+Could be tested at some stage with the Molten-VK implementation.. 
+
+But i not tested it for the moment, So i know he compile fine on Windows with MSVC or clang, for the moment that's all.
 
 # Tech's to implement :
 
