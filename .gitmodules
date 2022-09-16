@@ -58,25 +58,9 @@
 	path = 3rdparty/cpp_ipc
 	url = https://github.com/aiekick/cpp-ipc.git
 	branch = master
-[submodule "SoLibs/FontIcons"]
-	path = SoLibs/FontIcons
-	url = https://gitlab.funparadigm.com/soglsl/mesher.git
-	branch = master
-[submodule "SoLibs/UniformWidgets"]
-	path = SoLibs/UniformWidgets
-	url = https://gitlab.funparadigm.com/soglsl/uniformwidgets.git
-	branch = master
-[submodule "SoLibs/InterfaceBlock"]
-	path = SoLibs/InterfaceBlock
-	url = https://gitlab.funparadigm.com/soglsl/interfaceblock.git
-	branch = master
 [submodule "3rdparty/imgui_node_editor"]
 	path = 3rdparty/imgui_node_editor
 	url = https://github.com/aiekick/imgui-node-editor.git
-	branch = master
-[submodule "3rdparty/zlib"]
-	path = 3rdparty/zlib
-	url = https://github.com/madler/zlib.git
 	branch = master
 [submodule "3rdparty/ImGuizmo"]
 	path = 3rdparty/ImGuizmo
@@ -90,34 +74,6 @@
 	path = 3rdparty/taskflow
 	url = https://github.com/taskflow/taskflow
 	branch = master
-[submodule "Generator/3rdparty/glfw"]
-	path = Generator/3rdparty/glfw
-	url = https://github.com/glfw/glfw.git
-	branch = master
-[submodule "Generator/3rdparty/imguitracy"]
-	path = Generator/3rdparty/imguitracy
-	url = https://github.com/aiekick/imgui.git
-	branch = master
-[submodule "Generator/3rdparty/tinyxml2"]
-	path = Generator/3rdparty/tinyxml2
-	url = https://github.com/leethomason/tinyxml2.git
-	branch = master
-[submodule "Generator/3rdparty/freetype2"]
-	path = Generator/3rdparty/freetype2
-	url = https://github.com/freetype/freetype2.git
-	branch = master
-[submodule "Generator/3rdparty/BuildInc"]
-	path = Generator/3rdparty/BuildInc
-	url = https://github.com/aiekick/buildinc.git
-	branch = master
-[submodule "Generator/3rdparty/ctools"]
-	path = Generator/3rdparty/ctools
-	url = https://github.com/aiekick/cTools.git
-	branch = master
-[submodule "Generator/3rdparty/ImGuiFileDialog"]
-	path = Generator/3rdparty/ImGuiFileDialog
-	url = https://github.com/aiekick/ImGuiFileDialog.git
-	branch = Lib_Only
 [submodule "3rdparty/OpenXR_SDK"]
 	path = 3rdparty/OpenXR_SDK
 	url = https://github.com/aiekick/OpenXR-SDK-Source.git
@@ -126,10 +82,6 @@
 	path = 3rdparty/renderdoc
 	url = https://github.com/baldurk/renderdoc.git
 	branch = v1.x
-[submodule "3rdparty/zep"]
-	path = 3rdparty/zep
-	url = https://github.com/Rezonality/zep.git
-	branch = master
 [submodule "3rdparty/imgui"]
 	path = 3rdparty/imgui
 	url = https://github.com/aiekick/imgui.git
