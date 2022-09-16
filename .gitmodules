@@ -78,10 +78,6 @@
 	path = 3rdparty/zlib
 	url = https://github.com/madler/zlib.git
 	branch = master
-[submodule "3rdparty/mGuizmo"]
-	path = 3rdparty/mGuizmo
-	url = https://github.com/aiekick/ImGuizmo
-	branch = master
 [submodule "3rdparty/ImGuizmo"]
 	path = 3rdparty/ImGuizmo
 	url = https://github.com/aiekick/ImGuizmo
@@ -102,10 +98,6 @@
 	path = Generator/3rdparty/imguitracy
 	url = https://github.com/aiekick/imgui.git
 	branch = master
-[submodule "Generator/3rdparty/glad"]
-	path = Generator/3rdparty/glad
-	url = https://github.com/Dav1dde/glad.git
-	branch = c
 [submodule "Generator/3rdparty/tinyxml2"]
 	path = Generator/3rdparty/tinyxml2
 	url = https://github.com/leethomason/tinyxml2.git
@@ -138,3 +130,7 @@
 	path = 3rdparty/zep
 	url = https://github.com/Rezonality/zep.git
 	branch = master
+[submodule "3rdparty/imgui"]
+	path = 3rdparty/imgui
+	url = https://github.com/aiekick/imgui.git
+	branch = docking_layout_external
