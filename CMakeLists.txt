@@ -6,13 +6,13 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(USE_PLUGINS "Enable the plugins building" OFF)
+option(USE_PLUGINS "Enable the plugins building" ON)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 option(USE_LUMO_TEST "Enable Tests" OFF)
 
 if (USE_PLUGINS)
 	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easier dev" ON)
-	option(USE_PLUGIN_CORE "Enable the Core Nodes" OFF)
+	option(USE_PLUGIN_CORE "Enable the Core Nodes" ON)
 	option(USE_PLUGIN_MESH_SIM "Enable the plugin MeshSim" OFF)
 	option(USE_PLUGIN_MESH_SSS "Enable the plugin MeshSSS" OFF)
 	option(USE_PLUGIN_SDF_MESHER "Enable the plugin SdfMesher" OFF)
