@@ -36,9 +36,11 @@ thats all
 
 ## Build dependencies
 
-you need the [latest vulkan SDK](https://vulkan.lunarg.com/) ( at least for Vulkan 1.2) and a compatible GPU
+* Vulkan SDK 1.2 at least : [latest](https://vulkan.lunarg.com/) and a compatible GPU
+* Python 3.7 at least : [latest](https://www.python.org/downloads/)
 
 ## Cmake
+
 You need to use cMake. 
 You can use the gui (my prefered way).
 but, if you run cmake by command line, For the 3 Os (Win, Linux, MacOs), the cMake usage is exactly the same,
