@@ -26,10 +26,6 @@
 	path = 3rdparty/tracy
 	url = https://github.com/wolfpld/tracy.git
 	branch = master
-[submodule "3rdparty/glad"]
-	path = 3rdparty/glad
-	url = https://github.com/Dav1dde/glad.git
-	branch = c
 [submodule "3rdparty/ctools"]
 	path = 3rdparty/ctools
 	url = https://github.com/aiekick/cTools.git
@@ -136,7 +132,7 @@
 	branch = master
 [submodule "3rdparty/renderdoc"]
 	path = 3rdparty/renderdoc
-	url = https://github.com/baldurk/renderdoc.git.git
+	url = https://github.com/baldurk/renderdoc.git
 	branch = v1.x
 [submodule "3rdparty/zep"]
 	path = 3rdparty/zep
