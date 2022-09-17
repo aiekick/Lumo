@@ -96,8 +96,11 @@ std::string UBOItem::Get_Cpp_Item_Header()
 
 	value += ";";
 
+	auto uniform_name = m_InputName.GetText();
+	ct::replaceString(uniform_name, " ", "_");
+
 	res += ct::toStr(u8R"(
-		alignas(%u) %s u_%s = %s)", _alignas, type.c_str(), m_InputName.GetText().c_str(), value.c_str());
+		alignas(%u) %s u_%s = %s)", _alignas, type.c_str(), uniform_name.c_str(), value.c_str());
 
 	return res;
 }
@@ -105,6 +108,8 @@ std::string UBOItem::Get_Cpp_Item_Header()
 std::string UBOItem::Get_Cpp_GetXML(const std::string& vStage, const int32_t& vUboIndex)
 {
 	auto uniform_name = m_InputName.GetText();
+	ct::replaceString(uniform_name, " ", "_");
+
 	auto lower_uniform_name = ct::toLower(uniform_name);
 
 	std::string type = m_TypeArray[m_InputTypeIndex];
@@ -138,6 +143,8 @@ std::string UBOItem::Get_Cpp_GetXML(const std::string& vStage, const int32_t& vU
 std::string UBOItem::Get_Cpp_SetXML(const std::string& vStage, const int32_t& vUboIndex, const bool& vIsFirst)
 {
 	auto uniform_name = m_InputName.GetText();
+	ct::replaceString(uniform_name, " ", "_");
+
 	auto lower_uniform_name = ct::toLower(uniform_name);
 
 	std::string type = m_TypeArray[m_InputTypeIndex];
@@ -208,8 +215,11 @@ std::string UBOItem::Get_Glsl_Item_Header()
 	auto baseType = m_TypeArray[baseTypeIdx];
 	std::string type = m_TypeArray[m_InputTypeIndex];
 
+	auto _input_name = m_InputName.GetText();
+	ct::replaceString(_input_name, " ", "_");
+	
 	res += ct::toStr(u8R"(
-	%s u_%s;)", type.c_str(), m_InputName.GetText().c_str());
+	%s u_%s;)", type.c_str(), _input_name.c_str());
 
 	return res;
 }
@@ -227,33 +237,36 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
 	if (m_InputTypeIndex > 0 && m_InputTypeIndex < 4)
 		type = "f" + type;
 
+	auto uniform_name = m_InputName.GetText();
+	ct::replaceString(uniform_name, " ", "_");
+
 	if (type == "float")
 	{
 		float fv = ct::fvariant(value).GetF();
 		res += ct::toStr(u8R"(
 	change |= ImGui::SliderFloatDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %.3ff, %.3ff, %.3ff, 0.0f, "%%.3f");)",
-			m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), 0.0f, fv * 2.0f, fv);
+			uniform_name.c_str(), uniform_name.c_str(), 0.0f, fv * 2.0f, fv);
 	}
 	else if (type == "uint")
 	{
 		uint32_t uv = ct::uvariant(value).GetU();
 		res += ct::toStr(u8R"(
 	change |= ImGui::SliderUIntDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %uU, %uU, %uU);)",
-			m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), 0U, uv * 2U, uv);
+			uniform_name.c_str(), uniform_name.c_str(), 0U, uv * 2U, uv);
 	}
 	else if (type == "int")
 	{
 		int32_t iv = ct::uvariant(value).GetI();
 		res += ct::toStr(u8R"(
 	change |= ImGui::SliderIntDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %i, %i, %i);)",
-			m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), 0, iv * 2, iv);
+			uniform_name.c_str(), uniform_name.c_str(), 0, iv * 2, iv);
 	}
 	else if (type == "bool")
 	{
 		bool bv = ct::ivariant(value).GetB();
 		res += ct::toStr(u8R"(
 	change |= ImGui::CheckBoxBoolDefault("%s", &m_@UBO_NAME@.u_%s, %s);)",
-			m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), bv ? "true" : "false");
+			uniform_name.c_str(), uniform_name.c_str(), bv ? "true" : "false");
 	}
 	else if (inputIdx == 1) // for help, but not functionnal
 	{
@@ -266,8 +279,8 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
 		res += ct::toStr(u8R"(
 	change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);
 	change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);)",
-			widget.c_str(), m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), m_InputValue_x.GetText(baseType).c_str(),
-			widget.c_str(), m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), m_InputValue_y.GetText(baseType).c_str());
+			widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str(),
+			widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str());
 	}
 	else if (inputIdx == 2) // for help, but not functionnal
 	{
@@ -281,9 +294,9 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
 	change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);
 	change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);
 	change |= ImGui::%s(0.0f, "%s z", &m_@UBO_NAME@.u_%s.z, %s);)",
-			widget.c_str(), m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), m_InputValue_x.GetText(baseType).c_str(),
-			widget.c_str(), m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), m_InputValue_y.GetText(baseType).c_str(),
-			widget.c_str(), m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), m_InputValue_z.GetText(baseType).c_str());
+			widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str(),
+			widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str(),
+			widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_z.GetText(baseType).c_str());
 	}
 	else if (inputIdx == 3) // for help, but not functionnal
 	{
@@ -298,10 +311,10 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
 	change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);
 	change |= ImGui::%s(0.0f, "%s z", &m_@UBO_NAME@.u_%s.z, %s);
 	change |= ImGui::%s(0.0f, "%s w", &m_@UBO_NAME@.u_%s.w, %s);)",
-			widget.c_str(), m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), m_InputValue_x.GetText(baseType).c_str(),
-			widget.c_str(), m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), m_InputValue_y.GetText(baseType).c_str(),
-			widget.c_str(), m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), m_InputValue_z.GetText(baseType).c_str(),
-			widget.c_str(), m_InputName.GetText().c_str(), m_InputName.GetText().c_str(), m_InputValue_w.GetText(baseType).c_str());
+			widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str(),
+			widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str(),
+			widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_z.GetText(baseType).c_str(),
+			widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_w.GetText(baseType).c_str());
 	}
 
 	return res;

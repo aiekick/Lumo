@@ -335,7 +335,7 @@ public:
 	/// <param name="vCmd"></param>
 	/// <param name="vBaseNodeState"></param>
 	/// <returns></returns>
-	bool ExecuteChilds(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr);
+	bool ExecuteInputTasks(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr);
 
 	/// <summary>
 	/// apply some treatment about event, can be herited by nodes

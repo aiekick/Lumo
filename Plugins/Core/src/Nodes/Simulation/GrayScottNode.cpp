@@ -63,7 +63,7 @@ bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 {
 	bool res = false;
 
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);

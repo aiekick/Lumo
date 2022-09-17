@@ -57,6 +57,7 @@
 #include <Nodes/Utils/DepthToPosNode.h>
 #include <Nodes/Utils/PosToDepthNode.h>
 #include <Nodes/Utils/MeshAttributesNode.h>
+#include <Nodes/Utils/FlatGradientNode.h>
 
 #include <Nodes/Widgets/VariableNode.h>
 #include <Nodes/Widgets/WidgetColorNode.h>
@@ -198,7 +199,8 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Utils", "Depth to Pos", "DEPTH_TO_POS"));
 	res.push_back(AddLibraryEntry("Core/3D/Utils", "Pos to Depth", "POS_TO_DEPTH"));
 	res.push_back(AddLibraryEntry("Core/2D/Utils", "Math", "MATH"));
-
+	res.push_back(AddLibraryEntry("Core/2D/Utils", "Flat gradients", "FLAT_GRADIENT"));
+	
 	res.push_back(AddLibraryEntry("Core/Widgets", "Boolean", "WIDGET_BOOLEAN"));
 	res.push_back(AddLibraryEntry("Core/Widgets", "Color", "WIDGET_COLOR"));
 
@@ -263,7 +265,8 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "MESH_ATTRIBUTES")				return MeshAttributesNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "POS_TO_DEPTH")					return PosToDepthNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "MATH")							return MathNode::Create(vkCorePtr);
-
+	else if (vPluginNodeName == "FLAT_GRADIENT")				return FlatGradientNode::Create(vkCorePtr);
+	
 	// Variables
 	else if (vPluginNodeName == "WIDGET_BOOLEAN")				return VariableNode::Create(vkCorePtr, vPluginNodeName);
 	else if (vPluginNodeName == "WIDGET_FLOAT")					return VariableNode::Create(vkCorePtr, vPluginNodeName);

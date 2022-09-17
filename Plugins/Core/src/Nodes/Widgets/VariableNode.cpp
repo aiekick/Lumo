@@ -66,7 +66,7 @@ bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 bool VariableNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_VariableModulePtr)
 	{

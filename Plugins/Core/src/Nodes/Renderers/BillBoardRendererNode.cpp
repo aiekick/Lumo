@@ -90,7 +90,7 @@ bool BillBoardRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Co
 
 	bool res = false;
 
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);

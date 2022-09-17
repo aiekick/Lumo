@@ -60,7 +60,7 @@ bool SmoothNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 bool SmoothNormalNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_SmoothNormalModulePtr)
 	{

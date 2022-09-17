@@ -60,7 +60,7 @@ bool BlurNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 bool BlurNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);

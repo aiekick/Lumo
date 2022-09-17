@@ -87,7 +87,7 @@ bool CubeMapPreviewNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 
 	bool res = false;
 
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	UpdateTextureCubeInputDescriptorImageInfos(m_Inputs);
 

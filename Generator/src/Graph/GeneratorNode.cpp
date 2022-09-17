@@ -642,7 +642,7 @@ bool NODE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 	bool res = false;
 
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 )";
 
 		if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture])
@@ -1165,7 +1165,7 @@ MODULE_CLASS_NAME::MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
 			cpp_module_file_code += u8R"(,)";
 		}
 		cpp_module_file_code += u8R"(
-	m_VulkanCorePtr(vVulkanCorePtr))";
+	: m_VulkanCorePtr(vVulkanCorePtr))";
 	}
 		cpp_module_file_code += u8R"(
 {
@@ -1341,7 +1341,7 @@ bool MODULE_CLASS_NAME::Init()
 )";
 	}
 
-	if (!m_GenerateAPass && m_RendererType == RENDERER_TYPE_NONE)
+	if (!m_GenerateAPass)
 	{
 		cpp_module_file_code += u8R"(
 void MODULE_CLASS_NAME::Unit()
@@ -1567,7 +1567,7 @@ void MODULE_CLASS_NAME::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 )";
-	if (m_GenerateAModule)
+	if (m_GenerateAPass)
 	{
 		cpp_module_file_code += u8R"(
 	if (m_PASS_CLASS_NAME_Ptr)
@@ -1663,7 +1663,7 @@ private:
 )";
 	if (!m_GenerateAPass)
 	{
-		h_module_file_code += u8R"(\tvkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+		h_module_file_code += u8R"(	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 )";
 	}
 
@@ -3358,7 +3358,7 @@ SlotDico GeneratorNode::GetSlotDico()
 
 SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot)
 {
-	CTOOL_DEBUG_BREAK;
+	//CTOOL_DEBUG_BREAK;
 
 	SlotStringStruct res;
 
@@ -3377,7 +3377,7 @@ SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot)
 
 SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot)
 {
-	CTOOL_DEBUG_BREAK;
+	//CTOOL_DEBUG_BREAK;
 
 	SlotStringStruct res;
 

@@ -88,7 +88,7 @@ bool ModelRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 
 	bool res = false;
 
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_ModelRendererModulePtr)
 	{

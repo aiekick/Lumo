@@ -432,10 +432,10 @@ bool BaseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer *
 	if (vBaseNodeState)
 		vBaseNodeState->m_CurrentFrame = vCurrentFrame;
 	
-	return BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	return BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 }
 
-bool BaseNode::ExecuteChilds(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool BaseNode::ExecuteInputTasks(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	bool res = false;
 

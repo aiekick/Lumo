@@ -437,4 +437,6 @@ void ModelRendererModule_Mesh_Pass::AfterNodeXmlLoading()
 	ZoneScoped;
 
 	// code to do after end of the xml loading of this node
+
+	NeedNewUBOUpload();
 }
