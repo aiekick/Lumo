@@ -113,6 +113,7 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 						{
 							ImGuizmo::Enable(m_CanWeTuneGizmo);
 						}
+						ImGui::RadioButtonLabeled(0.0f, "Ratio", "Use Ratio for display the picture", &m_DisplayPictureByRatio);
 						if (ImGui::ContrastedButton("Leave"))
 						{
 							SetOrUpdateOutput(NodeSlotWeak());
@@ -241,7 +242,14 @@ ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 			m_TextureOutputSlot = vTextureOutputSlot;
 			NodeManager::Instance()->m_RootNodePtr->m_GraphRoot3DNode = slotPtr->parentNode;
 			m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize));
-			m_ImGuiTexture.ratio = outSize.ratioXY<float>();
+			if (m_DisplayPictureByRatio)
+			{
+				m_ImGuiTexture.ratio = outSize.ratioXY<float>();
+			}
+			else
+			{
+				m_ImGuiTexture.ratio = 1.0f;
+			}
 		}
 		else
 		{

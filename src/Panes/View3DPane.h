@@ -42,6 +42,7 @@ private:
 	uint32_t m_PreviewBufferId = 0;
 	bool m_CanWeTuneCamera = true;
 	bool m_CanWeTuneMouse = true;
+	bool m_DisplayPictureByRatio = true;
 	bool m_CanWeTuneGizmo = false;
 	float m_DisplayQuality = 1.0f;
 	ct::fvec2 m_CurrNormalizedMousePos;
