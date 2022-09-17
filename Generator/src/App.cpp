@@ -50,7 +50,7 @@ limitations under the License.
 
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
 #include <Systems/CommonSystem.h>
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 #include <Profiler/vkProfiler.hpp>
 
 #include <Headers/LumoCodeGeneratorBuild.h>

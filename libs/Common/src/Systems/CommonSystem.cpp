@@ -24,7 +24,7 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 
 #define TRACE_MEMORY
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 
 void CommonSystem::SetCameraMode(const CAMERA_MODE_Enum& vCameraMode)
 {
@@ -514,7 +514,7 @@ bool CommonSystem::DrawImGui()
 
 		//if (m_CameraSettings.m_CameraMode == CAMERA_MODE_Enum::CAMERA_MODE_TURNTABLE_Y)
 		{
-			if (ImGui::ContrastedButton(u8"Y+1°", nullptr, nullptr, aw3))
+			if (ImGui::ContrastedButton(u8"Y+1ï¿½", nullptr, nullptr, aw3))
 			{
 				m_CameraSettings.m_RotationXYZ.x -= DEGTORAD * 1.0f;
 				change |= true;
@@ -522,7 +522,7 @@ bool CommonSystem::DrawImGui()
 
 			ImGui::SameLine();
 
-			if (ImGui::ContrastedButton(u8"Y-1°", nullptr, nullptr, aw3))
+			if (ImGui::ContrastedButton(u8"Y-1ï¿½", nullptr, nullptr, aw3))
 			{
 				m_CameraSettings.m_RotationXYZ.x += DEGTORAD * 1.0f;
 				change |= true;
@@ -530,7 +530,7 @@ bool CommonSystem::DrawImGui()
 
 			ImGui::SameLine();
 
-			if (ImGui::ContrastedButton(u8"XZ+1°", nullptr, nullptr, aw3))
+			if (ImGui::ContrastedButton(u8"XZ+1ï¿½", nullptr, nullptr, aw3))
 			{
 				m_CameraSettings.m_RotationXYZ.y += DEGTORAD * 1.0f;
 				change |= true;
@@ -538,7 +538,7 @@ bool CommonSystem::DrawImGui()
 
 			ImGui::SameLine();
 
-			if (ImGui::ContrastedButton(u8"XZ-1°", nullptr, nullptr, aw3))
+			if (ImGui::ContrastedButton(u8"XZ-1ï¿½", nullptr, nullptr, aw3))
 			{
 				m_CameraSettings.m_RotationXYZ.y -= DEGTORAD * 1.0f;
 				change |= true;
@@ -547,7 +547,7 @@ bool CommonSystem::DrawImGui()
 
 		//if (m_CameraSettings.m_CameraMode == CAMERA_MODE_Enum::CAMERA_MODE_TURNTABLE_Y)
 		{
-			if (ImGui::ContrastedButton(u8"Y+10°", nullptr, nullptr, aw3))
+			if (ImGui::ContrastedButton(u8"Y+10ï¿½", nullptr, nullptr, aw3))
 			{
 				m_CameraSettings.m_RotationXYZ.x -= DEGTORAD * 10.0f;
 				change |= true;
@@ -555,7 +555,7 @@ bool CommonSystem::DrawImGui()
 
 			ImGui::SameLine();
 
-			if (ImGui::ContrastedButton(u8"Y-10°", nullptr, nullptr, aw3))
+			if (ImGui::ContrastedButton(u8"Y-10ï¿½", nullptr, nullptr, aw3))
 			{
 				m_CameraSettings.m_RotationXYZ.x += DEGTORAD * 10.0f;
 				change |= true;
@@ -563,7 +563,7 @@ bool CommonSystem::DrawImGui()
 
 			ImGui::SameLine();
 
-			if (ImGui::ContrastedButton(u8"XZ+10°", nullptr, nullptr, aw3))
+			if (ImGui::ContrastedButton(u8"XZ+10ï¿½", nullptr, nullptr, aw3))
 			{
 				m_CameraSettings.m_RotationXYZ.y += DEGTORAD * 10.0f;
 				change |= true;
@@ -571,7 +571,7 @@ bool CommonSystem::DrawImGui()
 
 			ImGui::SameLine();
 
-			if (ImGui::ContrastedButton(u8"XZ-10°", nullptr, nullptr, aw3))
+			if (ImGui::ContrastedButton(u8"XZ-10ï¿½", nullptr, nullptr, aw3))
 			{
 				m_CameraSettings.m_RotationXYZ.y -= DEGTORAD * 10.0f;
 				change |= true;

@@ -28,7 +28,7 @@ limitations under the License.
 #include <Base/FrameBuffer.h>
 
 #define TRACE_MEMORY
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 
 using namespace vkApi;
 

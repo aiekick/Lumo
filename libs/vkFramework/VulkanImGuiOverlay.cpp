@@ -45,7 +45,7 @@ limitations under the License.
 #include <ctools/FileHelper.h>
 
 #define TRACE_MEMORY
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 
 namespace vkApi
 {

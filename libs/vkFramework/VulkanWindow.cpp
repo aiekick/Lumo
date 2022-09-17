@@ -22,7 +22,7 @@ limitations under the License.
 #include <GLFW/glfw3.h>
 
 #define TRACE_MEMORY
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 
 static void glfw_error_callback(int error, const char* description)
 {

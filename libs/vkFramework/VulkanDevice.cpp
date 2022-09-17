@@ -85,7 +85,7 @@ you can define VULKAN_HPP_NO_DEFAULT_DISPATCHER before you include vulkan.hpp to
 #include <ctools/Logger.h>
 
 #define TRACE_MEMORY
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 
 namespace vkApi
 {

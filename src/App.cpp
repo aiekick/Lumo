@@ -61,7 +61,7 @@ limitations under the License.
 
 #include <Graph/Manager/NodeManager.h>
 #include <Systems/CommonSystem.h>
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 #include <Profiler/vkProfiler.hpp>
 
 #include <Plugins/PluginManager.h>

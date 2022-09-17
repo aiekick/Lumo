@@ -22,7 +22,7 @@ limitations under the License.
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
 
 #define TRACE_MEMORY
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////

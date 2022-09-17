@@ -40,7 +40,7 @@ limitations under the License.
 #include <chrono>			// timer
 
 #define TRACE_MEMORY
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 
 #define VERBOSE_DEBUG
 

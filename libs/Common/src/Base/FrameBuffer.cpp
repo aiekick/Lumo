@@ -30,7 +30,7 @@ limitations under the License.
 #include <FontIcons/CustomFont.h>
 
 #define TRACE_MEMORY
-#include <vkprofiler/Profiler.h>
+#include <vkProfiler/Profiler.h>
 
 using namespace vkApi;
 
