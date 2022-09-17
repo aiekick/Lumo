@@ -53,3 +53,5 @@
 /Plugins/Smoke
 /Plugins/VR
 /.vs
+/cmake-build-minsizerel/
+/cmake-build-relwithdebinfo/
