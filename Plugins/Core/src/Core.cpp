@@ -19,13 +19,15 @@
 #include <Nodes/Breaks/BreakTexturesGroupNode.h>
 
 #include <Nodes/DiffOperators/LaplacianNode.h>
+#include <Nodes/DiffOperators/DivergenceNode.h>
+#include <Nodes/DiffOperators/GradientNode.h>
+#include <Nodes/DiffOperators/CurlNode.h>
 
 #include <Nodes/Lighting/LightGroupNode.h>
 #include <Nodes/Lighting/DiffuseNode.h>
 #include <Nodes/Lighting/SpecularNode.h>
 #include <Nodes/Lighting/ShadowMapNode.h>
 #include <Nodes/Lighting/ModelShadowNode.h>
-#include <Nodes/Lighting/Normal2DNode.h>
 #include <Nodes/Lighting/ReflectionNode.h>
 #include <Nodes/Lighting/RefractionNode.h>
 #include <Nodes/Lighting/CellShadingNode.h>
@@ -164,8 +166,6 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Misc", "Grid / Axis", "GRID_AXIS"));
 	res.push_back(AddLibraryEntry("Core/2D/Misc", "2D Layering", "2D_LAYERING"));
 
-	res.push_back(AddLibraryEntry("Core/2D/Lighting", "Normal 2D", "2D_NORMAL_FROM_TEXTURE"));
-
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Lights", "LIGHT_GROUP"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting/Shadow", "Model Shadow", "MODEL_SHADOW"));
@@ -181,9 +181,13 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Preview", "CubeMap Preview", "CUBE_MAP_PREVIEW"));
 	res.push_back(AddLibraryEntry("Core/3D/Preview", "LongLat Preview", "LONG_LAT_PREVIEW"));
 
+	res.push_back(AddLibraryEntry("Core/2D/Differential Ops", "Laplacian", "LAPLACIAN"));
+	res.push_back(AddLibraryEntry("Core/2D/Differential Ops", "Divergence", "DIVERGENCE"));
+	res.push_back(AddLibraryEntry("Core/2D/Differential Ops", "Gradient", "GRADIENT"));
+	res.push_back(AddLibraryEntry("Core/2D/Differential Ops", "Curl (Rotational)", "CURL"));
+
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Blur", "BLUR"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Bloom", "BLOOM"));
-	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Laplacian", "LAPLACIAN"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Tone Map", "TONE_MAP"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Vignette", "VIGNETTE"));
 		
@@ -220,6 +224,12 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 
 	// Divers
 	else if (vPluginNodeName == "BREAK_TEXTURE_2D_GROUP")		return BreakTexturesGroupNode::Create(vkCorePtr);
+	
+	// Differential Operators
+	else if (vPluginNodeName == "LAPLACIAN")					return LaplacianNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "DIVERGENCE")					return DivergenceNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "GRADIENT")						return GradientNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "CURL")							return CurlNode::Create(vkCorePtr);
 
 	// Misc
 	else if (vPluginNodeName == "GRID_AXIS")					return GridNode::Create(vkCorePtr);
@@ -241,7 +251,6 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	// Post Processing
 	else if (vPluginNodeName == "BLUR")							return BlurNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "BLOOM")						return BloomNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "LAPLACIAN")					return LaplacianNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "TONE_MAP")						return ToneMapNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "VIGNETTE")						return VignetteNode::Create(vkCorePtr);
 	
@@ -260,7 +269,6 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 
 	// Simulations
 	else if (vPluginNodeName == "2D_SIMULATION_GRAY_SCOTT")		return GrayScottNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "2D_NORMAL_FROM_TEXTURE")		return Normal2DNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "2D_LAYERING")					return Layering2DNode::Create(vkCorePtr);
 
 	// Utils

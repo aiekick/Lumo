@@ -151,11 +151,11 @@ bool SpecularModule_Comp_Pass::CreateUBO()
 	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
 	if (m_UBOCompPtr->buffer)
 	{
-		m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo{ m_UBOCompPtr->buffer, 0, sizeof(UBOComp) };
+		m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{ m_UBOCompPtr->buffer, 0, sizeof(UBOComp) };
 	}
 	else
 	{
-		m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+		m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	}
 	
 	for (auto& info : m_ImageInfos)
@@ -204,7 +204,7 @@ bool SpecularModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage,	m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U)); // output
 	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // output
 	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
-	res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfo); // output
+	res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfo); // output
 	res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler,	&m_ImageInfos[0]); // pos
 	res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler,	&m_ImageInfos[1]); // nor
 	return res;

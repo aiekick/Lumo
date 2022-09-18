@@ -27,7 +27,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
+#include <Base/ShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
@@ -40,40 +40,62 @@ limitations under the License.
 #include <vkFramework/VulkanFrameBuffer.h>
 
 #include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
+#include <Interfaces/NodeInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ResizerInterface.h>
+#include <Interfaces/LightGroupInputInterface.h>
 
-class Normal2DModule_Comp_Pass;
-class Normal2DModule :
-	public BaseRenderer,
+class GradientModule_Comp_2D_Pass :
+	public ShaderPass,
+	public NodeInterface,
 	public GuiInterface,
-	public TaskInterface,
-	public TextureInputInterface<2U>,
-	public TextureOutputInterface,
-	public ResizerInterface
+	public TextureInputInterface<1U>,
+	public TextureOutputInterface
 {
-public:
-	static std::shared_ptr<Normal2DModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
-
 private:
-	ct::cWeak<Normal2DModule> m_This;
-	std::shared_ptr<Normal2DModule_Comp_Pass> m_Normal2DModule_Comp_Pass_Ptr = nullptr;
+	std::vector<std::string> m_MethodNames =
+	{ 
+		"r", 
+		"g", 
+		"b", 
+		"a", 
+		"length(rg)", 
+		"length(rgb)" , 
+		"length(rga)" , 
+		"median(rgb)"
+	};
+
+	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
+	vk::DescriptorBufferInfo m_UBOComp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	struct UBOComp {
+		alignas(4) int32_t method = 0;
+		alignas(4) float smoothness = 0.5f;
+		alignas(8) ct::ivec2 image_size = 0;
+	} m_UBOComp;
 
 public:
-	Normal2DModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~Normal2DModule() override;
+	GradientModule_Comp_2D_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~GradientModule_Comp_2D_Pass() override;
 
-	bool Init();
-
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+	void WasJustResized() override;
+	void ActionBeforeInit() override;
+	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+	void AfterNodeXmlLoading() override;
+
+protected:
+	bool CreateUBO() override;
+	void UploadUBO() override;
+	void DestroyUBO() override;
+
+	bool UpdateLayoutBindingInRessourceDescriptor() override;
+	bool UpdateBufferInfoInRessourceDescriptor() override;
+
+	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

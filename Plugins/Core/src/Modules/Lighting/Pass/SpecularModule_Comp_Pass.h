@@ -53,7 +53,7 @@ class SpecularModule_Comp_Pass :
 {
 private:
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	vk::DescriptorBufferInfo m_UBOComp_BufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOComp {
 		alignas(4) float u_pow_coef = 8.0f;
 	} m_UBOComp;

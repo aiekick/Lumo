@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "FlatGradientModule_Comp_2D_Pass.h"
+#include "CurlModule_Comp_2D_Pass.h"
 
 #include <cinttypes>
 #include <functional>
@@ -39,24 +39,24 @@ using namespace vkApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-FlatGradientModule_Comp_2D_Pass::FlatGradientModule_Comp_2D_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+CurlModule_Comp_2D_Pass::CurlModule_Comp_2D_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	SetRenderDocDebugName("Comp Pass : Flat Gradient", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Comp Pass : Curl", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
 	m_DontUseShaderFilesOnDisk = true;
 }
 
-FlatGradientModule_Comp_2D_Pass::~FlatGradientModule_Comp_2D_Pass()
+CurlModule_Comp_2D_Pass::~CurlModule_Comp_2D_Pass()
 {
 	ZoneScoped;
 
 	Unit();
 }
 
-void FlatGradientModule_Comp_2D_Pass::ActionBeforeInit()
+void CurlModule_Comp_2D_Pass::ActionBeforeInit()
 {
 	ZoneScoped;
 
@@ -66,29 +66,35 @@ void FlatGradientModule_Comp_2D_Pass::ActionBeforeInit()
 	}
 }
 
-bool FlatGradientModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CurlModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	bool change = false;
-
-	if (m_SceneVariables[0].expired())
+	if (ImGui::CollapsingHeader("Curl", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		change |= ImGui::SliderUIntDefaultCompact(0.0f, "Count_Step", &m_UBOComp.u_Count_Step, 1U, 128U, 10U);
+		bool change = false;
+
+		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			change |= ImGui::ContrastedComboVectorDefault(0.0f, "Method", &m_UBOComp.method, m_MethodNames, 0);
+			change |= ImGui::CheckBoxFloatDefault("Discard Zero values", &m_UBOComp.u_discard_zero, false);
+
+			if (change)
+			{
+				NeedNewUBOUpload();
+			}
+		}
+
+		return change;
 	}
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
-
-	return change;
+	return false;
 }
 
-void FlatGradientModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void CurlModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -96,7 +102,7 @@ void FlatGradientModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame
 	ImGui::SetCurrentContext(vContext);
 }
 
-void FlatGradientModule_Comp_2D_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void CurlModule_Comp_2D_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -108,7 +114,7 @@ void FlatGradientModule_Comp_2D_Pass::DisplayDialogsAndPopups(const uint32_t& vC
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void CurlModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
@@ -121,6 +127,8 @@ void FlatGradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, 
 				if (vTextureSize)
 				{
 					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
 				}
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
@@ -134,34 +142,12 @@ void FlatGradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, 
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-//// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-void FlatGradientModule_Comp_2D_Pass::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
-{	
-	ZoneScoped;
-
-	if (vVarIndex < m_SceneVariables.size())
-	{
-		m_SceneVariables[vVarIndex] = vSceneVariable;
-
-		auto varPtr = vSceneVariable.getValidShared();
-		if (varPtr)
-		{
-			m_UBOComp.u_Count_Step = varPtr->GetDatas().m_Uint32;
-			NeedNewUBOUpload();
-		}
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* FlatGradientModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* CurlModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
-
 	if (m_ComputeBufferPtr)
 	{
 		if (vOutSize)
@@ -179,31 +165,36 @@ vk::DescriptorImageInfo* FlatGradientModule_Comp_2D_Pass::GetDescriptorImageInfo
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientModule_Comp_2D_Pass::WasJustResized()
+void CurlModule_Comp_2D_Pass::WasJustResized()
 {
 	ZoneScoped;
 }
 
-void FlatGradientModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void CurlModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (vCmdBuffer)
 	{
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		{
-			VKFPScoped(*vCmdBuffer, "Flat Gradient", "Compute");
+			VKFPScoped(*vCmdBuffer, "Curl", "Compute");
 
 			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-			Dispatch(vCmdBuffer);
+
+			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
+			{
+				Dispatch(vCmdBuffer);
+			}
 		}
 	}
 }
 
-bool FlatGradientModule_Comp_2D_Pass::CreateUBO()
+
+bool CurlModule_Comp_2D_Pass::CreateUBO()
 {
 	ZoneScoped;
 
 	m_UBOComp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
-	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBOComp_Ptr)
 	{
 		m_UBOComp_BufferInfos.buffer = m_UBOComp_Ptr->buffer;
@@ -216,14 +207,14 @@ bool FlatGradientModule_Comp_2D_Pass::CreateUBO()
 	return true;
 }
 
-void FlatGradientModule_Comp_2D_Pass::UploadUBO()
+void CurlModule_Comp_2D_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBOComp_Ptr, &m_UBOComp, sizeof(UBO_Comp));
 }
 
-void FlatGradientModule_Comp_2D_Pass::DestroyUBO()
+void CurlModule_Comp_2D_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -231,7 +222,7 @@ void FlatGradientModule_Comp_2D_Pass::DestroyUBO()
 	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
-bool FlatGradientModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool CurlModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -239,25 +230,25 @@ bool FlatGradientModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
 	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
 	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+
 	return res;
 }
 
-bool FlatGradientModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool CurlModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	bool res = true;
 	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
 	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
-	res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);
-	res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);
+	res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // ssao
+
 	return res;
 }
 
-std::string FlatGradientModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
+std::string CurlModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "FlatGradientModule_Comp_2D_Pass_Compute";
+	vOutShaderName = "CurlModule_Comp_2D_Pass_Compute";
 
 	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
 
@@ -271,27 +262,66 @@ layout(binding = 0, rgba32f) uniform image2D colorBuffer;
 
 layout(std140, binding = 1) uniform UBO_Comp
 {
-	uint u_Count_Step;
+	int method;			// 0 -> 7
+	float u_discard_zero; // default is 0.0 (false)
 };
 
-layout(binding = 2) uniform sampler2D u_start_sampler;
-layout(binding = 3) uniform sampler2D u_end_sampler;
+layout(binding = 2) uniform sampler2D input_map_sampler;
+
+float getValue(vec4 v) 
+{
+	switch(method)
+	{
+	case 0: // r
+		return v.r;
+	case 1: // g
+		return v.g;
+	case 2: // b
+		return v.b;
+	case 3: // a
+		return v.a;
+	case 4: // length(rg)
+		return length(v.rg);
+	case 5: // length(rgb)
+		return length(v.rgb);
+	case 6: // length(rgba)
+		return length(v);
+	case 7: // median(rgb)
+		// https://github.com/Chlumsky/msdfgen
+		return max(min(v.r, v.g), min(max(v.r, v.g), v.b));
+	}
+	return v.r;
+}
+
+float getSam(ivec2 co, int x, int y)
+{
+	return getValue(texelFetch(input_map_sampler, co + ivec2(x,y), 0));
+}
+
+float getCurl(ivec2 co)
+{
+	float dx = getSam(co, -1, 0) - getSam(co, 1, 0); // left - right
+	float dy = getSam(co, 0, 1) - getSam(co, 0, -1); // up - down
+	return (dx + dy) * 0.5;
+}
 
 void main()
 {
-	const vec2 size = vec2(imageSize(colorBuffer));
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
-	const vec2 v_nor_uv = clamp(vec2(coords) / size, 0.0, 1.0);
+
+	float c = getSam(coords, 0, 0);
 	
-	const vec4 start_color = texture(u_start_sampler, v_nor_uv);
-	const vec4 end_color = texture(u_end_sampler, v_nor_uv);
+	float value = getCurl(coords);
 
-	const float f_u_Count_Step = float(u_Count_Step);
-	const float ratio = floor(v_nor_uv.x * f_u_Count_Step) / f_u_Count_Step;
+	if (u_discard_zero > 0.5)
+	{
+		if (dot(c, c) < 0.01)
+		{
+			value = 0.0;
+		}
+	}
 
-	vec4 color = mix(start_color, end_color, vec4(ratio));
-
-	imageStore(colorBuffer, coords, color); 
+	imageStore(colorBuffer, coords, vec4(value)); 
 }
 )";
 }
@@ -300,7 +330,7 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string FlatGradientModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string CurlModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -308,12 +338,13 @@ std::string FlatGradientModule_Comp_2D_Pass::getXml(const std::string& vOffset, 
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<count_step>" + ct::toStr(m_UBOComp.u_Count_Step) + "</count_step>\n";
+	str += vOffset + "<method>" + ct::toStr(m_UBOComp.method) + "</method>\n";
+	str += vOffset + "<discard_zeros>" + ct::toStr(m_UBOComp.u_discard_zero) + "</discard_zeros>\n";
 
 	return str;
 }
 
-bool FlatGradientModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool CurlModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -330,17 +361,18 @@ bool FlatGradientModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, ti
 
 	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "flat_gradient_module")
+	if (strParentName == "rotational_module")
 	{
-
-		if (strName == "count_step")
-			m_UBOComp.u_Count_Step = ct::uvariant(strValue).GetU();
+		if (strName == "method")
+			m_UBOComp.method = ct::ivariant(strValue).GetI();
+		else if (strName == "discard_zeros")
+			m_UBOComp.u_discard_zero = ct::ivariant(strValue).GetB();
 	}
 
 	return true;
 }
 
-void FlatGradientModule_Comp_2D_Pass::AfterNodeXmlLoading()
+void CurlModule_Comp_2D_Pass::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 

@@ -64,7 +64,7 @@ private:
 	};
 
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	vk::DescriptorBufferInfo m_UBOComp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOComp {
 		alignas(4) int32_t method = 0;
 		alignas(4) float smoothness = 0.5f;

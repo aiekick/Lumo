@@ -41,7 +41,7 @@ BloomModule_Comp_2D_Pass::BloomModule_Comp_2D_Pass(vkApi::VulkanCorePtr vVulkanC
 {
 	SetRenderDocDebugName("Comp 2D Pass : Bloom", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 BloomModule_Comp_2D_Pass::~BloomModule_Comp_2D_Pass()

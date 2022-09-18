@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "Normal2DModule_Comp_Pass.h"
+#include "GradientModule_Comp_2D_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -32,13 +32,11 @@ limitations under the License.
 
 using namespace vkApi;
 
-
-
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Normal2DModule_Comp_Pass::Normal2DModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+GradientModule_Comp_2D_Pass::GradientModule_Comp_2D_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Normal From Texture", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -46,12 +44,22 @@ Normal2DModule_Comp_Pass::Normal2DModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanC
 	m_DontUseShaderFilesOnDisk = true;
 }
 
-Normal2DModule_Comp_Pass::~Normal2DModule_Comp_Pass()
+GradientModule_Comp_2D_Pass::~GradientModule_Comp_2D_Pass()
 {
 	Unit();
 }
 
-bool Normal2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+void GradientModule_Comp_2D_Pass::ActionBeforeInit()
+{
+	ZoneScoped;
+
+	for (auto& info : m_ImageInfos)
+	{
+		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+	}
+}
+
+bool GradientModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -75,19 +83,19 @@ bool Normal2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 	return change;
 }
 
-void Normal2DModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void GradientModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
-void Normal2DModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void GradientModule_Comp_2D_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
-void Normal2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void GradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
@@ -117,7 +125,7 @@ void Normal2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Des
 	}
 }
 
-vk::DescriptorImageInfo* Normal2DModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* GradientModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ComputeBufferPtr)
 	{
@@ -136,7 +144,7 @@ vk::DescriptorImageInfo* Normal2DModule_Comp_Pass::GetDescriptorImageInfo(const 
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Normal2DModule_Comp_Pass::WasJustResized()
+void GradientModule_Comp_2D_Pass::WasJustResized()
 {
 	ZoneScoped;
 
@@ -148,7 +156,7 @@ void Normal2DModule_Comp_Pass::WasJustResized()
 	}
 }
 
-void Normal2DModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void GradientModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (vCmdBuffer)
 	{
@@ -160,17 +168,17 @@ void Normal2DModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int&
 	}
 }
 
-bool Normal2DModule_Comp_Pass::CreateUBO()
+bool GradientModule_Comp_2D_Pass::CreateUBO()
 {
 	ZoneScoped;
 
 	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBOCompPtr)
 	{
-		m_UBO_Comp_BufferInfos.buffer = m_UBOCompPtr->buffer;
-		m_UBO_Comp_BufferInfos.range = sizeof(UBOComp);
-		m_UBO_Comp_BufferInfos.offset = 0;
+		m_UBOComp_BufferInfos.buffer = m_UBOCompPtr->buffer;
+		m_UBOComp_BufferInfos.range = sizeof(UBOComp);
+		m_UBOComp_BufferInfos.offset = 0;
 	}
 
 	for (auto& info : m_ImageInfos)
@@ -183,22 +191,22 @@ bool Normal2DModule_Comp_Pass::CreateUBO()
 	return true;
 }
 
-void Normal2DModule_Comp_Pass::UploadUBO()
+void GradientModule_Comp_2D_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
-void Normal2DModule_Comp_Pass::DestroyUBO()
+void GradientModule_Comp_2D_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
 	m_UBOCompPtr.reset();
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
-bool Normal2DModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool GradientModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -209,20 +217,20 @@ bool Normal2DModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	return res;
 }
 
-bool Normal2DModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool GradientModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
 	bool res = true;
 	res &= AddOrSetWriteDescriptorImage( 0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	res &= AddOrSetWriteDescriptorBuffer( 1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfos);
+	res &= AddOrSetWriteDescriptorBuffer( 1U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
 	res &= AddOrSetWriteDescriptorImage( 2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // input 0
 	return res;
 }
 
-std::string Normal2DModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
+std::string GradientModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "Normal2DModule_Comp_Pass";
+	vOutShaderName = "GradientModule_Comp_2D_Pass";
 
 	SetLocalGroupSize(ct::uvec3(32U, 32U, 1U));
 
@@ -292,7 +300,7 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string Normal2DModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string GradientModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
@@ -302,7 +310,7 @@ std::string Normal2DModule_Comp_Pass::getXml(const std::string& vOffset, const s
 	return str;
 }
 
-bool Normal2DModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool GradientModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	ZoneScoped;
 
@@ -317,7 +325,7 @@ bool Normal2DModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "normal_2d_module")
+	if (strParentName == "gradient_module")
 	{
 		if (strName == "method")
 			m_UBOComp.method = ct::ivariant(strValue).GetI();
@@ -326,4 +334,13 @@ bool Normal2DModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
 	}
 
 	return true;
+}
+
+void GradientModule_Comp_2D_Pass::AfterNodeXmlLoading()
+{
+	ZoneScoped;
+
+	// code to do after end of the xml loading of this node
+	// by ex :
+	NeedNewUBOUpload();
 }

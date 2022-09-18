@@ -51,7 +51,7 @@ class WidgetColorModule_Pass :
 {
 private:
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	vk::DescriptorBufferInfo m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	struct UBOComp {
 		alignas(16) ct::fvec4 u_color = ct::fvec4(0.0f, 0.0f, 0.0f, 1.0f);
 	} m_UBOComp;

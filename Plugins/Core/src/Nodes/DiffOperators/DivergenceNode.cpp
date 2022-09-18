@@ -17,8 +17,8 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "LaplacianNode.h"
-#include <Modules/DiffOperators/LaplacianModule.h>
+#include "DivergenceNode.h"
+#include <Modules/DiffOperators/DivergenceModule.h>
 #include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 
@@ -26,11 +26,11 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<LaplacianNode> LaplacianNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<DivergenceNode> DivergenceNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<LaplacianNode>();
+	auto res = std::make_shared<DivergenceNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -40,14 +40,14 @@ std::shared_ptr<LaplacianNode> LaplacianNode::Create(vkApi::VulkanCorePtr vVulka
 	return res;
 }
 
-LaplacianNode::LaplacianNode() : BaseNode()
+DivergenceNode::DivergenceNode() : BaseNode()
 {
 	ZoneScoped;
 
-	m_NodeTypeString = "LAPLACIAN";
+	m_NodeTypeString = "DIVERGENCE";
 }
 
-LaplacianNode::~LaplacianNode()
+DivergenceNode::~DivergenceNode()
 {
 	ZoneScoped;
 
@@ -58,18 +58,19 @@ LaplacianNode::~LaplacianNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool LaplacianNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool DivergenceNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	name = "Laplacian";
+	name = "Divergence";
 	AddInput(NodeSlotTextureInput::Create("", 0), false, true);
+
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_LaplacianModulePtr = LaplacianModule::Create(vVulkanCorePtr, m_This);
-	if (m_LaplacianModulePtr)
+	m_DivergenceModulePtr = DivergenceModule::Create(vVulkanCorePtr, m_This);
+	if (m_DivergenceModulePtr)
 	{
 		res = true;
 	}
@@ -81,7 +82,7 @@ bool LaplacianNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool LaplacianNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool DivergenceNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -91,9 +92,9 @@ bool LaplacianNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
-	if (m_LaplacianModulePtr)
+	if (m_DivergenceModulePtr)
 	{
-		res = m_LaplacianModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_DivergenceModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return res;
@@ -102,7 +103,7 @@ bool LaplacianNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool LaplacianNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool DivergenceNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -111,24 +112,24 @@ bool LaplacianNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	if (m_LaplacianModulePtr)
+	if (m_DivergenceModulePtr)
 	{
-		res = m_LaplacianModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_DivergenceModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return res;
 }
 
-void LaplacianNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void DivergenceNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	if (m_LaplacianModulePtr)
+	if (m_DivergenceModulePtr)
 	{
-		m_LaplacianModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_DivergenceModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
@@ -136,7 +137,7 @@ void LaplacianNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void LaplacianNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void DivergenceNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -159,13 +160,13 @@ void LaplacianNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void LaplacianNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void DivergenceNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
 
-	if (m_LaplacianModulePtr)
+	if (m_DivergenceModulePtr)
 	{
-		m_LaplacianModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+		m_DivergenceModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
@@ -176,13 +177,13 @@ void LaplacianNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t*
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void LaplacianNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void DivergenceNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
-	if (m_LaplacianModulePtr)
+	if (m_DivergenceModulePtr)
 	{
-		m_LaplacianModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_DivergenceModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -190,13 +191,13 @@ void LaplacianNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImag
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* LaplacianNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* DivergenceNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 
-	if (m_LaplacianModulePtr)
+	if (m_DivergenceModulePtr)
 	{
-		return m_LaplacianModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_DivergenceModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -206,7 +207,7 @@ vk::DescriptorImageInfo* LaplacianNode::GetDescriptorImageInfo(const uint32_t& v
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string LaplacianNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string DivergenceNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -234,9 +235,9 @@ std::string LaplacianNode::getXml(const std::string& vOffset, const std::string&
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_LaplacianModulePtr)
+		if (m_DivergenceModulePtr)
 		{
-			res += m_LaplacianModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_DivergenceModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -245,7 +246,7 @@ std::string LaplacianNode::getXml(const std::string& vOffset, const std::string&
 	return res;
 }
 
-bool LaplacianNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool DivergenceNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -262,22 +263,22 @@ bool LaplacianNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_LaplacianModulePtr)
+	if (m_DivergenceModulePtr)
 	{
-		m_LaplacianModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_DivergenceModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	// continue recurse child exploring
 	return true;
 }
 
-void LaplacianNode::AfterNodeXmlLoading()
+void DivergenceNode::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 
-	if (m_LaplacianModulePtr)
+	if (m_DivergenceModulePtr)
 	{
-		m_LaplacianModulePtr->AfterNodeXmlLoading();
+		m_DivergenceModulePtr->AfterNodeXmlLoading();
 	}
 }
 
@@ -285,12 +286,12 @@ void LaplacianNode::AfterNodeXmlLoading()
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void LaplacianNode::UpdateShaders(const std::set<std::string>& vFiles)
+void DivergenceNode::UpdateShaders(const std::set<std::string>& vFiles)
 {	
 	ZoneScoped;
 
-	if (m_LaplacianModulePtr)
+	if (m_DivergenceModulePtr)
 	{
-		m_LaplacianModulePtr->UpdateShaders(vFiles);
+		m_DivergenceModulePtr->UpdateShaders(vFiles);
 	}
 }

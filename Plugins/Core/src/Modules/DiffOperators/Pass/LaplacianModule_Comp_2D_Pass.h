@@ -14,7 +14,6 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-
 #pragma once
 
 #include <set>
@@ -28,8 +27,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
-
+#include <Base/ShaderPass.h>
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -42,45 +40,49 @@ limitations under the License.
 
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/NodeInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/ResizerInterface.h>
-
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-class LaplacianModule_Comp_2D_Pass;
-class LaplacianModule :
-	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
-	public TaskInterface,
-	public TextureInputInterface<0U>,
+class LaplacianModule_Comp_2D_Pass :
+	public ShaderPass,
+	public TextureInputInterface<1>,
 	public TextureOutputInterface,
-	public GuiInterface
+	public GuiInterface,
+	public NodeInterface
 {
-public:
-	static std::shared_ptr<LaplacianModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
-
 private:
-	ct::cWeak<LaplacianModule> m_This;
+	std::vector<std::string> m_MethodNames =
+	{
+		"r",
+		"g",
+		"b",
+		"a",
+		"length(rg)",
+		"length(rgb)" ,
+		"length(rga)" ,
+		"median(rgb)"
+	};
+	struct UBO_Comp {
+		alignas(4) int32_t method = 0;
+		alignas(4) int32_t u_lap_offset = 1;
+		alignas(4) float u_lap_corner = 0.2f;
+		alignas(4) float u_discard_zero = 0.0f;
+	} m_UBOComp;
+	VulkanBufferObjectPtr m_UBOComp_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
-	std::shared_ptr<LaplacianModule_Comp_2D_Pass> m_LaplacianModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	LaplacianModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~LaplacianModule() override;
+	LaplacianModule_Comp_2D_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~LaplacianModule_Comp_2D_Pass() override;
 
-	bool Init();
+	void ActionBeforeInit() override;
+	void WasJustResized() override;
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-
+	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 
 	// Interfaces Setters
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
@@ -88,7 +90,17 @@ public:
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 	void AfterNodeXmlLoading() override;
+
+protected:
+	bool CreateUBO() override;
+	void UploadUBO() override;
+	void DestroyUBO() override;
+
+	bool UpdateLayoutBindingInRessourceDescriptor() override;
+	bool UpdateBufferInfoInRessourceDescriptor() override;
+
+	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

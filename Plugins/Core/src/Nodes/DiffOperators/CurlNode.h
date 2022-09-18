@@ -20,22 +20,22 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 
-class LaplacianModule;
-class LaplacianNode :
+class CurlModule;
+class CurlNode :
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface,
 	public BaseNode
 {
 public:
-	static std::shared_ptr<LaplacianNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<CurlNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<LaplacianModule> m_LaplacianModulePtr = nullptr;
+	std::shared_ptr<CurlModule> m_CurlModulePtr = nullptr;
 
 public:
-	LaplacianNode();
-	~LaplacianNode() override;
+	CurlNode();
+	~CurlNode() override;
 
 	// Init / Unit
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;

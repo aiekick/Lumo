@@ -59,9 +59,9 @@ private:
 		alignas(4) float u_use_pos_map = 0.0f;
 		alignas(4) float u_use_nor_map = 0.0f;
 		alignas(4) float u_use_tint_map = 0.0f;
-	} m_UBO_Comp;
-	VulkanBufferObjectPtr m_UBO_Comp_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+	} m_UBOComp;
+	VulkanBufferObjectPtr m_UBOComp_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
 public:
 	CellShadingModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);

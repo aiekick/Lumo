@@ -119,11 +119,11 @@ bool WidgetColorModule_Pass::CreateUBO()
 	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
 	if (m_UBOCompPtr->buffer)
 	{
-		m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo{ m_UBOCompPtr->buffer, 0, sizeof(UBOComp) };
+		m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{ m_UBOCompPtr->buffer, 0, sizeof(UBOComp) };
 	}
 	else
 	{
-		m_UBO_Comp_BufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+		m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	}
 
 	NeedNewUBOUpload();
@@ -162,7 +162,7 @@ bool WidgetColorModule_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	bool res = true;
 	res &= AddOrSetWriteDescriptorImage( 0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	res &= AddOrSetWriteDescriptorBuffer( 1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfo);
+	res &= AddOrSetWriteDescriptorBuffer( 1U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfo);
 	return res;
 }
 

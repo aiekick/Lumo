@@ -97,17 +97,17 @@ void DiffuseModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::Descripto
 
 				m_ImageInfos[vBinding] = *vImageInfo;
 
-				if ((&m_UBO_Comp.u_use_pos_map)[vBinding] < 1.0f)
+				if ((&m_UBOComp.u_use_pos_map)[vBinding] < 1.0f)
 				{
-					(&m_UBO_Comp.u_use_pos_map)[vBinding] = 1.0f;
+					(&m_UBOComp.u_use_pos_map)[vBinding] = 1.0f;
 					NeedNewUBOUpload();
 				}
 			}
 			else
 			{
-				if ((&m_UBO_Comp.u_use_pos_map)[vBinding] > 0.0f)
+				if ((&m_UBOComp.u_use_pos_map)[vBinding] > 0.0f)
 				{
-					(&m_UBO_Comp.u_use_pos_map)[vBinding] = 0.0f;
+					(&m_UBOComp.u_use_pos_map)[vBinding] = 0.0f;
 					NeedNewUBOUpload();
 				}
 
@@ -163,13 +163,13 @@ bool DiffuseModule_Comp_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
-	if (m_UBO_Comp_Ptr)
+	m_UBOComp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
+	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+	if (m_UBOComp_Ptr)
 	{
-		m_UBO_Comp_BufferInfos.buffer = m_UBO_Comp_Ptr->buffer;
-		m_UBO_Comp_BufferInfos.range = sizeof(UBO_Comp);
-		m_UBO_Comp_BufferInfos.offset = 0;
+		m_UBOComp_BufferInfos.buffer = m_UBOComp_Ptr->buffer;
+		m_UBOComp_BufferInfos.range = sizeof(UBO_Comp);
+		m_UBOComp_BufferInfos.offset = 0;
 	}
 
 	NeedNewUBOUpload();
@@ -181,15 +181,15 @@ void DiffuseModule_Comp_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
+	VulkanRessource::upload(m_VulkanCorePtr, m_UBOComp_Ptr, &m_UBOComp, sizeof(UBO_Comp));
 }
 
 void DiffuseModule_Comp_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Comp_Ptr.reset();
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+	m_UBOComp_Ptr.reset();
+	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
 bool DiffuseModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -213,7 +213,7 @@ bool DiffuseModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 	bool res = true;
 	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
 	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
-	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfos);
+	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
 	res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // pos
 	res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]); // nor
 	res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]); // tint
@@ -305,7 +305,7 @@ std::string DiffuseModule_Comp_Pass::getXml(const std::string& vOffset, const st
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	/*str += vOffset + "<count_step>" + ct::toStr(m_UBO_Comp.u_Count_Step) + "</count_step>\n";*/
+	/*str += vOffset + "<count_step>" + ct::toStr(m_UBOComp.u_Count_Step) + "</count_step>\n";*/
 
 	return str;
 }
@@ -330,7 +330,7 @@ bool DiffuseModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 	if (strParentName == "cell_shading_module")
 	{
 		/*if (strName == "count_step")
-			m_UBO_Comp.u_Count_Step = ct::uvariant(strValue).GetU();*/
+			m_UBOComp.u_Count_Step = ct::uvariant(strValue).GetU();*/
 	}
 
 	return true;

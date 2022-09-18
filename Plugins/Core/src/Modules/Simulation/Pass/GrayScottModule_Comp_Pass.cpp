@@ -259,12 +259,12 @@ bool GrayScottModule_Comp_Pass::CreateUBO()
 	ZoneScoped;
 
 	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBOCompPtr)
 	{
-		m_UBO_Comp_BufferInfos.buffer = m_UBOCompPtr->buffer;
-		m_UBO_Comp_BufferInfos.range = sizeof(UBOComp);
-		m_UBO_Comp_BufferInfos.offset = 0;
+		m_UBOComp_BufferInfos.buffer = m_UBOCompPtr->buffer;
+		m_UBOComp_BufferInfos.range = sizeof(UBOComp);
+		m_UBOComp_BufferInfos.offset = 0;
 	}
 
 	for (auto& info : m_ImageInfos)
@@ -289,7 +289,7 @@ void GrayScottModule_Comp_Pass::DestroyUBO()
 	ZoneScoped;
 
 	m_UBOCompPtr.reset();
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
 bool GrayScottModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -311,7 +311,7 @@ bool GrayScottModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 	bool res = true;
 	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
 	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // common system
-	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfos);
+	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
 	res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // input 0
 	return res;
 }

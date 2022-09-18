@@ -49,8 +49,8 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
-class LaplacianModule_Comp_2D_Pass;
-class LaplacianModule :
+class DivergenceModule_Comp_2D_Pass;
+class DivergenceModule :
 	public NodeInterface,
 	public BaseRenderer,
 	public ResizerInterface,
@@ -60,16 +60,16 @@ class LaplacianModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<LaplacianModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<DivergenceModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
-	ct::cWeak<LaplacianModule> m_This;
+	ct::cWeak<DivergenceModule> m_This;
 
-	std::shared_ptr<LaplacianModule_Comp_2D_Pass> m_LaplacianModule_Comp_2D_Pass_Ptr = nullptr;
+	std::shared_ptr<DivergenceModule_Comp_2D_Pass> m_DivergenceModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	LaplacianModule(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~LaplacianModule() override;
+	DivergenceModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~DivergenceModule() override;
 
 	bool Init();
 

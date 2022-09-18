@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "LaplacianModule.h"
+#include "CurlModule.h"
 
 #include <cinttypes>
 #include <functional>
@@ -33,7 +33,7 @@ limitations under the License.
 #include <utils/Mesh/VertexStruct.h>
 #include <Base/FrameBuffer.h>
 
-#include <Modules/DiffOperators/Pass/LaplacianModule_Comp_2D_Pass.h>
+#include <Modules/DiffOperators/Pass/CurlModule_Comp_2D_Pass.h>
 
 using namespace vkApi;
 
@@ -41,12 +41,12 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<LaplacianModule> LaplacianModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<CurlModule> CurlModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<LaplacianModule>(vVulkanCorePtr);
+	auto res = std::make_shared<CurlModule>(vVulkanCorePtr);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -61,13 +61,13 @@ std::shared_ptr<LaplacianModule> LaplacianModule::Create(vkApi::VulkanCorePtr vV
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LaplacianModule::LaplacianModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+CurlModule::CurlModule(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
 }
 
-LaplacianModule::~LaplacianModule()
+CurlModule::~CurlModule()
 {
 	ZoneScoped;
 
@@ -78,7 +78,7 @@ LaplacianModule::~LaplacianModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool LaplacianModule::Init()
+bool CurlModule::Init()
 {
 	ZoneScoped;
 
@@ -90,16 +90,16 @@ bool LaplacianModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_LaplacianModule_Comp_2D_Pass_Ptr = std::make_shared<LaplacianModule_Comp_2D_Pass>(m_VulkanCorePtr);
-		if (m_LaplacianModule_Comp_2D_Pass_Ptr)
+		m_CurlModule_Comp_2D_Pass_Ptr = std::make_shared<CurlModule_Comp_2D_Pass>(m_VulkanCorePtr);
+		if (m_CurlModule_Comp_2D_Pass_Ptr)
 		{
 			// by default but can be changed via widget
-			//m_LaplacianModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_LaplacianModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(true);
+			//m_CurlModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			//m_CurlModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
-			if (m_LaplacianModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
+			if (m_CurlModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
 			{
-				AddGenericPass(m_LaplacianModule_Comp_2D_Pass_Ptr);
+				AddGenericPass(m_CurlModule_Comp_2D_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -112,20 +112,20 @@ bool LaplacianModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool LaplacianModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool CurlModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Laplacian", vCmd);
+	BaseRenderer::Render("Curl", vCmd);
 
 	return true;
 }
 
-bool LaplacianModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool CurlModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Laplacian", vCmd);
+	BaseRenderer::Render("Curl", vCmd);
 
 	return true;
 }
@@ -134,7 +134,7 @@ bool LaplacianModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Comma
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool LaplacianModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CurlModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -143,13 +143,13 @@ bool LaplacianModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("Laplacian##LaplacianModule", -1.0f, true, true, &m_CanWeRender))
+		if (ImGui::CollapsingHeader_CheckBox("Curl##CurlModule", -1.0f, true, true, &m_CanWeRender))
 		{
 			bool change = false;
 
-			if (m_LaplacianModule_Comp_2D_Pass_Ptr)
+			if (m_CurlModule_Comp_2D_Pass_Ptr)
 			{
-				change |= m_LaplacianModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_CurlModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
 
 			return change;
@@ -159,7 +159,7 @@ bool LaplacianModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	return false;
 }
 
-void LaplacianModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void CurlModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -172,7 +172,7 @@ void LaplacianModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frec
 	}
 }
 
-void LaplacianModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void CurlModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -185,7 +185,7 @@ void LaplacianModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	}
 }
 
-void LaplacianModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void CurlModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
 
@@ -198,13 +198,13 @@ void LaplacianModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void LaplacianModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void CurlModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
-	if (m_LaplacianModule_Comp_2D_Pass_Ptr)
+	if (m_CurlModule_Comp_2D_Pass_Ptr)
 	{
-		m_LaplacianModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_CurlModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -212,13 +212,13 @@ void LaplacianModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* LaplacianModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* CurlModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 
-	if (m_LaplacianModule_Comp_2D_Pass_Ptr)
+	if (m_CurlModule_Comp_2D_Pass_Ptr)
 	{
-		return m_LaplacianModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_CurlModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -228,27 +228,27 @@ vk::DescriptorImageInfo* LaplacianModule::GetDescriptorImageInfo(const uint32_t&
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string LaplacianModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string CurlModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	std::string str;
 
-	str += vOffset + "<laplacian_module>\n";
+	str += vOffset + "<rotational_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_LaplacianModule_Comp_2D_Pass_Ptr)
+	if (m_CurlModule_Comp_2D_Pass_Ptr)
 	{
-		str += m_LaplacianModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		str += m_CurlModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</laplacian_module>\n";
+	str += vOffset + "</rotational_module>\n";
 
 	return str;
 }
 
-bool LaplacianModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool CurlModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -263,26 +263,26 @@ bool LaplacianModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "laplacian_module")
+	if (strParentName == "rotational_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 
-		if (m_LaplacianModule_Comp_2D_Pass_Ptr)
+		if (m_CurlModule_Comp_2D_Pass_Ptr)
 		{
-			m_LaplacianModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+			m_CurlModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 		}
 	}
 
 	return true;
 }
 
-void LaplacianModule::AfterNodeXmlLoading()
+void CurlModule::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 
-	if (m_LaplacianModule_Comp_2D_Pass_Ptr)
+	if (m_CurlModule_Comp_2D_Pass_Ptr)
 	{
-		m_LaplacianModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+		m_CurlModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
 	}
 }

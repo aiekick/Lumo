@@ -55,9 +55,9 @@ class FlatGradientModule_Comp_2D_Pass :
 private:
 	struct UBO_Comp {
 		alignas(4) uint32_t u_Count_Step = 128U;
-	} m_UBO_Comp;
-	VulkanBufferObjectPtr m_UBO_Comp_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	} m_UBOComp;
+	VulkanBufferObjectPtr m_UBOComp_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 
 public:
