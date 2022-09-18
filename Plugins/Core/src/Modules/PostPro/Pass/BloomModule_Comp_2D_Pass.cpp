@@ -374,17 +374,16 @@ bool BloomModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 
 	if (m_ComputeBufferPtr)
 	{
-		for (auto& descriptor : m_DescriptorSets)
+		bool res = true;
+		for (uint32_t i = 0; i < (uint32_t)m_DescriptorSets.size(); ++i)
 		{
-			descriptor.m_LayoutBindings.clear();
-			descriptor.m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-			descriptor.m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
-			descriptor.m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-			descriptor.m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
-			descriptor.m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
+			res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1U, i);
+			res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, i);
+			res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1U, i);
+			res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, i);
+			res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, i);
 		}
-
-		return true;
+		return res;
 	}
 
 	return false;
@@ -396,55 +395,45 @@ bool BloomModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	if (m_ComputeBufferPtr)
 	{
+		bool res = true;
+
 		// clearing, and fixed descriptors
-		for (auto& descriptor : m_DescriptorSets)
+		for (uint32_t i = 0; i < (uint32_t)m_DescriptorSets.size(); ++i)
 		{
-			// clear
-			descriptor.m_WriteDescriptorSets.clear();
-			// fixed 0U : UBO
-			descriptor.m_WriteDescriptorSets.emplace_back(descriptor.m_DescriptorSet, 0U, 0, 1,
-				vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
-			// fixed 1U : input image of pass 0
-			descriptor.m_WriteDescriptorSets.emplace_back(descriptor.m_DescriptorSet, 1U, 0, 1,
-				vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);
-			// fixed 2U : gaussian weights
-			descriptor.m_WriteDescriptorSets.emplace_back(descriptor.m_DescriptorSet, 2U, 0, 1,
-				vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_GaussianWeightsBufferInfo);
+			res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Comp, 1U, i);		// fixed 0U : UBO
+			res &= AddOrSetWriteDescriptorImage(1U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, i);			// fixed 1U : input image of pass 0
+			res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, &m_SBO_GaussianWeightsBufferInfo, 1U, i);	// fixed 2U : gaussian weights
 		}
 		
-		// high_freq_thresholding
+		// high_freq_thresholding 0U
 		// variable 3U : read from input image
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1,
-			vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);
+		res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, 0U);
 		// variable 4U : write to front 1U
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1,
-			vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U));
+		res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 0U);
 
-		// horizontal_blur
+		// horizontal_blur 1U
 		// variable 3U : read from front 1U
-		m_DescriptorSets[1].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[1].m_DescriptorSet, 3U, 0, 1,
-			vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U));
+		res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 1U);
 		// variable 4U : write to front 0U
-		m_DescriptorSets[1].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[1].m_DescriptorSet, 4U, 0, 1,
-			vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));
+		res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 1U);
 
-		// vertical_blur
+		// vertical_blur 2U
 		// variable 3U : read from front 0U
-		m_DescriptorSets[2].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[2].m_DescriptorSet, 3U, 0, 1,
-			vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // image to bright // the input of pass 0
+		// image to bright // the input of pass 0
+		res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 2U);
 		// variable 4U : write to front 1U
-		m_DescriptorSets[2].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[2].m_DescriptorSet, 4U, 0, 1,
-			vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U)); // output
+		// output
+		res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 2U);
 
-		// gamma_correction
+		// gamma_correction 3U
 		// variable 3U : read from front 1U
-		m_DescriptorSets[3].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[3].m_DescriptorSet, 3U, 0, 1,
-			vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U)); // image to bright // the input of pass 0
+		// image to bright // the input of pass 0
+		res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 3U);
 		// variable 4U : write to front 0U
-		m_DescriptorSets[3].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[3].m_DescriptorSet, 4U, 0, 1,
-			vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
+		// output
+		res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 3U);
 
-		return true;
+		return res;
 	}
 
 	return false;

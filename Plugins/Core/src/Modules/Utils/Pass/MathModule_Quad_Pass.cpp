@@ -257,30 +257,28 @@ bool MathModule_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_LayoutBindings.clear();
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);
+	bool res = true;
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
 
 	// max 3 input
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);
-
-	return true;
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+	return res;
 }
 
 bool MathModule_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Frag);
+	bool res = true;
+	res &= AddOrSetWriteDescriptorBuffer( 0U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Frag);
 
 	// max 3 input
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2], nullptr);
-
-	return true;
+	res &= AddOrSetWriteDescriptorImage( 1U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);
+	res &= AddOrSetWriteDescriptorImage( 2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);
+	res &= AddOrSetWriteDescriptorImage( 3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]);
+	return res;
 }
 
 std::string MathModule_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName)

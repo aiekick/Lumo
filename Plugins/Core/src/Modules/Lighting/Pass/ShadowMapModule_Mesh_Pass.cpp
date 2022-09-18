@@ -225,20 +225,20 @@ bool ShadowMapModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eVertex);
-	AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
-
-	return true;
+	bool res = true;
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eVertex);
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
+	return res;
 }
 
 bool ShadowMapModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
-	AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
-
-	return true;
+	bool res = true;
+	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
+	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
+	return res;
 }
 
 void ShadowMapModule_Mesh_Pass::SetInputStateBeforePipelineCreation()

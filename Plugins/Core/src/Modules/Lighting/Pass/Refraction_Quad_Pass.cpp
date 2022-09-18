@@ -249,28 +249,26 @@ bool Refraction_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_LayoutBindings.clear();
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eVertex);				// camera
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eFragment);			// ubo frag
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// Nor
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// LongLat
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eFragment);	// CubeMap
-	
-	return true;
+	bool res = true;
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);			// camera
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);		// ubo frag
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);	// Nor
+	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);	// LongLat
+	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);	// CubeMap
+	return res;
 }
 
 bool Refraction_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, CommonSystem::Instance()->GetBufferInfo());	// camera
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_Frag_BufferInfos);						// ubo frag
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr);						// Pos
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1], nullptr);							// LongLat
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageCubeInfos[0], nullptr);					// CubeMap
-	
-	return true;
+	bool res = true;
+	res &= AddOrSetWriteDescriptorBuffer( 0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());	// camera
+	res &= AddOrSetWriteDescriptorBuffer( 1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);						// ubo frag
+	res &= AddOrSetWriteDescriptorImage( 2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);						// Pos
+	res &= AddOrSetWriteDescriptorImage( 3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);						// LongLat
+	res &= AddOrSetWriteDescriptorImage( 4U, vk::DescriptorType::eCombinedImageSampler, &m_ImageCubeInfos[0]);					// CubeMap
+	return res;
 }
 
 std::string Refraction_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName)

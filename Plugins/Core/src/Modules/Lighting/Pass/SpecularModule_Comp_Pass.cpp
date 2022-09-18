@@ -33,8 +33,6 @@ limitations under the License.
 
 using namespace vkApi;
 
-
-
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -188,42 +186,28 @@ bool SpecularModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_LayoutBindings.clear();
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(4U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(5U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
-
-	return true;
+	bool res = true;
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+	return res;
 }
 
 bool SpecularModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
-
-	assert(m_ComputeBufferPtr);
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage,
-		m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U), nullptr); // output
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, 
-		nullptr, CommonSystem::Instance()->GetBufferInfo()); // output
-	
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
-		nullptr, m_SceneLightGroupDescriptorInfoPtr);
-
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1, vk::DescriptorType::eUniformBuffer,
-		nullptr, &m_UBO_Comp_BufferInfo); // output
-
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 4U, 0, 1, vk::DescriptorType::eCombinedImageSampler,
-		&m_ImageInfos[0], nullptr); // pos
-
-	m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 5U, 0, 1, vk::DescriptorType::eCombinedImageSampler,
-		&m_ImageInfos[1], nullptr); // nor
-
-	return true;
+	bool res = true;
+	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage,	m_ComputeBufferPtr->GetBackDescriptorImageInfo(0U)); // output
+	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // output
+	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
+	res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfo); // output
+	res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler,	&m_ImageInfos[0]); // pos
+	res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler,	&m_ImageInfos[1]); // nor
+	return res;
 }
 
 std::string SpecularModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)

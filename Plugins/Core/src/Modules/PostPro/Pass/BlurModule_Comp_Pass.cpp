@@ -326,19 +326,21 @@ bool BlurModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 
 	if (m_ComputeBufferPtr)
 	{
-		m_DescriptorSets[0].m_LayoutBindings.clear();
-		m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
-		m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-		m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
-		m_DescriptorSets[0].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+		bool res = true;
 
-		m_DescriptorSets[1].m_LayoutBindings.clear();
-		m_DescriptorSets[1].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
-		m_DescriptorSets[1].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-		m_DescriptorSets[1].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
-		m_DescriptorSets[1].m_LayoutBindings.emplace_back(3U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
+		// blur H
+		res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 0U);
+		res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1U, 0U);
+		res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 0U);
+		res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1U, 0U);
 
-		return true;
+		// blur V
+		res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 1U);
+		res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute, 1U, 1U);
+		res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 1U);
+		res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute, 1U, 1U);
+
+		return res;
 	}
 
 	return false;
@@ -350,29 +352,21 @@ bool BlurModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	if (m_ComputeBufferPtr)
 	{
+		bool res = true;
+		
 		// blur H
-		m_DescriptorSets[0].m_WriteDescriptorSets.clear();
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1,
-			vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), nullptr); // output
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1,
-			vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1,
-			vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], nullptr); // image to blur
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 3U, 0, 1,
-			vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_GaussianWeightsBufferInfo); // gaussian weights
+		res &= AddOrSetWriteDescriptorImage( 0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 0U); // output
+		res &= AddOrSetWriteDescriptorBuffer( 1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Comp, 1U, 0U);
+		res &= AddOrSetWriteDescriptorImage( 2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, 0U); // image to blur
+		res &= AddOrSetWriteDescriptorBuffer( 3U, vk::DescriptorType::eStorageBuffer, &m_SBO_GaussianWeightsBufferInfo, 1U, 0U); // gaussian weights
 
 		// blur V
-		m_DescriptorSets[1].m_WriteDescriptorSets.clear();
-		m_DescriptorSets[1].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[1].m_DescriptorSet, 0U, 0, 1,
-			vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
-		m_DescriptorSets[1].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[1].m_DescriptorSet, 1U, 0, 1,
-			vk::DescriptorType::eUniformBuffer, nullptr, &m_DescriptorBufferInfo_Comp);
-		m_DescriptorSets[1].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[1].m_DescriptorSet, 2U, 0, 1,
-			vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), nullptr); // image to blur
-		m_DescriptorSets[1].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[1].m_DescriptorSet, 3U, 0, 1,
-			vk::DescriptorType::eStorageBuffer, nullptr, &m_SBO_GaussianWeightsBufferInfo); // gaussian weights
+		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 1U); // output
+		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Comp, 1U, 1U);
+		res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 1U); // image to blur
+		res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, &m_SBO_GaussianWeightsBufferInfo, 1U, 1U); // gaussian weights
 
-		return true;
+		return res;
 	}
 
 	return false;

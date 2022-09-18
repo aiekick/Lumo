@@ -213,12 +213,11 @@ bool VignetteModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_LayoutBindings.clear();
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageImage, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eUniformBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eCombinedImageSampler, 1, vk::ShaderStageFlagBits::eCompute);
-
-	return true;
+	bool res = true;
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+	return res;
 }
 
 bool VignetteModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
@@ -227,15 +226,11 @@ bool VignetteModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	if (m_ComputeBufferPtr)
 	{
-		m_DescriptorSets[0].m_WriteDescriptorSets.clear();
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-			m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), nullptr); // output
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-			m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eUniformBuffer, nullptr, &m_UBO_1_Comp_BufferInfos);
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(
-			m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);
-
-		return true;
+		bool res = true;
+		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
+		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_1_Comp_BufferInfos);
+		res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);
+		return res;
 	}
 
 	return false;

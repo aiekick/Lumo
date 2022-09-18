@@ -32,8 +32,6 @@ limitations under the License.
 
 using namespace vkApi;
 
-
-
 //////////////////////////////////////////////////////////////
 //// SSAO FIRST PASS : AO ////////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -210,47 +208,40 @@ bool SmoothNormalModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_LayoutBindings.clear();
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(0U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(1U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-	m_DescriptorSets[0].m_LayoutBindings.emplace_back(2U, vk::DescriptorType::eStorageBuffer, 1, vk::ShaderStageFlagBits::eCompute);
-
-	return true;
+	bool res = true;
+	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
+	return res;
 }
 
 bool SmoothNormalModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
-	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
+	bool res = true;
 
 	auto outputMeshPtr = m_InputMesh.getValidShared();
 	if (outputMeshPtr && outputMeshPtr->GetVerticesBufferInfo()->range > 0U)
 	{
 		// VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, outputMeshPtr->GetVerticesBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, outputMeshPtr->GetVerticesBufferInfo());
 		// VertexStruct::I1
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, outputMeshPtr->GetIndicesBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, outputMeshPtr->GetIndicesBufferInfo());
 		// Normals
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, &m_SBO_Normals_Compute_Helper_BufferInfos);
+		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, &m_SBO_Normals_Compute_Helper_BufferInfos);
 	}
 	else
 	{
 		// empty version, almost empty because his size is thr size of 1 VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 		// empty version, almost empty because his size is thr size of 1 VertexStruct::I1
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 1U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 		// empty version, almost empty because his size is thr size of 1 uvec3
-		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 2U, 0, 1, vk::DescriptorType::eStorageBuffer,
-			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 	}
 
-	return true;
+	return res;
 }
 
 std::string SmoothNormalModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
