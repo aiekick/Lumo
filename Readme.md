@@ -277,7 +277,7 @@ My MeshSim plugin, with a basic deferred renderrer, one light shadow + ssao
 - [Freetype2](https://github.com/freetype/freetype2.git) (Freetype)
 - [ImGuiColorTextEdit](https://github.com/BalazsJako/ImGuiColorTextEdit) (MIT)
 - [LodePng](https://github.com/lvandeve/lodepng.git) (Zlib)
-- [VulkanHPP](https://github.com/KhronosGroup/Vulkan-Hpp.git) (Apache 2-0)
+- [VulkanHPP](https://github.com/KhronosGroup/Vulkan-Hpp.git) (Apache 2.0)
 - [ImGuiMarkDown](https://github.com/juliettef/imgui_markdown) (Zlib)
 - [AlphaNum](http://davekoelle.com/alphanum.html) (MIT) [github mirror](https://github.com/aiekick/alphanum.git)
 - [Cpp_Ipc](https://github.com/mutouyun/cpp-ipc) (MIT)
