@@ -131,9 +131,9 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :white_square_button: | Assets / Cube Map Node  | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Differential Operators / Divergence Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Differential Operators / Gradient Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Differential Operators / Rotational Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Differential Operators / Divergence Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Differential Operators / Gradient Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Differential Operators / Curl Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Exporters / Export Texture to file Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Cube Map to files Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/0) |
