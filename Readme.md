@@ -80,7 +80,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :black_square_button: | Sub Node Graph | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Instancing | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | SkyBox (Cubemap, LongLat) | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Cell Shading | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Cell Shading | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | PBR Shading | ![img](https://progress-bar.dev/20) |
 | :white_square_button: | Shadow Mapping | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Deferred Rendering | ![img](https://progress-bar.dev/100) |
