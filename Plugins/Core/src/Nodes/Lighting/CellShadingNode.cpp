@@ -14,16 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "DiffuseNode.h"
-#include <Modules/Lighting/DiffuseModule.h>
+#include "CellShadingNode.h"
+#include <Modules/Lighting/CellShadingModule.h>
 #include <Interfaces/LightGroupOutputInterface.h>
 #include <Graph/Slots/NodeSlotLightGroupInput.h>
 #include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<DiffuseNode> DiffuseNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<CellShadingNode> CellShadingNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<DiffuseNode>();
+	auto res = std::make_shared<CellShadingNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -32,19 +32,19 @@ std::shared_ptr<DiffuseNode> DiffuseNode::Create(vkApi::VulkanCorePtr vVulkanCor
 	return res;
 }
 
-DiffuseNode::DiffuseNode() : BaseNode()
+CellShadingNode::CellShadingNode() : BaseNode()
 {
-	m_NodeTypeString = "DIFFUSE";
+	m_NodeTypeString = "CELL_SHADING";
 }
 
-DiffuseNode::~DiffuseNode()
+CellShadingNode::~CellShadingNode()
 {
 	Unit();
 }
 
-bool DiffuseNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool CellShadingNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Diffuse";
+	name = "CellShading";
 
 	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
 	AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false); 
@@ -54,8 +54,8 @@ bool DiffuseNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_DiffuseModulePtr = DiffuseModule::Create(vVulkanCorePtr);
-	if (m_DiffuseModulePtr)
+	m_CellShadingModulePtr = CellShadingModule::Create(vVulkanCorePtr);
+	if (m_CellShadingModulePtr)
 	{
 		res = true;
 	}
@@ -63,44 +63,44 @@ bool DiffuseNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-bool DiffuseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool CellShadingNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
-	if (m_DiffuseModulePtr)
+	if (m_CellShadingModulePtr)
 	{
-		return m_DiffuseModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		return m_CellShadingModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return false;
 }
 
-bool DiffuseNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CellShadingNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_DiffuseModulePtr)
+	if (m_CellShadingModulePtr)
 	{
-		return m_DiffuseModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_CellShadingModulePtr->DrawWidgets(vCurrentFrame, vContext);
 	}
 
 	return false;
 }
 
-void DiffuseNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void CellShadingNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_DiffuseModulePtr)
+	if (m_CellShadingModulePtr)
 	{
-		m_DiffuseModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		m_CellShadingModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
 	}
 }
 
-void DiffuseNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void CellShadingNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
@@ -117,40 +117,40 @@ void DiffuseNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void DiffuseNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void CellShadingNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	if (m_DiffuseModulePtr)
+	if (m_CellShadingModulePtr)
 	{
-		m_DiffuseModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+		m_CellShadingModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void DiffuseNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void CellShadingNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	if (m_DiffuseModulePtr)
+	if (m_CellShadingModulePtr)
 	{
-		m_DiffuseModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_CellShadingModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* DiffuseNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* CellShadingNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_DiffuseModulePtr)
+	if (m_CellShadingModulePtr)
 	{
-		return m_DiffuseModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_CellShadingModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
 }
 
-void DiffuseNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void CellShadingNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
-	if (m_DiffuseModulePtr)
+	if (m_CellShadingModulePtr)
 	{
-		return m_DiffuseModulePtr->SetLightGroup(vSceneLightGroup);
+		return m_CellShadingModulePtr->SetLightGroup(vSceneLightGroup);
 	}
 }
 
@@ -158,7 +158,7 @@ void DiffuseNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string DiffuseNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string CellShadingNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -184,9 +184,9 @@ std::string DiffuseNode::getXml(const std::string& vOffset, const std::string& v
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_DiffuseModulePtr)
+		if (m_CellShadingModulePtr)
 		{
-			res += m_DiffuseModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_CellShadingModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -195,7 +195,7 @@ std::string DiffuseNode::getXml(const std::string& vOffset, const std::string& v
 	return res;
 }
 
-bool DiffuseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool CellShadingNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -210,18 +210,18 @@ bool DiffuseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_DiffuseModulePtr)
+	if (m_CellShadingModulePtr)
 	{
-		m_DiffuseModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_CellShadingModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
 }
 
-void DiffuseNode::UpdateShaders(const std::set<std::string>& vFiles)
+void CellShadingNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
-	if (m_DiffuseModulePtr)
+	if (m_CellShadingModulePtr)
 	{
-		m_DiffuseModulePtr->UpdateShaders(vFiles);
+		m_CellShadingModulePtr->UpdateShaders(vFiles);
 	}
 }

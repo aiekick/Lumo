@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "DiffuseModule_Comp_Pass.h"
+#include "CellShadingModule_Comp_Pass.h"
 
 #include <functional>
 #include <Gui/MainFrame.h>
@@ -37,20 +37,20 @@ using namespace vkApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DiffuseModule_Comp_Pass::DiffuseModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+CellShadingModule_Comp_Pass::CellShadingModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
-	SetRenderDocDebugName("Comp Pass : Diffuse", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Comp Pass : Cell Shading", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
 	m_DontUseShaderFilesOnDisk = true;
 }
 
-DiffuseModule_Comp_Pass::~DiffuseModule_Comp_Pass()
+CellShadingModule_Comp_Pass::~CellShadingModule_Comp_Pass()
 {
 	Unit();
 }
 
-void DiffuseModule_Comp_Pass::ActionBeforeInit()
+void CellShadingModule_Comp_Pass::ActionBeforeInit()
 {
 	ZoneScoped;
 
@@ -60,27 +60,36 @@ void DiffuseModule_Comp_Pass::ActionBeforeInit()
 	}
 }
 
-bool DiffuseModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CellShadingModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	return false;
+	bool change = false;
+
+	change |= ImGui::SliderUIntDefaultCompact(0.0f, "Count_Step", &m_UBO_Comp.u_Count_Step, 1U, 128U, 4U);
+
+	if (change)
+	{
+		NeedNewUBOUpload();
+	}
+
+	return change;
 }
 
-void DiffuseModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void CellShadingModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 }
 
-void DiffuseModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void CellShadingModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 }
 
-void DiffuseModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void CellShadingModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
@@ -117,7 +126,7 @@ void DiffuseModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::Descripto
 	}
 }
 
-vk::DescriptorImageInfo* DiffuseModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* CellShadingModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_ComputeBufferPtr)
 	{
@@ -132,7 +141,7 @@ vk::DescriptorImageInfo* DiffuseModule_Comp_Pass::GetDescriptorImageInfo(const u
 	return nullptr;
 }
 
-void DiffuseModule_Comp_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void CellShadingModule_Comp_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {
 	m_SceneLightGroup = vSceneLightGroup;
 
@@ -148,7 +157,7 @@ void DiffuseModule_Comp_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup
 	UpdateBufferInfoInRessourceDescriptor();
 }
 
-void DiffuseModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void CellShadingModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	if (vCmdBuffer)
 	{
@@ -159,7 +168,7 @@ void DiffuseModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& 
 	}
 }
 
-bool DiffuseModule_Comp_Pass::CreateUBO()
+bool CellShadingModule_Comp_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -177,14 +186,14 @@ bool DiffuseModule_Comp_Pass::CreateUBO()
 	return true;
 }
 
-void DiffuseModule_Comp_Pass::UploadUBO()
+void CellShadingModule_Comp_Pass::UploadUBO()
 {
 	ZoneScoped;
 
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
 }
 
-void DiffuseModule_Comp_Pass::DestroyUBO()
+void CellShadingModule_Comp_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -192,7 +201,7 @@ void DiffuseModule_Comp_Pass::DestroyUBO()
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool DiffuseModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool CellShadingModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -206,7 +215,7 @@ bool DiffuseModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	return res;
 }
 
-bool DiffuseModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool CellShadingModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -219,9 +228,10 @@ bool DiffuseModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 	res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]); // tint
 	return res;
 }
-std::string DiffuseModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
+
+std::string CellShadingModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "DiffuseModule_Comp_Pass";
+	vOutShaderName = "CellShadingModule_Comp_Pass";
 
 	SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
 
@@ -239,6 +249,7 @@ SceneLightGroup::GetBufferObjectStructureHeader(1U)
 u8R"(
 layout(std140, binding = 2) uniform UBO_Comp
 {
+	uint u_count_step;
 	float u_use_pos_map;
 	float u_use_nor_map;
 	float u_use_tint_map;
@@ -262,11 +273,15 @@ vec4 getLightGroup(uint id, ivec2 coords, vec3 pos)
 		if (lightDatas[id].is_inside > 0.5) // inside mesh
 			normal *= - 1.0;
 		vec3 light_dir = normalize(light_pos - pos);
+		float angle = clamp(dot(normal, light_dir), 0.0, 1.0);
+
+		const float f_u_count_step = float(u_count_step);
+		angle = floor(angle * f_u_count_step) / f_u_count_step;
 
 		if (u_use_tint_map > 0.5)
 			diff = texture(tint_map_sampler, vec2(0.5)); // tint
 
-		diff *= min(max(dot(normal, light_dir), 0.0) * light_intensity, 1.0) * light_col;
+		diff *= light_col * light_intensity * angle;
 	}
 
 	return diff;
@@ -297,7 +312,7 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string DiffuseModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string CellShadingModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -305,12 +320,12 @@ std::string DiffuseModule_Comp_Pass::getXml(const std::string& vOffset, const st
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	/*str += vOffset + "<count_step>" + ct::toStr(m_UBO_Comp.u_Count_Step) + "</count_step>\n";*/
+	str += vOffset + "<count_step>" + ct::toStr(m_UBO_Comp.u_Count_Step) + "</count_step>\n";
 
 	return str;
 }
 
-bool DiffuseModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool CellShadingModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -329,14 +344,14 @@ bool DiffuseModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 
 	if (strParentName == "cell_shading_module")
 	{
-		/*if (strName == "count_step")
-			m_UBO_Comp.u_Count_Step = ct::uvariant(strValue).GetU();*/
+		if (strName == "count_step")
+			m_UBO_Comp.u_Count_Step = ct::uvariant(strValue).GetU();
 	}
 
 	return true;
 }
 
-void DiffuseModule_Comp_Pass::AfterNodeXmlLoading()
+void CellShadingModule_Comp_Pass::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 

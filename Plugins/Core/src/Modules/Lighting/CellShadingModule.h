@@ -27,7 +27,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <Base/BaseRenderer.h>
-#include <Base/ShaderPass.h>
+#include <Base/QuadShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
@@ -40,51 +40,45 @@ limitations under the License.
 #include <vkFramework/VulkanFrameBuffer.h>
 
 #include <Interfaces/GuiInterface.h>
-#include <Interfaces/NodeInterface.h>
+#include <Interfaces/TaskInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/ResizerInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 
-class DiffuseModule_Comp_Pass :
-	public ShaderPass,
+
+
+class CellShadingModule_Comp_Pass;
+class CellShadingModule :
+	public BaseRenderer,
 	public GuiInterface,
-	public NodeInterface,
+	public TaskInterface,
+	public TextureInputInterface<2U>,
+	public TextureOutputInterface,
 	public LightGroupInputInterface,
-	public TextureInputInterface<3U>,
-	public TextureOutputInterface
+	public ResizerInterface
 {
+public:
+	static std::shared_ptr<CellShadingModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+
 private:
-	struct UBO_Comp {
-		alignas(4) float u_use_pos_map = 0.0f;
-		alignas(4) float u_use_nor_map = 0.0f;
-		alignas(4) float u_use_tint_map = 0.0f;
-	} m_UBO_Comp;
-	VulkanBufferObjectPtr m_UBO_Comp_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+	ct::cWeak<CellShadingModule> m_This;
+	std::shared_ptr<CellShadingModule_Comp_Pass> m_CellShadingModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	DiffuseModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~DiffuseModule_Comp_Pass() override;
+	CellShadingModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~CellShadingModule() override;
 
-	void ActionBeforeInit();
-	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	bool Init();
+
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
-
-protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
-
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
-
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

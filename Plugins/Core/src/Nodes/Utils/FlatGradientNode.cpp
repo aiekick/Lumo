@@ -68,7 +68,7 @@ bool FlatGradientNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Flat Gradient";
 	AddInput(NodeSlotTextureInput::Create("Start", 0), false, false);
 	AddInput(NodeSlotTextureInput::Create("End", 1), false, false);
-	AddInput(NodeSlotVariableInput::Create("Count", "WIDGET_UINT", 0), false, false);
+	//AddInput(NodeSlotVariableInput::Create("Count", "WIDGET_UINT", 0), false, false);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 

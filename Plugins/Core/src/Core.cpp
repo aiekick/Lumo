@@ -28,6 +28,7 @@
 #include <Nodes/Lighting/Normal2DNode.h>
 #include <Nodes/Lighting/ReflectionNode.h>
 #include <Nodes/Lighting/RefractionNode.h>
+#include <Nodes/Lighting/CellShadingNode.h>
 
 #include <Nodes/Modifiers/SmoothNormalNode.h>
 
@@ -173,6 +174,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Refraction", "REFRACTION"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Specular", "SPECULAR"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "SSAO", "SSAO"));
+	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Cell Shading", "CELL_SHADING"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Modifiers", "Smooth Normals", "SMOOTH_NORMAL"));
 
@@ -231,7 +233,8 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "REFRACTION")					return RefractionNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "SPECULAR")						return SpecularNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "SSAO")							return SSAONode::Create(vkCorePtr);
-
+	else if (vPluginNodeName == "CELL_SHADING")					return CellShadingNode::Create(vkCorePtr);
+	
 	// Modifiers
 	else if (vPluginNodeName == "SMOOTH_NORMAL")				return SmoothNormalNode::Create(vkCorePtr);
 

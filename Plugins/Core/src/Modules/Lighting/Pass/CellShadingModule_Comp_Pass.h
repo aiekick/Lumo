@@ -39,22 +39,23 @@ limitations under the License.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 
-#include <Interfaces/GuiInterface.h>
 #include <Interfaces/NodeInterface.h>
+#include <Interfaces/GuiInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
 
-class DiffuseModule_Comp_Pass :
+class CellShadingModule_Comp_Pass :
 	public ShaderPass,
-	public GuiInterface,
 	public NodeInterface,
+	public GuiInterface,
 	public LightGroupInputInterface,
 	public TextureInputInterface<3U>,
 	public TextureOutputInterface
 {
 private:
 	struct UBO_Comp {
+		alignas(4) uint32_t u_Count_Step = 128U;
 		alignas(4) float u_use_pos_map = 0.0f;
 		alignas(4) float u_use_nor_map = 0.0f;
 		alignas(4) float u_use_tint_map = 0.0f;
@@ -63,10 +64,10 @@ private:
 	vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
 public:
-	DiffuseModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	~DiffuseModule_Comp_Pass() override;
+	CellShadingModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	~CellShadingModule_Comp_Pass() override;
 
-	void ActionBeforeInit();
+	void ActionBeforeInit() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;

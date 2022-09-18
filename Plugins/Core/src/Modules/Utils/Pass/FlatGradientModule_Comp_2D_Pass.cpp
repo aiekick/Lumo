@@ -198,7 +198,6 @@ void FlatGradientModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, con
 	}
 }
 
-
 bool FlatGradientModule_Comp_2D_Pass::CreateUBO()
 {
 	ZoneScoped;
