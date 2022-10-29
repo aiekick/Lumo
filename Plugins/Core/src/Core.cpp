@@ -55,6 +55,7 @@
 #include <Nodes/Renderers/ModelRendererNode.h>
 
 #include <Nodes/Simulation/GrayScottNode.h>
+#include <Nodes/Simulation/ConwayNode.h>
 
 #include <Nodes/Utils/MathNode.h>
 #include <Nodes/Utils/DepthToPosNode.h>
@@ -200,6 +201,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Model", "MODEL_RENDERER"));
 
 	res.push_back(AddLibraryEntry("Core/2D/Simulation", "GrayScott", "2D_SIMULATION_GRAY_SCOTT"));
+	res.push_back(AddLibraryEntry("Core/2D/Simulation", "Conway", "2D_SIMULATION_CONWAY"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Utils", "3D Model Attributes", "MESH_ATTRIBUTES"));
 	res.push_back(AddLibraryEntry("Core/3D/Utils", "Depth to Pos", "DEPTH_TO_POS"));
@@ -233,6 +235,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 
 	// Misc
 	else if (vPluginNodeName == "GRID_AXIS")					return GridNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "2D_LAYERING")					return Layering2DNode::Create(vkCorePtr);
 
 	// Lighting
 	else if (vPluginNodeName == "LIGHT_GROUP")					return LightGroupNode::Create(vkCorePtr);
@@ -269,7 +272,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 
 	// Simulations
 	else if (vPluginNodeName == "2D_SIMULATION_GRAY_SCOTT")		return GrayScottNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "2D_LAYERING")					return Layering2DNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "2D_SIMULATION_CONWAY")			return ConwayNode::Create(vkCorePtr);
 
 	// Utils
 	else if (vPluginNodeName == "DEPTH_TO_POS")					return DepthToPosNode::Create(vkCorePtr);

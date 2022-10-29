@@ -90,6 +90,7 @@ bool BloomNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer*
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
+
 	if (m_BloomModulePtr)
 	{
 		res = m_BloomModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
@@ -97,6 +98,7 @@ bool BloomNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer*
 
 	return res;
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////

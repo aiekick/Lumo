@@ -170,6 +170,7 @@ protected:
 
 	vk::PushConstantRange m_Internal_PushConstants;
 
+	std::string m_HeaderCode;
 	std::string m_VertexCode;
 	std::string m_FragmentCode;
 	std::string m_GeometryCode;
@@ -367,6 +368,7 @@ public:
 
 	void NeedToClearFBOThisFrame();
 
+	void SetHeaderCode(const std::string& vHeaderCode);
 	void SetVertexShaderCode(const std::string& vShaderCode);
 	void SetFragmentShaderCode(const std::string& vShaderCode);
 	void SetGeometryShaderCode(const std::string& vShaderCode);

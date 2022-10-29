@@ -2088,6 +2088,11 @@ void ShaderPass::UpdateShaders(const std::set<std::string>& vFiles)
 //// SHADER CODE ////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+void ShaderPass::SetHeaderCode(const std::string& vHeaderCode)
+{
+	m_HeaderCode = vHeaderCode;
+}
+
 void ShaderPass::SetVertexShaderCode(const std::string& vShaderCode)
 {
 	m_VertexCode = vShaderCode;
@@ -2095,52 +2100,52 @@ void ShaderPass::SetVertexShaderCode(const std::string& vShaderCode)
 
 void ShaderPass::SetFragmentShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_FragmentCode = vShaderCode;
 }
 
 void ShaderPass::SetGeometryShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_GeometryCode = vShaderCode;
 }
 
 void ShaderPass::SetTesselationEvaluationShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_TesselationEvaluationCode = vShaderCode;
 }
 
 void ShaderPass::SetTesselationControlShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_TesselationControlCode = vShaderCode;
 }
 
 void ShaderPass::SetComputeShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_ComputeCode = vShaderCode;
 }
 
 void ShaderPass::SetRayGenerationShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_RayGenerationCode = vShaderCode;
 }
 
 void ShaderPass::SetRayIntersectionShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_RayIntersectionCode = vShaderCode;
 }
 
 void ShaderPass::SetRayMissShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_RayMissCode = vShaderCode;
 }
 
 void ShaderPass::SetRayAnyHitShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_RayAnyHitCode = vShaderCode;
 }
 
 void ShaderPass::SetRayClosestHitShaderCode(const std::string& vShaderCode)
 {
-	m_VertexCode = vShaderCode;
+	m_RayClosestHitCode = vShaderCode;
 }
 
 /////////////////////////////////////////////////////////////////////

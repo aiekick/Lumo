@@ -81,7 +81,7 @@ bool LaplacianModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, Im
 		{
 			change |= ImGui::ContrastedComboVectorDefault(0.0f, "Method", &m_UBOComp.method, m_MethodNames, 0);
 			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Corner", &m_UBOComp.u_lap_corner, 0.0f, 1.0f, 0.2f);
-			change |= ImGui::SliderIntDefaultCompact(0.0f, "Offset", &m_UBOComp.u_lap_offset, 0.0f, 10.0f, 1.0f);
+			change |= ImGui::SliderIntDefaultCompact(0.0f, "Offset", &m_UBOComp.u_lap_offset, 0, 10, 1);
 			change |= ImGui::CheckBoxFloatDefault("Discard Zero values", &m_UBOComp.u_discard_zero, false);
 
 			if (change)

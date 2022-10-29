@@ -256,6 +256,8 @@ ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 			NodeSlot::sSlotGraphOutputMouseLeft.reset();
 			m_TextureOutputSlot.reset();
 			m_ImGuiTexture.ClearDescriptor();
+
+			LogVarError("Invalid Output Preview Slot");
 		}
 	}
 	else
