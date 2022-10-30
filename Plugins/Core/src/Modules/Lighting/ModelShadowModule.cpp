@@ -174,21 +174,21 @@ void ModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	}
 }
 
-void ModelShadowModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void ModelShadowModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_ModelShadowModule_Quad_Pass_Ptr)
 	{
-		return m_ModelShadowModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_ModelShadowModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
-void ModelShadowModule::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+void ModelShadowModule::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
 	if (m_ModelShadowModule_Quad_Pass_Ptr)
 	{
-		m_ModelShadowModule_Quad_Pass_Ptr->SetTextures(vBinding, vImageInfos, vOutSizes);
+		m_ModelShadowModule_Quad_Pass_Ptr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
 	}
 }
 

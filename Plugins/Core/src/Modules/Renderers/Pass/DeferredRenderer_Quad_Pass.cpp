@@ -82,33 +82,33 @@ void DeferredRenderer_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurren
 
 }
 
-void DeferredRenderer_Quad_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void DeferredRenderer_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_ImageInfos.size())
+		if (vBindingPoint < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_ImageInfos[vBinding] = *vImageInfo;
+				m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if ((&m_UBOFrag.use_sampler_position)[vBinding] < 1.0f)
+				if ((&m_UBOFrag.use_sampler_position)[vBindingPoint] < 1.0f)
 				{
-					(&m_UBOFrag.use_sampler_position)[vBinding] = 1.0f;
+					(&m_UBOFrag.use_sampler_position)[vBindingPoint] = 1.0f;
 					NeedNewUBOUpload();
 				}
 			}
 			else
 			{
-				if ((&m_UBOFrag.use_sampler_position)[vBinding] > 0.0f)
+				if ((&m_UBOFrag.use_sampler_position)[vBindingPoint] > 0.0f)
 				{
-					(&m_UBOFrag.use_sampler_position)[vBinding] = 0.0f;
+					(&m_UBOFrag.use_sampler_position)[vBindingPoint] = 0.0f;
 					NeedNewUBOUpload();
 				}
 				
-				m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}

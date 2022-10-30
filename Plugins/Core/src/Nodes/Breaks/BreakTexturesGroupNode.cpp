@@ -88,7 +88,7 @@ void BreakTexturesGroupNode::TreatNotification(const NotifyEvent& vEvent, const 
 }
 
 void BreakTexturesGroupNode::SetTextures(
-	const uint32_t& vBinding, 
+	const uint32_t& vBindingPoint, 
 	DescriptorImageInfoVector* vImageInfos, 
 	fvec2Vector* vOutSizes)
 {

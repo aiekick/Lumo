@@ -111,33 +111,33 @@ void PBRRenderer_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFram
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 }
 
-void PBRRenderer_Quad_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void PBRRenderer_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_ImageInfos.size())
+		if (vBindingPoint < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_ImageInfos[vBinding] = *vImageInfo;
+				m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if ((&m_UBOFrag.use_sampler_position)[vBinding] < 1.0f)
+				if ((&m_UBOFrag.use_sampler_position)[vBindingPoint] < 1.0f)
 				{
-					(&m_UBOFrag.use_sampler_position)[vBinding] = 1.0f;
+					(&m_UBOFrag.use_sampler_position)[vBindingPoint] = 1.0f;
 					NeedNewUBOUpload();
 				}
 			}
 			else
 			{
-				if ((&m_UBOFrag.use_sampler_position)[vBinding] > 0.0f)
+				if ((&m_UBOFrag.use_sampler_position)[vBindingPoint] > 0.0f)
 				{
-					(&m_UBOFrag.use_sampler_position)[vBinding] = 0.0f;
+					(&m_UBOFrag.use_sampler_position)[vBindingPoint] = 0.0f;
 					NeedNewUBOUpload();
 				}
 				
-				m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -158,13 +158,13 @@ vk::DescriptorImageInfo* PBRRenderer_Quad_Pass::GetDescriptorImageInfo(const uin
 	return nullptr;
 }
 
-void PBRRenderer_Quad_Pass::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+void PBRRenderer_Quad_Pass::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding == 0U)
+		if (vBindingPoint == 0U)
 		{
 			if (vImageInfos &&
 				vImageInfos->size() == m_ImageGroupInfos.size())

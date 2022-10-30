@@ -450,25 +450,25 @@ protected:
 	void ClearWriteDescriptors();
 	void ClearWriteDescriptors(const uint32_t& DescriptorSetIndex);
 	bool AddOrSetWriteDescriptorImage(
-		const uint32_t& vBinding, 
+		const uint32_t& vBindingPoint, 
 		const vk::DescriptorType& vType, 
 		const vk::DescriptorImageInfo* vImageInfo,
 		const uint32_t& vCount = 1U, 
 		const uint32_t& DescriptorSetIndex = 0U);
 	bool AddOrSetWriteDescriptorBuffer(
-		const uint32_t& vBinding, 
+		const uint32_t& vBindingPoint, 
 		const vk::DescriptorType& vType, 
 		const vk::DescriptorBufferInfo* vBufferInfo,
 		const uint32_t& vCount = 1U, 
 		const uint32_t& DescriptorSetIndex = 0U);
 	bool AddOrSetWriteDescriptorBufferView(
-		const uint32_t& vBinding, 
+		const uint32_t& vBindingPoint, 
 		const vk::DescriptorType& vType, 
 		const vk::BufferView* vBufferView,
 		const uint32_t& vCount = 1U, 
 		const uint32_t& DescriptorSetIndex = 0U);
 	bool AddOrSetWriteDescriptorNext(
-		const uint32_t& vBinding,
+		const uint32_t& vBindingPoint,
 		const vk::DescriptorType& vType,
 		const void* vNext,
 		const uint32_t& vCount = 1U,
@@ -476,7 +476,7 @@ protected:
 	void ClearLayoutDescriptors();
 	void ClearLayoutDescriptors(const uint32_t& DescriptorSetIndex);
 	bool AddOrSetLayoutDescriptor(
-		const uint32_t& vBinding,
+		const uint32_t& vBindingPoint,
 		const vk::DescriptorType& vType,
 		const vk::ShaderStageFlags& vStage,
 		const uint32_t& vCount = 1U,

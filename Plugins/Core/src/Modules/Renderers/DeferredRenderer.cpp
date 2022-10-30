@@ -149,11 +149,11 @@ void DeferredRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void DeferredRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void DeferredRenderer::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_DeferredRenderer_Quad_Pass_Ptr)
 	{
-		return m_DeferredRenderer_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_DeferredRenderer_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

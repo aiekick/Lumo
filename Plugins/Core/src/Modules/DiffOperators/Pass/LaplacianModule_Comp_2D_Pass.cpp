@@ -130,7 +130,7 @@ void LaplacianModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk:
 				{
 					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
-					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
+					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
 				}
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;

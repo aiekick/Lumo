@@ -146,11 +146,11 @@ void PBRRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* v
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void PBRRenderer::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void PBRRenderer::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_PBRRenderer_Quad_Pass_Ptr)
 	{
-		return m_PBRRenderer_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		return m_PBRRenderer_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -164,11 +164,11 @@ vk::DescriptorImageInfo* PBRRenderer::GetDescriptorImageInfo(const uint32_t& vBi
 	return nullptr;
 }
 
-void PBRRenderer::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+void PBRRenderer::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
 	if (m_PBRRenderer_Quad_Pass_Ptr)
 	{
-		m_PBRRenderer_Quad_Pass_Ptr->SetTextures(vBinding, vImageInfos, vOutSizes);
+		m_PBRRenderer_Quad_Pass_Ptr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
 	}
 }
 

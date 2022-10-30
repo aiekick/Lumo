@@ -128,11 +128,11 @@ void DiffuseNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* v
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void DiffuseNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void DiffuseNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_DiffuseModulePtr)
 	{
-		m_DiffuseModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_DiffuseModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

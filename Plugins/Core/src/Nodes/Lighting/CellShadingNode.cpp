@@ -128,11 +128,11 @@ void CellShadingNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void CellShadingNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void CellShadingNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_CellShadingModulePtr)
 	{
-		m_CellShadingModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_CellShadingModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

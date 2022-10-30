@@ -118,19 +118,19 @@ void ModelShadowNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	}
 }
 
-void ModelShadowNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void ModelShadowNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_ModelShadowModulePtr)
 	{
-		m_ModelShadowModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_ModelShadowModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
-void ModelShadowNode::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+void ModelShadowNode::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
 	if (m_ModelShadowModulePtr)
 	{
-		m_ModelShadowModulePtr->SetTextures(vBinding, vImageInfos, vOutSizes);
+		m_ModelShadowModulePtr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
 	}
 }
 

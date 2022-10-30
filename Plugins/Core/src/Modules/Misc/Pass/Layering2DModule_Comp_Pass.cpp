@@ -102,10 +102,10 @@ void Layering2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::D
 		{
 			if (vTextureSize)
 			{
-				m_ImageInfosSize[vBindingPoint] = *vTextureSize;
-
-				if (vBindingPoint == 0U)
+				if (vTextureSize)
 				{
+					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
 					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
 				}
 			}

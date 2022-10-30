@@ -80,38 +80,40 @@ void DiffuseModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFr
 	ImGui::SetCurrentContext(vContext);
 }
 
-void DiffuseModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void DiffuseModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_ImageInfos.size())
+		if (vBindingPoint < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
 				if (vTextureSize)
 				{
-					m_ImageInfosSize[vBinding] = *vTextureSize;
+					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
 				}
 
-				m_ImageInfos[vBinding] = *vImageInfo;
+				m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if ((&m_UBOComp.u_use_pos_map)[vBinding] < 1.0f)
+				if ((&m_UBOComp.u_use_pos_map)[vBindingPoint] < 1.0f)
 				{
-					(&m_UBOComp.u_use_pos_map)[vBinding] = 1.0f;
+					(&m_UBOComp.u_use_pos_map)[vBindingPoint] = 1.0f;
 					NeedNewUBOUpload();
 				}
 			}
 			else
 			{
-				if ((&m_UBOComp.u_use_pos_map)[vBinding] > 0.0f)
+				if ((&m_UBOComp.u_use_pos_map)[vBindingPoint] > 0.0f)
 				{
-					(&m_UBOComp.u_use_pos_map)[vBinding] = 0.0f;
+					(&m_UBOComp.u_use_pos_map)[vBindingPoint] = 0.0f;
 					NeedNewUBOUpload();
 				}
 
-				m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}

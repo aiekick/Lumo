@@ -124,11 +124,11 @@ void SSAONode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCou
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void SSAONode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void SSAONode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_SSAOModulePtr)
 	{
-		m_SSAOModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_SSAOModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

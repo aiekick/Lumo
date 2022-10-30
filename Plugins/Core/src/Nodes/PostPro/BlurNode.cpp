@@ -122,11 +122,11 @@ void BlurNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCou
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void BlurNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void BlurNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_BlurModulePtr)
 	{
-		m_BlurModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_BlurModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

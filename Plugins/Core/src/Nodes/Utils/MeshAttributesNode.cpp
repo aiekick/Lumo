@@ -144,11 +144,11 @@ void MeshAttributesNode::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-void MeshAttributesNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void MeshAttributesNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_MeshAttributesModulePtr)
 	{
-		m_MeshAttributesModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_MeshAttributesModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

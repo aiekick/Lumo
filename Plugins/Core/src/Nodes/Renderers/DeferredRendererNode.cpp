@@ -136,11 +136,11 @@ void DeferredRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const ui
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void DeferredRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void DeferredRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_DeferredRendererPtr)
 	{
-		m_DeferredRendererPtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_DeferredRendererPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

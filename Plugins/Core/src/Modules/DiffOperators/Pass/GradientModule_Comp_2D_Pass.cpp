@@ -107,10 +107,7 @@ void GradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::
 			{
 				m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
-				if (vBindingPoint == 0U)
-				{
-					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
-				}
+				NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
 			}
 
 			if (vImageInfo)

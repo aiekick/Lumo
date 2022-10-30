@@ -155,13 +155,13 @@ void DiffuseModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t*
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void DiffuseModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void DiffuseModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_DiffuseModule_Comp_Pass_Ptr)
 	{
-		m_DiffuseModule_Comp_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_DiffuseModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

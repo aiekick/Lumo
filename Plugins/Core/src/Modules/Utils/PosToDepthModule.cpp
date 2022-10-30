@@ -147,13 +147,13 @@ void PosToDepthModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void PosToDepthModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void PosToDepthModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_PosToDepthModule_Quad_Pass_Ptr)
 	{
-		m_PosToDepthModule_Quad_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_PosToDepthModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

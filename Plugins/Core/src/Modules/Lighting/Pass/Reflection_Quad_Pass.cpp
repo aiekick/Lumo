@@ -117,6 +117,8 @@ void Reflection_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 				if (vTextureSize)
 				{
 					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
 				}
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;

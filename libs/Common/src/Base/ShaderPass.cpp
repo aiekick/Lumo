@@ -1595,7 +1595,7 @@ void ShaderPass::ClearWriteDescriptors(const uint32_t& DescriptorSetIndex)
 }
 
 bool ShaderPass::AddOrSetWriteDescriptorImage(
-	const uint32_t& vBinding, 
+	const uint32_t& vBindingPoint, 
 	const vk::DescriptorType& vType, 
 	const vk::DescriptorImageInfo* vImageInfo,
 	const uint32_t& vCount, 
@@ -1609,7 +1609,7 @@ bool ShaderPass::AddOrSetWriteDescriptorImage(
 			uint32_t indexToUpdate = 0U;
 			for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets)
 			{
-				if (desc.dstBinding == vBinding)
+				if (desc.dstBinding == vBindingPoint)
 				{
 					_needUpdate = true;
 					break;
@@ -1621,13 +1621,13 @@ bool ShaderPass::AddOrSetWriteDescriptorImage(
 			if (_needUpdate)
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, vImageInfo);
 			}
 			else // add
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, vImageInfo);
 			}
 		}
@@ -1641,7 +1641,7 @@ bool ShaderPass::AddOrSetWriteDescriptorImage(
 }
 
 bool ShaderPass::AddOrSetWriteDescriptorBuffer(
-	const uint32_t& vBinding,
+	const uint32_t& vBindingPoint,
 	const vk::DescriptorType& vType,
 	const vk::DescriptorBufferInfo* vBufferInfo,
 	const uint32_t& vCount,
@@ -1653,7 +1653,7 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(
 		uint32_t indexToUpdate = 0U;
 		for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets)
 		{
-			if (desc.dstBinding == vBinding)
+			if (desc.dstBinding == vBindingPoint)
 			{
 				_needUpdate = true;
 				break;
@@ -1667,13 +1667,13 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(
 			if (vBufferInfo && vBufferInfo->buffer)
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, vBufferInfo);
 			}
 			else
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 			}
 		}
@@ -1682,13 +1682,13 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(
 			if (vBufferInfo && vBufferInfo->buffer)
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, vBufferInfo);
 			}
 			else
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
 			}
 		}
@@ -1702,7 +1702,7 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(
 }
 
 bool ShaderPass::AddOrSetWriteDescriptorBufferView(
-	const uint32_t& vBinding,
+	const uint32_t& vBindingPoint,
 	const vk::DescriptorType& vType,
 	const vk::BufferView* vBufferView,
 	const uint32_t& vCount,
@@ -1714,7 +1714,7 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(
 		uint32_t indexToUpdate = 0U;
 		for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets)
 		{
-			if (desc.dstBinding == vBinding)
+			if (desc.dstBinding == vBindingPoint)
 			{
 				_needUpdate = true;
 				break;
@@ -1728,13 +1728,13 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(
 			if (vBufferView)
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, nullptr, vBufferView);
 			}
 			else
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
 			}
 		}
@@ -1743,13 +1743,13 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(
 			if (vBufferView)
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, nullptr, vBufferView);
 			}
 			else
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
 			}
 		}
@@ -1763,7 +1763,7 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(
 }
 
 bool ShaderPass::AddOrSetWriteDescriptorNext(
-	const uint32_t& vBinding,
+	const uint32_t& vBindingPoint,
 	const vk::DescriptorType& vType,
 	const void* vNext,
 	const uint32_t& vCount,
@@ -1775,7 +1775,7 @@ bool ShaderPass::AddOrSetWriteDescriptorNext(
 		uint32_t indexToUpdate = 0U;
 		for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets)
 		{
-			if (desc.dstBinding == vBinding)
+			if (desc.dstBinding == vBindingPoint)
 			{
 				_needUpdate = true;
 				break;
@@ -1789,13 +1789,13 @@ bool ShaderPass::AddOrSetWriteDescriptorNext(
 			if (vNext)
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, nullptr, nullptr, vNext);
 			}
 			else
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, nullptr, nullptr, nullptr);
 
 				return false;
@@ -1806,13 +1806,13 @@ bool ShaderPass::AddOrSetWriteDescriptorNext(
 			if (vNext)
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, nullptr, nullptr, vNext);
 			}
 			else
 			{
 				m_DescriptorSets[DescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
-					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBinding, 0, vCount,
+					m_DescriptorSets[DescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount,
 					vType, nullptr, nullptr, nullptr, nullptr);
 
 				return false;
@@ -1869,7 +1869,7 @@ void ShaderPass::ClearLayoutDescriptors(const uint32_t& DescriptorSetIndex)
 }
 
 bool ShaderPass::AddOrSetLayoutDescriptor(
-	const uint32_t& vBinding,
+	const uint32_t& vBindingPoint,
 	const vk::DescriptorType& vType,
 	const vk::ShaderStageFlags& vStage,
 	const uint32_t& vCount,
@@ -1881,7 +1881,7 @@ bool ShaderPass::AddOrSetLayoutDescriptor(
 		uint32_t indexToUpdate = 0U;
 		for (const auto& desc : m_DescriptorSets[DescriptorSetIndex].m_LayoutBindings)
 		{
-			if (desc.binding == vBinding)
+			if (desc.binding == vBindingPoint)
 			{
 				_needUpdate = true;
 				break;
@@ -1893,12 +1893,12 @@ bool ShaderPass::AddOrSetLayoutDescriptor(
 		if (_needUpdate)
 		{
 			m_DescriptorSets[DescriptorSetIndex].m_LayoutBindings[indexToUpdate] =
-				vk::DescriptorSetLayoutBinding(vBinding, vType, vCount, vStage);
+				vk::DescriptorSetLayoutBinding(vBindingPoint, vType, vCount, vStage);
 		}
 		else // Add
 		{
 			m_DescriptorSets[DescriptorSetIndex].m_LayoutBindings.emplace_back(
-				vBinding, vType, vCount, vStage);
+				vBindingPoint, vType, vCount, vStage);
 		}
 
 		CheckLayoutBinding(DescriptorSetIndex);

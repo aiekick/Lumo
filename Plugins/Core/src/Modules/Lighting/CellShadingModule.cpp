@@ -155,13 +155,13 @@ void CellShadingModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint3
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void CellShadingModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void CellShadingModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_CellShadingModule_Comp_Pass_Ptr)
 	{
-		m_CellShadingModule_Comp_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_CellShadingModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

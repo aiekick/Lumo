@@ -138,11 +138,11 @@ void MatcapRendererNode::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-void MatcapRendererNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void MatcapRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_MatcapRenderer)
 	{
-		m_MatcapRenderer->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_MatcapRenderer->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

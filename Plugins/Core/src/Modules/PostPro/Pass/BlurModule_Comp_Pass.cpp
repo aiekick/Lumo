@@ -111,21 +111,28 @@ void BlurModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame
 
 }
 
-void BlurModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void BlurModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding < m_ImageInfos.size())
+		if (vBindingPoint < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
-				m_ImageInfos[vBinding] = *vImageInfo;
+				if (vTextureSize)
+				{
+					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
+				}
+
+				m_ImageInfos[vBindingPoint] = *vImageInfo;
 			}
 			else
 			{
-				m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}

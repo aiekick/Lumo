@@ -121,6 +121,8 @@ void FlatGradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, 
 				if (vTextureSize)
 				{
 					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
 				}
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;

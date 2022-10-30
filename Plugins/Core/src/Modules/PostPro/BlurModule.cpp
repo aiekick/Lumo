@@ -159,13 +159,13 @@ void BlurModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vC
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void BlurModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void BlurModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_BlurModule_Comp_Pass_Ptr)
 	{
-		m_BlurModule_Comp_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_BlurModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

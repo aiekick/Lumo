@@ -122,11 +122,11 @@ void PosToDepthNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void PosToDepthNode::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void PosToDepthNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	if (m_PosToDepthModulePtr)
 	{
-		m_PosToDepthModulePtr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_PosToDepthModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

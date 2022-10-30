@@ -164,13 +164,13 @@ void MeshAttributesModule::SetModel(SceneModelWeak vSceneModel)
 	}
 }
 
-void MeshAttributesModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void MeshAttributesModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_MeshAttributesModule_Mesh_Pass_Ptr)
 	{
-		m_MeshAttributesModule_Mesh_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_MeshAttributesModule_Mesh_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

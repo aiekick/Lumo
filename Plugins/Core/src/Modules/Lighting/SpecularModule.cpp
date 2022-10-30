@@ -159,13 +159,13 @@ void SpecularModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void SpecularModule::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void SpecularModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_SpecularModule_Comp_Pass_Ptr)
 	{
-		m_SpecularModule_Comp_Pass_Ptr->SetTexture(vBinding, vImageInfo, vTextureSize);
+		m_SpecularModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 

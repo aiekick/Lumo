@@ -96,35 +96,42 @@ void ModelShadowModule_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurre
 
 }
 
-void ModelShadowModule_Quad_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void ModelShadowModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding == 0U || vBinding == 1U)
+		if (vBindingPoint == 0U || vBindingPoint == 1U)
 		{
-			if (vBinding < m_ImageInfos.size())
+			if (vBindingPoint < m_ImageInfos.size())
 			{
 				if (vImageInfo)
 				{
-					m_ImageInfos[vBinding] = *vImageInfo;
-
-					if ((&m_UBOFrag.use_sampler_pos)[vBinding] < 1.0f)
+					if (vTextureSize)
 					{
-						(&m_UBOFrag.use_sampler_pos)[vBinding] = 1.0f;
+						m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+
+						NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
+					}
+
+					m_ImageInfos[vBindingPoint] = *vImageInfo;
+
+					if ((&m_UBOFrag.use_sampler_pos)[vBindingPoint] < 1.0f)
+					{
+						(&m_UBOFrag.use_sampler_pos)[vBindingPoint] = 1.0f;
 						NeedNewUBOUpload();
 					}
 				}
 				else
 				{
-					if ((&m_UBOFrag.use_sampler_pos)[vBinding] > 0.0f)
+					if ((&m_UBOFrag.use_sampler_pos)[vBindingPoint] > 0.0f)
 					{
-						(&m_UBOFrag.use_sampler_pos)[vBinding] = 0.0f;
+						(&m_UBOFrag.use_sampler_pos)[vBindingPoint] = 0.0f;
 						NeedNewUBOUpload();
 					}
 
-					m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+					m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 				}
 			}
 		}
@@ -148,13 +155,13 @@ vk::DescriptorImageInfo* ModelShadowModule_Quad_Pass::GetDescriptorImageInfo(con
 	return nullptr;
 }
 
-void ModelShadowModule_Quad_Pass::SetTextures(const uint32_t& vBinding, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+void ModelShadowModule_Quad_Pass::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBinding == 0U)
+		if (vBindingPoint == 0U)
 		{
 			if (vImageInfos &&
 				vImageInfos->size() == m_ImageGroupInfos.size())
