@@ -52,18 +52,29 @@ class BlurModule_Comp_Pass :
 	public TextureOutputInterface
 {
 private:
+	bool m_UseDistinctiveBlurRadiusVH = false;						// to save
+	struct UBOComp {
+		alignas(4) uint32_t u_blur_radius_H = 4; // default is 4	// to save
+		alignas(4) uint32_t u_blur_radius_V = 4; // default is 4	// to save
+	} m_UBOComp;
+
+	bool m_UseBlurV = true;											// to save
+	bool m_UseBlurH = true;											// to save
+
+	bool m_GaussianSigmAuto = true;									// to save
+	float m_GaussianSigma = 1.0f;									// to save
+
+	uint32_t m_BlurRadius = 4;										// temporary
+
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
 
-	struct UBOComp {
-		alignas(4) uint32_t u_blur_radius = 4; // default is 4
-	} m_UBOComp;
-
-	bool m_GaussianSigmAuto = true;
-	float m_GaussianSigma = 1.0f;
-	std::vector<float> m_GaussianWeights;
-	VulkanBufferObjectPtr m_SBO_GaussianWeights = nullptr;
-	vk::DescriptorBufferInfo m_SBO_GaussianWeightsBufferInfo = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+	struct GaussianKernel
+	{
+		std::vector<float> m_GaussianWeights;
+		VulkanBufferObjectPtr m_SBO_GaussianWeights = nullptr;
+		vk::DescriptorBufferInfo m_SBO_GaussianWeightsBufferInfo = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+	} m_Gaussian_V, m_Gaussian_H;
 
 public:
 	BlurModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -73,18 +84,21 @@ public:
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	void SwapMultiPassFrontBackDescriptors() override;
 	bool CanUpdateDescriptors() override;
 	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 	void AfterNodeXmlLoading() override;
 
-protected:
-	void ReComputeGaussianBlurWeights();
+private:
+	void ReComputeGaussianBlurWeights(GaussianKernel& vOutGaussian, const uint32_t& vRadius);
+	bool CreateSBO(GaussianKernel& vOutGaussian);
+	void UploadUBO(GaussianKernel& vOutGaussian);
+	void DestroyUBO(GaussianKernel& vOutGaussian);
 
+protected:
 	void Compute_Blur_H(vk::CommandBuffer* vCmdBuffer);
 	void Compute_Blur_V(vk::CommandBuffer* vCmdBuffer);
 

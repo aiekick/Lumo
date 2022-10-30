@@ -51,14 +51,19 @@ BlurModule_Comp_Pass::~BlurModule_Comp_Pass()
 
 void BlurModule_Comp_Pass::ActionBeforeInit()
 {
+	ZoneScoped;
+
 	m_Pipelines.resize(2U);
 	m_DescriptorSets.resize(2U);
 
-	ReComputeGaussianBlurWeights();
+	ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_blur_radius_H);
+	ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_blur_radius_V);
 }
 
 void BlurModule_Comp_Pass::ActionBeforeCompilation()
 {
+	ZoneScoped;
+
 	ClearShaderEntryPoints();
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "blur_H");
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "blur_V");
@@ -66,34 +71,84 @@ void BlurModule_Comp_Pass::ActionBeforeCompilation()
 
 bool BlurModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (ImGui::CollapsingHeader("Blur", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		bool change = false;
+		bool change_radius = false;
+		bool change_gaussian = false;
+		bool change_operations = false;
 
 		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_UBOComp.u_blur_radius, 1U, 32U, 4U);
-			change |= ImGui::CheckBoxBoolDefault("Guassian Sigma Auto", &m_GaussianSigmAuto, true);
+			if (ImGui::CheckBoxBoolDefault("Use Distinct Radius for H and V", &m_UseDistinctiveBlurRadiusVH, false))
+			{
+				if (m_UseDistinctiveBlurRadiusVH == false)
+				{
+					m_BlurRadius = (uint32_t)(((float)m_UBOComp.u_blur_radius_V + (float)m_UBOComp.u_blur_radius_H) * 0.5f);
+					m_UBOComp.u_blur_radius_H = m_BlurRadius;
+					m_UBOComp.u_blur_radius_V = m_BlurRadius;
+				}
+
+				change_radius = true;
+			}
+
+			if (m_UseDistinctiveBlurRadiusVH)
+			{
+				if (m_UseBlurH)
+				{
+					change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius H", &m_UBOComp.u_blur_radius_H, 1U, 32U, 4U);
+				}
+
+				if (m_UseBlurV)
+				{
+					change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius V", &m_UBOComp.u_blur_radius_V, 1U, 32U, 4U);
+				}
+			}
+			else
+			{
+				if (ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_BlurRadius, 1U, 32U, 4U))
+				{
+					m_UBOComp.u_blur_radius_H = m_BlurRadius;
+					m_UBOComp.u_blur_radius_V = m_BlurRadius;
+					change_radius = true;
+				}
+			}
+
+			change_gaussian |= ImGui::CheckBoxBoolDefault("Gaussian Sigma Auto", &m_GaussianSigmAuto, true);
 			if (!m_GaussianSigmAuto)
 			{
-				change |= ImGui::SliderFloatDefaultCompact(0.0f, "Gaussian Sigma", &m_GaussianSigma, 0.01f, 2.0f, 1.0f);
+				change_gaussian |= ImGui::SliderFloatDefaultCompact(0.0f, "Gaussian Sigma", &m_GaussianSigma, 0.01f, 2.0f, 1.0f);
 			}
-			if (change)
-			{
-				m_UBOComp.u_blur_radius = ct::maxi(m_UBOComp.u_blur_radius, 1U);
-				NeedNewUBOUpload();
 
-				m_GaussianSigma = ct::maxi(m_GaussianSigma, 0.01f);
-				ReComputeGaussianBlurWeights();
-			}
+			change_operations |= ImGui::CheckBoxBoolDefault("Use Horizontal Blur", &m_UseBlurH, true);
+			change_operations |= ImGui::CheckBoxBoolDefault("Use Vertical Blur", &m_UseBlurV, true);
 		}
 
 		DrawInputTexture(m_VulkanCorePtr, "Input", 0U, m_OutputRatio);
-		//DrawInputTexture(m_VulkanCorePtr, "Output Blur", 0U, m_OutputRatio);
 
-		return change;
+		if (change_radius)
+		{
+			m_UBOComp.u_blur_radius_H = ct::maxi(m_UBOComp.u_blur_radius_H, 1U);
+			m_UBOComp.u_blur_radius_V = ct::maxi(m_UBOComp.u_blur_radius_V, 1U);
+			NeedNewUBOUpload();
+		}
+
+		if (change_gaussian || change_radius)
+		{
+			m_GaussianSigma = ct::maxi(m_GaussianSigma, 0.01f);
+			ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_blur_radius_H);
+			ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_blur_radius_V);
+		}
+
+		if (change_operations)
+		{
+			UpdateBufferInfoInRessourceDescriptor();
+		}
+
+		return change_radius || change_gaussian || change_operations;
 	}
 
 	return false;
@@ -101,38 +156,41 @@ bool BlurModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 
 void BlurModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
 void BlurModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	ZoneScoped;
 
+	assert(vContext); ImGui::SetCurrentContext(vContext);
 }
 
-void BlurModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void BlurModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
 	if (m_Loaded)
 	{
-		if (vBindingPoint < m_ImageInfos.size())
+		if (vBinding < m_ImageInfos.size())
 		{
 			if (vImageInfo)
 			{
 				if (vTextureSize)
 				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+					m_ImageInfosSize[vBinding] = *vTextureSize;
 
 					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
 				}
 
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
+				m_ImageInfos[vBinding] = *vImageInfo;
 			}
 			else
 			{
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+				m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -140,6 +198,8 @@ void BlurModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 
 vk::DescriptorImageInfo* BlurModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
+	ZoneScoped;
+
 	if (m_ComputeBufferPtr)
 	{
 		if (vOutSize)
@@ -153,29 +213,29 @@ vk::DescriptorImageInfo* BlurModule_Comp_Pass::GetDescriptorImageInfo(const uint
 	return nullptr;
 }
 
-void BlurModule_Comp_Pass::SwapMultiPassFrontBackDescriptors()
-{
-	m_DescriptorSets[0].m_WriteDescriptorSets[0].pImageInfo = m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U); // output
-}
-
 bool BlurModule_Comp_Pass::CanUpdateDescriptors()
 {
+	ZoneScoped;
+
 	return (m_ComputeBufferPtr != nullptr);
 }
 
 void BlurModule_Comp_Pass::Compute_Blur_H(vk::CommandBuffer* vCmdBuffer)
 {
+	ZoneScoped;
+
 	if (vCmdBuffer)
 	{
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 		Dispatch(vCmdBuffer);
 	}
-
 }
 
 void BlurModule_Comp_Pass::Compute_Blur_V(vk::CommandBuffer* vCmdBuffer)
 {
+	ZoneScoped;
+
 	if (vCmdBuffer)
 	{
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[1].m_Pipeline);
@@ -186,30 +246,38 @@ void BlurModule_Comp_Pass::Compute_Blur_V(vk::CommandBuffer* vCmdBuffer)
 
 void BlurModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
+	ZoneScoped;
+
 	if (vCmdBuffer)
 	{
 #ifdef _MSC_VER
 #undef MemoryBarrier
 #endif
-		Compute_Blur_H(vCmdBuffer);
+		if (m_UseBlurH)
+		{
+			Compute_Blur_H(vCmdBuffer);
 
-		vCmdBuffer->pipelineBarrier(
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::DependencyFlags(),
-			vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead),
-			nullptr,
-			nullptr);
+			vCmdBuffer->pipelineBarrier(
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::DependencyFlags(),
+				vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead),
+				nullptr,
+				nullptr);
+		}
 
-		Compute_Blur_V(vCmdBuffer);
+		if (m_UseBlurV)
+		{
+			Compute_Blur_V(vCmdBuffer);
 
-		vCmdBuffer->pipelineBarrier(
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::DependencyFlags(),
-			vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead),
-			nullptr,
-			nullptr);
+			vCmdBuffer->pipelineBarrier(
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::PipelineStageFlagBits::eComputeShader,
+				vk::DependencyFlags(),
+				vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead),
+				nullptr,
+				nullptr);
+		}
 	}
 }
 
@@ -247,37 +315,37 @@ void BlurModule_Comp_Pass::DestroyUBO()
 	m_UBOCompPtr.reset();
 }
 
-void BlurModule_Comp_Pass::ReComputeGaussianBlurWeights()
+void BlurModule_Comp_Pass::ReComputeGaussianBlurWeights(GaussianKernel& vOutGaussian, const uint32_t& vRadius)
 {
 	// gauss curve : exp(-x²)
 	// integration of curve give sqrt(pi)
 	// exp(-x²/(2*sigma²)
 	// here we will compute weights value for X Samples from 0 to  
-	m_GaussianWeights.clear();
-	m_GaussianWeights.resize((size_t)m_UBOComp.u_blur_radius);
+	vOutGaussian.m_GaussianWeights.clear();
+	vOutGaussian.m_GaussianWeights.resize((size_t)vRadius);
 
 	float sig_inv, x_step, sum = 0.0f;
 	if (m_GaussianSigmAuto) // m_GaussianSigma and conpensated step for whole x range
 	{
 		sig_inv = -0.5f;
-		x_step = 4.0f / m_UBOComp.u_blur_radius;
+		x_step = 4.0f / vRadius;
 	}
 	else
 	{
 		sig_inv = -1.0f / (2.0f * m_GaussianSigma * m_GaussianSigma);
-		x_step = 4.0f / m_UBOComp.u_blur_radius;
+		x_step = 4.0f / vRadius;
 		//float x_step_auto = 4.0f * m_GaussianSigma  / m_UBOComp.u_blur_radius;
 	}
 	
-	for (uint32_t idx = 0U; idx < m_UBOComp.u_blur_radius; ++idx)
+	for (uint32_t idx = 0U; idx < vRadius; ++idx)
 	{
 		float x = (float)idx * x_step;
-		sum += m_GaussianWeights[idx] = std::exp(x * x * sig_inv);
+		sum += vOutGaussian.m_GaussianWeights[idx] = std::exp(x * x * sig_inv);
 	}
 
 	if (sum > 0.0f)
 	{
-		for (auto& weight : m_GaussianWeights)
+		for (auto& weight : vOutGaussian.m_GaussianWeights)
 		{
 			weight /= sum;
 		}
@@ -285,26 +353,55 @@ void BlurModule_Comp_Pass::ReComputeGaussianBlurWeights()
 
 	if (m_Loaded)
 	{
-		CreateSBO();
+		CreateSBO(vOutGaussian);
 	}
+}
+
+bool BlurModule_Comp_Pass::CreateSBO(GaussianKernel& vOutGaussian)
+{
+	ZoneScoped;
+
+	vOutGaussian.m_SBO_GaussianWeights.reset();
+	const auto sizeInBytes = sizeof(float) * vOutGaussian.m_GaussianWeights.size();
+	vOutGaussian.m_SBO_GaussianWeights = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
+	if (vOutGaussian.m_SBO_GaussianWeights && vOutGaussian.m_SBO_GaussianWeights->buffer)
+	{
+		vOutGaussian.m_SBO_GaussianWeightsBufferInfo = vk::DescriptorBufferInfo{vOutGaussian.m_SBO_GaussianWeights->buffer, 0, sizeInBytes};
+	}
+	else
+	{
+		vOutGaussian.m_SBO_GaussianWeightsBufferInfo = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+	}
+
+	NeedNewSBOUpload();
+
+	return true;
+}
+
+void BlurModule_Comp_Pass::UploadUBO(GaussianKernel& vOutGaussian)
+{
+	ZoneScoped;
+
+	if (vOutGaussian.m_SBO_GaussianWeights)
+	{
+		const auto sizeInBytes = sizeof(float) * vOutGaussian.m_GaussianWeights.size();
+		VulkanRessource::upload(m_VulkanCorePtr, vOutGaussian.m_SBO_GaussianWeights, vOutGaussian.m_GaussianWeights.data(), sizeInBytes);
+	}
+}
+
+void BlurModule_Comp_Pass::DestroyUBO(GaussianKernel& vOutGaussian)
+{
+	ZoneScoped;
+
+	vOutGaussian.m_SBO_GaussianWeights.reset();
 }
 
 bool BlurModule_Comp_Pass::CreateSBO()
 {
 	ZoneScoped;
 
-	m_SBO_GaussianWeights.reset();
-
-	const auto sizeInBytes = sizeof(float) * m_GaussianWeights.size();
-	m_SBO_GaussianWeights = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
-	if (m_SBO_GaussianWeights && m_SBO_GaussianWeights->buffer)
-	{
-		m_SBO_GaussianWeightsBufferInfo = vk::DescriptorBufferInfo{m_SBO_GaussianWeights->buffer, 0, sizeInBytes};
-	}
-	else
-	{
-		m_SBO_GaussianWeightsBufferInfo = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
-	}
+	CreateSBO(m_Gaussian_H);
+	CreateSBO(m_Gaussian_V);
 
 	NeedNewSBOUpload();
 
@@ -313,18 +410,18 @@ bool BlurModule_Comp_Pass::CreateSBO()
 
 void BlurModule_Comp_Pass::UploadSBO()
 {
-	if (m_SBO_GaussianWeights)
-	{
-		const auto sizeInBytes = sizeof(float) * m_GaussianWeights.size();
-		VulkanRessource::upload(m_VulkanCorePtr, m_SBO_GaussianWeights, m_GaussianWeights.data(), sizeInBytes);
-	}
+	ZoneScoped;
+
+	UploadUBO(m_Gaussian_H);
+	UploadUBO(m_Gaussian_V);
 }
 
 void BlurModule_Comp_Pass::DestroySBO()
 {
 	ZoneScoped;
 
-	m_SBO_GaussianWeights.reset();
+	DestroyUBO(m_Gaussian_H);
+	DestroyUBO(m_Gaussian_V);
 }
 
 bool BlurModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
@@ -359,20 +456,45 @@ bool BlurModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	if (m_ComputeBufferPtr)
 	{
+		//ClearWriteDescriptors();
+
 		bool res = true;
 		
 		// blur H
-		res &= AddOrSetWriteDescriptorImage( 0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 0U); // output
-		res &= AddOrSetWriteDescriptorBuffer( 1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Comp, 1U, 0U);
-		res &= AddOrSetWriteDescriptorImage( 2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, 0U); // image to blur
-		res &= AddOrSetWriteDescriptorBuffer( 3U, vk::DescriptorType::eStorageBuffer, &m_SBO_GaussianWeightsBufferInfo, 1U, 0U); // gaussian weights
+		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 0U); // output
+		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Comp, 1U, 0U);
+		res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, 0U); // image to blur
+		res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, &m_Gaussian_H.m_SBO_GaussianWeightsBufferInfo, 1U, 0U); // gaussian weights
 
 		// blur V
 		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 1U); // output
 		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Comp, 1U, 1U);
 		res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 1U); // image to blur
-		res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, &m_SBO_GaussianWeightsBufferInfo, 1U, 1U); // gaussian weights
+		res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, &m_Gaussian_V.m_SBO_GaussianWeightsBufferInfo, 1U, 1U); // gaussian weights
 
+		if (m_UseBlurH && m_UseBlurV)
+		{
+			// blur H
+			res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 0U); // output
+			res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, 0U); // image to blur
+			
+			// blur V
+			res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 1U); // output
+			res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 1U); // image to blur
+		}
+		else if (m_UseBlurH)
+		{
+			// blur H
+			res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 0U); // output
+			res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, 0U); // image to blur
+		}
+		else if (m_UseBlurV)
+		{
+			// blur V
+			res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 1U); // output
+			res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, 1U); // image to blur
+		}
+		
 		return res;
 	}
 
@@ -381,6 +503,8 @@ bool BlurModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 std::string BlurModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
+	ZoneScoped;
+
 	vOutShaderName = "BlurModule_Compute_Pass";
 
 	SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
@@ -395,7 +519,8 @@ layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
 
 layout(std140, binding = 1) uniform UBO_Comp
 {
-	uint u_blur_radius; // default is 4
+	uint u_blur_radius_H; // default is 4
+	uint u_blur_radius_V; // default is 4
 };
 
 layout(binding = 2) uniform sampler2D input_map_sampler;
@@ -411,13 +536,13 @@ void blur_H()
 	
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 	
-	ivec2 iv_pos = coords;
 	ivec2 iv_neg = coords;
-
+	ivec2 iv_pos = coords;
+	
 	// for avoid double sum at gaussian_weights[0]
-	res += texelFetch(input_map_sampler, coords, 0) * gaussian_weights[0];
+	res = texelFetch(input_map_sampler, coords, 0) * gaussian_weights[0];
 
-	for(uint idx = 1; idx < u_blur_radius; ++idx)
+	for(uint idx = 1; idx < u_blur_radius_H; ++idx)
 	{
 		// <---
 		--iv_neg.x;
@@ -437,13 +562,13 @@ void blur_V()
 	
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 	
-	ivec2 iv_pos = coords;
 	ivec2 iv_neg = coords;
+	ivec2 iv_pos = coords;
 
 	// for avoid double sum at gaussian_weights[0]
-	res += texelFetch(input_map_sampler, coords, 0) * gaussian_weights[0];
+	res = texelFetch(input_map_sampler, coords, 0) * gaussian_weights[0];
 
-	for(uint idx = 1; idx < u_blur_radius; ++idx)
+	for(uint idx = 1; idx < u_blur_radius_V; ++idx)
 	{
 		// <---
 		--iv_neg.y;
@@ -531,17 +656,25 @@ bool BlurModule_Comp_Pass::CreateComputePipeline()
 
 std::string BlurModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
+	ZoneScoped;
+
 	std::string str;
 
-	str += vOffset + "<blur_radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</blur_radius>\n";
-	str += vOffset + "<blur_gaussian_sigma_auto>" + (m_GaussianSigmAuto ? "true" : "false") + "</blur_gaussian_sigma_auto>\n";
+	str += vOffset + "<blur_radius_h>" + ct::toStr(m_UBOComp.u_blur_radius_H) + "</blur_radius_h>\n";
+	str += vOffset + "<blur_radius_v>" + ct::toStr(m_UBOComp.u_blur_radius_V) + "</blur_radius_v>\n"; 
+	str += vOffset + "<blur_disctinct_v_and_h>" + (m_UseDistinctiveBlurRadiusVH ? "true" : "false") + "</blur_disctinct_v_and_h>\n";
 	str += vOffset + "<blur_gaussian_sigma>" + ct::toStr(m_GaussianSigma) + "</blur_gaussian_sigma>\n";
+	str += vOffset + "<blur_gaussian_sigma_auto>" + (m_GaussianSigmAuto ? "true" : "false") + "</blur_gaussian_sigma_auto>\n";
+	str += vOffset + "<blur_use_h>" + (m_UseBlurH ? "true" : "false") + "</blur_use_h>\n";
+	str += vOffset + "<blur_use_v>" + (m_UseBlurV ? "true" : "false") + "</blur_use_v>\n";
 	
 	return str;
 }
 
 bool BlurModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
+	ZoneScoped;
+
 	// The value of this child identifies the name of this element
 	std::string strName;
 	std::string strValue;
@@ -555,9 +688,25 @@ bool BlurModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 
 	if (strParentName == "blur_module")
 	{
-		if (strName == "blur_radius")
+		if (strName == "blur_radius_h")
 		{
-			m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
+			m_UBOComp.u_blur_radius_H = ct::uvariant(strValue).GetU();
+		}
+		else if (strName == "blur_radius_v")
+		{
+			m_UBOComp.u_blur_radius_V = ct::uvariant(strValue).GetU();
+		}
+		else if (strName == "blur_disctinct_v_and_h")
+		{
+			m_UseDistinctiveBlurRadiusVH = ct::ivariant(strValue).GetB();
+		}
+		else if (strName == "blur_use_h")
+		{
+			m_UseBlurH = ct::ivariant(strValue).GetB();
+		}
+		else if (strName == "blur_use_v")
+		{
+			m_UseBlurV = ct::ivariant(strValue).GetB();
 		}
 		else if (strName == "blur_gaussian_sigma")
 		{
@@ -576,5 +725,8 @@ bool BlurModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 
 void BlurModule_Comp_Pass::AfterNodeXmlLoading()
 {
-	ReComputeGaussianBlurWeights();
+	ZoneScoped;
+
+	ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_blur_radius_H);
+	ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_blur_radius_V);
 }
