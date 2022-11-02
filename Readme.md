@@ -1,5 +1,5 @@
 # Lumo
-Lumo is a realtime rendering presentation / lab software for 3D models
+Lumo is a realtime lab software arount 3D models
 
 # why this name ?
 Lumo is "Light" in Esperanto, its a short and pretty word to me :)
