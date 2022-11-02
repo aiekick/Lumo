@@ -521,8 +521,6 @@ void VulkanShader::ParseGLSLString(
 {
 	ZoneScoped;
 
-	CTOOL_DEBUG_BREAK;
-
 	std::string InputGLSL = vCode;
 
 	EShLanguage shaderType = GetShaderStage(vShaderSuffix);
