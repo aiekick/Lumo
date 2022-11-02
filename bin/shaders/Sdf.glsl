@@ -22,8 +22,6 @@ void main()
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec2 vertUV;
 
-uniform(hidden) void(project:SDF:slave) projectUBO;
-
 uniform(hidden) mat4(camera:m) model;
 uniform(hidden) mat4(camera:v) view;
 uniform(hidden) mat4(camera:p) proj;
