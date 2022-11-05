@@ -16,7 +16,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-
 #include <array>
 #include <string>
 #include <vector>
@@ -36,7 +35,6 @@ limitations under the License.
 class LightGroupModule;
 typedef std::shared_ptr<LightGroupModule> LightGroupModulePtr;
 typedef ct::cWeak<LightGroupModule> LightGroupModuleWeak;
-
 
 class LightGroupModule :
 	public conf::ConfigAbstract,

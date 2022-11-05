@@ -975,8 +975,8 @@ NodeSlotWeak BaseNode::AddInput(NodeSlotInputPtr vSlotPtr, bool vIncSlotId, bool
 			vSlotPtr->pinID = NodeSlot::sGetNewSlotId();
 		}
 		vSlotPtr->index = (uint32_t)m_Inputs.size();
-		m_Inputs[(int)vSlotPtr->pinID.Get()] = vSlotPtr;
-		return m_Inputs[(int)vSlotPtr->pinID.Get()];
+		m_Inputs[(uint32_t)vSlotPtr->pinID.Get()] = vSlotPtr;
+		return m_Inputs[(uint32_t)vSlotPtr->pinID.Get()];
 	}
 
 	return NodeSlotWeak();
@@ -996,8 +996,8 @@ NodeSlotWeak BaseNode::AddOutput(NodeSlotOutputPtr vSlotPtr, bool vIncSlotId, bo
 			vSlotPtr->pinID = NodeSlot::sGetNewSlotId();
 		}
 		vSlotPtr->index = (uint32_t)m_Outputs.size();
-		m_Outputs[(int)vSlotPtr->pinID.Get()] = vSlotPtr;
-		return m_Outputs[(int)vSlotPtr->pinID.Get()];
+		m_Outputs[(uint32_t)vSlotPtr->pinID.Get()] = vSlotPtr;
+		return m_Outputs[(uint32_t)vSlotPtr->pinID.Get()];
 	}
 
 	return NodeSlotWeak();

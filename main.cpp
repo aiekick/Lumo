@@ -71,6 +71,9 @@ int main(int, char** argv)
 
 	ZoneScoped;
 
+#ifdef _DEBUG
+	App::Instance()->Run(std::string(argv[0]));
+#else
 	try
 	{
 		App::Instance()->Run(std::string(argv[0]));
@@ -90,6 +93,7 @@ int main(int, char** argv)
 
 		return EXIT_FAILURE;
 	}
+#endif
 
 	return EXIT_SUCCESS;
 }
