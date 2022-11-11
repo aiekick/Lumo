@@ -30,7 +30,7 @@ public:
 
 private:
 	std::shared_ptr<Texture2DModule> m_Texture2DModule = nullptr;
-	BaseNodeWeak m_ConnectedNode;
+	BaseNodeWeak m_SlotCodeedNode;
 
 public:
 	Texture2DNode();

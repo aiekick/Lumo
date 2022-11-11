@@ -283,7 +283,7 @@ void MathNode::ReorganizeSlots()
 				if (idx >= count)
 				{
 					input.second->hidden = true;
-					DisConnectSlot(input.second);
+					DisSlotCodeSlot(input.second);
 				}
 				else
 				{
