@@ -149,7 +149,6 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :white_square_button: | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Cell Shding Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Misc / 2D Layering Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
@@ -158,14 +157,6 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Postpro / Vignette Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Primitives / UV Sphere Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Cube Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Parametric Absolute Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Parametric Differential Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
 | :white_square_button: | Preview / Cube Map Preview Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Preview / LongLat Preview Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
@@ -201,6 +192,20 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 | Published | Node | status |
 | - | - | - |
+
+## MeshGen Plugin : 
+
+| Published | Node | status |
+| - | - | - |
+| :black_square_button: | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / UV Sphere Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Cube Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Parametric Absolute Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Parametric Differential Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
 
 ## MorphoGenesis Plugin : 
 

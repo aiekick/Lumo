@@ -51,3 +51,9 @@ void blur_V()
 
 	imageStore(outColor, coords, res); 
 }
+
+void main()
+{
+	blur_H();
+	blur_V();
+}
