@@ -5,6 +5,11 @@ if(USE_PLUGIN_CORE)
 	add_definitions(-DUSE_PLUGIN_CORE)
 endif()
 
+if(USE_PLUGIN_MESH_GEN)
+	include(cmake/plugins/MeshGen.cmake)
+	add_definitions(-DUSE_PLUGIN_MESH_GEN)
+endif()
+
 if(USE_PLUGIN_MESH_SIM)
 	include(cmake/plugins/MeshSim.cmake)
 	add_definitions(-DUSE_PLUGIN_MESH_SIM)

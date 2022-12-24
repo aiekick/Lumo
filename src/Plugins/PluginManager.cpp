@@ -54,6 +54,9 @@ namespace fs = std::filesystem;
 #ifdef USE_PLUGIN_VR
 #include <VR.h>
 #endif
+#ifdef USE_PLUGIN_MESH_GEN
+#include <MeshGen.h>
+#endif
 #endif // USE_PLUGIN_STATIC_LINKING
 
 //////////////////////////////////////////////////////////////////////////////
@@ -245,6 +248,9 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #endif
 #ifdef USE_PLUGIN_VR
 	AddPlugin("VR", std::make_shared<VR>(), vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_MESH_GEN
+	AddPlugin("MeshGen", std::make_shared<MeshGen>(), vVulkanCoreWeak);
 #endif
 #endif // USE_PLUGIN_STATIC_LINKING
 }
