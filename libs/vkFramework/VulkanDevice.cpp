@@ -414,6 +414,7 @@ namespace vkApi
 		// Query validation layers currently isntalled
 		uint32_t layerCount;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
 		std::vector<VkLayerProperties> availableLayers(layerCount);
 		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
@@ -600,6 +601,7 @@ namespace vkApi
 			enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eGpuAssisted);
 			enabledFeatures.emplace_back(vk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot);
 #endif
+
 			vk::ValidationFeaturesEXT validationFeatures{ uint32_t(enabledFeatures.size()), enabledFeatures.data() };
 
 			vk::StructureChain<vk::InstanceCreateInfo, vk::ValidationFeaturesEXT> chain = { instanceCreateInfo, validationFeatures };
@@ -618,9 +620,10 @@ namespace vkApi
 				VK_DEBUG_REPORT_ERROR_BIT_EXT
 				| VK_DEBUG_REPORT_WARNING_BIT_EXT
 				| VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT
-				//| VK_DEBUG_REPORT_DEBUG_BIT_EXT  // affiche les extentions
+				//| VK_DEBUG_REPORT_DEBUG_BIT_EXT // affiche les extentions
 				//| VK_DEBUG_REPORT_INFORMATION_BIT_EXT
 				;
+
 			debug_report_ci.pfnCallback = debug_report;
 			debug_report_ci.pUserData = NULL;
 
@@ -697,9 +700,6 @@ namespace vkApi
 			LogVarLightInfo(" - Shader Group Handle Alignment : %u", m_RayTracingDeviceProperties.shaderGroupHandleAlignment);
 			LogVarLightInfo(" - Max Ray Hit Attribute Size : %u", m_RayTracingDeviceProperties.maxRayHitAttributeSize);
 		}
-
-		//auto limits = m_PhysDevice.getProperties().limits;
-		//limits.maxDescriptorSetUniformBuffers;
 
 		return true;
 	}
@@ -806,7 +806,7 @@ namespace vkApi
 		m_Robustness2Feature.setNullDescriptor(true);		// null descriptor feature
 		m_PhysDeviceFeatures2.setPNext(&m_Robustness2Feature);
 
-		LogVarLightInfo("Feature vk 1.0 : (RTX) Ray Tracing Pipeline");
+		LogVarLightInfo("Feature vk 1.0 : Dynamic States");
 		m_DynamicStates.setExtendedDynamicState(true);
 		m_Robustness2Feature.setPNext(&m_DynamicStates);
 
