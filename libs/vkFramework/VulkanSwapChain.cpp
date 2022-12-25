@@ -134,7 +134,7 @@ namespace vkApi
 		std::vector<vk::PresentModeKHR> surfacePresentModes = physDevice.getSurfacePresentModesKHR(m_Surface);
 		vk::PresentModeKHR presentMode = vk::PresentModeKHR::eImmediate;
 
-		if (SWAPCHAIN_IMAGES_COUNT > 1)
+		if constexpr(SWAPCHAIN_IMAGES_COUNT > 1)
 		{
 			for (vk::PresentModeKHR& pm : surfacePresentModes)
 			{

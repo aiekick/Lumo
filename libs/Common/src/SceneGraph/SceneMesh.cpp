@@ -240,14 +240,18 @@ bool SceneMesh::BuildVBO(bool vUseSBO)
 {
 	DestroyVBO();
 
-	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO, false, true); // the last true is for RTX
-	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
+	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+	if (devicePtr)
+	{
+		m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO, false, devicePtr->GetRTXUse());
+		m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 
-	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
-	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * (uint32_t)sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
-	m_Vertices.m_BufferInfo.offset = 0;
+		m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
+		m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * (uint32_t)sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
+		m_Vertices.m_BufferInfo.offset = 0;
 
-	m_SceneMeshBuffers.vertices_address = m_Vertices.m_Buffer->device_address;
+		m_SceneMeshBuffers.vertices_address = m_Vertices.m_Buffer->device_address;
+	}
 
 	return true;
 }
@@ -264,14 +268,18 @@ void SceneMesh::BuildIBO(bool vUseSBO)
 {
 	DestroyIBO();
 
-	m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array, vUseSBO, false, true); // the last true is for RTX
-	m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
+	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+	if (devicePtr)
+	{
+		m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse()); // the last true is for RTX
+		m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 
-	m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
-	m_Indices.m_BufferInfo.range = m_Indices.m_Count * (uint32_t)sizeof(uint32_t);
-	m_Indices.m_BufferInfo.offset = 0;
+		m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
+		m_Indices.m_BufferInfo.range = m_Indices.m_Count * (uint32_t)sizeof(uint32_t);
+		m_Indices.m_BufferInfo.offset = 0;
 
-	m_SceneMeshBuffers.vertices_address = m_Indices.m_Buffer->device_address;
+		m_SceneMeshBuffers.vertices_address = m_Indices.m_Buffer->device_address;
+	}
 }
 
 void SceneMesh::DestroyIBO()

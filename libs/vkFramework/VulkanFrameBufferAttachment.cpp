@@ -87,7 +87,7 @@ namespace vkApi
 
 			attachmentDescriptorInfo.sampler = attachmentSampler;
 			attachmentDescriptorInfo.imageView = attachmentView;
-			attachmentDescriptorInfo.imageLayout = vk::ImageLayout::eAttachmentOptimal;
+			attachmentDescriptorInfo.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
 			attachmentDescription.flags = vk::AttachmentDescriptionFlags();
 			attachmentDescription.format = format;
@@ -120,7 +120,7 @@ namespace vkApi
 
 			attachmentDescription.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 			attachmentDescription.initialLayout = vk::ImageLayout::eUndefined;
-			attachmentDescription.finalLayout = vk::ImageLayout::eAttachmentOptimal;
+			attachmentDescription.finalLayout = vk::ImageLayout::eShaderReadOnlyOptimal;
 
 			res = true;
 		}

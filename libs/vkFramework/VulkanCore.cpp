@@ -573,7 +573,7 @@ namespace vkApi
 			//vk::DescriptorPoolSize(vk::DescriptorType::eInputAttachment, 1000)
 		};
 
-		if (m_VulkanDevicePtr->m_Use_RTX)
+		if (m_VulkanDevicePtr->GetRTXUse())
 		{
 			descriptorPoolSizes.push_back(vk::DescriptorPoolSize(vk::DescriptorType::eAccelerationStructureKHR, 1000));
 		}
@@ -629,7 +629,7 @@ namespace vkApi
 		VmaAllocatorCreateInfo allocatorInfo = {};
 		allocatorInfo.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
 
-		if (m_VulkanDevicePtr->m_Use_RTX)
+		if (m_VulkanDevicePtr->GetRTXUse())
 		{
 			allocatorInfo.flags |= 
 				VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;  // VK_API_VERSION_1_2

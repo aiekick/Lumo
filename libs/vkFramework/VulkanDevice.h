@@ -65,7 +65,7 @@ namespace vkApi
 		vk::Device m_LogDevice;
 		uint32_t m_ApiVersion = VK_API_VERSION_1_0;
 
-	public:
+	private:
 		bool m_Use_RTX = false;
 
 	private: // debug extention must use dynamic loader m_Dldy ( not part of vulkan core), so we let it here
@@ -99,6 +99,7 @@ namespace vkApi
 		void EndDebugLabel(vk::CommandBuffer *vCmd);
 
 		void SetUseRTX(const bool& vFlag) { m_Use_RTX = vFlag; }
+		bool GetRTXUse() { return m_Use_RTX; }
 
 	private:
 		bool CreateVulkanInstance(
