@@ -164,6 +164,7 @@ namespace vkApi
 
 		// Some devices can support more than 2 buffers, but during my tests they would crash on fullscreen ~ ag
 		// Tested on an NVIDIA 1050 TI and 60 Hz display (aiekick)
+		// Tested on an NVIDIA 3060 and 60 Hz display (aiekick)
 		// Tested on an NVIDIA 1080 and 165 Hz 2K display (original author)
 		uint32_t backbufferCount = ct::clamp<uint32_t>(SWAPCHAIN_IMAGES_COUNT, 2u, surfaceCapabilities.maxImageCount);
 		if (backbufferCount != SWAPCHAIN_IMAGES_COUNT)

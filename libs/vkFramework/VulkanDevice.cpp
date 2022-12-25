@@ -310,6 +310,8 @@ namespace vkApi
 
 		bool res = true;
 
+		// tofix : trouver un moyen de tester le support du RTX avant son init 
+
 		SetUseRTX(vUseRTX);
 
 		res &= CreateVulkanInstance(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion);
@@ -551,6 +553,16 @@ namespace vkApi
 			auto installedExtensions = vk::enumerateInstanceExtensionProperties();
 			std::vector<const char*> extensions = {};
 			findBestExtensions("Instance", installedExtensions, wantedExtensions, extensions);
+
+			// verification of needed extention presence
+			m_Use_RTX = false;
+			for (const auto& ext_ptr : extensions)
+			{
+				if (ext_ptr == VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+				{
+					m_Use_RTX = true;
+				}
+			}
 
 			// find best instance Layer
 			auto installedLayers = vk::enumerateInstanceLayerProperties();

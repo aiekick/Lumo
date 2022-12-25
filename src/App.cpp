@@ -131,7 +131,9 @@ bool App::Init(GLFWwindow* vWindow)
 		vkApi::VulkanCore::sVulkanShader = VulkanShader::Create();
 		if (vkApi::VulkanCore::sVulkanShader)
 		{
-			m_VulkanCorePtr = vkApi::VulkanCore::Create(m_VulkanWindowPtr, "Lumo", 1, "Lumo Engine", 1, true, true);
+			bool _use_RTX = true;
+
+			m_VulkanCorePtr = vkApi::VulkanCore::Create(m_VulkanWindowPtr, "Lumo", 1, "Lumo Engine", 1, true, _use_RTX);
 			if (m_VulkanCorePtr)
 			{
 				// apres la creation du core

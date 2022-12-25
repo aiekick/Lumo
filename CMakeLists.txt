@@ -10,6 +10,8 @@ option(USE_PLUGINS "Enable the plugins building" ON)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 option(USE_LUMO_TEST "Enable Tests" OFF)
 
+add_definitions(-DVMA_VULKAN_VERSION=1002000)
+
 if (USE_PLUGINS)
 	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easier dev" ON)
 	option(USE_PLUGIN_CORE "Enable the Core Nodes" ON)
