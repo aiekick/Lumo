@@ -136,7 +136,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :white_square_button: | Differential Operators / Curl Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Exporters / Export Texture to file Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Cube Map to files Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/20) |
 | :black_square_button: | Exporters / Export Mesh to file Node (Transform feedback) | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Lighting / Fog Node | ![img](https://progress-bar.dev/0) |
@@ -176,7 +176,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :black_square_button: | Utils / Cube Map To MatCap Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Utils / LongLat to Cube Map Node  | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Utils / LongLat To MatCap Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Utils / Flat Gradient Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Utils / Flat Gradient Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/30) |
 
@@ -199,13 +199,14 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | - | - | - |
 | :black_square_button: | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitives / UV Sphere Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Primitives / Plane Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Primitives / Cube Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Parametric Absolute Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Parametric Differential Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
+| :black_square_button: | Primitives / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
+| :black_square_button: | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
 
 ## MorphoGenesis Plugin : 
 

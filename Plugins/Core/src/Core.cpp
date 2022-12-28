@@ -23,6 +23,10 @@
 #include <Nodes/DiffOperators/GradientNode.h>
 #include <Nodes/DiffOperators/CurlNode.h>
 
+#include <Nodes/Exporter/ModelExporterNode.h>
+#include <Nodes/Exporter/TextureExporterNode.h>
+#include <Nodes/Exporter/TextureGroupExporterNode.h>
+
 #include <Nodes/Lighting/LightGroupNode.h>
 #include <Nodes/Lighting/DiffuseNode.h>
 #include <Nodes/Lighting/SpecularNode.h>
@@ -105,9 +109,9 @@ void Core::ActionAfterInit()
 	NodeSlot::sGetSlotColors()->AddSlotColor("ENVIRONMENT", ImVec4(0.1f, 0.9f, 0.1f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("MERGED", ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D", ImVec4(0.9f, 0.5f, 0.1f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_CUBE", ImVec4(0.9f, 0.7f, 0.2f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D_GROUP", ImVec4(0.2f, 0.9f, 0.2f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_3D", ImVec4(0.9f, 0.8f, 0.3f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_CUBE", ImVec4(0.9f, 0.7f, 0.2f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("MIXED", ImVec4(0.3f, 0.5f, 0.1f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_BOOLEAN", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
 	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_UINT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
@@ -162,7 +166,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/2D/Assets", "2D Texture", "TEXTURE_2D"));
 	res.push_back(AddLibraryEntry("Core/3D/Assets", "CubeMap", "CUBE_MAP"));
 
-	res.push_back(AddLibraryEntry("Core/3D/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
+	res.push_back(AddLibraryEntry("Core/2D/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Misc", "Grid / Axis", "GRID_AXIS"));
 	res.push_back(AddLibraryEntry("Core/2D/Misc", "2D Layering", "2D_LAYERING"));
@@ -186,6 +190,10 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/2D/Differential Ops", "Divergence", "DIVERGENCE"));
 	res.push_back(AddLibraryEntry("Core/2D/Differential Ops", "Gradient", "GRADIENT"));
 	res.push_back(AddLibraryEntry("Core/2D/Differential Ops", "Curl (Rotational)", "CURL"));
+
+	res.push_back(AddLibraryEntry("Core/3D/Exporter", "3D Model Exporter", "MODEL_EXPORTER"));
+	res.push_back(AddLibraryEntry("Core/2D/Exporter", "Texture 2D Exporter", "TEXTURE_2D_EXPORTER"));
+	res.push_back(AddLibraryEntry("Core/2D/Exporter", "Texture Group 2D Exporter", "TEXTURE_2D_GROUP_EXPORTER"));
 
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Blur", "BLUR"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Bloom", "BLOOM"));
@@ -232,6 +240,11 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "DIVERGENCE")					return DivergenceNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "GRADIENT")						return GradientNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "CURL")							return CurlNode::Create(vkCorePtr);
+
+	// Exporters
+	else if (vPluginNodeName == "MODEL_EXPORTER")				return ModelExporterNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "TEXTURE_2D_EXPORTER")			return TextureExporterNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "TEXTURE_2D_GROUP_EXPORTER")	return TextureGroupExporterNode::Create(vkCorePtr);
 
 	// Misc
 	else if (vPluginNodeName == "GRID_AXIS")					return GridNode::Create(vkCorePtr);
