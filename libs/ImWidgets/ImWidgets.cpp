@@ -3498,7 +3498,7 @@ IMGUI_API bool ImGui::InputDoubleDefault(float vWidth, const char* vName, double
 	if (vShowResetButton)
 	{
 		change = ImGui::ContrastedButton(ICON_NDP_RESET);
-		w -= ImGui::GetItemRectSize().x;
+		w -= ImGui::GetItemRectSize().x - ImGui::GetStyle().ItemInnerSpacing.x * 2.0f;
 		if (change)
 			*vVar = vDefault;
 	}
