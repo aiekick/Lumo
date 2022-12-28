@@ -390,6 +390,7 @@ std::string ModelRendererModule_Mesh_Pass::getXml(const std::string& vOffset, co
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
+	str += vOffset + "<display_mode>" + ct::toStr(m_PrimitiveTopologiesIndex) + "</display_mode>\n";
 	str += vOffset + "<line_thickness>" + ct::toStr(m_LineWidth.w) + "</line_thickness>\n";
 	str += vOffset + "<point_size>" + ct::toStr(m_UBO_Vert.u_point_size) + "</point_size>\n";
 	str += vOffset + "<show_layer>" + ct::toStr(m_UBO_Frag.u_show_layer) + "</show_layer>\n";
@@ -416,7 +417,9 @@ bool ModelRendererModule_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tiny
 
 	if (strParentName == "model_renderer_module")
 	{
-		if (strName == "line_thickness")
+		if (strName == "display_mode")
+			m_PrimitiveTopologiesIndex = ct::fvariant(strValue).GetI();
+		else if (strName == "line_thickness")
 			m_LineWidth.w = ct::fvariant(strValue).GetF();
 		else if (strName == "point_size")
 			m_UBO_Vert.u_point_size = ct::fvariant(strValue).GetF();
@@ -433,5 +436,6 @@ void ModelRendererModule_Mesh_Pass::AfterNodeXmlLoading()
 
 	// code to do after end of the xml loading of this node
 
+	ChangeDynamicPrimitiveTopology((vk::PrimitiveTopology)m_PrimitiveTopologiesIndex, true);
 	NeedNewUBOUpload();
 }
