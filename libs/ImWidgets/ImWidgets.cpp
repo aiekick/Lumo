@@ -3482,6 +3482,41 @@ IMGUI_API bool ImGui::InputFloatDefault(float vWidth, const char* vName, float* 
 	return change;
 }
 
+IMGUI_API bool ImGui::InputDoubleDefault(float vWidth, const char* vName, double* vVar, double vDefault, const char* vInputPrec, const char* vPopupPrec, bool vShowResetButton, double vStep, double vStepFast)
+{
+	bool change = false;
+
+	const float padding = ImGui::GetStyle().FramePadding.x;
+
+	/*if (!ImGui::GetCurrentWindow()->ScrollbarY)
+	{
+		vWidth -= ImGui::GetStyle().ScrollbarSize;
+	}*/
+
+	float w = vWidth - padding * 2.0f;// -24;
+
+	if (vShowResetButton)
+	{
+		change = ImGui::ContrastedButton(ICON_NDP_RESET);
+		w -= ImGui::GetItemRectSize().x;
+		if (change)
+			*vVar = vDefault;
+	}
+
+	ImGui::CustomSameLine(0, ImGui::GetStyle().ItemInnerSpacing.x);
+
+	ImGui::PushID(++CustomStyle::Instance()->pushId);
+	ImGui::PushItemWidth(w);
+	change |= ImGui::InputDouble(vName, vVar, vStep, vStepFast, vInputPrec);
+	ImGui::PopItemWidth();
+	ImGui::PopID();
+
+	if (ImGui::IsItemActive() || ImGui::IsItemHovered())
+		ImGui::SetTooltip(vPopupPrec, *vVar);
+
+	return change;
+}
+
 bool ImGui::InputFloatDefaultStepper(float vWidth, const char* vName, float* vVar, float vDefault, float vStep, float vStepFast, const char* vInputPrec, const char* vPopupPrec, bool vShowResetButton)
 {
 	bool change = false;

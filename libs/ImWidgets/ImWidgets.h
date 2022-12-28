@@ -404,6 +404,7 @@ IMGUI_API bool ContrastedComboVectorDefault(float vWidth, const char* label, int
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 IMGUI_API bool InputFloatDefault(float vWidth, const char* vName, float* vVar, float vDefault, const char* vInputPrec = "%.3f", const char* vPopupPrec = "%.3f", bool vShowResetButton = true, float vStep = 0.0f, float vStepFast = 0.0f);
+IMGUI_API bool InputDoubleDefault(float vWidth, const char* vName, double* vVar, double vDefault, const char* vInputPrec = "%.3f", const char* vPopupPrec = "%.3f", bool vShowResetButton = true, double vStep = 0.0, double vStepFast = 0.0);
 IMGUI_API bool InputFloatDefaultStepper(float vWidth, const char* vName, float* vVar, float vDefault, float vStep, float vStepFast, const char* vInputPrec = "%.3f", const char* vPopupPrec = "%.3f", bool vShowResetButton = true);
 IMGUI_API bool InputIntDefault(float vWidth, const char* vName, int* vVar, int step, int step_fast, int vDefault);
 IMGUI_API bool InputUIntDefault(float vWidth, const char* vName, uint32_t* vVar, uint32_t step, uint32_t step_fast, uint32_t vDefault);
