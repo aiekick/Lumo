@@ -1,0 +1,65 @@
+<config>
+	<project>
+		<scene>
+			<CommonSystem>
+				<TargetXYZ>0;0;0</TargetXYZ>
+				<TargetXYZLock>1;1;1</TargetXYZLock>
+				<TransXY>0;0</TransXY>
+				<TransXYLock>1;1</TransXYLock>
+				<TransFactor>5</TransFactor>
+				<RotXYZ>2.9815;0.575958;0</RotXYZ>
+				<RotXYZLock>0;0;1</RotXYZLock>
+				<RotXYZFactor>1</RotXYZFactor>
+				<Zoom>5.41668</Zoom>
+				<ZoomLock>0</ZoomLock>
+				<ZoomFactor>5</ZoomFactor>
+				<PerspectiveAngle>45</PerspectiveAngle>
+				<CamFar>1000</CamFar>
+				<CameraType>0</CameraType>
+				<CameraType>0</CameraType>
+				<CameraMode>0</CameraMode>
+			</CommonSystem>
+			<graph>
+				<canvas>
+					<offset>403.5;300</offset>
+					<scale>1</scale>
+				</canvas>
+				<nodes>
+					<node name="Model Renderer" type="MODEL_RENDERER" pos="0;-23" id="25819">
+						<slot index="0" name="Mesh" type="MESH" place="INPUT" id="25822"/>
+						<slot index="0" name="" type="TEXTURE_2D" place="OUTPUT" id="25825"/>
+						<model_renderer_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<display_mode>2</display_mode>
+							<line_thickness>4.45</line_thickness>
+							<point_size>2</point_size>
+							<show_layer>0</show_layer>
+						</model_renderer_module>
+					</node>
+					<node name="Parametric Curve" type="PARAMETRIC_CURVE" pos="-193;-23" id="32627">
+						<slot index="0" name="Close" type="WIDGET_BOOLEAN" place="INPUT" id="32630"/>
+						<slot index="0" name="Curve" type="MESH" place="OUTPUT" id="32633"/>
+						<parametric_curve_module>
+							<curve_type>0</curve_type>
+							<curve_expr_x>cos(t)</curve_expr_x>
+							<curve_expr_y>cos(t*10.0)*0.1</curve_expr_y>
+							<curve_expr_z>sin(t)</curve_expr_z>
+							<curve_start_t>0</curve_start_t>
+							<curve_end_t>6.28318</curve_end_t>
+							<curve_step_t>0.001</curve_step_t>
+						</parametric_curve_module>
+					</node>
+				</nodes>
+				<links>
+					<link in="25819:25822" out="32627:32633"/>
+				</links>
+				<outputs>
+					<output type="left" ids="25819:25825"/>
+				</outputs>
+			</graph>
+		</scene>
+	</project>
+</config>

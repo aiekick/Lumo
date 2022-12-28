@@ -781,7 +781,7 @@ bool CommonSystem::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 	return true;
 }
 
-void CommonSystem::SetMousePos(ct::fvec2 vNormalizedPos, ct::fvec2 vBufferSize, bool vDownButton[5])
+void CommonSystem::SetMousePos(ct::fvec2 vNormalizedPos, ct::fvec2 /*vBufferSize*/, bool vDownButton[5])
 {
 	ZoneScoped;
 

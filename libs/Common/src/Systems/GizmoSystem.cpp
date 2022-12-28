@@ -57,7 +57,7 @@ bool GizmoSystem::Use()
 	return puActivated || puNeedOneUniformUpdate;
 }
 
-bool GizmoSystem::DrawTooltips(GizmoInterfaceWeak vGizmo, ct::frect vRect)
+bool GizmoSystem::DrawTooltips(GizmoInterfaceWeak vGizmo, ct::frect /*vRect*/)
 {
 	bool change = false;
 
