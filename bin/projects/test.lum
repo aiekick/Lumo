@@ -2,15 +2,15 @@
 	<project>
 		<scene>
 			<CommonSystem>
-				<TargetXYZ>0;0;0</TargetXYZ>
+				<TargetXYZ>0.0874621;0.0828253;-25.1601</TargetXYZ>
 				<TargetXYZLock>1;1;1</TargetXYZLock>
 				<TransXY>0;0</TransXY>
 				<TransXYLock>1;1</TransXYLock>
 				<TransFactor>5</TransFactor>
-				<RotXYZ>1.37567;0.326561;0</RotXYZ>
+				<RotXYZ>2.0391;0.389394;0</RotXYZ>
 				<RotXYZLock>0;0;1</RotXYZLock>
 				<RotXYZFactor>1</RotXYZFactor>
-				<Zoom>151.25</Zoom>
+				<Zoom>97.9167</Zoom>
 				<ZoomLock>0</ZoomLock>
 				<ZoomFactor>5</ZoomFactor>
 				<PerspectiveAngle>45</PerspectiveAngle>
@@ -21,11 +21,11 @@
 			</CommonSystem>
 			<graph>
 				<canvas>
-					<offset>353;300</offset>
+					<offset>353.5;300</offset>
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Model Renderer" type="MODEL_RENDERER" pos="0;-23" id="25819">
+					<node name="Model Renderer" type="MODEL_RENDERER" pos="0;-61" id="25819">
 						<slot index="0" name="Mesh" type="MESH" place="INPUT" id="25822"/>
 						<slot index="0" name="" type="TEXTURE_2D" place="OUTPUT" id="25825"/>
 						<model_renderer_module>
@@ -38,6 +38,11 @@
 							<point_size>2</point_size>
 							<show_layer>5</show_layer>
 						</model_renderer_module>
+					</node>
+					<node name="Model Exporter" type="MODEL_EXPORTER" pos="3;15" id="36908">
+						<slot index="0" name="Model" type="MESH" place="INPUT" id="36911"/>
+						<model_exporter_module>
+						</model_exporter_module>
 					</node>
 					<node name="Parametric Curve Diff" type="PARAMETRIC_CURVE_DIFF" pos="-211;-23" id="34852">
 						<slot index="0" name="Close" type="WIDGET_BOOLEAN" place="INPUT" id="34855"/>
@@ -58,6 +63,7 @@
 					</node>
 				</nodes>
 				<links>
+					<link in="36908:36911" out="34852:34858"/>
 					<link in="34852:34858" out="25819:25822"/>
 				</links>
 				<outputs>
