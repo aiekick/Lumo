@@ -87,58 +87,59 @@ bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 
 	ZoneScoped;
 
-	ImGui::Header("Model");
-
-	ImGui::BeginHorizontal("Buttons");
-
-	if (ImGui::ContrastedButton("Load"))
+	if (ImGui::CollapsingHeader("Model"))
 	{
-		ImGuiFileDialog::Instance()->OpenDialog(
-			unique_OpenMeshFileDialog_id, "Open 3D File", "3D files{.obj,.gltf,.ply,.fbx}", m_FilePath, m_FilePathName,
-			1, nullptr, ImGuiFileDialogFlags_Modal);
-	}
+		ImGui::BeginHorizontal("Buttons");
 
-	if (ImGui::ContrastedButton("ReLoad"))
-	{
-		LoadMesh(m_FilePathName);
-	}
-
-	if (ImGui::ContrastedButton("Center"))
-	{
-		m_SceneModelPtr->CenterCameraToModel();
-	}
-
-	if (ImGui::ContrastedButton("Clear"))
-	{
-		m_SceneModelPtr->clear();
-	}
-
-	ImGui::EndHorizontal();
-
-	ImGui::Header("Infos");
-
-	if (!m_SceneModelPtr->empty())
-	{
-		ImGui::Text("File name : %s", m_FileName.c_str());
-		ImGui::TextWrapped("File path name: %s", m_FilePathName.c_str());
-		ImGui::Text("Mesh Count : %u", (uint32_t)m_SceneModelPtr->size());
-		const auto& pos = m_SceneModelPtr->GetCenter();
-		ImGui::Text("Model Center : %.2f,%.2f, %.2f", pos.x, pos.y, pos.z);
-		uint32_t idx = 0;
-		for (const auto& meshPtr : *m_SceneModelPtr)
+		if (ImGui::ContrastedButton("Load"))
 		{
-			if (meshPtr)
+			ImGuiFileDialog::Instance()->OpenDialog(
+				unique_OpenMeshFileDialog_id, "Open 3D File", "3D files{.obj,.gltf,.ply,.fbx}", m_FilePath, m_FilePathName,
+				1, nullptr, ImGuiFileDialogFlags_Modal);
+		}
+
+		if (ImGui::ContrastedButton("ReLoad"))
+		{
+			LoadMesh(m_FilePathName);
+		}
+
+		if (ImGui::ContrastedButton("Center"))
+		{
+			m_SceneModelPtr->CenterCameraToModel();
+		}
+
+		if (ImGui::ContrastedButton("Clear"))
+		{
+			m_SceneModelPtr->clear();
+		}
+
+		ImGui::EndHorizontal();
+
+		ImGui::Header("Infos");
+
+		if (!m_SceneModelPtr->empty())
+		{
+			ImGui::Text("File name : %s", m_FileName.c_str());
+			ImGui::TextWrapped("File path name: %s", m_FilePathName.c_str());
+			ImGui::Text("Mesh Count : %u", (uint32_t)m_SceneModelPtr->size());
+			const auto& pos = m_SceneModelPtr->GetCenter();
+			ImGui::Text("Model Center : %.2f,%.2f, %.2f", pos.x, pos.y, pos.z);
+			uint32_t idx = 0;
+			for (const auto& meshPtr : *m_SceneModelPtr)
 			{
-				ImGui::Text("Mesh %u : %s %s %s %s %s %s", idx++,
-					meshPtr->HasNormals() ? "N" : " ",
-					meshPtr->HasTangeants() ? "Tan" : " ",
-					meshPtr->HasBiTangeants() ? "BTan" : " ",
-					meshPtr->HasTextureCoords() ? "UV" : " ",
-					meshPtr->HasVertexColors() ? "Col" : " ",
-					meshPtr->HasIndices() ? "Ind" : " ");
+				if (meshPtr)
+				{
+					ImGui::Text("Mesh %u : %s %s %s %s %s %s", idx++,
+						meshPtr->HasNormals() ? "N" : " ",
+						meshPtr->HasTangeants() ? "Tan" : " ",
+						meshPtr->HasBiTangeants() ? "BTan" : " ",
+						meshPtr->HasTextureCoords() ? "UV" : " ",
+						meshPtr->HasVertexColors() ? "Col" : " ",
+						meshPtr->HasIndices() ? "Ind" : " ");
+				}
 			}
 		}
-	}
+	}	
 
 	return false;
 }
@@ -294,7 +295,7 @@ void MeshModule::LoadMesh(const std::string& vFilePathName)
 								}
 
 								sceneMeshPtr->GetVertices()->push_back(v);
-
+								sceneMeshPtr->SetPrimitiveType((SceneModelPrimitiveType)((int)mesh->mPrimitiveTypes-1U));
 								m_SceneModelPtr->CombinePointInBoundingBox(v.p);
 							}
 

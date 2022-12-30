@@ -36,7 +36,7 @@ using namespace vkApi;
 //// SSAO FIRST PASS : AO ////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SmoothNormalModule_Comp_Pass::SmoothNormalModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr) 
+SmoothNormalModule_Comp_Pass::SmoothNormalModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Smooth Normal", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -92,14 +92,15 @@ bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, Im
 
 void SmoothNormalModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContext); 
+	ImGui::SetCurrentContext(vContext);
 
 }
 
 void SmoothNormalModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-
+	assert(vContext); 
+	ImGui::SetCurrentContext(vContext);
 }
 
 void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
@@ -115,6 +116,7 @@ void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const 
 			for (auto meshPtr : *modelPtr)
 			{
 				m_InputMesh = meshPtr;
+				NeedNewModelUpdate();
 				UpdateModel(true);
 				UpdateRessourceDescriptor();
 
@@ -163,6 +165,8 @@ void SmoothNormalModule_Comp_Pass::SetModel(SceneModelWeak vSceneModel)
 	ZoneScoped;
 
 	m_SceneModel = vSceneModel;
+
+	NeedNewModelUpdate();
 }
 
 SceneModelWeak SmoothNormalModule_Comp_Pass::GetModel()
@@ -221,13 +225,13 @@ bool SmoothNormalModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	bool res = true;
 
-	auto outputMeshPtr = m_InputMesh.getValidShared();
-	if (outputMeshPtr && outputMeshPtr->GetVerticesBufferInfo()->range > 0U)
+	auto inputMeshPtr = m_InputMesh.getValidShared();
+	if (inputMeshPtr && inputMeshPtr->GetVerticesBufferInfo()->range > 0U)
 	{
 		// VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, outputMeshPtr->GetVerticesBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, inputMeshPtr->GetVerticesBufferInfo());
 		// VertexStruct::I1
-		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, outputMeshPtr->GetIndicesBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, inputMeshPtr->GetIndicesBufferInfo());
 		// Normals
 		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, &m_SBO_Normals_Compute_Helper_BufferInfos);
 	}

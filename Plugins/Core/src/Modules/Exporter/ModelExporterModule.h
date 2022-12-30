@@ -60,6 +60,11 @@ public:
 private:
 	ct::cWeak<ModelExporterModule> m_This;
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	std::string unique_SaveMeshFileDialog_id;
+	std::string m_FilePathName;
+	std::string m_FilePath;
+	std::string m_FileName;
+	SceneModelWeak m_InputModel;
 
 public:
 	ModelExporterModule(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -78,4 +83,7 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	void AfterNodeXmlLoading() override;
+
+private:
+	void SaveModel(const std::string& vFilePathName);
 };

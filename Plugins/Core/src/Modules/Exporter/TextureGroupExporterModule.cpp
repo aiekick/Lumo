@@ -52,6 +52,9 @@ std::shared_ptr<TextureGroupExporterModule> TextureGroupExporterModule::Create(v
 		res.reset();
 	}
 
+	//to implement
+	CTOOL_DEBUG_BREAK;
+
 	return res;
 }
 

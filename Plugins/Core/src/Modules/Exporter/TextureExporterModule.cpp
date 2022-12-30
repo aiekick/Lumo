@@ -52,6 +52,9 @@ std::shared_ptr<TextureExporterModule> TextureExporterModule::Create(vkApi::Vulk
 		res.reset();
 	}
 
+	//to implement
+	CTOOL_DEBUG_BREAK;
+
 	return res;
 }
 

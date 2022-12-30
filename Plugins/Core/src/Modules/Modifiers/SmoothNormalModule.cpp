@@ -88,11 +88,9 @@ bool SmoothNormalModule::Init()
 
 	if (BaseRenderer::InitCompute3D(map_size))
 	{
-
 		m_SmoothNormalModule_Comp_Pass_Ptr = std::make_shared<SmoothNormalModule_Comp_Pass>(m_VulkanCorePtr);
 		if (m_SmoothNormalModule_Comp_Pass_Ptr)
 		{
-
 			if (m_SmoothNormalModule_Comp_Pass_Ptr->InitCompute3D(map_size))
 			{
 				AddGenericPass(m_SmoothNormalModule_Comp_Pass_Ptr);
@@ -137,6 +135,13 @@ bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 		{
 			bool change = false;
 
+			ImGui::Header("Computation");
+
+			if (ImGui::ContrastedButton("Force Update"))
+			{
+				NeedNewExecution();
+			}
+
 			for (auto passPtr : m_ShaderPasses)
 			{
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(passPtr);
@@ -177,8 +182,9 @@ void SmoothNormalModule::SetModel(SceneModelWeak vSceneModel)
 {
 	if (m_SmoothNormalModule_Comp_Pass_Ptr)
 	{
-		NeedNewExecution(); // just updated so need a normal smoothing
 		m_SmoothNormalModule_Comp_Pass_Ptr->SetModel(vSceneModel);
+
+		NeedNewExecution(); // just updated so need a normal smoothing
 	}
 }
 
