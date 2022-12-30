@@ -166,6 +166,10 @@ file(GLOB_RECURSE CMAKE_RECURSE
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/*.cmake)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${CMAKE_RECURSE})
 
+file(GLOB README_MD 
+	${CMAKE_CURRENT_SOURCE_DIR}/*.md)
+source_group(help FILES ${README_MD})
+
 if (MSVC)
 	set(ICON res/MSVCInfo.rc)
 elseif (APPLE)
@@ -175,6 +179,7 @@ endif()
 
 add_executable(${PROJECT}
 	${ICON}
+	${README_MD}
 	${PROJECT_MAIN}
 	${CMAKE_RECURSE}
 	${SHADER_SOURCES}

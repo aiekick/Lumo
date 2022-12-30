@@ -2,15 +2,15 @@
 	<project>
 		<scene>
 			<CommonSystem>
-				<TargetXYZ>0.0874621;0.0828253;-25.1601</TargetXYZ>
+				<TargetXYZ>-0;-0;-0</TargetXYZ>
 				<TargetXYZLock>1;1;1</TargetXYZLock>
 				<TransXY>0;0</TransXY>
 				<TransXYLock>1;1</TransXYLock>
 				<TransFactor>5</TransFactor>
-				<RotXYZ>2.0391;0.389394;0</RotXYZ>
+				<RotXYZ>-1.54849;-0.0807006;0</RotXYZ>
 				<RotXYZLock>0;0;1</RotXYZLock>
 				<RotXYZFactor>1</RotXYZFactor>
-				<Zoom>97.9167</Zoom>
+				<Zoom>43.4696</Zoom>
 				<ZoomLock>0</ZoomLock>
 				<ZoomFactor>5</ZoomFactor>
 				<PerspectiveAngle>45</PerspectiveAngle>
@@ -19,57 +19,8 @@
 				<CameraType>0</CameraType>
 				<CameraMode>0</CameraMode>
 			</CommonSystem>
-			<graph>
-				<canvas>
-					<offset>353.5;300</offset>
-					<scale>1</scale>
-				</canvas>
-				<nodes>
-					<node name="Model Renderer" type="MODEL_RENDERER" pos="0;-61" id="25819">
-						<slot index="0" name="Mesh" type="MESH" place="INPUT" id="25822"/>
-						<slot index="0" name="" type="TEXTURE_2D" place="OUTPUT" id="25825"/>
-						<model_renderer_module>
-							<can_we_render>true</can_we_render>
-							<resize_by_event>true</resize_by_event>
-							<resize_by_hand>true</resize_by_hand>
-							<buffer_quality>1</buffer_quality>
-							<display_mode>2</display_mode>
-							<line_thickness>2</line_thickness>
-							<point_size>2</point_size>
-							<show_layer>5</show_layer>
-						</model_renderer_module>
-					</node>
-					<node name="Model Exporter" type="MODEL_EXPORTER" pos="3;15" id="36908">
-						<slot index="0" name="Model" type="MESH" place="INPUT" id="36911"/>
-						<model_exporter_module>
-						</model_exporter_module>
-					</node>
-					<node name="Parametric Curve Diff" type="PARAMETRIC_CURVE_DIFF" pos="-211;-23" id="34852">
-						<slot index="0" name="Close" type="WIDGET_BOOLEAN" place="INPUT" id="34855"/>
-						<slot index="0" name="Curve" type="MESH" place="OUTPUT" id="34858"/>
-						<parametric_curve_diff_module>
-							<expr_x>a*(y-x)</expr_x>
-							<expr_y>b*x-y-x*z</expr_y>
-							<expr_z>x*y-c*z</expr_z>
-							<start_location>0.001;0.001;0.001</start_location>
-							<step_count>10000</step_count>
-							<step_size>0.01</step_size>
-							<vars>
-								<var name="a" value="10"/>
-								<var name="b" value="28"/>
-								<var name="c" value="2.66667"/>
-							</vars>
-						</parametric_curve_diff_module>
-					</node>
-				</nodes>
-				<links>
-					<link in="36908:36911" out="34852:34858"/>
-					<link in="34852:34858" out="25819:25822"/>
-				</links>
-				<outputs>
-					<output type="left" ids="25819:25825"/>
-				</outputs>
-			</graph>
+			<node name="" type="NONE" pos="0;0" id="4578">
+			</node>
 		</scene>
 	</project>
 </config>

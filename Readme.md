@@ -136,7 +136,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :white_square_button: | Differential Operators / Curl Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Exporters / Export Texture to file Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Exporters / Export Cube Map to files Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/20) |
+| :white_square_button: | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Exporters / Export Mesh to file Node (Transform feedback) | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Lighting / Fog Node | ![img](https://progress-bar.dev/0) |
@@ -148,7 +148,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :black_square_button: | Lighting / RoughNess Node | ![img](https://progress-bar.dev/0) |
 | :white_square_button: | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Lighting / Cell Shding Node | ![img](https://progress-bar.dev/100) |
+| :white_square_button: | Lighting / Cell Shading Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Misc / 2D Layering Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
 | :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |

@@ -29,6 +29,12 @@ typedef ct::cWeak<SceneMesh> SceneMeshWeak;
 typedef std::vector<VertexStruct::P3_N3_TA3_BTA3_T2_C4> VerticeArray;
 typedef std::vector<VertexStruct::I1> IndiceArray;
 
+enum class SceneModelPrimitiveType
+{
+	SCENE_MODEL_PRIMITIVE_TYPE_POINTS = 0,
+	SCENE_MODEL_PRIMITIVE_TYPE_CURVES,
+	SCENE_MODEL_PRIMITIVE_TYPE_FACES
+};
 
 template<typename T>
 class MeshInfo
@@ -65,6 +71,9 @@ public:
 private:
 	SceneMeshWeak m_This;
 
+	SceneModelPrimitiveType m_PrimitiveType =
+		SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_FACES;
+
 	MeshInfo<VertexStruct::P3_N3_TA3_BTA3_T2_C4> m_Vertices;
 	MeshInfo<VertexStruct::I1> m_Indices;
 
@@ -94,7 +103,10 @@ public:
 	bool HasTextureCoords();
 	bool HasVertexColors();
 	bool HasIndices();
-	
+
+	void SetPrimitiveType(const SceneModelPrimitiveType& vType);
+	const SceneModelPrimitiveType& GetPrimitiveType() const;
+
 	vk::Buffer GetVerticesBuffer();
 	vk::DescriptorBufferInfo* GetVerticesBufferInfo();
 	uint64_t GetVerticesDeviceAddress();
