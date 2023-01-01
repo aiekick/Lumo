@@ -205,7 +205,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :black_square_button: | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
 | :black_square_button: | Primitives / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Primitives / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/0) |
+| :black_square_button: | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
 
 ## MorphoGenesis Plugin : 

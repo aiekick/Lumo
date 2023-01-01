@@ -7,10 +7,10 @@
 				<TransXY>0;0</TransXY>
 				<TransXYLock>1;1</TransXYLock>
 				<TransFactor>5</TransFactor>
-				<RotXYZ>-1.54849;-0.0807006;0</RotXYZ>
+				<RotXYZ>1.33877;0.338178;0</RotXYZ>
 				<RotXYZLock>0;0;1</RotXYZLock>
 				<RotXYZFactor>1</RotXYZFactor>
-				<Zoom>43.4696</Zoom>
+				<Zoom>22.2196</Zoom>
 				<ZoomLock>0</ZoomLock>
 				<ZoomFactor>5</ZoomFactor>
 				<PerspectiveAngle>45</PerspectiveAngle>
@@ -19,8 +19,62 @@
 				<CameraType>0</CameraType>
 				<CameraMode>0</CameraMode>
 			</CommonSystem>
-			<node name="" type="NONE" pos="0;0" id="4578">
-			</node>
+			<graph>
+				<canvas>
+					<offset>0;0</offset>
+					<scale>1</scale>
+				</canvas>
+				<nodes>
+					<node name="BillBoard Renderer" type="BILLBOARD_RENDERER" pos="276;145" id="23737">
+						<slot index="0" name="Mesh" type="MESH" place="INPUT" id="23740"/>
+						<slot index="1" name="Texture" type="TEXTURE_2D" place="INPUT" id="23743"/>
+						<slot index="0" name="" type="TEXTURE_2D" place="OUTPUT" id="23746"/>
+						<billboard_renderer_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>false</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<count_instances>60352</count_instances>
+							<scale>0.05</scale>
+							<alpha_power>0.982</alpha_power>
+							<tint_color>0.0322581;0.0269251;0.0269251</tint_color>
+						</billboard_renderer_module>
+					</node>
+					<node name="Model" type="MESH" pos="85;65" id="7265">
+						<slot index="0" name="Output" type="MESH" place="OUTPUT" id="7269"/>
+						<mesh_module>
+							<file_path_name></file_path_name>
+							<file_path></file_path>
+						</mesh_module>
+					</node>
+					<node name="Smooth Normal" type="SMOOTH_NORMAL" pos="116;145" id="13879">
+						<slot index="0" name="Model" type="MESH" place="INPUT" id="13883"/>
+						<slot index="0" name="Mesh" type="MESH" place="OUTPUT" id="13887"/>
+					</node>
+					<node name="Model" type="MESH" pos="21;209" id="15745">
+						<slot index="0" name="Output" type="MESH" place="OUTPUT" id="15749"/>
+						<mesh_module>
+							<file_path_name>C:\gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
+							<file_path>C:\gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Texture 2D" type="TEXTURE_2D" pos="106;321" id="25305">
+						<slot index="0" name="Output" type="TEXTURE_2D" place="OUTPUT" id="25309"/>
+						<texture_2d_module>
+							<file_path_name>C:\gamedev\gitlab\Lumo\bin\textures\particle.png</file_path_name>
+							<file_path>C:\gamedev\gitlab\Lumo\bin\textures</file_path>
+						</texture_2d_module>
+					</node>
+				</nodes>
+				<links>
+					<link in="7265:7269" out="23737:23740"/>
+					<link in="15745:15749" out="13879:13883"/>
+					<link in="25305:25309" out="23737:23743"/>
+				</links>
+				<outputs>
+					<output type="left" ids="23737:23746"/>
+				</outputs>
+			</graph>
 		</scene>
 	</project>
 </config>
