@@ -8,6 +8,8 @@ but will not affect the successfull compilation of Lumo
 
 # Free Plugins 
 
-- [ ] RTX
-- [ ] Particles
-- [ ] MeshGen
+- [x] AudiArt
+- [x] Core
+- [x] MeshGen
+- [x] Particles
+- [x] RTX
