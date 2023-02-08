@@ -2,8 +2,8 @@
 
 | Published | Plugin | Open Source | Free | status |
 | - | - | - | - | - |
-| :heavy_check_mark: | AudiArt Plugin | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
-| :heavy_check_mark: | Core Plugin | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) |
+| :heavy_check_mark: | AudiArt | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
+| :heavy_check_mark: | Core | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) |
 | :heavy_check_mark: | MeshGen | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) |
 | :x:  | MeshSim | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/90) |
 | :x:  | MeshSSS | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) |
