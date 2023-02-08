@@ -312,6 +312,8 @@ void ProjectFile::CustomSceneGraphItem(const std::string& vRootPath, const std::
 	if (!std::filesystem::exists(scene_graph_path))
 		fs::create_directory(scene_graph_path);
 
+	std::string maj_scene_graph_item_name = ct::toUpper(vSceneGraphItemName);
+
 	//////////////////////////////////////
 	//// SCENEGRAPH //////////////////////
 	//////////////////////////////////////
@@ -365,6 +367,7 @@ bool %s::IsOk() const
 
 )";
 	ct::replaceString(scene_graph_cpp_file_code, "%s", vSceneGraphItemName);
+	ct::replaceString(scene_graph_cpp_file_code, "%S", maj_scene_graph_item_name);
 	FileHelper::Instance()->SaveStringToFile(scene_graph_cpp_file_code, scene_graph_cpp_file_name);
 
 	scene_graph_h_file_code += u8R"(
@@ -397,6 +400,7 @@ public:
 };
 )";
 	ct::replaceString(scene_graph_h_file_code, "%s", vSceneGraphItemName);
+	ct::replaceString(scene_graph_h_file_code, "%S", maj_scene_graph_item_name);
 	FileHelper::Instance()->SaveStringToFile(scene_graph_h_file_code, scene_graph_h_file_name);
 
 	//////////////////////////////////////
@@ -431,6 +435,7 @@ public:
 };
 )";
 	ct::replaceString(scene_input_interface_h_file_code, "%s", vSceneGraphItemName);
+	ct::replaceString(scene_input_interface_h_file_code, "%S", maj_scene_graph_item_name);
 	FileHelper::Instance()->SaveStringToFile(scene_input_interface_h_file_code, scene_input_interface_h_file_name);
 
 	scene_output_interface_h_file_code += u8R"(
@@ -446,6 +451,7 @@ public:
 };
 )";
 	ct::replaceString(scene_output_interface_h_file_code, "%s", vSceneGraphItemName);
+	ct::replaceString(scene_output_interface_h_file_code, "%S", maj_scene_graph_item_name);
 	FileHelper::Instance()->SaveStringToFile(scene_output_interface_h_file_code, scene_output_interface_h_file_name);
 
 	//////////////////////////////////////
@@ -492,23 +498,16 @@ NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName)
 	return res;
 }
 
-NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName, const std::string& vType)
+NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName, const bool& vHideName)
 {
-	auto res = std::make_shared<NodeSlot%sInput>(vName, vType);
+	auto res = std::make_shared<NodeSlot%sInput>(vName, vHideName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName, const std::string& vType, const bool& vHideName)
+NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
 {
-	auto res = std::make_shared<NodeSlot%sInput>(vName, vType, vHideName);
-	res->m_This = res;
-	return res;
-}
-
-NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlot%sInput>(vName, vType, vHideName, vShowWidget);
+	auto res = std::make_shared<NodeSlot%sInput>(vName, vHideName, vShowWidget);
 	res->m_This = res;
 	return res;
 }
@@ -518,7 +517,7 @@ NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName, const std::
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 NodeSlot%sInput::NodeSlot%sInput()
-	: NodeSlotInput("", "")
+	: NodeSlotInput("", "%S")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
@@ -526,31 +525,23 @@ NodeSlot%sInput::NodeSlot%sInput()
 }
 
 NodeSlot%sInput::NodeSlot%sInput(const std::string& vName)
-	: NodeSlotInput(vName)
+	: NodeSlotInput(vName, "%S")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 }
 
-NodeSlot%sInput::NodeSlot%sInput(const std::string& vName, const std::string& vType)
-	: NodeSlotInput(vName, vType)
+NodeSlot%sInput::NodeSlot%sInput(const std::string& vName, const bool& vHideName)
+	: NodeSlotInput(vName, "%S", vHideName)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 }
 
-NodeSlot%sInput::NodeSlot%sInput(const std::string& vName, const std::string& vType, const bool& vHideName)
-	: NodeSlotInput(vName, vType, vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-}
-
-NodeSlot%sInput::NodeSlot%sInput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotInput(vName, vType, vHideName, vShowWidget)
+NodeSlot%sInput::NodeSlot%sInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
+	: NodeSlotInput(vName, "%S", vHideName, vShowWidget)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
@@ -735,6 +726,7 @@ bool NodeSlot%sInput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 }
 )";
 	ct::replaceString(scene_input_slot_cpp_file_code, "%s", vSceneGraphItemName);
+	ct::replaceString(scene_input_slot_cpp_file_code, "%S", maj_scene_graph_item_name);
 	FileHelper::Instance()->SaveStringToFile(scene_input_slot_cpp_file_code, scene_input_slot_cpp_file_name);
 
 	std::string scene_input_slot_h_file_code = GeneratorNode::GetLicenceHeader();
@@ -754,16 +746,14 @@ class NodeSlot%sInput :
 public:
 	static NodeSlot%sInputPtr Create(NodeSlot%sInput vSlot);
 	static NodeSlot%sInputPtr Create(const std::string& vName);
-	static NodeSlot%sInputPtr Create(const std::string& vName, const std::string& vType);
-	static NodeSlot%sInputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
-	static NodeSlot%sInputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+	static NodeSlot%sInputPtr Create(const std::string& vName, const bool& vHideName);
+	static NodeSlot%sInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
 	explicit NodeSlot%sInput();
 	explicit NodeSlot%sInput(const std::string& vName);
-	explicit NodeSlot%sInput(const std::string& vName, const std::string& vType);
-	explicit NodeSlot%sInput(const std::string& vName, const std::string& vType, const bool& vHideName);
-	explicit NodeSlot%sInput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+	explicit NodeSlot%sInput(const std::string& vName, const bool& vHideName);
+	explicit NodeSlot%sInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 	~NodeSlot%sInput();
 
 	void Init();
@@ -784,6 +774,7 @@ public:
 };
 )";
 	ct::replaceString(scene_input_slot_h_file_code, "%s", vSceneGraphItemName);
+	ct::replaceString(scene_input_slot_h_file_code, "%S", maj_scene_graph_item_name);
 	FileHelper::Instance()->SaveStringToFile(scene_input_slot_h_file_code, scene_input_slot_h_file_name);
 
 	std::string scene_output_slot_cpp_file_code = GeneratorNode::GetLicenceHeader() + GeneratorNode::GetPVSStudioHeader();
@@ -814,23 +805,16 @@ NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName)
 	return res;
 }
 
-NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName, const std::string& vType)
+NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName, const bool& vHideName)
 {
-	auto res = std::make_shared<NodeSlot%sOutput>(vName, vType);
+	auto res = std::make_shared<NodeSlot%sOutput>(vName, vHideName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName, const std::string& vType, const bool& vHideName)
+NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
 {
-	auto res = std::make_shared<NodeSlot%sOutput>(vName, vType, vHideName);
-	res->m_This = res;
-	return res;
-}
-
-NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlot%sOutput>(vName, vType, vHideName, vShowWidget);
+	auto res = std::make_shared<NodeSlot%sOutput>(vName, vHideName, vShowWidget);
 	res->m_This = res;
 	return res;
 }
@@ -840,7 +824,7 @@ NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName, const std
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 NodeSlot%sOutput::NodeSlot%sOutput()
-	: NodeSlotOutput("", "")
+	: NodeSlotOutput("", "%S")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
@@ -848,31 +832,23 @@ NodeSlot%sOutput::NodeSlot%sOutput()
 }
 
 NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName)
-	: NodeSlotOutput(vName)
+	: NodeSlotOutput(vName, "%S")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 }
 
-NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName, const std::string& vType)
-	: NodeSlotOutput(vName, vType)
+NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName, const bool& vHideName)
+	: NodeSlotOutput(vName, "%S", vHideName)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 }
 
-NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName, const std::string& vType, const bool& vHideName)
-	: NodeSlotOutput(vName, vType, vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-}
-
-NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, vType, vHideName, vShowWidget)
+NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
+	: NodeSlotOutput(vName, "%S", vHideName, vShowWidget)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
@@ -1003,6 +979,7 @@ bool NodeSlot%sOutput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 }
 )";
 	ct::replaceString(scene_output_slot_cpp_file_code, "%s", vSceneGraphItemName);
+	ct::replaceString(scene_output_slot_cpp_file_code, "%S", maj_scene_graph_item_name);
 	FileHelper::Instance()->SaveStringToFile(scene_output_slot_cpp_file_code, scene_output_slot_cpp_file_name);
 
 	std::string scene_output_slot_h_file_code = GeneratorNode::GetLicenceHeader();
@@ -1022,16 +999,14 @@ class NodeSlot%sOutput :
 public:
 	static NodeSlot%sOutputPtr Create(NodeSlot%sOutput vSlot);
 	static NodeSlot%sOutputPtr Create(const std::string& vName);
-	static NodeSlot%sOutputPtr Create(const std::string& vName, const std::string& vType);
-	static NodeSlot%sOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
-	static NodeSlot%sOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+	static NodeSlot%sOutputPtr Create(const std::string& vName, const bool& vHideName);
+	static NodeSlot%sOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
 	explicit NodeSlot%sOutput();
 	explicit NodeSlot%sOutput(const std::string& vName);
-	explicit NodeSlot%sOutput(const std::string& vName, const std::string& vType);
-	explicit NodeSlot%sOutput(const std::string& vName, const std::string& vType, const bool& vHideName);
-	explicit NodeSlot%sOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+	explicit NodeSlot%sOutput(const std::string& vName, const bool& vHideName);
+	explicit NodeSlot%sOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 	~NodeSlot%sOutput();
 
 	void Init();
@@ -1047,5 +1022,6 @@ public:
 
 )";
 	ct::replaceString(scene_output_slot_h_file_code, "%s", vSceneGraphItemName);
+	ct::replaceString(scene_output_slot_h_file_code, "%S", maj_scene_graph_item_name);
 	FileHelper::Instance()->SaveStringToFile(scene_output_slot_h_file_code, scene_output_slot_h_file_name);
 }

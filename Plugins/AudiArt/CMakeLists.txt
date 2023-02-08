@@ -129,7 +129,7 @@ include_directories(
 
 target_link_libraries(${PROJECT} PRIVATE
 	${COMMON_LIBRARIES}
-	${MINIAUDIO_SOURCES}
+	${MINIAUDIO_LIBRARIES}
 )
 
 ########################################################

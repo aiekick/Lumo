@@ -29,16 +29,14 @@ class NodeSlotSceneAudiArtOutput :
 public:
 	static NodeSlotSceneAudiArtOutputPtr Create(NodeSlotSceneAudiArtOutput vSlot);
 	static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName);
-	static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const std::string& vType);
-	static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
-	static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+	static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const bool& vHideName);
+	static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
 	explicit NodeSlotSceneAudiArtOutput();
 	explicit NodeSlotSceneAudiArtOutput(const std::string& vName);
-	explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const std::string& vType);
-	explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const std::string& vType, const bool& vHideName);
-	explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+	explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName);
+	explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 	~NodeSlotSceneAudiArtOutput();
 
 	void Init();

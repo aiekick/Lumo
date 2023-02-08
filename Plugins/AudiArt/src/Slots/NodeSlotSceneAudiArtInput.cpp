@@ -45,23 +45,16 @@ NodeSlotSceneAudiArtInputPtr NodeSlotSceneAudiArtInput::Create(const std::string
 	return res;
 }
 
-NodeSlotSceneAudiArtInputPtr NodeSlotSceneAudiArtInput::Create(const std::string& vName, const std::string& vType)
+NodeSlotSceneAudiArtInputPtr NodeSlotSceneAudiArtInput::Create(const std::string& vName, const bool& vHideName)
 {
-	auto res = std::make_shared<NodeSlotSceneAudiArtInput>(vName, vType);
+	auto res = std::make_shared<NodeSlotSceneAudiArtInput>(vName, vHideName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotSceneAudiArtInputPtr NodeSlotSceneAudiArtInput::Create(const std::string& vName, const std::string& vType, const bool& vHideName)
+NodeSlotSceneAudiArtInputPtr NodeSlotSceneAudiArtInput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
 {
-	auto res = std::make_shared<NodeSlotSceneAudiArtInput>(vName, vType, vHideName);
-	res->m_This = res;
-	return res;
-}
-
-NodeSlotSceneAudiArtInputPtr NodeSlotSceneAudiArtInput::Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotSceneAudiArtInput>(vName, vType, vHideName, vShowWidget);
+	auto res = std::make_shared<NodeSlotSceneAudiArtInput>(vName, vHideName, vShowWidget);
 	res->m_This = res;
 	return res;
 }
@@ -71,7 +64,7 @@ NodeSlotSceneAudiArtInputPtr NodeSlotSceneAudiArtInput::Create(const std::string
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 NodeSlotSceneAudiArtInput::NodeSlotSceneAudiArtInput()
-	: NodeSlotInput("", "")
+	: NodeSlotInput("", "SCENEAUDIART")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
@@ -79,31 +72,23 @@ NodeSlotSceneAudiArtInput::NodeSlotSceneAudiArtInput()
 }
 
 NodeSlotSceneAudiArtInput::NodeSlotSceneAudiArtInput(const std::string& vName)
-	: NodeSlotInput(vName)
+	: NodeSlotInput(vName, "SCENEAUDIART")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 }
 
-NodeSlotSceneAudiArtInput::NodeSlotSceneAudiArtInput(const std::string& vName, const std::string& vType)
-	: NodeSlotInput(vName, vType)
+NodeSlotSceneAudiArtInput::NodeSlotSceneAudiArtInput(const std::string& vName, const bool& vHideName)
+	: NodeSlotInput(vName, "SCENEAUDIART", vHideName)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
 }
 
-NodeSlotSceneAudiArtInput::NodeSlotSceneAudiArtInput(const std::string& vName, const std::string& vType, const bool& vHideName)
-	: NodeSlotInput(vName, vType, vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-}
-
-NodeSlotSceneAudiArtInput::NodeSlotSceneAudiArtInput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotInput(vName, vType, vHideName, vShowWidget)
+NodeSlotSceneAudiArtInput::NodeSlotSceneAudiArtInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
+	: NodeSlotInput(vName, "SCENEAUDIART", vHideName, vShowWidget)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);

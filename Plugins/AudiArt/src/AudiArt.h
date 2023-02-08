@@ -10,6 +10,7 @@ class AudiArt : public PluginInterface
 {
 public:
 	AudiArt();
+	void ActionAfterInit() override;
 	uint32_t GetVersionMajor() const override;
 	uint32_t GetVersionMinor() const override;
 	uint32_t GetVersionBuild() const override;
@@ -19,5 +20,6 @@ public:
 	std::vector<std::string> GetNodes() const override;
 	std::vector<LibraryEntry> GetLibrary() const override;
 	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName) override;
+	std::vector<PluginPane> GetPanes() const override;
 	int ResetImGuiID(const int& vWidgetId) override;
 };

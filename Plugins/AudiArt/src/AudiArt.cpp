@@ -13,6 +13,7 @@
 
 #include <Nodes/Effect/SoundFFTNode.h>
 #include <Nodes/Operations/HistorizeNode.h>
+#include <Nodes/Operations/AudioTextureNode.h>
 #include <Nodes/Source/SpeakerSourceNode.h>
 #include <Nodes/Viewer/SourcePreviewNode.h>
 #include <Nodes/Viewer/VisuHexGridNode.h>
@@ -46,6 +47,11 @@ AudiArt::AudiArt()
 	// active memory leak detector
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+}
+
+void AudiArt::ActionAfterInit()
+{
+	NodeSlot::sGetSlotColors()->AddSlotColor("SCENEAUDIART", ImVec4(0.5f, 0.5f, 0.0f, 1.0f));
 }
 
 uint32_t AudiArt::GetVersionMajor() const
@@ -95,7 +101,8 @@ std::vector<LibraryEntry> AudiArt::GetLibrary() const
 
 	res.push_back(AddLibraryEntry("AudiArt/Effects", "FFT (audio to audio)", "SOUND_FFT"));
 	res.push_back(AddLibraryEntry("AudiArt/Operations", "Historize (audio to texture)", "HISTORIZE"));
-	res.push_back(AddLibraryEntry("AudiArt/Sources", "Speacker (to auio)", "SPEAKER_SOURCE"));
+	res.push_back(AddLibraryEntry("AudiArt/Operations", "AudiArt to Texture", "AUDIO_TEXTURE"));
+	res.push_back(AddLibraryEntry("AudiArt/Sources", "Speacker (to audio)", "SPEAKER_SOURCE"));
 	res.push_back(AddLibraryEntry("AudiArt/Viewers", "Source Preview (audio plot display)", "SOURCE_PREVIEW"));
 	res.push_back(AddLibraryEntry("AudiArt/Viewers", "Visu Hex Grid (texture to texture)", "VISU_HEX_GRID"));
 	res.push_back(AddLibraryEntry("AudiArt/Windowing", "Blackman FIlter", "BLACKMAN_FILTER"));
@@ -109,12 +116,20 @@ BaseNodePtr AudiArt::CreatePluginNode(const std::string& vPluginNodeName)
 
 	if (vPluginNodeName == "SOUND_FFT")				return SoundFFTNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "HISTORIZE")		return HistorizeNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "AUDIO_TEXTURE")	return AudioTextureNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "SPEAKER_SOURCE")	return SpeakerSourceNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "SOURCE_PREVIEW")	return SourcePreviewNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "VISU_HEX_GRID")	return VisuHexGridNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "BLACKMAN_FILTER")	return BlackmanFilterNode::Create(vkCorePtr);
 
 	return nullptr;
+}
+
+std::vector<PluginPane> AudiArt::GetPanes() const
+{
+	std::vector<PluginPane> res;
+
+	return res;
 }
 
 int AudiArt::ResetImGuiID(const int& vWidgetId)
