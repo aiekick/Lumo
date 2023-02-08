@@ -44,7 +44,7 @@ SoundFFTNode::SoundFFTNode() : BaseNode()
 {
 	ZoneScoped;
 
-	m_NodeTypeString = "SOUND__FFT";
+	m_NodeTypeString = "SOUND_FFT";
 }
 
 SoundFFTNode::~SoundFFTNode()
@@ -64,7 +64,7 @@ bool SoundFFTNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	name = "Sound  FFT";
+	name = "Sound FFT";
 
 	AddInput(NodeSlotSceneAudiArtInput::Create(""), false, true);
 

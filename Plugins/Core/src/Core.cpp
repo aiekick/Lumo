@@ -102,22 +102,22 @@ Core::Core()
 
 void Core::ActionAfterInit()
 {
-	NodeSlot::sGetSlotColors()->AddSlotColor("NONE", ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("MESH", ImVec4(0.5f, 0.5f, 0.9f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("MESH_GROUP", ImVec4(0.1f, 0.1f, 0.8f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("LIGHT_GROUP", ImVec4(0.9f, 0.9f, 0.1f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("ENVIRONMENT", ImVec4(0.1f, 0.9f, 0.1f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("MERGED", ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D", ImVec4(0.9f, 0.5f, 0.1f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D_GROUP", ImVec4(0.2f, 0.9f, 0.2f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_3D", ImVec4(0.9f, 0.8f, 0.3f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_CUBE", ImVec4(0.9f, 0.7f, 0.2f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("MIXED", ImVec4(0.3f, 0.5f, 0.1f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_BOOLEAN", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_UINT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_INT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_FLOAT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("DEPTH", ImVec4(0.2f, 0.7f, 0.6f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("NONE",				ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("MESH",				ImVec4(0.5f, 0.5f, 0.9f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("MESH_GROUP",			ImVec4(0.1f, 0.1f, 0.8f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("LIGHT_GROUP",			ImVec4(0.9f, 0.9f, 0.1f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("ENVIRONMENT",			ImVec4(0.1f, 0.9f, 0.1f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("MERGED",				ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D",			ImVec4(0.9f, 0.5f, 0.1f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D_GROUP",	ImVec4(0.2f, 0.9f, 0.2f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_3D",			ImVec4(0.9f, 0.8f, 0.3f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_CUBE",		ImVec4(0.9f, 0.7f, 0.2f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("MIXED",				ImVec4(0.3f, 0.5f, 0.1f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_BOOLEAN",		ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_UINT",			ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_INT",			ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_FLOAT",		ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("DEPTH",				ImVec4(0.2f, 0.7f, 0.6f, 1.0f));
 }
 
 uint32_t Core::GetVersionMajor() const

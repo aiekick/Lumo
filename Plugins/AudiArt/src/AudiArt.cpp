@@ -51,7 +51,7 @@ AudiArt::AudiArt()
 
 void AudiArt::ActionAfterInit()
 {
-	NodeSlot::sGetSlotColors()->AddSlotColor("SCENEAUDIART", ImVec4(0.5f, 0.5f, 0.0f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("SCENEAUDIART", ImVec4(0.2f, 0.6f, 0.4f, 1.0f));
 }
 
 uint32_t AudiArt::GetVersionMajor() const

@@ -180,9 +180,9 @@ std::string SoundFFTModule::getXml(const std::string& vOffset, const std::string
 
 	std::string str;
 
-	str += vOffset + "<sound__fft_module>\n";
+	str += vOffset + "<sound_fft_module>\n";
 
-	str += vOffset + "</sound__fft_module>\n";
+	str += vOffset + "</sound_fft_module>\n";
 
 	return str;
 }
@@ -202,7 +202,7 @@ bool SoundFFTModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "sound__fft_module")
+	if (strParentName == "sound_fft_module")
 	{
 	}
 
