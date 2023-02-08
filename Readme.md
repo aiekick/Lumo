@@ -68,157 +68,159 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 | Published | Feature | status |
 | - | - | - |
-| :black_square_button: | Geometry Shader | ![img](https://progress-bar.dev/60) |
-| :black_square_button: | Tesselation Shader | ![img](https://progress-bar.dev/50) |
-| :white_square_button: | Compute Shader | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Vulkan Framework | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Mesh Use | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Mesh Texturing | ![img](https://progress-bar.dev/50) |
-| :white_square_button: | Plugin system | ![img](https://progress-bar.dev/90) |
-| :black_square_button: | Sdf Merging | ![img](https://progress-bar.dev/80) |
-| :white_square_button: | Node Graph | ![img](https://progress-bar.dev/80) |
-| :black_square_button: | Sub Node Graph | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Instancing | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | SkyBox (Cubemap, LongLat) | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Cell Shading | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | PBR Shading | ![img](https://progress-bar.dev/20) |
-| :white_square_button: | Shadow Mapping | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Deferred Rendering | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | GLTF Rendering | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | RTX Rendering | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | RTX : Raygen Shader | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | RTX : Any hit Shader | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | RTX : Closest hit Shader | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | RTX : Miss Shader | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | RTX : Intersection Shader | ![img](https://progress-bar.dev/00) |
-| :black_square_button: | RTX : Callable Shader | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Normal Mapping | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Parallax Mapping | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Alpha Mapping | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Environment Mapping | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Light Directionnal | ![img](https://progress-bar.dev/80) |
-| :black_square_button: | Light Point | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Light Spot | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Light Area | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Bloom | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | SSAO | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | SSS | ![img](https://progress-bar.dev/50) |
-| :black_square_button: | VR | ![img](https://progress-bar.dev/20) |
-| :black_square_button: | Particles System | ![img](https://progress-bar.dev/50) |
+| :x:  | Geometry Shader | ![img](https://progress-bar.dev/60) |
+| :x:  | Tesselation Shader | ![img](https://progress-bar.dev/50) |
+| :heavy_check_mark:  | Compute Shader | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Vulkan Framework | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Mesh Use | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Mesh Texturing | ![img](https://progress-bar.dev/50) |
+| :heavy_check_mark:  | Plugin system | ![img](https://progress-bar.dev/90) |
+| :x:  | Sdf Merging | ![img](https://progress-bar.dev/80) |
+| :heavy_check_mark:  | Node Graph | ![img](https://progress-bar.dev/80) |
+| :x:  | Sub Node Graph | ![img](https://progress-bar.dev/0) |
+| :x:  | Instancing | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | SkyBox (Cubemap, LongLat) | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Cell Shading | ![img](https://progress-bar.dev/100) |
+| :x:  | PBR Shading | ![img](https://progress-bar.dev/20) |
+| :heavy_check_mark:  | Shadow Mapping | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Deferred Rendering | ![img](https://progress-bar.dev/100) |
+| :x:  | GLTF Rendering | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | RTX Rendering | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | RTX : Raygen Shader | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | RTX : Any hit Shader | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | RTX : Closest hit Shader | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | RTX : Miss Shader | ![img](https://progress-bar.dev/100) |
+| :x:  | RTX : Intersection Shader | ![img](https://progress-bar.dev/00) |
+| :x:  | RTX : Callable Shader | ![img](https://progress-bar.dev/0) |
+| :x:  | Normal Mapping | ![img](https://progress-bar.dev/0) |
+| :x:  | Parallax Mapping | ![img](https://progress-bar.dev/0) |
+| :x:  | Alpha Mapping | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Environment Mapping | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Light Directionnal | ![img](https://progress-bar.dev/80) |
+| :x:  | Light Point | ![img](https://progress-bar.dev/0) |
+| :x:  | Light Spot | ![img](https://progress-bar.dev/0) |
+| :x:  | Light Area | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Bloom | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | SSAO | ![img](https://progress-bar.dev/100) |
+| :x:  | SSS | ![img](https://progress-bar.dev/50) |
+| :x:  | VR | ![img](https://progress-bar.dev/20) |
+| :x:  | Particles System | ![img](https://progress-bar.dev/50) |
 
-# Plugin Nodes :
+# Nodes Plugins :
 
-| Published | Plugin | status |
-| - | - | - |
-| :white_square_button: | AudiArt Plugin | ![img](https://progress-bar.dev/10) |
-| :white_square_button: | Core Plugin | ![img](https://progress-bar.dev/60) |
-| :black_square_button: | MeshSim Plugin | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | MeshSSS Plugin | ![img](https://progress-bar.dev/30) |
-| :black_square_button: | MorphoGenesis Plugin | ![img](https://progress-bar.dev/30) |
-| :black_square_button: | VDBTools Plugin | ![img](https://progress-bar.dev/20) |
-| :white_square_button: | Particles Plugin | ![img](https://progress-bar.dev/50) |
-| :white_square_button: | RTX Plugin | ![img](https://progress-bar.dev/60) |
-| :black_square_button: | SdfMesher Plugin | ![img](https://progress-bar.dev/50) |
-| :black_square_button: | Smoke Plugin | ![img](https://progress-bar.dev/30) |
-| :black_square_button: | Voxel Plugin | ![img](https://progress-bar.dev/20) |
-| :black_square_button: | VR Plugin | ![img](https://progress-bar.dev/70) |
+| Published | Plugin | Free | status |
+| - | - | - | - |
+| :heavy_check_mark:  | AudiArt Plugin | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
+| :heavy_check_mark:  | Core Plugin | :heavy_check_mark: | ![img](https://progress-bar.dev/60) |
+| :heavy_check_mark:  | MeshGen | :heavy_check_mark: | ![img](https://progress-bar.dev/60) |
+| :x:  | MeshSim | :heavy_check_mark: | ![img](https://progress-bar.dev/90) |
+| :x:  | MeshSSS | :heavy_check_mark: | ![img](https://progress-bar.dev/30) |
+| :x:  | MorphoGenesis | :x: | ![img](https://progress-bar.dev/30) |
+| :heavy_check_mark:  | Particles | :heavy_check_mark: | ![img](https://progress-bar.dev/50) |
+| :heavy_check_mark:  | RTX | :heavy_check_mark: | ![img](https://progress-bar.dev/60) |
+| :x:  | SdfMesher | :x: | ![img](https://progress-bar.dev/50) |
+| :x:  | SoGLSL | :heavy_check_mark: | ![img](https://progress-bar.dev/30) |
+| :x:  | Smoke | :x: | ![img](https://progress-bar.dev/30) |
+| :x:  | VDBTools | :x: | ![img](https://progress-bar.dev/20) |
+| :x:  | Voxel | :x: | ![img](https://progress-bar.dev/20) |
+| :x:  | VR | :x: | ![img](https://progress-bar.dev/70) |
 
 ## AudiArt Plugin :
 
 | Published | Node | status |
 | - | - | - |
-| :white_square_button: | Effects / FFT Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Operations / Historize Node  | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Sources / Speacker Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Viewers / Source Preview Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Viewers / Visu Hex Grid Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Windowing / Blackman FIlter Node  | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Effects / FFT Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Operations / Historize Node  | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Sources / Speacker Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Viewers / Source Preview Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Viewers / Visu Hex Grid Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Windowing / Blackman FIlter Node  | ![img](https://progress-bar.dev/0) |
 
 ## Core Plugin :
 
 | Published | Node | status |
 | - | - | - |
-| :white_square_button: | Assets / Mesh Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Assets / Texture 2D Node  | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Assets / Cube Map Node  | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Differential Operators / Divergence Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Differential Operators / Gradient Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Differential Operators / Curl Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Exporters / Export Texture to file Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Exporters / Export Cube Map to files Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Exporters / Export Mesh to file Node (Transform feedback) | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Lighting / Fog Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Lighting / Light Group Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Lighting / Refraction Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Lighting / Reflection Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Lighting / Model Shadow Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Lighting / RoughNess Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Lighting / Cell Shading Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Misc / 2D Layering Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Postpro / Blur Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Postpro / Bloom Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Postpro / Vignette Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Preview / Cube Map Preview Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Preview / LongLat Preview Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / Deferred Renderer Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / Matcap Renderer Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / PBR Renderer Node | ![img](https://progress-bar.dev/10) |
-| :white_square_button: | Renderers / Model Renderer Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / Billboard Renderer Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Simulation / Conway Node (Game of Life) | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Utils / Depth To Pos Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Utils / Math Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Utils / Mesh Attributes Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Utils / Pos To Depth Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Utils / Cube Map to LongLat Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Utils / Cube Map To MatCap Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Utils / LongLat to Cube Map Node  | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Utils / LongLat To MatCap Node | ![img](https://progress-bar.dev/0) |
-| :white_square_button: | Utils / Flat Gradient Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Widgets / Variable Node | ![img](https://progress-bar.dev/30) |
-
-## MeshSim Plugin : 
-
-| Published | Node | status |
-| - | - | - |
-| :black_square_button: | Lighting / Shadow Map Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Modifiers / Simulator Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Renderers / Renderer Node | ![img](https://progress-bar.dev/100) |
-
-## MeshSSS Plugin : 
-
-| Published | Node | status |
-| - | - | - |
+| :heavy_check_mark:  | Assets / Mesh Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Assets / Texture 2D Node  | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Assets / Cube Map Node  | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Differential Operators / Divergence Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Differential Operators / Gradient Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Differential Operators / Curl Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Exporters / Export Texture to file Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Exporters / Export Cube Map to files Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Exporters / Export Mesh to file Node (Transform feedback) | ![img](https://progress-bar.dev/0) |
+| :x:  | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Lighting / Fog Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Lighting / Light Group Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Lighting / Refraction Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Lighting / Reflection Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Lighting / Model Shadow Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Lighting / RoughNess Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Lighting / Cell Shading Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Misc / 2D Layering Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Blur Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Bloom Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Vignette Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Preview / Cube Map Preview Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Preview / LongLat Preview Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Renderers / Deferred Renderer Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Renderers / Matcap Renderer Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Renderers / PBR Renderer Node | ![img](https://progress-bar.dev/10) |
+| :heavy_check_mark:  | Renderers / Model Renderer Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Renderers / Billboard Renderer Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Simulation / Conway Node (Game of Life) | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Utils / Depth To Pos Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Utils / Math Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Utils / Mesh Attributes Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Utils / Pos To Depth Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Utils / Cube Map to LongLat Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Utils / Cube Map To MatCap Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Utils / LongLat to Cube Map Node  | ![img](https://progress-bar.dev/0) |
+| :x:  | Utils / LongLat To MatCap Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Utils / Flat Gradient Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Widgets / Variable Node | ![img](https://progress-bar.dev/30) |
 
 ## MeshGen Plugin : 
 
 | Published | Node | status |
 | - | - | - |
-| :black_square_button: | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / UV Sphere Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Primitives / Plane Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Primitives / Cube Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Primitives / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Primitives / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
+| :x:  | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Primitives / UV Sphere Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Primitives / Plane Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Primitives / Cube Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Primitives / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Primitives / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
+
+## MeshSim Plugin : 
+
+| Published | Node | status |
+| - | - | - |
+| :x:  | Lighting / Shadow Map Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Modifiers / Simulator Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Renderers / Renderer Node | ![img](https://progress-bar.dev/100) |
+
+## MeshSSS Plugin : 
+
+| Published | Node | status |
+| - | - | - |
 
 ## MorphoGenesis Plugin : 
 
@@ -229,20 +231,25 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 | Published | Node | status |
 | - | - | - |
-| :white_square_button: | Emitters / Point Emitter Node | ![img](https://progress-bar.dev/20) |
-| :black_square_button: | Simulation / Simulation Node | ![img](https://progress-bar.dev/0) |
-| :black_square_button: | Constraints / Force Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Emitters / Point Emitter Node | ![img](https://progress-bar.dev/20) |
+| :x:  | Simulation / Simulation Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Constraints / Force Node | ![img](https://progress-bar.dev/0) |
 
 ## RTX Plugin :
 
 | Published | Node | status |
 | - | - | - |
-| :white_square_button: | Builders / Model to Accel Structure Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / Model Shadow Node | ![img](https://progress-bar.dev/100) |
-| :white_square_button: | Renderers / PBR Node | ![img](https://progress-bar.dev/100) |
-| :black_square_button: | Renderers / SSS Node | ![img](https://progress-bar.dev/20) |
+| :heavy_check_mark:  | Builders / Model to Accel Structure Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Renderers / Model Shadow Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Renderers / PBR Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Renderers / SSS Node | ![img](https://progress-bar.dev/20) |
 
 ## SdfMesher Plugin : 
+
+| Published | Node | status |
+| - | - | - |
+
+## SoGLSL Plugin : 
 
 | Published | Node | status |
 | - | - | - |
