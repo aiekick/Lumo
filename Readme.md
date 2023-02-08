@@ -110,6 +110,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 | Published | Plugin | status |
 | - | - | - |
+| :white_square_button: | AudiArt Plugin | ![img](https://progress-bar.dev/10) |
 | :white_square_button: | Core Plugin | ![img](https://progress-bar.dev/60) |
 | :black_square_button: | MeshSim Plugin | ![img](https://progress-bar.dev/100) |
 | :black_square_button: | MeshSSS Plugin | ![img](https://progress-bar.dev/30) |
@@ -121,6 +122,17 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :black_square_button: | Smoke Plugin | ![img](https://progress-bar.dev/30) |
 | :black_square_button: | Voxel Plugin | ![img](https://progress-bar.dev/20) |
 | :black_square_button: | VR Plugin | ![img](https://progress-bar.dev/70) |
+
+## AudiArt Plugin :
+
+| Published | Node | status |
+| - | - | - |
+| :white_square_button: | Effects / FFT Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Operations / Historize Node  | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Sources / Speacker Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Viewers / Source Preview Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Viewers / Visu Hex Grid Node | ![img](https://progress-bar.dev/0) |
+| :white_square_button: | Windowing / Blackman FIlter Node  | ![img](https://progress-bar.dev/0) |
 
 ## Core Plugin :
 
