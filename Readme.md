@@ -129,12 +129,12 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 | Published | Node | status |
 | - | - | - |
-| :heavy_check_mark:  | Effects / FFT Node | ![img](https://progress-bar.dev/10) |
-| :heavy_check_mark:  | Operations / Historize Node  | ![img](https://progress-bar.dev/10) |
-| :heavy_check_mark:  | Sources / Speacker Node | ![img](https://progress-bar.dev/10) |
-| :heavy_check_mark:  | Viewers / Source Preview Node | ![img](https://progress-bar.dev/10) |
-| :heavy_check_mark:  | Viewers / Visu Hex Grid Node | ![img](https://progress-bar.dev/10) |
-| :heavy_check_mark:  | Windowing / Blackman FIlter Node  | ![img](https://progress-bar.dev/10) |
+| :heavy_check_mark:  | Effects / FFT Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Operations / Historize Node  | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Sources / Speacker Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Viewers / Source Preview Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Viewers / Visu Hex Grid Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Windowing / Blackman FIlter Node  | ![img](https://progress-bar.dev/0) |
 
 ## Core Plugin :
 
