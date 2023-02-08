@@ -69,6 +69,7 @@ private:
 	ImWidgets::InputText m_ClassNameInputText;
 	ImWidgets::InputText m_ModuleDisplayNameInputText;
 	ImWidgets::InputText m_ModuleXmlNameInputText;
+	ImWidgets::InputText m_CustomTypeInputText;
 
 	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
@@ -91,6 +92,7 @@ public:
 	void SaveAsProject(const std::string& vFilePathName);
 
 	GLFWwindow* GetGLFWwindow() { return m_Window; }
+	ImWidgets::InputText GetCustomTypeInputText() { return m_CustomTypeInputText; }
 
 private: // imgui pane / dialogs
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame);

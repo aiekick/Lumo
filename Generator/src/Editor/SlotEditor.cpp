@@ -1,5 +1,7 @@
 #include "SlotEditor.h"
 
+#include <Gui/MainFrame.h>
+
 #include <ImWidgets/ImWidgets.h>
 #include <Graph/Base/BaseNode.h>
 
@@ -40,6 +42,7 @@ void SlotEditor::SelectSlot(NodeSlotWeak vNodeSlot)
 	if (slotPtr)
 	{
 		m_SlotDisplayNameInputText.SetText(slotPtr->name);
+		m_CustomTypeInputText.SetText(slotPtr->slotType);
 
 		auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(slotPtr);
 		if (slotDatasPtr)
@@ -121,6 +124,14 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 				{
 					slotDatasPtr->editorSlotTypeIndex = (uint32_t)m_InputType;
 					m_SelectedType = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+					if (m_InputType == BASE_TYPE_Custom)
+					{
+						if (m_SelectedSubType.empty())
+						{
+							m_SelectedSubType = MainFrame::Instance()->GetCustomTypeInputText().GetText();
+						}
+						m_CustomTypeInputText.SetText(m_SelectedSubType);
+					}
 					_typeChanged = true;
 				}
 
@@ -134,6 +145,14 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 					{
 						slotDatasPtr->editorSlotSubTypeIndex = (uint32_t)m_InputSubType;
 						m_SelectedSubType = m_BaseTypes.m_VariableTypeArray[slotDatasPtr->editorSlotSubTypeIndex];
+						_typeChanged = true;
+					}
+				}
+				else if (m_InputType == BASE_TYPE_Custom)
+				{
+					if (m_CustomTypeInputText.DisplayInputText(vSize.x, "Custom Type :", "SceneCustom"))
+					{
+						m_SelectedSubType = m_CustomTypeInputText.GetText();
 						_typeChanged = true;
 					}
 				}
@@ -199,9 +218,9 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::
 			{
 				NodeSlotInputPtr resPtr = nullptr;
 
-				if (vType == "None")
+				if (vType == "None" || vType == "Custom")
 				{
-					resPtr = NodeSlotInput::Create(slotPtr->name);
+					resPtr = NodeSlotInput::Create(slotPtr->name, slotPtr->slotType);
 				}
 				else if (vType == "LightGroup")
 				{
@@ -276,9 +295,9 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(BaseNodeWeak vRootNode, const std:
 			{
 				NodeSlotOutputPtr resPtr = nullptr;
 
-				if (vType == "None")
+				if (vType == "None" || vType == "Custom")
 				{
-					resPtr = NodeSlotOutput::Create(slotPtr->name);
+					resPtr = NodeSlotOutput::Create(slotPtr->name, slotPtr->slotType);
 				}
 				else if (vType == "LightGroup")
 				{

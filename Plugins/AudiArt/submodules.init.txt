@@ -1,0 +1,1 @@
+git submodule add --force -b "master" https://github.com/aiekick/miniaudio.git 3rdparty/miniaudio

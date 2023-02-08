@@ -502,6 +502,8 @@ void MainFrame::DrawNodeCreationPane()
 
 		ImGui::CheckBoxBoolDefault("Is a Task ?", &nodePtr->m_IsATask, true);
 
+		m_CustomTypeInputText.DisplayInputText(aw * 0.5f, "Custom Type :", "SceneCustom");
+
 		ImGui::Separator();
 
 		m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(
@@ -1118,6 +1120,7 @@ std::string MainFrame::getXml(const std::string& vOffset, const std::string& vUs
 	str += vOffset + "<showimgui>" + (m_ShowImGui ? "true" : "false") + "</showimgui>\n";
 	str += vOffset + "<showmetric>" + (m_ShowMetric ? "true" : "false") + "</showmetric>\n";
 	str += vOffset + "<project>" + ProjectFile::Instance()->GetProjectFilepathName() + "</project>\n";
+	str += vOffset + "<custom_type_name>" + m_CustomTypeInputText.GetText() + "</custom_type_name>\n";
 
 	return str;
 }
@@ -1152,6 +1155,8 @@ bool MainFrame::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vP
 		m_ShowImGui = ct::ivariant(strValue).GetB();
 	else if (strName == "showmetric")
 		m_ShowMetric = ct::ivariant(strValue).GetB();
+	else if (strName == "custom_type_name")
+		m_CustomTypeInputText.SetText(strValue);
 
 	return true;
 }

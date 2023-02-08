@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <ctools/cTools.h>
+#include <Gui/MainFrame.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
 #include <Graph/Base/NodeSlot.h>
@@ -506,6 +507,10 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath, const ProjectF
 	if (!std::filesystem::exists(module_path))
 		fs::create_directory(module_path);
 
+	module_path = vPath + "/Modules/" + m_CategoryName;
+	if (!std::filesystem::exists(module_path))
+		fs::create_directory(module_path);
+
 	std::string node_class_name = m_ClassName + "Node";
 	std::string cpp_node_file_name = nodes_path.string() + "/" + node_class_name + ".cpp";
 	std::string h_node_file_name = nodes_path.string() + "/" + node_class_name + ".h";
@@ -604,7 +609,8 @@ bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	name = "NODE_DISPLAY_NAME";)";
+	name = "NODE_DISPLAY_NAME";
+)";
 
 	cpp_node_file_code += GetNodeSlotsInputFuncs(slotDico);
 	cpp_node_file_code += u8R"(
@@ -1357,7 +1363,10 @@ void MODULE_CLASS_NAME::Unit()
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-
+)"; 
+		if (m_RendererType != RENDERER_TYPE_NONE)
+		{
+			cpp_module_file_code += u8R"(
 bool MODULE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
@@ -1376,6 +1385,25 @@ bool MODULE_CLASS_NAME::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Com
 	return true;
 }
 )";
+		}
+		else
+		{
+			cpp_module_file_code += u8R"(
+bool MODULE_CLASS_NAME::ExecuteAllTime(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/)
+{
+	ZoneScoped;
+
+	return true;
+}
+
+bool MODULE_CLASS_NAME::ExecuteWhenNeeded(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/)
+{
+	ZoneScoped;
+
+	return true;
+}
+)";
+		}
 	}
 
 	cpp_module_file_code += u8R"(
@@ -3771,7 +3799,7 @@ void MODULE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 //// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
+void PASS_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {	
 	ZoneScoped;
 
@@ -3883,7 +3911,7 @@ SceneLightGroupWeak MODULE_CLASS_NAME::GetLightGroup()
 //// LIGHT GROUP OUTPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
+SceneLightGroupWeak PASS_CLASS_NAME::GetLightGroup()
 {	
 	ZoneScoped;
 
@@ -3990,7 +4018,7 @@ void MODULE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
+void PASS_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 {	
 	ZoneScoped;
 
@@ -4091,7 +4119,7 @@ SceneModelWeak MODULE_CLASS_NAME::GetModel()
 //// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneModelWeak NODE_CLASS_NAME::GetModel()
+SceneModelWeak PASS_CLASS_NAME::GetModel()
 {	
 	ZoneScoped;
 
@@ -4198,7 +4226,7 @@ void MODULE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Desc
 //// STORAGE BUFFER INPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::DescriptorBufferInfo* vStorageBuffer, uint32_t* vStorageBufferSize)
+void PASS_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::DescriptorBufferInfo* vStorageBuffer, uint32_t* vStorageBufferSize)
 {	
 	ZoneScoped;
 
@@ -4317,7 +4345,7 @@ vk::DescriptorBufferInfo* MODULE_CLASS_NAME::GetStorageBuffer(const uint32_t& vB
 //// STORAGE BUFFER OUTPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize)
+vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize)
 {	
 	ZoneScoped;
 
@@ -4468,7 +4496,7 @@ void MODULE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Bu
 //// TEXEL BUFFER INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
+void PASS_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize)
 {	
 	ZoneScoped;
 
@@ -4651,14 +4679,14 @@ vk::BufferView* MODULE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPo
 //// TEXEL BUFFER OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::Buffer* NODE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
+vk::Buffer* PASS_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
 {	
 	ZoneScoped;
 
 	return nullptr;
 }
 
-vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
+vk::BufferView* PASS_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr)
 {	
 	ZoneScoped;
 
@@ -4766,7 +4794,7 @@ void MODULE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::Descriptor
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
@@ -4889,7 +4917,7 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;)";
 
@@ -5029,7 +5057,7 @@ void MODULE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descri
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
+void PASS_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
@@ -5150,7 +5178,7 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetTextureCube(const uint32_t& vBind
 //// TEXTURE CUBE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* NODE_CLASS_NAME::GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* PASS_CLASS_NAME::GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 
@@ -5257,7 +5285,7 @@ void MODULE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorIma
 //// TEXTURE GROUP SLOT INPUT ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
+void PASS_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
 {	
 	ZoneScoped;
 
@@ -5376,7 +5404,7 @@ DescriptorImageInfoVector* MODULE_CLASS_NAME::GetDescriptorImageInfos(const uint
 //// TEXTURE GROUP SLOT OUTPUT ///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes)
+DescriptorImageInfoVector* PASS_CLASS_NAME::GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes)
 {	
 	ZoneScoped;
 
@@ -5483,7 +5511,7 @@ void MODULE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
+void PASS_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
 {	
 	ZoneScoped;
 
@@ -5590,7 +5618,7 @@ SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
+SceneVariableWeak PASS_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 {	
 	ZoneScoped;
 
@@ -5630,38 +5658,222 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 
 SlotStringStruct GeneratorNode::GetSlotCustomInput(NodeSlotInputPtr vSlot)
 {
-	CTOOL_DEBUG_BREAK;
-
 	SlotStringStruct res;
 
-	res.cpp_node_func = u8R"()";
-	res.cpp_module_func = u8R"()";
-	res.cpp_pass_func = u8R"()";
-	res.h_func = u8R"()";
-	res.include_interface = u8R"()";
-	res.include_slot = u8R"()";
-	res.node_module_public_interface = u8R"()";
-	res.pass_public_interface = u8R"()";
-	res.node_slot_func += u8R"()";
+	std::string comment;
+	size_t max_count = (size_t)82U - vSlot->slotType.size();
+	for (size_t i = 0U; i < max_count; ++i)
+	{
+		comment += "/";
+	}
+
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_node_func = ct::toStr(u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// %s INPUT %s
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NODE_CLASS_NAME::Set%s(const std::string& vName, %sWeak v%s)
+{	
+	ZoneScoped;)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += ct::toStr(u8R"(
+
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		m_MODULE_CLASS_NAMEPtr->Set%s(vName, v%s);
+	})", vSlot->slotType.c_str(), vSlot->slotType.c_str());
+	}
+	else
+	{
+		res.cpp_node_func += u8R"(
+)";
+	}
+
+	res.cpp_node_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = ct::toStr(u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// %s INPUT %s
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void MODULE_CLASS_NAME::Set%s(const std::string& vName, %sWeak v%s)
+{	
+	ZoneScoped;)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += ct::toStr(u8R"(
+
+	if (m_PASS_CLASS_NAME_Ptr)
+	{
+		m_PASS_CLASS_NAME_Ptr->Set%s(vName, v%s);
+	})", vSlot->slotType.c_str(), vSlot->slotType.c_str());
+	}
+	else
+	{
+		res.cpp_module_func += u8R"(
+)";
+	}
+
+	res.cpp_module_func += u8R"(
+}
+)";
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = ct::toStr(u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// %s INPUT %s
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void PASS_CLASS_NAME::Set%s(const std::string& vName, %sWeak v%s)
+{	
+	ZoneScoped;
+
+	m_%ss[vName] = v%s;
+}
+)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+
+	res.h_func = ct::toStr(u8R"(
+	void Set%s(const std::string& vName, %sWeak v%s) override;)", vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+
+	res.include_interface = ct::toStr(u8R"(
+#include <Interfaces/%sInputInterface.h>)", vSlot->slotType.c_str());
+
+	res.include_slot = ct::toStr(u8R"(
+#include <Slots/NodeSlot%sInput.h>)", vSlot->slotType.c_str());
+
+	res.node_module_public_interface = ct::toStr(u8R"(
+	public %sInputInterface,)", vSlot->slotType.c_str());
+
+	res.pass_public_interface = ct::toStr(u8R"(
+	public %sInputInterface,)", vSlot->slotType.c_str());
+
+	res.node_slot_func += ct::toStr(u8R"(
+	AddInput(NodeSlot%sInput::Create("%s"), false, %s);)", vSlot->slotType.c_str(),
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
 
 SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot)
 {
-	CTOOL_DEBUG_BREAK;
-
 	SlotStringStruct res;
 
-	res.cpp_node_func = u8R"()";
-	res.cpp_module_func = u8R"()";
-	res.cpp_pass_func = u8R"()";
-	res.h_func = u8R"()";
-	res.include_interface = u8R"()";
-	res.include_slot = u8R"()";
-	res.node_module_public_interface = u8R"()";
-	res.pass_public_interface = u8R"()";
-	res.node_slot_func += u8R"()";
+	////////////////////////////////////////////////////
+	////// NODE ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	std::string comment;
+	size_t max_count = (size_t)81U - vSlot->slotType.size();
+	for (size_t i = 0U; i < max_count; ++i)
+	{
+		comment += "/";
+	}
+
+	res.cpp_node_func = ct::toStr(u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// %s OUTPUT %s
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+%sWeak NODE_CLASS_NAME::Get%s(const std::string& vName)
+{	
+	ZoneScoped;)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+
+	if (m_GenerateAModule)
+	{
+		res.cpp_node_func += ct::toStr(u8R"(
+
+	if (m_MODULE_CLASS_NAMEPtr)
+	{
+		return m_MODULE_CLASS_NAMEPtr->Get%s(vName);
+	}
+)", vSlot->slotType.c_str());
+	}
+
+	res.cpp_node_func += ct::toStr(u8R"(
+	return %sWeak();
+}
+)", vSlot->slotType.c_str());
+
+	////////////////////////////////////////////////////
+	////// MODULE //////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_module_func = ct::toStr(u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// %s OUTPUT %s
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+%sWeak MODULE_CLASS_NAME::Get%s(const std::string& vName)
+{	
+	ZoneScoped;)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+
+	if (m_GenerateAPass)
+	{
+		res.cpp_module_func += ct::toStr(u8R"(
+
+	if (m_PASS_CLASS_NAME_Ptr)
+	{
+		return m_PASS_CLASS_NAME_Ptr->Get%s(vName);
+	}
+)", vSlot->slotType.c_str());
+	}
+
+	res.cpp_module_func += ct::toStr(u8R"(
+	return %sWeak();
+}
+)", vSlot->slotType.c_str());
+
+	////////////////////////////////////////////////////
+	////// PASS ////////////////////////////////////////
+	////////////////////////////////////////////////////
+
+	res.cpp_pass_func = ct::toStr(u8R"(
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// %s OUTPUT %s
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+%sWeak PASS_CLASS_NAME::Get%s(const std::string& vName)
+{	
+	ZoneScoped;
+
+	return m_%sPtr;
+}
+)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+
+	res.h_func = ct::toStr(u8R"(
+	%sWeak Get%s(const std::string& vName) override;)", vSlot->slotType.c_str(), vSlot->slotType.c_str());
+
+	res.include_interface = ct::toStr(u8R"(
+#include <Interfaces/%sOutputInterface.h>)", vSlot->slotType.c_str());
+
+	res.include_slot = ct::toStr(u8R"(
+#include <Slots/NodeSlot%sOutput.h>)", vSlot->slotType.c_str());
+
+	res.node_module_public_interface = ct::toStr(u8R"(
+	public %sOutputInterface,)", vSlot->slotType.c_str());
+
+	res.pass_public_interface = ct::toStr(u8R"(
+	public %sOutputInterface,)", vSlot->slotType.c_str());
+
+	res.node_slot_func += ct::toStr(u8R"(
+	AddOutput(NodeSlot%sOutput::Create("%s"), false, %s);)", vSlot->slotType.c_str(),
+		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
 	return res;
 }
@@ -5685,8 +5897,7 @@ std::string GeneratorNode::GetNodeSlotsInputFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -5736,8 +5947,7 @@ std::string GeneratorNode::GetNodeSlotsOutputFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -5787,8 +5997,7 @@ std::string GeneratorNode::GetNodeSlotsInputPublicInterfaces(const SlotDico& vDi
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -5835,8 +6044,7 @@ std::string GeneratorNode::GetNodeSlotsOutputPublicInterfaces(const SlotDico& vD
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -5883,8 +6091,7 @@ std::string GeneratorNode::GetNodeSlotsInputIncludesSlots(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -5931,8 +6138,7 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -5979,8 +6185,7 @@ std::string GeneratorNode::GetNodeSlotsInputIncludesInterfaces(const SlotDico& v
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6027,8 +6232,7 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesInterfaces(const SlotDico& 
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6075,8 +6279,7 @@ std::string GeneratorNode::GetNodeSlotsInputCppFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6123,8 +6326,7 @@ std::string GeneratorNode::GetNodeSlotsOutputCppFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6177,8 +6379,7 @@ std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6237,8 +6438,7 @@ std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6291,8 +6491,7 @@ std::string GeneratorNode::GetModuleInputCppFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6339,8 +6538,7 @@ std::string GeneratorNode::GetModuleOutputCppFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6387,8 +6585,7 @@ std::string GeneratorNode::GetPassInputPublicInterfaces(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6435,8 +6632,7 @@ std::string GeneratorNode::GetPassInputCppFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}
@@ -6483,8 +6679,7 @@ std::string GeneratorNode::GetPassOutputCppFuncs(const SlotDico& vDico)
 			{
 				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
 				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None" ||
-					typeString == "Custom")
+				if (typeString == "None")
 				{
 					continue;
 				}

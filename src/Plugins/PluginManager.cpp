@@ -39,6 +39,9 @@ namespace fs = std::filesystem;
 #ifdef USE_PLUGIN_SDF_MESHER
 #include <SdfMesher.h>
 #endif
+#ifdef USE_PLUGIN_SO_GLSL
+#include <SoGLSL.h>
+#endif
 #ifdef USE_PLUGIN_MORPHOGENESIS
 #include <MorphoGenesis.h>
 #endif
@@ -56,6 +59,9 @@ namespace fs = std::filesystem;
 #endif
 #ifdef USE_PLUGIN_MESH_GEN
 #include <MeshGen.h>
+#endif
+#ifdef USE_PLUGIN_AUDIART
+#include <Audiart.h>
 #endif
 #endif // USE_PLUGIN_STATIC_LINKING
 
@@ -234,6 +240,9 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #ifdef USE_PLUGIN_SDF_MESHER
 	AddPlugin("SdfMesher", std::make_shared<SdfMesher>(), vVulkanCoreWeak);
 #endif
+#ifdef USE_PLUGIN_SO_GLSL
+	AddPlugin("SoGLSL", std::make_shared<SoGLSL>(), vVulkanCoreWeak);
+#endif
 #ifdef USE_PLUGIN_MORPHOGENESIS
 	AddPlugin("MorphoGenesis", std::make_shared<MorphoGenesis>(), vVulkanCoreWeak);
 #endif
@@ -251,6 +260,9 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #endif
 #ifdef USE_PLUGIN_MESH_GEN
 	AddPlugin("MeshGen", std::make_shared<MeshGen>(), vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_AUDIART
+	AddPlugin("AudiArt", std::make_shared<AudiArt>(), vVulkanCoreWeak);
 #endif
 #endif // USE_PLUGIN_STATIC_LINKING
 }

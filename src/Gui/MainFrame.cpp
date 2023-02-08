@@ -316,7 +316,7 @@ void MainFrame::DrawMainMenuBar()
 
 		if (ImGui::MenuItem(ICON_NDP_QUESTION " About"))
 		{
-			m_ShowAboutDialog = true;
+			OpenAboutDialog();
 		}
 
 		ImGui::EndMenu();

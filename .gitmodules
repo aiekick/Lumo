@@ -86,3 +86,7 @@
 	path = 3rdparty/imgui
 	url = https://github.com/aiekick/imgui.git
 	branch = docking_layout_external
+[submodule "3rdparty/zlib"]
+	path = 3rdparty/zlib
+	url = https://github.com/madler/zlib.git
+	branch = master

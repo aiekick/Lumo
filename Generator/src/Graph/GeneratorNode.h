@@ -148,6 +148,8 @@ public: // to save
 
 public:
 	static GeneratorNodePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::string GetLicenceHeader();
+	static std::string GetPVSStudioHeader();
 
 public:
 	GeneratorNode();
@@ -158,8 +160,6 @@ public:
 	void GeneratePasses(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico);
 
 private:
-	std::string GetLicenceHeader();
-	std::string GetPVSStudioHeader();
 	std::string GetRendererDisplayName();
 	std::string GetPassRendererFunctionHeader();
 	std::string GetPassUpdateLayoutBindingInRessourceDescriptorHeader();

@@ -18,10 +18,14 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ProjectFile.h"
+
+#include <filesystem>
+#include <Gui/MainFrame.h>
 #include <Helper/Messaging.h>
 #include <ctools/FileHelper.h>
 #include <Systems/CommonSystem.h>
-#include <Gui/MainFrame.h>
+
+namespace fs = std::filesystem;
 
 ProjectFile::ProjectFile(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -293,5 +297,755 @@ void ProjectFile::GenerateGraphFiles(const std::string& vRootPath)
 				}
 			}
 		}
+
+		std::string scene_graph_class_name = MainFrame::Instance()->GetCustomTypeInputText().GetText();
+		if (!scene_graph_class_name.empty())
+		{
+			CustomSceneGraphItem(vRootPath, scene_graph_class_name);
+		}
 	}
+}
+
+void ProjectFile::CustomSceneGraphItem(const std::string& vRootPath, const std::string& vSceneGraphItemName)
+{
+	fs::path scene_graph_path = vRootPath + "/SceneGraph/";
+	if (!std::filesystem::exists(scene_graph_path))
+		fs::create_directory(scene_graph_path);
+
+	//////////////////////////////////////
+	//// SCENEGRAPH //////////////////////
+	//////////////////////////////////////
+
+	std::string scene_graph_cpp_file_name = scene_graph_path.string() + vSceneGraphItemName + ".cpp";
+	std::string scene_graph_cpp_file_code = GeneratorNode::GetLicenceHeader();
+
+	std::string scene_graph_h_file_name = scene_graph_path.string() + vSceneGraphItemName + ".h";
+	std::string scene_graph_h_file_code = GeneratorNode::GetLicenceHeader();
+
+	scene_graph_cpp_file_code += GeneratorNode::GetPVSStudioHeader();
+
+	scene_graph_cpp_file_code += u8R"(
+
+#include <SceneGraph/%s.h>
+
+//////////////////////////////////////////////////////////////
+//// STATIC //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+%sPtr %s::Create()
+{
+	auto res = std::make_shared<%s>();
+	res->m_This = res;
+	return res;
+}
+
+//////////////////////////////////////////////////////////////
+//// PUBLIC : BUILD / CLEAR //////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+%s::%s()
+{
+
+}
+
+%s::~%s()
+{
+	Clear();
+}
+
+void %s::Clear()
+{
+
+}
+
+bool %s::IsOk() const
+{
+	return true;
+}
+
+)";
+	ct::replaceString(scene_graph_cpp_file_code, "%s", vSceneGraphItemName);
+	FileHelper::Instance()->SaveStringToFile(scene_graph_cpp_file_code, scene_graph_cpp_file_name);
+
+	scene_graph_h_file_code += u8R"(
+
+#pragma once
+
+#include <vector>
+#include <ctools/cTools.h>
+
+class %s;
+typedef std::shared_ptr<%s> %sPtr;
+typedef ct::cWeak<%s> %sWeak;
+
+// NotifyEvent : need to update the accel structure
+#define %sUpdateDone "%sUpdateDone"
+
+class %s
+{
+public:
+	static %sPtr Create();
+
+private:
+	%sWeak m_This;
+
+public:
+	%s();
+	~%s();
+	void Clear();
+	bool IsOk() const;
+};
+)";
+	ct::replaceString(scene_graph_h_file_code, "%s", vSceneGraphItemName);
+	FileHelper::Instance()->SaveStringToFile(scene_graph_h_file_code, scene_graph_h_file_name);
+
+	//////////////////////////////////////
+	//// INTERFACES //////////////////////
+	//////////////////////////////////////
+
+	fs::path scene_interface_path = vRootPath + "/Interfaces/";
+	if (!std::filesystem::exists(scene_interface_path))
+		fs::create_directory(scene_interface_path);
+
+	std::string scene_input_interface_h_file_name = scene_interface_path.string() + vSceneGraphItemName + "InputInterface.h";
+	std::string scene_input_interface_h_file_code = GeneratorNode::GetLicenceHeader();
+	
+	std::string scene_output_interface_h_file_name = scene_interface_path.string() + vSceneGraphItemName + "OutputInterface.h";
+	std::string scene_output_interface_h_file_code = GeneratorNode::GetLicenceHeader();
+
+	scene_input_interface_h_file_code += u8R"(
+#pragma once
+
+#include <SceneGraph/%s.h>
+
+#include <map>
+#include <string>
+
+class %sInputInterface
+{
+protected:
+	std::map<std::string, %sWeak> m_%ss;
+
+public:
+	virtual void Set%s(const std::string& vName, %sWeak v%s) = 0;
+};
+)";
+	ct::replaceString(scene_input_interface_h_file_code, "%s", vSceneGraphItemName);
+	FileHelper::Instance()->SaveStringToFile(scene_input_interface_h_file_code, scene_input_interface_h_file_name);
+
+	scene_output_interface_h_file_code += u8R"(
+#pragma once
+
+#include <SceneGraph/%s.h>
+#include <string>
+
+class %sOutputInterface
+{
+public:
+	virtual %sWeak Get%s(const std::string& vName) = 0;
+};
+)";
+	ct::replaceString(scene_output_interface_h_file_code, "%s", vSceneGraphItemName);
+	FileHelper::Instance()->SaveStringToFile(scene_output_interface_h_file_code, scene_output_interface_h_file_name);
+
+	//////////////////////////////////////
+	//// SLOTS ///////////////////////////
+	//////////////////////////////////////
+
+	fs::path scene_slot_path = vRootPath + "/Slots/";
+	if (!std::filesystem::exists(scene_slot_path))
+		fs::create_directory(scene_slot_path);
+
+	std::string scene_input_slot_cpp_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Input.cpp";
+	std::string scene_input_slot_h_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Input.h";
+	
+	std::string scene_output_slot_cpp_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Output.cpp";
+	std::string scene_output_slot_h_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Output.h";
+	
+	std::string scene_input_slot_cpp_file_code = GeneratorNode::GetLicenceHeader() + GeneratorNode::GetPVSStudioHeader();
+	scene_input_slot_cpp_file_code += u8R"(
+#include "NodeSlot%sInput.h"
+
+#include <utility>
+#include <SceneGraph/%s.h>
+#include <Graph/Base/BaseNode.h>
+#include <Interfaces/%sInputInterface.h>
+#include <Interfaces/%sOutputInterface.h>
+
+static const float slotIconSize = 15.0f;
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// STATIC //////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+NodeSlot%sInputPtr NodeSlot%sInput::Create(NodeSlot%sInput vSlot)
+{
+	auto res = std::make_shared<NodeSlot%sInput>(vSlot);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName)
+{
+	auto res = std::make_shared<NodeSlot%sInput>(vName);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName, const std::string& vType)
+{
+	auto res = std::make_shared<NodeSlot%sInput>(vName, vType);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName, const std::string& vType, const bool& vHideName)
+{
+	auto res = std::make_shared<NodeSlot%sInput>(vName, vType, vHideName);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlot%sInputPtr NodeSlot%sInput::Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
+{
+	auto res = std::make_shared<NodeSlot%sInput>(vName, vType, vHideName, vShowWidget);
+	res->m_This = res;
+	return res;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// PUBLIC CLASS ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+NodeSlot%sInput::NodeSlot%sInput()
+	: NodeSlotInput("", "")
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sInput::NodeSlot%sInput(const std::string& vName)
+	: NodeSlotInput(vName)
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sInput::NodeSlot%sInput(const std::string& vName, const std::string& vType)
+	: NodeSlotInput(vName, vType)
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sInput::NodeSlot%sInput(const std::string& vName, const std::string& vType, const bool& vHideName)
+	: NodeSlotInput(vName, vType, vHideName)
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sInput::NodeSlot%sInput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
+	: NodeSlotInput(vName, vType, vHideName, vShowWidget)
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sInput::~NodeSlot%sInput() = default;
+
+void NodeSlot%sInput::Init()
+{
+	
+}
+
+void NodeSlot%sInput::Unit()
+{
+	// ici pas besoin du assert sur le m_This 
+	// car NodeSlot%sInput peut etre isntancié à l'ancienne en copie local donc sans shared_ptr
+	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+	if (!m_This.expired())
+	{
+		if (!parentNode.expired())
+		{
+			auto parentNodePtr = parentNode.lock();
+			if (parentNodePtr)
+			{
+				auto graph = parentNodePtr->GetParentNode();
+				if (!graph.expired())
+				{
+					auto graphPtr = graph.lock();
+					if (graphPtr)
+					{
+						graphPtr->DisConnectSlot(m_This);
+					}
+				}
+			}
+		}
+	}
+}
+
+void NodeSlot%sInput::Connect(NodeSlotWeak vOtherSlot)
+{
+	auto endSlotPtr = vOtherSlot.getValidShared();
+	if (endSlotPtr)
+	{
+		auto parentNodePtr = dynamic_pointer_cast<%sInputInterface>(parentNode.getValidShared());
+		if (parentNodePtr)
+		{
+			auto otherCodeNodePtr = dynamic_pointer_cast<%sOutputInterface>(endSlotPtr->parentNode.getValidShared());
+			if (otherCodeNodePtr)
+			{
+				parentNodePtr->Set%s(name,
+					otherCodeNodePtr->Get%s(endSlotPtr->name));
+			}
+		}
+	}
+}
+
+void NodeSlot%sInput::DisConnect(NodeSlotWeak vOtherSlot)
+{
+	auto endSlotPtr = vOtherSlot.getValidShared();
+	if (endSlotPtr)
+	{
+		auto parentNodePtr = dynamic_pointer_cast<%sInputInterface>(parentNode.getValidShared());
+		if (parentNodePtr)
+		{
+			parentNodePtr->Set%s(name, %sWeak());
+		}
+	}
+}
+
+void NodeSlot%sInput::TreatNotification(
+	NotifyEvent vEvent,
+	const NodeSlotWeak& vEmitterSlot,
+	const NodeSlotWeak& vReceiverSlot)
+{
+	if (vEvent == %sUpdateDone)
+	{
+		auto emiterSlotPtr = vEmitterSlot.getValidShared();
+		if (emiterSlotPtr)
+		{
+			if (emiterSlotPtr->IsAnOutput())
+			{
+				auto parentCodeInputNodePtr = dynamic_pointer_cast<%sInputInterface>(parentNode.getValidShared());
+				if (parentCodeInputNodePtr)
+				{
+					auto otherNodePtr = dynamic_pointer_cast<%sOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+					if (otherNodePtr)
+					{
+						auto receiverSlotPtr = vReceiverSlot.getValidShared();
+						if (receiverSlotPtr)
+						{
+							parentCodeInputNodePtr->Set%s(receiverSlotPtr->name,
+								otherNodePtr->Get%s(emiterSlotPtr->name));
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void NodeSlot%sInput::DrawDebugInfos()
+{
+	ImGui::Text("--------------------");
+	ImGui::Text("Slot %s", name.c_str());
+	ImGui::Text(IsAnInput() ? "Input" : "Output");
+	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string NodeSlot%sInput::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+{
+	std::string res;
+
+	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\"/>\n",
+		index,
+		name.c_str(),
+		slotType.c_str(),
+		NodeSlot::sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
+		(uint32_t)pinID.Get());
+
+	return res;
+}
+
+bool NodeSlot%sInput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+{
+	// The value of this child identifies the name of this element
+	std::string strName;
+	std::string strValue;
+	std::string strParentName;
+
+	strName = vElem->Value();
+	if (vElem->GetText())
+		strValue = vElem->GetText();
+	if (vParent != nullptr)
+		strParentName = vParent->Value();
+
+	if (strName == "slot" && strParentName == "node")
+	{
+		uint32_t _index = 0U;
+		std::string _name;
+		std::string _type = "NONE";
+		auto _place = NodeSlot::PlaceEnum::NONE;
+		uint32_t _pinId = 0U;
+
+		for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
+		{
+			std::string attName = attr->Name();
+			std::string attValue = attr->Value();
+
+			if (attName == "index")
+				_index = ct::ivariant(attValue).GetU();
+			else if (attName == "name")
+				_name = attValue;
+			else if (attName == "type")
+				_type = attValue;
+			else if (attName == "place")
+				_place = NodeSlot::sGetNodeSlotPlaceEnumFromString(attValue);
+			else if (attName == "id")
+				_pinId = ct::ivariant(attValue).GetU();
+		}
+
+		if (index == _index &&
+			slotType == _type && 
+			slotPlace == _place && 
+			!idAlreadySetbyXml)
+		{
+			pinID = _pinId;
+			idAlreadySetbyXml = true;
+
+			// pour eviter que des slots aient le meme id qu'un nodePtr
+			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)pinID.Get());
+
+			return false;
+		}
+	}	
+
+	return true;
+}
+)";
+	ct::replaceString(scene_input_slot_cpp_file_code, "%s", vSceneGraphItemName);
+	FileHelper::Instance()->SaveStringToFile(scene_input_slot_cpp_file_code, scene_input_slot_cpp_file_name);
+
+	std::string scene_input_slot_h_file_code = GeneratorNode::GetLicenceHeader();
+	scene_input_slot_h_file_code += u8R"(
+#pragma once
+
+#include <Graph/Graph.h>
+#include <Graph/Base/NodeSlotInput.h>
+
+class NodeSlot%sInput;
+typedef ct::cWeak<NodeSlot%sInput> NodeSlot%sInputWeak;
+typedef std::shared_ptr<NodeSlot%sInput> NodeSlot%sInputPtr;
+
+class NodeSlot%sInput : 
+	public NodeSlotInput
+{
+public:
+	static NodeSlot%sInputPtr Create(NodeSlot%sInput vSlot);
+	static NodeSlot%sInputPtr Create(const std::string& vName);
+	static NodeSlot%sInputPtr Create(const std::string& vName, const std::string& vType);
+	static NodeSlot%sInputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
+	static NodeSlot%sInputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+
+public:
+	explicit NodeSlot%sInput();
+	explicit NodeSlot%sInput(const std::string& vName);
+	explicit NodeSlot%sInput(const std::string& vName, const std::string& vType);
+	explicit NodeSlot%sInput(const std::string& vName, const std::string& vType, const bool& vHideName);
+	explicit NodeSlot%sInput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+	~NodeSlot%sInput();
+
+	void Init();
+	void Unit();
+
+	void Connect(NodeSlotWeak vOtherSlot) override;
+	void DisConnect(NodeSlotWeak vOtherSlot) override;
+
+	void TreatNotification(
+		NotifyEvent vEvent,
+		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
+		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+
+	void DrawDebugInfos();
+
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+};
+)";
+	ct::replaceString(scene_input_slot_h_file_code, "%s", vSceneGraphItemName);
+	FileHelper::Instance()->SaveStringToFile(scene_input_slot_h_file_code, scene_input_slot_h_file_name);
+
+	std::string scene_output_slot_cpp_file_code = GeneratorNode::GetLicenceHeader() + GeneratorNode::GetPVSStudioHeader();
+	scene_output_slot_cpp_file_code += u8R"(
+#include "NodeSlot%sOutput.h"
+
+#include <utility>
+#include <SceneGraph/%s.h>
+#include <Graph/Base/BaseNode.h>
+
+static const float slotIconSize = 15.0f;
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// STATIC //////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+NodeSlot%sOutputPtr NodeSlot%sOutput::Create(NodeSlot%sOutput vSlot)
+{
+	auto res = std::make_shared<NodeSlot%sOutput>(vSlot);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName)
+{
+	auto res = std::make_shared<NodeSlot%sOutput>(vName);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName, const std::string& vType)
+{
+	auto res = std::make_shared<NodeSlot%sOutput>(vName, vType);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName, const std::string& vType, const bool& vHideName)
+{
+	auto res = std::make_shared<NodeSlot%sOutput>(vName, vType, vHideName);
+	res->m_This = res;
+	return res;
+}
+
+NodeSlot%sOutputPtr NodeSlot%sOutput::Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
+{
+	auto res = std::make_shared<NodeSlot%sOutput>(vName, vType, vHideName, vShowWidget);
+	res->m_This = res;
+	return res;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// PUBIC CLASS /////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+NodeSlot%sOutput::NodeSlot%sOutput()
+	: NodeSlotOutput("", "")
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName)
+	: NodeSlotOutput(vName)
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName, const std::string& vType)
+	: NodeSlotOutput(vName, vType)
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName, const std::string& vType, const bool& vHideName)
+	: NodeSlotOutput(vName, vType, vHideName)
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sOutput::NodeSlot%sOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget)
+	: NodeSlotOutput(vName, vType, vHideName, vShowWidget)
+{
+	pinID = sGetNewSlotId();
+	color = sGetSlotColors()->GetSlotColor(slotType);
+	colorIsSet = true;
+}
+
+NodeSlot%sOutput::~NodeSlot%sOutput() = default;
+
+void NodeSlot%sOutput::Init()
+{
+	
+}
+
+void NodeSlot%sOutput::Unit()
+{
+	// ici pas besoin du assert sur le m_This 
+	// car NodeSlot%sOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+	if (!m_This.expired())
+	{
+		if (!parentNode.expired())
+		{
+			auto parentNodePtr = parentNode.lock();
+			if (parentNodePtr)
+			{
+				auto graph = parentNodePtr->GetParentNode();
+				if (!graph.expired())
+				{
+					auto graphPtr = graph.lock();
+					if (graphPtr)
+					{
+						graphPtr->DisConnectSlot(m_This);
+					}
+				}
+			}
+		}
+	}
+}
+
+void NodeSlot%sOutput::SendFrontNotification(const NotifyEvent& vEvent)
+{
+	if (vEvent == %sUpdateDone)
+	{
+		SendNotification(slotType, vEvent);
+	}
+}
+
+void NodeSlot%sOutput::DrawDebugInfos()
+{
+	ImGui::Text("--------------------");
+	ImGui::Text("Slot %s", name.c_str());
+	ImGui::Text(IsAnInput() ? "Input" : "Output");
+	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string NodeSlot%sOutput::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+{
+	std::string res;
+
+	res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\"/>\n",
+		index,
+		name.c_str(),
+		slotType.c_str(),
+		NodeSlot::sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
+		(uint32_t)pinID.Get());
+
+	return res;
+}
+
+bool NodeSlot%sOutput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+{
+	// The value of this child identifies the name of this element
+	std::string strName;
+	std::string strValue;
+	std::string strParentName;
+
+	strName = vElem->Value();
+	if (vElem->GetText())
+		strValue = vElem->GetText();
+	if (vParent != nullptr)
+		strParentName = vParent->Value();
+
+	if (strName == "slot" && strParentName == "node")
+	{
+		uint32_t _index = 0U;
+		std::string _name;
+		std::string _type = "NONE";
+		auto _place = NodeSlot::PlaceEnum::NONE;
+		uint32_t _pinId = 0U;
+
+		for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
+		{
+			std::string attName = attr->Name();
+			std::string attValue = attr->Value();
+
+			if (attName == "index")
+				_index = ct::ivariant(attValue).GetU();
+			else if (attName == "name")
+				_name = attValue;
+			else if (attName == "type")
+				_type = attValue;
+			else if (attName == "place")
+				_place = NodeSlot::sGetNodeSlotPlaceEnumFromString(attValue);
+			else if (attName == "id")
+				_pinId = ct::ivariant(attValue).GetU();
+		}
+
+		if (index == _index &&
+			slotType == _type && 
+			slotPlace == _place && 
+			!idAlreadySetbyXml)
+		{
+			pinID = _pinId;
+			idAlreadySetbyXml = true;
+
+			// pour eviter que des slots aient le meme id qu'un nodePtr
+			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)pinID.Get());
+
+			return false;
+		}
+	}	
+
+	return true;
+}
+)";
+	ct::replaceString(scene_output_slot_cpp_file_code, "%s", vSceneGraphItemName);
+	FileHelper::Instance()->SaveStringToFile(scene_output_slot_cpp_file_code, scene_output_slot_cpp_file_name);
+
+	std::string scene_output_slot_h_file_code = GeneratorNode::GetLicenceHeader();
+	scene_output_slot_h_file_code += u8R"(
+#pragma once
+
+#include <Graph/Graph.h>
+#include <Graph/Base/NodeSlotOutput.h>
+
+class NodeSlot%sOutput;
+typedef ct::cWeak<NodeSlot%sOutput> NodeSlot%sOutputWeak;
+typedef std::shared_ptr<NodeSlot%sOutput> NodeSlot%sOutputPtr;
+
+class NodeSlot%sOutput : 
+	public NodeSlotOutput
+{
+public:
+	static NodeSlot%sOutputPtr Create(NodeSlot%sOutput vSlot);
+	static NodeSlot%sOutputPtr Create(const std::string& vName);
+	static NodeSlot%sOutputPtr Create(const std::string& vName, const std::string& vType);
+	static NodeSlot%sOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
+	static NodeSlot%sOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+
+public:
+	explicit NodeSlot%sOutput();
+	explicit NodeSlot%sOutput(const std::string& vName);
+	explicit NodeSlot%sOutput(const std::string& vName, const std::string& vType);
+	explicit NodeSlot%sOutput(const std::string& vName, const std::string& vType, const bool& vHideName);
+	explicit NodeSlot%sOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+	~NodeSlot%sOutput();
+
+	void Init();
+	void Unit();
+
+	void SendFrontNotification(const NotifyEvent& vEvent) override;
+
+	void DrawDebugInfos();
+
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+};
+
+)";
+	ct::replaceString(scene_output_slot_h_file_code, "%s", vSceneGraphItemName);
+	FileHelper::Instance()->SaveStringToFile(scene_output_slot_h_file_code, scene_output_slot_h_file_name);
 }

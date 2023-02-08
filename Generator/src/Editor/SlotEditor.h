@@ -14,6 +14,7 @@ private:
 	int m_InputSubType = 0U;
 	std::string m_SelectedSubType;
 	ImWidgets::InputText m_SlotDisplayNameInputText;
+	ImWidgets::InputText m_CustomTypeInputText;
 
 public:
 	void SelectSlot(NodeSlotWeak vNodeSlot);
