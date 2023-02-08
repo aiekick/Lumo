@@ -1,0 +1,154 @@
+diff --git a/release/scripts/startup/bl_operators/add_mesh_torus.py b/release/scripts/startup/bl_operators/add_mesh_torus.py
+index 0ebb6ae27e1..726df9f442d 100644
+--- a/release/scripts/startup/bl_operators/add_mesh_torus.py
++++ b/release/scripts/startup/bl_operators/add_mesh_torus.py
+@@ -32,22 +32,24 @@ from bpy.app.translations import pgettext_data as data_
+ 
+ from bpy_extras import object_utils
+ 
+-
+-def add_torus(major_rad, minor_rad, major_seg, minor_seg):
++def add_torus(major_rad, minor_rad, major_seg, minor_seg, section_angle, section_twist):
+     from math import cos, sin, pi
+     from mathutils import Vector, Matrix
+ 
+     pi_2 = pi * 2.0
+ 
++    twist_step_angle = ((pi_2 / minor_seg) / major_seg) * section_twist
++    
+     verts = []
+     faces = []
+     i1 = 0
+     tot_verts = major_seg * minor_seg
+     for major_index in range(major_seg):
+         matrix = Matrix.Rotation((major_index / major_seg) * pi_2, 3, 'Z')
+-
++        major_twist_angle = major_index * twist_step_angle
++        
+         for minor_index in range(minor_seg):
+-            angle = pi_2 * minor_index / minor_seg
++            angle = pi_2 * minor_index / minor_seg + section_angle + major_twist_angle
+ 
+             vec = matrix @ Vector((
+                 major_rad + (cos(angle) * minor_rad),
+@@ -57,7 +59,7 @@ def add_torus(major_rad, minor_rad, major_seg, minor_seg):
+ 
+             verts.extend(vec[:])
+ 
+-            if minor_index + 1 == minor_seg:
++            if minor_seg > 2 and minor_index + 1 == minor_seg:
+                 i2 = (major_index) * minor_seg
+                 i3 = i1 + minor_seg
+                 i4 = i2 + minor_seg
+@@ -67,19 +69,18 @@ def add_torus(major_rad, minor_rad, major_seg, minor_seg):
+                 i4 = i3 + 1
+ 
+             if i2 >= tot_verts:
+-                i2 = i2 - tot_verts
++                i2 = (i2 - tot_verts + section_twist) % minor_seg
+             if i3 >= tot_verts:
+-                i3 = i3 - tot_verts
++                i3 = (i3 - tot_verts + section_twist) % minor_seg
+             if i4 >= tot_verts:
+-                i4 = i4 - tot_verts
+-
++                i4 = (i4 - tot_verts + section_twist) % minor_seg
++            
+             faces.extend([i1, i3, i4, i2])
+ 
+             i1 += 1
+ 
+     return verts, faces
+ 
+-
+ def add_uvs(mesh, minor_seg, major_seg):
+     from math import fmod
+ 
+@@ -126,6 +127,25 @@ def add_uvs(mesh, minor_seg, major_seg):
+             u_prev = u_next
+         u_next = u_prev + u_step
+ 
++def add_uvs_one_ribbon(mesh, minor_seg, major_seg, section_twist):
++    from math import fmod
++    mesh.uv_layers.new()
++    uv_data = mesh.uv_layers.active.data
++    polygons = mesh.polygons
++    count = major_seg * minor_seg
++    u_step = 1.0 / count
++    u_next = 0.0
++    u_prev = 0.0
++    for offset in range(minor_seg):
++        off = (offset * section_twist) % minor_seg
++        for idx in range(major_seg):
++            u_prev = u_next
++            u_next = u_prev + u_step 
++            loops = polygons[idx * minor_seg + off].loop_indices
++            uv_data[loops[0]].uv = u_prev, 0.0
++            uv_data[loops[1]].uv = u_next, 0.0
++            uv_data[loops[3]].uv = u_prev, 1.0
++            uv_data[loops[2]].uv = u_next, 1.0
+ 
+ class AddTorus(Operator, object_utils.AddObjectHelper):
+     """Construct a torus mesh"""
+@@ -147,8 +167,23 @@ class AddTorus(Operator, object_utils.AddObjectHelper):
+     minor_segments: IntProperty(
+         name="Minor Segments",
+         description="Number of segments for the minor ring of the torus",
+-        min=3, max=256,
++        min=2, max=256,
+         default=12,
++    )    
++    section_angle: FloatProperty(
++        name="Section Angle",
++        description=("Angle of the 2D section of the Torus"),
++        soft_min=0.0, soft_max=360.0,
++        min=0.0, max=360.0,
++        default=0.0,
++        subtype='ANGLE',
++        unit='ROTATION',
++    )
++    section_twist: IntProperty(
++        name="Section Twist",
++        description="Twisting of the 2D section of the torus",
++        min=0, max=256,
++        default=0,
+     )
+     mode: EnumProperty(
+         name="Dimensions Mode",
+@@ -217,6 +252,10 @@ class AddTorus(Operator, object_utils.AddObjectHelper):
+         layout.separator()
+ 
+         layout.prop(self, "mode")
++        
++        layout.prop(self, "section_angle")
++        layout.prop(self, "section_twist")
++
+         if self.mode == 'MAJOR_MINOR':
+             layout.prop(self, "major_radius")
+             layout.prop(self, "minor_radius")
+@@ -247,6 +286,8 @@ class AddTorus(Operator, object_utils.AddObjectHelper):
+             self.minor_radius,
+             self.major_segments,
+             self.minor_segments,
++            self.section_angle,
++            self.section_twist,
+         )
+ 
+         mesh = bpy.data.meshes.new(data_("Torus"))
+@@ -263,8 +304,15 @@ class AddTorus(Operator, object_utils.AddObjectHelper):
+         mesh.polygons.foreach_set("loop_total", (4,) * nbr_polys)
+         mesh.loops.foreach_set("vertex_index", faces)
+ 
++        print("nbr_loops : ", nbr_loops)
++        print("nbr_polys : ", nbr_polys)
++        print("nbr_verts : ", len(verts_loc))      
++        
+         if self.generate_uvs:
+-            add_uvs(mesh, self.minor_segments, self.major_segments)
++            if self.section_twist % self.minor_segments == 0:
++                add_uvs(mesh, self.minor_segments, self.major_segments)
++            else:
++                add_uvs_one_ribbon(mesh, self.minor_segments, self.major_segments, self.section_twist)
+ 
+         mesh.update()
+ 

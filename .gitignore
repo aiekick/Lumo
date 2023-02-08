@@ -55,3 +55,4 @@
 /.vs
 /cmake-build-minsizerel/
 /cmake-build-relwithdebinfo/
+/Plugins/SoGLSL

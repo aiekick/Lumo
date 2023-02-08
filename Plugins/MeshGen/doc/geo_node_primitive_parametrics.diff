@@ -1,0 +1,1244 @@
+diff --git a/release/scripts/startup/nodeitems_builtins.py b/release/scripts/startup/nodeitems_builtins.py
+index d617cfab988..2a6e6ce69a3 100644
+--- a/release/scripts/startup/nodeitems_builtins.py
++++ b/release/scripts/startup/nodeitems_builtins.py
+@@ -559,6 +559,7 @@ geometry_node_categories = [
+         NodeItem("GeometryNodeMeshIcoSphere"),
+         NodeItem("GeometryNodeMeshLine"),
+         NodeItem("GeometryNodeMeshUVSphere"),
++        NodeItem("GeometryNodeMeshParametrics"),
+     ]),
+     
+     GeometryNodeCategory("GEO_POINT", "Point", items=[
+diff --git a/source/blender/blenkernel/BKE_node.h b/source/blender/blenkernel/BKE_node.h
+index b1a38ec5700..80ae02d5e10 100644
+--- a/source/blender/blenkernel/BKE_node.h
++++ b/source/blender/blenkernel/BKE_node.h
+@@ -1459,6 +1459,7 @@ int ntreeTexExecTree(struct bNodeTree *ntree,
+ #define GEO_NODE_CURVE_PRIMITIVE_LINE 1068
+ #define GEO_NODE_CURVE_ENDPOINTS 1069
+ #define GEO_NODE_CURVE_PRIMITIVE_QUADRILATERAL 1070
++#define GEO_NODE_MESH_PRIMITIVE_PARAMETRICS 1071
+ 
+ /** \} */
+ 
+diff --git a/source/blender/blenkernel/intern/node.cc b/source/blender/blenkernel/intern/node.cc
+index e4c259ec9fc..4901c424001 100644
+--- a/source/blender/blenkernel/intern/node.cc
++++ b/source/blender/blenkernel/intern/node.cc
+@@ -5135,6 +5135,7 @@ static void registerGeometryNodes()
+   register_node_type_geo_mesh_primitive_ico_sphere();
+   register_node_type_geo_mesh_primitive_line();
+   register_node_type_geo_mesh_primitive_uv_sphere();
++  register_node_type_geo_mesh_primitive_parametrics();
+   register_node_type_geo_mesh_subdivide();
+   register_node_type_geo_mesh_to_curve();
+   register_node_type_geo_object_info();
+diff --git a/source/blender/makesdna/DNA_node_types.h b/source/blender/makesdna/DNA_node_types.h
+index 5e4692481ba..4a03603e915 100644
+--- a/source/blender/makesdna/DNA_node_types.h
++++ b/source/blender/makesdna/DNA_node_types.h
+@@ -1338,6 +1338,18 @@ typedef struct NodeGeometryMeshCylinder {
+   uint8_t fill_type;
+ } NodeGeometryMeshCylinder;
+ 
++typedef struct NodeGeometryMeshParametrics {
++  uint8_t mode;
++  uint8_t smooth_faces;
++  uint8_t close_faces_u;
++  uint8_t close_faces_v;
++  uint8_t close_curve;
++  uint8_t reserved_1; // padding issue
++  uint8_t reserved_2;  // padding issue
++  uint8_t reserved_3;  // padding issue
++  int vars_count;
++} NodeGeometryMeshParametrics;
++
+ typedef struct NodeGeometryMeshCone {
+   /* GeometryNodeMeshCircleFillType. */
+   uint8_t fill_type;
+@@ -1920,6 +1932,12 @@ typedef enum GeometryNodeMeshLineCountMode {
+   GEO_NODE_MESH_LINE_COUNT_RESOLUTION = 1,
+ } GeometryNodeMeshLineCountMode;
+ 
++typedef enum GeometryNodeMeshParametricMode {
++  GEO_NODE_MESH_PARAMETRIC_MODE_CURVE = 0,
++  GEO_NODE_MESH_PARAMETRIC_MODE_CURVE_DIFF = 1,
++  GEO_NODE_MESH_PARAMETRIC_MODE_SURFACE = 2,
++} GeometryNodeMeshParametricMode;
++
+ typedef enum GeometryNodeCurvePrimitiveLineMode {
+   GEO_NODE_CURVE_PRIMITIVE_LINE_MODE_POINTS = 0,
+   GEO_NODE_CURVE_PRIMITIVE_LINE_MODE_DIRECTION = 1
+diff --git a/source/blender/makesrna/intern/rna_nodetree.c b/source/blender/makesrna/intern/rna_nodetree.c
+index d576a5b7db6..dd8f9153acf 100644
+--- a/source/blender/makesrna/intern/rna_nodetree.c
++++ b/source/blender/makesrna/intern/rna_nodetree.c
+@@ -9934,6 +9934,57 @@ static void def_geo_mesh_line(StructRNA *srna)
+   RNA_def_property_update(prop, NC_NODE | NA_EDITED, "rna_Node_socket_update");
+ }
+ 
++static void def_geo_mesh_parametrics(StructRNA *srna)
++{
++  PropertyRNA *prop;
++
++  static EnumPropertyItem mode_items[] = {
++      {GEO_NODE_MESH_PARAMETRIC_MODE_CURVE, "CURVE", 0, "Curve", "Curve mode, progress along t"},
++      {GEO_NODE_MESH_PARAMETRIC_MODE_CURVE_DIFF,
++       "CURVE_DIFF",
++       0,
++       "Curve Differential",
++       "Curve mode in differential, var x y z can be used and are the last point"},
++      {GEO_NODE_MESH_PARAMETRIC_MODE_SURFACE,
++       "SURFACE",
++       0,
++       "Surface",
++       "Surface mode, progress along u and v"},
++      {0, NULL, 0, NULL, NULL}};
++
++  RNA_def_struct_sdna_from(srna, "NodeGeometryMeshParametrics", "storage");
++
++  prop = RNA_def_property(srna, "mode", PROP_ENUM, PROP_NONE);
++  RNA_def_property_enum_items(prop, mode_items);
++  RNA_def_property_ui_text(prop, "Mode", "");
++  RNA_def_property_update(prop, NC_NODE | NA_EDITED, "rna_Node_socket_update");
++
++  prop = RNA_def_property(srna, "smooth_faces", PROP_BOOLEAN, PROP_NONE);
++  RNA_def_property_ui_text(prop, "Smooth Faces", "");
++  RNA_def_property_update(prop, NC_NODE | NA_EDITED, "rna_Node_socket_update");
++
++  prop = RNA_def_property(srna, "close_faces_u", PROP_BOOLEAN, PROP_NONE);
++  RNA_def_property_ui_text(prop, "Close U", "Will close surface along U, will merge edges and vertexs");
++  RNA_def_property_update(prop, NC_NODE | NA_EDITED, "rna_Node_socket_update");
++
++  prop = RNA_def_property(srna, "close_faces_v", PROP_BOOLEAN, PROP_NONE);
++  RNA_def_property_ui_text(prop, "Close V", "Will close surface along V, will merge edges and vertexs");
++  RNA_def_property_update(prop, NC_NODE | NA_EDITED, "rna_Node_socket_update");
++
++  prop = RNA_def_property(srna, "close_curve", PROP_BOOLEAN, PROP_NONE);
++  RNA_def_property_ui_text(
++      prop, "Close Curve", "Will close the curve, will merge edges and vertexs");
++  RNA_def_property_update(prop, NC_NODE | NA_EDITED, "rna_Node_socket_update");
++
++  prop = RNA_def_property(srna, "vars_count", PROP_INT, PROP_NONE);
++  RNA_def_property_int_sdna(prop, NULL, "vars_count");
++  RNA_def_property_int_default(prop, 0);
++  RNA_def_property_range(prop, 0, 10);
++  RNA_def_property_ui_text(
++      prop, "Variables Count", "give you 10 max variables to use in equations");
++  RNA_def_property_update(prop, NC_NODE | NA_EDITED, "rna_Node_socket_update");
++}
++
+ static void def_geo_switch(StructRNA *srna)
+ {
+   PropertyRNA *prop;
+diff --git a/source/blender/nodes/CMakeLists.txt b/source/blender/nodes/CMakeLists.txt
+index dc19508be04..754b8290f20 100644
+--- a/source/blender/nodes/CMakeLists.txt
++++ b/source/blender/nodes/CMakeLists.txt
+@@ -192,6 +192,7 @@ set(SRC
+   geometry/nodes/node_geo_mesh_primitive_grid.cc
+   geometry/nodes/node_geo_mesh_primitive_ico_sphere.cc
+   geometry/nodes/node_geo_mesh_primitive_line.cc
++  geometry/nodes/node_geo_mesh_primitive_parametrics.cc
+   geometry/nodes/node_geo_mesh_primitive_uv_sphere.cc
+   geometry/nodes/node_geo_mesh_subdivide.cc
+   geometry/nodes/node_geo_mesh_to_curve.cc
+diff --git a/source/blender/nodes/NOD_geometry.h b/source/blender/nodes/NOD_geometry.h
+index ad3a838f4c0..ed96771d360 100644
+--- a/source/blender/nodes/NOD_geometry.h
++++ b/source/blender/nodes/NOD_geometry.h
+@@ -80,6 +80,7 @@ void register_node_type_geo_mesh_primitive_grid(void);
+ void register_node_type_geo_mesh_primitive_ico_sphere(void);
+ void register_node_type_geo_mesh_primitive_line(void);
+ void register_node_type_geo_mesh_primitive_uv_sphere(void);
++void register_node_type_geo_mesh_primitive_parametrics(void);
+ void register_node_type_geo_mesh_subdivide(void);
+ void register_node_type_geo_mesh_to_curve(void);
+ void register_node_type_geo_object_info(void);
+diff --git a/source/blender/nodes/NOD_static_types.h b/source/blender/nodes/NOD_static_types.h
+index 73d4a002991..f3e80ae70c3 100644
+--- a/source/blender/nodes/NOD_static_types.h
++++ b/source/blender/nodes/NOD_static_types.h
+@@ -320,6 +320,7 @@ DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_GRID, 0, "MESH_PRIMITIVE_GRID", Me
+ DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_ICO_SPHERE, 0, "MESH_PRIMITIVE_ICO_SPHERE", MeshIcoSphere, "Ico Sphere", "")
+ DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_LINE, def_geo_mesh_line, "MESH_PRIMITIVE_LINE", MeshLine, "Mesh Line", "")
+ DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_UV_SPHERE, 0, "MESH_PRIMITIVE_UV_SPHERE", MeshUVSphere, "UV Sphere", "")
++DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_PARAMETRICS, def_geo_mesh_parametrics, "MESH_PRIMITIVE_PARAMETRICS", MeshParametrics, "Parametrics", "")
+ DefNode(GeometryNode, GEO_NODE_MESH_TO_CURVE, 0, "MESH_TO_CURVE", MeshToCurve, "Mesh to Curve", "")
+ DefNode(GeometryNode, GEO_NODE_OBJECT_INFO, def_geo_object_info, "OBJECT_INFO", ObjectInfo, "Object Info", "")
+ DefNode(GeometryNode, GEO_NODE_POINT_DISTRIBUTE, def_geo_point_distribute, "POINT_DISTRIBUTE", PointDistribute, "Point Distribute", "")
+diff --git a/source/blender/nodes/geometry/nodes/node_geo_mesh_primitive_parametrics.cc b/source/blender/nodes/geometry/nodes/node_geo_mesh_primitive_parametrics.cc
+new file mode 100644
+index 00000000000..584267d63bb
+--- /dev/null
++++ b/source/blender/nodes/geometry/nodes/node_geo_mesh_primitive_parametrics.cc
+@@ -0,0 +1,1068 @@
++/*
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ */
++
++#include "DNA_mesh_types.h"
++#include "DNA_meshdata_types.h"
++
++#include "BKE_material.h"
++#include "BKE_mesh.h"
++
++#include "BLI_expr_pylike_eval.h"
++#include "node_common.h"
++#include "node_geometry_util.hh"
++
++#include "UI_interface.h"
++#include "UI_resources.h"
++
++#include <map>
++#include <sstream>
++#include <string>
++
++// there is infinites 4D to 3D projections
++// so not sure what is the one who make better sense
++// so for the moment, i disable it
++// make sense for surface, but to check if make sense to curve and curve diff
++// see MathMod soft for reference
++//#define USE_4D
++#ifdef USE_4D
++#  define ARRAY_COUNT 4
++#else
++#  define ARRAY_COUNT 3
++#endif
++
++#define DEFAULT_CURVE_FORMULA_X "t - pi * 0.5"
++#define DEFAULT_CURVE_FORMULA_Y "0"
++#define DEFAULT_CURVE_FORMULA_Z "sin(t * 5.0) * 0.25"
++#define DEFAULT_CURVE_MAX_STEPS 3.14259f
++#define DEFAULT_CURVE_STEP_SIZE 0.1f
++
++#define DEFAULT_CURVE_DIFF_FORMULA_X "6.7*y-y*z-2*x"
++#define DEFAULT_CURVE_DIFF_FORMULA_Y "x"
++#define DEFAULT_CURVE_DIFF_FORMULA_Z "y*y-z"
++#define DEFAULT_CURVE_DIFF_MAX_STEPS 5000
++#define DEFAULT_CURVE_DIFF_STEP_SIZE 0.05f
++
++#define DEFAULT_SURFACE_FORMULA_X "u - 1.5"
++#define DEFAULT_SURFACE_FORMULA_Y "v - 1.5"
++#define DEFAULT_SURFACE_FORMULA_Z "0"
++#define DEFAULT_SURFACE_MAX_STEPS_U 3.0f
++#define DEFAULT_SURFACE_STEP_SIZE_U 0.5f
++#define DEFAULT_SURFACE_MAX_STEPS_V 3.0f
++#define DEFAULT_SURFACE_STEP_SIZE_V 0.5f
++
++const char *variables_names[] = {"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};  // 10
++static bNodeSocketTemplate geo_node_mesh_primitive_parametrics_in[] = {
++    // curve
++    {SOCK_FLOAT, N_("Start t"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("End t"), 1.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("Step Size t"), 0.1f, 0.0f, 0.0f, 0.0f, 0, FLT_MAX},
++    {SOCK_STRING, N_("x(t)")},
++    {SOCK_STRING, N_("y(t)")},
++    {SOCK_STRING, N_("z(t)")},
++
++    // surface
++    {SOCK_FLOAT, N_("Start u"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("End u"), 1.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("Step Size u"), 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, FLT_MAX},
++    {SOCK_FLOAT, N_("Start v"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("End v"), 1.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("Step Size v"), 0.1f, 0.0f, 0.0f, 0.0f, 0.0f, FLT_MAX},
++    {SOCK_STRING, N_("x(u,v)")},
++    {SOCK_STRING, N_("y(u,v)")},
++    {SOCK_STRING, N_("z(u,v)")},
++#ifdef USE_4D
++    {SOCK_STRING, N_("w(u,v)")},
++#endif
++
++    // curve diff
++    {SOCK_VECTOR, N_("Start Location"), 0.001f, 0.001f, 0.001f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_INT, N_("Step Count"), 1000, 0, 0, 0, 0, INT_MAX},
++    {SOCK_FLOAT, N_("Step Size"), 0.1f, 0.0f, 0.0f, 0.0f, 0, FLT_MAX},
++    {SOCK_STRING, N_("dx(x,y,z)")},
++    {SOCK_STRING, N_("dy(x,y,z)")},
++    {SOCK_STRING, N_("dz(x,y,z)")},
++
++    // vars 10 max
++    {SOCK_FLOAT, N_("a"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("b"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("c"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("d"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("e"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("f"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("g"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("h"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("i"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {SOCK_FLOAT, N_("j"), 0.0f, 0.0f, 0.0f, 0.0f, -FLT_MAX, FLT_MAX},
++    {-1, ""},
++};
++
++static bNodeSocketTemplate geo_node_mesh_primitive_parametrics_out[] = {
++    {SOCK_GEOMETRY, N_("Geometry")},
++    {-1, ""},
++};
++
++static char varname[128];
++static void geo_node_mesh_primitive_parametrics_layout(uiLayout *layout,
++                                                       bContext *UNUSED(C),
++                                                       PointerRNA *ptr)
++{
++  uiLayoutSetPropSep(layout, true);
++  uiLayoutSetPropDecorate(layout, false);
++
++  uiItemR(layout, ptr, "mode", 0, IFACE_("Mode"), ICON_NONE);
++  if (RNA_enum_get(ptr, "mode") ==
++      GeometryNodeMeshParametricMode::GEO_NODE_MESH_PARAMETRIC_MODE_SURFACE) {
++    uiItemR(layout, ptr, "smooth_faces", 0, IFACE_("Smooth Faces"), ICON_NONE);
++    uiItemR(layout, ptr, "close_faces_u", 0, IFACE_("Close U"), ICON_NONE);  // todo : to implement
++    uiItemR(layout, ptr, "close_faces_v", 0, IFACE_("Close V"), ICON_NONE);  // todo : to implement
++  }
++  else {
++    uiItemR(layout, ptr, "close_curve", 0, IFACE_("Close Curve"), ICON_NONE);
++  }
++
++  uiItemR(layout, ptr, "vars_count", 0, IFACE_("Variables Count"), ICON_NONE);
++}
++
++namespace blender::nodes {
++
++namespace framework {
++
++static void evalPoint(ExprPyLike_Parsed **expr,
++                      const double *params_value,
++                      const int params_count,
++                      double *pos,
++                      bool use_4D = false)
++{
++  int i;
++  for (i = 0; i < 3; ++i) {
++    if (BLI_expr_pylike_is_valid(expr[i])) {
++      BLI_expr_pylike_eval(expr[i], params_value, params_count, &pos[i]);
++      if (!isfinite(abs(pos[i])))
++        pos[i] = 0.0;
++    }
++  }
++
++#ifdef USE_4D
++  if (use_4D && BLI_expr_pylike_is_valid(expr[3])) {
++    static double w = 0.0;
++    BLI_expr_pylike_eval(expr[3], params_value, params_count, &w);
++    if (!isfinite(abs(w)))
++      w = DBL_EPSILON;
++    if (abs(w - 2) < DBL_EPSILON)
++      w = 2.0 + DBL_EPSILON;
++    for (i = 0; i < 3; ++i) {
++      pos[i] *= 1.0 / (w - 2.0);
++    }
++  }
++#endif
++}
++
++/// <summary>
++/// report errors for each exprs
++/// </summary>
++static void report_exprs_errors(ExprPyLike_Parsed *expr[ARRAY_COUNT],
++                                GeoNodeExecParams *params,
++                                const GeometryNodeMeshParametricMode &mode)
++{
++  if (mode == GEO_NODE_MESH_PARAMETRIC_MODE_CURVE) {
++    if (!BLI_expr_pylike_is_valid(expr[0]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for x(t)");
++    if (!BLI_expr_pylike_is_valid(expr[1]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for y(t)");
++    if (!BLI_expr_pylike_is_valid(expr[2]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for z(t)");
++  }
++  else if (mode == GEO_NODE_MESH_PARAMETRIC_MODE_CURVE_DIFF) {
++    if (!BLI_expr_pylike_is_valid(expr[0]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for dx(x,y,z)");
++    if (!BLI_expr_pylike_is_valid(expr[1]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for dy(x,y,z)");
++    if (!BLI_expr_pylike_is_valid(expr[2]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for dz(x,y,z)");
++  }
++  else if (mode == GEO_NODE_MESH_PARAMETRIC_MODE_SURFACE) {
++    if (!BLI_expr_pylike_is_valid(expr[0]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for x(u,v)");
++    if (!BLI_expr_pylike_is_valid(expr[1]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for y(u,v)");
++    if (!BLI_expr_pylike_is_valid(expr[2]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for z(u,v)");
++#ifdef USE_4D
++    if (!BLI_expr_pylike_is_valid(expr[3]))
++      params->error_message_add(NodeWarningType::Error, "Parse error for w(u,v)");
++#endif
++  }
++}
++
++/// <summary>
++/// get count valid exprs
++/// </summary>
++static int init_exprs(ExprPyLike_Parsed *out_expr[ARRAY_COUNT],
++                      const char **formulas,
++                      std::vector<const char *> &cstrings)
++{
++  // expression compilation
++  int count_activated_exprs = 0;  // need two valid expresion at min for try to mesh
++  for (int i = 0; i < ARRAY_COUNT; ++i) {
++    out_expr[i] = BLI_expr_pylike_parse(formulas[i], cstrings.data(), (int)cstrings.size());
++    if (BLI_expr_pylike_is_valid(out_expr[i])) {
++      count_activated_exprs++;
++    }
++  }
++  return count_activated_exprs;
++}
++
++static void free_exprs(ExprPyLike_Parsed *expr[ARRAY_COUNT])
++{
++  BLI_expr_pylike_free(expr[0]);
++  BLI_expr_pylike_free(expr[1]);
++  BLI_expr_pylike_free(expr[2]);
++#ifdef USE_4D
++  BLI_expr_pylike_free(expr[3]);
++#endif
++}
++
++static std::vector<const char *> prepare_vars(const std::map<std::string, float> &vars_name_value,
++                                              std::vector<std::string> &vars_names,
++                                              std::vector<double> &var_values)
++{
++  int idx = (int)vars_names.size();
++  vars_names.resize(vars_names.size() + vars_name_value.size());
++  var_values.resize(vars_names.size());
++
++  for (const auto &var : vars_name_value) {
++    vars_names[idx] = var.first;
++    var_values[idx] = var.second;
++    idx++;
++  }
++
++  std::vector<const char *> cstrings;
++  for (auto &str : vars_names) {
++    if (!str.empty()) {
++      cstrings.push_back(str.c_str());
++    }
++  }
++
++  return cstrings;
++}
++
++/// <summary>
++/// parametric curve
++/// </summary>
++/// <param name="params_t">contains start_t, end_t, step_size_t</param>
++/// <param name="formulas">parametrics formulas</param>
++/// <param name="vars_name_value">dico who contain user variables, name and value</param>
++/// <param name="params">GeoNodeExecParams params for error reporting</param>
++/// <returns>the generated mesh</returns>
++static Mesh *create_parametrics_curve(const float3 &params_t,
++                                      const char **formulas,
++                                      const bool &close_curve,
++                                      const std::map<std::string, float> &vars_name_value,
++                                      GeoNodeExecParams *params)
++{
++  if (fabs(params_t[2]) < FLT_EPSILON)  // null step, avoid div by zero at next line
++  {
++    params->error_message_add(NodeWarningType::Error, "Step null, no mesh will be generated");
++    return nullptr;
++  }
++
++  const int verts_len = ceil((params_t[1] - params_t[0]) / params_t[2]);
++  if (verts_len < 2) {
++    params->error_message_add(NodeWarningType::Error,
++                              "Vertex count < 2, no mesh will be generated");
++    return nullptr;
++  }
++
++  // declarations
++  ExprPyLike_Parsed *expr[ARRAY_COUNT];
++  std::vector<std::string> vars_names{"t"};  // predefined vars, here t
++  std::vector<double> vars_values;
++
++  // const char array of vars
++  std::vector<const char *> cstrings = prepare_vars(vars_name_value, vars_names, vars_values);
++  const int vars_count = (int)cstrings.size();
++
++  // expression compilation
++  const int count_activated_exprs = init_exprs(expr, formulas, cstrings);
++
++  // will generate mesh because 2 coords at least are valids
++  if (count_activated_exprs >= 1) {
++    Mesh *mesh = BKE_mesh_new_nomain(
++        verts_len, close_curve ? (verts_len) : (verts_len - 1), 0, 0, 0);
++    BKE_id_material_eval_ensure_default_slot(&mesh->id);
++    MutableSpan<MVert> verts{mesh->mvert, mesh->totvert};  // vertexs
++    MutableSpan<MEdge> edges{mesh->medge, mesh->totedge};  // edges
++
++    static const short normal[] = {0, 0, 1};
++
++    // recompute of step_f for avoid discontinuity
++    // (verts_len - 1) for loop connection with close_curve == false
++    // or verts_len for loop connection with close_curve == true
++    const double step_d = ((double)params_t[1] - (double)params_t[0]) /
++                          (double)(verts_len - (close_curve ? 0 : 1));
++
++    double pos[] = {0.0, 0.0, 0.0};
++
++    MEdge *edge = &edges[0];  // will use edge++, for move fast in the array
++
++    for (int verts_index = 0; verts_index < verts_len; ++verts_index) {
++      vars_values[0] = params_t[0] + verts_index * step_d;  // no error propagation in this way
++      evalPoint(expr, vars_values.data(), vars_count, pos);
++      copy_v3fl_v3db(verts[verts_index].co, pos);
++      clamp_v3(verts[verts_index].co, -FLT_MAX, FLT_MAX);  // avoid infinite values
++      copy_v3_v3_short(verts[verts_index].no, normal);
++      if (verts_index) {
++        edge->v1 = verts_index - 1;
++        edge->v2 = verts_index;
++        edge->flag |= ME_LOOSEEDGE;
++        edge++;
++      }
++    }
++
++    if (close_curve) {
++      edge->v1 = verts_len - 1;
++      edge->v2 = 0;
++      edge->flag |= ME_LOOSEEDGE;
++    }
++
++    report_exprs_errors(expr, params, GEO_NODE_MESH_PARAMETRIC_MODE_CURVE);
++    free_exprs(expr);
++
++    BLI_assert(BKE_mesh_is_valid(mesh));
++
++    return mesh;
++  }
++
++  report_exprs_errors(expr, params, GEO_NODE_MESH_PARAMETRIC_MODE_CURVE);
++  free_exprs(expr);  // here one expr can be valid, so free again
++
++  return nullptr;
++}
++
++/// <summary>
++/// parametric curve via differential equations
++/// </summary>
++/// <param name="start_location">first vertex location</param>
++/// <param name="step_count">count steps or iterations</param>
++/// <param name="step_size">step size</param>
++/// <param name="formulas">parametrics formulas</param>
++/// <param name="smooth_faces">can smooth mesh or not</param>
++/// <param name="vars_name_value">dico who contain user variables, name and value</param>
++/// <param name="params">GeoNodeExecParams params for error reporting</param>
++/// <returns>the generated mesh</returns>
++static Mesh *create_parametrics_curve_diff(const float3 start_location,
++                                           const int step_count,
++                                           const float step_size,
++                                           const char **formulas,
++                                           const bool &close_curve,
++                                           const std::map<std::string, float> vars_name_value,
++                                           GeoNodeExecParams *params)
++{
++  if (fabs(step_size) < FLT_EPSILON) {  // null step size, avoid div by zero at next line
++    params->error_message_add(NodeWarningType::Error, "Step size null, no mesh will be generated");
++    return nullptr;
++  }
++
++  const int verts_len = step_count;
++  if (verts_len < 2) {
++    params->error_message_add(NodeWarningType::Error,
++                              "Vertex count < 2, no mesh will be generated");
++    return nullptr;
++  }
++
++  // declarations
++  ExprPyLike_Parsed *expr[ARRAY_COUNT];
++  std::vector<std::string> vars_names{"x", "y", "z"};  // predefined vars, here x y and z
++  std::vector<double> vars_values;
++
++  // const char array of vars
++  std::vector<const char *> cstrings = prepare_vars(vars_name_value, vars_names, vars_values);
++  const int vars_count = (int)cstrings.size();
++
++  // expression compilation
++  const int count_activated_exprs = init_exprs(expr, formulas, cstrings);
++
++  // will generate curve because 1 coord at least is valid
++  if (count_activated_exprs >= 1) {
++    Mesh *mesh = BKE_mesh_new_nomain(
++        verts_len, close_curve ? (verts_len) : (verts_len - 1), 0, 0, 0);
++    BKE_id_material_eval_ensure_default_slot(&mesh->id);
++    MutableSpan<MVert> verts{mesh->mvert, mesh->totvert};  // vertex
++    MutableSpan<MEdge> edges{mesh->medge, mesh->totedge};  // face edges
++
++    static const short normal[] = {0, 0, 1};
++
++    vars_values[0] = start_location.x;
++    vars_values[1] = start_location.y;
++    vars_values[2] = start_location.z;
++
++    for (int i = 0; i < 3; ++i) {
++      if (!isfinite(abs(vars_values[i]))) {
++        vars_values[i] = 0.0;
++      }
++    }
++
++    MEdge *edge = &edges[0];  // will use edge++, for move fast in the array
++
++    const double step_d = step_size;  // double conv
++
++    double dpos[] = {0.0, 0.0, 0.0};
++    for (int verts_index = 0; verts_index < verts_len; ++verts_index) {
++      evalPoint(expr, vars_values.data(), vars_count, dpos);
++      for (int i = 0; i < 3; ++i) {
++        vars_values[i] += dpos[i] * step_d;
++        if (!isfinite(abs(vars_values[i]))) {
++          vars_values[i] = 0.0;
++        }
++      }
++      copy_v3fl_v3db(verts[verts_index].co, vars_values.data());
++      clamp_v3(verts[verts_index].co, -FLT_MAX, FLT_MAX);  // avoid infinite values
++      copy_v3_v3_short(verts[verts_index].no, normal);
++      if (verts_index) {
++        edge->v1 = verts_index - 1;
++        edge->v2 = verts_index;
++        edge->flag |= ME_LOOSEEDGE;
++        edge++;
++      }
++    }
++
++    if (close_curve) {
++      edge->v1 = verts_len - 1;
++      edge->v2 = 0;
++      edge->flag |= ME_LOOSEEDGE;
++    }
++
++    report_exprs_errors(expr, params, GEO_NODE_MESH_PARAMETRIC_MODE_CURVE_DIFF);
++    free_exprs(expr);
++
++    BLI_assert(BKE_mesh_is_valid(mesh));
++
++    return mesh;
++  }
++
++  report_exprs_errors(expr, params, GEO_NODE_MESH_PARAMETRIC_MODE_CURVE_DIFF);
++  free_exprs(expr);  // here one expr can be valid, so free again
++
++  return nullptr;
++}
++
++/// <summary>
++/// add a uv layer to the current mesh
++/// </summary>
++static void calculate_uvs(Mesh *mesh,
++                          const Span<MVert>& verts,
++                          const Span<MLoop>& loops,
++                          const float size_x,
++                          const float size_y)
++{
++  MeshComponent mesh_component;
++  mesh_component.replace(mesh, GeometryOwnershipType::Editable);
++  OutputAttribute_Typed<float2> uv_attribute =
++      mesh_component.attribute_try_get_for_output_only<float2>("uv_map", ATTR_DOMAIN_CORNER);
++  MutableSpan<float2> uvs = uv_attribute.as_span();
++
++  const float dx = (size_x == 0.0f) ? 0.0f : 1.0f / size_x;
++  const float dy = (size_y == 0.0f) ? 0.0f : 1.0f / size_y;
++  for (const int i : loops.index_range()) {
++    const float3 &co = verts[loops[i].v].co;
++    uvs[i].x = (co.x + size_x * 0.5f) * dx;
++    uvs[i].y = (co.y + size_y * 0.5f) * dy;
++  }
++
++  uv_attribute.save();
++}
++
++static void getVertexIndexs(const bool &close_faces_u,
++                            const bool &close_faces_v,
++                            const int &cx,
++                            const int &cy,
++                            const int &sx,
++                            const int &sy,
++                            int *out_v)
++{
++  /* poly p +
++     v03 --- v02
++      |   p   |
++     v00 --- v01
++  */
++
++  const int lx2 = sx - 2;
++  const int lx1 = sx - 1;
++  const int ly2 = sy - 2;
++
++  if (close_faces_u && close_faces_v) {
++    out_v[0] = cx + lx1 * (cy);
++    out_v[1] = out_v[0] + 1;
++    out_v[3] = cx + lx1 * (cy + 1);
++    out_v[2] = out_v[3] + 1;
++
++    if (cx == lx2 && cy == ly2) {
++      out_v[3] = cx;
++      out_v[2] = 0;
++      out_v[1] = out_v[0] - lx2;
++      return;  // fast quit
++    }
++    else {
++      if (cy == ly2) {
++        out_v[3] = cx;
++        out_v[2] = out_v[3] + 1;
++        out_v[1] = out_v[0] + 1;
++        return;  // fast quit
++      }
++      else if (cx == lx2) {
++        out_v[1] = out_v[0] - lx2;
++        out_v[2] = out_v[1] + lx1;
++        return;  // fast quit
++      }
++    }
++    return;  // fast quit
++  }
++  else
++  {
++    if (close_faces_v) {
++      out_v[0] = cx + sx * cy;
++      out_v[1] = cx + sx * cy + 1;
++      if (cy < ly2) {
++        out_v[3] = cx + sx * (cy + 1);
++        out_v[2] = out_v[3] + 1;
++        return;  // fast quit
++      }
++      else {
++        out_v[3] = cx;
++        out_v[2] = out_v[3] + 1;
++        return;  // fast quit
++      }
++    }
++    else if (close_faces_u) {
++      out_v[0] = cx + lx1 * (cy);
++      out_v[3] = cx + lx1 * (cy + 1);
++
++      if (cx < lx2) {
++        out_v[1] = out_v[0] + 1;
++        out_v[2] = out_v[3] + 1;
++        return;  // fast quit
++      }
++      else {
++        out_v[1] = out_v[0] - lx2;
++        out_v[2] = out_v[1] + lx1;
++        return;  // fast quit
++      }
++    }
++    else {
++      out_v[0] = cx + sx * (cy);
++      out_v[1] = out_v[0] + 1;
++      out_v[3] = cx + sx * (cy + 1);
++      out_v[2] = out_v[3] + 1;
++      return;  // fast quit
++    }
++    return;  // fast quit
++  }
++}
++
++/// <summary>
++/// parametric surface accroding to u and v predefined vars (a uv grid)
++/// </summary>
++/// <param name="params_u">contain {start, end, step} for u</param>
++/// <param name="params_v">contain {start, end, step} for v</param>
++/// <param name="formulas">parametrics formulas</param>
++/// <param name="smooth_faces">can smooth mesh or not</param>
++/// <param name="close_faces_u">can close surface for u, merge edges and vertexs</param>
++/// <param name="close_faces_v">can close surface for v, merge edges and vertexs</param>
++/// <param name="vars_name_value">dico who contain user variables, name and value</param>
++/// <param name="params">GeoNodeExecParams params for error reporting</param>
++/// <returns>the generated mesh</returns>
++static Mesh *create_parametrics_surface(const float3& params_u,
++                                        const float3& params_v,
++                                        const char **formulas,
++                                        const bool& smooth_faces,
++                                        bool close_faces_u,
++                                        bool close_faces_v,
++                                        const std::map<std::string, float>& vars_name_value,
++                                        GeoNodeExecParams *params)
++{
++  if (fabs(params_u[2]) < FLT_EPSILON) {
++    params->error_message_add(NodeWarningType::Error, "step_u is null, no mesh will be generated");
++    return nullptr;
++  }
++
++  if (fabs(params_v[2]) < FLT_EPSILON) {
++    params->error_message_add(NodeWarningType::Error, "step_v is null, no mesh will be generated");
++    return nullptr;
++  }
++
++  int verts_len_u = ceil((params_u[1] - params_u[0]) / params_u[2]);
++
++  if (verts_len_u < 2) {
++    params->error_message_add(NodeWarningType::Error,
++                              "Vertex count for u < 2, no mesh will be generated");
++    return nullptr;
++  }
++
++  if (verts_len_u < 3) {
++    close_faces_u = false;
++    params->error_message_add(NodeWarningType::Error,
++                              "Vertex count for u < 3, closing for u is disabled");
++  }
++
++  int verts_len_v = ceil((params_v[1] - params_v[0]) / params_v[2]);
++  if (verts_len_v < 2) {
++    params->error_message_add(NodeWarningType::Error,
++                              "Vertex count for v < 2, no mesh will be generated");
++    return nullptr;
++  }
++
++  if (verts_len_v < 3) {
++    close_faces_v = false;
++    params->error_message_add(NodeWarningType::Error,
++                              "Vertex count for v < 3, closing for v is disabled");
++  }
++
++  const int verts_len = (verts_len_u - (close_faces_u ? 1 : 0)) * (verts_len_v - (close_faces_v ? 1 : 0));
++  if (verts_len < 2) {
++    params->error_message_add(NodeWarningType::Error,
++                              "Vertex count < 2, no mesh will be generated");
++    return nullptr;
++  }
++
++  // declarations
++  ExprPyLike_Parsed *expr[ARRAY_COUNT];
++  std::vector<std::string> vars_names{"u", "v"};  // predefined vars, here u and v
++  std::vector<double> vars_values;
++
++  // const char array of vars
++  std::vector<const char *> cstrings = prepare_vars(vars_name_value, vars_names, vars_values);
++  const int vars_count = (int)cstrings.size();
++
++  // expression compilation
++  const int count_activated_exprs = init_exprs(expr, formulas, cstrings);
++
++  // will generate mesh because 2 coords at least are valids
++  if (count_activated_exprs >= 2) {
++    const int polys_len_u = verts_len_u - 1;
++    const int polys_len_v = verts_len_v - 1;
++    const int polys_len = polys_len_u * polys_len_v;
++    const int loops_len = polys_len * 4;
++
++    Mesh *mesh = BKE_mesh_new_nomain(verts_len, 0, 0, loops_len, polys_len);
++    BKE_id_material_eval_ensure_default_slot(&mesh->id);
++    MutableSpan<MVert> verts{mesh->mvert, mesh->totvert};   // vertex
++    MutableSpan<MLoop> loops{mesh->mloop, mesh->totloop};  // face vertexs
++    if (smooth_faces)
++    {
++      mesh->flag |= ME_AUTOSMOOTH;
++      mesh->smoothresh = DEG2RADF(180.0f);
++      mesh->runtime.cd_dirty_vert |= CD_MASK_NORMAL;
++      mesh->runtime.cd_dirty_poly |= CD_MASK_NORMAL;
++    }
++
++    // recompute of step_u and step_v for avoid discontinuity
++    // (verts_len - 1) for loop connection with close_curve == false
++    // or verts_len for loop connection with close_curve == true
++    double step_u_d = ((double)params_u[1] - (double)params_u[0]) /
++                      (double)(verts_len_u - 1);
++    double step_v_d = ((double)params_v[1] - (double)params_v[0]) /
++                      (double)(verts_len_v - 1);
++
++    int loops_index = 0;
++
++    MVert *vert = &verts[0];    // will use vert++, for move fast in the array
++    MLoop *loop = &loops[0];    // will use loop++, for move fast in the array
++    MPoly *poly = mesh->mpoly;  // will use poly++, for move fast in the array
++
++    // for avoid computation each iterations of loop U
++    const int verts_len_u_2 = verts_len_u - 2;
++    const int verts_len_v_2 = verts_len_v - 2;
++
++    int vi[4];
++    double pos[] = {0.0, 0.0, 0.0};
++    for (int verts_index_v = 0; verts_index_v < verts_len_v; ++verts_index_v) {
++      vars_values[1] = params_v[0] + verts_index_v * step_v_d;  // no errs propagation this way
++
++      for (int verts_index_u = 0; verts_index_u < verts_len_u; ++verts_index_u) {
++        vars_values[0] = params_u[0] + verts_index_u * step_u_d;  // no errs propagation this way
++
++        if (verts_index_u < polys_len_u && verts_index_v < polys_len_v) {
++
++          /* poly p +
++             v03 --- v02
++              |   p   |
++             v00 --- v01
++          */
++
++          poly->loopstart = loops_index;
++          poly->totloop = 4;
++          if (smooth_faces) {
++            poly->flag = ME_SMOOTH;
++          }
++          poly++;
++          loops_index += 4;
++
++          getVertexIndexs(close_faces_u,
++                          close_faces_v,
++                          verts_index_u,
++                          verts_index_v,
++                          verts_len_u,
++                          verts_len_v,
++                          vi);
++
++          loop->v = vi[0];
++          ++loop;
++          loop->v = vi[1];
++          ++loop;
++          loop->v = vi[2];
++          ++loop;
++          loop->v = vi[3];
++          ++loop;
++        }
++
++        if (close_faces_u && (verts_index_u == polys_len_u) ||
++            close_faces_v && (verts_index_v == polys_len_v))
++          continue;
++
++        evalPoint(expr, vars_values.data(), vars_count, pos, true);
++        copy_v3fl_v3db(vert->co, pos);
++        clamp_v3(vert->co, -FLT_MAX, FLT_MAX);  // avoid infinite values on end result
++        ++vert;
++      }
++    }
++
++    report_exprs_errors(expr, params, GEO_NODE_MESH_PARAMETRIC_MODE_SURFACE);
++    free_exprs(expr);
++
++    calculate_uvs(mesh, verts, loops, verts_len_u, verts_len_v);
++    BKE_mesh_calc_edges(mesh, false, false);
++    BKE_mesh_calc_normals(mesh);
++    BLI_assert(BKE_mesh_is_valid(mesh));
++
++    return mesh;
++  }
++
++  // here one expr can be valid,
++  // but we can generate the mesh so we re free all
++
++  report_exprs_errors(expr, params, GEO_NODE_MESH_PARAMETRIC_MODE_SURFACE);
++  free_exprs(expr);
++
++  return nullptr;
++}
++
++}  // namespace framework
++
++static void set_socket_string_default_value(bNodeSocket *socket, const char *default_value)
++{
++  if (!socket)
++    return;
++
++  bNodeSocketValueString *value = static_cast<bNodeSocketValueString *>(socket->default_value);
++  BLI_strncpy(value->value, default_value, 1024);
++}
++
++static void set_socket_string_default_float(bNodeSocket *socket, const float &default_value)
++{
++  if (!socket)
++    return;
++
++  bNodeSocketValueFloat *value = static_cast<bNodeSocketValueFloat *>(socket->default_value);
++  value->value = default_value;
++}
++
++static void set_socket_string_default_int(bNodeSocket *socket, const int &default_value)
++{
++  if (!socket)
++    return;
++
++  bNodeSocketValueInt *value = static_cast<bNodeSocketValueInt *>(socket->default_value);
++  value->value = default_value;
++}
++
++static void geo_node_mesh_primitive_parametrics_update(bNodeTree *ntree, bNode *node)
++{
++  NodeGeometryMeshParametrics *data = (NodeGeometryMeshParametrics *)node->storage;
++  GeometryNodeMeshParametricMode mode = (GeometryNodeMeshParametricMode)data->mode;
++  int vars_count = data->vars_count;
++  if (vars_count > 10)
++    vars_count = 10;
++  std::map<std::string, float> vars_name_value;
++  for (int i = 0; i < 10; i++) {
++    bNodeSocket *var_socket = nodeFindSocket(node, SOCK_IN, variables_names[i]);
++    if (var_socket)
++      nodeSetSocketAvailability(var_socket, i < vars_count);
++  }
++
++  bNodeSocket *start_t_socket = nodeFindSocket(node, SOCK_IN, "Start t");
++  bNodeSocket *end_t_socket = nodeFindSocket(node, SOCK_IN, "End t");
++  bNodeSocket *step_t_socket = nodeFindSocket(node, SOCK_IN, "Step Size t");
++  bNodeSocket *x_t_socket = nodeFindSocket(node, SOCK_IN, "x(t)");
++  bNodeSocket *y_t_socket = nodeFindSocket(node, SOCK_IN, "y(t)");
++  bNodeSocket *z_t_socket = nodeFindSocket(node, SOCK_IN, "z(t)");
++
++  bNodeSocket *start_u_socket = nodeFindSocket(node, SOCK_IN, "Start u");
++  bNodeSocket *end_u_socket = nodeFindSocket(node, SOCK_IN, "End u");
++  bNodeSocket *step_u_socket = nodeFindSocket(node, SOCK_IN, "Step Size u");
++  bNodeSocket *start_v_socket = nodeFindSocket(node, SOCK_IN, "Start v");
++  bNodeSocket *end_v_socket = nodeFindSocket(node, SOCK_IN, "End v");
++  bNodeSocket *step_v_socket = nodeFindSocket(node, SOCK_IN, "Step Size v");
++  bNodeSocket *x_u_v_socket = nodeFindSocket(node, SOCK_IN, "x(u,v)");
++  bNodeSocket *y_u_v_socket = nodeFindSocket(node, SOCK_IN, "y(u,v)");
++  bNodeSocket *z_u_v_socket = nodeFindSocket(node, SOCK_IN, "z(u,v)");
++
++#ifdef USE_4D
++  bNodeSocket *x_t_socket = nodeFindSocket(node, SOCK_IN, "w(u,v)");
++#endif
++
++  bNodeSocket *start_location_socket = nodeFindSocket(node, SOCK_IN, "Start Location");
++  bNodeSocket *iterations_socket = nodeFindSocket(node, SOCK_IN, "Step Count");
++  bNodeSocket *step_socket = nodeFindSocket(node, SOCK_IN, "Step Size");
++  bNodeSocket *dx_x_y_z_socket = nodeFindSocket(node, SOCK_IN, "dx(x,y,z)");
++  bNodeSocket *dy_x_y_z_socket = nodeFindSocket(node, SOCK_IN, "dy(x,y,z)");
++  bNodeSocket *dz_x_y_z_socket = nodeFindSocket(node, SOCK_IN, "dz(x,y,z)");
++
++  if (mode == GeometryNodeMeshParametricMode::GEO_NODE_MESH_PARAMETRIC_MODE_CURVE) {
++    nodeSetSocketAvailability(start_t_socket, true);
++    nodeSetSocketAvailability(end_t_socket, true);
++    nodeSetSocketAvailability(step_t_socket, true);
++    nodeSetSocketAvailability(x_t_socket, true);
++    nodeSetSocketAvailability(y_t_socket, true);
++    nodeSetSocketAvailability(z_t_socket, true);
++
++    nodeSetSocketAvailability(start_u_socket, false);
++    nodeSetSocketAvailability(end_u_socket, false);
++    nodeSetSocketAvailability(step_u_socket, false);
++    nodeSetSocketAvailability(start_v_socket, false);
++    nodeSetSocketAvailability(end_v_socket, false);
++    nodeSetSocketAvailability(step_v_socket, false);
++    nodeSetSocketAvailability(x_u_v_socket, false);
++    nodeSetSocketAvailability(y_u_v_socket, false);
++    nodeSetSocketAvailability(z_u_v_socket, false);
++
++    nodeSetSocketAvailability(start_location_socket, false);
++    nodeSetSocketAvailability(iterations_socket, false);
++    nodeSetSocketAvailability(step_socket, false);
++    nodeSetSocketAvailability(dx_x_y_z_socket, false);
++    nodeSetSocketAvailability(dy_x_y_z_socket, false);
++    nodeSetSocketAvailability(dz_x_y_z_socket, false);
++
++#ifdef USE_4D
++    nodeSetSocketAvailability(w_u_v_socket, false);
++#endif
++  }
++  else if (mode == GeometryNodeMeshParametricMode::GEO_NODE_MESH_PARAMETRIC_MODE_CURVE_DIFF) {
++    nodeSetSocketAvailability(start_t_socket, false);
++    nodeSetSocketAvailability(end_t_socket, false);
++    nodeSetSocketAvailability(step_t_socket, false);
++    nodeSetSocketAvailability(x_t_socket, false);
++    nodeSetSocketAvailability(y_t_socket, false);
++    nodeSetSocketAvailability(z_t_socket, false);
++
++    nodeSetSocketAvailability(start_u_socket, false);
++    nodeSetSocketAvailability(end_u_socket, false);
++    nodeSetSocketAvailability(step_u_socket, false);
++    nodeSetSocketAvailability(start_v_socket, false);
++    nodeSetSocketAvailability(end_v_socket, false);
++    nodeSetSocketAvailability(step_v_socket, false);
++    nodeSetSocketAvailability(x_u_v_socket, false);
++    nodeSetSocketAvailability(y_u_v_socket, false);
++    nodeSetSocketAvailability(z_u_v_socket, false);
++
++    nodeSetSocketAvailability(start_location_socket, true);
++    nodeSetSocketAvailability(iterations_socket, true);
++    nodeSetSocketAvailability(step_socket, true);
++    nodeSetSocketAvailability(dx_x_y_z_socket, true);
++    nodeSetSocketAvailability(dy_x_y_z_socket, true);
++    nodeSetSocketAvailability(dz_x_y_z_socket, true);
++
++#ifdef USE_4D
++    nodeSetSocketAvailability(w_u_v_socket, false);
++#endif
++  }
++  else if (mode == GeometryNodeMeshParametricMode::GEO_NODE_MESH_PARAMETRIC_MODE_SURFACE) {
++    nodeSetSocketAvailability(start_t_socket, false);
++    nodeSetSocketAvailability(end_t_socket, false);
++    nodeSetSocketAvailability(step_t_socket, false);
++    nodeSetSocketAvailability(x_t_socket, false);
++    nodeSetSocketAvailability(y_t_socket, false);
++    nodeSetSocketAvailability(z_t_socket, false);
++
++    nodeSetSocketAvailability(start_u_socket, true);
++    nodeSetSocketAvailability(end_u_socket, true);
++    nodeSetSocketAvailability(step_u_socket, true);
++    nodeSetSocketAvailability(start_v_socket, true);
++    nodeSetSocketAvailability(end_v_socket, true);
++    nodeSetSocketAvailability(step_v_socket, true);
++    nodeSetSocketAvailability(x_u_v_socket, true);
++    nodeSetSocketAvailability(y_u_v_socket, true);
++    nodeSetSocketAvailability(z_u_v_socket, true);
++
++    nodeSetSocketAvailability(start_location_socket, false);
++    nodeSetSocketAvailability(iterations_socket, false);
++    nodeSetSocketAvailability(step_socket, false);
++    nodeSetSocketAvailability(dx_x_y_z_socket, false);
++    nodeSetSocketAvailability(dy_x_y_z_socket, false);
++    nodeSetSocketAvailability(dz_x_y_z_socket, false);
++
++#ifdef USE_4D
++    nodeSetSocketAvailability(w_u_v_socket, true);
++#endif
++  }
++}
++
++static void geo_node_mesh_primitive_parametrics_init(bNodeTree *ntree, bNode *node)
++{
++  NodeGeometryMeshParametrics *node_storage = (NodeGeometryMeshParametrics *)MEM_callocN(
++      sizeof(NodeGeometryMeshParametrics), __func__);
++
++  node_storage->mode = GeometryNodeMeshParametricMode::GEO_NODE_MESH_PARAMETRIC_MODE_CURVE;
++  node_storage->smooth_faces = (uint8_t) true;
++  node_storage->close_faces_u = (uint8_t) false;
++  node_storage->close_faces_v = (uint8_t) false;
++  node_storage->close_curve = (uint8_t) false;
++  node_storage->vars_count = 0;
++
++  node->storage = node_storage;
++
++  bNodeSocket *socket = nullptr;
++
++  socket = nodeFindSocket(node, SOCK_IN, "x(t)");
++  set_socket_string_default_value(socket, DEFAULT_CURVE_FORMULA_X);
++  socket = nodeFindSocket(node, SOCK_IN, "y(t)");
++  set_socket_string_default_value(socket, DEFAULT_CURVE_FORMULA_Y);
++  socket = nodeFindSocket(node, SOCK_IN, "z(t)");
++  set_socket_string_default_value(socket, DEFAULT_CURVE_FORMULA_Z);
++  socket = nodeFindSocket(node, SOCK_IN, "End t");
++  set_socket_string_default_float(socket, DEFAULT_CURVE_MAX_STEPS);
++  socket = nodeFindSocket(node, SOCK_IN, "Step Size t");
++  set_socket_string_default_float(socket, DEFAULT_CURVE_STEP_SIZE);
++
++  socket = nodeFindSocket(node, SOCK_IN, "x(u,v)");
++  set_socket_string_default_value(socket, DEFAULT_SURFACE_FORMULA_X);
++  socket = nodeFindSocket(node, SOCK_IN, "y(u,v)");
++  set_socket_string_default_value(socket, DEFAULT_SURFACE_FORMULA_Y);
++  socket = nodeFindSocket(node, SOCK_IN, "z(u,v)");
++  set_socket_string_default_value(socket, DEFAULT_SURFACE_FORMULA_Z);
++  socket = nodeFindSocket(node, SOCK_IN, "End u");
++  set_socket_string_default_float(socket, DEFAULT_SURFACE_MAX_STEPS_U);
++  socket = nodeFindSocket(node, SOCK_IN, "Step Size u");
++  set_socket_string_default_float(socket, DEFAULT_SURFACE_STEP_SIZE_U);
++  socket = nodeFindSocket(node, SOCK_IN, "End v");
++  set_socket_string_default_float(socket, DEFAULT_SURFACE_MAX_STEPS_V);
++  socket = nodeFindSocket(node, SOCK_IN, "Step Size v");
++  set_socket_string_default_float(socket, DEFAULT_SURFACE_STEP_SIZE_V);
++#ifdef USE_4D
++  socket = nodeFindSocket(node, SOCK_IN, "w(u,v)");
++  set_socket_string_default_value(socket, "0");
++#endif
++
++  socket = nodeFindSocket(node, SOCK_IN, "dx(x,y,z)");
++  set_socket_string_default_value(socket, DEFAULT_CURVE_DIFF_FORMULA_X);
++  socket = nodeFindSocket(node, SOCK_IN, "dy(x,y,z)");
++  set_socket_string_default_value(socket, DEFAULT_CURVE_DIFF_FORMULA_Y);
++  socket = nodeFindSocket(node, SOCK_IN, "dz(x,y,z)");
++  set_socket_string_default_value(socket, DEFAULT_CURVE_DIFF_FORMULA_Z);
++  socket = nodeFindSocket(node, SOCK_IN, "Step Count");
++  set_socket_string_default_int(socket, DEFAULT_CURVE_DIFF_MAX_STEPS);
++  socket = nodeFindSocket(node, SOCK_IN, "Step Size");
++  set_socket_string_default_float(socket, DEFAULT_CURVE_DIFF_STEP_SIZE);
++
++  geo_node_mesh_primitive_parametrics_update(ntree, node);
++}
++
++static void geo_node_mesh_primitive_parametrics_exec(GeoNodeExecParams params)
++{
++  const bNode &node = params.node();
++  NodeGeometryMeshParametrics *data = (NodeGeometryMeshParametrics *)node.storage;
++  const GeometryNodeMeshParametricMode mode = (const GeometryNodeMeshParametricMode)data->mode;
++  const bool smooth_faces = (const bool)data->smooth_faces;
++  const bool close_faces_u = (const bool)data->close_faces_u;
++  const bool close_faces_v = (const bool)data->close_faces_v;
++  const bool close_curve = (const bool)data->close_curve;
++
++  int vars_count = data->vars_count;
++  if (vars_count > 10)
++    vars_count = 10;
++  std::map<std::string, float> vars_name_value;
++  for (int i = 0; i < vars_count; ++i) {
++    vars_name_value[variables_names[i]] = params.get_input<float>(variables_names[i]);
++  }
++
++  Mesh *mesh = nullptr;
++
++  if (mode == GeometryNodeMeshParametricMode::GEO_NODE_MESH_PARAMETRIC_MODE_CURVE) {
++    const char *formulas[] = {params.get_input<std::string>("x(t)").c_str(),
++                              params.get_input<std::string>("y(t)").c_str(),
++                              params.get_input<std::string>("z(t)").c_str()};
++    const float3 params_t(params.extract_input<float>("Start t"),
++                          params.extract_input<float>("End t"),
++                          params.extract_input<float>("Step Size t"));
++    mesh = framework::create_parametrics_curve(
++        params_t, formulas, close_curve, vars_name_value, &params);
++  }
++  else if (mode == GeometryNodeMeshParametricMode::GEO_NODE_MESH_PARAMETRIC_MODE_CURVE_DIFF) {
++    const char *formulas[] = {params.get_input<std::string>("dx(x,y,z)").c_str(),
++                              params.get_input<std::string>("dy(x,y,z)").c_str(),
++                              params.get_input<std::string>("dz(x,y,z)").c_str()};
++    const float3 start_location = params.extract_input<float3>("Start Location");
++    const int step_count = params.extract_input<int>("Step Count");
++    const float step_size = params.extract_input<float>("Step Size");
++    mesh = framework::create_parametrics_curve_diff(
++        start_location, step_count, step_size, formulas, close_curve, vars_name_value, &params);
++  }
++  else if (mode == GeometryNodeMeshParametricMode::GEO_NODE_MESH_PARAMETRIC_MODE_SURFACE) {
++    const char *formulas[] = {params.get_input<std::string>("x(u,v)").c_str(),
++                              params.get_input<std::string>("y(u,v)").c_str(),
++                              params.get_input<std::string>("z(u,v)").c_str(),
++#ifdef USE_4D
++                              params.get_input<std::string>("w(u,v)").c_str()
++#endif
++    };
++    const float3 params_u(params.extract_input<float>("Start u"),
++                          params.extract_input<float>("End u"),
++                          params.extract_input<float>("Step Size u"));
++    const float3 params_v(params.extract_input<float>("Start v"),
++                          params.extract_input<float>("End v"),
++                          params.extract_input<float>("Step Size v"));
++    mesh = framework::create_parametrics_surface(params_u,
++                                                 params_v,
++                                                 formulas,
++                                                 smooth_faces,
++                                                 close_faces_u,
++                                                 close_faces_v,
++                                                 vars_name_value,
++                                                 &params);
++  }
++  params.set_output("Geometry", GeometrySet::create_with_mesh(mesh));
++}
++
++}  // namespace blender::nodes
++
++void register_node_type_geo_mesh_primitive_parametrics()
++{
++  static bNodeType ntype;
++
++  geo_node_type_base(
++      &ntype, GEO_NODE_MESH_PRIMITIVE_PARAMETRICS, "Parametrics", NODE_CLASS_GEOMETRY, 0);
++  node_type_socket_templates(
++      &ntype, geo_node_mesh_primitive_parametrics_in, geo_node_mesh_primitive_parametrics_out);
++  node_type_storage(&ntype,
++                    "NodeGeometryMeshParametrics",
++                    node_free_standard_storage,
++                    node_copy_standard_storage);
++  node_type_size(&ntype, 200, 120, 700);
++  node_type_init(&ntype, blender::nodes::geo_node_mesh_primitive_parametrics_init);
++  node_type_update(&ntype, blender::nodes::geo_node_mesh_primitive_parametrics_update);
++  ntype.geometry_node_execute = blender::nodes::geo_node_mesh_primitive_parametrics_exec;
++  ntype.draw_buttons = geo_node_mesh_primitive_parametrics_layout;
++  nodeRegisterType(&ntype);
++}

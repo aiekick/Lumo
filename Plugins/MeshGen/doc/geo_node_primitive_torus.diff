@@ -1,0 +1,522 @@
+diff --git a/release/scripts/startup/nodeitems_builtins.py b/release/scripts/startup/nodeitems_builtins.py
+index 1d616947db6..32a4efc15b5 100644
+--- a/release/scripts/startup/nodeitems_builtins.py
++++ b/release/scripts/startup/nodeitems_builtins.py
+@@ -558,6 +558,7 @@ geometry_node_categories = [
+         NodeItem("GeometryNodeMeshGrid"),
+         NodeItem("GeometryNodeMeshIcoSphere"),
+         NodeItem("GeometryNodeMeshLine"),
++        NodeItem("GeometryNodeMeshTorus"),
+         NodeItem("GeometryNodeMeshUVSphere"),
+     ]),
+ 
+diff --git a/source/blender/blenkernel/BKE_node.h b/source/blender/blenkernel/BKE_node.h
+index 63b11a194ff..3a4f220d45c 100644
+--- a/source/blender/blenkernel/BKE_node.h
++++ b/source/blender/blenkernel/BKE_node.h
+@@ -1464,6 +1464,7 @@ int ntreeTexExecTree(struct bNodeTree *ntree,
+ #define GEO_NODE_CURVE_PRIMITIVE_LINE 1068
+ #define GEO_NODE_CURVE_ENDPOINTS 1069
+ #define GEO_NODE_CURVE_PRIMITIVE_QUADRILATERAL 1070
++#define GEO_NODE_MESH_PRIMITIVE_TORUS 1071
+ 
+ /** \} */
+ 
+diff --git a/source/blender/blenkernel/intern/node.cc b/source/blender/blenkernel/intern/node.cc
+index 85d30fc8c8b..9079c7c1825 100644
+--- a/source/blender/blenkernel/intern/node.cc
++++ b/source/blender/blenkernel/intern/node.cc
+@@ -5134,6 +5134,7 @@ static void registerGeometryNodes()
+   register_node_type_geo_mesh_primitive_grid();
+   register_node_type_geo_mesh_primitive_ico_sphere();
+   register_node_type_geo_mesh_primitive_line();
++  register_node_type_geo_mesh_primitive_torus();
+   register_node_type_geo_mesh_primitive_uv_sphere();
+   register_node_type_geo_mesh_subdivide();
+   register_node_type_geo_mesh_to_curve();
+diff --git a/source/blender/makesdna/DNA_node_types.h b/source/blender/makesdna/DNA_node_types.h
+index 94176d946b3..86bbe2a49a6 100644
+--- a/source/blender/makesdna/DNA_node_types.h
++++ b/source/blender/makesdna/DNA_node_types.h
+@@ -1350,6 +1350,11 @@ typedef struct NodeGeometryMeshLine {
+   uint8_t count_mode;
+ } NodeGeometryMeshLine;
+ 
++typedef struct NodeGeometryMeshTorus {
++  /* GeometryNodeMeshCircleFillType. */
++  uint8_t dimentions_mode;
++} NodeGeometryMeshTorus;
++
+ typedef struct NodeSwitch {
+   /* NodeSwitch. */
+   uint8_t input_type;
+@@ -1915,6 +1920,11 @@ typedef enum GeometryNodeMeshLineMode {
+   GEO_NODE_MESH_LINE_MODE_OFFSET = 1,
+ } GeometryNodeMeshLineMode;
+ 
++typedef enum GeometryNodeMeshTorusDimentionsMode {
++  GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_MAJOR_MINOR = 0,
++  GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_EXTERIOR_INTERIOR = 1,
++} GeometryNodeMeshTorusDimentionsMode;
++
+ typedef enum GeometryNodeMeshLineCountMode {
+   GEO_NODE_MESH_LINE_COUNT_TOTAL = 0,
+   GEO_NODE_MESH_LINE_COUNT_RESOLUTION = 1,
+diff --git a/source/blender/makesrna/intern/rna_nodetree.c b/source/blender/makesrna/intern/rna_nodetree.c
+index 4712f4a0a0b..581c615c5bd 100644
+--- a/source/blender/makesrna/intern/rna_nodetree.c
++++ b/source/blender/makesrna/intern/rna_nodetree.c
+@@ -9916,6 +9916,28 @@ static void def_geo_mesh_line(StructRNA *srna)
+   RNA_def_property_update(prop, NC_NODE | NA_EDITED, "rna_Node_socket_update");
+ }
+ 
++static void def_geo_mesh_torus(StructRNA *srna)
++{
++  PropertyRNA *prop;
++
++  static EnumPropertyItem rna_node_geometry_mesh_torus_dimentions_mode_items[] = {
++      {GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_MAJOR_MINOR, "MAJOR_MINOR", 0, "Major/Minor", ""},
++      {GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_EXTERIOR_INTERIOR,
++       "EXTERIOR_INTERIOR",
++       0,
++       "Exterior/Interior",
++       ""},
++      {0, NULL, 0, NULL, NULL},
++  };
++
++  RNA_def_struct_sdna_from(srna, "NodeGeometryMeshTorus", "storage");
++
++  prop = RNA_def_property(srna, "dimentions_mode", PROP_ENUM, PROP_NONE);
++  RNA_def_property_enum_items(prop, rna_node_geometry_mesh_torus_dimentions_mode_items);
++  RNA_def_property_ui_text(prop, "Dimentions Mode", "");
++  RNA_def_property_update(prop, NC_NODE | NA_EDITED, "rna_Node_socket_update");
++}
++
+ static void def_geo_switch(StructRNA *srna)
+ {
+   PropertyRNA *prop;
+diff --git a/source/blender/nodes/CMakeLists.txt b/source/blender/nodes/CMakeLists.txt
+index dc19508be04..081fd2ee308 100644
+--- a/source/blender/nodes/CMakeLists.txt
++++ b/source/blender/nodes/CMakeLists.txt
+@@ -189,6 +189,7 @@ set(SRC
+   geometry/nodes/node_geo_mesh_primitive_cone.cc
+   geometry/nodes/node_geo_mesh_primitive_cube.cc
+   geometry/nodes/node_geo_mesh_primitive_cylinder.cc
++  geometry/nodes/node_geo_mesh_primitive_torus.cc
+   geometry/nodes/node_geo_mesh_primitive_grid.cc
+   geometry/nodes/node_geo_mesh_primitive_ico_sphere.cc
+   geometry/nodes/node_geo_mesh_primitive_line.cc
+diff --git a/source/blender/nodes/NOD_geometry.h b/source/blender/nodes/NOD_geometry.h
+index ad3a838f4c0..428c612c50e 100644
+--- a/source/blender/nodes/NOD_geometry.h
++++ b/source/blender/nodes/NOD_geometry.h
+@@ -79,6 +79,7 @@ void register_node_type_geo_mesh_primitive_cylinder(void);
+ void register_node_type_geo_mesh_primitive_grid(void);
+ void register_node_type_geo_mesh_primitive_ico_sphere(void);
+ void register_node_type_geo_mesh_primitive_line(void);
++void register_node_type_geo_mesh_primitive_torus(void);
+ void register_node_type_geo_mesh_primitive_uv_sphere(void);
+ void register_node_type_geo_mesh_subdivide(void);
+ void register_node_type_geo_mesh_to_curve(void);
+diff --git a/source/blender/nodes/NOD_static_types.h b/source/blender/nodes/NOD_static_types.h
+index 73d4a002991..dc13f2001e3 100644
+--- a/source/blender/nodes/NOD_static_types.h
++++ b/source/blender/nodes/NOD_static_types.h
+@@ -319,6 +319,7 @@ DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_CYLINDER, def_geo_mesh_cylinder, "
+ DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_GRID, 0, "MESH_PRIMITIVE_GRID", MeshGrid, "Grid", "")
+ DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_ICO_SPHERE, 0, "MESH_PRIMITIVE_ICO_SPHERE", MeshIcoSphere, "Ico Sphere", "")
+ DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_LINE, def_geo_mesh_line, "MESH_PRIMITIVE_LINE", MeshLine, "Mesh Line", "")
++DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_TORUS, def_geo_mesh_torus, "MESH_PRIMITIVE_TORUS", MeshTorus, "Torus", "")
+ DefNode(GeometryNode, GEO_NODE_MESH_PRIMITIVE_UV_SPHERE, 0, "MESH_PRIMITIVE_UV_SPHERE", MeshUVSphere, "UV Sphere", "")
+ DefNode(GeometryNode, GEO_NODE_MESH_TO_CURVE, 0, "MESH_TO_CURVE", MeshToCurve, "Mesh to Curve", "")
+ DefNode(GeometryNode, GEO_NODE_OBJECT_INFO, def_geo_object_info, "OBJECT_INFO", ObjectInfo, "Object Info", "")
+diff --git a/source/blender/nodes/geometry/nodes/node_geo_mesh_primitive_torus.cc b/source/blender/nodes/geometry/nodes/node_geo_mesh_primitive_torus.cc
+new file mode 100644
+index 00000000000..0bc16e43528
+--- /dev/null
++++ b/source/blender/nodes/geometry/nodes/node_geo_mesh_primitive_torus.cc
+@@ -0,0 +1,383 @@
++/*
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software Foundation,
++ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ */
++
++#include "DNA_mesh_types.h"
++#include "DNA_meshdata_types.h"
++
++#include "BKE_material.h"
++#include "BKE_mesh.h"
++
++#include "UI_interface.h"
++#include "UI_resources.h"
++
++#include "node_geometry_util.hh"
++
++static bNodeSocketTemplate geo_node_mesh_primitive_torus_in[] = {
++    {SOCK_INT, N_("Major Segments"), 48, 0, 0, 0, 3, 256},
++    {SOCK_INT, N_("Minor Segments"), 12, 0, 0, 0, 3, 256},
++    {SOCK_INT, N_("Section Twist"), 0, 0, 0, 0, 0, 256},
++    {SOCK_FLOAT, N_("Section Angle"), 0.0f, 0.0f, 0.0f, 0.0f, -360.0f, 360.0f, PROP_ANGLE},
++    {SOCK_FLOAT, N_("Section Scale X"), 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, FLT_MAX, PROP_DISTANCE},
++    {SOCK_FLOAT, N_("Section Scale Z"), 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, FLT_MAX, PROP_DISTANCE},
++    {SOCK_FLOAT, N_("Major Radius"), 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, FLT_MAX, PROP_DISTANCE},
++    {SOCK_FLOAT, N_("Minor Radius"), 0.25f, 0.0f, 0.0f, 0.0f, 0.0f, FLT_MAX, PROP_DISTANCE},
++    {SOCK_FLOAT, N_("Exterior Radius"), 1.2f, 0.0f, 0.0f, 0.0f, 0.0f, FLT_MAX, PROP_DISTANCE},
++    {SOCK_FLOAT, N_("Interior Radius"), 0.75f, 0.0f, 0.0f, 0.0f, 0.0f, FLT_MAX, PROP_DISTANCE},
++    {-1, ""},
++};
++
++static bNodeSocketTemplate geo_node_mesh_primitive_torus_out[] = {
++    {SOCK_GEOMETRY, N_("Geometry")},
++    {-1, ""},
++};
++
++static void geo_node_mesh_primitive_torus_layout(uiLayout *layout,
++                                                    bContext *UNUSED(C),
++                                                    PointerRNA *ptr)
++{
++  uiLayoutSetPropSep(layout, true);
++  uiLayoutSetPropDecorate(layout, false);
++  uiItemR(layout, ptr, "dimentions_mode", 0, IFACE_("Dimentions Mode"), ICON_NONE);
++}
++
++static void geo_node_mesh_primitive_torus_init(bNodeTree *UNUSED(ntree), bNode *node)
++{
++  NodeGeometryMeshTorus *node_storage = (NodeGeometryMeshTorus *)MEM_callocN(
++      sizeof(NodeGeometryMeshTorus), __func__);
++
++  node_storage->dimentions_mode = GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_MAJOR_MINOR;
++
++  node->storage = node_storage;
++}
++
++namespace blender::nodes {
++
++
++  static void calculate_uvs(
++    Mesh* mesh,
++    const int major_segments,
++    const int minor_segments)
++  {
++    MeshComponent mesh_component;
++    mesh_component.replace(mesh, GeometryOwnershipType::Editable);
++    OutputAttribute_Typed<float2> uv_attribute =
++      mesh_component.attribute_try_get_for_output_only<float2>("uv_map", ATTR_DOMAIN_CORNER);
++    MutableSpan<float2> uvs = uv_attribute.as_span();
++
++    const float u_step = 1.0f / (float)major_segments;
++    const float v_step = 1.0f / (float)minor_segments;
++
++      //Round UV's, needed when segments aren't divisible by 4.
++    const float u_init = 0.5f + fmod(0.5f, u_step);
++    const float v_init = 0.5f + fmod(0.5f, v_step);
++
++      //Calculate wrapping value under 1.0 to prevent
++      //float precision errors wrapping at the wrong step.
++    const float u_wrap = 1.0f - (u_step / 2.0f);
++    const float v_wrap = 1.0f - (v_step / 2.0f);
++
++    int vertex_index = 0;
++
++    float u_prev = u_init;
++    float u_next = u_prev + u_step;
++    for (int major_index = 0; major_index < major_segments; major_index++)
++    {
++      float v_prev = v_init;
++      float v_next = v_prev + v_step;
++      for (int minor_index = 0; minor_index < minor_segments; minor_index++)
++      {
++        const int loop_offset = mesh->mpoly[vertex_index++].loopstart;
++        MLoop *loops = &mesh->mloop[loop_offset];
++        uvs[loops[0].v].x = u_prev;
++        uvs[loops[0].v].y = v_prev;
++        uvs[loops[1].v].x = u_next;
++        uvs[loops[1].v].y = v_prev;
++        uvs[loops[3].v].x = u_prev;
++        uvs[loops[3].v].y = v_next;
++        uvs[loops[2].v].x = u_next;
++        uvs[loops[2].v].y = v_next;
++
++        if (v_next > v_wrap)
++          v_prev = v_next - 1.0f;
++        else
++          v_prev = v_next;
++
++        v_next = v_prev + v_step;
++      }
++
++      if (u_next > u_wrap)
++        u_prev = u_next - 1.0;
++      else
++        u_prev = u_next;
++
++      u_next = u_prev + u_step;
++    }
++
++    uv_attribute.save();
++  }
++
++  static void calculate_uvs_one_ribbon(
++    Mesh* mesh,
++    const int major_segments,
++    const int minor_segments,
++    int section_twist)
++  {
++    MeshComponent mesh_component;
++    mesh_component.replace(mesh, GeometryOwnershipType::Editable);
++    OutputAttribute_Typed<float2> uv_attribute =
++      mesh_component.attribute_try_get_for_output_only<float2>("uv_map", ATTR_DOMAIN_CORNER);
++    MutableSpan<float2> uvs = uv_attribute.as_span();
++
++    const int count = major_segments * minor_segments;
++    const float u_step = 1.0f / count;
++    float u_next = 0.0f;
++    float u_prev = 0.0f;
++
++    for (int offset = 0; offset < minor_segments; offset++)
++    {
++      const int off = (offset * section_twist) % minor_segments;
++      for (int idx = 0; idx < major_segments; idx++)
++      {
++        u_prev = u_next;
++        u_next = u_prev + u_step;
++        const int loop_offset = mesh->mpoly[idx * minor_segments + off].loopstart;
++        MLoop* loops = &mesh->mloop[loop_offset];
++        uvs[loops[0].v].x = u_prev;
++        uvs[loops[0].v].y = 0.0;
++        uvs[loops[1].v].x = u_next;
++        uvs[loops[1].v].y = 0.0;
++        uvs[loops[3].v].x = u_prev;
++        uvs[loops[3].v].y = 1.0;
++        uvs[loops[2].v].x = u_prev;
++        uvs[loops[2].v].y = 1.0;
++      }
++    }
++        
++    uv_attribute.save();
++  }
++
++  static Mesh* create_torus(const float major_rad,
++    const float minor_radius,
++    const int major_segments,
++    const int minor_segments,
++    int section_twist,
++    const float section_angle,
++    const float section_scale_x,
++    const float section_scale_z)
++  {
++    const int verts_len = major_segments * minor_segments;
++
++    if (verts_len == 0 || minor_segments < 3)
++      return nullptr;
++
++    const int polys_len = verts_len;
++    const int loops_len = polys_len * 4; // 4 vertexs per face
++
++    Mesh* mesh = BKE_mesh_new_nomain(verts_len, 0, 0, loops_len, polys_len);
++    if (!mesh)
++      return nullptr;
++
++    BKE_id_material_eval_ensure_default_slot(&mesh->id);
++
++    MutableSpan<MVert> verts{ mesh->mvert, mesh->totvert };  // vertex
++    MutableSpan<MLoop> loops{ mesh->mloop, mesh->totloop };  // faces / 4
++    MutableSpan<MPoly> polys{ mesh->mpoly, mesh->totpoly };  // faces (4 vertexs per faces)
++
++    const float major_segments_f = (float)major_segments;
++    const float minor_segments_f = (float)minor_segments;
++
++    const float pi_2 = 6.28318f;
++    if (fabs(section_scale_x - section_scale_x) < FLT_EPSILON)
++    {
++      if (minor_segments % 2 == 0)
++      {
++        section_twist *= (minor_segments / 2);
++      }
++      else
++      {
++        section_twist *= minor_segments;
++      }
++    }
++
++    const float twist_step_angle = ((pi_2 / minor_segments_f) / major_segments_f) * section_twist;
++    
++    int verts_index = 0;
++    int loops_index = 0;
++    int edges_index = 0;
++    int iv[4] = { 0, 0, 0, 0 };
++
++    for (int major_index = 0; major_index < major_segments; major_index++)
++    {
++      const float4x4 matrix = float4x4::from_loc_eul_scale(
++        float3(0.0f, 0.0f, 0.0f),
++        float3(0.0f, 0.0f, ((float)major_index / major_segments_f) * pi_2),
++        float3(1.0f, 1.0f, 1.0f));
++
++      const float major_twist_angle = major_index * twist_step_angle;
++
++      for (int minor_index = 0; minor_index < minor_segments; minor_index++) {
++        const float angle = pi_2 * (float)minor_index / minor_segments_f + section_angle;
++
++        const float4x4 rot = float4x4::from_loc_eul_scale(
++          float3(0.0f, 0.0f, 0.0f),
++          float3(0.0f, -major_twist_angle, 0.0f),
++          float3(1.0f, 1.0f, 1.0f));
++
++        float3 pos_2d = rot * float3(cos(angle) * minor_radius * section_scale_x, 0.0, sin(angle) * minor_radius * section_scale_z);
++
++        //float3 pos_2d = float3(cos(angle + major_twist_angle) * minor_rad * section_scale_x, 0.0, sin(angle + major_twist_angle) * minor_rad * section_scale_z);
++
++        pos_2d.x += major_rad;
++
++        float3 pos = matrix * pos_2d;
++
++        copy_v3_v3(verts[verts_index].co, pos);
++
++        if (minor_segments > 2 and minor_index + 1 == minor_segments) {
++          iv[1] = major_index * minor_segments;
++          iv[2] = iv[0] + minor_segments;
++          iv[3] = iv[1] + minor_segments;
++        }
++        else {
++          iv[1] = iv[0] + 1;
++          iv[2] = iv[0] + minor_segments;
++          iv[3] = iv[2] + 1;
++        }
++
++        // closing
++        if (iv[1] >= verts_len)
++          iv[1] = (iv[1] - verts_len + section_twist) % minor_segments;
++        if (iv[2] >= verts_len)
++          iv[2] = (iv[2] - verts_len + section_twist) % minor_segments;
++        if (iv[3] >= verts_len)
++          iv[3] = (iv[3] - verts_len + section_twist) % minor_segments;
++
++        // face
++        MPoly& poly = polys[verts_index];
++        poly.loopstart = loops_index;
++        poly.totloop = 4;
++
++        loops[loops_index++].v = iv[0];
++        loops[loops_index++].v = iv[2];
++        loops[loops_index++].v = iv[3];
++        loops[loops_index++].v = iv[1];
++
++        iv[0]++;
++        verts_index++;
++      }
++    }
++
++    BKE_mesh_calc_edges(mesh, false, false);
++
++    BKE_mesh_calc_normals(mesh);
++
++    if (section_twist % minor_segments == 0)
++    {
++      calculate_uvs(mesh, minor_segments, major_segments);
++    }
++    else
++    {
++      calculate_uvs_one_ribbon(mesh, minor_segments, major_segments, section_twist);
++    }
++
++    BLI_assert(BKE_mesh_is_valid(mesh));
++
++    return mesh;
++  }
++
++static void geo_node_mesh_primitive_torus_update(bNodeTree *UNUSED(tree), bNode *node)
++{
++  NodeGeometryMeshTorus *data = (NodeGeometryMeshTorus *)node->storage;
++  GeometryNodeMeshTorusDimentionsMode mode = (GeometryNodeMeshTorusDimentionsMode)
++                                                 data->dimentions_mode;
++
++  bNodeSocket *major_radius_socket = nodeFindSocket(node, SOCK_IN, "Major Radius");
++  bNodeSocket *minor_radius_socket = nodeFindSocket(node, SOCK_IN, "Minor Radius");
++
++  nodeSetSocketAvailability(major_radius_socket,
++                            mode == GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_MAJOR_MINOR);
++  nodeSetSocketAvailability(minor_radius_socket,
++                            mode == GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_MAJOR_MINOR);
++
++  bNodeSocket *exterior_radius_socket = nodeFindSocket(node, SOCK_IN, "Exterior Radius");
++  bNodeSocket *interior_radius_socket = nodeFindSocket(node, SOCK_IN, "Interior Radius");
++
++  nodeSetSocketAvailability(exterior_radius_socket,
++                            mode == GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_EXTERIOR_INTERIOR);
++  nodeSetSocketAvailability(interior_radius_socket,
++                            mode == GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_EXTERIOR_INTERIOR);
++}
++
++static void geo_node_mesh_primitive_torus_exec(GeoNodeExecParams params)
++{
++  const bNode &node = params.node();
++  const NodeGeometryMeshTorus &storage = *(const NodeGeometryMeshTorus *)node.storage;
++
++  const GeometryNodeMeshTorusDimentionsMode mode = (const GeometryNodeMeshTorusDimentionsMode)
++                                                       storage.dimentions_mode;
++
++  const int major_segments = params.extract_input<int>("Major Segments");
++  const int minor_segments = params.extract_input<int>("Minor Segments");
++  const int section_twist = params.extract_input<int>("Section Twist");
++  const float section_angle = params.extract_input<float>("Section Angle");
++  const float section_scale_x = params.extract_input<float>("Section Scale X");
++  const float section_scale_z = params.extract_input<float>("Section Scale Z");
++
++  if (mode == GEO_NODE_MESH_TORUS_DIMENTIONS_MODE_MAJOR_MINOR) {
++    const float major_radius = params.extract_input<float>("Major Radius");
++    const float minor_radius = params.extract_input<float>("Minor Radius");
++    Mesh* mesh = create_torus(
++      major_radius, minor_radius,
++      major_segments, minor_segments,
++      section_twist, 
++      section_angle,
++      section_scale_x, section_scale_z);
++    params.set_output("Geometry", GeometrySet::create_with_mesh(mesh));
++    return;
++  }
++
++  const float exterior_radius = params.extract_input<float>("Exterior Radius");
++  const float interior_radius = params.extract_input<float>("Interior Radius");
++  const float section_radius = (exterior_radius - interior_radius) * 0.5f;
++  const float major_radius = interior_radius + section_radius;
++  const float minior_radius = section_radius;
++  Mesh* mesh = create_torus(
++    major_radius, minior_radius,
++    major_segments, minor_segments,
++    section_twist, 
++    section_angle,
++    section_scale_x, section_scale_z);
++  params.set_output("Geometry", GeometrySet::create_with_mesh(mesh));
++}
++
++}  // namespace blender::nodes
++
++void register_node_type_geo_mesh_primitive_torus()
++{
++  static bNodeType ntype;
++
++  geo_node_type_base(&ntype, GEO_NODE_MESH_PRIMITIVE_TORUS, "Torus", NODE_CLASS_GEOMETRY, 0);
++  node_type_socket_templates(
++      &ntype, geo_node_mesh_primitive_torus_in, geo_node_mesh_primitive_torus_out);
++  node_type_storage(
++      &ntype, "NodeGeometryMeshTorus", node_free_standard_storage, node_copy_standard_storage);
++  node_type_size(&ntype, 200, 120, 700);
++  node_type_init(&ntype, geo_node_mesh_primitive_torus_init);
++  node_type_update(&ntype, blender::nodes::geo_node_mesh_primitive_torus_update);
++  ntype.geometry_node_execute = blender::nodes::geo_node_mesh_primitive_torus_exec;
++  ntype.draw_buttons = geo_node_mesh_primitive_torus_layout;
++  nodeRegisterType(&ntype);
++}
