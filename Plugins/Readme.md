@@ -1,12 +1,4 @@
-# Plugins
-
-If you dont have acces to some plugins, its normal.
-
-Theses plugins are private
-
-but will not affect the successfull compilation of Lumo
-
-# Plugins 
+# Plugin Status
 
 | Published | Plugin | Open Source | Free | status |
 | - | - | - | - | - |
@@ -24,4 +16,3 @@ but will not affect the successfull compilation of Lumo
 | :x:  | VDBTools | :x: | :x: | ![img](https://progress-bar.dev/20) |
 | :x:  | Voxel | :x: | :x: | ![img](https://progress-bar.dev/20) |
 | :x:  | VR | :x: | :x: | ![img](https://progress-bar.dev/70) |
-
