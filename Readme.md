@@ -201,13 +201,13 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | - | - | - |
 | :x:  | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Primitives / UV Sphere Node | ![img](https://progress-bar.dev/0) |
-| :x:  | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/100) |
 | :x:  | Primitives / Plane Node | ![img](https://progress-bar.dev/100) |
 | :x:  | Primitives / Cube Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
-| :x:  | Primitives / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Primitives / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Primitives / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Primitives / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
 | :x:  | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
 
 ## MeshSim Plugin : 
