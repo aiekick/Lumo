@@ -12,9 +12,9 @@ private:
 	std::string m_SelectedType;
 	int m_InputType = 0U;
 	int m_InputSubType = 0U;
-	std::string m_SelectedSubType;
+	std::string m_SelectedSubType = "";
+	int m_SelectedSubTypeIndex = -1;
 	ImWidgets::InputText m_SlotDisplayNameInputText;
-	ImWidgets::InputText m_CustomTypeInputText;
 
 public:
 	void SelectSlot(NodeSlotWeak vNodeSlot);

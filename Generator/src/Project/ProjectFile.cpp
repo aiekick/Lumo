@@ -298,10 +298,10 @@ void ProjectFile::GenerateGraphFiles(const std::string& vRootPath)
 			}
 		}
 
-		std::string scene_graph_class_name = MainFrame::Instance()->GetCustomTypeInputText().GetText();
-		if (!scene_graph_class_name.empty())
+		auto custom_types = MainFrame::Instance()->GetCustomTypeInputTexts();
+		for (auto& custom_type_name : custom_types)
 		{
-			CustomSceneGraphItem(vRootPath, scene_graph_class_name);
+			CustomSceneGraphItem(vRootPath, custom_type_name.GetText());
 		}
 	}
 }

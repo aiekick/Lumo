@@ -199,16 +199,11 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 | Published | Node | status |
 | - | - | - |
-| :x:  | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
-| :x:  | Primitives / UV Sphere Node | ![img](https://progress-bar.dev/0) |
-| :x:  | Primitives / Ico Sphere Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Primitives / Plane Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Primitives / Cube Node | ![img](https://progress-bar.dev/0) |
-| :x:  | Primitives / Torus Node | ![img](https://progress-bar.dev/0) |
-| :x:  | Primitives / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Primitives / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Primitives / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Primitives / Fibonacci Ball Node | ![img](https://progress-bar.dev/50) |
+| :x:  | Curve / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Curve / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
+| :x:  | Mesh / Primitive Node | ![img](https://progress-bar.dev/20) |
+| :heavy_check_mark:  | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Surface / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
 
 ## MeshSim Plugin : 
 
@@ -235,6 +230,11 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :heavy_check_mark:  | Emitters / Point Emitter Node | ![img](https://progress-bar.dev/20) |
 | :x:  | Simulation / Simulation Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Constraints / Force Node | ![img](https://progress-bar.dev/0) |
+
+## Planet Plugin :
+
+| Published | Node | status |
+| - | - | - |
 
 ## RTX Plugin :
 

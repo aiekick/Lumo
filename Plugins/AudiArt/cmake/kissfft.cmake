@@ -1,0 +1,17 @@
+set(KISSFFT_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/kissfft)
+
+set(KISSFFT_DATATYPE "float" CACHE STRING "")
+set(KISSFFT_OPENMP ON CACHE BOOL "")
+set(KISSFFT_PKGCONFIG OFF CACHE BOOL "")
+set(KISSFFT_STATIC ON CACHE BOOL "")
+set(KISSFFT_TEST OFF CACHE BOOL "")
+set(KISSFFT_TOOLS OFF CACHE BOOL "")
+set(KISSFFT_USE_ALLOCA OFF CACHE BOOL "")
+
+add_subdirectory(${KISSFFT_INCLUDE_DIR})
+include_directories(${KISSFFT_INCLUDE_DIR})    
+
+set_target_properties(kissfft PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(kissfft PROPERTIES FOLDER 3rdparty/audio)
+
+set(KISSFFT_LIBRARIES kissfft)

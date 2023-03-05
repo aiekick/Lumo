@@ -63,6 +63,9 @@ namespace fs = std::filesystem;
 #ifdef USE_PLUGIN_AUDIART
 #include <Audiart.h>
 #endif
+#ifdef USE_PLUGIN_PLANET
+#include <Planet.h>
+#endif
 #endif // USE_PLUGIN_STATIC_LINKING
 
 //////////////////////////////////////////////////////////////////////////////
@@ -263,6 +266,9 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #endif
 #ifdef USE_PLUGIN_AUDIART
 	AddPlugin("AudiArt", std::make_shared<AudiArt>(), vVulkanCoreWeak);
+#endif
+#ifdef USE_PLUGIN_PLANET
+	AddPlugin("Planet", std::make_shared<Planet>(), vVulkanCoreWeak);
 #endif
 #endif // USE_PLUGIN_STATIC_LINKING
 }

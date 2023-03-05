@@ -500,9 +500,34 @@ void MainFrame::DrawNodeCreationPane()
 			m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
 		}
 
+		ImGui::Separator();
+
 		ImGui::CheckBoxBoolDefault("Is a Task ?", &nodePtr->m_IsATask, true);
 
-		m_CustomTypeInputText.DisplayInputText(aw * 0.5f, "Custom Type :", "SceneCustom");
+		ImGui::Separator();
+
+		if (ImGui::ContrastedButton("New Custom type"))
+		{
+			m_CustomTypeInputTexts.emplace_back();
+		}
+
+		auto it_to_erase = m_CustomTypeInputTexts.end();
+		for (auto& it = m_CustomTypeInputTexts.begin(); it != m_CustomTypeInputTexts.end(); ++it)
+		{
+			if (ImGui::ContrastedButton(ICON_NDP_CANCEL))
+			{
+				it_to_erase = it;
+			}
+
+			ImGui::SameLine();
+
+			it->DisplayInputText(aw * 0.5f, "Custom Type :", "SceneCustom");
+		}
+
+		if (it_to_erase != m_CustomTypeInputTexts.end())
+		{
+			m_CustomTypeInputTexts.erase(it_to_erase);
+		}
 
 		ImGui::Separator();
 
@@ -1120,7 +1145,12 @@ std::string MainFrame::getXml(const std::string& vOffset, const std::string& vUs
 	str += vOffset + "<showimgui>" + (m_ShowImGui ? "true" : "false") + "</showimgui>\n";
 	str += vOffset + "<showmetric>" + (m_ShowMetric ? "true" : "false") + "</showmetric>\n";
 	str += vOffset + "<project>" + ProjectFile::Instance()->GetProjectFilepathName() + "</project>\n";
-	str += vOffset + "<custom_type_name>" + m_CustomTypeInputText.GetText() + "</custom_type_name>\n";
+	str += vOffset + "<custom_types>\n";
+	for (const auto& it : m_CustomTypeInputTexts)
+	{
+		str += vOffset + "\t<custom_type_name>" + it.GetText() + "</custom_type_name>\n";
+	}
+	str += vOffset + "</custom_types>\n";
 
 	return str;
 }
@@ -1155,8 +1185,12 @@ bool MainFrame::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vP
 		m_ShowImGui = ct::ivariant(strValue).GetB();
 	else if (strName == "showmetric")
 		m_ShowMetric = ct::ivariant(strValue).GetB();
-	else if (strName == "custom_type_name")
-		m_CustomTypeInputText.SetText(strValue);
+
+	if (strParentName == "custom_types" && 
+		strName == "custom_type_name")
+	{
+		m_CustomTypeInputTexts.emplace_back(strValue);
+	}
 
 	return true;
 }

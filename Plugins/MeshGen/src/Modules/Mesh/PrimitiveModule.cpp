@@ -90,6 +90,7 @@ bool PrimitiveModule::Init()
 	m_PrimitiveTypes[PrimitiveTypeEnum::PRIMITIVE_TYPE_ICO_SPHERE] = "ICO SPHERE";
 	m_PrimitiveTypes[PrimitiveTypeEnum::PRIMITIVE_TYPE_UV_SPHERE] = "UV SPHERE";
 	m_PrimitiveTypes[PrimitiveTypeEnum::PRIMITIVE_TYPE_TORUS] = "TORUS";
+	m_PrimitiveTypes[PrimitiveTypeEnum::PRIMITIVE_TYPE_FIBONACCI_BALL] = "Fibonacci Ball";
 
 	return true;
 }
@@ -243,11 +244,10 @@ void PrimitiveModule::prDrawWidgets()
 		break;
 		case PRIMITIVE_TYPE_CUBE:
 		{
-			/*change |= ImGui::CheckBoxBoolDefault("Centered ?", &m_PlaneCentered, true);
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level", &m_PlaneSubdivisionLevel, 0U, 5U, 0U);
+			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level", &m_CubeSubdivisionLevel, 0U, 5U, 0U);
 			change |= ImGui::InputFloatDefault(0.0f, "Size X", &m_CubeSize.x, 1.0f);
 			change |= ImGui::InputFloatDefault(0.0f, "Size Y", &m_CubeSize.y, 1.0f);
-			change |= ImGui::InputFloatDefault(0.0f, "Size Z", &m_CubeSize.z, 1.0f);*/
+			change |= ImGui::InputFloatDefault(0.0f, "Size Z", &m_CubeSize.z, 1.0f);
 		}
 		break;
 		case PRIMITIVE_TYPE_ICO_SPHERE:
@@ -266,8 +266,12 @@ void PrimitiveModule::prDrawWidgets()
 
 		}
 		break;
+		case PRIMITIVE_TYPE_FIBONACCI_BALL:
+		{
+
+		}
+		break;
 		case PRIMITIVE_TYPE_Count:
-			break;
 		default:
 			break;
 		}
@@ -290,7 +294,7 @@ void PrimitiveModule::prUpdateMesh()
 		break;
 		case PRIMITIVE_TYPE_CUBE:
 		{
-			//CreateCube();
+			CreateCube();
 		}
 		break;
 		case PRIMITIVE_TYPE_ICO_SPHERE:
@@ -300,19 +304,20 @@ void PrimitiveModule::prUpdateMesh()
 		break;
 		case PRIMITIVE_TYPE_UV_SPHERE:
 		{
-			CTOOL_DEBUG_BREAK;
+			CreateUVSphere();
 		}
 		break;
 		case PRIMITIVE_TYPE_TORUS:
 		{
-			CTOOL_DEBUG_BREAK;
+			CreateTorus();
+		}
+		break;
+		case PRIMITIVE_TYPE_FIBONACCI_BALL:
+		{
+			CreateFibonacciBall();
 		}
 		break;
 		case PRIMITIVE_TYPE_Count:
-		{
-			CTOOL_DEBUG_BREAK;
-		}
-		break;
 		default:
 		{
 			CTOOL_DEBUG_BREAK;
@@ -458,6 +463,21 @@ size_t PrimitiveModule::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2,
 	vCache[_block] = i;
 
 	return i;
+}
+
+void PrimitiveModule::CreateFibonacciBall()
+{
+	CTOOL_DEBUG_BREAK;
+}
+
+void PrimitiveModule::CreateUVSphere()
+{
+	CTOOL_DEBUG_BREAK;
+}
+
+void PrimitiveModule::CreateTorus()
+{
+	CTOOL_DEBUG_BREAK;
 }
 
 void PrimitiveModule::CreateQuad(

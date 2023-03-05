@@ -557,8 +557,8 @@ void ParametricSurfaceUVModule::prUpdateMesh()
 				vert_it->n.y = 0.0;
 				vert_it->n.z = 0.0;
 
-				vert_it->t.x = tex_u_accum;
-				vert_it->t.y = tex_v_accum;
+				vert_it->t.x = (float)tex_u_accum;
+				vert_it->t.y = (float)tex_v_accum;
 
 				++vert_it;
 

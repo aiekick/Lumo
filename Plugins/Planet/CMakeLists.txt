@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(PROJECT AudiArt)
+set(PROJECT Planet)
 
 enable_language(C CXX)
 
@@ -24,8 +24,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
-
-include(cmake/3rdparty.cmake)
 
 set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 
@@ -129,8 +127,6 @@ include_directories(
 
 target_link_libraries(${PROJECT} PRIVATE
 	${COMMON_LIBRARIES}
-	${KISSFFT_LIBRARIES}
-	${MINIAUDIO_LIBRARIES}
 )
 
 ########################################################

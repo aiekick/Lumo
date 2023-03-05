@@ -65,6 +65,7 @@ private:
 		PRIMITIVE_TYPE_ICO_SPHERE,
 		PRIMITIVE_TYPE_UV_SPHERE,
 		PRIMITIVE_TYPE_TORUS,
+		PRIMITIVE_TYPE_FIBONACCI_BALL,
 		PRIMITIVE_TYPE_Count
 	};
 	struct Face
@@ -136,9 +137,11 @@ private: // framework
 	void CreatePlane();
 	void CreateCube();
 	void CreateIcosaedre();
-
 	size_t GetMiddlePoint_Icosaedre(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache, const float& vRadius);
 	size_t GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache, const ct::fvec3& vNormal);
+	void CreateFibonacciBall();
+	void CreateUVSphere();
+	void CreateTorus();
 
 	void CreateQuad(
 		const ct::fvec2& vSize, 

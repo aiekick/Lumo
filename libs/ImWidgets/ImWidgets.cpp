@@ -3664,7 +3664,7 @@ IMGUI_API void ImWidgets::InputText::SetText(const std::string& vText)
 #endif
 }
 
-IMGUI_API std::string ImWidgets::InputText::GetText(const std::string& vNumericType)
+IMGUI_API std::string ImWidgets::InputText::GetText(const std::string& vNumericType) const
 { 
 	if (vNumericType == "float")
 	{
@@ -3692,4 +3692,9 @@ IMGUI_API std::string ImWidgets::InputText::GetText(const std::string& vNumericT
 	}
 
 	return m_Text; 
+}
+
+IMGUI_API const char* ImWidgets::InputText::GetConstCharPtrText() const
+{
+	return m_Text.c_str();
 }

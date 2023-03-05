@@ -507,10 +507,6 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath, const ProjectF
 	if (!std::filesystem::exists(module_path))
 		fs::create_directory(module_path);
 
-	module_path = vPath + "/Modules/" + m_CategoryName;
-	if (!std::filesystem::exists(module_path))
-		fs::create_directory(module_path);
-
 	std::string node_class_name = m_ClassName + "Node";
 	std::string cpp_node_file_name = nodes_path.string() + "/" + node_class_name + ".cpp";
 	std::string h_node_file_name = nodes_path.string() + "/" + node_class_name + ".h";

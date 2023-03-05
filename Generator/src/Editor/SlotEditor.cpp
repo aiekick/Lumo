@@ -3,6 +3,7 @@
 #include <Gui/MainFrame.h>
 
 #include <ImWidgets/ImWidgets.h>
+#include <FontIcons/CustomFont.h>
 #include <Graph/Base/BaseNode.h>
 
 #include <Graph/Base/NodeSlotInput.h>
@@ -42,7 +43,7 @@ void SlotEditor::SelectSlot(NodeSlotWeak vNodeSlot)
 	if (slotPtr)
 	{
 		m_SlotDisplayNameInputText.SetText(slotPtr->name);
-		m_CustomTypeInputText.SetText(slotPtr->slotType);
+		//m_CustomTypeInputText.SetText(slotPtr->slotType);
 
 		auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(slotPtr);
 		if (slotDatasPtr)
@@ -126,11 +127,11 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 					m_SelectedType = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
 					if (m_InputType == BASE_TYPE_Custom)
 					{
-						if (m_SelectedSubType.empty())
+						auto& arr = MainFrame::Instance()->GetCustomTypeInputTexts();
+						if (m_SelectedSubTypeIndex > -1 && m_SelectedSubTypeIndex < (int)arr.size())
 						{
-							m_SelectedSubType = MainFrame::Instance()->GetCustomTypeInputText().GetText();
+							m_SelectedSubType = arr.at(m_SelectedSubTypeIndex).GetText();
 						}
-						m_CustomTypeInputText.SetText(m_SelectedSubType);
 					}
 					_typeChanged = true;
 				}
@@ -150,11 +151,32 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 				}
 				else if (m_InputType == BASE_TYPE_Custom)
 				{
-					if (m_CustomTypeInputText.DisplayInputText(vSize.x, "Custom Type :", "SceneCustom"))
+					auto& arr = MainFrame::Instance()->GetCustomTypeInputTexts();
+
+					ImGui::PushID(ImGui::IncPUSHID());
+
+					bool change = ImGui::ContrastedButton(ICON_NDP_RESET);
+					if (change) 
 					{
-						m_SelectedSubType = m_CustomTypeInputText.GetText();
+						m_SelectedSubTypeIndex = 0;
+					}
+
+					ImGui::CustomSameLine();
+
+					change |= ImGui::ContrastedCombo(0.0f, "##Custom Types", &m_SelectedSubTypeIndex,
+						[](void* data, int idx, const char** out_text)
+						{
+							*out_text = ((const std::vector<ImWidgets::InputText>*)data)->at(idx).GetConstCharPtrText();
+							return true;
+						}, 
+						(void*)&arr, (int)arr.size(), -1);
+
+					if (change)
+					{
+						m_SelectedSubType = arr.at(m_SelectedSubTypeIndex).GetText();
 						_typeChanged = true;
 					}
+					ImGui::PopID();
 				}
 				else
 				{

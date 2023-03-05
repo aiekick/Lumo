@@ -420,8 +420,12 @@ namespace ImWidgets
 		std::string m_Text;
 
 	public:
+		InputText() = default;
+		InputText(const std::string& vText) { SetText(vText); }
+
 		IMGUI_API bool DisplayInputText(const float& vWidth, const std::string& vLabel, const std::string& vDefaultText);
 		IMGUI_API void SetText(const std::string& vText);
-		IMGUI_API std::string GetText(const std::string& vNumericType = "");
+		IMGUI_API std::string GetText(const std::string& vNumericType = "") const;
+		IMGUI_API const char* GetConstCharPtrText() const;
 	};
 }
