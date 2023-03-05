@@ -101,6 +101,11 @@ bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 		change |= ImGui::SliderFloatDefaultCompact(0.0f, "point_size", &m_UBO_Vert.u_point_size, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
 	}
 	
+	if (m_PrimitiveTopologiesIndex > 2) // "Triangle List" or "Triangle Strip" or "Triangle Fan"
+	{
+		change |= ImGui::CheckBoxIntDefault("Show Shaded Wireframe", &m_UBO_Frag.u_show_shaded_wireframe, 0);
+	}
+
 	if (change)
 	{
 		NeedNewUBOUpload();
@@ -338,6 +343,7 @@ layout(location = 5) in vec4 vertColor;
 layout(std140, binding = 2) uniform UBO_Frag
 {
 	int u_show_layer;
+	int u_show_shaded_wireframe;
 };
 
 void main() 
@@ -364,6 +370,12 @@ void main()
 	case 5: // vertex color
 		fragColor = vertColor;
 		break;
+	}
+
+	if (u_show_shaded_wireframe == 1 &&
+		bitCount(gl_SampleMaskIn[0]) < 2)
+	{
+		fragColor.rgb = 1.0 - fragColor.rgb;
 	}
 
 	if (dot(fragColor.xyz, fragColor.xyz) > 0.0)

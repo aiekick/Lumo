@@ -579,7 +579,7 @@ void PrimitiveModule::Subdivide(const size_t& vSubdivLevel, std::vector<Vertice>
 		}
 		catch (std::exception& ex)
 		{
-			printf("error %s", std::string(ex.what()).c_str());
+			LogVarError("error %s", std::string(ex.what()).c_str());
 		}
 	}
 }
@@ -605,7 +605,7 @@ void PrimitiveModule::BuildMesh()
 			vertices.at(f.v2), 
 			vertices.at(f.v3));
 
-		printf("face : %u:%u:%u\n", (uint32_t)f.v1, (uint32_t)f.v2, (uint32_t)f.v3);
+		//LogVarInfo("face : %u:%u:%u\n", (uint32_t)f.v1, (uint32_t)f.v2, (uint32_t)f.v3);
 	}
 
 	for (auto& v : vertices)

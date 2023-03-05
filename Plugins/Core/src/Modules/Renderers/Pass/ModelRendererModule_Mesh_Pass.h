@@ -89,6 +89,7 @@ private:
 
 	struct UBO_Frag {
 		alignas(4) int32_t u_show_layer = 0;
+		alignas(4) int32_t u_show_shaded_wireframe = 0;
 	} m_UBO_Frag;
 
 	VulkanBufferObjectPtr m_UBO_Frag_Ptr = nullptr;
