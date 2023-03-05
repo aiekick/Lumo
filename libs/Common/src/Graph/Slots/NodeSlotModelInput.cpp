@@ -165,7 +165,7 @@ void NodeSlotModelInput::DisConnect(NodeSlotWeak vOtherSlot)
 void NodeSlotModelInput::TreatNotification(
 	const NotifyEvent& vEvent,
 	const NodeSlotWeak& vEmitterSlot,
-	const NodeSlotWeak& vReceiverSlot)
+	const NodeSlotWeak& /*vReceiverSlot*/)
 {
 	if (vEvent == ModelUpdateDone)
 	{

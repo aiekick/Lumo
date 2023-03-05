@@ -165,7 +165,7 @@ void NodeSlotLightGroupInput::DisConnect(NodeSlotWeak vOtherSlot)
 void NodeSlotLightGroupInput::TreatNotification(
 	const NotifyEvent& vEvent,
 	const NodeSlotWeak& vEmitterSlot,
-	const NodeSlotWeak& vReceiverSlot)
+	const NodeSlotWeak& /*vReceiverSlot*/)
 {
 	if (vEvent == LightGroupUpdateDone)
 	{

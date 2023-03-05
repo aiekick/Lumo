@@ -90,7 +90,6 @@ int main(int, char** argv)
 
 		return EXIT_FAILURE;
 	}
-#endif
 
 	return EXIT_SUCCESS;
 }

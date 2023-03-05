@@ -413,7 +413,7 @@ void BaseRenderer::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 	}
 }
 
-void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* vCmdBuffer)
+void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* /*vCmdBuffer*/)
 {
 	ZoneScoped;
 
