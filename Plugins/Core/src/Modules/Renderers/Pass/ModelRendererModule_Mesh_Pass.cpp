@@ -106,6 +106,20 @@ bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 		change |= ImGui::CheckBoxIntDefault("Show Shaded Wireframe", &m_UBO_Frag.u_show_shaded_wireframe, 0);
 	}
 
+	auto modelPtr = m_SceneModel.getValidShared();
+	if (modelPtr || !modelPtr->empty())
+	{
+		auto meshPtr = modelPtr->at(0).lock();
+		if (meshPtr && meshPtr->GetIndicesCount())
+		{
+			change |= ImGui::CheckBoxBoolDefault("Use Indices Restriction", &m_UseIndiceRestriction, false);
+			if (m_UseIndiceRestriction)
+			{
+				change |= ImGui::SliderUIntDefaultCompact(0.0f, "count indices", &m_RestrictedIndicesCountToDraw, 0, meshPtr->GetIndicesCount(), meshPtr->GetIndicesCount());
+			}
+		}
+	}
+
 	if (change)
 	{
 		NeedNewUBOUpload();
@@ -139,6 +153,23 @@ void ModelRendererModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
 	ZoneScoped;
 
 	m_SceneModel = vSceneModel;
+
+	auto modelPtr = m_SceneModel.getValidShared();
+	if (modelPtr || !modelPtr->empty())
+	{
+		auto meshPtr = modelPtr->at(0).lock();
+		if (meshPtr && meshPtr->GetIndicesCount())
+		{
+			if (!m_UseIndiceRestriction)
+			{
+				m_RestrictedIndicesCountToDraw = meshPtr->GetIndicesCount();
+			}
+			else
+			{
+				m_RestrictedIndicesCountToDraw = ct::clamp(m_RestrictedIndicesCountToDraw, 0U, meshPtr->GetIndicesCount());
+			}
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,7 +231,14 @@ void ModelRendererModule_Mesh_Pass::DrawModel(vk::CommandBuffer * vCmdBuffer, co
 					if (meshPtr->GetIndicesCount())
 					{
 						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
-						vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
+						if (m_UseIndiceRestriction)
+						{
+							vCmdBuffer->drawIndexed(m_RestrictedIndicesCountToDraw, 1, 0, 0, 0);
+						}
+						else
+						{
+							vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
+						}
 					}
 					else
 					{
@@ -406,6 +444,8 @@ std::string ModelRendererModule_Mesh_Pass::getXml(const std::string& vOffset, co
 	str += vOffset + "<line_thickness>" + ct::toStr(m_LineWidth.w) + "</line_thickness>\n";
 	str += vOffset + "<point_size>" + ct::toStr(m_UBO_Vert.u_point_size) + "</point_size>\n";
 	str += vOffset + "<show_layer>" + ct::toStr(m_UBO_Frag.u_show_layer) + "</show_layer>\n";
+	str += vOffset + "<use_indices_restriction>" + (m_UseIndiceRestriction ? "true" : "false") + "</use_indices_restriction>\n";
+	str += vOffset + "<restricted_indices_count_to_draw>" + ct::toStr(m_RestrictedIndicesCountToDraw) + "</restricted_indices_count_to_draw>\n";
 	
 	return str;
 }
@@ -437,6 +477,10 @@ bool ModelRendererModule_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tiny
 			m_UBO_Vert.u_point_size = ct::fvariant(strValue).GetF();
 		else if (strName == "show_layer")
 			m_UBO_Frag.u_show_layer = ct::ivariant(strValue).GetI();
+		else if (strName == "use_indices_restriction")
+			m_UseIndiceRestriction = ct::ivariant(strValue).GetB();
+		else if (strName == "restricted_indices_count_to_draw")
+			m_RestrictedIndicesCountToDraw = ct::ivariant(strValue).GetU();
 	}
 
 	return true;

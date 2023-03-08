@@ -95,6 +95,9 @@ private:
 	VulkanBufferObjectPtr m_UBO_Frag_Ptr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos;
 
+	bool m_UseIndiceRestriction = false;
+	uint32_t m_RestrictedIndicesCountToDraw = 0U;
+
 public:
 	ModelRendererModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
 	~ModelRendererModule_Mesh_Pass() override;
