@@ -273,16 +273,11 @@ void MeshModule::LoadMesh(const std::string& vFilePathName)
 									v.btan = ct::fvec3(btan.x, btan.y, btan.z);
 								}
 
-								if (mesh->mTextureCoords)
+								if (mesh->mTextureCoords[0] && 
+									mesh->mNumUVComponents[0] == 2U)
 								{
-									if (mesh->mNumUVComponents[0] == 2U)
-									{
-										if (mesh->mTextureCoords[0])
-										{
-											const auto& coor = mesh->mTextureCoords[0][i];
-											v.t = ct::fvec2(coor.x, coor.y);
-										}
-									}
+									const auto& coor = mesh->mTextureCoords[0][i];
+									v.t = ct::fvec2(coor.x, coor.y);
 								}
 
 								if (mesh->mColors)

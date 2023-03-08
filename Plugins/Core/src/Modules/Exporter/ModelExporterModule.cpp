@@ -250,87 +250,111 @@ void ModelExporterModule::SaveModel(const std::string& vFilePathName)
 						auto pMesh = scene_ptr->mMeshes[mesh_idx];
 
 						size_t vertice_count = meshPtr->GetVerticesCount();
-						pMesh->mVertices = new aiVector3D[vertice_count];
-						pMesh->mNumVertices = (uint32_t)vertice_count;
-						
-						size_t indice_count = meshPtr->GetIndicesCount();
+						if (vertice_count)
+						{
+							pMesh->mVertices = new aiVector3D[vertice_count];
+							pMesh->mNumVertices = (uint32_t)vertice_count;
 
-						// tout mes mesh's n'ont que des faces de type triangle, donc 3 points
-						// donc si le nombre d'indice n'est modulo 3 alors c'est un 
-						// model autre que face, type curve par ex
-						auto primitive_type = meshPtr->GetPrimitiveType();
-						if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_POINTS)
-						{
-							pMesh->mNumFaces = (uint32_t)indice_count; // independants
-							pMesh->mPrimitiveTypes = aiPrimitiveType_POINT;
-						}
-						else if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_CURVES)
-						{
-							pMesh->mNumFaces = (uint32_t)(indice_count - 1U); // strip line
-							pMesh->mPrimitiveTypes = aiPrimitiveType_LINE;
-						}
-						else if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_FACES)
-						{
-							pMesh->mNumFaces = (uint32_t)(indice_count / 3U); // independants
-							pMesh->mPrimitiveTypes = aiPrimitiveType_TRIANGLE;
-						}
-												
-						pMesh->mNormals = new aiVector3D[vertice_count];
-						pMesh->mFaces = new aiFace[pMesh->mNumFaces];
+							size_t indice_count = meshPtr->GetIndicesCount();
 
-						for (size_t vert_idx = 0U; vert_idx < vertice_count; ++vert_idx)
-						{
-							auto& v = meshPtr->GetVertices()->at(vert_idx);
-							pMesh->mVertices[vert_idx] = aiVector3D(v.p.x, v.p.y, v.p.z);
-							if (pMesh->mNumFaces)
+							// tout mes mesh's n'ont que des faces de type triangle, donc 3 points
+							// donc si le nombre d'indice n'est modulo 3 alors c'est un 
+							// model autre que face, type curve par ex
+							auto primitive_type = meshPtr->GetPrimitiveType();
+							if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_POINTS)
 							{
-								pMesh->mNormals[vert_idx] = aiVector3D(v.n.x, v.n.y, v.n.z);
+								pMesh->mNumFaces = (uint32_t)indice_count; // independants
+								pMesh->mPrimitiveTypes = aiPrimitiveType_POINT;
 							}
-						}
-
-						if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_POINTS)
-						{
-							for (size_t face_idx = 0U; face_idx < pMesh->mNumFaces; ++face_idx)
+							else if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_CURVES)
 							{
-								auto& i0 = meshPtr->GetIndices()->at(face_idx);
-
-								aiFace& face = pMesh->mFaces[face_idx];
-								face.mIndices = new unsigned int[1];
-								face.mNumIndices = 1;
-
-								face.mIndices[0] = i0;
+								pMesh->mNumFaces = (uint32_t)(indice_count - 1U); // strip line
+								pMesh->mPrimitiveTypes = aiPrimitiveType_LINE;
 							}
-						}
-						else if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_CURVES)
-						{
-							for (size_t face_idx = 0U; face_idx < pMesh->mNumFaces; ++face_idx)
+							else if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_FACES)
 							{
-								auto& i0 = meshPtr->GetIndices()->at(face_idx + 0);
-								auto& i1 = meshPtr->GetIndices()->at(face_idx + 1);
-
-								aiFace& face = pMesh->mFaces[face_idx];
-								face.mIndices = new unsigned int[2];
-								face.mNumIndices = 2;
-
-								face.mIndices[0] = i0;
-								face.mIndices[1] = i1;
+								pMesh->mNumFaces = (uint32_t)(indice_count / 3U); // independants
+								pMesh->mPrimitiveTypes = aiPrimitiveType_TRIANGLE;
 							}
-						}
-						else if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_FACES)
-						{
-							for (size_t face_idx = 0U, ind_idx = 0U; face_idx < pMesh->mNumFaces; ++face_idx, ind_idx += 3U)
+
+							bool _has_texture_coords = meshPtr->HasTextureCoords();
+							const uint32_t uv_map_index = ct::mini((uint32_t)mesh_idx, (uint32_t)AI_MAX_NUMBER_OF_TEXTURECOORDS);
+							if (mesh_idx < AI_MAX_NUMBER_OF_TEXTURECOORDS)
 							{
-								auto& i0 = meshPtr->GetIndices()->at(ind_idx + 0);
-								auto& i1 = meshPtr->GetIndices()->at(ind_idx + 1);
-								auto& i2 = meshPtr->GetIndices()->at(ind_idx + 2);
+								if (_has_texture_coords)
+								{
+									pMesh->mNumUVComponents[uv_map_index] = 2U;
+									pMesh->mTextureCoords[uv_map_index] = new aiVector3D[meshPtr->GetVerticesCount()];
+								}
+							}
+							else
+							{
+								// assimp not support more than AI_MAX_NUMBER_OF_TEXTURECOORDS uv maps
+								// so we disable the writing of anothers uv maps
+								_has_texture_coords = false;
+							}
 
-								aiFace& face = pMesh->mFaces[face_idx];
-								face.mIndices = new unsigned int[3];
-								face.mNumIndices = 3;
+							pMesh->mNormals = new aiVector3D[vertice_count];
+							pMesh->mFaces = new aiFace[pMesh->mNumFaces];
 
-								face.mIndices[0] = i0;
-								face.mIndices[1] = i1;
-								face.mIndices[2] = i2;
+							for (size_t vert_idx = 0U; vert_idx < vertice_count; ++vert_idx)
+							{
+								auto& v = meshPtr->GetVertices()->at(vert_idx);
+								pMesh->mVertices[vert_idx] = aiVector3D(v.p.x, v.p.y, v.p.z);
+								if (pMesh->mNumFaces)
+								{
+									pMesh->mNormals[vert_idx] = aiVector3D(v.n.x, v.n.y, v.n.z);
+								}
+								if (_has_texture_coords)
+								{
+									pMesh->mTextureCoords[uv_map_index][vert_idx] = aiVector3D(v.t.x, v.t.y, 0.0f);
+								}
+							}
+
+							if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_POINTS)
+							{
+								for (size_t face_idx = 0U; face_idx < pMesh->mNumFaces; ++face_idx)
+								{
+									auto& i0 = meshPtr->GetIndices()->at(face_idx);
+
+									aiFace& face = pMesh->mFaces[face_idx];
+									face.mIndices = new uint32_t[1];
+									face.mNumIndices = 1;
+
+									face.mIndices[0] = i0;
+								}
+							}
+							else if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_CURVES)
+							{
+								for (size_t face_idx = 0U; face_idx < pMesh->mNumFaces; ++face_idx)
+								{
+									auto& i0 = meshPtr->GetIndices()->at(face_idx + 0);
+									auto& i1 = meshPtr->GetIndices()->at(face_idx + 1);
+
+									aiFace& face = pMesh->mFaces[face_idx];
+									face.mIndices = new uint32_t[2];
+									face.mNumIndices = 2;
+
+									face.mIndices[0] = i0;
+									face.mIndices[1] = i1;
+								}
+							}
+							else if (primitive_type == SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_FACES)
+							{
+								for (size_t face_idx = 0U, ind_idx = 0U; face_idx < pMesh->mNumFaces; ++face_idx, ind_idx += 3U)
+								{
+									auto& i0 = meshPtr->GetIndices()->at(ind_idx + 0);
+									auto& i1 = meshPtr->GetIndices()->at(ind_idx + 1);
+									auto& i2 = meshPtr->GetIndices()->at(ind_idx + 2);
+
+									aiFace& face = pMesh->mFaces[face_idx];
+									face.mIndices = new uint32_t[3];
+									face.mNumIndices = 3;
+
+									face.mIndices[0] = i0;
+									face.mIndices[1] = i1;
+									face.mIndices[2] = i2;
+								}
 							}
 						}
 					}
