@@ -26,6 +26,7 @@ limitations under the License.
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
+#include <ImWidgets/ImWidgets.h>
 
 #include <Base/BaseRenderer.h>
 #include <Base/QuadShaderPass.h>
@@ -58,8 +59,7 @@ private:
 	typedef std::map<std::tuple<size_t, size_t>, size_t> CacheDB;
 	typedef VertexStruct::P3_N3_TA3_BTA3_T2_C4 Vertice;
 	typedef VertexStruct::I1 Indice;
-	enum PrimitiveTypeEnum : int32_t
-	{
+	enum PrimitiveTypeEnum : int32_t {
 		PRIMITIVE_TYPE_PLANE = 0,
 		PRIMITIVE_TYPE_CUBE,
 		PRIMITIVE_TYPE_ICO_SPHERE,
@@ -68,12 +68,18 @@ private:
 		PRIMITIVE_TYPE_FIBONACCI_BALL,
 		PRIMITIVE_TYPE_Count
 	};
-	struct Face
-	{
-		size_t v1 = 0U, v2 = 0U, v3 = 0U;
-
-		Face(const size_t& vV1, const size_t& vV2, const size_t& vV3)
-		{
+	struct TriFace {
+		size_t v0 = 0U, v1 = 0U, v2 = 0U;
+		TriFace(const size_t& vV0, const size_t& vV1, const size_t& vV2){
+			v0 = vV0;
+			v1 = vV1;
+			v2 = vV2;
+		}
+	};
+	struct QuadFace	{
+		size_t v0 = 0U, v1 = 0U, v2 = 0U, v3 = 0U;
+		QuadFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, const size_t& vV3){
+			v0 = vV0;
 			v1 = vV1;
 			v2 = vV2;
 			v3 = vV3;
@@ -89,6 +95,8 @@ private:
 	SceneModelPtr m_SceneModelPtr = nullptr;
 	std::vector<std::string> m_PrimitiveTypes;
 	int32_t m_PrimitiveTypeIndex = PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE;
+	ct::fvec3 m_Location;
+	ct::fvec3 m_Rotation;
 
 private: // plane
 	bool m_PlaneCentered = true;
@@ -104,12 +112,26 @@ private: // icosaedre
 	float m_IcosaedreRadius = 1.0f;
 	uint32_t m_IcosaedreSubdivisionLevel = 0U;
 
+private: // torus
+	bool m_GenerateUVS = true;
+	int32_t m_MajorSegments = 48;
+	int32_t m_MinorSegments = 12;
+	float m_SectionAngle = 0;
+	int32_t m_SectionTwist = 0;
+	ImWidgets::QuickStringCombo m_Mode = { 0, std::vector<std::string>{ "Major/Minor", "Exterior/Interior" } };
+	float m_MajorRadius = 1.0f;
+	float m_MinorRadius = 0.25f;
+	float m_ExteriorRadius = 1.25f;
+	float m_InteriorRadius = 0.75f;
+
 private: // framework
 	CacheDB m_CacheDB;
 	std::vector<Vertice> m_Vertices;
-	std::vector<Face> m_Faces;
+	std::vector<TriFace> m_TriFaces;
+	std::vector<QuadFace> m_QuadFaces;
 	ct::fvec3 m_Origin;
 	ct::fvec3 m_Target = ct::fvec3(0.0f, 1.0f, 0.0f);
+	bool m_HaveTextureCoords = false;
 
 public:
 	PrimitiveModule(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -130,7 +152,7 @@ public:
 	void AfterNodeXmlLoading() override;
 
 private:
-	void prDrawWidgets();
+	bool prDrawWidgets();
 	void prUpdateMesh();
 
 private: // framework
@@ -143,16 +165,16 @@ private: // framework
 	void CreateUVSphere();
 	void CreateTorus();
 
-	void CreateQuad(
-		const ct::fvec2& vSize, 
-		const ct::fvec3& vOrigin,
-		const ct::fvec3& vNormal,
-		std::vector<Vertice>& vVertices, 
-		std::vector<Face>& vFaces);
+	void CreateTorusMesh(const float& vMajorRadius, const float& vMinorRadius, const int32_t& vMajorSegments, 
+		const int32_t& vMinorSegments, const float& vSectionAngle, const int32_t& vSectionTwist);
+	void AddTorusUVs(const int32_t& vMajorSegments, const int32_t& vMinorSegments);
+	void AddTorusUVsOneRibbon(const int32_t& vMajorSegments, const int32_t& vMinorSegments, const int32_t& vSectionTwist);
+
 	void AddVertex(const ct::fvec3& vP, const ct::fvec3& vN, const ct::fvec2& vUV, std::vector<Vertice>& vVertices);
 	void AddIcosaedreVertex(const ct::fvec3& vNormal, const ct::fvec3& vOrigin, const float& vRadius, std::vector<Vertice>& vVertices);
-	void AddFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, std::vector<Face>& vFaces);
+	void AddFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, std::vector<TriFace>& vFaces);
+	void AddFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, const size_t& vV3, std::vector<QuadFace>& vFaces);
 	void CalcNormal(Vertice& v0, Vertice& v1, Vertice& v2);
-	void Subdivide(const size_t& vSubdivLevel, std::vector<Vertice>& vVertices, std::vector<Face>& vFaces);
+	void Subdivide(const size_t& vSubdivLevel, std::vector<Vertice>& vVertices, std::vector<TriFace>& vFaces);
 	void BuildMesh();
 };
