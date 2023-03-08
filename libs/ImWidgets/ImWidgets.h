@@ -428,4 +428,18 @@ namespace ImWidgets
 		IMGUI_API std::string GetText(const std::string& vNumericType = "") const;
 		IMGUI_API const char* GetConstCharPtrText() const;
 	};
+
+	IMGUI_API class QuickStringCombo
+	{
+	private:
+		std::vector<std::string> m_Array;
+
+	public:
+		int32_t index = 0;
+
+	public:
+		QuickStringCombo() = default;
+		QuickStringCombo(const int32_t& vDefaultIndex, const std::vector<std::string>& vArray);
+		IMGUI_API bool DisplayCombo(const float& vWidth, const char* vLabel);
+	};
 }

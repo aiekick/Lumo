@@ -3698,3 +3698,17 @@ IMGUI_API const char* ImWidgets::InputText::GetConstCharPtrText() const
 {
 	return m_Text.c_str();
 }
+
+ImWidgets::QuickStringCombo::QuickStringCombo(const int32_t& vDefaultIndex, const std::vector<std::string>& vArray)
+	: m_Array(vArray)
+{
+	if (vDefaultIndex < m_Array.size())
+	{
+		index = vDefaultIndex;
+	}
+}
+
+IMGUI_API bool ImWidgets::QuickStringCombo::DisplayCombo(const float& vWidth, const char* vLabel)
+{
+	return ImGui::ContrastedComboVectorDefault(vWidth, vLabel, &index, m_Array, 0);
+}
