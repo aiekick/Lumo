@@ -155,7 +155,7 @@ void ModelRendererModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
 	m_SceneModel = vSceneModel;
 
 	auto modelPtr = m_SceneModel.getValidShared();
-	if (modelPtr || !modelPtr->empty())
+	if (modelPtr && !modelPtr->empty())
 	{
 		auto meshPtr = modelPtr->at(0).lock();
 		if (meshPtr && meshPtr->GetIndicesCount())
