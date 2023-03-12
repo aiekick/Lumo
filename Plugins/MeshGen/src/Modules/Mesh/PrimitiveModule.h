@@ -17,6 +17,7 @@ limitations under the License.
 
 #pragma once
 
+#include <map>
 #include <set>
 #include <array>
 #include <string>
@@ -49,6 +50,35 @@ limitations under the License.
 
 #include <Interfaces/ModelOutputInterface.h>
 
+struct PlaneParams
+{
+	ct::fvec2 m_Size = 1.0f;
+};
+
+struct CubeParams
+{
+	ct::fvec3 m_Size = 1.0f;
+};
+
+struct IcosaedreParams
+{
+	float m_Radius = 1.0f;
+};
+
+struct TorusParams
+{
+	bool m_GenerateUVS = false; // tofix : desactivé pour le moment vu que ca amrche pas
+	int32_t m_MajorSegments = 48;
+	int32_t m_MinorSegments = 12;
+	float m_SectionAngle = 0;
+	int32_t m_SectionTwist = 0;
+	ImWidgets::QuickStringCombo m_Mode = { 0, std::vector<std::string>{ "Major/Minor", "Exterior/Interior" } };
+	float m_MajorRadius = 1.0f;
+	float m_MinorRadius = 0.25f;
+	float m_ExteriorRadius = 1.25f;
+	float m_InteriorRadius = 0.75f;
+};
+
 class PrimitiveModule :
 	public NodeInterface,
 	public conf::ConfigAbstract,
@@ -70,20 +100,15 @@ private:
 	};
 	struct TriFace {
 		size_t v0 = 0U, v1 = 0U, v2 = 0U;
-		TriFace(const size_t& vV0, const size_t& vV1, const size_t& vV2){
-			v0 = vV0;
-			v1 = vV1;
-			v2 = vV2;
-		}
+		ct::fvec2 t0, t1, t2;
+		TriFace() = default;
+		TriFace(const size_t& vV0, const size_t& vV1, const size_t& vV2) : v0(vV0), v1(vV1), v2(vV2) {}
 	};
 	struct QuadFace	{
 		size_t v0 = 0U, v1 = 0U, v2 = 0U, v3 = 0U;
-		QuadFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, const size_t& vV3){
-			v0 = vV0;
-			v1 = vV1;
-			v2 = vV2;
-			v3 = vV3;
-		}
+		ct::fvec2 t0, t1, t2, t3;
+		QuadFace() = default;
+		QuadFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, const size_t& vV3) : v0(vV0), v1(vV1), v2(vV2), v3(vV3) {}
 	};
 
 public:
@@ -97,35 +122,15 @@ private:
 	int32_t m_PrimitiveTypeIndex = PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE;
 	ct::fvec3 m_Location;
 	ct::fvec3 m_Rotation;
+	uint32_t m_SubdivisionLevel = 0U;
 
-private: // plane
-	bool m_PlaneCentered = true;
-	uint32_t m_PlaneSubdivisionLevel = 0U;
-	ct::fvec2 m_PlaneSize = 1.0f;
-
-private: // cube
-	bool m_CubeCentered = true;
-	uint32_t m_CubeSubdivisionLevel = 0U;
-	ct::fvec3 m_CubeSize = 1.0f;
-
-private: // icosaedre
-	float m_IcosaedreRadius = 1.0f;
-	uint32_t m_IcosaedreSubdivisionLevel = 0U;
-
-private: // torus
-	bool m_GenerateUVS = true;
-	int32_t m_MajorSegments = 48;
-	int32_t m_MinorSegments = 12;
-	float m_SectionAngle = 0;
-	int32_t m_SectionTwist = 0;
-	ImWidgets::QuickStringCombo m_Mode = { 0, std::vector<std::string>{ "Major/Minor", "Exterior/Interior" } };
-	float m_MajorRadius = 1.0f;
-	float m_MinorRadius = 0.25f;
-	float m_ExteriorRadius = 1.25f;
-	float m_InteriorRadius = 0.75f;
+private:
+	PlaneParams m_PlaneParams;
+	CubeParams m_CubeParams;
+	IcosaedreParams m_IcosaedreParams;
+	TorusParams m_TorusParams;
 
 private: // framework
-	CacheDB m_CacheDB;
 	std::vector<Vertice> m_Vertices;
 	std::vector<TriFace> m_TriFaces;
 	std::vector<QuadFace> m_QuadFaces;
@@ -159,8 +164,6 @@ private: // framework
 	void CreatePlane();
 	void CreateCube();
 	void CreateIcosaedre();
-	size_t GetMiddlePoint_Icosaedre(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache, const float& vRadius);
-	size_t GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache, const ct::fvec3& vNormal);
 	void CreateFibonacciBall();
 	void CreateUVSphere();
 	void CreateTorus();
@@ -170,11 +173,16 @@ private: // framework
 	void AddTorusUVs(const int32_t& vMajorSegments, const int32_t& vMinorSegments);
 	void AddTorusUVsOneRibbon(const int32_t& vMajorSegments, const int32_t& vMinorSegments, const int32_t& vSectionTwist);
 
-	void AddVertex(const ct::fvec3& vP, const ct::fvec3& vN, const ct::fvec2& vUV, std::vector<Vertice>& vVertices);
-	void AddIcosaedreVertex(const ct::fvec3& vNormal, const ct::fvec3& vOrigin, const float& vRadius, std::vector<Vertice>& vVertices);
-	void AddFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, std::vector<TriFace>& vFaces);
-	void AddFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, const size_t& vV3, std::vector<QuadFace>& vFaces);
 	void CalcNormal(Vertice& v0, Vertice& v1, Vertice& v2);
+
+	// subdivision
+	size_t GetMiddlePoint_Icosaedre(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache, const float& vRadius);
+	size_t GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache);
 	void Subdivide(const size_t& vSubdivLevel, std::vector<Vertice>& vVertices, std::vector<TriFace>& vFaces);
+	void Subdivide(const size_t& vSubdivLevel, std::vector<Vertice>& vVertices, std::vector<QuadFace>& vFaces);
+
+	size_t GenericGetMiddlePoint(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache);
+	void GenericSubdivide(const size_t& vSubdivLevel, std::vector<Vertice>& vVertices, std::vector<TriFace>& vFaces);
+
 	void BuildMesh();
 };

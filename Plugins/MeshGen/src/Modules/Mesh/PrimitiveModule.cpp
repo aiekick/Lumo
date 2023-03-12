@@ -126,6 +126,7 @@ bool PrimitiveModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	change |= ImGui::InputFloatDefault(0.0f, "Rot X (deg)", &m_Rotation.x, 1.0f);
 	change |= ImGui::InputFloatDefault(0.0f, "Rot Y (deg)", &m_Rotation.y, 1.0f);
 	change |= ImGui::InputFloatDefault(0.0f, "Rot Z (deg)", &m_Rotation.z, 1.0f);
+	change |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level", &m_SubdivisionLevel, 0U, 5U, 0U);
 
 	change |= prDrawWidgets();
 
@@ -178,32 +179,28 @@ std::string PrimitiveModule::getXml(const std::string& vOffset, const std::strin
 	str += vOffset + "\t<primitive_type>" + ct::toStr(m_PrimitiveTypeIndex) + "</primitive_type>\n";
 	str += vOffset + "\t<location>" + m_Location.string() + "</location>\n";
 	str += vOffset + "\t<rotation>" + m_Rotation.string() + "</rotation>\n";
+	str += vOffset + "\t<subdivision_level>" + ct::toStr(m_SubdivisionLevel) + "</subdivision_level>\n";
 
 	// plane
-	str += vOffset + "\t<plane_centered>" + (m_PlaneCentered ? "true" : "false") + "</plane_centered>\n";
-	str += vOffset + "\t<plane_subdivision_level>" + ct::toStr(m_PlaneSubdivisionLevel) + "</plane_subdivision_level>\n";
-	str += vOffset + "\t<plane_size>" + m_PlaneSize.string() + "</plane_size>\n";
+	str += vOffset + "\t<plane_size>" + m_PlaneParams.m_Size.string() + "</plane_size>\n";
 
 	// cube
-	str += vOffset + "\t<cube_centered>" + (m_CubeCentered ? "true" : "false") + "</cube_centered>\n";
-	str += vOffset + "\t<cube_subdivision_level>" + ct::toStr(m_CubeSubdivisionLevel) + "</cube_subdivision_level>\n";
-	str += vOffset + "\t<cube_size>" + m_CubeSize.string() + "</cube_size>\n";
+	str += vOffset + "\t<cube_size>" + m_CubeParams.m_Size.string() + "</cube_size>\n";
 
 	// icosaedre
-	str += vOffset + "\t<icosaedre_radius>" + ct::toStr(m_IcosaedreRadius) + "</icosaedre_radius>\n";
-	str += vOffset + "\t<icosaedre_subdivision_level>" + ct::toStr(m_IcosaedreSubdivisionLevel) + "</icosaedre_subdivision_level>\n";
+	str += vOffset + "\t<icosaedre_radius>" + ct::toStr(m_IcosaedreParams.m_Radius) + "</icosaedre_radius>\n";
 
 	// torus
-	str += vOffset + "\t<torus_generate_uvs>" + (m_GenerateUVS ? "true" : "false") + "</torus_generate_uvs>\n";
-	str += vOffset + "\t<torus_major_segments>" + ct::toStr(m_MajorSegments) + "</torus_major_segments>\n";
-	str += vOffset + "\t<torus_minor_segments>" + ct::toStr(m_MinorSegments) + "</torus_minor_segments>\n";
-	str += vOffset + "\t<torus_section_angle>" + ct::toStr(m_SectionAngle) + "</torus_section_angle>\n";
-	str += vOffset + "\t<torus_section_twist>" + ct::toStr(m_SectionTwist) + "</torus_section_twist>\n";
-	str += vOffset + "\t<torus_major_radius>" + ct::toStr(m_MajorRadius) + "</torus_major_radius>\n";
-	str += vOffset + "\t<torus_minor_radius>" + ct::toStr(m_MinorRadius) + "</torus_minor_radius>\n";
-	str += vOffset + "\t<torus_exterior_radius>" + ct::toStr(m_ExteriorRadius) + "</torus_exterior_radius>\n";
-	str += vOffset + "\t<torus_interior_radius>" + ct::toStr(m_InteriorRadius) + "</torus_interior_radius>\n";
-	str += vOffset + "\t<torus_mode>" + ct::toStr(m_Mode.index) + "</torus_mode>\n";
+	str += vOffset + "\t<torus_generate_uvs>" + (m_TorusParams.m_GenerateUVS ? "true" : "false") + "</torus_generate_uvs>\n";
+	str += vOffset + "\t<torus_major_segments>" + ct::toStr(m_TorusParams.m_MajorSegments) + "</torus_major_segments>\n";
+	str += vOffset + "\t<torus_minor_segments>" + ct::toStr(m_TorusParams.m_MinorSegments) + "</torus_minor_segments>\n";
+	str += vOffset + "\t<torus_section_angle>" + ct::toStr(m_TorusParams.m_SectionAngle) + "</torus_section_angle>\n";
+	str += vOffset + "\t<torus_section_twist>" + ct::toStr(m_TorusParams.m_SectionTwist) + "</torus_section_twist>\n";
+	str += vOffset + "\t<torus_major_radius>" + ct::toStr(m_TorusParams.m_MajorRadius) + "</torus_major_radius>\n";
+	str += vOffset + "\t<torus_minor_radius>" + ct::toStr(m_TorusParams.m_MinorRadius) + "</torus_minor_radius>\n";
+	str += vOffset + "\t<torus_exterior_radius>" + ct::toStr(m_TorusParams.m_ExteriorRadius) + "</torus_exterior_radius>\n";
+	str += vOffset + "\t<torus_interior_radius>" + ct::toStr(m_TorusParams.m_InteriorRadius) + "</torus_interior_radius>\n";
+	str += vOffset + "\t<torus_mode>" + ct::toStr(m_TorusParams.m_Mode.index) + "</torus_mode>\n";
 
 	str += vOffset + "</primitive_module>\n";
 
@@ -233,42 +230,34 @@ bool PrimitiveModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 			m_Rotation = ct::ivariant(strValue).GetV3();
 		if (strName == "primitive_type")
 			m_PrimitiveTypeIndex = ct::ivariant(strValue).GetI();
-		else if (strName == "plane_centered")
-			m_PlaneCentered = ct::ivariant(strValue).GetB();
-		else if (strName == "plane_subdivision_level")
-			m_PlaneSubdivisionLevel = ct::uvariant(strValue).GetU();
+		else if (strName == "subdivision_level")
+			m_SubdivisionLevel = ct::uvariant(strValue).GetU();
 		else if (strName == "plane_size")
-			m_PlaneSize = ct::fvariant(strValue).GetV2();
-		else if (strName == "cube_centered")
-			m_CubeCentered = ct::ivariant(strValue).GetB();
-		else if (strName == "cube_subdivision_level")
-			m_CubeSubdivisionLevel = ct::uvariant(strValue).GetU();
+			m_PlaneParams.m_Size = ct::fvariant(strValue).GetV2();
 		else if (strName == "cube_size")
-			m_CubeSize = ct::fvariant(strValue).GetV3();
+			m_CubeParams.m_Size = ct::fvariant(strValue).GetV3();
 		else if (strName == "icosaedre_radius")
-			m_IcosaedreRadius = ct::fvariant(strValue).GetF();
-		else if (strName == "icosaedre_subdivision_level")
-			m_IcosaedreSubdivisionLevel = ct::uvariant(strValue).GetU();
+			m_IcosaedreParams.m_Radius = ct::fvariant(strValue).GetF();
 		else if (strName == "torus_generate_uvs")
-			m_GenerateUVS = ct::ivariant(strValue).GetB();
+			m_TorusParams.m_GenerateUVS = ct::ivariant(strValue).GetB();
 		else if (strName == "torus_major_segments")
-			m_MajorSegments = ct::fvariant(strValue).GetI();
+			m_TorusParams.m_MajorSegments = ct::fvariant(strValue).GetI();
 		else if (strName == "torus_minor_segments")
-			m_MinorSegments = ct::fvariant(strValue).GetI();
+			m_TorusParams.m_MinorSegments = ct::fvariant(strValue).GetI();
 		else if (strName == "torus_section_angle")
-			m_SectionAngle = ct::fvariant(strValue).GetF();
+			m_TorusParams.m_SectionAngle = ct::fvariant(strValue).GetF();
 		else if (strName == "torus_section_twist")
-			m_SectionTwist = ct::fvariant(strValue).GetI();
+			m_TorusParams.m_SectionTwist = ct::fvariant(strValue).GetI();
 		else if (strName == "torus_major_radius")
-			m_MajorRadius = ct::fvariant(strValue).GetF();
+			m_TorusParams.m_MajorRadius = ct::fvariant(strValue).GetF();
 		else if (strName == "torus_minor_radius")
-			m_MinorRadius = ct::fvariant(strValue).GetF();
+			m_TorusParams.m_MinorRadius = ct::fvariant(strValue).GetF();
 		else if (strName == "torus_exterior_radius")
-			m_ExteriorRadius = ct::fvariant(strValue).GetF();
+			m_TorusParams.m_ExteriorRadius = ct::fvariant(strValue).GetF();
 		else if (strName == "torus_interior_radius")
-			m_InteriorRadius = ct::fvariant(strValue).GetF();
+			m_TorusParams.m_InteriorRadius = ct::fvariant(strValue).GetF();
 		else if (strName == "torus_mode")
-			m_Mode.index = ct::fvariant(strValue).GetI();
+			m_TorusParams.m_Mode.index = ct::fvariant(strValue).GetI();
 	}
 
 	return true;
@@ -295,24 +284,20 @@ bool PrimitiveModule::prDrawWidgets()
 		{
 		case PRIMITIVE_TYPE_PLANE:
 		{
-			change |= ImGui::CheckBoxBoolDefault("Centered ?", &m_PlaneCentered, true);
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level", &m_PlaneSubdivisionLevel, 0U, 5U, 0U);
-			change |= ImGui::InputFloatDefault(0.0f, "Size X", &m_PlaneSize.x, 1.0f);
-			change |= ImGui::InputFloatDefault(0.0f, "Size Y", &m_PlaneSize.y, 1.0f);
+			change |= ImGui::InputFloatDefault(0.0f, "Size X", &m_PlaneParams.m_Size.x, 1.0f);
+			change |= ImGui::InputFloatDefault(0.0f, "Size Y", &m_PlaneParams.m_Size.y, 1.0f);
 		}
 		break;
 		case PRIMITIVE_TYPE_CUBE:
 		{
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level", &m_CubeSubdivisionLevel, 0U, 5U, 0U);
-			change |= ImGui::InputFloatDefault(0.0f, "Size X", &m_CubeSize.x, 1.0f);
-			change |= ImGui::InputFloatDefault(0.0f, "Size Y", &m_CubeSize.y, 1.0f);
-			change |= ImGui::InputFloatDefault(0.0f, "Size Z", &m_CubeSize.z, 1.0f);
+			change |= ImGui::InputFloatDefault(0.0f, "Size X", &m_CubeParams.m_Size.x, 1.0f);
+			change |= ImGui::InputFloatDefault(0.0f, "Size Y", &m_CubeParams.m_Size.y, 1.0f);
+			change |= ImGui::InputFloatDefault(0.0f, "Size Z", &m_CubeParams.m_Size.z, 1.0f);
 		}
 		break;
 		case PRIMITIVE_TYPE_ICO_SPHERE:
 		{
-			change |= ImGui::InputFloatDefault(0.0f, "Radius", &m_IcosaedreRadius, 1.0f);
-			change |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level", &m_IcosaedreSubdivisionLevel, 0U, 5U, 0U);
+			change |= ImGui::InputFloatDefault(0.0f, "Radius", &m_IcosaedreParams.m_Radius, 1.0f);
 		}
 		break;
 		case PRIMITIVE_TYPE_UV_SPHERE:
@@ -322,21 +307,22 @@ bool PrimitiveModule::prDrawWidgets()
 		break;
 		case PRIMITIVE_TYPE_TORUS:
 		{
-			change |= ImGui::CheckBoxBoolDefault("Generate UV's", &m_GenerateUVS, true);
-			change |= ImGui::SliderIntDefaultCompact(0.0f, "Major Segments", &m_MajorSegments, 3U, 256U, 48U);
-			change |= ImGui::SliderIntDefaultCompact(0.0f, "Minor Segments", &m_MinorSegments, 2U, 256U, 12U);
-			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Section Angle (deg)", &m_SectionAngle, 0.0f, 360.0f, 0.0f);
-			change |= ImGui::SliderIntDefaultCompact(0.0f, "Section Twist", &m_SectionTwist, 0, 256, 0);
-			change |= m_Mode.DisplayCombo(0.0f, "Mode");
-			if (m_Mode.index == 0)
+			// tofix : desactivé pour le moment vu que ca amrche pas
+			//change |= ImGui::CheckBoxBoolDefault("Generate UV's", &m_TorusParams.m_GenerateUVS, true);
+			change |= ImGui::SliderIntDefaultCompact(0.0f, "Major Segments", &m_TorusParams.m_MajorSegments, 3U, 256U, 48U);
+			change |= ImGui::SliderIntDefaultCompact(0.0f, "Minor Segments", &m_TorusParams.m_MinorSegments, 2U, 256U, 12U);
+			change |= ImGui::SliderFloatDefaultCompact(0.0f, "Section Angle (deg)", &m_TorusParams.m_SectionAngle, 0.0f, 360.0f, 0.0f);
+			change |= ImGui::SliderIntDefaultCompact(0.0f, "Section Twist", &m_TorusParams.m_SectionTwist, 0, 256, 0);
+			change |= m_TorusParams.m_Mode.DisplayCombo(0.0f, "Mode");
+			if (m_TorusParams.m_Mode.index == 0)
 			{
-				change |= ImGui::SliderFloatDefaultCompact(0.0f, "Major Radius", &m_MajorRadius, 0.0f, 50.0f, 1.0f);
-				change |= ImGui::SliderFloatDefaultCompact(0.0f, "Minor Radius", &m_MinorRadius, 0.0f, 50.0f, 0.25f);
+				change |= ImGui::SliderFloatDefaultCompact(0.0f, "Major Radius", &m_TorusParams.m_MajorRadius, 0.0f, 50.0f, 1.0f);
+				change |= ImGui::SliderFloatDefaultCompact(0.0f, "Minor Radius", &m_TorusParams.m_MinorRadius, 0.0f, 50.0f, 0.25f);
 			}
 			else
 			{
-				change |= ImGui::SliderFloatDefaultCompact(0.0f, "Exterior Radius", &m_ExteriorRadius, 0.0f, 50.0f, 1.25f);
-				change |= ImGui::SliderFloatDefaultCompact(0.0f, "Interior Radius", &m_InteriorRadius, 0.0f, 50.0f, 0.75f);
+				change |= ImGui::SliderFloatDefaultCompact(0.0f, "Exterior Radius", &m_TorusParams.m_ExteriorRadius, 0.0f, 50.0f, 1.25f);
+				change |= ImGui::SliderFloatDefaultCompact(0.0f, "Interior Radius", &m_TorusParams.m_InteriorRadius, 0.0f, 50.0f, 0.75f);
 			}
 		}
 		break;
@@ -365,42 +351,42 @@ void PrimitiveModule::prUpdateMesh()
 
 	switch (m_PrimitiveTypeIndex)
 	{
-		case PRIMITIVE_TYPE_PLANE:
-		{
-			CreatePlane();
-		}
-		break;
-		case PRIMITIVE_TYPE_CUBE:
-		{
-			CreateCube();
-		}
-		break;
-		case PRIMITIVE_TYPE_ICO_SPHERE:
-		{
-			CreateIcosaedre();
-		}
-		break;
-		case PRIMITIVE_TYPE_UV_SPHERE:
-		{
-			CreateUVSphere();
-		}
-		break;
-		case PRIMITIVE_TYPE_TORUS:
-		{
-			CreateTorus();
-		}
-		break;
-		case PRIMITIVE_TYPE_FIBONACCI_BALL:
-		{
-			CreateFibonacciBall();
-		}
-		break;
-		case PRIMITIVE_TYPE_Count:
-		default:
-		{
-			CTOOL_DEBUG_BREAK;
-		}
-		break;
+	case PRIMITIVE_TYPE_PLANE:
+	{
+		CreatePlane();
+	}
+	break;
+	case PRIMITIVE_TYPE_CUBE:
+	{
+		CreateCube();
+	}
+	break;
+	case PRIMITIVE_TYPE_ICO_SPHERE:
+	{
+		CreateIcosaedre();
+	}
+	break;
+	case PRIMITIVE_TYPE_UV_SPHERE:
+	{
+		CreateUVSphere();
+	}
+	break;
+	case PRIMITIVE_TYPE_TORUS:
+	{
+		CreateTorus();
+	}
+	break;
+	case PRIMITIVE_TYPE_FIBONACCI_BALL:
+	{
+		CreateFibonacciBall();
+	}
+	break;
+	case PRIMITIVE_TYPE_Count:
+	default:
+	{
+		CTOOL_DEBUG_BREAK;
+	}
+	break;
 	}
 }
 
@@ -410,23 +396,84 @@ void PrimitiveModule::prUpdateMesh()
 
 void PrimitiveModule::CreatePlane()
 {
-	ct::fvec3 size = ct::fvec3(m_PlaneSize.x, 0.0f, m_PlaneSize.y);
+	const auto& normal = ct::fvec3(0, 1, 0);
+	const auto& size = ct::fvec3(m_PlaneParams.m_Size.x, 0.0f, m_PlaneParams.m_Size.y) * 0.5f;
 
-	AddVertex(m_Origin + ct::fvec3(-0.5f, 0.0f, -0.5f) * size, m_Target, ct::fvec2(0.0f, 0.0f), m_Vertices);
-	AddVertex(m_Origin + ct::fvec3(0.5f, 0.0f, -0.5f) * size, m_Target, ct::fvec2(1.0f, 0.0f), m_Vertices);
-	AddVertex(m_Origin + ct::fvec3(0.5f, 0.0f, 0.5f) * size, m_Target, ct::fvec2(1.0f, 1.0f), m_Vertices);
-	AddVertex(m_Origin + ct::fvec3(-0.5f, 0.0f, 0.5f) * size, m_Target, ct::fvec2(0.0f, 1.0f), m_Vertices);
+	m_Vertices.emplace_back(m_Origin + ct::fvec3(-1, 0, -1) * size, normal, ct::fvec3(), ct::fvec3(), ct::fvec2(0.0f, 0.0f));
+	m_Vertices.emplace_back(m_Origin + ct::fvec3(1, 0, -1) * size, normal, ct::fvec3(), ct::fvec3(), ct::fvec2(1.0f, 0.0f));
+	m_Vertices.emplace_back(m_Origin + ct::fvec3(1, 0, 1) * size, normal, ct::fvec3(), ct::fvec3(), ct::fvec2(1.0f, 1.0f));
+	m_Vertices.emplace_back(m_Origin + ct::fvec3(-1, 0, 1) * size, normal, ct::fvec3(), ct::fvec3(), ct::fvec2(0.0f, 1.0f));
 
-	AddFace(0, 1, 2, m_TriFaces);
-	AddFace(0, 2, 3, m_TriFaces);
+	m_TriFaces.emplace_back(0, 1, 2);
+	m_TriFaces.emplace_back(0, 2, 3);
 
-	Subdivide(m_PlaneSubdivisionLevel, m_Vertices, m_TriFaces);
+	Subdivide(m_SubdivisionLevel, m_Vertices, m_TriFaces);
 
 	BuildMesh();
 }
 
 void PrimitiveModule::CreateCube()
 {
+	std::vector<ct::fvec3> cube_points = {
+		ct::fvec3(-1,1,-1), ct::fvec3(1,1,-1), ct::fvec3(1,1,1), ct::fvec3(-1,1,1),		// top
+		ct::fvec3(-1,-1,-1), ct::fvec3(1,-1,-1), ct::fvec3(1,-1,1), ct::fvec3(-1,-1,1),	// bottom
+		ct::fvec3(-1,-1,-1), ct::fvec3(-1,1,-1), ct::fvec3(-1,1,1), ct::fvec3(-1,-1,1),	// left
+		ct::fvec3(1,-1,-1), ct::fvec3(1,1,-1), ct::fvec3(1,1,1), ct::fvec3(1,-1,1),		// right
+		ct::fvec3(-1,-1,-1), ct::fvec3(1,-1,-1), ct::fvec3(1,1,-1), ct::fvec3(-1,1,-1),	// back
+		ct::fvec3(-1,-1,1), ct::fvec3(1,-1,1), ct::fvec3(1,1,1), ct::fvec3(-1,1,1),		// front
+	};
+
+	std::vector<ct::fvec2> cube_uvs = {
+		ct::fvec2(0,0), ct::fvec2(1,0), ct::fvec2(1,1), ct::fvec2(0,1)
+	};
+
+	std::vector<ct::fvec3> cube_normals = {
+		ct::fvec3(0, 1, 0),
+		ct::fvec3(0, -1, 0),
+		ct::fvec3(1, 0, 0),
+		ct::fvec3(-1, 0, 0),
+		ct::fvec3(0, 0, 1),
+		ct::fvec3(0, 0, -1)
+	}; 
+	
+	std::vector<ct::fvec3> cube_faces = {
+		0,1,2,
+		ct::fvec3(0, -1, 0),
+		ct::fvec3(1, 0, 0),
+		ct::fvec3(-1, 0, 0),
+		ct::fvec3(0, 0, 1),
+		ct::fvec3(0, 0, -1)
+	};
+
+	assert(cube_normals.size() == 6);
+	assert(cube_points.size() == 24);
+	assert(cube_uvs.size() == 4);
+	
+	m_Vertices.reserve(cube_points.size());
+	m_TriFaces.reserve(cube_normals.size() * 2); // 2 triangle per faces
+
+	const auto& mid_size = m_CubeParams.m_Size * 0.5f;
+	for (size_t point_idx = 0; point_idx < cube_points.size(); ++point_idx)
+	{
+		const size_t& normal_idx = ct::floor(point_idx / 4);
+		const size_t& uv_idx = point_idx % 4;
+
+		m_Vertices.emplace_back(
+			cube_points.at(point_idx) * mid_size,
+			cube_normals.at(normal_idx), 
+			ct::fvec3(),
+			ct::fvec3(), 
+			cube_uvs.at(uv_idx));
+	}
+
+	for (size_t point_idx = 0; point_idx < cube_points.size(); point_idx+=4)
+	{
+		m_TriFaces.emplace_back(point_idx + 0, point_idx + 1, point_idx + 2); 
+		m_TriFaces.emplace_back(point_idx + 0, point_idx + 2, point_idx + 3);
+	}
+
+	Subdivide(m_SubdivisionLevel, m_Vertices, m_TriFaces);
+
 	BuildMesh();
 }
 
@@ -435,53 +482,59 @@ void PrimitiveModule::CreateIcosaedre()
 	// create 12 vertices of a icosahedron
 	float t = (1.0f + sqrtf(5.0f)) / 2.0f;
 
-	AddIcosaedreVertex(ct::fvec3(-1.0f, t, 0.0f).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
-	AddIcosaedreVertex(ct::fvec3(1.0f, t, 0.0f).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
-	AddIcosaedreVertex(ct::fvec3(-1.0f, -t, 0.0f).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
-	AddIcosaedreVertex(ct::fvec3(1.0f, -t, 0.0f).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
+	std::vector<ct::fvec3> normals = {
+		ct::fvec3(-1.0f, t, 0.0f).GetNormalized(),
+		ct::fvec3(1.0f, t, 0.0f).GetNormalized(),
+		ct::fvec3(-1.0f, -t, 0.0f).GetNormalized(),
+		ct::fvec3(1.0f, -t, 0.0f).GetNormalized(),
 
-	AddIcosaedreVertex(ct::fvec3(0.0f, -1.0f, t).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
-	AddIcosaedreVertex(ct::fvec3(0.0f, 1.0f, t).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
-	AddIcosaedreVertex(ct::fvec3(0.0f, -1.0f, -t).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
-	AddIcosaedreVertex(ct::fvec3(0.0f, 1.0f, -t).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
+		ct::fvec3(0.0f, -1.0f, t).GetNormalized(),
+		ct::fvec3(0.0f, 1.0f, t).GetNormalized(),
+		ct::fvec3(0.0f, -1.0f, -t).GetNormalized(),
+		ct::fvec3(0.0f, 1.0f, -t).GetNormalized(),
 
-	AddIcosaedreVertex(ct::fvec3(t, 0.0f, -1.0f).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
-	AddIcosaedreVertex(ct::fvec3(t, 0.0f, 1.0f).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
-	AddIcosaedreVertex(ct::fvec3(-t, 0.0f, -1.0f).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
-	AddIcosaedreVertex(ct::fvec3(-t, 0.0f, 1.0f).GetNormalized(), m_Origin, m_IcosaedreRadius, m_Vertices);
+		ct::fvec3(t, 0.0f, -1.0f).GetNormalized(),
+		ct::fvec3(t, 0.0f, 1.0f).GetNormalized(),
+		ct::fvec3(-t, 0.0f, -1.0f).GetNormalized(),
+		ct::fvec3(-t, 0.0f, 1.0f).GetNormalized(),
+	};
+
+	for (const auto& normal : normals)
+	{
+		m_Vertices.emplace_back(m_Origin + normal * m_IcosaedreParams.m_Radius, normal);
+	}
 
 	// create 20 triangles of the icosahedron
 
 	// 5 faces around point 0
-	AddFace(0, 11, 5, m_TriFaces);
-	AddFace(0, 5, 1, m_TriFaces);
-	AddFace(0, 1, 7, m_TriFaces);
-	AddFace(0, 7, 10, m_TriFaces);
-	AddFace(0, 10, 11, m_TriFaces);
+	m_TriFaces.emplace_back(0, 11, 5);
+	m_TriFaces.emplace_back(0, 5, 1);
+	m_TriFaces.emplace_back(0, 1, 7);
+	m_TriFaces.emplace_back(0, 7, 10);
+	m_TriFaces.emplace_back(0, 10, 11);
 
 	// 5 adjacent faces
-	AddFace(1, 5, 9, m_TriFaces);
-	AddFace(5, 11, 4, m_TriFaces);
-	AddFace(11, 10, 2, m_TriFaces);
-	AddFace(10, 7, 6, m_TriFaces);
-	AddFace(7, 1, 8, m_TriFaces);
+	m_TriFaces.emplace_back(1, 5, 9);
+	m_TriFaces.emplace_back(5, 11, 4);
+	m_TriFaces.emplace_back(11, 10, 2);
+	m_TriFaces.emplace_back(10, 7, 6);
+	m_TriFaces.emplace_back(7, 1, 8);
 
 	// 5 faces around point 3
-	AddFace(3, 9, 4, m_TriFaces);
-	AddFace(3, 4, 2, m_TriFaces);
-	AddFace(3, 2, 6, m_TriFaces);
-	AddFace(3, 6, 8, m_TriFaces);
-	AddFace(3, 8, 9, m_TriFaces);
+	m_TriFaces.emplace_back(3, 9, 4);
+	m_TriFaces.emplace_back(3, 4, 2);
+	m_TriFaces.emplace_back(3, 2, 6);
+	m_TriFaces.emplace_back(3, 6, 8);
+	m_TriFaces.emplace_back(3, 8, 9);
 
 	// 5 adjacent faces
-	AddFace(4, 9, 5, m_TriFaces);
-	AddFace(2, 4, 11, m_TriFaces);
-	AddFace(6, 2, 10, m_TriFaces);
-	AddFace(8, 6, 7, m_TriFaces);
-	AddFace(9, 8, 1, m_TriFaces);
+	m_TriFaces.emplace_back(4, 9, 5);
+	m_TriFaces.emplace_back(2, 4, 11);
+	m_TriFaces.emplace_back(6, 2, 10);
+	m_TriFaces.emplace_back(8, 6, 7);
+	m_TriFaces.emplace_back(9, 8, 1);
 
-	// subdivide if needed (vSubdivLevel > 0))
-	Subdivide(m_IcosaedreSubdivisionLevel, m_Vertices, m_TriFaces);
+	Subdivide(m_SubdivisionLevel, m_Vertices, m_TriFaces);
 
 	BuildMesh();
 }
@@ -515,7 +568,7 @@ size_t PrimitiveModule::GetMiddlePoint_Icosaedre(const size_t& p1, const size_t&
 	return i;
 }
 
-size_t PrimitiveModule::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache, const ct::fvec3& vNormal)
+size_t PrimitiveModule::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache)
 {
 	if (p1 == p2)
 	{
@@ -530,13 +583,15 @@ size_t PrimitiveModule::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2,
 	}
 
 	// not in cache, calculate it
-	const ct::fvec3 point1 = vVertices.at(p1).p;
-	const ct::fvec3 point2 = vVertices.at(p2).p;
-	const ct::fvec3 middle = (point1 + point2) * 0.5f;
+	const auto& pt1 = vVertices.at(p1);
+	const auto& pt2 = vVertices.at(p2);
+	const auto& middle_point = (pt1.p + pt2.p) * 0.5f;
+	const auto& middle_normal = (pt1.n + pt2.n).GetNormalized();
+	const auto& middle_tex = (pt1.t + pt2.t) * 0.5f;
 
 	// add vertex makes sure point is on unit sphere
 	size_t i = vVertices.size();
-	vVertices.emplace_back(middle, vNormal);
+	vVertices.emplace_back(middle_point, middle_normal, ct::fvec3(), ct::fvec3(), middle_tex);
 
 	// store it, return index
 	vCache[_block] = i;
@@ -556,28 +611,29 @@ void PrimitiveModule::CreateUVSphere()
 
 void PrimitiveModule::CreateTorus()
 {
-	if (m_Mode.index == TORUS_MODE_MAJOR_MINOR)
+	if (m_TorusParams.m_Mode.index == TORUS_MODE_MAJOR_MINOR)
 	{
-		m_ExteriorRadius = m_MajorRadius + m_MinorRadius;
-		m_InteriorRadius = m_MajorRadius - m_MinorRadius;
+		m_TorusParams.m_ExteriorRadius = m_TorusParams.m_MajorRadius + m_TorusParams.m_MinorRadius;
+		m_TorusParams.m_InteriorRadius = m_TorusParams.m_MajorRadius - m_TorusParams.m_MinorRadius;
 	}
-	else if (m_Mode.index == TORUS_MODE_EXT_INT)
+	else if (m_TorusParams.m_Mode.index == TORUS_MODE_EXT_INT)
 	{
-		m_MinorRadius = (m_ExteriorRadius - m_InteriorRadius) * 0.5f;
-		m_MajorRadius = m_InteriorRadius + m_MinorRadius;
+		m_TorusParams.m_MinorRadius = (m_TorusParams.m_ExteriorRadius - m_TorusParams.m_InteriorRadius) * 0.5f;
+		m_TorusParams.m_MajorRadius = m_TorusParams.m_InteriorRadius + m_TorusParams.m_MinorRadius;
 	}
 
-	CreateTorusMesh(m_MajorRadius, m_MinorRadius, m_MajorSegments, m_MinorSegments, m_SectionAngle * DEGTORAD, m_SectionTwist);
+	CreateTorusMesh(m_TorusParams.m_MajorRadius, m_TorusParams.m_MinorRadius, m_TorusParams.m_MajorSegments, 
+		m_TorusParams.m_MinorSegments, m_TorusParams.m_SectionAngle * DEGTORAD, m_TorusParams.m_SectionTwist);
 
-	if (m_GenerateUVS && m_MinorSegments)
+	if (m_TorusParams.m_GenerateUVS && m_TorusParams.m_MinorSegments)
 	{
-		if (m_SectionTwist % m_MinorSegments == 0)
+		if (m_TorusParams.m_SectionTwist % m_TorusParams.m_MinorSegments == 0)
 		{
-			AddTorusUVs(m_MinorSegments, m_MajorSegments);
+			AddTorusUVs(m_TorusParams.m_MinorSegments, m_TorusParams.m_MajorSegments);
 		}
 		else
 		{
-			AddTorusUVsOneRibbon(m_MinorSegments, m_MajorSegments, m_SectionTwist);
+			AddTorusUVsOneRibbon(m_TorusParams.m_MinorSegments, m_TorusParams.m_MajorSegments, m_TorusParams.m_SectionTwist);
 		}
 	}
 
@@ -616,7 +672,7 @@ void PrimitiveModule::CreateTorusMesh(
 				1
 			);
 
-			AddVertex(ct::fvec3(vertex.x, vertex.y, vertex.z), ct::fvec3(), ct::fvec2(), m_Vertices);
+			m_Vertices.emplace_back(ct::fvec3(vertex.x, vertex.y, vertex.z));
 
 			if (vMinorSegments > 2 && minor_index + 1 == vMinorSegments)
 			{
@@ -641,7 +697,7 @@ void PrimitiveModule::CreateTorusMesh(
 				face_indexs[3] = (face_indexs[3] - tot_verts + vSectionTwist) % vMinorSegments;
 			}
 
-			AddFace(face_indexs[0], face_indexs[2], face_indexs[3], face_indexs[1], m_QuadFaces);
+			m_QuadFaces.emplace_back(face_indexs[0], face_indexs[2], face_indexs[3], face_indexs[1]);
 
 			++face_indexs[0];
 		}
@@ -669,6 +725,7 @@ void PrimitiveModule::AddTorusUVs(const int32_t& vMajorSegments, const int32_t& 
 		float u_next = u_prev + u_step;
 		float v_prev = 0.0f;
 		float v_next = 0.0f;
+
 		for (int32_t _major_index = 0; _major_index < vMajorSegments; ++_major_index)
 		{
 			v_prev = v_init;
@@ -678,10 +735,15 @@ void PrimitiveModule::AddTorusUVs(const int32_t& vMajorSegments, const int32_t& 
 				if (face_index < m_QuadFaces.size())
 				{
 					auto face = m_QuadFaces.at(face_index);
-					m_Vertices.at(face.v0).t = ct::fvec2(u_prev, v_prev);
-					m_Vertices.at(face.v1).t = ct::fvec2(u_next, v_prev);
-					m_Vertices.at(face.v2).t = ct::fvec2(u_next, v_next);
-					m_Vertices.at(face.v3).t = ct::fvec2(u_prev, v_next);
+					face.t0 = ct::fvec2(u_prev, v_prev);
+					face.t1 = ct::fvec2(u_next, v_prev);
+					face.t2 = ct::fvec2(u_next, v_next);
+					face.t3 = ct::fvec2(u_prev, v_next);
+
+					//LogVarDebug("--------------------------");
+					//LogVarDebug("i0:%u, i1:%u, i2:%u, i3:%u", (uint32_t)face.v0, (uint32_t)face.v1, (uint32_t)face.v2, (uint32_t)face.v3);
+					//LogVarDebug("u0:%f, u1:%f, u2:%f, u3:%f", u_prev, u_next, u_next, u_prev);
+					//LogVarDebug("v0:%f, v1:%f, v2:%f, v3:%f", v_prev, v_prev, v_next, v_next);
 				}
 
 				if (v_next > v_wrap)
@@ -724,10 +786,15 @@ void PrimitiveModule::AddTorusUVsOneRibbon(const int32_t& vMajorSegments, const 
 				if (face_index < m_QuadFaces.size())
 				{
 					auto face = m_QuadFaces.at(face_index);
-					m_Vertices.at(face.v0).t = ct::fvec2(u_prev, 0.0f);
-					m_Vertices.at(face.v1).t = ct::fvec2(u_next, 0.0f);
-					m_Vertices.at(face.v2).t = ct::fvec2(u_next, 1.0f);
-					m_Vertices.at(face.v3).t = ct::fvec2(u_prev, 1.0f);
+					face.t0 = ct::fvec2(u_prev, 0.0f);
+					face.t1 = ct::fvec2(u_next, 0.0f);
+					face.t2 = ct::fvec2(u_next, 1.0f);
+					face.t3 = ct::fvec2(u_prev, 1.0f);
+
+					//LogVarDebug("--------------------------");
+					//LogVarDebug("i0:%u, i1:%u, i2:%u, i3:%u", (uint32_t)face.v0, (uint32_t)face.v1, (uint32_t)face.v2, (uint32_t)face.v3);
+					//LogVarDebug("u0:%f, u1:%f, u2:%f, u3:%f", u_prev, u_next, u_next, u_prev);
+					//LogVarDebug("v0:%f, v1:%f, v2:%f, v3:%f", 0.0f, 0.0f, 1.0f, 1.0f);
 				}
 				u_prev = u_next;
 			}
@@ -735,26 +802,6 @@ void PrimitiveModule::AddTorusUVsOneRibbon(const int32_t& vMajorSegments, const 
 		m_HaveTextureCoords = true;
 	}
 }	
-
-void PrimitiveModule::AddVertex(const ct::fvec3& vP, const ct::fvec3& vN, const ct::fvec2& vUV, std::vector<Vertice>& vVertices)
-{
-	vVertices.emplace_back(vP, vN, 0.0f, 0.0f, vUV);
-}
-
-void PrimitiveModule::AddIcosaedreVertex(const ct::fvec3& vNormal, const ct::fvec3& vOrigin, const float& vRadius, std::vector<Vertice>& vVertices)
-{
-	vVertices.emplace_back(vOrigin + vNormal * vRadius, vNormal);
-}
-
-void PrimitiveModule::AddFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, std::vector<TriFace>& vFaces)
-{
-	vFaces.emplace_back(vV0, vV1, vV2);
-}
-
-void PrimitiveModule::AddFace(const size_t& vV0, const size_t& vV1, const size_t& vV2, const size_t& vV3, std::vector<QuadFace>& vFaces)
-{
-	vFaces.emplace_back(vV0, vV1, vV2, vV3);
-}
 
 void PrimitiveModule::CalcNormal(Vertice& v0, Vertice& v1, Vertice& v2)
 {
@@ -771,13 +818,6 @@ void PrimitiveModule::Subdivide(const size_t& vSubdivLevel, std::vector<Vertice>
 	{
 		CacheDB middlePointIndexCache;
 
-		ct::fvec3 planeNormal;
-
-		if (m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE)
-		{
-			planeNormal = (m_Origin - m_Target).GetNormalized();
-		}
-
 		// refine triangles
 		try
 		{
@@ -792,25 +832,112 @@ void PrimitiveModule::Subdivide(const size_t& vSubdivLevel, std::vector<Vertice>
 				{
 					if (m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_ICO_SPHERE)
 					{
-						a = GetMiddlePoint_Icosaedre(face.v0, face.v1, subVertices, middlePointIndexCache, m_IcosaedreRadius);
-						b = GetMiddlePoint_Icosaedre(face.v1, face.v2, subVertices, middlePointIndexCache, m_IcosaedreRadius);
-						c = GetMiddlePoint_Icosaedre(face.v2, face.v0, subVertices, middlePointIndexCache, m_IcosaedreRadius);
+						a = GetMiddlePoint_Icosaedre(face.v0, face.v1, subVertices, middlePointIndexCache, m_IcosaedreParams.m_Radius);
+						b = GetMiddlePoint_Icosaedre(face.v1, face.v2, subVertices, middlePointIndexCache, m_IcosaedreParams.m_Radius);
+						c = GetMiddlePoint_Icosaedre(face.v2, face.v0, subVertices, middlePointIndexCache, m_IcosaedreParams.m_Radius);
 					}
-					else if (m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE)
+					else if (m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE ||
+						m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_CUBE)
 					{
-						a = GetMiddlePoint_Plane(face.v0, face.v1, subVertices, middlePointIndexCache, planeNormal);
-						b = GetMiddlePoint_Plane(face.v1, face.v2, subVertices, middlePointIndexCache, planeNormal);
-						c = GetMiddlePoint_Plane(face.v2, face.v0, subVertices, middlePointIndexCache, planeNormal);
+						a = GetMiddlePoint_Plane(face.v0, face.v1, subVertices, middlePointIndexCache);
+						b = GetMiddlePoint_Plane(face.v1, face.v2, subVertices, middlePointIndexCache);
+						c = GetMiddlePoint_Plane(face.v2, face.v0, subVertices, middlePointIndexCache);
 					}
 
 					if (m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_ICO_SPHERE ||
-						m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE)
+						m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE ||
+						m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_CUBE)
 					{
-						AddFace(face.v0, a, c, subFaces);
-						AddFace(face.v1, b, a, subFaces);
-						AddFace(face.v2, c, b, subFaces);
-						AddFace(a, b, c, subFaces);
+						subFaces.emplace_back(face.v0, a, c);
+						subFaces.emplace_back(face.v1, b, a);
+						subFaces.emplace_back(face.v2, c, b);
+						subFaces.emplace_back(a, b, c);
 					}
+				}
+
+				m_TriFaces = subFaces;
+				m_Vertices = subVertices;
+			}
+		}
+		catch (std::exception& ex)
+		{
+			LogVarError("error %s", std::string(ex.what()).c_str());
+		}
+	}
+}
+
+size_t PrimitiveModule::GenericGetMiddlePoint(const size_t& p1, const size_t& p2, VerticeArray& vVertices, CacheDB& vCache)
+{
+	if (p1 == p2)
+	{
+		CTOOL_DEBUG_BREAK;
+	}
+
+	std::tuple<size_t, size_t> _block(ct::mini(p1, p2), ct::maxi(p1, p2));
+
+	if (vCache.find(_block) != vCache.end())
+	{
+		return vCache.at(_block);
+	}
+
+	// not in cache, calculate it
+	const ct::fvec3 point1 = vVertices.at(p1).p;
+	const ct::fvec3 point2 = vVertices.at(p2).p;
+	const ct::fvec3 normal1 = vVertices.at(p1).n;
+	const ct::fvec3 normal2 = vVertices.at(p2).n;
+	const ct::fvec2 tex1 = vVertices.at(p1).t;
+	const ct::fvec2 tex2 = vVertices.at(p2).t;
+
+	ct::fvec3 middle_p = (point1 + point2) * 0.5f;
+	ct::fvec2 middle_t = (tex1 + tex2) * 0.5f;
+	ct::fvec3 middle_n = (normal1 + normal2).GetNormalized();
+	
+	const ct::fplane pln1(point1, normal1);
+	const ct::fplane pln2(point2, normal2);
+	const ct::fplane pln3(point1, point2, middle_p + middle_n);
+
+	ct::fvec3 res_p;
+	if (!ct::get_plane_intersection(pln1, pln2, pln3, res_p))
+	{
+		res_p = middle_p;
+	}
+
+	// add vertex makes sure point is on unit sphere
+	size_t i = vVertices.size();
+	vVertices.emplace_back(res_p, middle_n, ct::fvec3(), ct::fvec3(), middle_t);
+
+	// store it, return index
+	vCache[_block] = i;
+
+	return i;
+}
+
+void PrimitiveModule::GenericSubdivide(const size_t& vSubdivLevel, std::vector<Vertice>& vVertices, std::vector<TriFace>& vFaces)
+{
+	if (vSubdivLevel > 0)
+	{
+		CacheDB middlePointIndexCache;
+
+		// refine triangles
+		try
+		{
+			for (int i = 0; i < vSubdivLevel; ++i)
+			{
+				size_t a = 0, b = 0, c = 0;
+
+				std::vector<TriFace> subFaces;
+				std::vector<Vertice> subVertices = m_Vertices;
+
+				for (auto& face : m_TriFaces)
+				{
+					a = GenericGetMiddlePoint(face.v0, face.v1, subVertices, middlePointIndexCache);
+					b = GenericGetMiddlePoint(face.v1, face.v2, subVertices, middlePointIndexCache);
+					c = GenericGetMiddlePoint(face.v2, face.v0, subVertices, middlePointIndexCache);
+
+					subFaces.emplace_back(face.v0, a, c);
+					subFaces.emplace_back(face.v1, b, a);
+					subFaces.emplace_back(face.v2, c, b);
+					subFaces.emplace_back(a, b, c);
 				}
 
 				m_TriFaces = subFaces;
@@ -831,8 +958,13 @@ void PrimitiveModule::BuildMesh()
 		VerticeArray vertices;
 		IndiceArray indices;
 
-		const auto matrix = glm::yawPitchRoll(m_Rotation.x * DEGTORAD, m_Rotation.y * DEGTORAD, m_Rotation.z * DEGTORAD);
+		// split vertices per uv maps
+		/*for (auto v : m_QuadFaces)
+		{
 
+		}*/
+
+		const auto matrix = glm::yawPitchRoll(m_Rotation.x * DEGTORAD, m_Rotation.y * DEGTORAD, m_Rotation.z * DEGTORAD);
 		vertices.reserve(m_Vertices.size());
 		for (auto v : m_Vertices)
 		{
