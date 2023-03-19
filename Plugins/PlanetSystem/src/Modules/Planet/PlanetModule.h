@@ -49,6 +49,8 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 
 class PlanetModule_Ground_Mesh_Pass;
+class PlanetModule_Atmosphere_Mesh_Pass;
+class PlanetModule_Water_Mesh_Pass;
 class PlanetModule :
 	public NodeInterface,
 	public BaseRenderer,
@@ -64,6 +66,9 @@ public:
 private:
 	ct::cWeak<PlanetModule> m_This;
 	std::shared_ptr<PlanetModule_Ground_Mesh_Pass> m_PlanetModule_Ground_Mesh_Pass_Ptr = nullptr;
+	std::shared_ptr<PlanetModule_Atmosphere_Mesh_Pass> m_PlanetModule_Atmosphere_Mesh_Pass_Ptr = nullptr;
+	std::shared_ptr<PlanetModule_Water_Mesh_Pass> m_PlanetModule_Water_Mesh_Pass_Ptr = nullptr;
+	FrameBufferPtr m_FrameBufferPtr = nullptr;
 
 public:
 	PlanetModule(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -73,12 +78,15 @@ public:
 
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+	void RenderShaderPasses(vk::CommandBuffer* vCmdBuffer) override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 
+	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+	bool ResizeIfNeeded() override;
 
 	// Interfaces Setters
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;

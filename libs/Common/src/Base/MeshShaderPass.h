@@ -82,7 +82,7 @@ MeshShaderPass<T_VertexType>::MeshShaderPass(
 }
 
 template<typename T_VertexType>
-void MeshShaderPass<T_VertexType>::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void MeshShaderPass<T_VertexType>::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& /*vIterationNumber*/)
 {
 	if (!m_Loaded) return;
 

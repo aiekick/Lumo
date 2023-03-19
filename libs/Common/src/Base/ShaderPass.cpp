@@ -116,6 +116,7 @@ void ShaderPass::ActionAfterInitFail()
 bool ShaderPass::InitPixelWithoutFBO(
 	const ct::uvec2& vSize,
 	const uint32_t& vCountColorBuffers,
+	const bool& vTesselated,
 	vk::RenderPass* vRenderPassPtr,
 	const vk::SampleCountFlagBits& vSampleCount)
 {
@@ -134,12 +135,20 @@ bool ShaderPass::InitPixelWithoutFBO(
 
 	m_CountColorBuffers = vCountColorBuffers;
 	m_SampleCount = vSampleCount;
+	m_Tesselated = vTesselated;
 	m_RenderPassPtr = vRenderPassPtr;
 
 	// ca peut ne pas compiler, masi c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eVertex, "main");
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eFragment, "main");
+
+	if (m_Tesselated)
+	{
+		AddShaderEntryPoints(vk::ShaderStageFlagBits::eTessellationControl, "main");
+		AddShaderEntryPoints(vk::ShaderStageFlagBits::eTessellationEvaluation, "main");
+	}
+
 	CompilPixel();
 
 	if (BuildModel()) {
@@ -201,7 +210,7 @@ bool ShaderPass::InitPixel(
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eVertex, "main");
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eFragment, "main");
 
-	if (vTesselated)
+	if (m_Tesselated)
 	{
 		AddShaderEntryPoints(vk::ShaderStageFlagBits::eTessellationControl, "main");
 		AddShaderEntryPoints(vk::ShaderStageFlagBits::eTessellationEvaluation, "main");
@@ -657,13 +666,17 @@ void ShaderPass::SwapMultiPassFrontBackDescriptors()
 	
 }
 
-void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+bool ShaderPass::AreWeValidForRender()
 {
-	if (m_IsShaderCompiled && 
+	return (m_IsShaderCompiled &&
 		m_Pipelines[0].m_Pipeline && // one pipeline at least
 		m_Pipelines[0].m_PipelineLayout &&
-		m_DescriptorWasUpdated && 
-		CanRender())
+		m_DescriptorWasUpdated);
+}
+
+bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBuffer)
+{
+	if (AreWeValidForRender() && CanRender())
 	{
 		auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
 		if (devicePtr)
@@ -687,6 +700,25 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 			}
 		}
 
+		return true;
+	}
+
+	return false;
+}
+
+void ShaderPass::EndDrawPass(vk::CommandBuffer* vCmdBuffer)
+{
+	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+	if (devicePtr)
+	{
+		devicePtr->EndDebugLabel(vCmdBuffer);
+	}
+}
+
+void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+{
+	if (StartDrawPass(vCmdBuffer))
+	{
 		if (IsPixelRenderer())
 		{
 			if (m_FrameBufferPtr && 
@@ -735,10 +767,7 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 			TraceRays(vCmdBuffer, vIterationNumber);
 		}
 
-		if (devicePtr)
-		{
-			devicePtr->EndDebugLabel(vCmdBuffer);
-		}
+		EndDrawPass(vCmdBuffer);
 	}
 }
 
@@ -1480,7 +1509,7 @@ void ShaderPass::ActionAfterCompilation()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ShaderPass::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string ShaderPass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
@@ -1494,7 +1523,7 @@ std::string ShaderPass::getXml(const std::string& vOffset, const std::string& vU
 }
 
 // return true for continue xml parsing of childs in this node or false for interupt the child exploration
-bool ShaderPass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool ShaderPass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;

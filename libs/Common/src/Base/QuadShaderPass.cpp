@@ -74,7 +74,7 @@ bool QuadShaderPass::BuildModel()
 	return true;
 }
 
-void QuadShaderPass::DestroyModel(const bool& vReleaseDatas)
+void QuadShaderPass::DestroyModel(const bool& /*vReleaseDatas*/)
 {
 	ZoneScoped;
 

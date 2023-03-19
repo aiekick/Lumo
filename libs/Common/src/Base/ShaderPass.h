@@ -203,6 +203,7 @@ public:
 	virtual bool InitPixelWithoutFBO(
 		const ct::uvec2& vSize,
 		const uint32_t& vCountColorBuffers,
+		const bool& vTesselated,
 		vk::RenderPass* vRenderPassPtr,
 		const vk::SampleCountFlagBits& vSampleCount = vk::SampleCountFlagBits::e1); // for this one, a compatible fbo must be set before rendering
 	virtual bool InitPixel(
@@ -333,7 +334,9 @@ public:
 	// xecuted jsut before compute()
 	virtual void SwapMultiPassFrontBackDescriptors(); 
 
+	bool StartDrawPass(vk::CommandBuffer* vCmdBuffer);
 	void DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber = 1U);
+	void EndDrawPass(vk::CommandBuffer* vCmdBuffer);
 
 	/// <summary>
 	/// chnage the primitive topology if enebled with m_CanDynamicallyChangePrimitiveTopology
@@ -360,7 +363,8 @@ public:
 	vk::PrimitiveTopology GetPrimitiveTopologyFamily(const vk::PrimitiveTopology& vPrimitiveTopology);
 
 	// draw primitives
-	virtual bool CanRender();
+	bool AreWeValidForRender(); // pre condition check, like pipeline validity
+	virtual bool CanRender(); // user defined
 	virtual void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 	virtual void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
 	virtual void TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);

@@ -84,10 +84,10 @@ bool MathModule::Init()
 		m_MathModule_Quad_Pass_Ptr = std::make_shared<MathModule_Quad_Pass>(m_VulkanCorePtr);
 		if (m_MathModule_Quad_Pass_Ptr)
 		{
-			// will be resized ot input size
-			m_MathModule_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			// by default but can be changed via widget
 			m_MathModule_Quad_Pass_Ptr->AllowResizeByHandOrByInputs(true);
-
+			m_MathModule_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			
 			if (m_MathModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{

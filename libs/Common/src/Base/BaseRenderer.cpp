@@ -501,7 +501,7 @@ bool BaseRenderer::BeginRender(const char* vSectionLabel)
 		auto cmd = GetCommandBuffer();
 		if (cmd)
 		{
-			BeginTracyFrame("BaseRenderer");
+			BeginProfilerFrame("BaseRenderer");
 
 			UpdateDescriptorsBeforeCommandBuffer();
 
@@ -555,13 +555,20 @@ vk::CommandBuffer* BaseRenderer::GetCommandBuffer()
 	return &m_CommandBuffers[m_CurrentFrame];
 }
 
-void BaseRenderer::BeginTracyFrame(const char* vFrameName)
+void BaseRenderer::BeginProfilerFrame(const char* vFrameName)
 {
+	// just for remove warning at compile time
+#ifndef TRACY_ENABLE
+	UNUSED(vFrameName); 
+#endif
+
 	FrameMarkNamed(vFrameName);
 }
 
 void BaseRenderer::ResetCommandBuffer()
 {
+	// todo : remove this func, because no more used.
+	// now for better perf, we clear the command pool befaore rendering instead of command buffer per command buffer
 	//auto cmd = GetCommandBuffer();
 	//cmd->reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 }
@@ -743,7 +750,7 @@ void BaseRenderer::UpdateShaders(const std::set<std::string>& vFiles)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string BaseRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string BaseRenderer::getXml(const std::string& /*vOffset*/, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
@@ -753,7 +760,7 @@ std::string BaseRenderer::getXml(const std::string& vOffset, const std::string& 
 }
 
 // return true for continue xml parsing of childs in this node or false for interupt the child exploration
-bool BaseRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool BaseRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -775,7 +782,7 @@ bool BaseRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 //// PRIVATE / COMMANDBUFFER ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void BaseRenderer::DoBeforeEndCommandBuffer(vk::CommandBuffer* vCmdBuffer)
+void BaseRenderer::DoBeforeEndCommandBuffer(vk::CommandBuffer* /*vCmdBuffer*/)
 {
 
 }

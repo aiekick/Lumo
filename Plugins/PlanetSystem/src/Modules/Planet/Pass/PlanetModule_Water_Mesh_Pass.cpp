@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "PlanetModule_Ground_Mesh_Pass.h"
+#include "PlanetModule_Water_Mesh_Pass.h"
 
 #include <cinttypes>
 #include <functional>
@@ -39,24 +39,24 @@ using namespace vkApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PlanetModule_Ground_Mesh_Pass::PlanetModule_Ground_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+PlanetModule_Water_Mesh_Pass::PlanetModule_Water_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
 	: MeshShaderPass<VertexStruct::P3_N3_C4>(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	ZoneScoped;
 
-	SetRenderDocDebugName("Mesh Pass : Planet Ground", MESH_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Mesh Pass : Planet Water", MESH_SHADER_PASS_DEBUG_COLOR);
 
 	//m_DontUseShaderFilesOnDisk = true;
 }
 
-PlanetModule_Ground_Mesh_Pass::~PlanetModule_Ground_Mesh_Pass()
+PlanetModule_Water_Mesh_Pass::~PlanetModule_Water_Mesh_Pass()
 {
 	ZoneScoped;
 
 	Unit();
 }
 
-void PlanetModule_Ground_Mesh_Pass::ActionBeforeInit()
+void PlanetModule_Water_Mesh_Pass::ActionBeforeInit()
 {
 	ZoneScoped;
 
@@ -76,7 +76,7 @@ void PlanetModule_Ground_Mesh_Pass::ActionBeforeInit()
 	}
 }
 
-bool PlanetModule_Ground_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PlanetModule_Water_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -88,9 +88,9 @@ bool PlanetModule_Ground_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 
 	//need_ubos_update |= DrawResizeWidget();
 
-	if (ImGui::CollapsingHeader("Ground : Mesh Analyze"))
+	if (ImGui::CollapsingHeader("Water : Mesh Analyze"))
 	{
-		need_ubos_update |= ImGui::CheckBoxIntDefault("Use debug##ground", &m_UBO_Frag.u_use_debug, 0);
+		need_ubos_update |= ImGui::CheckBoxIntDefault("Use debug##water", &m_UBO_Frag.u_use_debug, 0);
 		if (m_UBO_Frag.u_use_debug)
 		{
 			// because tesselated
@@ -99,7 +99,7 @@ bool PlanetModule_Ground_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 				ChangeDynamicPrimitiveTopology((vk::PrimitiveTopology)m_PrimitiveTopologiesIndex, true);
 			}*/
 
-			need_ubos_update |= ImGui::ContrastedComboVectorDefault(0.0f, "Channel##ground", &m_UBO_Frag.u_show_layer, m_Channels, 0);
+			need_ubos_update |= ImGui::ContrastedComboVectorDefault(0.0f, "Channel##water", &m_UBO_Frag.u_show_layer, m_Channels, 0);
 
 			// because tesselated
 			/*if (m_PrimitiveTopologiesIndex == 1 ||
@@ -115,15 +115,15 @@ bool PlanetModule_Ground_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 
 		if (m_PrimitiveTopologiesIndex > 2) // "Triangle List" or "Triangle Strip" or "Triangle Fan"
 		{
-			need_ubos_update |= ImGui::CheckBoxIntDefault("Show Shaded Wireframe##ground", &m_UBO_Frag.u_show_shaded_wireframe, 0);
+			need_ubos_update |= ImGui::CheckBoxIntDefault("Show Shaded Wireframe##water", &m_UBO_Frag.u_show_shaded_wireframe, 0);
 		}
 
 		if (!m_Vertices.m_Array.empty() && !m_Indices.m_Array.empty())
 		{
-			need_ubos_update |= ImGui::CheckBoxBoolDefault("Use Indices Restriction##ground", &m_UseIndiceRestriction, false);
+			need_ubos_update |= ImGui::CheckBoxBoolDefault("Use Indices Restriction##water", &m_UseIndiceRestriction, false);
 			if (m_UseIndiceRestriction)
 			{
-				need_ubos_update |= ImGui::SliderUIntDefaultCompact(0.0f, "count indices##ground", &m_RestrictedIndicesCountToDraw, 0, (uint32_t)m_Indices.m_Array.size(), (uint32_t)m_Indices.m_Array.size());
+				need_ubos_update |= ImGui::SliderUIntDefaultCompact(0.0f, "count indices##water", &m_RestrictedIndicesCountToDraw, 0, (uint32_t)m_Indices.m_Array.size(), (uint32_t)m_Indices.m_Array.size());
 			}
 		}
 
@@ -133,17 +133,17 @@ bool PlanetModule_Ground_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 		}
 	}
 
-	if (ImGui::CollapsingHeader("Ground : Mesh Control"))
+	if (ImGui::CollapsingHeader("Water : Mesh Control"))
 	{
-		need_model_update |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level##ground", &m_SubdivisionLevel, 0U, 5U, 0U);
+		need_model_update |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level##water", &m_SubdivisionLevel, 0U, 5U, 0U);
 	}
 
-	if (ImGui::CollapsingHeader("Ground : Mesh Tesselation"))
+	if (ImGui::CollapsingHeader("Water : Mesh Tesselation"))
 	{
-		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Radius##ground", &m_UBO_Tess_Eval.u_radius, 0.0f, 10.0f, 1.0f);
-		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Tesselation level##ground", &m_UBO_Tess_Ctrl.u_tesselation_level, 0.0f, 100.0f, 1.0f);
-		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Displacement Factor##ground", &m_UBO_Tess_Eval.u_displace_factor, 0.0f, 2.0f, 1.0f);
-		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Normal Precision##ground", &m_UBO_Tess_Eval.u_normal_prec, 0.0f, 0.1f, 0.01f);
+		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Radius##water", &m_UBO_Tess_Eval.u_radius, 0.0f, 10.0f, 1.0f);
+		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Tesselation leve##water", &m_UBO_Tess_Ctrl.u_tesselation_level, 0.0f, 100.0f, 1.0f);
+		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Displacement Factor##water", &m_UBO_Tess_Eval.u_displace_factor, 0.0f, 2.0f, 1.0f);
+		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Normal Precision##water", &m_UBO_Tess_Eval.u_normal_prec, 0.0f, 0.1f, 0.01f);
 	}
 
 	if (need_ubos_update)
@@ -159,7 +159,7 @@ bool PlanetModule_Ground_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 	return need_ubos_update || need_model_update;
 }
 
-void PlanetModule_Ground_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void PlanetModule_Water_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -167,7 +167,7 @@ void PlanetModule_Ground_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, 
 	ImGui::SetCurrentContext(vContext);
 }
 
-void PlanetModule_Ground_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void PlanetModule_Water_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
 	ZoneScoped;
 
@@ -179,7 +179,7 @@ void PlanetModule_Ground_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCur
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PlanetModule_Ground_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void PlanetModule_Water_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
@@ -218,7 +218,7 @@ void PlanetModule_Ground_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* PlanetModule_Ground_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* PlanetModule_Water_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 
@@ -239,12 +239,12 @@ vk::DescriptorImageInfo* PlanetModule_Ground_Mesh_Pass::GetDescriptorImageInfo(c
 //// PUBLIC ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PlanetModule_Ground_Mesh_Pass::WasJustResized()
+void PlanetModule_Water_Mesh_Pass::WasJustResized()
 {
 	ZoneScoped;
 }
 
-void PlanetModule_Ground_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void PlanetModule_Water_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
 	ZoneScoped;
 
@@ -286,7 +286,7 @@ void PlanetModule_Ground_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, con
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PlanetModule_Ground_Mesh_Pass::CreateCube()
+void PlanetModule_Water_Mesh_Pass::CreateCube()
 {
 	static std::vector<ct::fvec3> cube_points = {
 		ct::fvec3(-1,1,-1), ct::fvec3(1,1,-1), ct::fvec3(1,1,1), ct::fvec3(-1,1,1),     // top
@@ -346,7 +346,7 @@ void PlanetModule_Ground_Mesh_Pass::CreateCube()
 	BuildMesh();
 }
 
-size_t PlanetModule_Ground_Mesh_Pass::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, std::vector<VertexStruct::P3_N3_C4>& vVertices, CacheDB& vCache)
+size_t PlanetModule_Water_Mesh_Pass::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, std::vector<VertexStruct::P3_N3_C4>& vVertices, CacheDB& vCache)
 {
 	if (p1 == p2)
 	{
@@ -376,7 +376,7 @@ size_t PlanetModule_Ground_Mesh_Pass::GetMiddlePoint_Plane(const size_t& p1, con
 	return i;
 }
 
-void PlanetModule_Ground_Mesh_Pass::CalcNormal(VertexStruct::P3_N3_C4& v0, VertexStruct::P3_N3_C4& v1, VertexStruct::P3_N3_C4& v2)
+void PlanetModule_Water_Mesh_Pass::CalcNormal(VertexStruct::P3_N3_C4& v0, VertexStruct::P3_N3_C4& v1, VertexStruct::P3_N3_C4& v2)
 {
 	const ct::fvec3 vec0 = (v2.p - v0.p).GetNormalized();
 	const ct::fvec3 vec1 = (v1.p - v0.p).GetNormalized();
@@ -385,7 +385,7 @@ void PlanetModule_Ground_Mesh_Pass::CalcNormal(VertexStruct::P3_N3_C4& v0, Verte
 	v0.n += nor; v1.n += nor; v2.n += nor;
 }
 
-void PlanetModule_Ground_Mesh_Pass::Subdivide(const size_t& vSubdivLevel, std::vector<VertexStruct::P3_N3_C4>& vVertices, std::vector<TriFace>& vFaces)
+void PlanetModule_Water_Mesh_Pass::Subdivide(const size_t& vSubdivLevel, std::vector<VertexStruct::P3_N3_C4>& vVertices, std::vector<TriFace>& vFaces)
 {
 	if (vSubdivLevel > 0)
 	{
@@ -424,7 +424,7 @@ void PlanetModule_Ground_Mesh_Pass::Subdivide(const size_t& vSubdivLevel, std::v
 	}
 }
 
-void PlanetModule_Ground_Mesh_Pass::BuildMesh()
+void PlanetModule_Water_Mesh_Pass::BuildMesh()
 {
 	if (!m_Vertices.m_Array.empty())
 	{
@@ -465,7 +465,7 @@ void PlanetModule_Ground_Mesh_Pass::BuildMesh()
 //// PROTECTED /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PlanetModule_Ground_Mesh_Pass::CreateUBO()
+bool PlanetModule_Water_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -506,7 +506,7 @@ bool PlanetModule_Ground_Mesh_Pass::CreateUBO()
 	return true;
 }
 
-void PlanetModule_Ground_Mesh_Pass::UploadUBO()
+void PlanetModule_Water_Mesh_Pass::UploadUBO()
 {
 	ZoneScoped;
 
@@ -516,7 +516,7 @@ void PlanetModule_Ground_Mesh_Pass::UploadUBO()
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
 }
 
-void PlanetModule_Ground_Mesh_Pass::DestroyUBO()
+void PlanetModule_Water_Mesh_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -533,7 +533,7 @@ void PlanetModule_Ground_Mesh_Pass::DestroyUBO()
 	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
-bool PlanetModule_Ground_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool PlanetModule_Water_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -551,7 +551,7 @@ bool PlanetModule_Ground_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	return res;
 }
 
-bool PlanetModule_Ground_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool PlanetModule_Water_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -569,7 +569,7 @@ bool PlanetModule_Ground_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
 	return res;
 }
 
-std::string PlanetModule_Ground_Mesh_Pass::GetCommonCode()
+std::string PlanetModule_Water_Mesh_Pass::GetCommonCode()
 {
 	return u8R"(
 vec2 get_uv_from_sphere(vec3 p)
@@ -588,9 +588,9 @@ vec2 get_uv_from_sphere(vec3 p)
 )";
 }
 
-std::string PlanetModule_Ground_Mesh_Pass::GetVertexShaderCode(std::string& vOutShaderName)
+std::string PlanetModule_Water_Mesh_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "PlanetModule_Ground_Mesh_Pass_Vertex";
+	vOutShaderName = "PlanetModule_Water_Mesh_Pass_Vertex";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -624,9 +624,9 @@ void main()
 )";
 }
 
-std::string PlanetModule_Ground_Mesh_Pass::GetTesselationControlShaderCode(std::string& vOutShaderName)
+std::string PlanetModule_Water_Mesh_Pass::GetTesselationControlShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "PlanetModule_Ground_Mesh_Pass_Tesselation_Control";
+	vOutShaderName = "PlanetModule_Water_Mesh_Pass_Tesselation_Control";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -666,9 +666,9 @@ void main()
 )";
 }
 
-std::string PlanetModule_Ground_Mesh_Pass::GetTesselationEvaluationShaderCode(std::string& vOutShaderName)
+std::string PlanetModule_Water_Mesh_Pass::GetTesselationEvaluationShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "PlanetModule_Ground_Mesh_Pass_Tesselation_Evaluation";
+	vOutShaderName = "PlanetModule_Water_Mesh_Pass_Tesselation_Evaluation";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -742,9 +742,9 @@ void main()
 )";
 }
 
-std::string PlanetModule_Ground_Mesh_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string PlanetModule_Water_Mesh_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "PlanetModule_Ground_Mesh_Pass_Fragment";
+	vOutShaderName = "PlanetModule_Water_Mesh_Pass_Fragment";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -850,7 +850,7 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string PlanetModule_Ground_Mesh_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string PlanetModule_Water_Mesh_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -858,7 +858,7 @@ std::string PlanetModule_Ground_Mesh_Pass::getXml(const std::string& vOffset, co
 
 	str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<planet_module_ground_pass>\n";
+	str += vOffset + "<planet_module_water_pass>\n";
 	str += vOffset + "\t<use_debug>" + ct::toStr(m_UBO_Frag.u_use_debug) + "</use_debug>\n";
 	str += vOffset + "\t<display_mode>" + ct::toStr(m_PrimitiveTopologiesIndex) + "</display_mode>\n";
 	str += vOffset + "\t<line_thickness>" + ct::toStr(m_LineWidth.w) + "</line_thickness>\n";
@@ -871,12 +871,12 @@ std::string PlanetModule_Ground_Mesh_Pass::getXml(const std::string& vOffset, co
 	str += vOffset + "\t<tesselation_level>" + ct::toStr(m_UBO_Tess_Ctrl.u_tesselation_level) + "</tesselation_level>\n";
 	str += vOffset + "\t<displace_factor>" + ct::toStr(m_UBO_Tess_Eval.u_displace_factor) + "</displace_factor>\n";
 	str += vOffset + "\t<normal_prec>" + ct::toStr(m_UBO_Tess_Eval.u_normal_prec) + "</normal_prec>\n";
-	str += vOffset + "</planet_module_ground_pass>\n";
+	str += vOffset + "</planet_module_water_pass>\n";
 
 	return str;
 }
 
-bool PlanetModule_Ground_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool PlanetModule_Water_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -893,7 +893,7 @@ bool PlanetModule_Ground_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tiny
 
 	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "planet_module_ground_pass")
+	if (strParentName == "planet_module_water_pass")
 	{
 		if (strName == "use_debug")
 			m_UBO_Frag.u_use_debug = ct::ivariant(strValue).GetI();
@@ -924,7 +924,7 @@ bool PlanetModule_Ground_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tiny
 	return true;
 }
 
-void PlanetModule_Ground_Mesh_Pass::AfterNodeXmlLoading()
+void PlanetModule_Water_Mesh_Pass::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 

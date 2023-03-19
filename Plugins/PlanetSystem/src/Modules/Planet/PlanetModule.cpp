@@ -34,6 +34,8 @@ limitations under the License.
 #include <Base/FrameBuffer.h>
 
 #include <Modules/Planet/Pass/PlanetModule_Ground_Mesh_Pass.h>
+#include <Modules/Planet/Pass/PlanetModule_Atmosphere_Mesh_Pass.h>
+#include <Modules/Planet/Pass/PlanetModule_Water_Mesh_Pass.h>
 
 using namespace vkApi;
 
@@ -82,27 +84,71 @@ bool PlanetModule::Init()
 {
 	ZoneScoped;
 
-	m_Loaded = false;
+	m_Loaded = true;
 
 	ct::uvec2 map_size = 512;
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
 		//SetExecutionWhenNeededOnly(true);
-
-		m_PlanetModule_Ground_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Ground_Mesh_Pass>(m_VulkanCorePtr);
-		if (m_PlanetModule_Ground_Mesh_Pass_Ptr)
+		m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
+		if (m_FrameBufferPtr && m_FrameBufferPtr->Init(
+			map_size, 3U, true, true, 0.0f, false, 
+			vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
 		{
-			// by default but can be changed via widget
-			m_PlanetModule_Ground_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
-			m_PlanetModule_Ground_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
-
-			if (m_PlanetModule_Ground_Mesh_Pass_Ptr->InitPixel(map_size, 3U, true, true, 0.0f,
-				false, true, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
+			// ground pass
+			m_PlanetModule_Ground_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Ground_Mesh_Pass>(m_VulkanCorePtr);
+			if (m_PlanetModule_Ground_Mesh_Pass_Ptr)
 			{
-				AddGenericPass(m_PlanetModule_Ground_Mesh_Pass_Ptr);
-				m_Loaded = true;
+				m_PlanetModule_Ground_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
+				m_PlanetModule_Ground_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+
+				if (m_PlanetModule_Ground_Mesh_Pass_Ptr->InitPixelWithoutFBO(map_size, 3U, true, m_FrameBufferPtr->GetRenderPass(), vk::SampleCountFlagBits::e2))
+				{
+					//m_PlanetModule_Ground_Mesh_Pass_Ptr->SetFrameBuffer(m_FrameBufferPtr);
+					AddGenericPass(m_PlanetModule_Ground_Mesh_Pass_Ptr);
+				}
+				else
+				{
+					m_Loaded = false;
+				}
 			}
+
+			// water pass
+			m_PlanetModule_Water_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Water_Mesh_Pass>(m_VulkanCorePtr);
+			if (m_PlanetModule_Water_Mesh_Pass_Ptr)
+			{
+				m_PlanetModule_Water_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
+				m_PlanetModule_Water_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+
+				if (m_PlanetModule_Water_Mesh_Pass_Ptr->InitPixelWithoutFBO(map_size, 3U, true, m_FrameBufferPtr->GetRenderPass(), vk::SampleCountFlagBits::e2))
+				{
+					//m_PlanetModule_Water_Mesh_Pass_Ptr->SetFrameBuffer(m_FrameBufferPtr);
+					AddGenericPass(m_PlanetModule_Water_Mesh_Pass_Ptr);
+				}
+				else
+				{
+					m_Loaded = false;
+				}
+			}
+
+			// atmosphere pass
+			/*m_PlanetModule_Atmosphere_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Atmosphere_Mesh_Pass>(m_VulkanCorePtr);
+			if (m_PlanetModule_Atmosphere_Mesh_Pass_Ptr)
+			{
+				m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
+				m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+
+				if (m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->InitPixelWithoutFBO(map_size, 3U, true, m_FrameBufferPtr->GetRenderPass(), vk::SampleCountFlagBits::e2))
+				{
+					m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->SetFrameBuffer(m_FrameBufferPtr);
+					AddGenericPass(m_PlanetModule_Atmosphere_Mesh_Pass_Ptr);
+				}
+				else
+				{
+					m_Loaded = false;
+				}
+			}*/
 		}
 	}
 
@@ -131,6 +177,65 @@ bool PlanetModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandB
 	return true;
 }
 
+void PlanetModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
+{
+	if (m_FrameBufferPtr &&
+		m_FrameBufferPtr->Begin(vCmdBuffer))
+	{
+		m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBuffer);
+
+		for (auto passPtr : m_ShaderPasses)
+		{
+			if (passPtr && passPtr->StartDrawPass(vCmdBuffer))
+			{
+				passPtr->DrawModel(vCmdBuffer, 1U);
+
+				passPtr->EndDrawPass(vCmdBuffer);
+			}
+		}
+
+		m_FrameBufferPtr->End(vCmdBuffer);
+	}
+}
+
+void PlanetModule::NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+{
+	ZoneScoped;
+
+	/* not supported by this module
+	if (m_FrameBufferPtr)
+	{
+		m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
+	}*/
+}
+
+void PlanetModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+{
+	ZoneScoped;
+
+	if (m_FrameBufferPtr)
+	{
+		m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
+	}
+}
+
+bool PlanetModule::ResizeIfNeeded()
+{
+	ZoneScoped;
+
+	if (m_FrameBufferPtr && 
+		m_FrameBufferPtr->ResizeIfNeeded())
+	{
+		m_RenderArea = m_FrameBufferPtr->GetRenderArea();
+		m_Viewport = m_FrameBufferPtr->GetViewport();
+		m_OutputRatio = m_FrameBufferPtr->GetOutputRatio();
+
+		return true;
+	}
+
+	return false;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,9 +253,13 @@ bool PlanetModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 		{
 			bool change = false;
 
-			if (m_PlanetModule_Ground_Mesh_Pass_Ptr)
+			for (auto pass_ptr : m_ShaderPasses)
 			{
-				change |= m_PlanetModule_Ground_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				auto gui_ptr = std::dynamic_pointer_cast<GuiInterface>(pass_ptr);
+				if (gui_ptr)
+				{
+					change |= gui_ptr->DrawWidgets(vCurrentFrame, vContext);
+				}
 			}
 
 			return change;
@@ -186,15 +295,6 @@ void PlanetModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 	}
 }
 
-void PlanetModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
-
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,9 +303,13 @@ void PlanetModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImage
 {	
 	ZoneScoped;
 
-	if (m_PlanetModule_Ground_Mesh_Pass_Ptr)
+	for (auto pass_ptr : m_ShaderPasses)
 	{
-		m_PlanetModule_Ground_Mesh_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		auto texture_input_ptr = std::dynamic_pointer_cast<TextureInputInterface<3>>(pass_ptr);
+		if (texture_input_ptr)
+		{
+			texture_input_ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		}
 	}
 }
 
@@ -217,9 +321,14 @@ vk::DescriptorImageInfo* PlanetModule::GetDescriptorImageInfo(const uint32_t& vB
 {	
 	ZoneScoped;
 
-	if (m_PlanetModule_Ground_Mesh_Pass_Ptr)
+	if (m_FrameBufferPtr)
 	{
-		return m_PlanetModule_Ground_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		if (vOutSize)
+		{
+			*vOutSize = m_FrameBufferPtr->GetOutputSize();
+		}
+
+		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
 
 	return nullptr;
@@ -239,9 +348,12 @@ std::string PlanetModule::getXml(const std::string& vOffset, const std::string& 
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_PlanetModule_Ground_Mesh_Pass_Ptr)
+	for (auto pass_ptr : m_ShaderPasses)
 	{
-		str += m_PlanetModule_Ground_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+		if (pass_ptr)
+		{
+			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
+		}
 	}
 
 	str += vOffset + "</planet_module>\n";
@@ -268,13 +380,16 @@ bool PlanetModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
-
-		if (m_PlanetModule_Ground_Mesh_Pass_Ptr)
-		{
-			m_PlanetModule_Ground_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
 	}
 
+	for (auto pass_ptr : m_ShaderPasses)
+	{
+		if (pass_ptr)
+		{
+			pass_ptr->setFromXml(vElem, vParent, vUserDatas);
+		}
+	}
+	
 	return true;
 }
 
@@ -282,8 +397,12 @@ void PlanetModule::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 
-	if (m_PlanetModule_Ground_Mesh_Pass_Ptr)
+	for (auto pass_ptr : m_ShaderPasses)
 	{
-		m_PlanetModule_Ground_Mesh_Pass_Ptr->AfterNodeXmlLoading();
+		auto node_pass_ptr = std::dynamic_pointer_cast<NodeInterface>(pass_ptr);
+		if (node_pass_ptr)
+		{
+			node_pass_ptr->AfterNodeXmlLoading();
+		}
 	}
 }

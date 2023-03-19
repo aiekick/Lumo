@@ -127,9 +127,9 @@ public: // contructor
 	void Unit();
 
 	// resize
-	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
-	bool ResizeIfNeeded();
+	virtual void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
+	virtual void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
+	virtual bool ResizeIfNeeded();
 
 	// Base : one render for one FBO
 	bool BeginRender(const char* vSectionLabel);
@@ -150,7 +150,7 @@ public: // contructor
 	// Rendering
 	bool ResetFence();
 	vk::CommandBuffer* GetCommandBuffer();
-	void BeginTracyFrame(const char* vFrameName);
+	void BeginProfilerFrame(const char* vFrameName);
 	void ResetCommandBuffer();
 	void BeginCommandBuffer(const char* vSectionLabel);
 	void EndCommandBuffer();

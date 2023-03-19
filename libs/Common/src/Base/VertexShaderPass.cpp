@@ -32,7 +32,7 @@ VertexShaderPass::VertexShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr,
 
 }
 
-void VertexShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void VertexShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& /*vIterationNumber*/)
 {
 	if (!m_Loaded) return;
 

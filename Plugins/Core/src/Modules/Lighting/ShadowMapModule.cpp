@@ -113,7 +113,7 @@ bool ShadowMapModule::Init()
 			if (m_ShadowMapModule_Mesh_Pass_Ptr)
 			{
 				if (m_ShadowMapModule_Mesh_Pass_Ptr->InitPixelWithoutFBO(
-					1024U, 1U, m_FrameBuffers[0]->GetRenderPass(),
+					1024U, 1U, false, m_FrameBuffers[0]->GetRenderPass(),
 					vk::SampleCountFlagBits::e1))
 				{
 					m_ShadowMapModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(true);
