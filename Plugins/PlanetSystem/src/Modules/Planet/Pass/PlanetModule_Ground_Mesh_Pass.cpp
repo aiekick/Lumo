@@ -726,7 +726,7 @@ vec4 interpolateV4(vec4 v0, vec4 v1, vec4 v2) {
 float displacement(vec3 p)
 {
 	vec2 uv = get_uv_from_sphere(p);
-	return texture(u_tex_height, uv).x;
+	return texture(u_tex_height, uv).x * 2.0 - 1.0;
 } 
 
 void main()
