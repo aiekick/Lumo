@@ -200,11 +200,11 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 | Published | Node | status |
 | - | - | - |
-| :x:  | Curve / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Curve / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Mesh / Primitive Node | ![img](https://progress-bar.dev/20) |
-| :heavy_check_mark:  | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
-| :x:  | Surface / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Curve / Parametric Curve Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Curve / Parametric Curve Differential Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Mesh / Primitive Node | ![img](https://progress-bar.dev/80) |
+| :x:  | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Surface / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
 
 ## MeshSim Plugin : 
 
@@ -236,7 +236,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 | Published | Node | status |
 | - | - | - |
-| :heavy_check_mark:  | Planet Node | ![img](https://progress-bar.dev/20) |
+| :heavy_check_mark:  | Planet Node | ![img](https://progress-bar.dev/30) |
 
 ## RTX Plugin :
 
