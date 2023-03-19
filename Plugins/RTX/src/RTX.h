@@ -25,6 +25,7 @@ class RTX : public PluginInterface
 {
 public:
 	RTX();
+	bool AuthorizeLoading() override;
 	void ActionAfterInit() override;
 	uint32_t GetVersionMajor() const override;
 	uint32_t GetVersionMinor() const override;

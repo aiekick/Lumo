@@ -63,8 +63,8 @@ namespace fs = std::filesystem;
 #ifdef USE_PLUGIN_AUDIART
 #include <Audiart.h>
 #endif
-#ifdef USE_PLUGIN_PLANET
-#include <Planet.h>
+#ifdef USE_PLUGIN_PLANET_SYSTEM
+#include <PlanetSystem.h>
 #endif
 #endif // USE_PLUGIN_STATIC_LINKING
 
@@ -267,8 +267,8 @@ void PluginManager::LoadPlugins(vkApi::VulkanCoreWeak vVulkanCoreWeak)
 #ifdef USE_PLUGIN_AUDIART
 	AddPlugin("AudiArt", std::make_shared<AudiArt>(), vVulkanCoreWeak);
 #endif
-#ifdef USE_PLUGIN_PLANET
-	AddPlugin("Planet", std::make_shared<Planet>(), vVulkanCoreWeak);
+#ifdef USE_PLUGIN_PLANET_SYSTEM
+	AddPlugin("PlanetSystem", std::make_shared<PlanetSystem>(), vVulkanCoreWeak);
 #endif
 #endif // USE_PLUGIN_STATIC_LINKING
 }
@@ -406,50 +406,59 @@ void PluginManager::AddPlugin(
 	PluginInterfacePtr vPluginPtr,
 	vkApi::VulkanCoreWeak vVulkanCoreWeak)
 {
-	if (!vPluginPtr->Init(
+	bool loaded = vPluginPtr->Init(
 		vVulkanCoreWeak,
 		nullptr,
 		nullptr,
 		nullptr,
 		nullptr,
 		nullptr,
-		nullptr))
+		nullptr);
+
+	char spaceBuffer[40 + 1] = "";
+	spaceBuffer[0] = '\0';
+
+	size_t tag_len = (loaded ? 19U : 15U);
+
+	std::string name = vPluginPtr->GetName();
+	if (name.size() < tag_len)
 	{
+		size_t of = tag_len - name.size();
+		memset(spaceBuffer, 32, of); // 32 is space code in ASCII table
+		spaceBuffer[of] = '\0';
+		name += spaceBuffer;
+	}
+	else
+	{
+		name = name.substr(0, tag_len);
+	}
+
+	std::string version = vPluginPtr->GetVersion();
+	if (version.size() < 10U)
+	{
+		size_t of = 10U - version.size();
+		memset(spaceBuffer, 32, of); // 32 is space code in ASCII table
+		spaceBuffer[of] = '\0';
+		version += spaceBuffer;
+	}
+	else
+	{
+		version = version.substr(0, 10U);
+	}
+
+	std::string desc = vPluginPtr->GetDescription();
+
+	if (!loaded)
+	{
+		printf("Plugin Not loaded : %s v%s (%s)\n",
+			name.c_str(),
+			version.c_str(),
+			desc.c_str());
+
 		vPluginPtr.reset();
 	}
 	else
 	{
-		char spaceBuffer[40 + 1] = "";
-		spaceBuffer[0] = '\0';
-
-		std::string name = vPluginPtr->GetName();
-		if (name.size() < 15U)
-		{
-			size_t of = 15U - name.size();
-			memset(spaceBuffer, 32, of); // 32 is space code in ASCII table
-			spaceBuffer[of] = '\0';
-			name += spaceBuffer;
-		}
-		else
-		{
-			name = name.substr(0, 15U);
-		}
-
-		std::string version = vPluginPtr->GetVersion();
-		if (version.size() < 10U)
-		{
-			size_t of = 10U - version.size();
-			memset(spaceBuffer, 32, of); // 32 is space code in ASCII table
-			spaceBuffer[of] = '\0';
-			version += spaceBuffer;
-		}
-		else
-		{
-			version = version.substr(0, 10U);
-		}
-
-		std::string desc = vPluginPtr->GetDescription();
-
 		printf("Plugin loaded : %s v%s (%s)\n",
 			name.c_str(),
 			version.c_str(),

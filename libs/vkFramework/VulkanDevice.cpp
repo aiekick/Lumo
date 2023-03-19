@@ -559,7 +559,7 @@ namespace vkApi
 			m_Use_RTX = false;
 			for (const auto& ext_ptr : extensions)
 			{
-				if (ext_ptr == VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)
+				if (strcmp(ext_ptr, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME) == 0)
 				{
 					m_Use_RTX = true;
 				}

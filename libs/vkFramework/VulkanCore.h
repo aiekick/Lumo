@@ -38,6 +38,7 @@ limitations under the License.
 
 #include <vkProfiler/Profiler.h> // for TracyVkCtx
 
+
 class VulkanImGuiRenderer;
 class VulkanShader;
 struct GLFWwindow;
@@ -56,6 +57,8 @@ namespace vkApi
 			const int& vEngineVersion,
 			const bool& vCreateSwapChain,
 			const bool& vUseRTX);
+		static void check_error(vk::Result result);
+		static void check_error(VkResult result);
 
 	protected:
 		VulkanCoreWeak m_This;
@@ -77,9 +80,10 @@ namespace vkApi
 		vk::PipelineCache m_PipelineCache = nullptr;
 		bool m_CreateSwapChain = false;
 
-	public:
-		static void check_error(vk::Result result);
-		static void check_error(VkResult result);
+	protected: // extentions
+		struct SupportedFeatures {
+			bool is_RTX_Supported = false;
+		} m_SupportedFeatures;
 
 	public:
 		bool Init(
@@ -92,7 +96,7 @@ namespace vkApi
 			const bool& vUseRTX);
 		void Unit();
 
-	public: // get
+	public: // get / set
 		vk::Instance getInstance() const;
 		vk::PhysicalDevice getPhysicalDevice() const;
 		vk::Device getDevice() const;
@@ -131,6 +135,9 @@ namespace vkApi
 		// from device
 		vk::SampleCountFlagBits GetMaxUsableSampleCount();
 
+		const SupportedFeatures& GetSupportedFeatures() const { return m_SupportedFeatures; }
+
+	public:
 		void setupMemoryAllocator();
 
 	public:

@@ -568,7 +568,7 @@ void ParametricSurfaceUVModule::prUpdateMesh()
 			tex_v_accum += tex_v;
 		}
 
-		auto sceneMeshPtr = SceneMesh::Create(m_VulkanCorePtr, vertices, indices);
+		auto sceneMeshPtr = SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>::Create(m_VulkanCorePtr, vertices, indices);
 		sceneMeshPtr->SetPrimitiveType(SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_CURVES);
 		m_SceneModelPtr->clear();
 		m_SceneModelPtr->Add(sceneMeshPtr);

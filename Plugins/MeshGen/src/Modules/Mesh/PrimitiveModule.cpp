@@ -33,7 +33,7 @@ limitations under the License.
 #include <utils/Mesh/VertexStruct.h>
 #include <Base/FrameBuffer.h>
 #include <SceneGraph/SceneModel.h>
-#include <SceneGraph/SceneMesh.h>
+#include <SceneGraph/SceneMesh.hpp>
 #include <cmath>
 #include <glm/gtx/euler_angles.hpp>
 
@@ -284,12 +284,14 @@ bool PrimitiveModule::prDrawWidgets()
 		{
 		case PRIMITIVE_TYPE_PLANE:
 		{
+			change |= ImGui::CheckBoxBoolDefault("Generate UV's", &m_GenerateUVs, false);
 			change |= ImGui::InputFloatDefault(0.0f, "Size X", &m_PlaneParams.m_Size.x, 1.0f);
 			change |= ImGui::InputFloatDefault(0.0f, "Size Y", &m_PlaneParams.m_Size.y, 1.0f);
 		}
 		break;
 		case PRIMITIVE_TYPE_CUBE:
 		{
+			change |= ImGui::CheckBoxBoolDefault("Generate UV's", &m_GenerateUVs, false);
 			change |= ImGui::InputFloatDefault(0.0f, "Size X", &m_CubeParams.m_Size.x, 1.0f);
 			change |= ImGui::InputFloatDefault(0.0f, "Size Y", &m_CubeParams.m_Size.y, 1.0f);
 			change |= ImGui::InputFloatDefault(0.0f, "Size Z", &m_CubeParams.m_Size.z, 1.0f);
@@ -399,10 +401,28 @@ void PrimitiveModule::CreatePlane()
 	const auto& normal = ct::fvec3(0, 1, 0);
 	const auto& size = ct::fvec3(m_PlaneParams.m_Size.x, 0.0f, m_PlaneParams.m_Size.y) * 0.5f;
 
-	m_Vertices.emplace_back(m_Origin + ct::fvec3(-1, 0, -1) * size, normal, ct::fvec3(), ct::fvec3(), ct::fvec2(0.0f, 0.0f));
-	m_Vertices.emplace_back(m_Origin + ct::fvec3(1, 0, -1) * size, normal, ct::fvec3(), ct::fvec3(), ct::fvec2(1.0f, 0.0f));
-	m_Vertices.emplace_back(m_Origin + ct::fvec3(1, 0, 1) * size, normal, ct::fvec3(), ct::fvec3(), ct::fvec2(1.0f, 1.0f));
-	m_Vertices.emplace_back(m_Origin + ct::fvec3(-1, 0, 1) * size, normal, ct::fvec3(), ct::fvec3(), ct::fvec2(0.0f, 1.0f));
+	std::vector<ct::fvec3> plane_points = {
+		ct::fvec3(-1, 0, -1),
+		ct::fvec3(1, 0, -1),
+		ct::fvec3(1, 0, 1),
+		ct::fvec3(-1, 0, 1)
+	};
+
+	std::vector<ct::fvec2> plane_uvs = {
+		ct::fvec2(0,0),
+		ct::fvec2(1,0),
+		ct::fvec2(1,1),
+		ct::fvec2(0,1)
+	};
+
+	assert(plane_points.size() == 4);
+	assert(plane_uvs.size() == 4);
+
+	for (size_t point_idx = 0, uv_idx = 0; point_idx < plane_points.size(); ++point_idx, ++uv_idx)
+	{
+		auto uv = m_GenerateUVs ? plane_uvs.at(uv_idx) : ct::fvec2();
+		m_Vertices.emplace_back(m_Origin + plane_points.at(point_idx) * size, normal, ct::fvec3(), ct::fvec3(), uv);
+	}
 
 	m_TriFaces.emplace_back(0, 1, 2);
 	m_TriFaces.emplace_back(0, 2, 3);
@@ -414,62 +434,111 @@ void PrimitiveModule::CreatePlane()
 
 void PrimitiveModule::CreateCube()
 {
-	std::vector<ct::fvec3> cube_points = {
-		ct::fvec3(-1,1,-1), ct::fvec3(1,1,-1), ct::fvec3(1,1,1), ct::fvec3(-1,1,1),		// top
-		ct::fvec3(-1,-1,-1), ct::fvec3(1,-1,-1), ct::fvec3(1,-1,1), ct::fvec3(-1,-1,1),	// bottom
-		ct::fvec3(-1,-1,-1), ct::fvec3(-1,1,-1), ct::fvec3(-1,1,1), ct::fvec3(-1,-1,1),	// left
-		ct::fvec3(1,-1,-1), ct::fvec3(1,1,-1), ct::fvec3(1,1,1), ct::fvec3(1,-1,1),		// right
-		ct::fvec3(-1,-1,-1), ct::fvec3(1,-1,-1), ct::fvec3(1,1,-1), ct::fvec3(-1,1,-1),	// back
-		ct::fvec3(-1,-1,1), ct::fvec3(1,-1,1), ct::fvec3(1,1,1), ct::fvec3(-1,1,1),		// front
-	};
-
-	std::vector<ct::fvec2> cube_uvs = {
-		ct::fvec2(0,0), ct::fvec2(1,0), ct::fvec2(1,1), ct::fvec2(0,1)
-	};
-
-	std::vector<ct::fvec3> cube_normals = {
-		ct::fvec3(0, 1, 0),
-		ct::fvec3(0, -1, 0),
-		ct::fvec3(1, 0, 0),
-		ct::fvec3(-1, 0, 0),
-		ct::fvec3(0, 0, 1),
-		ct::fvec3(0, 0, -1)
-	}; 
-	
-	std::vector<ct::fvec3> cube_faces = {
-		0,1,2,
-		ct::fvec3(0, -1, 0),
-		ct::fvec3(1, 0, 0),
-		ct::fvec3(-1, 0, 0),
-		ct::fvec3(0, 0, 1),
-		ct::fvec3(0, 0, -1)
-	};
-
-	assert(cube_normals.size() == 6);
-	assert(cube_points.size() == 24);
-	assert(cube_uvs.size() == 4);
-	
-	m_Vertices.reserve(cube_points.size());
-	m_TriFaces.reserve(cube_normals.size() * 2); // 2 triangle per faces
-
-	const auto& mid_size = m_CubeParams.m_Size * 0.5f;
-	for (size_t point_idx = 0; point_idx < cube_points.size(); ++point_idx)
+	if (m_GenerateUVs)
 	{
-		const size_t& normal_idx = ct::floor(point_idx / 4);
-		const size_t& uv_idx = point_idx % 4;
+		std::vector<ct::fvec3> cube_points = {
+			ct::fvec3(-1,1,-1), ct::fvec3(1,1,-1), ct::fvec3(1,1,1), ct::fvec3(-1,1,1),		// top
+			ct::fvec3(-1,-1,-1), ct::fvec3(1,-1,-1), ct::fvec3(1,-1,1), ct::fvec3(-1,-1,1),	// bottom
+			ct::fvec3(-1,-1,-1), ct::fvec3(-1,1,-1), ct::fvec3(-1,1,1), ct::fvec3(-1,-1,1),	// left
+			ct::fvec3(1,-1,-1), ct::fvec3(1,1,-1), ct::fvec3(1,1,1), ct::fvec3(1,-1,1),		// right
+			ct::fvec3(-1,-1,-1), ct::fvec3(1,-1,-1), ct::fvec3(1,1,-1), ct::fvec3(-1,1,-1),	// back
+			ct::fvec3(-1,-1,1), ct::fvec3(1,-1,1), ct::fvec3(1,1,1), ct::fvec3(-1,1,1),		// front
+		};
 
-		m_Vertices.emplace_back(
-			cube_points.at(point_idx) * mid_size,
-			cube_normals.at(normal_idx), 
-			ct::fvec3(),
-			ct::fvec3(), 
-			cube_uvs.at(uv_idx));
+		std::vector<ct::fvec2> cube_uvs = {
+			ct::fvec2(0,0), ct::fvec2(1,0), ct::fvec2(1,1), ct::fvec2(0,1)
+		};
+
+		std::vector<ct::fvec3> cube_normals = {
+			ct::fvec3(0, 1, 0),
+			ct::fvec3(0, -1, 0),
+			ct::fvec3(1, 0, 0),
+			ct::fvec3(-1, 0, 0),
+			ct::fvec3(0, 0, 1),
+			ct::fvec3(0, 0, -1)
+		};
+
+		assert(cube_normals.size() == 6);
+		assert(cube_points.size() == 24);
+		assert(cube_uvs.size() == 4);
+
+		m_Vertices.reserve(cube_points.size());
+		m_TriFaces.reserve(cube_normals.size() * 2); // 2 triangle per faces
+
+		const auto& mid_size = m_CubeParams.m_Size * 0.5f;
+		for (size_t point_idx = 0; point_idx < cube_points.size(); ++point_idx)
+		{
+			const size_t& normal_idx = ct::floor(point_idx / 4);
+			const size_t& uv_idx = point_idx % 4;
+
+			m_Vertices.emplace_back(
+				cube_points.at(point_idx) * mid_size,
+				cube_normals.at(normal_idx),
+				ct::fvec3(),
+				ct::fvec3(),
+				cube_uvs.at(uv_idx));
+		}
+
+		for (size_t point_idx = 0; point_idx < cube_points.size(); point_idx += 4)
+		{
+			m_TriFaces.emplace_back(point_idx + 0, point_idx + 1, point_idx + 2);
+			m_TriFaces.emplace_back(point_idx + 0, point_idx + 2, point_idx + 3);
+		}
 	}
-
-	for (size_t point_idx = 0; point_idx < cube_points.size(); point_idx+=4)
+	else // no uvs, so all vertices are merged
 	{
-		m_TriFaces.emplace_back(point_idx + 0, point_idx + 1, point_idx + 2); 
-		m_TriFaces.emplace_back(point_idx + 0, point_idx + 2, point_idx + 3);
+		std::vector<ct::fvec3> cube_points = {
+			ct::fvec3(-1,1,-1), ct::fvec3(1,1,-1), ct::fvec3(1,1,1), ct::fvec3(-1,1,1),     // top
+			ct::fvec3(-1,-1,-1), ct::fvec3(1,-1,-1), ct::fvec3(1,-1,1), ct::fvec3(-1,-1,1)	// bottom
+		};
+
+		/*
+		     7---------6
+		    /|        /|
+		   / |       / |
+		  3---------2  |
+		  |  4------|--5
+		  | /       | / 
+          |/        |/
+		  0---------1
+		*/
+
+		std::vector<uint32_t> cube_faces = {
+			0,1,2,0,2,3,
+			1,5,6,1,6,2,
+			5,4,7,5,7,6,
+			4,0,3,4,3,7,
+			3,2,6,3,6,7,
+			4,5,1,4,1,0
+		};
+
+		assert(cube_points.size() == 8);
+		assert(cube_faces.size() == 36);
+
+		m_Vertices.reserve(cube_points.size());
+		m_TriFaces.reserve(cube_faces.size() * 3);
+
+		const auto& mid_size = m_CubeParams.m_Size * 0.5f;
+		for (size_t point_idx = 0; point_idx < cube_points.size(); ++point_idx)
+		{
+			const auto& point = cube_points.at(point_idx) * mid_size;
+			const ct::fvec3& normal = point.GetNormalized();
+
+			m_Vertices.emplace_back(
+				point,
+				normal,
+				ct::fvec3(),
+				ct::fvec3(),
+				ct::fvec2());
+		}
+
+		for (size_t face_idx = 0; face_idx < cube_faces.size(); face_idx += 3)
+		{
+			m_TriFaces.emplace_back(
+				cube_faces.at(face_idx + 2), 
+				cube_faces.at(face_idx + 1), 
+				cube_faces.at(face_idx + 0));
+		}
 	}
 
 	Subdivide(m_SubdivisionLevel, m_Vertices, m_TriFaces);
@@ -1024,7 +1093,7 @@ void PrimitiveModule::BuildMesh()
 			v.n = v.n.GetNormalized();
 		}
 
-		auto mesh_ptr = SceneMesh::Create(m_VulkanCorePtr, vertices, indices);
+		auto mesh_ptr = SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>::Create(m_VulkanCorePtr, vertices, indices);
 		if (mesh_ptr)
 		{
 			if (m_HaveTextureCoords)

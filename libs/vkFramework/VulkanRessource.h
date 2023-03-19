@@ -130,7 +130,9 @@ VulkanBufferObjectPtr VulkanRessource::createVertexBufferObject(VulkanCorePtr vV
 		vk::BufferCreateInfo vboInfo = {};
 		VmaAllocationCreateInfo vboAllocInfo = {};
 		vboInfo.size = data.size() * sizeof(T);
-		vboInfo.usage = vk::BufferUsageFlagBits::eVertexBuffer | vk::BufferUsageFlagBits::eTransferDst;
+		vboInfo.usage = 
+			vk::BufferUsageFlagBits::eVertexBuffer | // VBO
+			vk::BufferUsageFlagBits::eTransferDst; // CPU to GPU
 		if (vUseSSBO) vboInfo.usage = vboInfo.usage |
 			vk::BufferUsageFlagBits::eStorageBuffer;
 		if (vUseTransformFeedback) vboInfo.usage = vboInfo.usage |

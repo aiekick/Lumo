@@ -25,9 +25,9 @@ if(USE_PLUGIN_MESH_SSS)
 	add_definitions(-DUSE_PLUGIN_MESH_SSS)
 endif()
 
-if(USE_PLUGIN_PLANET)
-	include(cmake/plugins/Planet.cmake)
-	add_definitions(-DUSE_PLUGIN_PLANET)
+if(USE_PLUGIN_PLANET_SYSTEM)
+	include(cmake/plugins/PlanetSystem.cmake)
+	add_definitions(-DUSE_PLUGIN_PLANET_SYSTEM)
 endif()
 
 if(USE_PLUGIN_SDF_MESHER)

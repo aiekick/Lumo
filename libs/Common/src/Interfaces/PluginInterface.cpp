@@ -32,8 +32,10 @@ bool PluginInterface::Init(
 	
 	m_VulkanCoreWeak = vVulkanCoreWeak;
 	auto corePtr = m_VulkanCoreWeak.getValidShared();
-	if (corePtr)
+	if (corePtr && AuthorizeLoading())
 	{
+		ActionBeforeInit();
+
 		if (vkApi::VulkanCore::sAllocator == nullptr)
 		{
 			assert(vFileHelper);
@@ -104,7 +106,17 @@ void PluginInterface::Unit()
 	}
 }
 
-void  PluginInterface::ActionAfterInit()
+bool PluginInterface::AuthorizeLoading()
+{
+	return true;
+}
+
+void PluginInterface::ActionBeforeInit()
+{
+
+}
+
+void PluginInterface::ActionAfterInit()
 {
 
 }

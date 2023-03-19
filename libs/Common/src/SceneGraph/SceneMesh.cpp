@@ -17,21 +17,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "SceneMesh.h"
+/*
+#include "SceneMesh.hpp"
 using namespace vkApi;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// STATIC ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneMeshPtr SceneMesh::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+template<typename T_VertexType>
+std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SceneMesh>(vVulkanCorePtr);
+	auto res = std::make_shared<SceneMesh<T_VertexType>>(vVulkanCorePtr);
 	res->m_This = res;
 	return res;
 }
-SceneMeshPtr SceneMesh::Create(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray vVerticeArray, IndiceArray vIndiceArray)
+
+template<typename T_VertexType>
+std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(vkApi::VulkanCorePtr vVulkanCorePtr, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
 {
 	auto res = std::make_shared<SceneMesh>(vVulkanCorePtr, vVerticeArray, vIndiceArray);
 	res->m_This = res;
@@ -40,7 +44,8 @@ SceneMeshPtr SceneMesh::Create(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray
 	return res;
 }
 
-SceneMeshPtr SceneMesh::Copy(const SceneMeshWeak& vSceneMeshToCopy)
+template<typename T_VertexType>
+std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Copy(const ct::cWeak<SceneMesh<T_VertexType>>& vSceneMeshToCopy)
 {
 	auto fromPtr = vSceneMeshToCopy.getValidShared();
 	if (fromPtr)
@@ -56,20 +61,23 @@ SceneMeshPtr SceneMesh::Copy(const SceneMeshWeak& vSceneMeshToCopy)
 //// CTOR / DTOR ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneMesh::SceneMesh(vkApi::VulkanCorePtr vVulkanCorePtr) 
+template<typename T_VertexType>
+SceneMesh<T_VertexType>::SceneMesh(vkApi::VulkanCorePtr vVulkanCorePtr) 
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 
 }
 
-SceneMesh::SceneMesh(vkApi::VulkanCorePtr vVulkanCorePtr, VerticeArray vVerticeArray, IndiceArray vIndiceArray)
+template<typename T_VertexType>
+SceneMesh<T_VertexType>::SceneMesh(vkApi::VulkanCorePtr vVulkanCorePtr, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	m_Vertices.m_Array = vVerticeArray;
 	m_Indices.m_Array = vIndiceArray;
 }
 
-SceneMesh::~SceneMesh()
+template<typename T_VertexType>
+SceneMesh<T_VertexType>::~SceneMesh()
 {
 	Unit();
 }
@@ -78,12 +86,14 @@ SceneMesh::~SceneMesh()
 //// INIT / UNIT ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SceneMesh::Init()
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::Init()
 {
 	return Build(true);
 }
 
-void SceneMesh::Unit()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::Unit()
 {
 	Destroy();
 }
@@ -92,7 +102,8 @@ void SceneMesh::Unit()
 //// TESTS /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SceneMesh::empty()
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::empty()
 {
 	return m_Vertices.m_Array.empty() || m_Indices.m_Array.empty();
 }
@@ -101,127 +112,152 @@ bool SceneMesh::empty()
 //// GETTERS ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::Buffer SceneMesh::GetVerticesBuffer()
+template<typename T_VertexType>
+vk::Buffer SceneMesh<T_VertexType>::GetVerticesBuffer()
 {
 	return m_Vertices.m_Buffer->buffer;
 }
 
-vk::DescriptorBufferInfo* SceneMesh::GetVerticesBufferInfo()
+template<typename T_VertexType>
+vk::DescriptorBufferInfo* SceneMesh<T_VertexType>::GetVerticesBufferInfo()
 {
 	return &m_Vertices.m_BufferInfo;
 }
 
-uint64_t SceneMesh::GetVerticesDeviceAddress()
+template<typename T_VertexType>
+uint64_t SceneMesh<T_VertexType>::GetVerticesDeviceAddress()
 {
 	return m_Vertices.m_Buffer->device_address;
 }
 
-VerticeArray* SceneMesh::GetVertices()
+template<typename T_VertexType>
+std::vector<T_VertexType>* SceneMesh<T_VertexType>::GetVertices()
 {
 	return &m_Vertices.m_Array;
 }
 
-uint32_t SceneMesh::GetVerticesCount()
+template<typename T_VertexType>
+uint32_t SceneMesh<T_VertexType>::GetVerticesCount()
 {
 	return (uint32_t)m_Vertices.m_Array.size();
 }
 
-vk::Buffer SceneMesh::GetIndicesBuffer()
+template<typename T_VertexType>
+vk::Buffer SceneMesh<T_VertexType>::GetIndicesBuffer()
 {
 	return m_Indices.m_Buffer->buffer;
 }
 
-vk::DescriptorBufferInfo* SceneMesh::GetIndicesBufferInfo()
+template<typename T_VertexType>
+vk::DescriptorBufferInfo* SceneMesh<T_VertexType>::GetIndicesBufferInfo()
 {
 	return &m_Indices.m_BufferInfo;
 }
 
-uint64_t SceneMesh::GetIndiceDeviceAddress()
+template<typename T_VertexType>
+uint64_t SceneMesh<T_VertexType>::GetIndiceDeviceAddress()
 {
 	return m_Indices.m_Buffer->device_address;
 }
 
-IndiceArray* SceneMesh::GetIndices()
+template<typename T_VertexType>
+IndiceArray* SceneMesh<T_VertexType>::GetIndices()
 {
 	return &m_Indices.m_Array;
 }
 
-uint32_t SceneMesh::GetIndicesCount()
+template<typename T_VertexType>
+uint32_t SceneMesh<T_VertexType>::GetIndicesCount()
 {
 	return (uint32_t)m_Indices.m_Array.size();
 }
 
-bool SceneMesh::HasNormals()
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::HasNormals()
 {
 	return m_HaveNormals;
 }
 
-void SceneMesh::HaveNormals()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::HaveNormals()
 {
 	m_HaveNormals = true;
 }
 
-bool SceneMesh::HasTangeants()
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::HasTangeants()
 {
 	return m_HaveTangeants;
 }
 
-void SceneMesh::HaveTangeants()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::HaveTangeants()
 {
 	m_HaveTangeants = true;
 }
 
-bool SceneMesh::HasBiTangeants()
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::HasBiTangeants()
 {
 	return m_HaveBiTangeants;
 }
 
-void SceneMesh::HaveBiTangeants()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::HaveBiTangeants()
 {
 	m_HaveBiTangeants = true;
 }
 
-bool SceneMesh::HasTextureCoords()
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::HasTextureCoords()
 {
 	return m_HaveTextureCoords;
 }
 
-void SceneMesh::HaveTextureCoords()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::HaveTextureCoords()
 {
 	m_HaveTextureCoords = true;
 }
 
-bool SceneMesh::HasVertexColors()
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::HasVertexColors()
 {
 	return m_HaveVertexColors;
 }
 
-void SceneMesh::HaveVertexColors()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::HaveVertexColors()
 {
 	m_HaveVertexColors = true;
 }
 
-bool SceneMesh::HasIndices()
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::HasIndices()
 {
 	return m_HaveIndices;
 }
 
-void SceneMesh::HaveIndices()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::HaveIndices()
 {
 	m_HaveIndices = true;
 }
 
-void SceneMesh::SetPrimitiveType(const SceneModelPrimitiveType& vType)
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::SetPrimitiveType(const SceneModelPrimitiveType& vType)
 {
 	m_PrimitiveType = vType;
 }
 
-const SceneModelPrimitiveType& SceneMesh::GetPrimitiveType() const
+template<typename T_VertexType>
+const SceneModelPrimitiveType& SceneMesh<T_VertexType>::GetPrimitiveType() const
 {
 	return m_PrimitiveType;
 }
 
-bool SceneMesh::Build(bool vUseSBO)
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::Build(bool vUseSBO)
 {
 	if (!BuildVBO(vUseSBO))
 	{
@@ -235,37 +271,56 @@ bool SceneMesh::Build(bool vUseSBO)
 	return true;
 }
 
+template<typename T_VertexType>
+std::vector<T_VertexType> SceneMesh<T_VertexType>::GetVerticesFromGPU()
+{
+	std::vector<T_VertexType> res;
+
+	CTOOL_DEBUG_BREAK;
+
+	return res;
+}
+
+template<typename T_VertexType>
+std::vector<VertexStruct::I1> SceneMesh<T_VertexType>::GetIndicesFromGPU()
+{
+	std::vector<VertexStruct::I1> res;
+
+	CTOOL_DEBUG_BREAK;
+
+	return res;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SceneMesh::Destroy()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::Destroy()
 {
 	DestroyVBO();
 	DestroyIBO();
 }
 
-bool SceneMesh::BuildVBO(bool vUseSBO)
+template<typename T_VertexType>
+bool SceneMesh<T_VertexType>::BuildVBO(bool vUseSBO)
 {
 	DestroyVBO();
 
-	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
-	if (devicePtr)
-	{
-		m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO, false, devicePtr->GetRTXUse());
-		m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
+	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO, false, m_VulkanCorePtr->GetSupportedFeatures().is_RTX_Supported);
+	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 
-		m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
-		m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * (uint32_t)sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
-		m_Vertices.m_BufferInfo.offset = 0;
+	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
+	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * (uint32_t)sizeof(T_VertexType);
+	m_Vertices.m_BufferInfo.offset = 0;
 
-		m_SceneMeshBuffers.vertices_address = m_Vertices.m_Buffer->device_address;
-	}
+	m_SceneMeshBuffers.vertices_address = m_Vertices.m_Buffer->device_address;
 
 	return true;
 }
 
-void SceneMesh::DestroyVBO()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::DestroyVBO()
 {
 	m_VulkanCorePtr->getDevice().waitIdle();
 
@@ -273,7 +328,8 @@ void SceneMesh::DestroyVBO()
 	m_Vertices.m_BufferInfo = vk::DescriptorBufferInfo();
 }
 
-void SceneMesh::BuildIBO(bool vUseSBO)
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::BuildIBO(bool vUseSBO)
 {
 	DestroyIBO();
 
@@ -291,10 +347,13 @@ void SceneMesh::BuildIBO(bool vUseSBO)
 	}
 }
 
-void SceneMesh::DestroyIBO()
+template<typename T_VertexType>
+void SceneMesh<T_VertexType>::DestroyIBO()
 {
 	m_VulkanCorePtr->getDevice().waitIdle();
 
 	m_Indices.m_Buffer.reset();
 	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo();
 }
+
+*/

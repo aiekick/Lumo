@@ -102,6 +102,9 @@ private:
 	vk::PrimitiveTopology m_BasePrimitiveTopology = vk::PrimitiveTopology::eTriangleList;
 	vk::PrimitiveTopology m_DynamicPrimitiveTopology = vk::PrimitiveTopology::eTriangleList;
 
+private:  // Tesselation
+	uint32_t m_PatchControlPoints = 3U;
+
 protected:
 	bool m_Loaded = false;
 	bool m_DontUseShaderFilesOnDisk = false;
@@ -170,6 +173,7 @@ protected:
 
 	vk::PushConstantRange m_Internal_PushConstants;
 
+	bool m_Tesselated = false;
 	std::string m_HeaderCode;
 	std::string m_VertexCode;
 	std::string m_FragmentCode;
@@ -208,6 +212,7 @@ public:
 		const bool& vNeedToClear,
 		const ct::fvec4& vClearColor,
 		const bool& vMultiPassMode,
+		const bool& vTesselated,
 		const vk::Format& vFormat = vk::Format::eR32G32B32A32Sfloat,
 		const vk::SampleCountFlagBits& vSampleCount = vk::SampleCountFlagBits::e1);
 	virtual bool InitCompute1D(
@@ -382,6 +387,10 @@ public:
 	void SetRayClosestHitShaderCode(const std::string& vShaderCode);
 
 	virtual bool ReCompilCode();
+
+	// Texture Use Helper
+	void EnableTextureUse(const uint32_t& vBindingPoint, const uint32_t& vTextureSLot, float& vTextureUseVar);
+	void DisableTextureUse(const uint32_t& vBindingPoint, const uint32_t& vTextureSLot, float& vTextureUseVar);
 
 protected: // IMGUI
 	bool DrawResizeWidget();

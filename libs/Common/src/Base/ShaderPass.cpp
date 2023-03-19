@@ -175,6 +175,7 @@ bool ShaderPass::InitPixel(
 	const bool& vNeedToClear,
 	const ct::fvec4& vClearColor,
 	const bool& vMultiPassMode,
+	const bool& vTesselated,
 	const vk::Format& vFormat,
 	const vk::SampleCountFlagBits& vSampleCount)
 {
@@ -193,11 +194,19 @@ bool ShaderPass::InitPixel(
 
 	m_CountColorBuffers = vCountColorBuffers;
 	m_SampleCount = vSampleCount;
+	m_Tesselated = vTesselated;
 
 	// ca peut ne pas compiler, masi c'est plus bloquant
 	// on va plutot mettre un cadre rouge, avec le message d'erreur au survol
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eVertex, "main");
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eFragment, "main");
+
+	if (vTesselated)
+	{
+		AddShaderEntryPoints(vk::ShaderStageFlagBits::eTessellationControl, "main");
+		AddShaderEntryPoints(vk::ShaderStageFlagBits::eTessellationEvaluation, "main");
+	}
+
 	CompilPixel();
 
 	m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
@@ -662,17 +671,20 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 			devicePtr->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
 		}
 
-		if (m_CanDynamicallyChangePrimitiveTopology)
+		if (!m_Tesselated) // tesselated so no other topology than patch_list can be used
 		{
-			vCmdBuffer->setPrimitiveTopologyEXT(m_DynamicPrimitiveTopology);
-			if (GetPrimitiveTopologyFamily(m_DynamicPrimitiveTopology) == vk::PrimitiveTopology::eLineList)
+			if (m_CanDynamicallyChangePrimitiveTopology)
+			{
+				vCmdBuffer->setPrimitiveTopologyEXT(m_DynamicPrimitiveTopology);
+				if (GetPrimitiveTopologyFamily(m_DynamicPrimitiveTopology) == vk::PrimitiveTopology::eLineList)
+				{
+					vCmdBuffer->setLineWidth(m_LineWidth.w);
+				}
+			}
+			else if (GetPrimitiveTopologyFamily(m_BasePrimitiveTopology) == vk::PrimitiveTopology::eLineList)
 			{
 				vCmdBuffer->setLineWidth(m_LineWidth.w);
 			}
-		}
-		else if (GetPrimitiveTopologyFamily(m_BasePrimitiveTopology) == vk::PrimitiveTopology::eLineList)
-		{
-			vCmdBuffer->setLineWidth(m_LineWidth.w);
 		}
 
 		if (IsPixelRenderer())
@@ -734,7 +746,8 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 // the original provided to the CreatePipeline
 bool ShaderPass::ChangeDynamicPrimitiveTopology(const vk::PrimitiveTopology& vPrimitiveTopology, const bool& vForce)
 {
-	if (m_CanDynamicallyChangePrimitiveTopology)
+	if (!m_Tesselated && // tesselated so no other topology than patch_list can be used
+		m_CanDynamicallyChangePrimitiveTopology)
 	{
 		// we will check if this is the same familly of m_BasePrimitiveTopology
 		// https://vulkan.lunarg.com/doc/view/1.2.182.0/windows/1.2-extensions/vkspec.html#drawing-primitive-topology-class
@@ -763,7 +776,10 @@ void ShaderPass::SetDynamicallyChangePrimitiveTopology(const bool& vFlag)
 
 void ShaderPass::SetPrimitveTopology(const vk::PrimitiveTopology& vPrimitiveTopology)
 {
-	m_BasePrimitiveTopology = vPrimitiveTopology;
+	if (!m_Tesselated) // tesselated so no other topology than patch_list can be used
+	{
+		m_BasePrimitiveTopology = vPrimitiveTopology;
+	}
 }
 
 vk::PrimitiveTopology ShaderPass::GetPrimitiveTopologyFamily(const vk::PrimitiveTopology& vPrimitiveTopology)
@@ -857,6 +873,26 @@ void ShaderPass::UpdateModel(const bool& vLoaded)
 		UpdateBufferInfoInRessourceDescriptor();
 
 		m_NeedNewModelUpdate = false;
+	}
+}
+
+void ShaderPass::EnableTextureUse(const uint32_t& vBindingPoint, const uint32_t& vTextureSLot, float& vTextureUseVar)
+{
+	if (vBindingPoint == vTextureSLot &&
+		vTextureUseVar < 0.5f)
+	{
+		vTextureUseVar = 1.0f;
+		NeedNewUBOUpload();
+	}
+}
+
+void ShaderPass::DisableTextureUse(const uint32_t& vBindingPoint, const uint32_t& vTextureSLot, float& vTextureUseVar)
+{
+	if (vBindingPoint == vTextureSLot &&
+		vTextureUseVar > 0.5f)
+	{
+		vTextureUseVar = 0.0f;
+		NeedNewUBOUpload();
 	}
 }
 
@@ -2276,6 +2312,14 @@ bool ShaderPass::CreatePixelPipeline()
 	if (m_ShaderCodes[vk::ShaderStageFlagBits::eFragment]["main"].empty()) return false;
 	if (m_ShaderCodes[vk::ShaderStageFlagBits::eFragment]["main"][0].m_SPIRV.empty()) return false;
 
+	if (m_Tesselated)
+	{
+		if (m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationControl]["main"].empty()) return false;
+		if (m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationControl]["main"][0].m_SPIRV.empty()) return false;
+		if (m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationEvaluation]["main"].empty()) return false;
+		if (m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationEvaluation]["main"][0].m_SPIRV.empty()) return false;
+	}
+
 	std::vector<vk::PushConstantRange> push_constants;
 	if (m_Internal_PushConstants.size)
 	{
@@ -2307,11 +2351,49 @@ bool ShaderPass::CreatePixelPipeline()
 		)
 	};
 
+	vk::ShaderModule tc, te;
+	if (m_Tesselated)
+	{
+		tc = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+			(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationControl]["main"][0].m_SPIRV);
+		te = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+			(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationEvaluation]["main"][0].m_SPIRV);
+
+		m_ShaderCreateInfos.push_back(
+			vk::PipelineShaderStageCreateInfo(
+				vk::PipelineShaderStageCreateFlags(),
+				vk::ShaderStageFlagBits::eTessellationControl,
+				tc, "main"
+			));
+
+		m_ShaderCreateInfos.push_back(
+			vk::PipelineShaderStageCreateInfo(
+				vk::PipelineShaderStageCreateFlags(),
+				vk::ShaderStageFlagBits::eTessellationEvaluation,
+				te, "main"
+			));
+	}
+
 	// setup fix functions
+	if (m_Tesselated)
+	{
+		m_BasePrimitiveTopology = vk::PrimitiveTopology::ePatchList;
+	}
+
 	auto assemblyState = vk::PipelineInputAssemblyStateCreateInfo(
 		vk::PipelineInputAssemblyStateCreateFlags(),
 		m_BasePrimitiveTopology
 	);
+
+	vk::PipelineTessellationStateCreateInfo* tesselationStatePtr = nullptr;
+	auto tesselationState = vk::PipelineTessellationStateCreateInfo(
+		vk::PipelineTessellationStateCreateFlags(),
+		m_PatchControlPoints
+	);
+	if (m_Tesselated)
+	{
+		tesselationStatePtr = &tesselationState;
+	}
 
 	auto viewportState = vk::PipelineViewportStateCreateInfo(
 		vk::PipelineViewportStateCreateFlags(),
@@ -2425,7 +2507,8 @@ bool ShaderPass::CreatePixelPipeline()
 		//,vk::DynamicState::eFrontFace
 	};
 
-	if (m_CanDynamicallyChangePrimitiveTopology)
+	if (!m_Tesselated && // tesselated so no other topology than patch_list can be used
+		m_CanDynamicallyChangePrimitiveTopology)
 	{
 		dynamicStateList.push_back(vk::DynamicState::ePrimitiveTopologyEXT);
 	}
@@ -2446,7 +2529,7 @@ bool ShaderPass::CreatePixelPipeline()
 			m_ShaderCreateInfos.data(),
 			&m_InputState.state,
 			&assemblyState,
-			nullptr,
+			tesselationStatePtr,
 			&viewportState,
 			&rasterState,
 			&multisampleState,
@@ -2461,6 +2544,12 @@ bool ShaderPass::CreatePixelPipeline()
 
 	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, vs);
 	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, fs);
+
+	if (m_Tesselated)
+	{
+		vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, tc);
+		vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, te);
+	}
 
 	return true;
 }

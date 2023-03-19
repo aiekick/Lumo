@@ -92,19 +92,17 @@ bool RtxPbrRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 {
 	ZoneScoped;
 
-	bool res = false;
-
-	BaseNode::ExecuteChilds(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
 	if (m_RtxPbrRendererModulePtr)
 	{
-		res = m_RtxPbrRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		return m_RtxPbrRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
-	return res;
+	return false;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////

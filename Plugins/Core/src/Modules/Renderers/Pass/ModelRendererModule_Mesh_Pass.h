@@ -85,7 +85,7 @@ private:
 	} m_UBO_Vert;
 
 	VulkanBufferObjectPtr m_UBO_Vert_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Vert_BufferInfos;
+	vk::DescriptorBufferInfo m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 	struct UBO_Frag {
 		alignas(4) int32_t u_show_layer = 0;
@@ -93,7 +93,7 @@ private:
 	} m_UBO_Frag;
 
 	VulkanBufferObjectPtr m_UBO_Frag_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos;
+	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 	bool m_UseIndiceRestriction = false;
 	uint32_t m_RestrictedIndicesCountToDraw = 0U;

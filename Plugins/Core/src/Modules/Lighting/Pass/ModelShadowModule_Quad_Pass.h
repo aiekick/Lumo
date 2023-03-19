@@ -38,7 +38,7 @@ limitations under the License.
 #include <vkFramework/VulkanShader.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/ImGuiTexture.h>
-#include <SceneGraph/SceneMesh.h>
+#include <SceneGraph/SceneMesh.hpp>
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>

@@ -211,7 +211,7 @@ void MeshModule::LoadMesh(const std::string& vFilePathName)
 
 					if (mesh)
 					{
-						auto sceneMeshPtr = SceneMesh::Create(m_VulkanCorePtr);
+						auto sceneMeshPtr = SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>::Create(m_VulkanCorePtr);
 						if (sceneMeshPtr)
 						{
 							sceneMeshPtr->GetVertices()->reserve(mesh->mNumVertices);

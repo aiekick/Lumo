@@ -44,7 +44,7 @@ ModelRendererModule_Mesh_Pass::ModelRendererModule_Mesh_Pass(vkApi::VulkanCorePt
 {
 	ZoneScoped;
 
-	SetRenderDocDebugName("Mesh Pass : Model Renderer", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Mesh Pass : Model Renderer", MESH_SHADER_PASS_DEBUG_COLOR);
 
 	m_DontUseShaderFilesOnDisk = true;
 }
@@ -107,7 +107,7 @@ bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 	}
 
 	auto modelPtr = m_SceneModel.getValidShared();
-	if (modelPtr || !modelPtr->empty())
+	if (modelPtr && !modelPtr->empty())
 	{
 		auto meshPtr = modelPtr->at(0).lock();
 		if (meshPtr && meshPtr->GetIndicesCount())

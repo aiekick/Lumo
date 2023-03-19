@@ -517,12 +517,12 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
         // Create or resize the vertex/index buffers
         size_t vertex_size = draw_data->TotalVtxCount * sizeof(ImDrawVert);
         size_t index_size = draw_data->TotalIdxCount * sizeof(ImDrawIdx);
-        if (!rb->vertexBufferPtr || !rb->vertexBufferPtr->buffer || rb->VertexBufferSize < vertex_size)
+        if (!rb->vertexBufferPtr || (rb->vertexBufferPtr && !rb->vertexBufferPtr->buffer) || rb->VertexBufferSize < vertex_size)
         {
             rb->vertexBufferPtr = vkApi::VulkanRessource::createEmptyVertexBufferObject(v->vulkanCorePtr, vertex_size);
             rb->VertexBufferSize = vertex_size;
         }
-        if (!rb->indexBufferPtr || !rb->indexBufferPtr->buffer || rb->IndexBufferSize < index_size)
+        if (!rb->indexBufferPtr || (rb->indexBufferPtr && !rb->indexBufferPtr->buffer) || rb->IndexBufferSize < index_size)
         {
             rb->indexBufferPtr = vkApi::VulkanRessource::createEmptyIndexBufferObject(v->vulkanCorePtr, index_size);
             rb->IndexBufferSize = index_size;

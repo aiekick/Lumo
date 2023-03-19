@@ -61,6 +61,12 @@ RTX::RTX()
 #endif
 }
 
+bool RTX::AuthorizeLoading()
+{
+	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
+	return (vkCorePtr && vkCorePtr->GetSupportedFeatures().is_RTX_Supported); // autohrisation to load if RTX Feature available
+}
+
 void RTX::ActionAfterInit()
 {
 	NodeSlot::sGetSlotColors()->AddSlotColor("RTX_ACCEL_STRUCTURE", ImVec4(0.8f, 0.5f, 0.8f, 1.0f));
@@ -93,7 +99,13 @@ std::string RTX::GetVersion() const
 
 std::string RTX::GetDescription() const
 {
+	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
+	if (!vkCorePtr->GetSupportedFeatures().is_RTX_Supported)
+	{
+		return "Err : the RTX Features are not availables";
+	}
 	return "Ray Tracing (RTX) plugin";
+
 }
 
 std::vector<std::string> RTX::GetNodes() const

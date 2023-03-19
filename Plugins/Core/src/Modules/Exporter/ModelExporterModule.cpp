@@ -40,7 +40,7 @@ limitations under the License.
 #include <assimp/postprocess.h>
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
 #include <SceneGraph/SceneModel.h>
-#include <SceneGraph/SceneMesh.h>
+#include <SceneGraph/SceneMesh.hpp>
 
 using namespace vkApi;
 
@@ -244,6 +244,14 @@ void ModelExporterModule::SaveModel(const std::string& vFilePathName)
 					auto meshPtr = modelPtr->at(mesh_idx).lock();
 					if (meshPtr)
 					{
+						// quand le mesh a été modifié dans le gpu, il faut l'extraire pour
+						// pouvoir le sauver vers un fichier
+						// normalement on a pas besoin de trasnform feedback pour faire ca
+						// avec vulkan.. a voir !?
+						auto gpu_vertices = meshPtr->GetVerticesFromGPU();
+						auto gpu_indices = meshPtr->GetIndicesFromGPU();
+						CTOOL_DEBUG_BREAK;
+
 						scene_ptr->mMeshes[mesh_idx] = new aiMesh();
 						scene_ptr->mMeshes[mesh_idx]->mMaterialIndex = 0;
 						scene_ptr->mRootNode->mMeshes[mesh_idx] = (uint32_t)mesh_idx;

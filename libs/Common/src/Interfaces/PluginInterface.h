@@ -91,6 +91,10 @@ public:
 		ImGui::CustomStyle* vCustomStyle);
 	virtual void Unit();
 
+	// if false, will prevent plugin loading, ex if a feature is not available
+	virtual bool AuthorizeLoading();
+
+	virtual void ActionBeforeInit();
 	virtual void ActionAfterInit();
 
 	virtual uint32_t GetVersionMajor() const = 0;

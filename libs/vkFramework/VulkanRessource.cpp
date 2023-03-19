@@ -188,6 +188,8 @@ VulkanImageObjectPtr VulkanRessource::createTextureImage2D(vkApi::VulkanCorePtr 
 
 			return texturePtr;
 		}
+
+		stagebufferPtr.reset();
 	}
 	return nullptr;
 }
@@ -725,9 +727,9 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 	auto dataPtr = VulkanBufferObjectPtr(new VulkanBufferObject, [vVulkanCorePtr](VulkanBufferObject* obj)
 		{
 			vmaDestroyBuffer(vkApi::VulkanCore::sAllocator, (VkBuffer)obj->buffer, obj->alloc_meta); 
-			if (obj->bufferView)
+			if (obj->bufferView) {
 				vVulkanCorePtr->getDevice().destroyBufferView(obj->bufferView);
-
+			}
 			//obj->bufferInfo = vk::DescriptorBufferInfo{};
 		});
 	if (dataPtr)
@@ -737,8 +739,7 @@ VulkanBufferObjectPtr VulkanRessource::createSharedBufferObject(vkApi::VulkanCor
 		VulkanCore::check_error(vmaCreateBuffer(vkApi::VulkanCore::sAllocator, (VkBufferCreateInfo*)&bufferinfo, &alloc_info,
 			(VkBuffer*)&dataPtr->buffer, &dataPtr->alloc_meta, nullptr));
 
-		if (dataPtr && dataPtr->buffer)
-		{
+		if (dataPtr && dataPtr->buffer)	{
 			SetDeviceAddress(vVulkanCorePtr->getDevice(), dataPtr);
 		}
 		else
@@ -808,18 +809,15 @@ VulkanBufferObjectPtr VulkanRessource::createStorageBufferObject(vkApi::VulkanCo
 	storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
 	storageAllocInfo.usage = vMemoryUsage;
 
-	if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU)
-	{
+	if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU) {
 		storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst;
 		return createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, storageAllocInfo);
 	}
-	else if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU)
-	{
+	else if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU) {
 		storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferSrc;
 		return createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, storageAllocInfo);
 	}
-	else if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY)
-	{
+	else if (vMemoryUsage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY)	{
 		storageBufferInfo.usage = vk::BufferUsageFlagBits::eStorageBuffer;
 		return createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, storageAllocInfo);
 	}
@@ -837,8 +835,7 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 		VmaAllocationCreateInfo stagingAllocInfo = {};
 		stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU;
 		auto stagebufferPtr = createSharedBufferObject(vVulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
-		if (stagebufferPtr)
-		{
+		if (stagebufferPtr)	{
 			upload(vVulkanCorePtr, stagebufferPtr, vData, vSize);
 
 			vk::BufferCreateInfo storageBufferInfo = {};
@@ -848,8 +845,7 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 			VmaAllocationCreateInfo vboAllocInfo = {};
 			vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY;
 			auto vboPtr = createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, vboAllocInfo);
-			if (vboPtr)
-			{
+			if (vboPtr)	{
 				vk::BufferCopy region = {};
 				region.size = vSize;
 				copy(vVulkanCorePtr, vboPtr->buffer, stagebufferPtr->buffer, region);

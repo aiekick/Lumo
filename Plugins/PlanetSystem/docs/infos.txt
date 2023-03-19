@@ -1,0 +1,14 @@
+cube / subdivided / normalized => sphere
+une spehre pour l'eau
+le cube pour la terre
+une 3eme sphere parfaite pour l'atmosphere
+les deux tessélé en fonction de la distance a la camera
+
+mouvement de bruit et effet de relative translucense, type sss
+
+quand la camera est sous l'eau
+godrays et caustics
+
+quand la camera est dans l'atmosphere, mix entre le background (le fond etoilé) et l'atmosphere
+
+dans l'atmosphere, rendu de clouds en ray-marching 

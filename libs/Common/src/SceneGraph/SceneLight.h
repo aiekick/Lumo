@@ -19,7 +19,7 @@ limitations under the License.
 #include <vector>
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
-#include <SceneGraph/SceneMesh.h>
+#include <SceneGraph/SceneMesh.hpp>
 #include <Interfaces/GizmoInterface.h>
 
 #pragma warning(push)

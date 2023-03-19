@@ -39,7 +39,7 @@ limitations under the License.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanFrameBuffer.h>
 
-#include <SceneGraph/SceneMesh.h>
+#include <SceneGraph/SceneMesh.hpp>
 
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/TaskInterface.h>

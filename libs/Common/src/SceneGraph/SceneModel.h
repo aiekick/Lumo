@@ -18,7 +18,7 @@ limitations under the License.
 
 #include <vector>
 #include <ctools/cTools.h>
-#include <SceneGraph/SceneMesh.h>
+#include <SceneGraph/SceneMesh.hpp>
 
 class SceneModel;
 typedef std::shared_ptr<SceneModel> SceneModelPtr;

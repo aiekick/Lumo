@@ -1217,7 +1217,7 @@ bool MODULE_CLASS_NAME::Init()
 
 
 			if (m_PASS_CLASS_NAME_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
 				m_Loaded = true;

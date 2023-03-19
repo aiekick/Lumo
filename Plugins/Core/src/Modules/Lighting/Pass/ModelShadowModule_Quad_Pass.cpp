@@ -40,7 +40,7 @@ ModelShadowModule_Quad_Pass::ModelShadowModule_Quad_Pass(vkApi::VulkanCorePtr vV
 {
 	SetRenderDocDebugName("Quad Pass 1 : Model Shadow", QUAD_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+	//m_DontUseShaderFilesOnDisk = true;
 }
 
 ModelShadowModule_Quad_Pass::~ModelShadowModule_Quad_Pass()
@@ -495,7 +495,7 @@ void main()
 			
 			float sha_accum = 1.0;
 			
-			uint count = uint(lightsCount) % 8; // maxi 8 lights in this system
+			uint count = lightsCount % 8; // maxi 8 lights in this system
 			for (uint lid = 0 ; lid < count ; ++lid)
 			{
 				if (u_use_pcf > 0.5)

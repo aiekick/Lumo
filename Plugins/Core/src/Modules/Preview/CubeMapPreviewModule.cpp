@@ -97,7 +97,7 @@ bool CubeMapPreviewModule::Init()
 			//m_CubeMapPreview_Quad_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_CubeMapPreview_Quad_Pass_Ptr->InitPixel(map_size, 1U, false, true, 0.0f,
-				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_CubeMapPreview_Quad_Pass_Ptr);
 				m_Loaded = true;

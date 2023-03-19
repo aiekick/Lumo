@@ -17,7 +17,7 @@ limitations under the License.
 #pragma once
 
 #include <Base/ShaderPass.h>
-#include <SceneGraph/SceneMesh.h>
+#include <SceneGraph/SceneMesh.hpp>
 
 enum class MeshShaderPassType : uint8_t
 {
@@ -41,6 +41,14 @@ public:
 
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 	void SetInputStateBeforePipelineCreation() override;
+
+	bool Build(bool vUseSBO = false);
+
+protected:
+	bool BuildVBO(bool vUseSBO);
+	void DestroyVBO();
+	void BuildIBO(bool vUseSBO);
+	void DestroyIBO();
 };
 
 ////////////////////////////////////////////////////////////////////
@@ -103,4 +111,73 @@ template<typename T_VertexType>
 void MeshShaderPass<T_VertexType>::SetInputStateBeforePipelineCreation()
 {
 	T_VertexType::GetInputState(m_InputState);
+}
+
+template<typename T_VertexType>
+bool MeshShaderPass<T_VertexType>::Build(bool vUseSBO)
+{
+	if (!BuildVBO(vUseSBO))
+	{
+		return false;
+	}
+	else
+	{
+		BuildIBO(vUseSBO);
+	}
+
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////
+///// PROTECTED ////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+
+template<typename T_VertexType>
+bool MeshShaderPass<T_VertexType>::BuildVBO(bool vUseSBO)
+{
+	DestroyVBO();
+
+	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO, false, m_VulkanCorePtr->GetSupportedFeatures().is_RTX_Supported);
+	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
+
+	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
+	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * (uint32_t)sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
+	m_Vertices.m_BufferInfo.offset = 0;
+
+	return true;
+}
+
+template<typename T_VertexType>
+void MeshShaderPass<T_VertexType>::DestroyVBO()
+{
+	m_VulkanCorePtr->getDevice().waitIdle();
+
+	m_Vertices.m_Buffer.reset();
+	m_Vertices.m_BufferInfo = vk::DescriptorBufferInfo();
+}
+
+template<typename T_VertexType>
+void MeshShaderPass<T_VertexType>::BuildIBO(bool vUseSBO)
+{
+	DestroyIBO();
+
+	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+	if (devicePtr)
+	{
+		m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse()); // the last true is for RTX
+		m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
+
+		m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
+		m_Indices.m_BufferInfo.range = m_Indices.m_Count * (uint32_t)sizeof(uint32_t);
+		m_Indices.m_BufferInfo.offset = 0;
+	}
+}
+
+template<typename T_VertexType>
+void MeshShaderPass<T_VertexType>::DestroyIBO()
+{
+	m_VulkanCorePtr->getDevice().waitIdle();
+
+	m_Indices.m_Buffer.reset();
+	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo();
 }

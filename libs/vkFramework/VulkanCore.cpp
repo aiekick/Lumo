@@ -139,6 +139,9 @@ namespace vkApi
 		m_VulkanDevicePtr = VulkanDevice::Create(vVulkanWindow, vAppName, vAppVersion, vEngineName, vEngineVersion, vUseRTX);
 		if (m_VulkanDevicePtr)
 		{
+			// Supported Features
+			m_SupportedFeatures.is_RTX_Supported = m_VulkanDevicePtr->GetRTXUse();
+
 			setupMemoryAllocator();
 			if (m_CreateSwapChain)
 			{

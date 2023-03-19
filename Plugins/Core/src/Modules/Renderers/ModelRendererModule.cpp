@@ -98,7 +98,7 @@ bool ModelRendererModule::Init()
 			//m_ModelRendererModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
 			if (m_ModelRendererModule_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
+				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
 			{
 				AddGenericPass(m_ModelRendererModule_Mesh_Pass_Ptr);
 				m_Loaded = true;

@@ -123,6 +123,7 @@ private:
 	ct::fvec3 m_Location;
 	ct::fvec3 m_Rotation;
 	uint32_t m_SubdivisionLevel = 0U;
+	bool m_GenerateUVs = false;
 
 private:
 	PlaneParams m_PlaneParams;
