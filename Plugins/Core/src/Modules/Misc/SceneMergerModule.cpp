@@ -248,6 +248,7 @@ bool SceneMergerModule::ResizeIfNeeded()
 					pass_ptr->UpdatePixel2DViewportSize(output_size);
 				}
 			}
+
 			return true;
 		}
 	}

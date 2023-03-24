@@ -699,6 +699,18 @@ namespace vkApi
 			LogVarLightInfo(" - Max Ray Dispatch Invocation Count : %u", m_RayTracingDeviceProperties.maxRayDispatchInvocationCount);
 			LogVarLightInfo(" - Shader Group Handle Alignment : %u", m_RayTracingDeviceProperties.shaderGroupHandleAlignment);
 			LogVarLightInfo(" - Max Ray Hit Attribute Size : %u", m_RayTracingDeviceProperties.maxRayHitAttributeSize);
+
+			if (!m_RayTracingDeviceProperties.shaderGroupHandleSize ||
+				!m_RayTracingDeviceProperties.maxRayRecursionDepth ||
+				!m_RayTracingDeviceProperties.maxShaderGroupStride ||
+				!m_RayTracingDeviceProperties.shaderGroupBaseAlignment ||
+				!m_RayTracingDeviceProperties.shaderGroupHandleCaptureReplaySize ||
+				!m_RayTracingDeviceProperties.maxRayDispatchInvocationCount ||
+				!m_RayTracingDeviceProperties.shaderGroupHandleAlignment ||
+				!m_RayTracingDeviceProperties.maxRayHitAttributeSize)
+			{
+				m_Use_RTX = false;
+			}
 		}
 
 		return true;
