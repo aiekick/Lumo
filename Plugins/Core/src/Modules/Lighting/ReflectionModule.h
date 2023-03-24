@@ -51,8 +51,7 @@ limitations under the License.
 class Reflection_Quad_Pass;
 class ReflectionModule :
 	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
+	public BaseRenderer,	
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureCubeInputInterface<0U>,

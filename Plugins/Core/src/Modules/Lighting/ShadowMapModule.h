@@ -55,8 +55,7 @@ class ShadowMapModule :
 	public ModelInputInterface,
 	public TextureGroupOutputInterface,
 	public LightGroupInputInterface,
-	public LightGroupOutputInterface,
-	public ResizerInterface
+	public LightGroupOutputInterface
 {
 public:
 	static std::shared_ptr<ShadowMapModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

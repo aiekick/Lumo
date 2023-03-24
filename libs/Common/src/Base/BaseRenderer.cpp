@@ -77,7 +77,7 @@ BaseRenderer::~BaseRenderer()
 //// PUBLIC / PASS /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BaseRenderer::AddGenericPass(ShaderPassPtr vPass)
+bool BaseRenderer::AddGenericPass(ShaderPassWeak vPass)
 {
 	if (vPass)
 	{
@@ -92,12 +92,29 @@ ShaderPassWeak BaseRenderer::GetGenericPass(const uint32_t& vIdx)
 {
 	if (m_ShaderPasses.size() > vIdx)
 	{
-		return m_ShaderPasses[vIdx];
+		return m_ShaderPasses.at(vIdx);
 	}
 
 	return ShaderPassWeak();
 }
 
+void BaseRenderer::ClearEmptyPasses()
+{
+	std::vector<std::vector<ShaderPassWeak>::iterator> arr;
+
+	for (auto it = m_ShaderPasses.begin(); it != m_ShaderPasses.end(); ++it)
+	{
+		if (it->expired())
+		{
+			arr.push_back(it);
+		}
+	}
+
+	for (auto it : arr)
+	{
+		m_ShaderPasses.erase(it);
+	}
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PUBLIC / DURING INIT //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -378,22 +395,24 @@ void BaseRenderer::Unit()
 
 void BaseRenderer::NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	for (auto passPtr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		if (passPtr)
+		auto pass_ptr = pass.getValidShared();
+		if (pass_ptr)
 		{
-			passPtr->NeedResizeByHand(vNewSize, vCountColorBuffers);
+			pass_ptr->NeedResizeByHand(vNewSize, vCountColorBuffers);
 		}
 	}
 }
 
 void BaseRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	for (auto passPtr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		if (passPtr)
+		auto pass_ptr = pass.getValidShared();
+		if (pass_ptr)
 		{
-			passPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+			pass_ptr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 		}
 	}
 }
@@ -404,11 +423,12 @@ void BaseRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* 
 
 void BaseRenderer::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 {
-	for (auto passPtr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		if (passPtr)
+		auto pass_ptr = pass.getValidShared();
+		if (pass_ptr)
 		{
-			passPtr->DrawPass(vCmdBuffer);
+			pass_ptr->DrawPass(vCmdBuffer);
 		}
 	}
 }
@@ -440,11 +460,12 @@ void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* /*vCmdBu
 
 void BaseRenderer::UpdateDescriptorsBeforeCommandBuffer()
 {
-	for (auto passPtr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		if (passPtr)
+		auto pass_ptr = pass.getValidShared();
+		if (pass_ptr)
 		{
-			passPtr->UpdateRessourceDescriptor();
+			pass_ptr->UpdateRessourceDescriptor();
 		}
 	}
 }
@@ -455,14 +476,15 @@ bool BaseRenderer::ResizeIfNeeded()
 	
 	if (!m_ShaderPasses.empty())
 	{
-		for (auto passPtr : m_ShaderPasses)
+		for (auto pass : m_ShaderPasses)
 		{
-			if (passPtr)
+			auto pass_ptr = pass.getValidShared();
+			if (pass_ptr)
 			{
 				// only the last pass can be an output and must
 				// be take into account for get
 				// the renderarea and viewport
-				resized = passPtr->ResizeIfNeeded();
+				resized = pass_ptr->ResizeIfNeeded();
 			}
 		}
 
@@ -471,15 +493,15 @@ bool BaseRenderer::ResizeIfNeeded()
 			// only the last pass can be an output and must
 			// be take into account for get
 			// the renderarea and viewport
-			auto passPtr = m_ShaderPasses.at(m_ShaderPasses.size() - 1U);
-			if (passPtr)
+			auto pass_ptr = m_ShaderPasses.back().lock();
+			if (pass_ptr)
 			{
-				auto fboPtr = passPtr->GetFrameBuffer().getValidShared();
-				if (fboPtr)
+				auto fbo_ptr = pass_ptr->GetFrameBuffer().getValidShared();
+				if (fbo_ptr)
 				{
-					m_RenderArea = fboPtr->GetRenderArea();
-					m_Viewport = fboPtr->GetViewport();
-					m_OutputRatio = fboPtr->GetOutputRatio();
+					m_RenderArea = fbo_ptr->GetRenderArea();
+					m_Viewport = fbo_ptr->GetViewport();
+					m_OutputRatio = fbo_ptr->GetOutputRatio();
 				}
 			}
 		}
@@ -737,11 +759,12 @@ float BaseRenderer::GetOutputRatio() const
 
 void BaseRenderer::UpdateShaders(const std::set<std::string>& vFiles)
 {
-	for (auto passPtr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		if (passPtr)
+		auto pass_ptr = pass.getValidShared();
+		if (pass_ptr)
 		{
-			passPtr->UpdateShaders(vFiles);
+			pass_ptr->UpdateShaders(vFiles);
 		}
 	}
 }

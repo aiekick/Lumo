@@ -195,9 +195,9 @@ bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 		{
 			bool change = false;
 
-			for (auto passPtr : m_ShaderPasses)
+			for (auto pass : m_ShaderPasses)
 			{
-				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(passPtr);
+				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (passGuiPtr)
 				{
 					change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext);
@@ -299,11 +299,12 @@ std::string ShadowMapModule::getXml(const std::string& vOffset, const std::strin
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto passPtr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		if (passPtr)
+		auto pass_ptr = pass.getValidShared();
+		if (pass_ptr)
 		{
-			str += passPtr->getXml(vOffset + "\t", vUserDatas);
+			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
 		}
 	}
 
@@ -331,11 +332,12 @@ bool ShadowMapModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto passPtr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		if (passPtr)
+		auto pass_ptr = pass.getValidShared();
+		if (pass_ptr)
 		{
-			passPtr->setFromXml(vElem, vParent, vUserDatas);
+			pass_ptr->setFromXml(vElem, vParent, vUserDatas);
 		}
 	}
 

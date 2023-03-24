@@ -123,9 +123,9 @@ bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 		{
 			bool change = false;
 
-			for (auto passPtr : m_ShaderPasses)
+			for (auto pass : m_ShaderPasses)
 			{
-				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(passPtr);
+				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (passGuiPtr)
 				{
 					change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext);

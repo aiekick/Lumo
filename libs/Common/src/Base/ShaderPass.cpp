@@ -136,6 +136,9 @@ bool ShaderPass::InitPixelWithoutFBO(
 	m_CountColorBuffers = vCountColorBuffers;
 	m_SampleCount = vSampleCount;
 	m_Tesselated = vTesselated;
+	// must be set one time only by the direct parent of this pass
+	m_NativeRenderPassPtr = vRenderPassPtr;
+	// used for the rendering
 	m_RenderPassPtr = vRenderPassPtr;
 
 	// ca peut ne pas compiler, masi c'est plus bloquant
@@ -222,7 +225,10 @@ bool ShaderPass::InitPixel(
 	if (m_FrameBufferPtr && m_FrameBufferPtr->Init(
 		vSize, vCountColorBuffers, vUseDepth, vNeedToClear,
 		vClearColor, vMultiPassMode, vFormat, vSampleCount)) {
-		m_RenderPassPtr = m_FrameBufferPtr->GetRenderPass();
+		// must be set one time only by the direct parent of this pass
+		m_NativeRenderPassPtr = m_FrameBufferPtr->GetRenderPass();
+		// used for the rendering
+		m_RenderPassPtr = m_NativeRenderPassPtr;
 		if (BuildModel()) {
 			if (CreateSBO()) {
 				if (CreateUBO()) {
@@ -515,17 +521,6 @@ void ShaderPass::SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor)
 #endif
 }
 
-
-void ShaderPass::AllowResizeOnResizeEvents(const bool& vResizing)
-{
-	m_ResizingByResizeEventIsAllowed = vResizing;
-}
-
-void ShaderPass::AllowResizeByHandOrByInputs(const bool& vResizing)
-{
-	m_ResizingByHandIsAllowed = vResizing;
-}
-
 void ShaderPass::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	if (m_ResizingByResizeEventIsAllowed)
@@ -661,6 +656,21 @@ void ShaderPass::Resize(const ct::uvec2& vNewSize)
 	}
 }
 
+void ShaderPass::UpdatePixel2DViewportSize(const ct::uvec2& vNewSize)
+{
+	if (m_ResizingByHandIsAllowed ||
+		m_ResizingByResizeEventIsAllowed)
+	{
+		m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(vNewSize.x, vNewSize.y));
+		m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(vNewSize.x), static_cast<float>(vNewSize.y), 0, 1.0f);
+
+		m_OutputSize = ct::fvec2((float)vNewSize.x, (float)vNewSize.y);
+		m_OutputRatio = m_OutputSize.ratioXY<float>();
+
+		WasJustResized();
+	}
+}
+
 void ShaderPass::SwapMultiPassFrontBackDescriptors()
 {
 	
@@ -769,6 +779,22 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
 
 		EndDrawPass(vCmdBuffer);
 	}
+}
+
+void ShaderPass::SetRenderPass(vk::RenderPass* vRenderPassPtr)
+{
+	m_RenderPassPtr = vRenderPassPtr;
+
+	if (m_RenderPassPtr)
+	{
+		DestroyPipeline();
+		CreatePixelPipeline();
+	}
+}
+
+void ShaderPass::ReSetRenderPassToNative()
+{
+	SetRenderPass(m_NativeRenderPassPtr);
 }
 
 // dynamic change is possible only if the next topolgy is int eh same class than

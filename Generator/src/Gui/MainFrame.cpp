@@ -623,16 +623,22 @@ void MainFrame::DrawNodeCreationPane()
 					nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH, false))
 					nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH;
 				ImGui::SameLine();
+				if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION,
+					nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION, false))
+					nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION;
+				ImGui::SameLine();
 				if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX,
 					nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX, false))
 					nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX;
 			}
 
-			if (nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+			if (nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+				nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 			{
 				ImGui::ContrastedComboVectorDefault(0.0f,
 					"VertexStruct type", &nodePtr->m_VertexStructTypesIndex, nodePtr->m_BaseTypes.m_VertexStructTypes, 0);
 			}
+
 
 			nodePtr->m_UBOEditors.DrawPane(nodePtr->m_RendererType);
 

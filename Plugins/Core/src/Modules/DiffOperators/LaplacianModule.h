@@ -52,8 +52,7 @@ limitations under the License.
 class LaplacianModule_Comp_2D_Pass;
 class LaplacianModule :
 	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
+	public BaseRenderer,	
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,

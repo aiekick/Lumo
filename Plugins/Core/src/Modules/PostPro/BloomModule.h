@@ -59,8 +59,7 @@ limitations under the License.
 class BloomModule_Comp_2D_Pass;
 class BloomModule :
 	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
+	public BaseRenderer,	
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,

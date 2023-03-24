@@ -1537,6 +1537,8 @@ void ImGui_ImplVulkanH_DestroyFrameRenderBuffers(VkDevice device, ImGui_ImplVulk
     if (buffers->IndexBuffer) { vkDestroyBuffer(device, buffers->IndexBuffer, allocator); buffers->IndexBuffer = VK_NULL_HANDLE; }
     if (buffers->IndexBufferMemory) { vkFreeMemory(device, buffers->IndexBufferMemory, allocator); buffers->IndexBufferMemory = VK_NULL_HANDLE; }
 #else
+    UNUSED(device);
+    UNUSED(allocator);
     buffers->vertexBufferPtr.reset();
     buffers->indexBufferPtr.reset();
 #endif

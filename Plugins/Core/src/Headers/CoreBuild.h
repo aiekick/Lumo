@@ -1,6 +1,6 @@
 #pragma once
 
-#define Core_BuildNumber 857
+#define Core_BuildNumber 891
 #define Core_MinorNumber 3
 #define Core_MajorNumber 0
-#define Core_BuildId "0.3.857"
+#define Core_BuildId "0.3.891"

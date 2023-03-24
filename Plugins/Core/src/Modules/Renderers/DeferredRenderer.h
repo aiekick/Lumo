@@ -56,8 +56,7 @@ class DeferredRenderer :
 	public GuiInterface,
 	public TaskInterface,
 	public TextureInputInterface<0U>,
-	public TextureOutputInterface,
-	public ResizerInterface
+	public TextureOutputInterface
 {
 public:
 	static std::shared_ptr<DeferredRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

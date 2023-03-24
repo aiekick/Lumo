@@ -51,8 +51,7 @@ class Layering2DModule :
 	public GuiInterface,
 	public TaskInterface,
 	public TextureInputInterface<2U>,
-	public TextureOutputInterface,
-	public ResizerInterface
+	public TextureOutputInterface
 {
 public:
 	static std::shared_ptr<Layering2DModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

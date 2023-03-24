@@ -93,6 +93,9 @@ typedef std::shared_ptr<GeneratorNode> GeneratorNodePtr;
 #ifndef RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH
 #define RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH "Mesh"
 #endif
+#ifndef RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION
+#define RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION "Tesselation"
+#endif
 #ifndef RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX
 #define RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX "Vertex"
 #endif
@@ -167,6 +170,12 @@ private:
 	std::string GetPassShaderCode();
 	std::string GetPassShaderHeader();
 	
+private: // Pass Shader Code
+	std::string GetPixel2DSpecializationQuad();
+	std::string GetPixel2DSpecializationMesh();
+	std::string GetPixel2DSpecializationTesselation();
+	std::string GetPixel2DSpecializationVertex();
+
 private:
 	SlotDico GetSlotDico();
 	SlotStringStruct GetSlotNoneInput(NodeSlotInputPtr vSlot);

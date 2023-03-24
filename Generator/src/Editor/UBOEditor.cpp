@@ -16,6 +16,8 @@ void UBOItem::DrawItem(const std::string& vStage)
 {
 	const float& aaw = (ImGui::GetContentRegionAvail().x - 150.0f) * 0.5f;
 
+	ImGui::PushID(ImGui::IncPUSHID());
+
 	m_InputName.DisplayInputText(aaw, "", "Name");
 
 	ImGui::SameLine();
@@ -52,6 +54,8 @@ void UBOItem::DrawItem(const std::string& vStage)
 
 		m_InputValue_w.DisplayInputText(aw, "", "0");
 	}
+
+	ImGui::PopID();
 }
 
 std::string UBOItem::Get_Cpp_Item_Header()
@@ -471,6 +475,8 @@ std::string UBOEditor::Get_Cpp_LayoutBindings(const std::string& vRendererType, 
 	vk::ShaderStageFlagBits::eFragment;
 	std::string _ShaderStageFlagBits;
 	if (m_Stage == "Vert") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eVertex";
+	else if (m_Stage == "TessCtrl") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eTessellationControl";
+	else if (m_Stage == "TessEval") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eTessellationEvaluation";
 	else if (m_Stage == "Frag") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eFragment";
 	else if (m_Stage == "Comp") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eCompute";
 	else if (m_Stage == "RGen") _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eRaygenKHR";
@@ -673,8 +679,8 @@ UBOEditors::UBOEditors()
 		"Vert",
 		"Frag",
 		//"Geom",
-		//"TessCtrl",
-		//"tessEval"
+		"TessCtrl",
+		"tessEval"
 	};
 	UBOEditors::m_StageArray[RENDERER_TYPE_COMPUTE_1D] =
 		UBOEditors::m_StageArray[RENDERER_TYPE_COMPUTE_2D] =

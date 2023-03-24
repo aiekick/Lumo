@@ -50,8 +50,7 @@ limitations under the License.
 class LongLatPeview_Quad_Pass;
 class LongLatPeviewModule :
 	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
+	public BaseRenderer,	
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,

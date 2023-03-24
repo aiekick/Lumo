@@ -51,8 +51,7 @@ limitations under the License.
 class CubeMapPreview_Quad_Pass;
 class CubeMapPreviewModule :
 	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
+	public BaseRenderer,	
 	public TaskInterface,
 	public TextureCubeInputInterface<0U>,
 	public TextureOutputInterface,

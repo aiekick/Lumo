@@ -1659,7 +1659,7 @@ class MODULE_CLASS_NAME :
 	{
 		h_module_file_code += u8R"(
 	public BaseRenderer,
-	public ResizerInterface,)";
+	)";
 	}
 	else
 	{
@@ -1843,7 +1843,8 @@ PASS_CLASS_NAME::PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
 			cpp_pass_file_code += u8R"(
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL))";
 		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			cpp_pass_file_code += ct::toStr(u8R"(
 	: MeshShaderPass<VertexStruct::%s>(vVulkanCorePtr, MeshShaderPassType::PIXEL))", 
@@ -2190,7 +2191,8 @@ void PASS_CLASS_NAME::AfterNodeXmlLoading()
 		{
 			h_pass_file_code += u8R"(#include <Base/QuadShaderPass.h>)";
 		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			h_pass_file_code += u8R"(#include <Base/MeshShaderPass.h>)";
 		}
@@ -2242,7 +2244,8 @@ class PASS_CLASS_NAME :)";
 			h_pass_file_code += u8R"(
 	public QuadShaderPass,)";
 		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			h_pass_file_code += ct::toStr(u8R"(
 	public MeshShaderPass<VertexStruct::%s>,)",
@@ -2309,7 +2312,8 @@ public:
 		{
 			// nothing because derived
 		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH || 
+			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			h_pass_file_code += u8R"(
 	void DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber) override;)";
@@ -2453,7 +2457,8 @@ std::string GeneratorNode::GetRendererDisplayName()
 			res = "Quad_";
 			m_ModuleRendererDisplayType = "Quad";
 		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			res = "Mesh_";
 			m_ModuleRendererDisplayType = "Mesh";
@@ -2498,7 +2503,8 @@ std::string GeneratorNode::GetPassRendererFunctionHeader()
 		{
 			// nothing because derived
 		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			res += u8R"(
 void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber)
@@ -2590,7 +2596,8 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
 		{
 			res += u8R"()";
 		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			res += u8R"()";
 		}
@@ -2637,7 +2644,8 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 		{
 			res += u8R"()";
 		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			res += u8R"()";
 		}
@@ -2680,15 +2688,11 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 	return res;
 }
 
-std::string GeneratorNode::GetPassShaderCode()
+std::string GeneratorNode::GetPixel2DSpecializationQuad()
 {
 	std::string res;
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			res += u8R"(
+	res += u8R"(
 std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
@@ -2700,8 +2704,8 @@ layout(location = 0) in vec2 vertPosition;
 layout(location = 1) in vec2 vertUv;
 layout(location = 0) out vec2 v_uv;
 )";
-			res += m_UBOEditors.Get_Glsl_Header("Vert");
-			res += u8R"(
+	res += m_UBOEditors.Get_Glsl_Header("Vert");
+	res += u8R"(
 
 void main() 
 {
@@ -2730,10 +2734,14 @@ void main()
 }
 ))"; res += u8R"(";
 })";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
-		{
-			res += u8R"(
+	return res;
+}
+
+std::string GeneratorNode::GetPixel2DSpecializationMesh()
+{
+	std::string res;
+
+	res += u8R"(
 std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
@@ -2749,8 +2757,8 @@ layout(location = 4) in vec2 aUv;
 layout(location = 5) in vec4 aColor;
 layout(location = 0) out vec4 vertColor;
 )";
-			res += m_UBOEditors.Get_Glsl_Header("Vert");
-			res += u8R"(
+	res += m_UBOEditors.Get_Glsl_Header("Vert");
+	res += u8R"(
 
 ))"; res += u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
@@ -2773,8 +2781,8 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec4 vertColor;
 )";
-			res += m_UBOEditors.Get_Glsl_Header("Frag");
-			res += u8R"(
+	res += m_UBOEditors.Get_Glsl_Header("Frag");
+	res += u8R"(
 
 void main() 
 {
@@ -2782,10 +2790,183 @@ void main()
 }
 ))"; res += u8R"(";
 })";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			res += u8R"(
+
+	return res;
+}
+
+std::string GeneratorNode::GetPixel2DSpecializationTesselation()
+{
+	std::string res;
+
+	res += u8R"(
+std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Vertex";
+
+	return u8R"(#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) in vec3 aPosition;
+layout(location = 1) in vec3 aNormal;
+layout(location = 2) in vec4 aColor;
+
+layout(location = 0) out vec3 v_position;
+layout(location = 1) out vec3 v_normal;
+layout(location = 2) out vec4 v_color;
+)";	
+	res += m_UBOEditors.Get_Glsl_Header("Vert");
+	res += u8R"(
+
+))"; res += u8R"("
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
+u8R"(
+void main() 
+{
+	v_position = aPosition;
+	v_normal = aNormal;
+	v_color = aColor;
+
+	gl_Position = cam * vec4(aPosition, 1.0);
+}
+))"; res += u8R"(";
+}
+
+std::string PASS_CLASS_NAME::GetTesselationControlShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Tesselation_Control";
+
+	return u8R"(#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+// define the number of CPs in the output patch
+layout (vertices = 3) out;
+
+// attributes of the input CPs
+layout(location = 0) in vec3 v_position[];
+layout(location = 1) in vec3 v_normal[];
+layout(location = 2) in vec4 v_color[];
+
+layout(location = 0) out vec3 v_position_tess_control[];
+)";	
+	res += m_UBOEditors.Get_Glsl_Header("TessCtrl");
+	res += u8R"(
+
+)"; res += u8R"(
+void main()
+{
+    // Set the control points of the output patch
+    v_position_tess_control[gl_InvocationID] = v_position[gl_InvocationID];
+	
+	if (gl_InvocationID == 0)
+	{
+		float u_tesselation_level = 1.0;
+		// Define / Calculate the tessellation levels
+		gl_TessLevelOuter[0] = u_tesselation_level;
+		gl_TessLevelOuter[1] = u_tesselation_level;
+		gl_TessLevelOuter[2] = u_tesselation_level;
+		gl_TessLevelOuter[3] = u_tesselation_level;
+		
+		gl_TessLevelInner[0] = u_tesselation_level;
+		gl_TessLevelInner[1] = u_tesselation_level;
+	}
+} 
+))"; res += u8R"(";
+}
+
+std::string PASS_CLASS_NAME::GetTesselationEvaluationShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Tesselation_Evaluation";
+
+	return u8R"(#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(triangles, equal_spacing, ccw) in;
+
+layout(location = 0) in vec3 v_position_tess_control[];
+
+layout(location = 0) out vec3 v_position;
+layout(location = 1) out vec3 v_normal;
+layout(location = 2) out vec4 v_color;
+)";
+	res += m_UBOEditors.Get_Glsl_Header("TessEval");
+	res += u8R"(
+
+))"; res += u8R"("
++ CommonSystem::GetBufferObjectStructureHeader(0U) +
+u8R"(
+vec2 interpolateV2(vec2 v0, vec2 v1, vec2 v2) {
+    return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
+} 
+
+vec3 interpolateV3(vec3 v0, vec3 v1, vec3 v2) {
+    return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
+} 
+
+vec4 interpolateV4(vec4 v0, vec4 v1, vec4 v2) {
+    return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
+} 
+
+void main()
+{
+    // Interpolate the attributes of the output vertex using the barycentric coordinates
+	v_position = interpolateV3(v_position_tess_control[0], v_position_tess_control[1], v_position_tess_control[2]);
+    v_normal = interpolateV3(v_normal_tess_control[0], v_normal_tess_control[1], v_normal_tess_control[2]);
+    v_color = interpolateV4(v_color_tess_control[0], v_color_tess_control[1], v_color_tess_control[2]);
+	
+	gl_Position = cam * vec4(v_position, 1.0);
+} 
+))"; res += u8R"(";
+}
+
+std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
+{
+	vOutShaderName = "PASS_CLASS_NAME_Fragment";
+
+	return u8R"(#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) out vec4 fragColor;
+
+layout(location = 0) in vec3 v_position;
+layout(location = 1) in vec3 v_normal;
+layout(location = 2) in vec4 v_color;
+)";
+	res += m_UBOEditors.Get_Glsl_Header("Frag");
+	res += u8R"(
+
+))"; res += u8R"("
+void main() 
+{	
+	fragColor = v_color;
+
+	int u_show_shaded_wireframe = 1; // show wireframe
+	if (u_show_shaded_wireframe == 1 &&
+		bitCount(gl_SampleMaskIn[0]) < 2)
+	{
+		fragColor.rgb = 1.0 - fragColor.rgb;
+	}
+
+	// gpu fps saver
+	if (dot(fragColor.xyz, fragColor.xyz) > 0.0)
+	{
+		fragColor.a = 1.0;
+	}
+	else
+	{
+	//	discard;
+	}
+}
+))"; res += u8R"("
+}
+)";
+	return res;
+}
+
+std::string GeneratorNode::GetPixel2DSpecializationVertex()
+{
+	std::string res;
+
+	res += u8R"(
 std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
@@ -2796,8 +2977,8 @@ std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 
 layout(location = 0) out vec4 vertColor;
 )";
-			res += m_UBOEditors.Get_Glsl_Header("Vert");
-			res += u8R"(
+	res += m_UBOEditors.Get_Glsl_Header("Vert");
+	res += u8R"(
 
 ))"; res += u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
@@ -2832,8 +3013,8 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec4 vertColor;
 )";
-			res += m_UBOEditors.Get_Glsl_Header("Frag");
-			res += u8R"(
+	res += m_UBOEditors.Get_Glsl_Header("Frag");
+	res += u8R"(
 
 void main() 
 {
@@ -2842,6 +3023,31 @@ void main()
 ))";
 	res += u8R"(";
 		})";
+
+	return res;
+}
+
+std::string GeneratorNode::GetPassShaderCode()
+{
+	std::string res;
+
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
+	{
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
+		{
+			res = GetPixel2DSpecializationQuad();
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
+		{
+			res = GetPixel2DSpecializationMesh();
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
+		{
+			res = GetPixel2DSpecializationTesselation();
+		}
+		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+		{
+			res = GetPixel2DSpecializationVertex();
 		}
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
@@ -3211,9 +3417,20 @@ std::string GeneratorNode::GetPassShaderHeader()
 
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
-		res += u8R"(
+		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
+		{
+			res += u8R"(
+	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+	std::string GetTesselationControlShaderCode(std::string& vOutShaderName) override;
+	std::string GetTesselationEvaluationShaderCode(std::string& vOutShaderName) override;
+	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;)";
+		}
+		else
+		{
+			res += u8R"(
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;)";
+		}
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
 	{

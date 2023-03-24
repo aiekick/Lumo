@@ -45,7 +45,8 @@ limitations under the License.
 
 class BaseRenderer : 
 	public conf::ConfigAbstract,
-	public ShaderUpdateInterface
+	public ShaderUpdateInterface,
+	public ResizerInterface
 {
 private:
 	bool m_NeedNewUBOUpload = true;			// true for first render
@@ -102,7 +103,7 @@ protected:
 	// clear Color
 	std::vector<vk::ClearValue> m_ClearColorValues;
 
-	std::vector<ShaderPassPtr> m_ShaderPasses;
+	std::vector<ShaderPassWeak> m_ShaderPasses;
 
 public: // contructor
 	BaseRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -110,8 +111,13 @@ public: // contructor
 	virtual ~BaseRenderer();
 
 	// Generic Renderer Pass
-	bool AddGenericPass(ShaderPassPtr vPass);
+	bool AddGenericPass(ShaderPassWeak vPass);
 	ShaderPassWeak GetGenericPass(const uint32_t& vIdx);
+
+	/// <summary>
+	/// will iterate over all passes and will erase empty passes
+	/// </summary>
+	void ClearEmptyPasses();
 
 	// during init
 	virtual void ActionBeforeInit();
@@ -127,8 +133,8 @@ public: // contructor
 	void Unit();
 
 	// resize
-	virtual void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
-	virtual void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
+	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override; // to call at any moment
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override; // to call at any moment
 	virtual bool ResizeIfNeeded();
 
 	// Base : one render for one FBO

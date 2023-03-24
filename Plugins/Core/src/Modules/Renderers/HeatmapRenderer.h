@@ -38,8 +38,7 @@ class HeatmapRenderer :
 	public BaseRenderer,
 	public NodeInterface,
 	public GuiInterface,
-	public TaskInterface,
-	public ResizerInterface,
+	public TaskInterface,	
 	public ModelInputInterface,
 	public TextureOutputInterface
 {

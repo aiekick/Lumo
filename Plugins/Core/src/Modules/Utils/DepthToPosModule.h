@@ -56,8 +56,7 @@ class DepthToPosModule :
 	public GuiInterface,
 	public TaskInterface,
 	public TextureInputInterface<0U>,
-	public TextureOutputInterface,
-	public ResizerInterface
+	public TextureOutputInterface
 {
 public:
 	static std::shared_ptr<DepthToPosModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

@@ -48,13 +48,12 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 
+class PlanetModule_Water_Mesh_Pass;
 class PlanetModule_Ground_Mesh_Pass;
 class PlanetModule_Atmosphere_Mesh_Pass;
-class PlanetModule_Water_Mesh_Pass;
 class PlanetModule :
 	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
+	public BaseRenderer,	
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,

@@ -44,14 +44,16 @@ std::shared_ptr<GridModule> GridModule::Create(vkApi::VulkanCorePtr vVulkanCoreP
 //////////////////////////////////////////////////////////////
 
 GridModule::GridModule(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+	: TaskRenderer(vVulkanCorePtr)
 {
-	
+	m_SceneShaderPassPtr = SceneShaderPass::Create();
 }
 
 GridModule::~GridModule()
 {
 	Unit();
+
+	m_SceneShaderPassPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////
@@ -72,9 +74,10 @@ bool GridModule::Init()
 		if (m_GridModule_Vertex_Pass_Ptr)
 		{
 			if (m_GridModule_Vertex_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f, 
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
 			{
 				AddGenericPass(m_GridModule_Vertex_Pass_Ptr);
+				m_SceneShaderPassPtr->Add(m_GridModule_Vertex_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -107,7 +110,7 @@ bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 
 	ZoneScoped;
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	if (IsTheGoodFrame(vCurrentFrame))
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Grid/Axis Module", -1.0f, true, true, &m_CanWeRender))
 		{
@@ -151,6 +154,11 @@ vk::DescriptorImageInfo* GridModule::GetDescriptorImageInfo(const uint32_t& vBin
 	return nullptr;
 }
 
+SceneShaderPassWeak GridModule::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	return m_SceneShaderPassPtr;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -163,11 +171,12 @@ std::string GridModule::getXml(const std::string& vOffset, const std::string& vU
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto passPtr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		if (passPtr)
+		auto& pass_ptr = pass.lock();
+		if (pass_ptr)
 		{
-			str += passPtr->getXml(vOffset + "\t", vUserDatas);
+			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
 		}
 	}
 
@@ -195,11 +204,12 @@ bool GridModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto passPtr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		if (passPtr)
+		auto& pass_ptr = pass.lock();
+		if (pass_ptr)
 		{
-			passPtr->setFromXml(vElem, vParent, vUserDatas);
+			pass_ptr->setFromXml(vElem, vParent, vUserDatas);
 		}
 	}
 

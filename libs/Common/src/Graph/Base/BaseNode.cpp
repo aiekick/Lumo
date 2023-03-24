@@ -110,7 +110,7 @@ void BaseNode::OpenCode_Callback(const std::string& vCode)
 {
 	if (BaseNode::sOpenCodeCallback)
 	{
-		BaseNode::sOpenCodeCallback(std::move(vCode));
+		BaseNode::sOpenCodeCallback(vCode);
 	}
 	else
 	{
@@ -123,7 +123,7 @@ void BaseNode::LogErrors_Callback(const std::string& vErrors)
 {
 	if (BaseNode::sLogErrorsCallback)
 	{
-		BaseNode::sLogErrorsCallback(std::move(vErrors));
+		BaseNode::sLogErrorsCallback(vErrors);
 	}
 	else
 	{
@@ -136,7 +136,7 @@ void BaseNode::LogInfos_Callback(const std::string& vInfos)
 {
 	if (BaseNode::sLogInfosCallback)
 	{
-		BaseNode::sLogInfosCallback(std::move(vInfos));
+		BaseNode::sLogInfosCallback(vInfos);
 	}
 	else
 	{
@@ -309,7 +309,7 @@ void BaseNode::FinalizeGraphLoading()
 	// we send to all child nodes the event "Graph Is Loaded"
 	for (const auto& child : m_ChildNodes)
 	{
-		auto nodePtr = child.second;
+		auto& nodePtr = child.second;
 		if (nodePtr)
 		{
 			nodePtr->TreatNotification(GraphIsLoaded);
@@ -442,7 +442,7 @@ bool BaseNode::ExecuteInputTasks(const uint32_t& vCurrentFrame, vk::CommandBuffe
 	if (vBaseNodeState)
 		vBaseNodeState->m_CurrentFrame = vCurrentFrame;
 	
-	for (auto input : m_Inputs)
+	for (const auto& input : m_Inputs)
 	{
 		if (input.second)
 		{
@@ -561,7 +561,7 @@ void BaseNode::CopySelectedNodes()
 	// calcul du point de centre de tout ces nodes
 	// sa servira d'offset avec le point de destinatiion
 	m_BaseCopyOffset = ImVec2(0,0);
-	for (auto id : m_NodesToCopy)
+	for (const auto& id : m_NodesToCopy)
 	{
 		m_BaseCopyOffset += nd::GetNodePosition(id) * 0.5f;
 	}
@@ -873,7 +873,7 @@ bool BaseNode::DrawDebugInfos(BaseNodeState *vBaseNodeState)
 				ImGui::Text("Type : %s", uni.second->slotType.c_str());
 				ImGui::Text("Count connections : %u", (uint32_t)uni.second->linkedSlots.size());
 				ImGui::Indent();
-				for (auto lslot : uni.second->linkedSlots)
+				for (const auto& lslot : uni.second->linkedSlots)
 				{
 					auto lslotPtr = lslot.getValidShared();
 					if (lslotPtr)
@@ -1132,20 +1132,20 @@ void BaseNode::DrawToolMenu()
 	}
 }
 
-bool BaseNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool BaseNode::DrawWidgets(const uint32_t& /*vCurrentFrame*/, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	return false;
 }
 
-void BaseNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& /*vRect*/, ImGuiContext* vContext)
+void BaseNode::DrawOverlays(const uint32_t& /*vCurrentFrame*/, const ct::frect& /*vRect*/, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 }
 
-void BaseNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& /*vMaxSize*/, ImGuiContext* vContext)
+void BaseNode::DisplayDialogsAndPopups(const uint32_t& /*vCurrentFrame*/, const ct::ivec2& /*vMaxSize*/, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -1219,7 +1219,7 @@ BaseNodeWeak BaseNode::FindNode(nd::NodeId vId)
 	uint32_t queryId = (uint32_t)vId.Get();
 	if (m_ChildNodes.find(queryId) != m_ChildNodes.end()) // trouvé
 	{
-		auto nodePtr = m_ChildNodes[queryId];
+		auto& nodePtr = m_ChildNodes[queryId];
 		if (nodePtr)
 		{
 			if (nodePtr->nodeID == vId)
@@ -1261,9 +1261,9 @@ std::vector<BaseNodeWeak> BaseNode::GetPublicNodes()
 {
 	std::vector<BaseNodeWeak> res;
 
-	for (auto node : m_ChildNodes)
+	for (const auto& node : m_ChildNodes)
 	{
-		auto nodePtr = node.second;
+		auto &nodePtr = node.second;
 		if (nodePtr)
 		{
 			if (nodePtr->name.find("PUBLIC_") == 0)
@@ -1295,9 +1295,9 @@ NodeSlotWeak BaseNode::FindSlot(nd::PinId vId)
 {
 	if (vId)
 	{
-		for (auto & node : m_ChildNodes)
+		for (const auto& node : m_ChildNodes)
 		{
-			auto nodePtr = node.second;
+			auto &nodePtr = node.second;
 			if (nodePtr)
 			{
 				for (auto& pin : nodePtr->m_Inputs)
@@ -1822,7 +1822,7 @@ BaseNodePtr BaseNode::GetRootNodeByCalls(BaseNodeWeak vNode) // get the root nod
 	{
 		if (resPtr->m_Outputs.size() == 1U)
 		{
-			auto call = resPtr->m_Outputs[0];
+			auto &call = resPtr->m_Outputs[0];
 			if (call)
 			{
 				if (!call->parentNode.expired())
@@ -1862,7 +1862,7 @@ bool BaseNode::DestroyChildNodeByIdIfAllowed(int vNodeID, bool vDestroy)
 
 	if (m_ChildNodes.find(vNodeID) != m_ChildNodes.end()) // trouvé
 	{
-		auto nodePtr = m_ChildNodes[vNodeID];
+		auto &nodePtr = m_ChildNodes[vNodeID];
 		if (nodePtr && !nodePtr->deletionDisabled)
 		{
 			if (vDestroy)
@@ -1932,7 +1932,7 @@ void BaseNode::AfterNodeXmlLoading()
 
 }
 
-void BaseNode::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
+void BaseNode::TreatNotification(const NotifyEvent& /*vEvent*/, const NodeSlotWeak& /*vEmitterSlot*/, const NodeSlotWeak& /*vReceiverSlot*/)
 {
 
 }
@@ -1963,7 +1963,7 @@ void BaseNode::SendFrontNotification(const std::string& vSlotType, const NotifyE
 
 void BaseNode::PropagateFrontNotification(const NotifyEvent& vEvent)
 {
-	for (auto slot : m_Outputs)
+	for (const auto& slot : m_Outputs)
 	{
 		if (slot.second)
 		{
@@ -1974,7 +1974,7 @@ void BaseNode::PropagateFrontNotification(const NotifyEvent& vEvent)
 
 void BaseNode::SendBackNotification(const NotifyEvent& vEvent)
 {
-	for (auto slot : m_Inputs)
+	for (const auto& slot : m_Inputs)
 	{
 		if (slot.second)
 		{
@@ -1998,7 +1998,7 @@ void BaseNode::SendBackNotification(const std::string& vSlotType, const NotifyEv
 
 void BaseNode::PropagateBackNotification(const NotifyEvent& vEvent)
 {
-	for (auto slot : m_Inputs)
+	for (const auto& slot : m_Inputs)
 	{
 		if (slot.second)
 		{
@@ -2009,11 +2009,11 @@ void BaseNode::PropagateBackNotification(const NotifyEvent& vEvent)
 
 void BaseNode::NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	for (auto input : m_Inputs)
+	for (const auto& input : m_Inputs)
 	{
 		if (input.second)
 		{
-			for (auto slot : input.second->linkedSlots)
+			for (const auto& slot : input.second->linkedSlots)
 			{
 				auto slotPtr = slot.getValidShared();
 				if (slotPtr)
@@ -2031,7 +2031,7 @@ void BaseNode::NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColor
 
 void BaseNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	for (auto input : m_Inputs)
+	for (const auto& input : m_Inputs)
 	{
 		if (input.second)
 		{
@@ -2053,7 +2053,7 @@ void BaseNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCou
 
 ct::fvec2 BaseNode::GetOutputSize()
 {
-	for (auto input : m_Inputs)
+	for (const auto&  input : m_Inputs)
 	{
 		if (input.second)
 		{
@@ -2381,7 +2381,7 @@ bool BaseNode::DisConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 bool BaseNode::DisConnectSlot(NodeSlotWeak vSlot)
 {
 	auto slots = GetSlotsAssociatedToSlot(vSlot);
-	for (auto slotPtr : slots)
+	for (const auto& slotPtr : slots)
 	{
 		Break_VisualLink_ConnectedToSlots(vSlot, slotPtr);
 		DisConnectNodeSlots(vSlot, slotPtr);
@@ -2413,7 +2413,7 @@ void BaseNode::NotifyConnectionChangeOfThisSlot(NodeSlotWeak vSlot, bool vConnec
 						std::string newCode;
 						if (!ptr->linkedSlots.empty())
 						{
-							auto linkedSlot = ptr->linkedSlots[0];
+							auto &linkedSlot = ptr->linkedSlots[0];
 							if (!linkedSlot.expired())
 							{
 								auto linkedSlotPtr = linkedSlot.lock();
@@ -2608,9 +2608,9 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 
 		// childs
 		res += vOffset + "\t<nodes>\n";
-		for (auto& node : m_ChildNodes)
+		for (const auto& node : m_ChildNodes)
 		{
-			auto nodePtr = node.second;
+			auto &nodePtr = node.second;
 			if (nodePtr)
 			{
 				res += nodePtr->getXml(vOffset + "\t\t", vUserDatas);
@@ -2703,7 +2703,7 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		for (auto slot : m_Outputs)
+		for (const auto& slot : m_Outputs)
 		{
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
@@ -2835,7 +2835,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			{
 				if (!m_Inputs.empty())
 				{
-					for (auto& input : m_Inputs)
+					for (const auto& input : m_Inputs)
 					{
 						if (input.second->index == slot.index)
 						{
@@ -2858,7 +2858,7 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			{
 				if (!m_Outputs.empty())
 				{
-					for (auto& output : m_Outputs)
+					for (const auto& output : m_Outputs)
 					{
 						if (output.second->index == slot.index)
 						{

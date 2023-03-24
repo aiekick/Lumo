@@ -35,6 +35,7 @@ limitations under the License.
 #include <Base/ComputeBuffer.h>
 #include <SceneGraph/SceneModel.h>
 #include <Interfaces/ShaderUpdateInterface.h>
+#include <Interfaces/ResizerInterface.h>
 
 #include <Utils/Mesh/VertexStruct.h>
 
@@ -53,7 +54,8 @@ enum class GenericType : uint8_t
 
 class ShaderPass :
 	public conf::ConfigAbstract,
-	public ShaderUpdateInterface
+	public ShaderUpdateInterface,
+	public ResizerInterface
 {
 #ifdef VULKAN_DEBUG
 public:
@@ -121,6 +123,7 @@ protected:
 
 	bool m_ForceFBOClearing = false;
 
+	vk::RenderPass* m_NativeRenderPassPtr = nullptr;
 	vk::RenderPass* m_RenderPassPtr = nullptr;
 
 	// Framebuffer
@@ -163,6 +166,8 @@ protected:
 	GenericType m_RendererType = GenericType::NONE;					// Renderer Type
 	
 	bool m_BlendingEnabled = false;
+
+	uint32_t m_LastExecutedFrame = 0U;
 
 	ct::fvec4 m_LineWidth = ct::fvec4(0.0f, 0.0f, 0.0f, 1.0f);		// line width
 	vk::PolygonMode m_PolygonMode = vk::PolygonMode::eFill;
@@ -233,26 +238,18 @@ public:
 
 	void SetFrameBuffer(FrameBufferWeak vFrameBufferWeak);
 
+	// for have widget display when used as SHADER_PASS in MERGER instead of module as classic task
+	void SetLastExecutedFrame(const uint32_t& vFrame) { m_LastExecutedFrame = vFrame; }
+	uint32_t GetLastExecutedFrame() const { return m_LastExecutedFrame; }
+
 	void SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor);
-
-	/// <summary>
-	/// allow or block resize by resize event
-	/// </summary>
-	/// <param name="vResizing"></param>
-	void AllowResizeOnResizeEvents(const bool& vResizing); // allow or block the resize
-
-	/// <summary>
-	/// allod of block reisze by hand only
-	/// </summary>
-	/// <param name="vResizing"></param>
-	void AllowResizeByHandOrByInputs(const bool& vResizing); // allow or block the resize
 
 	/// <summary>
 	/// to call when from resize event
 	/// </summary>
 	/// <param name="vNewSize"></param>
 	/// <param name="vCountColorBuffers"></param>
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override; // to call at any moment
 
 	/// <summary>
 	/// will resize if the new size is different
@@ -266,7 +263,7 @@ public:
 	/// </summary>
 	/// <param name="vNewSize"></param>
 	/// <param name="vCountColorBuffers"></param>
-	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr); // to call at any moment
+	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override; // to call at any moment
 
 	/// <summary>
 	/// will resize if the new size is different
@@ -283,6 +280,12 @@ public:
 	/// to call (herited), inform than a resized was jsut done
 	/// </summary>
 	virtual void WasJustResized();
+
+	/// <summary>
+	/// will update RenderArea and Viewport for the viewport state of the pipeline event if the rnederpass is external
+	/// </summary>
+	/// <param name="vNewSize"></param>
+	void UpdatePixel2DViewportSize(const ct::uvec2& vNewSize);
 
 	// Renderer Type
 	bool IsPixelRenderer();
@@ -337,6 +340,13 @@ public:
 	bool StartDrawPass(vk::CommandBuffer* vCmdBuffer);
 	void DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber = 1U);
 	void EndDrawPass(vk::CommandBuffer* vCmdBuffer);
+
+	// used to set another rnederpass from another fbo, like in scene merger
+	// will rebuild the pipeline
+	void SetRenderPass(vk::RenderPass* vRenderPassPtr);
+
+	// reset renderpass to nativz renderpass
+	void ReSetRenderPassToNative();
 
 	/// <summary>
 	/// chnage the primitive topology if enebled with m_CanDynamicallyChangePrimitiveTopology

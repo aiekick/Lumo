@@ -52,8 +52,7 @@ limitations under the License.
 class ModelRendererModule_Mesh_Pass;
 class ModelRendererModule :
 	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
+	public BaseRenderer,	
 	public TaskInterface,
 	public ModelInputInterface,
 	public TextureOutputInterface,

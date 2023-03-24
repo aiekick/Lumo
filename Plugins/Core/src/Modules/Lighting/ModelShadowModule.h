@@ -56,8 +56,7 @@ class ModelShadowModule :
 	public TextureInputInterface<0U>, // 0, because no need of items here, just need funcs
 	public TextureGroupInputInterface<0U>, // 0, because no need of items here, just need funcs
 	public TextureOutputInterface,
-	public LightGroupInputInterface,
-	public ResizerInterface
+	public LightGroupInputInterface
 {
 public:
 	static std::shared_ptr<ModelShadowModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

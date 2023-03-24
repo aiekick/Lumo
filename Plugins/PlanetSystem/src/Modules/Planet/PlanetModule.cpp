@@ -184,13 +184,14 @@ void PlanetModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 	{
 		m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBuffer);
 
-		for (auto passPtr : m_ShaderPasses)
+		for (auto pass : m_ShaderPasses)
 		{
-			if (passPtr && passPtr->StartDrawPass(vCmdBuffer))
+			auto pass_ptr = pass.getValidShared();
+			if (pass_ptr && pass_ptr->StartDrawPass(vCmdBuffer))
 			{
-				passPtr->DrawModel(vCmdBuffer, 1U);
+				pass_ptr->DrawModel(vCmdBuffer, 1U);
 
-				passPtr->EndDrawPass(vCmdBuffer);
+				pass_ptr->EndDrawPass(vCmdBuffer);
 			}
 		}
 
@@ -253,9 +254,9 @@ bool PlanetModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 		{
 			bool change = false;
 
-			for (auto pass_ptr : m_ShaderPasses)
+			for (auto pass : m_ShaderPasses)
 			{
-				auto gui_ptr = std::dynamic_pointer_cast<GuiInterface>(pass_ptr);
+				auto gui_ptr = std::dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (gui_ptr)
 				{
 					change |= gui_ptr->DrawWidgets(vCurrentFrame, vContext);
@@ -303,9 +304,9 @@ void PlanetModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImage
 {	
 	ZoneScoped;
 
-	for (auto pass_ptr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		auto texture_input_ptr = std::dynamic_pointer_cast<TextureInputInterface<3>>(pass_ptr);
+		auto texture_input_ptr = std::dynamic_pointer_cast<TextureInputInterface<3>>(pass.lock());
 		if (texture_input_ptr)
 		{
 			texture_input_ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
@@ -348,8 +349,9 @@ std::string PlanetModule::getXml(const std::string& vOffset, const std::string& 
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto pass_ptr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
+		auto pass_ptr = pass.getValidShared();
 		if (pass_ptr)
 		{
 			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
@@ -382,8 +384,9 @@ bool PlanetModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 	}
 
-	for (auto pass_ptr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
+		auto pass_ptr = pass.getValidShared();
 		if (pass_ptr)
 		{
 			pass_ptr->setFromXml(vElem, vParent, vUserDatas);
@@ -397,9 +400,9 @@ void PlanetModule::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 
-	for (auto pass_ptr : m_ShaderPasses)
+	for (auto pass : m_ShaderPasses)
 	{
-		auto node_pass_ptr = std::dynamic_pointer_cast<NodeInterface>(pass_ptr);
+		auto node_pass_ptr = std::dynamic_pointer_cast<NodeInterface>(pass.lock());
 		if (node_pass_ptr)
 		{
 			node_pass_ptr->AfterNodeXmlLoading();

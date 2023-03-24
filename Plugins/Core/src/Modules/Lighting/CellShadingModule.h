@@ -55,8 +55,7 @@ class CellShadingModule :
 	public TaskInterface,
 	public TextureInputInterface<2U>,
 	public TextureOutputInterface,
-	public LightGroupInputInterface,
-	public ResizerInterface
+	public LightGroupInputInterface
 {
 public:
 	static std::shared_ptr<CellShadingModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

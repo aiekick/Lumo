@@ -387,7 +387,7 @@ public:
 	/// <param name="vEvent"></param>
 	void PropagateBackNotification(const NotifyEvent& vEvent);
 
-	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers);
+	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	ct::fvec2 GetOutputSize() override;
 

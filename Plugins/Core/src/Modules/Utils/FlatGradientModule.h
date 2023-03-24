@@ -53,8 +53,7 @@ limitations under the License.
 class FlatGradientModule_Comp_2D_Pass;
 class FlatGradientModule :
 	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
+	public BaseRenderer,	
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public VariableInputInterface<1U>,

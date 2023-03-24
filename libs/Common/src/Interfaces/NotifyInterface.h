@@ -45,6 +45,8 @@ limitations under the License.
 #define NewFrameAvailable "NewFrameAvailable"
 // NotifyEvent : count of notification message
 #define CountEvents "CountEvents"
+// NotifyEvent : need to update the shader pass
+#define ShaderPassUpdateDone "ShaderPassUpdateDone"
 
 typedef std::string NotifyEvent;
 

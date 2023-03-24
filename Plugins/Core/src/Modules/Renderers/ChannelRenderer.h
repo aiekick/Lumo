@@ -42,8 +42,7 @@ class ChannelRenderer :
 	public GuiInterface,
 	public ModelInputInterface,
 	public TextureOutputInterface,
-	public TaskInterface,
-	public ResizerInterface
+	public TaskInterface
 {
 public:
 	static std::shared_ptr<ChannelRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

@@ -53,8 +53,7 @@ limitations under the License.
 class BillBoardRendererModule_Mesh_Pass;
 class BillBoardRendererModule :
 	public NodeInterface,
-	public BaseRenderer,
-	public ResizerInterface,
+	public BaseRenderer,	
 	public TaskInterface,
 	public ModelInputInterface,
 	public TextureInputInterface<0U>,

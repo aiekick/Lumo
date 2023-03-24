@@ -20,10 +20,20 @@ limitations under the License.
 
 class ResizerInterface
 {
-public:
+protected:
 	ct::fvec2 m_fOutputSize;
+	bool m_ResizingByResizeEventIsAllowed = false;
+	bool m_ResizingByHandIsAllowed = false;
 
 public:
+	virtual void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) { UNUSED(vNewSize); UNUSED(vCountColorBuffers); }
 	virtual void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) = 0;
+	
 	virtual ct::fvec2 GetOutputSize() { return m_fOutputSize; }
+
+	void AllowResizeOnResizeEvents(const bool& vResizing) { m_ResizingByResizeEventIsAllowed = vResizing; }
+	void AllowResizeByHandOrByInputs(const bool& vResizing) { m_ResizingByHandIsAllowed = vResizing; }
+
+	bool IsResizeableByHand() const { return m_ResizingByHandIsAllowed; }
+	bool IsResizeableByResizeEvent() const { return m_ResizingByResizeEventIsAllowed; }
 };

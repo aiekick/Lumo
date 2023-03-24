@@ -54,8 +54,7 @@ class SSAOModule :
 	public GuiInterface,
 	public TaskInterface,
 	public TextureInputInterface<0U>,
-	public TextureOutputInterface,
-	public ResizerInterface
+	public TextureOutputInterface
 {
 public:
 	static std::shared_ptr<SSAOModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

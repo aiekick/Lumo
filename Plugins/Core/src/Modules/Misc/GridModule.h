@@ -19,28 +19,27 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <ctools/ConfigAbstract.h>
-#include <Base/BaseRenderer.h>
+#include <Base/TaskRenderer.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanDevice.h>
-#include <Interfaces/TaskInterface.h>
 #include <Interfaces/GuiInterface.h>
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
-
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class GridModule_Vertex_Pass;
 class GridModule :
-	public BaseRenderer,
-	public GuiInterface,
-	public TaskInterface,
-	public ResizerInterface,
-	public TextureOutputInterface
+	public TaskRenderer,
+	public GuiInterface,	
+	public TextureOutputInterface,
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<GridModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<GridModule_Vertex_Pass> m_GridModule_Vertex_Pass_Ptr = nullptr;
+	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
 	GridModule(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -54,7 +53,7 @@ public:
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

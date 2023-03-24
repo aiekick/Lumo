@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <Modules/Misc/GridModule.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotShaderPassOutput.h>
 
 std::shared_ptr<GridNode> GridNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -45,6 +46,7 @@ bool GridNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Grid / Axis";
 
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
 	m_GridModulePtr = GridModule::Create(vVulkanCorePtr);
 	if (m_GridModulePtr)
@@ -125,6 +127,16 @@ vk::DescriptorImageInfo* GridNode::GetDescriptorImageInfo(const uint32_t& vBindi
 	return nullptr;
 }
 
+SceneShaderPassWeak GridNode::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	if (m_GridModulePtr)
+	{
+		return m_GridModulePtr->GetShaderPasses(vBindingPoint);
+	}
+
+	return SceneShaderPassWeak();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +162,7 @@ std::string GridNode::getXml(const std::string& vOffset, const std::string& vUse
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		for (auto slot : m_Outputs)
+		for (auto &slot : m_Outputs)
 		{
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}

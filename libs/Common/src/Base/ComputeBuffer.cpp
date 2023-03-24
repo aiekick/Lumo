@@ -158,7 +158,7 @@ bool ComputeBuffer::ResizeIfNeeded()
 //// PUBLIC / RENDER ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ComputeBuffer::Begin(vk::CommandBuffer* vCmdBuffer)
+bool ComputeBuffer::Begin(vk::CommandBuffer* /*vCmdBuffer*/)
 {
 	if (m_Loaded)
 	{
@@ -168,7 +168,7 @@ bool ComputeBuffer::Begin(vk::CommandBuffer* vCmdBuffer)
 	return false;
 }
 
-void ComputeBuffer::End(vk::CommandBuffer* vCmdBuffer)
+void ComputeBuffer::End(vk::CommandBuffer* /*vCmdBuffer*/)
 {
 	if (m_Loaded)
 	{

@@ -55,8 +55,7 @@ class SpecularModule :
 	public TaskInterface,
 	public TextureInputInterface<2U>,
 	public TextureOutputInterface,
-	public LightGroupInputInterface,
-	public ResizerInterface
+	public LightGroupInputInterface
 {
 public:
 	static std::shared_ptr<SpecularModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

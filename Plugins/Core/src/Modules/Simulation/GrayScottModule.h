@@ -51,8 +51,7 @@ class GrayScottModule :
 	public GuiInterface,
 	public TaskInterface,
 	public TextureInputInterface<2U>,
-	public TextureOutputInterface,
-	public ResizerInterface
+	public TextureOutputInterface
 {
 public:
 	static std::shared_ptr<GrayScottModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

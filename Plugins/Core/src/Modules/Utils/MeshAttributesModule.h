@@ -49,8 +49,7 @@ class MeshAttributesModule :
 	public ModelInputInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
-	public TaskInterface,
-	public ResizerInterface
+	public TaskInterface
 {
 public:
 	static std::shared_ptr<MeshAttributesModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
