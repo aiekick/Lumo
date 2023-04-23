@@ -95,8 +95,8 @@ public:
 private:
 	void ReComputeGaussianBlurWeights(GaussianKernel& vOutGaussian, const uint32_t& vRadius);
 	bool CreateSBO(GaussianKernel& vOutGaussian);
-	void UploadUBO(GaussianKernel& vOutGaussian);
-	void DestroyUBO(GaussianKernel& vOutGaussian);
+	void UploadSBO(GaussianKernel& vOutGaussian);
+	void DestroySBO(GaussianKernel& vOutGaussian);
 
 protected:
 	void Compute_Blur_H(vk::CommandBuffer* vCmdBuffer);

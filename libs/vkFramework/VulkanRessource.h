@@ -91,7 +91,8 @@ public: // image
 public: // buffers
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const vk::BufferCopy& region, vk::CommandPool* vCommandPool = 0);
 	static void copy(VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const std::vector<vk::BufferCopy>& regions, vk::CommandPool* vCommandPool = 0);
-	static void upload(VulkanCorePtr vVulkanCorePtr, VulkanBufferObjectPtr dst_hostVisable, void* src_host, size_t size_bytes, size_t dst_offset = 0);
+	static void upload(VulkanCorePtr vVulkanCorePtr, VulkanBufferObjectPtr dstHostVisiblePtr, void* src_host, size_t size_bytes, size_t dst_offset = 0);
+	static void download(vkApi::VulkanCorePtr vVulkanCorePtr, VulkanBufferObjectPtr srcHostVisiblePtr, void* dst_host, size_t size_bytes);
 
 	// will set deveic adress of buffer in vVulkanBufferObjectPtr
 	static void SetDeviceAddress(const vk::Device& vDevice, VulkanBufferObjectPtr vVulkanBufferObjectPtr);
@@ -100,7 +101,8 @@ public: // buffers
 	static VulkanBufferObjectPtr createStagingBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize);
 	static VulkanBufferObjectPtr createStorageBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, vk::BufferUsageFlags vBufferUsageFlags, VmaMemoryUsage vMemoryUsage);
 	static VulkanBufferObjectPtr createStorageBufferObject(VulkanCorePtr vVulkanCorePtr, uint64_t vSize, VmaMemoryUsage vMemoryUsage);
-	static VulkanBufferObjectPtr createGPUOnlyStorageBufferObject(VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize);
+	static VulkanBufferObjectPtr createGPUOnlyStorageBufferObject(VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize); 
+	static VulkanBufferObjectPtr createBiDirectionalStorageBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize);
 	static VulkanBufferObjectPtr createTexelBuffer(vkApi::VulkanCorePtr vVulkanCorePtr,	vk::Format vFormat, uint64_t vDataSize, void* vDataPtr = nullptr);
 
 	template<class T> static VulkanBufferObjectPtr createVertexBufferObject(VulkanCorePtr vVulkanCorePtr, const std::vector<T>& data, bool vUseSSBO = false, bool vUseTransformFeedback = false, bool vUseRTX = false);

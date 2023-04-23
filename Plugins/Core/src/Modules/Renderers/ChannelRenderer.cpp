@@ -51,14 +51,18 @@ std::shared_ptr<ChannelRenderer> ChannelRenderer::Create(vkApi::VulkanCorePtr vV
 //////////////////////////////////////////////////////////////
 
 ChannelRenderer::ChannelRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+	: TaskRenderer(vVulkanCorePtr)
 {
+	ZoneScoped;
 
+	m_SceneShaderPassPtr = SceneShaderPass::Create();
 }
 
 ChannelRenderer::~ChannelRenderer()
 {
 	Unit();
+
+	m_SceneShaderPassPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////
@@ -73,7 +77,7 @@ bool ChannelRenderer::Init()
 
 	m_Loaded = true;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (TaskRenderer::InitPixel(map_size))
 	{
 		m_ChannelRenderer_Mesh_Pass_Ptr = std::make_shared<ChannelRenderer_Mesh_Pass>(m_VulkanCorePtr);
 		if (m_ChannelRenderer_Mesh_Pass_Ptr)
@@ -82,6 +86,7 @@ bool ChannelRenderer::Init()
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_ChannelRenderer_Mesh_Pass_Ptr);
+				m_SceneShaderPassPtr->Add(m_ChannelRenderer_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -97,21 +102,21 @@ bool ChannelRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Channel Renderer", vCmd);
+	TaskRenderer::Render("Channel Renderer", vCmd);
 
 	return true;
 }
 
 void ChannelRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 bool ChannelRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	if (IsTheGoodFrame(vCurrentFrame))
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Channels", -1.0f, true, true, &m_CanWeRender))
 		{
@@ -163,6 +168,15 @@ vk::DescriptorImageInfo* ChannelRenderer::GetDescriptorImageInfo(const uint32_t&
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak ChannelRenderer::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	return m_SceneShaderPassPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

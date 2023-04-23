@@ -22,6 +22,7 @@ limitations under the License.
 #include <Graph/Slots/NodeSlotModelInput.h>
 #include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotShaderPassOutput.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
@@ -70,6 +71,7 @@ bool BillBoardRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("Texture", 0), false, false);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
 	m_BillBoardRendererModulePtr = BillBoardRendererModule::Create(vVulkanCorePtr, m_This);
 	if (m_BillBoardRendererModulePtr)
@@ -217,6 +219,20 @@ vk::DescriptorImageInfo* BillBoardRendererNode::GetDescriptorImageInfo(const uin
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak BillBoardRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	if (m_BillBoardRendererModulePtr)
+	{
+		return m_BillBoardRendererModulePtr->GetShaderPasses(vBindingPoint);
+	}
+
+	return SceneShaderPassWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

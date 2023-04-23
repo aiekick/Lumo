@@ -378,7 +378,7 @@ bool BlurModule_Comp_Pass::CreateSBO(GaussianKernel& vOutGaussian)
 	return true;
 }
 
-void BlurModule_Comp_Pass::UploadUBO(GaussianKernel& vOutGaussian)
+void BlurModule_Comp_Pass::UploadSBO(GaussianKernel& vOutGaussian)
 {
 	ZoneScoped;
 
@@ -389,7 +389,7 @@ void BlurModule_Comp_Pass::UploadUBO(GaussianKernel& vOutGaussian)
 	}
 }
 
-void BlurModule_Comp_Pass::DestroyUBO(GaussianKernel& vOutGaussian)
+void BlurModule_Comp_Pass::DestroySBO(GaussianKernel& vOutGaussian)
 {
 	ZoneScoped;
 
@@ -412,16 +412,16 @@ void BlurModule_Comp_Pass::UploadSBO()
 {
 	ZoneScoped;
 
-	UploadUBO(m_Gaussian_H);
-	UploadUBO(m_Gaussian_V);
+	UploadSBO(m_Gaussian_H);
+	UploadSBO(m_Gaussian_V);
 }
 
 void BlurModule_Comp_Pass::DestroySBO()
 {
 	ZoneScoped;
 
-	DestroyUBO(m_Gaussian_H);
-	DestroyUBO(m_Gaussian_V);
+	DestroySBO(m_Gaussian_H);
+	DestroySBO(m_Gaussian_V);
 }
 
 bool BlurModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()

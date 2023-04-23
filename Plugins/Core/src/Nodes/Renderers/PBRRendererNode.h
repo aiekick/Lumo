@@ -26,6 +26,7 @@ limitations under the License.
 #include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class PBRRenderer;
 class PBRRendererNode : 
@@ -34,7 +35,8 @@ class PBRRendererNode :
 	public TextureOutputInterface,
 	public TextureGroupInputInterface<0U>,
 	public LightGroupInputInterface,
-	public ShaderUpdateInterface
+	public ShaderUpdateInterface,
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<PBRRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -54,6 +56,7 @@ public:
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

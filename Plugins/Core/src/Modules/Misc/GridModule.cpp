@@ -68,7 +68,7 @@ bool GridModule::Init()
 
 	m_Loaded = true;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (TaskRenderer::InitPixel(map_size))
 	{
 		m_GridModule_Vertex_Pass_Ptr = std::make_shared<GridModule_Vertex_Pass>(m_VulkanCorePtr);
 		if (m_GridModule_Vertex_Pass_Ptr)
@@ -94,14 +94,14 @@ bool GridModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Grid Module", vCmd);
+	TaskRenderer::Render("Grid Module", vCmd);
 	
 	return true;
 }
 
 void GridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)

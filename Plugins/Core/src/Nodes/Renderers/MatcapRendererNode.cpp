@@ -20,6 +20,7 @@ limitations under the License.
 #include <Graph/Slots/NodeSlotModelInput.h>
 #include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotShaderPassOutput.h>
 
 std::shared_ptr<MatcapRendererNode> MatcapRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -49,6 +50,7 @@ bool MatcapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotModelInput::Create("Model"), true, false);
 	AddInput(NodeSlotTextureInput::Create("Matcap", 0U), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
 	bool res = false;
 
@@ -154,6 +156,20 @@ vk::DescriptorImageInfo* MatcapRendererNode::GetDescriptorImageInfo(const uint32
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak MatcapRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	if (m_MatcapRenderer)
+	{
+		return m_MatcapRenderer->GetShaderPasses(vBindingPoint);
+	}
+
+	return SceneShaderPassWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

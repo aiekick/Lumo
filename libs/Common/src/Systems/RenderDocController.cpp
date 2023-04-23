@@ -60,6 +60,16 @@ void RenderDocController::RequestCapture()
     m_Capture_Requested = true;
 }
 
+bool RenderDocController::IsCaptureRequested()
+{
+    return m_Capture_Started;
+}
+
+bool RenderDocController::IsCaptureStarted()
+{
+    return m_Capture_Started;
+}
+
 void RenderDocController::StartCaptureIfResquested()
 {
     if (!m_Capture_Requested) return;

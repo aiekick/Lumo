@@ -681,7 +681,16 @@ void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, 
 	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true, vCommandPool);
 }
 
-void VulkanRessource::upload(vkApi::VulkanCorePtr vVulkanCorePtr, VulkanBufferObjectPtr dstHostVisiblePtr, void* src_host, size_t size_bytes, size_t dst_offset)
+void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const std::vector<vk::BufferCopy>& regions, vk::CommandPool* vCommandPool)
+{
+	ZoneScoped;
+
+	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true, vCommandPool);
+	cmd.copyBuffer(src, dst, regions);
+	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true, vCommandPool);
+}
+
+void VulkanRessource::upload(VulkanCorePtr vVulkanCorePtr, VulkanBufferObjectPtr dstHostVisiblePtr, void* src_host, size_t size_bytes, size_t dst_offset)
 {
 	ZoneScoped;
 
@@ -692,20 +701,38 @@ void VulkanRessource::upload(vkApi::VulkanCorePtr vVulkanCorePtr, VulkanBufferOb
 			LogVarDebug("Debug : upload not done because it is VMA_MEMORY_USAGE_GPU_ONLY");
 			return;
 		}
+
 		void* dst = nullptr;
-		VulkanCore::check_error(vmaMapMemory(vkApi::VulkanCore::sAllocator, dstHostVisiblePtr->alloc_meta, &dst));
-		memcpy((uint8_t*)dst + dst_offset, src_host, size_bytes);
-		vmaUnmapMemory(vkApi::VulkanCore::sAllocator, dstHostVisiblePtr->alloc_meta);
+		auto result = (vk::Result)vmaMapMemory(vkApi::VulkanCore::sAllocator, dstHostVisiblePtr->alloc_meta, &dst);
+		VulkanCore::check_error(result);
+		if (result == vk::Result::eSuccess)
+		{
+			memcpy((uint8_t*)dst + dst_offset, src_host, size_bytes);
+			vmaUnmapMemory(vkApi::VulkanCore::sAllocator, dstHostVisiblePtr->alloc_meta);
+		}
 	}
 }
 
-void VulkanRessource::copy(vkApi::VulkanCorePtr vVulkanCorePtr, vk::Buffer dst, vk::Buffer src, const std::vector<vk::BufferCopy>& regions, vk::CommandPool* vCommandPool)
+void VulkanRessource::download(vkApi::VulkanCorePtr vVulkanCorePtr, VulkanBufferObjectPtr srcHostVisiblePtr, void* dst_host, size_t size_bytes)
 {
 	ZoneScoped;
 
-	auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(vVulkanCorePtr, true, vCommandPool);
-	cmd.copyBuffer(src, dst, regions);
-	VulkanCommandBuffer::flushSingleTimeCommands(vVulkanCorePtr, cmd, true, vCommandPool);
+	if (vVulkanCorePtr && srcHostVisiblePtr && dst_host && size_bytes)
+	{
+		if (srcHostVisiblePtr->alloc_usage == VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY)
+		{
+			LogVarDebug("Debug : download not done because it is VMA_MEMORY_USAGE_GPU_ONLY");
+			return;
+		}
+		void* mappedData = nullptr;
+		auto result = (vk::Result)vmaMapMemory(vkApi::VulkanCore::sAllocator, srcHostVisiblePtr->alloc_meta, &mappedData);
+		VulkanCore::check_error(result);
+		if (result == vk::Result::eSuccess)
+		{
+			memcpy(dst_host, mappedData, size_bytes);
+			vmaUnmapMemory(vkApi::VulkanCore::sAllocator, srcHostVisiblePtr->alloc_meta);
+		}
+	}
 }
 
 void VulkanRessource::SetDeviceAddress(const vk::Device& vDevice, VulkanBufferObjectPtr vVulkanBufferObjectPtr)
@@ -857,6 +884,27 @@ VulkanBufferObjectPtr VulkanRessource::createGPUOnlyStorageBufferObject(vkApi::V
 
 	return nullptr;
 }
+
+VulkanBufferObjectPtr VulkanRessource::createBiDirectionalStorageBufferObject(vkApi::VulkanCorePtr vVulkanCorePtr, void* vData, uint64_t vSize)
+{
+	if (vData && vSize)
+	{
+		vk::BufferCreateInfo storageBufferInfo = {};
+		storageBufferInfo.size = vSize;
+		storageBufferInfo.usage = vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eTransferDst;
+		storageBufferInfo.sharingMode = vk::SharingMode::eExclusive;
+		VmaAllocationCreateInfo vboAllocInfo = {};
+		vboAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU;
+		auto vboPtr = createSharedBufferObject(vVulkanCorePtr, storageBufferInfo, vboAllocInfo);
+		if (vboPtr) {
+			upload(vVulkanCorePtr, vboPtr, vData, vSize);
+			return vboPtr;
+		}
+	}
+
+	return nullptr;
+}
+
 
 VulkanBufferObjectPtr VulkanRessource::createTexelBuffer(
 	vkApi::VulkanCorePtr vVulkanCorePtr, vk::Format vFormat,

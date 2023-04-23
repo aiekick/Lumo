@@ -272,7 +272,7 @@ void SceneMergerModule::SetShaderPasses(const uint32_t& vBindingPoint, SceneShad
 	if (m_FrameBufferPtr)
 	{
 		// todo : il faut que le slot output de type SceneShaderPass soit unique
-		// vu qu'une connexion provoque la reconstruction du pipeline avec la nouvelle rnederpass dans la ShaderPass
+		// vu qu'une connexion provoque la reconstruction du pipeline avec la nouvelle renderpass dans la ShaderPass
 		if (m_SceneShaderPasses.size() > vBindingPoint)
 		{
 			// il faut rediriger la pass vers son FBO natif

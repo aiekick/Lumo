@@ -62,9 +62,11 @@ std::shared_ptr<ModelRendererModule> ModelRendererModule::Create(vkApi::VulkanCo
 //////////////////////////////////////////////////////////////
 
 ModelRendererModule::ModelRendererModule(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+	: TaskRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
+
+	m_SceneShaderPassPtr = SceneShaderPass::Create();
 }
 
 ModelRendererModule::~ModelRendererModule()
@@ -72,6 +74,8 @@ ModelRendererModule::~ModelRendererModule()
 	ZoneScoped;
 
 	Unit();
+
+	m_SceneShaderPassPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////
@@ -86,7 +90,7 @@ bool ModelRendererModule::Init()
 
 	ct::uvec2 map_size = 512;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (TaskRenderer::InitPixel(map_size))
 	{
 		//SetExecutionWhenNeededOnly(true);
 
@@ -101,6 +105,7 @@ bool ModelRendererModule::Init()
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
 			{
 				AddGenericPass(m_ModelRendererModule_Mesh_Pass_Ptr);
+				m_SceneShaderPassPtr->Add(m_ModelRendererModule_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -117,7 +122,7 @@ bool ModelRendererModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comm
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Model Renderer", vCmd);
+	TaskRenderer::Render("Model Renderer", vCmd);
 
 	return true;
 }
@@ -126,7 +131,7 @@ bool ModelRendererModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::C
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Model Renderer", vCmd);
+	TaskRenderer::Render("Model Renderer", vCmd);
 
 	return true;
 }
@@ -142,7 +147,7 @@ bool ModelRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	if (IsTheGoodFrame(vCurrentFrame))
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Model Renderer##ModelRendererModule", -1.0f, true, true, &m_CanWeRender))
 		{
@@ -192,7 +197,7 @@ void ModelRendererModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uin
 
 	// do some code
 	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -223,6 +228,15 @@ vk::DescriptorImageInfo* ModelRendererModule::GetDescriptorImageInfo(const uint3
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak ModelRendererModule::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	return m_SceneShaderPassPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

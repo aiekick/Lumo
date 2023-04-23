@@ -755,6 +755,11 @@ namespace vkApi
 			VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME
 		};
 
+		if (m_ApiVersion != VK_API_VERSION_1_0)
+		{
+			wantedDeviceExtensions.emplace_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
+		}
+
 		// RTX
 		if (m_Use_RTX && 
 			m_ApiVersion != VK_API_VERSION_1_0 &&
@@ -822,9 +827,13 @@ namespace vkApi
 		m_DynamicStates.setExtendedDynamicState(true);
 		m_Robustness2Feature.setPNext(&m_DynamicStates);
 
+		LogVarLightInfo("Feature vk 1.1 : synchronisation 2");
+		m_Synchronization2Feature.setSynchronization2(true);
+		m_DynamicStates.setPNext(&m_Synchronization2Feature);
+
 		LogVarLightInfo("Feature vk 1.2 : Buffer Device Address");
 		m_BufferDeviceAddress.setBufferDeviceAddress(true);
-		m_DynamicStates.setPNext(&m_BufferDeviceAddress);
+		m_Synchronization2Feature.setPNext(&m_BufferDeviceAddress);
 
 		if (m_Use_RTX)
 		{

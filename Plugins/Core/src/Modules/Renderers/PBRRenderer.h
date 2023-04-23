@@ -28,7 +28,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/BaseRenderer.h>
+#include <Base/TaskRenderer.h>
 
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -50,23 +50,24 @@ limitations under the License.
 #include <Interfaces/SerializationInterface.h>
 #include <Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/LightGroupInputInterface.h>
-
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class PBRRenderer_Quad_Pass;
-class PBRRenderer : 
-	public BaseRenderer,
+class PBRRenderer :
+	public TaskRenderer,
 	public GuiInterface,
-	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public TextureGroupInputInterface<0U>,
-	public LightGroupInputInterface
+	public LightGroupInputInterface,
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<PBRRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<PBRRenderer_Quad_Pass> m_PBRRenderer_Quad_Pass_Ptr = nullptr;
+	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
 	PBRRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -81,6 +82,7 @@ public:
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

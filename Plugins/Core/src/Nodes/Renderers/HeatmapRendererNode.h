@@ -21,12 +21,14 @@ limitations under the License.
 #include <Graph/Base/BaseNode.h>
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class HeatmapRenderer;
 class HeatmapRendererNode : 
 	public BaseNode, 
 	public ModelInputInterface,
-	public TextureOutputInterface
+	public TextureOutputInterface,
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<HeatmapRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -46,6 +48,7 @@ public:
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

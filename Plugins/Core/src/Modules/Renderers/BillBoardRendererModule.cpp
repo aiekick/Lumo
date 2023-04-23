@@ -62,9 +62,11 @@ std::shared_ptr<BillBoardRendererModule> BillBoardRendererModule::Create(vkApi::
 //////////////////////////////////////////////////////////////
 
 BillBoardRendererModule::BillBoardRendererModule(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+	: TaskRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
+
+	m_SceneShaderPassPtr = SceneShaderPass::Create();
 }
 
 BillBoardRendererModule::~BillBoardRendererModule()
@@ -72,6 +74,8 @@ BillBoardRendererModule::~BillBoardRendererModule()
 	ZoneScoped;
 
 	Unit();
+
+	m_SceneShaderPassPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////
@@ -86,7 +90,7 @@ bool BillBoardRendererModule::Init()
 
 	ct::uvec2 map_size = 512;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (TaskRenderer::InitPixel(map_size))
 	{
 		//SetExecutionWhenNeededOnly(true);
 
@@ -101,6 +105,7 @@ bool BillBoardRendererModule::Init()
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_BillBoardRendererModule_Mesh_Pass_Ptr);
+				m_SceneShaderPassPtr->Add(m_BillBoardRendererModule_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -117,7 +122,7 @@ bool BillBoardRendererModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("BillBoard Renderer", vCmd);
+	TaskRenderer::Render("BillBoard Renderer", vCmd);
 
 	return true;
 }
@@ -126,7 +131,7 @@ bool BillBoardRendererModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, v
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("BillBoard Renderer", vCmd);
+	TaskRenderer::Render("BillBoard Renderer", vCmd);
 
 	return true;
 }
@@ -142,7 +147,7 @@ bool BillBoardRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	if (IsTheGoodFrame(vCurrentFrame))
 	{
 		if (ImGui::CollapsingHeader_CheckBox("BillBoard Renderer##BillBoardRendererModule", -1.0f, true, true, &m_CanWeRender))
 		{
@@ -192,7 +197,7 @@ void BillBoardRendererModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const
 
 	// do some code
 	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,6 +242,15 @@ vk::DescriptorImageInfo* BillBoardRendererModule::GetDescriptorImageInfo(const u
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADEr PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak BillBoardRendererModule::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	return m_SceneShaderPassPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

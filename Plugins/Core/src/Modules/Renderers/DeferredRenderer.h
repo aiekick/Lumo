@@ -28,7 +28,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/BaseRenderer.h>
+#include <Base/TaskRenderer.h>
 
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -48,21 +48,22 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/SerializationInterface.h>
-
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class DeferredRenderer_Quad_Pass;
-class DeferredRenderer : 
-	public BaseRenderer,
+class DeferredRenderer :
+	public TaskRenderer,
 	public GuiInterface,
-	public TaskInterface,
 	public TextureInputInterface<0U>,
-	public TextureOutputInterface
+	public TextureOutputInterface,
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<DeferredRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<DeferredRenderer_Quad_Pass> m_DeferredRenderer_Quad_Pass_Ptr = nullptr;
+	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
 	DeferredRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -77,6 +78,7 @@ public:
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

@@ -21,6 +21,7 @@ limitations under the License.
 #include <Modules/Renderers/ModelRendererModule.h>
 #include <Graph/Slots/NodeSlotModelInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotShaderPassOutput.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +69,7 @@ bool ModelRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotModelInput::Create("Mesh"), false, false);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
 	m_ModelRendererModulePtr = ModelRendererModule::Create(vVulkanCorePtr, m_This);
 	if (m_ModelRendererModulePtr)
@@ -199,6 +201,20 @@ vk::DescriptorImageInfo* ModelRendererNode::GetDescriptorImageInfo(const uint32_
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak ModelRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	if (m_ModelRendererModulePtr)
+	{
+		return m_ModelRendererModulePtr->GetShaderPasses(vBindingPoint);
+	}
+
+	return SceneShaderPassWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

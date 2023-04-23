@@ -19,13 +19,15 @@ limitations under the License.
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class ModelRendererModule;
 class ModelRendererNode :
 	public ModelInputInterface,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface,
-	public BaseNode
+	public BaseNode,
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<ModelRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -57,7 +59,7 @@ public:
 
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 
 	// Configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

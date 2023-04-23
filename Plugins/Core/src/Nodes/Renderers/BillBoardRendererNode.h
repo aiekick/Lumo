@@ -20,6 +20,7 @@ limitations under the License.
 #include <Interfaces/TextureInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class BillBoardRendererModule;
 class BillBoardRendererNode :
@@ -27,7 +28,8 @@ class BillBoardRendererNode :
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface,
-	public BaseNode
+	public BaseNode,
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<BillBoardRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -57,10 +59,9 @@ public:
 	void SetModel(SceneModelWeak vSceneModel) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
 
-
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 
 	// Configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

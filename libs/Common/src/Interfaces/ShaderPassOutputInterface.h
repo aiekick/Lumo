@@ -16,7 +16,7 @@ limitations under the License.
 
 #pragma once
 
-#include <vector>
+#include <array>
 #include <SceneGraph/SceneShaderPass.h>
 
 //todo : split the interface in one input interface and one output interface

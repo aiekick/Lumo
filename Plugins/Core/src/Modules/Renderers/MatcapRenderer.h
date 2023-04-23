@@ -19,7 +19,7 @@ limitations under the License.
 #include <array>
 #include <memory>
 #include <ctools/ConfigAbstract.h>
-#include <Base/BaseRenderer.h>
+#include <Base/TaskRenderer.h>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/VulkanDevice.h>
@@ -33,23 +33,24 @@ limitations under the License.
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/MergedInterface.h>
 #include <vkFramework/ImGuiTexture.h>
-
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class MatcapRenderer_Mesh_Pass;
 class MatcapRenderer :
-	public BaseRenderer,
+	public TaskRenderer,
 	public NodeInterface,
 	public GuiInterface,
 	public ModelInputInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
-	public TaskInterface
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<MatcapRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<MatcapRenderer_Mesh_Pass> m_MatcapRenderer_Mesh_Pass_Ptr = nullptr;
+	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
 	MatcapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -65,6 +66,7 @@ public:
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

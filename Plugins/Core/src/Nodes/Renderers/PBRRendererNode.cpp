@@ -22,6 +22,7 @@ limitations under the License.
 #include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureGroupInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotShaderPassOutput.h>
 
 std::shared_ptr<PBRRendererNode> PBRRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -56,6 +57,7 @@ bool PBRRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("AO", 0U), true, false);
 	AddInput(NodeSlotTextureGroupInput::Create("Shadow Maps"), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
 	bool res = false;
 
@@ -154,6 +156,20 @@ vk::DescriptorImageInfo* PBRRendererNode::GetDescriptorImageInfo(const uint32_t&
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak PBRRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	if (m_PBRRendererPtr)
+	{
+		return m_PBRRendererPtr->GetShaderPasses(vBindingPoint);
+	}
+
+	return SceneShaderPassWeak();
 }
 
 void PBRRendererNode::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)

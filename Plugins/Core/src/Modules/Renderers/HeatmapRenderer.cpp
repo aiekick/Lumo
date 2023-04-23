@@ -49,14 +49,18 @@ std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(vkApi::VulkanCorePtr vV
 //////////////////////////////////////////////////////////////
 
 HeatmapRenderer::HeatmapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+	: TaskRenderer(vVulkanCorePtr)
 {
+	ZoneScoped;
 
+	m_SceneShaderPassPtr = SceneShaderPass::Create();
 }
 
 HeatmapRenderer::~HeatmapRenderer()
 {
 	Unit();
+
+	m_SceneShaderPassPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////
@@ -71,7 +75,7 @@ bool HeatmapRenderer::Init()
 
 	m_Loaded = true;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (TaskRenderer::InitPixel(map_size))
 	{
 		m_HeatmapRenderer_Mesh_Pass_Ptr = std::make_shared<HeatmapRenderer_Mesh_Pass>(m_VulkanCorePtr);
 		if (m_HeatmapRenderer_Mesh_Pass_Ptr)
@@ -80,6 +84,7 @@ bool HeatmapRenderer::Init()
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_HeatmapRenderer_Mesh_Pass_Ptr);
+				m_SceneShaderPassPtr->Add(m_HeatmapRenderer_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -96,21 +101,21 @@ bool HeatmapRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Heatmap Renderer", vCmd);
+	TaskRenderer::Render("Heatmap Renderer", vCmd);
 
 	return true;
 }
 
 void HeatmapRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	if (IsTheGoodFrame(vCurrentFrame))
 	{
 		if (ImGui::CollapsingHeader_CheckBox("HeatMap", -1.0f, true, true, &m_CanWeRender))
 		{
@@ -164,6 +169,15 @@ vk::DescriptorImageInfo* HeatmapRenderer::GetDescriptorImageInfo(const uint32_t&
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak HeatmapRenderer::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	return m_SceneShaderPassPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

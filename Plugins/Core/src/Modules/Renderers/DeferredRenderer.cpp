@@ -54,14 +54,18 @@ std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(vkApi::VulkanCorePtr 
 //////////////////////////////////////////////////////////////
 
 DeferredRenderer::DeferredRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+	: TaskRenderer(vVulkanCorePtr)
 {
+	ZoneScoped;
 
+	m_SceneShaderPassPtr = SceneShaderPass::Create();
 }
 
 DeferredRenderer::~DeferredRenderer()
 {
 	Unit();
+
+	m_SceneShaderPassPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////
@@ -76,7 +80,7 @@ bool DeferredRenderer::Init()
 
 	m_Loaded = true;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (TaskRenderer::InitPixel(map_size))
 	{
 		m_DeferredRenderer_Quad_Pass_Ptr = std::make_shared<DeferredRenderer_Quad_Pass>(m_VulkanCorePtr);
 		if (m_DeferredRenderer_Quad_Pass_Ptr)
@@ -85,6 +89,7 @@ bool DeferredRenderer::Init()
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_DeferredRenderer_Quad_Pass_Ptr);
+				m_SceneShaderPassPtr->Add(m_DeferredRenderer_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -101,7 +106,7 @@ bool DeferredRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("Deferred Renderer", vCmd);
+	TaskRenderer::Render("Deferred Renderer", vCmd);
 
 	return true;
 }
@@ -110,7 +115,7 @@ bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	if (IsTheGoodFrame(vCurrentFrame))
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Deferred Renderer", -1.0f, true, true, &m_CanWeRender))
 		{
@@ -146,7 +151,7 @@ void DeferredRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 
 void DeferredRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void DeferredRenderer::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -165,6 +170,15 @@ vk::DescriptorImageInfo* DeferredRenderer::GetDescriptorImageInfo(const uint32_t
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak DeferredRenderer::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	return m_SceneShaderPassPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

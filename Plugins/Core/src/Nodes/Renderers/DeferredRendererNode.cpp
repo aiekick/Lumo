@@ -18,6 +18,7 @@ limitations under the License.
 #include <Modules/Renderers/DeferredRenderer.h>
 #include <Graph/Slots/NodeSlotTextureInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotShaderPassOutput.h>
 
 std::shared_ptr<DeferredRendererNode> DeferredRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -54,6 +55,7 @@ bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("AO", 7U), true, false);
 	AddInput(NodeSlotTextureInput::Create("Shadow", 8U), true, false); 
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
 	bool res = false;
 
@@ -152,6 +154,20 @@ vk::DescriptorImageInfo* DeferredRendererNode::GetDescriptorImageInfo(const uint
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak DeferredRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	if (m_DeferredRendererPtr)
+	{
+		return m_DeferredRendererPtr->GetShaderPasses(vBindingPoint);
+	}
+
+	return SceneShaderPassWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

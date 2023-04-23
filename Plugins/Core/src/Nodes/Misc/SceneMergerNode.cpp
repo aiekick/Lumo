@@ -319,8 +319,12 @@ void SceneMergerNode::ReorganizeSlots()
 		// sinon ca va peter la verif des lien dans le module, 
 		// et je pourrasi plus virer les passes qui sont deconnectée
 		
+		// m_inputs a comme clef le pointeur du slot
+		// scene_shader_passes a comme clef le numero du bidning point
+
 		// 1) on va checker les slot connecté a rien et retenir leur binding point dans arr
 		uint32_t max_idx = 0U;
+		std::vector<uint32_t> pid_arr;
 		std::vector<uint32_t> binding_points_arr;
 		for (auto input : m_Inputs)
 		{
@@ -328,7 +332,8 @@ void SceneMergerNode::ReorganizeSlots()
 			{
 				if (!input.second->connected)
 				{
-					binding_points_arr.push_back(input.first);
+					pid_arr.push_back(input.first);
+					binding_points_arr.push_back(input.second->descriptorBinding);
 				}
 
 				// on stocke le plus grand id
@@ -336,13 +341,20 @@ void SceneMergerNode::ReorganizeSlots()
 			}
 		}
 
-		// 2) on supprime les binding connecté a rien trouvé en 1)
-		for (auto idx : binding_points_arr)
+		// 2) on supprime les pid du node connecté a rien trouvé en 1)
+		for (auto idx : pid_arr)
 		{
 			m_Inputs.erase(idx);
 		}
+			
+		// 3) on supprime les bindings du module connecté a rien trouvé en 1)
+		auto scene_shader_passes = m_SceneMergerModulePtr->GetSceneShaderPasses();
+		for (auto idx : binding_points_arr)
+		{
+			scene_shader_passes.erase(scene_shader_passes.begin() + idx);
+		}
 
-		// 3) ajotuer un slot vide avec l'id max_idx + 1
+		// 4) ajotuer un slot vide avec l'id max_idx + 1
 		AddInput(NodeSlotShaderPassInput::Create("Input", max_idx + 1U), false, false);
 	}
 }

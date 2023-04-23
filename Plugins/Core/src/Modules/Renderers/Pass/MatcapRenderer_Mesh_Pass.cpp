@@ -281,6 +281,7 @@ vec2 getMatCap(vec3 pos, vec3 nor)
 	vec4 pp = modelViewMatrix * vec4(pos, 1. );
 	vec4 nn = normalMatrix * vec4(nor, 1.);
 	vec3 rd = normalize( pp.xyz );
+
 	vec3 n = normalize( nn.xyz );
 	vec3 r = reflect(rd, n);
 	r.y *= -1.0;

@@ -52,14 +52,18 @@ std::shared_ptr<PBRRenderer> PBRRenderer::Create(vkApi::VulkanCorePtr vVulkanCor
 //////////////////////////////////////////////////////////////
 
 PBRRenderer::PBRRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+	: TaskRenderer(vVulkanCorePtr)
 {
+	ZoneScoped;
 
+	m_SceneShaderPassPtr = SceneShaderPass::Create();
 }
 
 PBRRenderer::~PBRRenderer()
 {
 	Unit();
+
+	m_SceneShaderPassPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////
@@ -74,7 +78,7 @@ bool PBRRenderer::Init()
 
 	m_Loaded = true;
 
-	if (BaseRenderer::InitPixel(map_size))
+	if (TaskRenderer::InitPixel(map_size))
 	{
 		m_PBRRenderer_Quad_Pass_Ptr = std::make_shared<PBRRenderer_Quad_Pass>(m_VulkanCorePtr);
 		if (m_PBRRenderer_Quad_Pass_Ptr)
@@ -83,6 +87,7 @@ bool PBRRenderer::Init()
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_PBRRenderer_Quad_Pass_Ptr);
+				m_SceneShaderPassPtr->Add(m_PBRRenderer_Quad_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -98,7 +103,7 @@ bool PBRRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 {
 	ZoneScoped;
 
-	BaseRenderer::Render("PBR Renderer", vCmd);
+	TaskRenderer::Render("PBR Renderer", vCmd);
 
 	return true;
 }
@@ -107,7 +112,7 @@ bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
+	if (IsTheGoodFrame(vCurrentFrame))
 	{
 		if (ImGui::CollapsingHeader_CheckBox("PBR Renderer", -1.0f, true, true, &m_CanWeRender))
 		{
@@ -143,7 +148,7 @@ void PBRRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const c
 
 void PBRRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 void PBRRenderer::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -178,6 +183,15 @@ void PBRRenderer::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 	{
 		m_PBRRenderer_Quad_Pass_Ptr->SetLightGroup(vSceneLightGroup);
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak PBRRenderer::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	return m_SceneShaderPassPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

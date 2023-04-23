@@ -41,6 +41,7 @@
 #include <Nodes/Misc/GridNode.h>
 #include <Nodes/Misc/Layering2DNode.h>
 #include <Nodes/Misc/SceneMergerNode.h>
+#include <Nodes/Misc/SdfTextureNode.h>
 
 #include <Nodes/PostPro/SSAONode.h>
 #include <Nodes/PostPro/BlurNode.h>
@@ -172,6 +173,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/3D/Misc", "Grid / Axis", "GRID_AXIS"));
 	res.push_back(AddLibraryEntry("Core/2D/Misc", "2D Layering", "2D_LAYERING"));
 	res.push_back(AddLibraryEntry("Core/3D/Misc", "Scene Merger", "SCENE_MERGER"));
+	res.push_back(AddLibraryEntry("Core/2D/Misc", "Sdf Texture", "SDF_TEXTURE"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Lighting", "Lights", "LIGHT_GROUP"));
 	res.push_back(AddLibraryEntry("Core/3D/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING"));
@@ -252,6 +254,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "GRID_AXIS")					return GridNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "2D_LAYERING")					return Layering2DNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "SCENE_MERGER")					return SceneMergerNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "SDF_TEXTURE")					return SdfTextureNode::Create(vkCorePtr);
 
 	// Lighting
 	else if (vPluginNodeName == "LIGHT_GROUP")					return LightGroupNode::Create(vkCorePtr);

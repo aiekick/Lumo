@@ -27,7 +27,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/BaseRenderer.h>
+#include <Base/TaskRenderer.h>
 #include <Base/QuadShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
@@ -48,23 +48,24 @@ limitations under the License.
 
 #include <Interfaces/ModelInputInterface.h>
 #include <Interfaces/TextureOutputInterface.h>
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class ModelRendererModule_Mesh_Pass;
 class ModelRendererModule :
 	public NodeInterface,
-	public BaseRenderer,	
-	public TaskInterface,
+	public TaskRenderer,
 	public ModelInputInterface,
 	public TextureOutputInterface,
-	public GuiInterface
+	public GuiInterface,
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<ModelRendererModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
 	ct::cWeak<ModelRendererModule> m_This;
-
 	std::shared_ptr<ModelRendererModule_Mesh_Pass> m_ModelRendererModule_Mesh_Pass_Ptr = nullptr;
+	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
 	ModelRendererModule(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -86,6 +87,7 @@ public:
 
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

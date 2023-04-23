@@ -19,7 +19,7 @@ limitations under the License.
 #include <array>
 #include <memory>
 #include <ctools/ConfigAbstract.h>
-#include <Base/BaseRenderer.h>
+#include <Base/TaskRenderer.h>
 #include <Base/ShaderPass.h>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanRessource.h>
@@ -32,23 +32,23 @@ limitations under the License.
 #include <Interfaces/TextureOutputInterface.h>
 #include <Interfaces/ResizerInterface.h>
 #include <Interfaces/MergedInterface.h>
-
-
+#include <Interfaces/ShaderPassOutputInterface.h>
 
 class ChannelRenderer_Mesh_Pass;
 class ChannelRenderer :
-	public BaseRenderer,
+	public TaskRenderer,
 	public NodeInterface,
 	public GuiInterface,
 	public ModelInputInterface,
 	public TextureOutputInterface,
-	public TaskInterface
+	public ShaderPassOutputInterface
 {
 public:
 	static std::shared_ptr<ChannelRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<ChannelRenderer_Mesh_Pass> m_ChannelRenderer_Mesh_Pass_Ptr = nullptr;
+	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
 	ChannelRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -63,6 +63,7 @@ public:
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) override;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

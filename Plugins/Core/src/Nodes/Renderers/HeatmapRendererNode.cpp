@@ -19,6 +19,7 @@ limitations under the License.
 #include <Interfaces/ModelOutputInterface.h>
 #include <Graph/Slots/NodeSlotModelInput.h>
 #include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <Graph/Slots/NodeSlotShaderPassOutput.h>
 
 std::shared_ptr<HeatmapRendererNode> HeatmapRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
@@ -47,6 +48,7 @@ bool HeatmapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddInput(NodeSlotModelInput::Create("Model"), true, true);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
 	bool res = false;
 
@@ -141,6 +143,20 @@ vk::DescriptorImageInfo* HeatmapRendererNode::GetDescriptorImageInfo(const uint3
 	}
 
 	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneShaderPassWeak HeatmapRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+{
+	if (m_HeatmapRenderer)
+	{
+		return m_HeatmapRenderer->GetShaderPasses(vBindingPoint);
+	}
+
+	return SceneShaderPassWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

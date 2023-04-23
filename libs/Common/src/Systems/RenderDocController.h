@@ -16,6 +16,8 @@ public:
 	void Unit();
 
 	void RequestCapture();
+	bool IsCaptureRequested();
+	bool IsCaptureStarted();
 
 	void StartCaptureIfResquested();
 	void EndCaptureIfResquested();
