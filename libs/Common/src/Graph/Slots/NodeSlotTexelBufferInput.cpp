@@ -144,7 +144,7 @@ void NodeSlotTexelBufferInput::Unit()
 	}
 }
 
-void NodeSlotTexelBufferInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotTexelBufferInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)
@@ -168,7 +168,7 @@ void NodeSlotTexelBufferInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotTexelBufferInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotTexelBufferInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)

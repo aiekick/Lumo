@@ -127,7 +127,7 @@ void NodeSlotParticlesInput::Unit()
 	}
 }
 
-void NodeSlotParticlesInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotParticlesInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "PARTICLES")
 	{
@@ -147,7 +147,7 @@ void NodeSlotParticlesInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotParticlesInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotParticlesInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "PARTICLES")
 	{

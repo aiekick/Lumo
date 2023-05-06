@@ -581,7 +581,7 @@ void NodeSlot%sInput::Unit()
 	}
 }
 
-void NodeSlot%sInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlot%sInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)
@@ -599,7 +599,7 @@ void NodeSlot%sInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlot%sInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlot%sInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)
@@ -685,8 +685,8 @@ public:
 	void Init();
 	void Unit();
 
-	void Connect(NodeSlotWeak vOtherSlot) override;
-	void DisConnect(NodeSlotWeak vOtherSlot) override;
+	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
 	void TreatNotification(
 		NotifyEvent vEvent,

@@ -66,7 +66,7 @@ bool SceneMergerNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "Scene Merger";
 
-	AddInput(NodeSlotShaderPassInput::Create("Input", 0), false, false);
+	AddInput(NodeSlotShaderPassInput::Create("Input", 0), false, true);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
@@ -89,7 +89,7 @@ bool SceneMergerNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 
 	bool res = false;
 
-	//BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	if (m_SceneMergerModulePtr)
 	{
@@ -351,10 +351,13 @@ void SceneMergerNode::ReorganizeSlots()
 		auto scene_shader_passes = m_SceneMergerModulePtr->GetSceneShaderPasses();
 		for (auto idx : binding_points_arr)
 		{
-			scene_shader_passes.erase(scene_shader_passes.begin() + idx);
+			if (scene_shader_passes.size() > idx)
+			{
+				scene_shader_passes.erase(scene_shader_passes.begin() + idx);
+			}
 		}
 
 		// 4) ajotuer un slot vide avec l'id max_idx + 1
-		AddInput(NodeSlotShaderPassInput::Create("Input", max_idx + 1U), false, false);
+		AddInput(NodeSlotShaderPassInput::Create("Input", max_idx + 1U), false, true);
 	}
 }

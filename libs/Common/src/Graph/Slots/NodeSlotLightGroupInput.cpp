@@ -126,7 +126,7 @@ void NodeSlotLightGroupInput::Unit()
 	}
 }
 
-void NodeSlotLightGroupInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotLightGroupInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "LIGHT_GROUP")
 	{
@@ -146,7 +146,7 @@ void NodeSlotLightGroupInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotLightGroupInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotLightGroupInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "LIGHT_GROUP")
 	{

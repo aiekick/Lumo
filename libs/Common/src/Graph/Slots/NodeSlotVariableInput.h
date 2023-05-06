@@ -42,8 +42,8 @@ public:
 	void Init();
 	void Unit();
 
-	void Connect(NodeSlotWeak vOtherSlot) override;
-	void DisConnect(NodeSlotWeak vOtherSlot) override;
+	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
 	void TreatNotification(
 		const NotifyEvent& vEvent,

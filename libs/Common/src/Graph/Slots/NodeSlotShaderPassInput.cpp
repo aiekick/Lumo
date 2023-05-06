@@ -129,7 +129,7 @@ void NodeSlotShaderPassInput::Unit()
 	}
 }
 
-void NodeSlotShaderPassInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotShaderPassInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "SHADER_PASS")
 	{
@@ -158,7 +158,7 @@ void NodeSlotShaderPassInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotShaderPassInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotShaderPassInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "SHADER_PASS")
 	{

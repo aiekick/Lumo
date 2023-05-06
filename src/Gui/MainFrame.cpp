@@ -65,7 +65,7 @@ void MainFrame::Init()
 	LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::LEFT, 300.0f);
 	LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::RIGHT, 200.0f);
 
-	LayoutManager::Instance()->AddPane(DebugPane::Instance(), "Debug Pane", "", PaneDisposal::RIGHT, false, false);
+	LayoutManager::Instance()->AddPane(DebugPane::Instance(), "Debug Pane", "", PaneDisposal::CENTRAL, false, false);
 	LayoutManager::Instance()->AddPane(ScenePane::Instance(), "Scene Pane", "", PaneDisposal::RIGHT, false, false);
 
 	LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph Pane", "", PaneDisposal::CENTRAL, true, false);

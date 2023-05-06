@@ -150,7 +150,7 @@ void NodeSlotVariableInput::Unit()
 	}
 }
 
-void NodeSlotVariableInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotVariableInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)
@@ -171,7 +171,7 @@ void NodeSlotVariableInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotVariableInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotVariableInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)

@@ -129,7 +129,7 @@ void NodeSlotTextureInput::Unit()
 	}
 }
 
-void NodeSlotTextureInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotTextureInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "TEXTURE_2D")
 	{
@@ -159,7 +159,7 @@ void NodeSlotTextureInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotTextureInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotTextureInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "TEXTURE_2D")
 	{

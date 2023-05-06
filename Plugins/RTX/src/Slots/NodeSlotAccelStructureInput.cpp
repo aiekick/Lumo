@@ -127,7 +127,7 @@ void NodeSlotAccelStructureInput::Unit()
 	}
 }
 
-void NodeSlotAccelStructureInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotAccelStructureInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "RTX_ACCEL_STRUCTURE")
 	{
@@ -147,7 +147,7 @@ void NodeSlotAccelStructureInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotAccelStructureInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotAccelStructureInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "RTX_ACCEL_STRUCTURE")
 	{

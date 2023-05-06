@@ -126,7 +126,7 @@ void NodeSlotModelInput::Unit()
 	}
 }
 
-void NodeSlotModelInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotModelInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "MESH")
 	{
@@ -146,7 +146,7 @@ void NodeSlotModelInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotModelInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotModelInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "MESH")
 	{

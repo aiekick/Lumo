@@ -128,7 +128,7 @@ void NodeSlotSceneAudiArtInput::Unit()
 	}
 }
 
-void NodeSlotSceneAudiArtInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotSceneAudiArtInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)
@@ -146,7 +146,7 @@ void NodeSlotSceneAudiArtInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotSceneAudiArtInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotSceneAudiArtInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)

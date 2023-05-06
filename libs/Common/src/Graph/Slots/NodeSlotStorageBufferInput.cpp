@@ -144,7 +144,7 @@ void NodeSlotStorageBufferInput::Unit()
 	}
 }
 
-void NodeSlotStorageBufferInput::Connect(NodeSlotWeak vOtherSlot)
+void NodeSlotStorageBufferInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)
@@ -166,7 +166,7 @@ void NodeSlotStorageBufferInput::Connect(NodeSlotWeak vOtherSlot)
 	}
 }
 
-void NodeSlotStorageBufferInput::DisConnect(NodeSlotWeak vOtherSlot)
+void NodeSlotStorageBufferInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	auto endSlotPtr = vOtherSlot.getValidShared();
 	if (endSlotPtr)
