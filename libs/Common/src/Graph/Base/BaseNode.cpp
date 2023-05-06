@@ -881,7 +881,8 @@ bool BaseNode::DrawDebugInfos(BaseNodeState *vBaseNodeState)
 						auto pNodePtr = lslotPtr->parentNode.getValidShared();
 						if (pNodePtr)
 						{
-							ImGui::Text("Node %s", pNodePtr->name.c_str());
+							pNodePtr->DrawDebugInfos(vBaseNodeState);
+							//ImGui::Text("Node %s", pNodePtr->name.c_str());
 						}
 					}
 				}
@@ -2164,7 +2165,7 @@ void BaseNode::Add_VisualLink(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 	}
 }
 
-void BaseNode::Del_VisualLink(uint32_t vLinkId)
+bool BaseNode::Del_VisualLink(uint32_t vLinkId)
 {
 	if (m_Links.find(vLinkId) != m_Links.end())
 	{
@@ -2176,16 +2177,24 @@ void BaseNode::Del_VisualLink(uint32_t vLinkId)
 
 			if (inPtr && outPtr)
 			{
-				inPtr->linkedSlots.clear();
-				inPtr->connected = false;
-				m_LinksDico.erase((uint32_t)inPtr->pinID.Get());
-				
-				outPtr->linkedSlots.clear();
-				outPtr->connected = false;
-				m_LinksDico.erase((uint32_t)outPtr->pinID.Get());
-				
+				const auto& inPinID = (uint32_t)inPtr->pinID.Get();
+				const auto& outPinID = (uint32_t)outPtr->pinID.Get();
+
+				inPtr->RemoveConnectedSlot(outPtr);
+				m_LinksDico.erase(inPinID);
+
+				outPtr->RemoveConnectedSlot(inPtr);
+				m_LinksDico.erase(outPinID);
+
 				m_Links.erase(vLinkId);
+
+				return true;
 			}
+		}
+		else
+		{
+			CTOOL_DEBUG_BREAK;
+			LogVarDebug("Link id %i in or out is expired", vLinkId);
 		}
 	}
 	else
@@ -2193,6 +2202,8 @@ void BaseNode::Del_VisualLink(uint32_t vLinkId)
 		CTOOL_DEBUG_BREAK;
 		LogVarDebug("Link id %i not found", vLinkId);
 	}
+
+	return false;
 }
 
 void BaseNode::Break_VisualLinks_ConnectedToSlot(NodeSlotWeak vSlot)
@@ -2351,11 +2362,13 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 		}
 		else
 		{
+			CTOOL_DEBUG_BREAK;
 			LogVarDebug("Le node parent du slot 'From' et 'to' est vide");
 		}
 	}
 	else
 	{
+		CTOOL_DEBUG_BREAK;
 		LogVarDebug("l'un des from et to ne peut pas etre locked");
 	}
 
@@ -2468,8 +2481,8 @@ bool BaseNode::ConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 	auto endPtr = vEnd.getValidShared();
 	if (startPtr && endPtr)
 	{
-		startPtr->Connect(vEnd);
-		endPtr->Connect(vStart);
+		startPtr->OnConnectEvent(vEnd);
+		endPtr->OnConnectEvent(vStart);
 
 		/*auto nodeStartPtr = startPtr->parentNode.getValidShared();
 		auto nodeEndPtr = endPtr->parentNode.getValidShared();
@@ -2497,8 +2510,8 @@ bool BaseNode::DisConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 	auto endPtr = vEnd.getValidShared();
 	if (startPtr && endPtr)
 	{
-		startPtr->DisConnect(vEnd);
-		endPtr->DisConnect(vStart);
+		startPtr->OnDisConnectEvent(vEnd);
+		endPtr->OnDisConnectEvent(vStart);
 
 		/*auto nodeStartPtr = startPtr->parentNode.getValidShared();
 		auto nodeEndPtr = endPtr->parentNode.getValidShared();

@@ -497,7 +497,7 @@ public: // Get Links / Slots
 
 public: // ADD/DELETE VISUAL LINKS (NO CHANGE BEHIND)
 	void Add_VisualLink(NodeSlotWeak vStart, NodeSlotWeak vEnd);
-	void Del_VisualLink(uint32_t vLinkId);
+	bool Del_VisualLink(uint32_t vLinkId);
 	void Break_VisualLinks_ConnectedToSlot(NodeSlotWeak vSlot);
 	void Break_VisualLink_ConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo);
 	

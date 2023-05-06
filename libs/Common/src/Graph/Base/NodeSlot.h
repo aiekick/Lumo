@@ -162,16 +162,18 @@ public:
 	void SendNotification(const std::string& vSlotType, const NotifyEvent& vEvent);
 
 	/// <summary>
-	/// When a Connect event is detected (to be herited)
+	/// When a OnConnectEvent event is detected (to be herited)
 	/// </summary>
-	/// <param name="vOtherSlot">the slot to Connect to</param>
-	virtual void Connect(NodeSlotWeak vOtherSlot);
+	/// <param name="vOtherSlot">the slot to OnConnectEvent to</param>
+	/// todo : to rename in onConnectEvent
+	virtual void OnConnectEvent(NodeSlotWeak vOtherSlot);
 
 	/// <summary>
-	/// When a DisConnect event is detected (to be herited)
+	/// When a OnDisConnectEvent event is detected (to be herited)
 	/// </summary>
-	/// <param name="vOtherSlot">the slot to DisConnect to</param>
-	virtual void DisConnect(NodeSlotWeak vOtherSlot);
+	/// <param name="vOtherSlot">the slot to OnDisConnectEvent to</param>
+	/// todo : to rename in onDisConnectEvent
+	virtual void OnDisConnectEvent(NodeSlotWeak vOtherSlot);
 
 	/// <summary>
 	/// Treat an event (to be herited)
@@ -198,6 +200,12 @@ public:
 	/// </summary>
 	/// <param name="vMouseButton"></param>
 	virtual void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton);
+
+	/// <summary>
+	/// will remove the slot from the list linekdSLots
+	/// </summary>
+	/// <param name="vOtherSlot"></param>
+	void RemoveConnectedSlot(NodeSlotWeak vOtherSlot);
 
 	void DrawDebugInfos();
 

@@ -63,7 +63,7 @@ void SlotColor::AddSlotColor(const std::string& vNodeSlotType, const ImVec4& vSl
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotWeak NodeSlot::sSlotGraphOutputMouseLeft; 
+NodeSlotWeak NodeSlot::sSlotGraphOutputMouseLeft;
 ImVec4 NodeSlot::sSlotGraphOutputMouseLeftColor;
 NodeSlotWeak NodeSlot::sSlotGraphOutputMouseMiddle;
 ImVec4 NodeSlot::sSlotGraphOutputMouseMiddleColor;
@@ -169,7 +169,7 @@ NodeSlot::~NodeSlot() = default;
 
 void NodeSlot::Init()
 {
-	
+
 }
 
 void NodeSlot::Unit()
@@ -261,7 +261,7 @@ std::vector<NodeSlotWeak> NodeSlot::InjectTypeInSlot(uType::uTypeEnum vType)
 	return res;
 }
 
-void NodeSlot::DrawContent(BaseNodeState *vBaseNodeState)
+void NodeSlot::DrawContent(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && !hidden)
 	{
@@ -270,10 +270,10 @@ void NodeSlot::DrawContent(BaseNodeState *vBaseNodeState)
 			nd::BeginPin(pinID, nd::PinKind::Input);
 			{
 				ImGui::BeginHorizontal(pinID.AsPointer());
-				
+
 				nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
 				nd::PinPivotSize(ImVec2(0, 0));
-				
+
 				DrawSlot(vBaseNodeState, ImVec2(slotIconSize, slotIconSize));
 
 				if (showWidget)
@@ -312,7 +312,7 @@ void NodeSlot::DrawContent(BaseNodeState *vBaseNodeState)
 				nd::PinPivotSize(ImVec2(0, 0));
 
 				DrawSlot(vBaseNodeState, ImVec2(slotIconSize, slotIconSize));
-				
+
 				ImGui::EndHorizontal();
 			}
 			nd::EndPin();
@@ -320,7 +320,7 @@ void NodeSlot::DrawContent(BaseNodeState *vBaseNodeState)
 	}
 }
 
-void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset)
+void NodeSlot::DrawSlot(BaseNodeState* vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset)
 {
 	if (vBaseNodeState)
 	{
@@ -347,7 +347,7 @@ void NodeSlot::DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 			}
 
 			auto u_color = ImGui::GetColorU32(color);
-			
+
 			auto draw_list = ImGui::GetWindowDrawList();
 			if (draw_list)
 			{
@@ -473,17 +473,17 @@ void NodeSlot::SendNotification(const std::string& vSlotType, const NotifyEvent&
 	}
 }
 
-void NodeSlot::Connect(NodeSlotWeak /*vOtherSlot*/)
+void NodeSlot::OnConnectEvent(NodeSlotWeak /*vOtherSlot*/)
 {
 #ifdef _DEBUG
-	//LogVarInfo("NodeSlot::Connect catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+	//LogVarInfo("NodeSlot::OnConnectEvent catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 #endif
 }
 
-void NodeSlot::DisConnect(NodeSlotWeak /*vOtherSlot*/)
+void NodeSlot::OnDisConnectEvent(NodeSlotWeak /*vOtherSlot*/)
 {
 #ifdef _DEBUG
-	//LogVarInfo("NodeSlot::DisConnect catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
+	//LogVarInfo("NodeSlot::OnDisConnectEvent catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 #endif
 }
 
@@ -518,6 +518,39 @@ void NodeSlot::MouseDoubleClickedOnSlot(const ImGuiMouseButton& /*vMouseButton*/
 #endif
 }
 
+void NodeSlot::RemoveConnectedSlot(NodeSlotWeak vOtherSlot)
+{
+	auto ptr = vOtherSlot.lock();
+	if (ptr)
+	{
+		auto it = linkedSlots.begin();
+		for (; it != linkedSlots.end(); ++it) 
+		{
+			auto it_ptr = it->lock();
+			if (it_ptr && it_ptr == ptr) 
+			{
+				break;
+			}
+		}
+
+		// found we erase it
+		if (it != linkedSlots.end())
+		{
+			linkedSlots.erase(it);
+
+			if (linkedSlots.empty())
+			{
+				connected = false;
+			}
+		}
+		else
+		{
+			CTOOL_DEBUG_BREAK;
+			LogVarError("Connected slot not found");
+		}
+	}
+}
+
 void NodeSlot::DrawDebugInfos()
 {
 	ImGui::Text("--------------------");
@@ -530,7 +563,7 @@ void NodeSlot::DrawDebugInfos()
 //// PRIVATE /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void NodeSlot::DrawInputWidget(BaseNodeState *vBaseNodeState)
+void NodeSlot::DrawInputWidget(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && !parentNode.expired())
 	{
@@ -543,7 +576,7 @@ void NodeSlot::DrawInputWidget(BaseNodeState *vBaseNodeState)
 	}
 }
 
-void NodeSlot::DrawOutputWidget(BaseNodeState *vBaseNodeState)
+void NodeSlot::DrawOutputWidget(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && !parentNode.expired())
 	{
@@ -601,7 +634,7 @@ void NodeSlot::DrawSlotText(ImDrawList* /*vDrawList*/, ImVec2 /*vCenter*/, BaseN
 				size_t len = slotName.length();
 				if (len > 0)
 				{
-					const char *beg = slotName.c_str();
+					const char* beg = slotName.c_str();
 					ImVec2 txtSize = ImGui::CalcTextSize(beg);
 					ImVec2 min = ImVec2(pos.x - slotIconSize * 0.5f - txtSize.x, pos.y - slotIconSize * 0.5f);
 					ImVec2 max = min + ImVec2(txtSize.x, slotIconSize);
@@ -620,7 +653,7 @@ void NodeSlot::DrawSlotText(ImDrawList* /*vDrawList*/, ImVec2 /*vCenter*/, BaseN
 				size_t len = slotName.length();
 				if (len > 0)
 				{
-					const char *beg = slotName.c_str();
+					const char* beg = slotName.c_str();
 					ImVec2 txtSize = ImGui::CalcTextSize(beg);
 					ImVec2 min = ImVec2(pos.x + slotIconSize * 0.5f, pos.y - slotIconSize * 0.5f);
 					ImVec2 max = min + ImVec2(txtSize.x, slotIconSize);
@@ -631,7 +664,7 @@ void NodeSlot::DrawSlotText(ImDrawList* /*vDrawList*/, ImVec2 /*vCenter*/, BaseN
 		}
 	}
 }
-void NodeSlot::DrawNodeSlot(ImDrawList *vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor)
+void NodeSlot::DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor)
 {
 	UNUSED(vInnerColor);
 	UNUSED(vConnected);
@@ -641,7 +674,7 @@ void NodeSlot::DrawNodeSlot(ImDrawList *vDrawList, ImVec2 vCenter, BaseNodeState
 		const auto slotRadius = vBaseNodeState->graphStyle.SLOT_RADIUS;
 
 		vDrawList->AddNgonFilled(vCenter, slotRadius, vColor, 24);
-		
+
 		if (ImGui::IsItemHovered())
 		{
 			ImVec4 _color = ImGui::ColorConvertU32ToFloat4(vColor); _color.w = 0.5f;
@@ -725,8 +758,8 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 		}
 
 		if (index == _index &&
-			slotType == _type && 
-			slotPlace == _place && 
+			slotType == _type &&
+			slotPlace == _place &&
 			!idAlreadySetbyXml)
 		{
 
@@ -738,7 +771,7 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 
 			return false;
 		}
-	}	
+	}
 
 	return true;
 }
