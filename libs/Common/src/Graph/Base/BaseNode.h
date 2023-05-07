@@ -189,7 +189,7 @@ public:
 	BaseNodeWeak m_GraphRoot2DNode;
 
 public: // links
-	std::unordered_map<uint32_t, std::shared_ptr<NodeLink>> m_Links; // linkId, link // for search query
+	std::unordered_map<uint32_t, NodeLinkPtr> m_Links; // linkId, link // for search query
 	std::unordered_map<uint32_t, std::set<uint32_t>> m_LinksDico; // NodeSlot Ptr, linkId // for search query
 
 public: // static
@@ -416,7 +416,7 @@ public:
 	BaseNodeWeak FindNode(nd::NodeId vId);
 	BaseNodeWeak FindNodeByName(std::string vName);
 	std::vector<BaseNodeWeak> GetPublicNodes();		// les Public nodes sont les nodes exposé dans le parents, c'est PUBLIC_ puis non du node
-	ct::cWeak<NodeLink> FindLink(nd::LinkId vId);
+	NodeLinkWeak FindLink(nd::LinkId vId);
 	NodeSlotWeak FindSlot(nd::PinId vId);
 	NodeSlotWeak FindNodeSlotByName(BaseNodeWeak vNode, std::string vName);
 	NodeSlotWeak FindNodeSlotById(nd::NodeId vNodeId, nd::PinId vSlotId);
@@ -492,24 +492,29 @@ private: // utils
 	std::string GetAvailableNodeStamp(const std::string& vNodeStamp);
 
 public: // Get Links / Slots
-	std::vector<ct::cWeak<NodeLink>> GetLinksAssociatedToSlot(NodeSlotWeak vSlot);
+	std::vector<NodeLinkWeak> GetLinksAssociatedToSlot(NodeSlotWeak vSlot);
 	std::vector<NodeSlotWeak> GetSlotsAssociatedToSlot(NodeSlotWeak vSlot);
 
-public: // ADD/DELETE VISUAL LINKS (NO CHANGE BEHIND)
-	void Add_VisualLink(NodeSlotWeak vStart, NodeSlotWeak vEnd);
-	bool Del_VisualLink(uint32_t vLinkId);
-	void Break_VisualLinks_ConnectedToSlot(NodeSlotWeak vSlot);
-	void Break_VisualLink_ConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo);
+public: // ADD/DELETE LINKS
+	void AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd);
+	bool BreakLink(uint32_t vLinkId);
+	void BreakLinksConnectedToSlot(NodeSlotWeak vSlot);
+	void BreakLinkConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo);
 	
 public: // CONNECT / DISCONNECT SLOTS BEHIND
 	bool ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo);
-	bool DisConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo);
+
+	/// <summary>
+	/// disconnect all links from slot
+	/// </summary>
+	/// <param name="vSlot">the slot to disconnect</param>
+	/// <returns></returns>
 	bool DisConnectSlot(NodeSlotWeak vSlot);
 	virtual void NotifyConnectionChangeOfThisSlot(NodeSlotWeak vSlot, bool vConnected); // ce solt a été connecté/déconnecté
 
-private:
-	bool ConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd);
-	bool DisConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd);
+private: // connect / disconnect events
+	bool CallSlotsOnConnectEvent(NodeSlotWeak vStart, NodeSlotWeak vEnd);
+	bool CallSlotsOnDisConnectEvent(NodeSlotWeak vStart, NodeSlotWeak vEnd);
 
 public: // test if slot connection possible for have rule node
 	virtual bool CanWeConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo);

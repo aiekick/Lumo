@@ -854,25 +854,16 @@ void BaseNode::DrawLinks(BaseNodeState *vBaseNodeState)
 bool BaseNode::DrawDebugInfos(BaseNodeState *vBaseNodeState)
 {
 	UNUSED(vBaseNodeState);
-	ImGui::Separator();
-
-
-	ImGui::Text("Name : %s", name.c_str());
-	ImGui::Text("Type : %s", m_NodeTypeString.c_str());
 	
-	ImGui::Separator();
-
 	if (!m_Inputs.empty())
 	{
-		if (ImGui::TreeNode("Inputs :"))
+		ImGui::SetNextItemOpen(true);
+
+		if (ImGui::TreeNode(this, "%s (%s)", name.c_str(), m_NodeTypeString.c_str()))
 		{
 			ImGui::Indent();
 			for (auto & uni : m_Inputs) // input calls
 			{
-				ImGui::Text("Name : %s", uni.second->name.c_str());
-				ImGui::Text("Type : %s", uni.second->slotType.c_str());
-				ImGui::Text("Count connections : %u", (uint32_t)uni.second->linkedSlots.size());
-				ImGui::Indent();
 				for (const auto& lslot : uni.second->linkedSlots)
 				{
 					auto lslotPtr = lslot.getValidShared();
@@ -882,50 +873,29 @@ bool BaseNode::DrawDebugInfos(BaseNodeState *vBaseNodeState)
 						if (pNodePtr)
 						{
 							pNodePtr->DrawDebugInfos(vBaseNodeState);
-							//ImGui::Text("Node %s", pNodePtr->name.c_str());
 						}
 					}
 				}
-				ImGui::Unindent();
-				ImGui::Text("--------------------");
 			}
 			ImGui::Unindent();
 
 			ImGui::TreePop();
 		}
 	}
+	else
+	{
+		ImGui::Text("%s (%s)", name.c_str(), m_NodeTypeString.c_str());
+	}
 
 	if (!m_Outputs.empty())
 	{
-		if (ImGui::TreeNode("Outputs :"))
+		uint32_t idx = 0U;
+		ImGui::Indent();
+		for (auto & uni : m_Outputs) // ouput calls
 		{
-			ImGui::Indent();
-			for (auto & uni : m_Outputs) // input calls
-			{
-				ImGui::Text("Name : %s", uni.second->name.c_str());
-				ImGui::Text("Type : %s", uni.second->slotType.c_str());
-				ImGui::Text("Count connections : %u", (uint32_t)uni.second->linkedSlots.size());
-				ImGui::Indent();
-				for (auto lslot : uni.second->linkedSlots)
-				{
-					auto lslotPtr = lslot.getValidShared();
-					if (lslotPtr)
-					{
-						auto pNodePtr = lslotPtr->parentNode.getValidShared();
-						if (pNodePtr)
-						{
-							ImGui::Text("Node %s", pNodePtr->name.c_str());
-						}
-					}
-				}
-				ImGui::Unindent();
-				ImGui::Text("--------------------");
-				ImGui::Separator();
-			}
-			ImGui::Unindent();
-
-			ImGui::TreePop();
+			ImGui::Text("Out %u => linked to %u", idx++, (uint32_t)uni.second->linkedSlots.size());
 		}
+		ImGui::Unindent();
 	}
 
 	return true;
@@ -1277,7 +1247,7 @@ std::vector<BaseNodeWeak> BaseNode::GetPublicNodes()
 	return res;
 }
 
-ct::cWeak<NodeLink> BaseNode::FindLink(nd::LinkId vId)
+NodeLinkWeak BaseNode::FindLink(nd::LinkId vId)
 {
 	UNUSED(vId);
 
@@ -1289,7 +1259,7 @@ ct::cWeak<NodeLink> BaseNode::FindLink(nd::LinkId vId)
 		}
 	}
 
-	return ct::cWeak<NodeLink>();
+	return NodeLinkWeak();
 }
 
 NodeSlotWeak BaseNode::FindSlot(nd::PinId vId)
@@ -1543,8 +1513,7 @@ void BaseNode::DoDeleteLinkOrNode(BaseNodeState *vBaseNodeState)
 					{
 						auto in = m_Links[id]->in;
 						auto out = m_Links[id]->out;
-						Del_VisualLink(id);
-						DisConnectSlots(in, out);
+						BreakLink(id);
 					}
 				}
 			}
@@ -2089,9 +2058,9 @@ void BaseNode::DoLayout()
 //// GET LINKS / SLOTS ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::vector<ct::cWeak<NodeLink>> BaseNode::GetLinksAssociatedToSlot(NodeSlotWeak vSlot)
+std::vector<NodeLinkWeak> BaseNode::GetLinksAssociatedToSlot(NodeSlotWeak vSlot)
 {
-	std::vector<ct::cWeak<NodeLink>> res;
+	std::vector<NodeLinkWeak> res;
 
 	if (!vSlot.expired())
 	{
@@ -2137,7 +2106,7 @@ std::vector<NodeSlotWeak> BaseNode::GetSlotsAssociatedToSlot(NodeSlotWeak vSlot)
 //// ADD/DELETE VISUAL LINKS (NO CHANGE BEHIND) //////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BaseNode::Add_VisualLink(NodeSlotWeak vStart, NodeSlotWeak vEnd)
+void BaseNode::AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 {
 	if (!vStart.expired() && 
 		!vEnd.expired())
@@ -2162,10 +2131,20 @@ void BaseNode::Add_VisualLink(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 			m_LinksDico[(uint32_t)startPtr->pinID.Get()].emplace(m_Links[link.linkId]->linkId);
 			m_LinksDico[(uint32_t)endPtr->pinID.Get()].emplace(m_Links[link.linkId]->linkId);
 		}
+		else
+		{
+			CTOOL_DEBUG_BREAK;
+			LogVarDebug("slot start or end cant be locked");
+		}
+	}
+	else
+	{
+		CTOOL_DEBUG_BREAK;
+		LogVarDebug("slot start or end is expired");
 	}
 }
 
-bool BaseNode::Del_VisualLink(uint32_t vLinkId)
+bool BaseNode::BreakLink(uint32_t vLinkId)
 {
 	if (m_Links.find(vLinkId) != m_Links.end())
 	{
@@ -2206,7 +2185,7 @@ bool BaseNode::Del_VisualLink(uint32_t vLinkId)
 	return false;
 }
 
-void BaseNode::Break_VisualLinks_ConnectedToSlot(NodeSlotWeak vSlot)
+void BaseNode::BreakLinksConnectedToSlot(NodeSlotWeak vSlot)
 {
 	if (!vSlot.expired())
 	{
@@ -2220,18 +2199,29 @@ void BaseNode::Break_VisualLinks_ConnectedToSlot(NodeSlotWeak vSlot)
 				auto linkIds = m_LinksDico[pinId]; // link Ptr pointe sur une entrée de m_Links
 				for (auto lid : linkIds)
 				{
-					Del_VisualLink(lid);
+					BreakLink(lid);
 				}
 			}
 			else
 			{
 				CTOOL_DEBUG_BREAK;
+				LogVarDebug("Link id %u in or out is expired", pinId);
 			}
 		}
+		else
+		{
+			CTOOL_DEBUG_BREAK;
+			LogVarDebug("slot cant be locked");
+		}
+	}
+	else
+	{
+		CTOOL_DEBUG_BREAK;
+		LogVarDebug("slot is expired");
 	}
 }
 
-void BaseNode::Break_VisualLink_ConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
+void BaseNode::BreakLinkConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 {
 	if (!vFrom.expired() &&
 		!vTo.expired())
@@ -2248,7 +2238,6 @@ void BaseNode::Break_VisualLink_ConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWea
 				m_LinksDico.find(endPinId) != m_LinksDico.end()) // trouve
 			{
 				// find link between vFrom and vTo
-				uint32_t foundId = 0;
 				auto fromLinks = m_LinksDico[fromPinId];
 				auto toLinks = m_LinksDico[endPinId];
 				for (auto fid : fromLinks)
@@ -2257,29 +2246,30 @@ void BaseNode::Break_VisualLink_ConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWea
 					{
 						if (tid == fid)
 						{
-							foundId = tid;
-							break;
+							BreakLink(tid);
+							fromPtr->NotifyConnectionChangeToParent(true);
+							toPtr->NotifyConnectionChangeToParent(true);
+							return;
 						}
 					}
-					if (foundId)
-						break;
-				}
-
-				// delete link visually
-				if (foundId)
-				{
-					Del_VisualLink(foundId);
 				}
 			}
 			else
 			{
-				//CTOOL_DEBUG_BREAK;
+				CTOOL_DEBUG_BREAK;
+				LogVarDebug("no link found with 'from id' or 'to id'");
 			}
-
-			// averti le parent que les slot on changé leur statut de connection
-			fromPtr->NotifyConnectionChangeToParent(true);
-			toPtr->NotifyConnectionChangeToParent(true);
 		}
+		else
+		{
+			CTOOL_DEBUG_BREAK;
+			LogVarDebug("from or to cant be locked");
+		}
+	}
+	else
+	{
+		CTOOL_DEBUG_BREAK;
+		LogVarDebug("from or to is expired");
 	}
 }
 
@@ -2312,21 +2302,28 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 			if (toPtr->CanWeConnectToSlot(fromPtr))
 			{
 				//LogVarDebug("Connection Success from %s to %s", fromParentNodePtr->name.c_str(), toParentNodePtr->name.c_str());
-								
-				// un output peut etre connecté a plusieurs inputs
-				// un input ne peut etre connecté qu'a un seul output
+						
+				// si un seul link par input est autorisé
+				// alors on detruit ceux qui y sont attaché 
+				// avant d'ne ajouter un
 				if (toPtr->IsAnInput())
 				{
-					DestroySlotOfAnyMap(toPtr);
+					if (!toPtr->acceptManyInputs) 
+					{
+						DisConnectSlot(toPtr);
+					}
 				}
 				else if (fromPtr->IsAnInput())
 				{
-					DestroySlotOfAnyMap(fromPtr);
+					if (!fromPtr->acceptManyInputs)
+					{
+						DisConnectSlot(toPtr);
+					}
 				}
 
-				Add_VisualLink(fromPtr, toPtr);
+				AddLink(fromPtr, toPtr);
 
-				ConnectNodeSlots(fromPtr, toPtr);
+				CallSlotsOnConnectEvent(fromPtr, toPtr);
 
 				// averti le parent que les slot on changé leur statut de connection
 				fromPtr->NotifyConnectionChangeToParent(true);
@@ -2334,11 +2331,10 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 
 				res = true;
 			}
-					
-			if (!res)
+			else
 			{
-				std::string fromTypeStr = uType::ConvertUniformsTypeEnumToString(fromPtr->type);
-				std::string toTypeStr = uType::ConvertUniformsTypeEnumToString(toPtr->type);
+				const std::string& fromTypeStr = uType::ConvertUniformsTypeEnumToString(fromPtr->type);
+				const std::string& toTypeStr = uType::ConvertUniformsTypeEnumToString(toPtr->type);
 
 				if (!fromParentNodePtr->m_ParentNode.expired())
 				{
@@ -2383,21 +2379,13 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 	return res;
 }
 
-bool BaseNode::DisConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
-{
-	Break_VisualLink_ConnectedToSlots(vFrom, vTo);
-	DisConnectNodeSlots(vFrom, vTo);
-
-	return true;
-}
-
 bool BaseNode::DisConnectSlot(NodeSlotWeak vSlot)
 {
 	auto slots = GetSlotsAssociatedToSlot(vSlot);
 	for (const auto& slotPtr : slots)
 	{
-		Break_VisualLink_ConnectedToSlots(vSlot, slotPtr);
-		DisConnectNodeSlots(vSlot, slotPtr);
+		BreakLinkConnectedToSlots(vSlot, slotPtr);
+		CallSlotsOnDisConnectEvent(vSlot, slotPtr);
 	}
 
 	return true;
@@ -2473,7 +2461,7 @@ void BaseNode::NotifyConnectionChangeOfThisSlot(NodeSlotWeak vSlot, bool vConnec
 //// PRIVATE /////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BaseNode::ConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
+bool BaseNode::CallSlotsOnConnectEvent(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 {
 	bool res = false;
 
@@ -2504,7 +2492,7 @@ bool BaseNode::ConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 	return res;
 }
 
-bool BaseNode::DisConnectNodeSlots(NodeSlotWeak vStart, NodeSlotWeak vEnd)
+bool BaseNode::CallSlotsOnDisConnectEvent(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 {
 	auto startPtr = vStart.getValidShared();
 	auto endPtr = vEnd.getValidShared();
@@ -2557,10 +2545,7 @@ bool BaseNode::CanWeConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 			if (fromParentPtr && toParentPtr && 
 				fromParentPtr != toParentPtr) // not same node
 			{
-				if (fromPtr->slotType == toPtr->slotType) // same slot type
-				{
-					return true;
-				}
+				return (fromPtr->slotType == toPtr->slotType); // same slot type
 			}
 		}
 	}
