@@ -206,7 +206,7 @@ void GraphPane::AddGraphPane(BaseNodeWeak vNodeGraphToShow)
 			{
 				m_GraphPanes.emplace_back(vNodeGraphToShow, true);
 				nodePtr->InitGraph();
-				nodePtr->uniquePaneId = nodePtr->name + "##" + ct::toStr((int)nodePtr->nodeID.Get());
+				nodePtr->uniquePaneId = nodePtr->name + "##" + ct::toStr((int)nodePtr->GetNodeID());
 				LayoutManager::Instance()->AddSpecificPaneToExisting(nodePtr->uniquePaneId.c_str(), m_PaneName);
 			}
 

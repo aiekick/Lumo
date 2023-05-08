@@ -265,20 +265,18 @@ void SceneMergerModule::SetTexture(const uint32_t& vBindingPoint, vk::Descriptor
 	ZoneScoped;
 }
 
-void SceneMergerModule::SetShaderPasses(const uint32_t& vBindingPoint, SceneShaderPassWeak vShaderPasses)
+void SceneMergerModule::SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vShaderPasses)
 {
 	ZoneScoped;
 
 	if (m_FrameBufferPtr)
 	{
-		// todo : il faut que le slot output de type SceneShaderPass soit unique
-		// vu qu'une connexion provoque la reconstruction du pipeline avec la nouvelle renderpass dans la ShaderPass
-		if (m_SceneShaderPasses.size() > vBindingPoint)
+		if (m_SceneShaderPassContainer.find(vSlotID) != m_SceneShaderPassContainer.end())
 		{
 			// il faut rediriger la pass vers son FBO natif
-			if (vShaderPasses.expired() && !m_SceneShaderPasses[vBindingPoint].expired())
+			if (vShaderPasses.expired() && !m_SceneShaderPassContainer.at(vSlotID).expired())
 			{
-				auto scene_pass_ptr = m_SceneShaderPasses[vBindingPoint].getValidShared();
+				auto scene_pass_ptr = m_SceneShaderPassContainer.at(vSlotID).getValidShared();
 				if (scene_pass_ptr)
 				{
 					for (auto pass : *scene_pass_ptr)
@@ -291,60 +289,54 @@ void SceneMergerModule::SetShaderPasses(const uint32_t& vBindingPoint, SceneShad
 					}
 				}
 			}
+		}
 
-			// on rempalce la passe, ici la passe peut etre vide
-			m_SceneShaderPasses[vBindingPoint] = vShaderPasses;
+		m_JustDeletedSceneShaderPassSlots.clear();
+
+		// on ajoute ou remplace la passe, ici la passe peut etre vide
+		if (vShaderPasses.expired())
+		{
+			if (m_SceneShaderPassContainer.find(vSlotID) != m_SceneShaderPassContainer.end())
+			{
+				m_SceneShaderPassContainer.erase(vSlotID);
+				m_JustDeletedSceneShaderPassSlots.push_back(vSlotID);
+			}
 		}
 		else
 		{
-			// on ajoute la pass
-			m_SceneShaderPasses.push_back(vShaderPasses);
+			m_SceneShaderPassContainer[vSlotID] = vShaderPasses;
 		}
 
-		// erase empty pass
-		ClearEmptySceneShaderPasses();
-
 		// rebuilds shader_passes vector
-		m_ShaderPasses.clear();
+		BaseRenderer::m_ShaderPasses.clear();
 
 		// iterate over scene shader passes
 		// and add child passes to BaseRenderer::m_ShaderPasses
-		for (auto scene_pass : m_SceneShaderPasses)
+		// but if many pass are the sam, we must have only one rendering for perf
+		std::set<ShaderPassWeak> m_unique_passes;
+		for (auto scene_pass : m_SceneShaderPassContainer)
 		{
-			auto scene_pass_ptr = scene_pass.getValidShared();
+			auto scene_pass_ptr = scene_pass.second.getValidShared();
 			if (scene_pass_ptr)
 			{
 				for (auto pass : *scene_pass_ptr)
 				{
 					auto pass_ptr = pass.getValidShared();
-					if (pass_ptr)
+					if (pass_ptr && 
+						m_unique_passes.find(pass_ptr) == m_unique_passes.end()) // to be sure than no identic pass was inserted before
 					{
+						// add to set for "already exisiting" test
+						m_unique_passes.emplace(pass_ptr);
+
+						// piloted pass, will rebuild the pass pipeline
 						pass_ptr->SetRenderPass(m_FrameBufferPtr->GetRenderPass());
+
+						// add the pass for this module
 						AddGenericPass(pass_ptr);
 					}
 				}
 			}
 		}
-	}
-}
-
-void SceneMergerModule::ClearEmptySceneShaderPasses()
-{
-	std::vector<size_t> arr;
-
-	size_t idx = 0U;
-	for (auto pass : m_SceneShaderPasses)
-	{
-		if (pass.expired())
-		{
-			arr.push_back(idx);
-		}
-		++idx;
-	}
-
-	for (auto index : arr)
-	{
-		m_SceneShaderPasses.erase(m_SceneShaderPasses.begin() + index);
 	}
 }
 
@@ -369,11 +361,16 @@ vk::DescriptorImageInfo* SceneMergerModule::GetDescriptorImageInfo(const uint32_
 	return nullptr;
 }
 
-std::vector<SceneShaderPassWeak>& SceneMergerModule::GetSceneShaderPasses()
+SceneShaderPassContainer& SceneMergerModule::GetSceneShaderPassContainerRef()
 {
 	ZoneScoped;
 
-	return m_SceneShaderPasses;
+	return m_SceneShaderPassContainer;
+}
+
+const std::vector<uint32_t>& SceneMergerModule::GetJustDeletedSceneShaderPassSlots() const
+{
+	return m_JustDeletedSceneShaderPassSlots;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

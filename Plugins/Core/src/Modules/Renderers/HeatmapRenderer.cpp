@@ -175,7 +175,7 @@ vk::DescriptorImageInfo* HeatmapRenderer::GetDescriptorImageInfo(const uint32_t&
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak HeatmapRenderer::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak HeatmapRenderer::GetShaderPasses(const uint32_t& vSlotID)
 {
 	return m_SceneShaderPassPtr;
 }

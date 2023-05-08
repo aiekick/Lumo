@@ -216,6 +216,9 @@ bool NodeManager::LoadNodeFromXML(
 			}*/
 
 			m_RootNodePtr->AddChildNode(nodePtr);
+
+			nodePtr->BeforeNodeXmlLoading();
+
 			nodePtr->RecursParsingConfigChilds(vElem);
 			nd::SetNodePosition(vNodeId, nodePtr->pos);
 

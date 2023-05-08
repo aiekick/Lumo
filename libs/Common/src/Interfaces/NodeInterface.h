@@ -44,6 +44,9 @@ public:
 		return false; 
 	}
 
-	// wbehn XML loading of the node is finished
+	// when XML loading of the node will began
+	virtual void BeforeNodeXmlLoading() {}
+
+	// when XML loading of the node is finished
 	virtual void AfterNodeXmlLoading() {}
 };

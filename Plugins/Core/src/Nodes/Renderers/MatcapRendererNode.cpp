@@ -162,11 +162,11 @@ vk::DescriptorImageInfo* MatcapRendererNode::GetDescriptorImageInfo(const uint32
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak MatcapRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak MatcapRendererNode::GetShaderPasses(const uint32_t& vSlotID)
 {
 	if (m_MatcapRenderer)
 	{
-		return m_MatcapRenderer->GetShaderPasses(vBindingPoint);
+		return m_MatcapRenderer->GetShaderPasses(vSlotID);
 	}
 
 	return SceneShaderPassWeak();
@@ -190,7 +190,7 @@ std::string MatcapRendererNode::getXml(const std::string& vOffset, const std::st
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
 		for (auto slot : m_Inputs)
 		{

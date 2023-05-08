@@ -36,23 +36,23 @@ NodeSlotShaderPassInputPtr NodeSlotShaderPassInput::Create(NodeSlotShaderPassInp
 	return res;
 }
 
-NodeSlotShaderPassInputPtr NodeSlotShaderPassInput::Create(const std::string& vName, const uint32_t& vBindingPoint)
+NodeSlotShaderPassInputPtr NodeSlotShaderPassInput::Create(const std::string& vName)
 {
-	auto res = std::make_shared<NodeSlotShaderPassInput>(vName, vBindingPoint);
+	auto res = std::make_shared<NodeSlotShaderPassInput>(vName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotShaderPassInputPtr NodeSlotShaderPassInput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
+NodeSlotShaderPassInputPtr NodeSlotShaderPassInput::Create(const std::string& vName, const bool& vHideName)
 {
-	auto res = std::make_shared<NodeSlotShaderPassInput>(vName, vBindingPoint, vHideName);
+	auto res = std::make_shared<NodeSlotShaderPassInput>(vName, vHideName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotShaderPassInputPtr NodeSlotShaderPassInput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
+NodeSlotShaderPassInputPtr NodeSlotShaderPassInput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
 {
-	auto res = std::make_shared<NodeSlotShaderPassInput>(vName, vBindingPoint, vHideName, vShowWidget);
+	auto res = std::make_shared<NodeSlotShaderPassInput>(vName, vHideName, vShowWidget);
 	res->m_This = res;
 	return res;
 }
@@ -69,31 +69,28 @@ NodeSlotShaderPassInput::NodeSlotShaderPassInput()
 	colorIsSet = true;
 }
 
-NodeSlotShaderPassInput::NodeSlotShaderPassInput(const std::string& vName, const uint32_t& vBindingPoint)
+NodeSlotShaderPassInput::NodeSlotShaderPassInput(const std::string& vName)
 	: NodeSlotInput(vName, "SHADER_PASS")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true; 
-	descriptorBinding = vBindingPoint;
 }
 
-NodeSlotShaderPassInput::NodeSlotShaderPassInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
+NodeSlotShaderPassInput::NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName)
 	: NodeSlotInput(vName, "SHADER_PASS", vHideName)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
 }
 
-NodeSlotShaderPassInput::NodeSlotShaderPassInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
+NodeSlotShaderPassInput::NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
 	: NodeSlotInput(vName, "SHADER_PASS", vHideName, vShowWidget)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
 }
 
 NodeSlotShaderPassInput::~NodeSlotShaderPassInput() = default;
@@ -121,7 +118,7 @@ void NodeSlotShaderPassInput::Unit()
 					auto graphPtr = graph.lock();
 					if (graphPtr)
 					{
-						graphPtr->DisConnectSlot(m_This);
+						graphPtr->BreakAllLinksConnectedToSlot(m_This);
 					}
 				}
 			}
@@ -142,8 +139,8 @@ void NodeSlotShaderPassInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 				auto otherPassNodePtr = dynamic_pointer_cast<ShaderPassOutputInterface>(endSlotPtr->parentNode.getValidShared());
 				if (otherPassNodePtr)
 				{
-					auto passes = otherPassNodePtr->GetShaderPasses(endSlotPtr->descriptorBinding);
-					parentNodePtr->SetShaderPasses(descriptorBinding, passes);
+					auto passes = otherPassNodePtr->GetShaderPasses(endSlotPtr->GetSlotID());
+					parentNodePtr->SetShaderPasses(GetSlotID(), passes);
 				}
 				else 
 				{
@@ -168,7 +165,7 @@ void NodeSlotShaderPassInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 			auto parentNodePtr = dynamic_pointer_cast<ShaderPassInputInterface>(parentNode.getValidShared());
 			if (parentNodePtr)
 			{
-				parentNodePtr->SetShaderPasses(descriptorBinding, SceneShaderPassWeak());
+				parentNodePtr->SetShaderPasses(GetSlotID(), SceneShaderPassWeak());
 			}
 			else
 			{
@@ -202,8 +199,8 @@ void NodeSlotShaderPassInput::TreatNotification(
 							auto receiverSlotPtr = vReceiverSlot.getValidShared();
 							if (receiverSlotPtr)
 							{
-								auto passes = otherNodePtr->GetShaderPasses(emiterSlotPtr->descriptorBinding);
-								parentPassInputNodePtr->SetShaderPasses(receiverSlotPtr->descriptorBinding, passes);
+								auto passes = otherNodePtr->GetShaderPasses(emiterSlotPtr->GetSlotID());
+								parentPassInputNodePtr->SetShaderPasses(receiverSlotPtr->GetSlotID(), passes);
 							}
 						}
 						else

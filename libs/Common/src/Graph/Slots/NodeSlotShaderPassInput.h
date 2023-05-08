@@ -28,15 +28,15 @@ class NodeSlotShaderPassInput :
 {
 public:
 	static NodeSlotShaderPassInputPtr Create(NodeSlotShaderPassInput vSlot);
-	static NodeSlotShaderPassInputPtr Create(const std::string& vName, const uint32_t& vBindingPoint);
-	static NodeSlotShaderPassInputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
-	static NodeSlotShaderPassInputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+	static NodeSlotShaderPassInputPtr Create(const std::string& vName);
+	static NodeSlotShaderPassInputPtr Create(const std::string& vName, const bool& vHideName);
+	static NodeSlotShaderPassInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
 	explicit NodeSlotShaderPassInput();
-	explicit NodeSlotShaderPassInput(const std::string& vName, const uint32_t& vBindingPoint);
-	explicit NodeSlotShaderPassInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
-	explicit NodeSlotShaderPassInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+	explicit NodeSlotShaderPassInput(const std::string& vName);
+	explicit NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName);
+	explicit NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 	~NodeSlotShaderPassInput();
 
 	void Init();

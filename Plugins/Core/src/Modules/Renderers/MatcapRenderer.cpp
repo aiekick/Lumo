@@ -183,7 +183,7 @@ vk::DescriptorImageInfo* MatcapRenderer::GetDescriptorImageInfo(const uint32_t& 
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak MatcapRenderer::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak MatcapRenderer::GetShaderPasses(const uint32_t& vSlotID)
 {
 	return m_SceneShaderPassPtr;
 }

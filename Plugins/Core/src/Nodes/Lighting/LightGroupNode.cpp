@@ -115,7 +115,7 @@ std::string LightGroupNode::getXml(const std::string& vOffset, const std::string
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
 		for (auto slot : m_Inputs)
 		{

@@ -946,8 +946,10 @@ NodeSlotWeak BaseNode::AddInput(NodeSlotInputPtr vSlotPtr, bool vIncSlotId, bool
 			vSlotPtr->pinID = NodeSlot::sGetNewSlotId();
 		}
 		vSlotPtr->index = (uint32_t)m_Inputs.size();
-		m_Inputs[(uint32_t)vSlotPtr->pinID.Get()] = vSlotPtr;
-		return m_Inputs[(uint32_t)vSlotPtr->pinID.Get()];
+		const auto& slotID = vSlotPtr->GetSlotID();
+		LogVarDebug("input slot(%u) creation", slotID);
+		m_Inputs[slotID] = vSlotPtr;
+		return m_Inputs.at(slotID);
 	}
 
 	return NodeSlotWeak();
@@ -967,8 +969,10 @@ NodeSlotWeak BaseNode::AddOutput(NodeSlotOutputPtr vSlotPtr, bool vIncSlotId, bo
 			vSlotPtr->pinID = NodeSlot::sGetNewSlotId();
 		}
 		vSlotPtr->index = (uint32_t)m_Outputs.size();
-		m_Outputs[(uint32_t)vSlotPtr->pinID.Get()] = vSlotPtr;
-		return m_Outputs[(uint32_t)vSlotPtr->pinID.Get()];
+		const auto& slotID = vSlotPtr->GetSlotID();
+		LogVarDebug("output slot(%u) creation", slotID);
+		m_Outputs[slotID] = vSlotPtr;
+		return m_Outputs.at(slotID);
 	}
 
 	return NodeSlotWeak();
@@ -1183,6 +1187,12 @@ bool BaseNode::GenerateGraphFromCode(const std::string& /*vCode*/)
 	return true;
 }
 
+
+uint32_t BaseNode::GetNodeID() const
+{
+	return (uint32_t)nodeID.Get();
+}
+
 BaseNodeWeak BaseNode::FindNode(nd::NodeId vId)
 {
 	BaseNodeWeak res;
@@ -1199,7 +1209,7 @@ BaseNodeWeak BaseNode::FindNode(nd::NodeId vId)
 			}
 			else
 			{
-				uint32_t nodeId = (uint32_t)nodePtr->nodeID.Get();
+				uint32_t nodeId = (uint32_t)nodePtr->GetNodeID();
 				LogVarDebug("Comment c'est possible que le m_ChildNodes avec id %u dans la map ait un autre indice %u", queryId, nodeId);
 			}
 		}
@@ -1382,6 +1392,20 @@ std::vector<NodeSlotWeak> BaseNode::GetOutputSlotsOfType(std::string vType)
 	return GetSlotsOfType(NodeSlot::PlaceEnum::OUTPUT , vType);
 }
 
+NodeSlotWeak BaseNode::AddPreDefinedInput(const NodeSlot& /*vNodeSlot*/)
+{
+	CTOOL_DEBUG_BREAK;
+	LogVarDebug("BaseNode::AddPreDefinedInput => Some override is missing is seems");
+	return NodeSlotWeak();
+}
+
+NodeSlotWeak BaseNode::AddPreDefinedOutput(const NodeSlot& /*vNodeSlot*/)
+{
+	CTOOL_DEBUG_BREAK;
+	LogVarDebug("BaseNode::AddPreDefinedOutput => Some override is missing is seems");
+	return NodeSlotWeak();
+}
+
 void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 {
 	if (nd::BeginCreate(ImColor(255, 255, 255), 2.0f))
@@ -1446,7 +1470,7 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 								showLabel("+ Create Link", ImColor(32, 45, 32, 180)); //-V112
 								if (nd::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
 								{
-									ConnectSlots(startSlotPtr, endSlotPtr);
+									ConnectSlots(startSlot, endSlot);
 								}
 							}
 						}
@@ -1511,9 +1535,8 @@ void BaseNode::DoDeleteLinkOrNode(BaseNodeState *vBaseNodeState)
 					auto id = (int)linkId.Get();
 					if (m_Links.find(id) != m_Links.end())
 					{
-						auto in = m_Links[id]->in;
-						auto out = m_Links[id]->out;
-						BreakLink(id);
+						m_SlotsToNotDestroyDuringThisConnect.clear();
+						BreakLink(m_Links[id]->in, m_Links[id]->out);
 					}
 				}
 			}
@@ -1762,7 +1785,7 @@ BaseNodeWeak BaseNode::AddChildNode(BaseNodePtr vNodePtr, bool vIncNodeId)
 		if (vIncNodeId)
 			vNodePtr->nodeID = GetNextNodeId();
 
-		m_ChildNodes[(int)vNodePtr->nodeID.Get()] = vNodePtr;
+		m_ChildNodes[(int)vNodePtr->GetNodeID()] = vNodePtr;
 
 		return vNodePtr;
 	}
@@ -1817,7 +1840,7 @@ void BaseNode::DestroyChildNode(BaseNodeWeak vNode)
 		auto nodePtr = vNode.lock();
 		if (nodePtr)
 		{
-			int nid = (int)nodePtr->nodeID.Get();
+			int nid = (int)nodePtr->GetNodeID();
 			if (m_ChildNodes.find(nid) != m_ChildNodes.end()) // trouvé
 			{
 				m_ChildNodes.erase(nid);
@@ -1856,9 +1879,9 @@ void BaseNode::DestroySlotOfAnyMap(NodeSlotWeak vSlot)
 	auto slotPtr = vSlot.getValidShared();
 	if (slotPtr)
 	{
-		int sid = (int)slotPtr->pinID.Get();
+		uint32_t sid = (int)slotPtr->GetSlotID();
 
-		DisConnectSlot(vSlot);
+		BreakAllLinksConnectedToSlot(vSlot);
 
 		if (m_Inputs.find(sid) != m_Inputs.end())
 			m_Inputs.erase(sid);
@@ -2067,7 +2090,7 @@ std::vector<NodeLinkWeak> BaseNode::GetLinksAssociatedToSlot(NodeSlotWeak vSlot)
 		auto slotPtr = vSlot.lock();
 		if (slotPtr)
 		{
-			uint32_t pinId = (uint32_t)slotPtr->pinID.Get();
+			const auto& pinId = slotPtr->GetSlotID();
 
 			if (m_LinksDico.find(pinId) != m_LinksDico.end()) // trouve
 			{
@@ -2106,7 +2129,7 @@ std::vector<NodeSlotWeak> BaseNode::GetSlotsAssociatedToSlot(NodeSlotWeak vSlot)
 //// ADD/DELETE VISUAL LINKS (NO CHANGE BEHIND) //////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BaseNode::AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd)
+bool BaseNode::AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 {
 	if (!vStart.expired() && 
 		!vEnd.expired())
@@ -2122,14 +2145,23 @@ void BaseNode::AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 			startPtr->linkedSlots.push_back(vEnd);
 			endPtr->linkedSlots.push_back(vStart);
 
+			const auto& inID = startPtr->GetSlotID();
+			const auto& outID = endPtr->GetSlotID();
+
 			NodeLink link;
 			link.in = vStart;
 			link.out = vEnd;
 			link.linkId = GetNextNodeId();
 
 			m_Links[link.linkId] = std::make_shared<NodeLink>(link);
-			m_LinksDico[(uint32_t)startPtr->pinID.Get()].emplace(m_Links[link.linkId]->linkId);
-			m_LinksDico[(uint32_t)endPtr->pinID.Get()].emplace(m_Links[link.linkId]->linkId);
+			LogVarDebug("link(%u) creation from slot(%u) to slot(%u)", link.linkId, inID, outID);
+
+			m_LinksDico[inID].emplace(m_Links[link.linkId]->linkId);
+			m_LinksDico[outID].emplace(m_Links[link.linkId]->linkId);
+
+			CallSlotsOnConnectEvent(startPtr, endPtr);
+
+			return true;
 		}
 		else
 		{
@@ -2142,9 +2174,11 @@ void BaseNode::AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 		CTOOL_DEBUG_BREAK;
 		LogVarDebug("slot start or end is expired");
 	}
+
+	return false;
 }
 
-bool BaseNode::BreakLink(uint32_t vLinkId)
+bool BaseNode::BreakLink(const uint32_t& vLinkId)
 {
 	if (m_Links.find(vLinkId) != m_Links.end())
 	{
@@ -2153,21 +2187,65 @@ bool BaseNode::BreakLink(uint32_t vLinkId)
 		{
 			auto inPtr = m_Links[vLinkId]->in.lock();
 			auto outPtr = m_Links[vLinkId]->out.lock();
-
 			if (inPtr && outPtr)
 			{
-				const auto& inPinID = (uint32_t)inPtr->pinID.Get();
-				const auto& outPinID = (uint32_t)outPtr->pinID.Get();
+				if (inPtr->RemoveConnectedSlot(outPtr))
+				{
+					const auto& inPinID = inPtr->GetSlotID();
+					if (m_LinksDico.find(inPinID) != m_LinksDico.end())
+					{
+						if (m_LinksDico.at(inPinID).find(vLinkId) != m_LinksDico.at(inPinID).end())
+						{
+							m_LinksDico.at(inPinID).erase(vLinkId);
 
-				inPtr->RemoveConnectedSlot(outPtr);
-				m_LinksDico.erase(inPinID);
+							if (outPtr->RemoveConnectedSlot(inPtr))
+							{
+								const auto& outPinID = outPtr->GetSlotID();
+								if (m_LinksDico.find(outPinID) != m_LinksDico.end())
+								{
+									if (m_LinksDico.at(outPinID).find(vLinkId) != m_LinksDico.at(outPinID).end())
+									{
+										m_LinksDico.at(outPinID).erase(vLinkId);
 
-				outPtr->RemoveConnectedSlot(inPtr);
-				m_LinksDico.erase(outPinID);
+										if (m_Links.find(vLinkId) != m_Links.end())
+										{
+											m_Links.erase(vLinkId);
+											LogVarDebug("link(%u) erasing from slot(%u) to slot(%u)", vLinkId, inPinID, outPinID);
 
-				m_Links.erase(vLinkId);
+											CallSlotsOnDisConnectEvent(inPtr, outPtr);
 
-				return true;
+											return true;
+										}
+										else
+										{
+											CTOOL_DEBUG_BREAK;
+										}
+									}
+									if (m_LinksDico.at(outPinID).empty())
+									{
+										m_LinksDico.erase(outPinID);
+									}
+								}
+								else
+								{
+									CTOOL_DEBUG_BREAK;
+								}
+							}
+							else
+							{
+								CTOOL_DEBUG_BREAK;
+							}
+						}
+						if (m_LinksDico.at(inPinID).empty())
+						{
+							m_LinksDico.erase(inPinID);
+						}
+					}
+				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+				}
 			}
 		}
 		else
@@ -2185,27 +2263,42 @@ bool BaseNode::BreakLink(uint32_t vLinkId)
 	return false;
 }
 
-void BaseNode::BreakLinksConnectedToSlot(NodeSlotWeak vSlot)
+bool BaseNode::BreakAllLinksConnectedToSlot(NodeSlotWeak vSlot)
 {
 	if (!vSlot.expired())
 	{
 		auto slotPtr = vSlot.lock();
-		if (slotPtr)
+		if (slotPtr && !slotPtr->acceptManyInputs)
 		{
-			uint32_t pinId = (uint32_t)slotPtr->pinID.Get();
+			const auto& pinId = slotPtr->GetSlotID();
 
 			if (m_LinksDico.find(pinId) != m_LinksDico.end()) // trouve
 			{
-				auto linkIds = m_LinksDico[pinId]; // link Ptr pointe sur une entrée de m_Links
+				bool res = true;
+				auto linkIds = m_LinksDico.at(pinId); // link Ptr pointe sur une entrée de m_Links
 				for (auto lid : linkIds)
 				{
-					BreakLink(lid);
+					if (m_Links.find(lid) != m_Links.end()) 
+					{
+						auto inPtr = m_Links[lid]->in.lock();
+						auto outPtr = m_Links[lid]->out.lock();
+						if (inPtr && outPtr)
+						{
+							LogVarDebug("link(%u) erasing from slot(%u) to slot(%u)", lid, inPtr->GetSlotID(), outPtr->GetSlotID());
+						}
+						else if (inPtr)
+						{
+							LogVarDebug("link(%u) erasing from slot(%u) to slot(expired)", lid, inPtr->GetSlotID());
+						}
+						else if (outPtr)
+						{
+							LogVarDebug("link(%u) erasing from slot(expired) to slot(%u)", lid, outPtr->GetSlotID());
+						}
+
+						res &= BreakLink(m_Links[lid]->in, m_Links[lid]->out);
+					}
 				}
-			}
-			else
-			{
-				CTOOL_DEBUG_BREAK;
-				LogVarDebug("Link id %u in or out is expired", pinId);
+				return res;
 			}
 		}
 		else
@@ -2219,9 +2312,11 @@ void BaseNode::BreakLinksConnectedToSlot(NodeSlotWeak vSlot)
 		CTOOL_DEBUG_BREAK;
 		LogVarDebug("slot is expired");
 	}
+
+	return false;
 }
 
-void BaseNode::BreakLinkConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
+bool BaseNode::BreakLink(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 {
 	if (!vFrom.expired() &&
 		!vTo.expired())
@@ -2231,8 +2326,8 @@ void BaseNode::BreakLinkConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 
 		if (fromPtr && toPtr)
 		{
-			uint32_t fromPinId = (uint32_t)fromPtr->pinID.Get();
-			uint32_t endPinId = (uint32_t)toPtr->pinID.Get();
+			const auto& fromPinId = fromPtr->GetSlotID();
+			const auto& endPinId = toPtr->GetSlotID();
 			
 			if (m_LinksDico.find(fromPinId) != m_LinksDico.end() &&
 				m_LinksDico.find(endPinId) != m_LinksDico.end()) // trouve
@@ -2246,10 +2341,11 @@ void BaseNode::BreakLinkConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 					{
 						if (tid == fid)
 						{
-							BreakLink(tid);
+							LogVarDebug("Break link %u from slot(%u) to slot(%u)", tid, fromPinId, endPinId);
+							bool res = BreakLink(tid);
 							fromPtr->NotifyConnectionChangeToParent(true);
 							toPtr->NotifyConnectionChangeToParent(true);
-							return;
+							return res;
 						}
 					}
 				}
@@ -2271,6 +2367,8 @@ void BaseNode::BreakLinkConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 		CTOOL_DEBUG_BREAK;
 		LogVarDebug("from or to is expired");
 	}
+
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -2281,18 +2379,24 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 {
 	bool res = false;
 
+	m_SlotsToNotDestroyDuringThisConnect.clear();
+
 	auto fromPtr = vFrom.getValidShared();
 	auto toPtr = vTo.getValidShared();
 	if (fromPtr && toPtr)
 	{
 		// ensure that start is an output and end an input
-		if (fromPtr->slotPlace == NodeSlot::PlaceEnum::INPUT &&
-			toPtr->slotPlace == NodeSlot::PlaceEnum::OUTPUT)
+		if (fromPtr->IsAnInput() && toPtr->IsAnOutput())
 		{
 			//peu etre que std::swap merde quand c'est des shared_ptr ou weak_ptr
 			vFrom.swap(vTo); 
 			fromPtr = vTo.lock();
 			toPtr = vFrom.lock();
+		}
+
+		if (fromPtr->IsAnInput() && toPtr->IsAnOutput())
+		{
+			CTOOL_DEBUG_BREAK;
 		}
 
 		auto fromParentNodePtr = fromPtr->parentNode.getValidShared();
@@ -2303,27 +2407,22 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 			{
 				//LogVarDebug("Connection Success from %s to %s", fromParentNodePtr->name.c_str(), toParentNodePtr->name.c_str());
 						
+				m_SlotsToNotDestroyDuringThisConnect.emplace(toPtr->GetSlotID());
+				m_SlotsToNotDestroyDuringThisConnect.emplace(fromPtr->GetSlotID());
+
 				// si un seul link par input est autorisé
 				// alors on detruit ceux qui y sont attaché 
-				// avant d'ne ajouter un
+				// avant d'en ajouter un
 				if (toPtr->IsAnInput())
 				{
-					if (!toPtr->acceptManyInputs) 
-					{
-						DisConnectSlot(toPtr);
-					}
+					BreakAllLinksConnectedToSlot(toPtr);
 				}
 				else if (fromPtr->IsAnInput())
 				{
-					if (!fromPtr->acceptManyInputs)
-					{
-						DisConnectSlot(toPtr);
-					}
+					BreakAllLinksConnectedToSlot(fromPtr);
 				}
 
 				AddLink(fromPtr, toPtr);
-
-				CallSlotsOnConnectEvent(fromPtr, toPtr);
 
 				// averti le parent que les slot on changé leur statut de connection
 				fromPtr->NotifyConnectionChangeToParent(true);
@@ -2377,18 +2476,6 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 	}
 
 	return res;
-}
-
-bool BaseNode::DisConnectSlot(NodeSlotWeak vSlot)
-{
-	auto slots = GetSlotsAssociatedToSlot(vSlot);
-	for (const auto& slotPtr : slots)
-	{
-		BreakLinkConnectedToSlots(vSlot, slotPtr);
-		CallSlotsOnDisConnectEvent(vSlot, slotPtr);
-	}
-
-	return true;
 }
 
 void BaseNode::NotifyConnectionChangeOfThisSlot(NodeSlotWeak vSlot, bool vConnected) // ce solt a été connecté
@@ -2635,8 +2722,8 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 
 						if (inParentPtr && outParentPtr)
 						{
-							std::string inNodeIdSlotId = ct::toStr("%u:%u", (uint32_t)inParentPtr->nodeID.Get(), (uint32_t)inPtr->pinID.Get());
-							std::string outNodeIdSlotId = ct::toStr("%u:%u", (uint32_t)outParentPtr->nodeID.Get(), (uint32_t)outPtr->pinID.Get());
+							std::string inNodeIdSlotId = ct::toStr("%u:%u", inParentPtr->GetNodeID(), inPtr->GetSlotID());
+							std::string outNodeIdSlotId = ct::toStr("%u:%u", outParentPtr->GetNodeID(), outPtr->GetSlotID());
 							res += vOffset + "\t\t<link in=\"" + inNodeIdSlotId + "\" out=\"" + outNodeIdSlotId + "\"/>\n";
 						}
 					}
@@ -2655,7 +2742,7 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 			auto slotLeftParentNodePtr = slotLeftPtr->parentNode.getValidShared();
 			if (slotLeftParentNodePtr)
 			{
-				outLeftSlot = ct::toStr("%u:%u", (uint32_t)slotLeftParentNodePtr->nodeID.Get(), (uint32_t)slotLeftPtr->pinID.Get());
+				outLeftSlot = ct::toStr("%u:%u", slotLeftParentNodePtr->GetNodeID(), slotLeftPtr->GetSlotID());
 				res += vOffset + "\t\t<output type=\"left\" ids=\"" + outLeftSlot + "\"/>\n";
 			}
 		}
@@ -2667,7 +2754,7 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 			auto slotMiddleParentNodePtr = slotMiddlePtr->parentNode.getValidShared();
 			if (slotMiddleParentNodePtr)
 			{
-				outMiddleSlot = ct::toStr("%u:%u", (uint32_t)slotMiddleParentNodePtr->nodeID.Get(), (uint32_t)slotMiddlePtr->pinID.Get());
+				outMiddleSlot = ct::toStr("%u:%u", slotMiddleParentNodePtr->GetNodeID(), slotMiddlePtr->GetSlotID());
 				res += vOffset + "\t\t<output type=\"middle\" ids=\"" + outMiddleSlot + "\"/>\n";
 			}
 		}
@@ -2679,7 +2766,7 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 			auto slotRightParentNodePtr = slotRightPtr->parentNode.getValidShared();
 			if (slotRightParentNodePtr)
 			{
-				outRightSlot = ct::toStr("%u:%u", (uint32_t)slotRightParentNodePtr->nodeID.Get(), (uint32_t)slotRightPtr->pinID.Get());
+				outRightSlot = ct::toStr("%u:%u", slotRightParentNodePtr->GetNodeID(), slotRightPtr->GetSlotID());
 				res += vOffset + "\t\t<output type=\"right\" ids=\"" + outMiddleSlot + "\"/>\n";
 			}
 		}
@@ -2694,7 +2781,7 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
 		for (auto slot : m_Inputs)
 		{
@@ -2829,50 +2916,66 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 					slot.pinID = ct::ivariant(attValue).GetU();
 			}	
 
+			const auto& _nodeID = this->GetNodeID();
+
 			if (slot.slotPlace == NodeSlot::PlaceEnum::INPUT)
 			{
-				if (!m_Inputs.empty())
+				if (m_InputSlotsInternalMode == NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_FIXED)
 				{
-					for (const auto& input : m_Inputs)
+					if (!m_Inputs.empty())
 					{
-						if (input.second->index == slot.index)
+						for (const auto& input : m_Inputs)
 						{
-							const bool wasSet = !input.second->setFromXml(vElem, vParent);
-							if (wasSet)
+							if (input.second->index == slot.index)
 							{
-								auto savePtr = input.second;
+								const bool wasSet = !input.second->setFromXml(vElem, vParent);
+								if (wasSet)
+								{
+									auto savePtr = input.second;
 
-								// pin not already changed by xml 
-								// so we change it
-								m_Inputs.erase(input.first);
-								m_Inputs[(uint32_t)savePtr->pinID.Get()] = savePtr;
-								break;
+									// pin not already changed by xml 
+									// so we change it
+									m_Inputs.erase(input.first);
+									m_Inputs[savePtr->GetSlotID()] = savePtr;
+									break;
+								}
 							}
 						}
 					}
 				}
+				else if (m_InputSlotsInternalMode == NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_DYNAMIC)
+				{
+					AddPreDefinedInput(slot);
+				}
 			}
 			else if (slot.slotPlace == NodeSlot::PlaceEnum::OUTPUT)
 			{
-				if (!m_Outputs.empty())
+				if (m_OutputSlotsInternalMode == NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_FIXED)
 				{
-					for (const auto& output : m_Outputs)
+					if (!m_Outputs.empty())
 					{
-						if (output.second->index == slot.index)
+						for (const auto& output : m_Outputs)
 						{
-							const bool wasSet = !output.second->setFromXml(vElem, vParent);
-							if (wasSet)
+							if (output.second->index == slot.index)
 							{
-								auto savePtr = output.second;
+								const bool wasSet = !output.second->setFromXml(vElem, vParent);
+								if (wasSet)
+								{
+									auto savePtr = output.second;
 
-								// pin not already changed by xml 
-								// so we change it
-								m_Outputs.erase(output.first);
-								m_Outputs[(uint32_t)savePtr->pinID.Get()] = savePtr;
-								break;
+									// pin not already changed by xml 
+									// so we change it
+									m_Outputs.erase(output.first);
+									m_Outputs[savePtr->GetSlotID()] = savePtr;
+									break;
+								}
 							}
 						}
 					}
+				}
+				else if (m_OutputSlotsInternalMode == NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_DYNAMIC)
+				{
+					AddPreDefinedOutput(slot);
 				}
 			}
 		}

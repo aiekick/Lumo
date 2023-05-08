@@ -19,10 +19,12 @@ limitations under the License.
 #include <array>
 #include <SceneGraph/SceneShaderPass.h>
 
-//todo : split the interface in one input interface and one output interface
-// can clarify some code who jsut need output and not input 
+// the shader passes ar not attached to shader so
+// binding point use make no sense
+// instead for the slot removing/adding it make more sens eto link it to SlotID's
+
 class ShaderPassOutputInterface
 {
 public:
-	virtual SceneShaderPassWeak GetShaderPasses(const uint32_t& vBindingPoint) = 0;
+	virtual SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) = 0;
 };

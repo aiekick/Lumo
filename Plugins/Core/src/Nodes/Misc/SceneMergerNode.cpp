@@ -45,6 +45,10 @@ SceneMergerNode::SceneMergerNode() : BaseNode()
 	ZoneScoped;
 
 	m_NodeTypeString = "SCENE_MERGER";
+
+	// variable slot count only for inputs
+	// important for xml loading
+	m_InputSlotsInternalMode = NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_DYNAMIC;
 }
 
 SceneMergerNode::~SceneMergerNode()
@@ -66,7 +70,7 @@ bool SceneMergerNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "Scene Merger";
 
-	AddInput(NodeSlotShaderPassInput::Create("Input", 0), false, true);
+	AddInput(NodeSlotShaderPassInput::Create(""), false, true);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
@@ -186,16 +190,15 @@ void SceneMergerNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 	}
 }
 
-void SceneMergerNode::SetShaderPasses(const uint32_t& vBindingPoint, SceneShaderPassWeak vShaderPasses)
+void SceneMergerNode::SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vShaderPasses)
 {
 	ZoneScoped;
 
 	if (m_SceneMergerModulePtr)
 	{
-		m_SceneMergerModulePtr->SetShaderPasses(vBindingPoint, vShaderPasses);
+		m_SceneMergerModulePtr->SetShaderPasses(vSlotID, vShaderPasses);
+		ReorganizeSlots(m_SceneMergerModulePtr->GetJustDeletedSceneShaderPassSlots());
 	}
-
-	ReorganizeSlots();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,7 +206,7 @@ void SceneMergerNode::SetShaderPasses(const uint32_t& vBindingPoint, SceneShader
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 vk::DescriptorImageInfo* SceneMergerNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
+{
 	ZoneScoped;
 
 	if (m_SceneMergerModulePtr)
@@ -219,7 +222,7 @@ vk::DescriptorImageInfo* SceneMergerNode::GetDescriptorImageInfo(const uint32_t&
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 std::string SceneMergerNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{	
+{
 	ZoneScoped;
 
 	std::string res;
@@ -234,14 +237,14 @@ std::string SceneMergerNode::getXml(const std::string& vOffset, const std::strin
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
-		for (auto &slot : m_Inputs)
+		for (auto& slot : m_Inputs)
 		{
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		for (auto &slot : m_Outputs)
+		for (auto& slot : m_Outputs)
 		{
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
@@ -258,7 +261,7 @@ std::string SceneMergerNode::getXml(const std::string& vOffset, const std::strin
 }
 
 bool SceneMergerNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{	
+{
 	ZoneScoped;
 
 	// The value of this child identifies the name of this element
@@ -281,6 +284,44 @@ bool SceneMergerNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 
 	// continue recurse child exploring
 	return true;
+}
+
+NodeSlotWeak SceneMergerNode::AddPreDefinedInput(const NodeSlot& vNodeSlot)
+{
+	if (vNodeSlot.slotType == "SHADER_PASS")
+	{
+		auto slot_ptr = NodeSlotShaderPassInput::Create("");
+		if (slot_ptr)
+		{
+			slot_ptr->parentNode = m_This;
+			slot_ptr->slotPlace = NodeSlot::PlaceEnum::INPUT;
+			slot_ptr->hideName = true;
+			slot_ptr->type = uType::uTypeEnum::U_FLOW;
+			slot_ptr->index = vNodeSlot.index;
+			slot_ptr->pinID = vNodeSlot.pinID;
+			const auto& slotID = vNodeSlot.GetSlotID();
+
+
+			// pour eviter que des slots aient le meme id qu'un nodePtr
+			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, slotID) + 1U;
+
+			m_Inputs[slotID] = slot_ptr;
+			return m_Inputs.at(slotID);
+		}
+	}
+	else
+	{
+		CTOOL_DEBUG_BREAK;
+		LogVarError("node slot is of type %s.. must be of type SHADER_PASS", vNodeSlot.slotType.c_str());
+	}
+
+	return NodeSlotWeak();
+}
+
+void SceneMergerNode::BeforeNodeXmlLoading()
+{
+	// only when load the xml
+	m_Inputs.clear();
 }
 
 void SceneMergerNode::AfterNodeXmlLoading()
@@ -311,53 +352,62 @@ void SceneMergerNode::UpdateShaders(const std::set<std::string>& vFiles)
 //// INPUTS UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SceneMergerNode::ReorganizeSlots()
+void SceneMergerNode::ReorganizeSlots(const std::vector<uint32_t>& vSlotsToErase)
 {
 	if (m_SceneMergerModulePtr)
 	{
-		// il ne faudra pas re numerotter l'idx des slot connecté, 
-		// sinon ca va peter la verif des lien dans le module, 
-		// et je pourrasi plus virer les passes qui sont deconnectée
+		// here the goal is :
+		// - delete orphan slots (connected to nothing)
+		// - add slots if all slots are full 
 		
-		// m_inputs a comme clef le pointeur du slot
-		// scene_shader_passes a comme clef le numero du bidning point
-
-		// 1) on va checker les slot connecté a rien et retenir leur binding point dans arr
-		uint32_t max_idx = 0U;
-		std::vector<uint32_t> pid_arr;
-		std::vector<uint32_t> binding_points_arr;
-		for (auto input : m_Inputs)
+		auto graph_ptr = this->GetParentNode().getValidShared();
+		if (graph_ptr)
 		{
-			if (input.second)
-			{
-				if (!input.second->connected)
-				{
-					pid_arr.push_back(input.first);
-					binding_points_arr.push_back(input.second->descriptorBinding);
-				}
-
-				// on stocke le plus grand id
-				max_idx = ct::maxi(max_idx, input.second->descriptorBinding);
-			}
-		}
-
-		// 2) on supprime les pid du node connecté a rien trouvé en 1)
-		for (auto idx : pid_arr)
-		{
-			m_Inputs.erase(idx);
-		}
+			// array of slot to prevent destroying during this connect
+			const auto& slots_to_keep = graph_ptr->m_SlotsToNotDestroyDuringThisConnect;
 			
-		// 3) on supprime les bindings du module connecté a rien trouvé en 1)
-		auto scene_shader_passes = m_SceneMergerModulePtr->GetSceneShaderPasses();
-		for (auto idx : binding_points_arr)
-		{
-			if (scene_shader_passes.size() > idx)
+			// 1) erase slots who was removed by the module
+			for (const auto& slotID : vSlotsToErase)
 			{
-				scene_shader_passes.erase(scene_shader_passes.begin() + idx);
+				if (m_Inputs.find(slotID) != m_Inputs.end())
+				{
+					if (slots_to_keep.find(slotID) == slots_to_keep.end())
+					{
+						m_Inputs.erase(slotID);
+						LogVarDebug("erase input slot(%u)", slotID);
+					}
+					else
+					{
+						LogVarDebug("input slot(%u) not destroyed because of 'no destroy' rule during this connect", slotID);
+					}
+				}
+				else
+				{
+					CTOOL_DEBUG_BREAK;
+					LogVarError("a slot was erased but dont exist in the node.. there is a bug somewhere");
+				}
 			}
-		}
 
-		// 4) ajotuer un slot vide avec l'id max_idx + 1
-		AddInput(NodeSlotShaderPassInput::Create("Input", max_idx + 1U), false, true);
+			// 2) check if all slots are full
+			bool need_to_add_a_orphan_slot = true;
+			for (const auto& slot : m_Inputs)
+			{
+				if (slot.second &&
+					slot.second->linkedSlots.empty()) // if we found at least one empty nide, we will not add a slot
+				{
+					need_to_add_a_orphan_slot = false;
+					break;
+				}
+			}
+
+			// 3) we add an orphan slot if needed in 2)
+			if (need_to_add_a_orphan_slot)
+			{
+				AddInput(NodeSlotShaderPassInput::Create(""), false, true);
+			}
+
+			LogVarLightInfo("--------------------------------");
+		}
+		
 	}
 }

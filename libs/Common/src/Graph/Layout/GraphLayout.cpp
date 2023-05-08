@@ -347,7 +347,7 @@ bool GraphLayout::IsThereAnInfiniteLoopForNode(BaseNodeWeak vNode) // recursive 
 		auto nodePtr = vNode.lock();
 		if (nodePtr)
 		{
-			uintptr_t nodeId = nodePtr->nodeID.Get();
+			uintptr_t nodeId = nodePtr->GetNodeID();
 			if (m_InfLoopNodeDetector.find(nodeId) == m_InfLoopNodeDetector.end())
 			{
 				m_InfLoopNodeDetector[nodeId] = 0;

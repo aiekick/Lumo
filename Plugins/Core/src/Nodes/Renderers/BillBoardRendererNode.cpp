@@ -225,11 +225,11 @@ vk::DescriptorImageInfo* BillBoardRendererNode::GetDescriptorImageInfo(const uin
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak BillBoardRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak BillBoardRendererNode::GetShaderPasses(const uint32_t& vSlotID)
 {
 	if (m_BillBoardRendererModulePtr)
 	{
-		return m_BillBoardRendererModulePtr->GetShaderPasses(vBindingPoint);
+		return m_BillBoardRendererModulePtr->GetShaderPasses(vSlotID);
 	}
 
 	return SceneShaderPassWeak();
@@ -255,7 +255,7 @@ std::string BillBoardRendererNode::getXml(const std::string& vOffset, const std:
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
 		for (auto slot : m_Inputs)
 		{

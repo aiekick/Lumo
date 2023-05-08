@@ -190,7 +190,7 @@ void NodeSlot::Unit()
 					auto graphPtr = graph.lock();
 					if (graphPtr)
 					{
-						graphPtr->DisConnectSlot(m_This);
+						graphPtr->BreakAllLinksConnectedToSlot(m_This);
 					}
 				}
 			}
@@ -242,6 +242,11 @@ bool NodeSlot::CanWeConnectToSlot(NodeSlotWeak vSlot)
 	}
 
 	return false;
+}
+
+uint32_t NodeSlot::GetSlotID() const
+{
+	return (uint32_t)pinID.Get();
 }
 
 std::vector<NodeSlotWeak> NodeSlot::InjectTypeInSlot(uType::uTypeEnum vType)
@@ -518,7 +523,7 @@ void NodeSlot::MouseDoubleClickedOnSlot(const ImGuiMouseButton& /*vMouseButton*/
 #endif
 }
 
-void NodeSlot::RemoveConnectedSlot(NodeSlotWeak vOtherSlot)
+bool NodeSlot::RemoveConnectedSlot(NodeSlotWeak vOtherSlot)
 {
 	auto ptr = vOtherSlot.lock();
 	if (ptr)
@@ -536,12 +541,20 @@ void NodeSlot::RemoveConnectedSlot(NodeSlotWeak vOtherSlot)
 		// found we erase it
 		if (it != linkedSlots.end())
 		{
+			auto it_ptr = it->lock();
+			if (it_ptr)
+			{
+				LogVarDebug("slot(%u) link break with slot(%u)", GetSlotID(), it_ptr->GetSlotID());
+			}
+
 			linkedSlots.erase(it);
 
 			if (linkedSlots.empty())
 			{
 				connected = false;
 			}
+
+			return true;
 		}
 		else
 		{
@@ -549,6 +562,8 @@ void NodeSlot::RemoveConnectedSlot(NodeSlotWeak vOtherSlot)
 			LogVarError("Connected slot not found");
 		}
 	}
+
+	return false;
 }
 
 void NodeSlot::DrawDebugInfos()
@@ -714,7 +729,7 @@ std::string NodeSlot::getXml(const std::string& vOffset, const std::string& /*vU
 		name.c_str(),
 		slotType.c_str(),
 		sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
-		(uint32_t)pinID.Get());
+		(uint32_t)GetSlotID());
 
 	return res;
 }
@@ -767,7 +782,7 @@ bool NodeSlot::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 			idAlreadySetbyXml = true;
 
 			// pour eviter que des slots aient le meme id qu'un nodePtr
-			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)pinID.Get()) + 1U;
+			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)GetSlotID()) + 1U;
 
 			return false;
 		}

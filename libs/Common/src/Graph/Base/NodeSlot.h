@@ -146,6 +146,8 @@ public:
 	void NotifyConnectionChangeToParent(bool vConnected); // va contacter le parent pour lui dire que ce solt est connecté a un autre
 	bool CanWeConnectToSlot(NodeSlotWeak vSlot);
 
+	uint32_t GetSlotID() const;
+
 	// splitter
 	std::vector<NodeSlotWeak> InjectTypeInSlot(uType::uTypeEnum vType);
 
@@ -205,7 +207,8 @@ public:
 	/// will remove the slot from the list linekdSLots
 	/// </summary>
 	/// <param name="vOtherSlot"></param>
-	void RemoveConnectedSlot(NodeSlotWeak vOtherSlot);
+	/// <returns>true if removed something</returns>
+	bool RemoveConnectedSlot(NodeSlotWeak vOtherSlot);
 
 	void DrawDebugInfos();
 

@@ -66,7 +66,8 @@ public:
 private:
 	ct::cWeak<SceneMergerModule> m_This;
 	FrameBufferPtr m_FrameBufferPtr = nullptr;
-	std::vector<SceneShaderPassWeak> m_SceneShaderPasses;
+	SceneShaderPassContainer m_SceneShaderPassContainer;
+	std::vector<uint32_t> m_JustDeletedSceneShaderPassSlots;
 
 public:
 	SceneMergerModule(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -88,16 +89,15 @@ public:
 
 	// Interfaces Setters
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
-	void SetShaderPasses(const uint32_t& vBindingPoint, SceneShaderPassWeak vShaderPasses) override;
+	void SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vShaderPasses) override;
 
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::vector<SceneShaderPassWeak>& GetSceneShaderPasses();
+
+	SceneShaderPassContainer& GetSceneShaderPassContainerRef();
+	const std::vector<uint32_t>& GetJustDeletedSceneShaderPassSlots() const;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	void AfterNodeXmlLoading() override;
-
-private:
-	void ClearEmptySceneShaderPasses();
 };

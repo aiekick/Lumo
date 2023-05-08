@@ -234,7 +234,7 @@ vk::DescriptorImageInfo* ModelRendererModule::GetDescriptorImageInfo(const uint3
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak ModelRendererModule::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak ModelRendererModule::GetShaderPasses(const uint32_t& vSlotID)
 {
 	return m_SceneShaderPassPtr;
 }

@@ -160,11 +160,11 @@ vk::DescriptorImageInfo* DeferredRendererNode::GetDescriptorImageInfo(const uint
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak DeferredRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak DeferredRendererNode::GetShaderPasses(const uint32_t& vSlotID)
 {
 	if (m_DeferredRendererPtr)
 	{
-		return m_DeferredRendererPtr->GetShaderPasses(vBindingPoint);
+		return m_DeferredRendererPtr->GetShaderPasses(vSlotID);
 	}
 
 	return SceneShaderPassWeak();
@@ -188,7 +188,7 @@ std::string DeferredRendererNode::getXml(const std::string& vOffset, const std::
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
 		for (auto slot : m_Inputs)
 		{

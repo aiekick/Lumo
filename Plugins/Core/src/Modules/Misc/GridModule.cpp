@@ -154,7 +154,7 @@ vk::DescriptorImageInfo* GridModule::GetDescriptorImageInfo(const uint32_t& vBin
 	return nullptr;
 }
 
-SceneShaderPassWeak GridModule::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak GridModule::GetShaderPasses(const uint32_t& vSlotID)
 {
 	return m_SceneShaderPassPtr;
 }

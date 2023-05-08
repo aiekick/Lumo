@@ -162,11 +162,11 @@ vk::DescriptorImageInfo* PBRRendererNode::GetDescriptorImageInfo(const uint32_t&
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak PBRRendererNode::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak PBRRendererNode::GetShaderPasses(const uint32_t& vSlotID)
 {
 	if (m_PBRRendererPtr)
 	{
-		return m_PBRRendererPtr->GetShaderPasses(vBindingPoint);
+		return m_PBRRendererPtr->GetShaderPasses(vSlotID);
 	}
 
 	return SceneShaderPassWeak();
@@ -206,7 +206,7 @@ std::string PBRRendererNode::getXml(const std::string& vOffset, const std::strin
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
 		for (auto slot : m_Inputs)
 		{

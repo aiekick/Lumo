@@ -19,8 +19,12 @@ limitations under the License.
 #include <vector>
 #include <SceneGraph/SceneShaderPass.h>
 
+// the shader passes ar not attached to shader so
+// binding point use make no sense
+// instead for the slot removing/adding it make more sens eto link it to SlotID's
+
 class ShaderPassInputInterface
 {
 public:
-	virtual void SetShaderPasses(const uint32_t& vBindingPoint, SceneShaderPassWeak vSceneShaderPassWeak) = 0;
+	virtual void SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vSceneShaderPassWeak) = 0;
 };

@@ -113,11 +113,7 @@ public: // contructor
 	// Generic Renderer Pass
 	bool AddGenericPass(ShaderPassWeak vPass);
 	ShaderPassWeak GetGenericPass(const uint32_t& vIdx);
-
-	/// <summary>
-	/// will iterate over all passes and will erase empty passes
-	/// </summary>
-	void ClearEmptyPasses();
+	void ClearGenericPasses();
 
 	// during init
 	virtual void ActionBeforeInit();

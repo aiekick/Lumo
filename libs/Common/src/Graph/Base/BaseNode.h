@@ -130,6 +130,16 @@ enum class LINK_TYPE_Enum : uint8_t
 	LINK_TYPE_Count
 };
 
+/// <summary>
+/// fixed mean : slots count are fixed and defined by the node
+/// dynamic mean : slots count a varaible 
+/// </summary>
+enum class NODE_INTERNAL_MODE_Enum : uint8_t
+{
+	NODE_INTERNAL_MODE_FIXED = 0,
+	NODE_INTERNAL_MODE_DYNAMIC
+};
+
 struct BaseNodeState
 {
 	ImGuiContext* m_Context = nullptr;
@@ -288,6 +298,17 @@ public: // glslang and links
 	ImVec2 m_BaseCopyOffset = ImVec2(0, 0);
 	std::vector<nd::NodeId> m_NodesToCopy; // for copy/paste
 
+	/// <summary>
+	/// specify the slots we cant delete during this connect slots
+	/// </summary>
+	std::set<uint32_t> m_SlotsToNotDestroyDuringThisConnect;
+
+	/// <summary>
+	/// internal meaning of manage slots. dynamic is for variable slot count
+	/// </summary>
+	NODE_INTERNAL_MODE_Enum m_InputSlotsInternalMode = NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_FIXED;
+	NODE_INTERNAL_MODE_Enum m_OutputSlotsInternalMode = NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_FIXED;
+
 private:
 	bool m_IsCodeDirty = false; // code changed, need regeneration of code of parents
 
@@ -412,6 +433,8 @@ public:
 	void PasteNodesAtMousePos();
 	void DuplicateSelectedNodes(ImVec2 vOffset = ImVec2(0,0));
 
+	uint32_t GetNodeID() const;
+
 	// finders
 	BaseNodeWeak FindNode(nd::NodeId vId);
 	BaseNodeWeak FindNodeByName(std::string vName);
@@ -436,9 +459,9 @@ public:
 	/// </summary>
 	std::vector<NodeSlotWeak> GetOutputSlotsOfType(std::string vType);
 
-	// Add slots
-	NodeSlotWeak AddInput(NodeSlotInputPtr vSlotPtr, bool vIncSlotId = false, bool vHideName = true);
-	NodeSlotWeak AddOutput(NodeSlotOutputPtr  vSlotPtr, bool vIncSlotId = false, bool vHideName = true);
+	// for add an input or output during xml loading in INTERNAL_MODE_DYNAMIC
+	virtual NodeSlotWeak AddPreDefinedInput(const NodeSlot& vNodeSlot);
+	virtual NodeSlotWeak AddPreDefinedOutput(const NodeSlot& vNodeSlot);
 
 	// add nodes
 	BaseNodeWeak AddChildNode(BaseNodePtr vNode, bool vIncNodeId = false);
@@ -459,6 +482,10 @@ public:
 
 	// when the xml laoding of the node is finished
 	void AfterNodeXmlLoading() override;
+
+protected: // Add slots internally
+	NodeSlotWeak AddInput(NodeSlotInputPtr vSlotPtr, bool vIncSlotId = false, bool vHideName = true);
+	NodeSlotWeak AddOutput(NodeSlotOutputPtr  vSlotPtr, bool vIncSlotId = false, bool vHideName = true);
 
 public:
 	void DoLayout();
@@ -496,20 +523,16 @@ public: // Get Links / Slots
 	std::vector<NodeSlotWeak> GetSlotsAssociatedToSlot(NodeSlotWeak vSlot);
 
 public: // ADD/DELETE LINKS
-	void AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd);
-	bool BreakLink(uint32_t vLinkId);
-	void BreakLinksConnectedToSlot(NodeSlotWeak vSlot);
-	void BreakLinkConnectedToSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo);
+	bool AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd);
+	bool BreakLink(NodeSlotWeak vFrom, NodeSlotWeak vTo);
+	bool BreakAllLinksConnectedToSlot(NodeSlotWeak vSlot);
 	
+private:
+	bool BreakLink(const uint32_t& vLinkId);
+
 public: // CONNECT / DISCONNECT SLOTS BEHIND
 	bool ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo);
 
-	/// <summary>
-	/// disconnect all links from slot
-	/// </summary>
-	/// <param name="vSlot">the slot to disconnect</param>
-	/// <returns></returns>
-	bool DisConnectSlot(NodeSlotWeak vSlot);
 	virtual void NotifyConnectionChangeOfThisSlot(NodeSlotWeak vSlot, bool vConnected); // ce solt a été connecté/déconnecté
 
 private: // connect / disconnect events

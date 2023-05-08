@@ -176,7 +176,7 @@ vk::DescriptorImageInfo* DeferredRenderer::GetDescriptorImageInfo(const uint32_t
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak DeferredRenderer::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak DeferredRenderer::GetShaderPasses(const uint32_t& vSlotID)
 {
 	return m_SceneShaderPassPtr;
 }

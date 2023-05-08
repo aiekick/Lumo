@@ -23,6 +23,12 @@ limitations under the License.
 class SceneShaderPass;
 typedef std::shared_ptr<SceneShaderPass> SceneShaderPassPtr;
 typedef ct::cWeak<SceneShaderPass> SceneShaderPassWeak;
+typedef std::unordered_map<uint32_t, SceneShaderPassWeak> SceneShaderPassContainer;
+
+// class qui va contenir un enesemble de shaderpass
+// cat un merger peut etre connecté a d'autre merger, 
+// et donc un ensemble de pluieurs passes peut etre mit sur un slot input
+// au lieu de jsute 1, donc cet un objet simple qui cotient des passes en provenance d'autre nodes
 
 class SceneShaderPass
 {

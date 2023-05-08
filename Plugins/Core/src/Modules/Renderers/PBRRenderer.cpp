@@ -189,7 +189,7 @@ void PBRRenderer::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak PBRRenderer::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak PBRRenderer::GetShaderPasses(const uint32_t& vSlotID)
 {
 	return m_SceneShaderPassPtr;
 }

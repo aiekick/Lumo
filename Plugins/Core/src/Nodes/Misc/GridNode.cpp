@@ -127,11 +127,11 @@ vk::DescriptorImageInfo* GridNode::GetDescriptorImageInfo(const uint32_t& vBindi
 	return nullptr;
 }
 
-SceneShaderPassWeak GridNode::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak GridNode::GetShaderPasses(const uint32_t& vSlotID)
 {
 	if (m_GridModulePtr)
 	{
-		return m_GridModulePtr->GetShaderPasses(vBindingPoint);
+		return m_GridModulePtr->GetShaderPasses(vSlotID);
 	}
 
 	return SceneShaderPassWeak();
@@ -155,7 +155,7 @@ std::string GridNode::getXml(const std::string& vOffset, const std::string& vUse
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
 		for (auto slot : m_Inputs)
 		{

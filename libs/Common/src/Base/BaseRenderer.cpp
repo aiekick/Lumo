@@ -98,23 +98,11 @@ ShaderPassWeak BaseRenderer::GetGenericPass(const uint32_t& vIdx)
 	return ShaderPassWeak();
 }
 
-void BaseRenderer::ClearEmptyPasses()
+void BaseRenderer::ClearGenericPasses()
 {
-	std::vector<std::vector<ShaderPassWeak>::iterator> arr;
-
-	for (auto it = m_ShaderPasses.begin(); it != m_ShaderPasses.end(); ++it)
-	{
-		if (it->expired())
-		{
-			arr.push_back(it);
-		}
-	}
-
-	for (auto it : arr)
-	{
-		m_ShaderPasses.erase(it);
-	}
+	m_ShaderPasses.clear();
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PUBLIC / DURING INIT //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -248,7 +248,7 @@ vk::DescriptorImageInfo* BillBoardRendererModule::GetDescriptorImageInfo(const u
 //// SHADEr PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak BillBoardRendererModule::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak BillBoardRendererModule::GetShaderPasses(const uint32_t& vSlotID)
 {
 	return m_SceneShaderPassPtr;
 }

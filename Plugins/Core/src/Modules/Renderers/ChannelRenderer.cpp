@@ -174,7 +174,7 @@ vk::DescriptorImageInfo* ChannelRenderer::GetDescriptorImageInfo(const uint32_t&
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak ChannelRenderer::GetShaderPasses(const uint32_t& vBindingPoint)
+SceneShaderPassWeak ChannelRenderer::GetShaderPasses(const uint32_t& vSlotID)
 {
 	return m_SceneShaderPassPtr;
 }

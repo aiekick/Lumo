@@ -101,8 +101,8 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 
 						if (inParentPtr && outParentPtr)
 						{
-							std::string inNodeIdSlotId = ct::toStr("%u:%u", (uint32_t)inParentPtr->nodeID.Get(), (uint32_t)inPtr->pinID.Get());
-							std::string outNodeIdSlotId = ct::toStr("%u:%u", (uint32_t)outParentPtr->nodeID.Get(), (uint32_t)outPtr->pinID.Get());
+							std::string inNodeIdSlotId = ct::toStr("%u:%u", inParentPtr->GetNodeID(), inPtr->GetSlotID());
+							std::string outNodeIdSlotId = ct::toStr("%u:%u", outParentPtr->GetNodeID(), outPtr->GetSlotID());
 							res += vOffset + "\t\t<link in=\"" + inNodeIdSlotId + "\" out=\"" + outNodeIdSlotId + "\"/>\n";
 						}
 					}
@@ -121,7 +121,7 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 			auto slotLeftParentNodePtr = slotLeftPtr->parentNode.getValidShared();
 			if (slotLeftParentNodePtr)
 			{
-				outLeftSlot = ct::toStr("%u:%u", (uint32_t)slotLeftParentNodePtr->nodeID.Get(), (uint32_t)slotLeftPtr->pinID.Get());
+				outLeftSlot = ct::toStr("%u:%u", slotLeftParentNodePtr->GetNodeID(), slotLeftPtr->GetSlotID());
 				res += vOffset + "\t\t<output type=\"left\" ids=\"" + outLeftSlot + "\"/>\n";
 			}
 		}
@@ -133,7 +133,7 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 			auto slotMiddleParentNodePtr = slotMiddlePtr->parentNode.getValidShared();
 			if (slotMiddleParentNodePtr)
 			{
-				outMiddleSlot = ct::toStr("%u:%u", (uint32_t)slotMiddleParentNodePtr->nodeID.Get(), (uint32_t)slotMiddlePtr->pinID.Get());
+				outMiddleSlot = ct::toStr("%u:%u", slotMiddleParentNodePtr->GetNodeID(), slotMiddlePtr->GetSlotID());
 				res += vOffset + "\t\t<output type=\"middle\" ids=\"" + outMiddleSlot + "\"/>\n";
 			}
 		}
@@ -145,7 +145,7 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 			auto slotRightParentNodePtr = slotRightPtr->parentNode.getValidShared();
 			if (slotRightParentNodePtr)
 			{
-				outRightSlot = ct::toStr("%u:%u", (uint32_t)slotRightParentNodePtr->nodeID.Get(), (uint32_t)slotRightPtr->pinID.Get());
+				outRightSlot = ct::toStr("%u:%u", slotRightParentNodePtr->GetNodeID(), slotRightPtr->GetSlotID());
 				res += vOffset + "\t\t<output type=\"right\" ids=\"" + outMiddleSlot + "\"/>\n";
 			}
 		}
@@ -160,7 +160,7 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
 		for (auto slot : m_Inputs)
 		{
@@ -349,7 +349,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 						if (wasSet)
 						{
 							m_Inputs.erase(input.first);
-							m_Inputs[(uint32_t)input.second->pinID.Get()] = input.second;
+							m_Inputs[input.second->GetSlotID()] = input.second;
 							break;
 						}
 					}
@@ -384,7 +384,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 						if (wasSet)
 						{
 							m_Outputs.erase(output.first);
-							m_Outputs[(uint32_t)output.second->pinID.Get()] = output.second;
+							m_Outputs[output.second->GetSlotID()] = output.second;
 							break;
 						}
 					}
@@ -848,7 +848,7 @@ std::string NODE_CLASS_NAME::getXml(const std::string& vOffset, const std::strin
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+			(uint32_t)GetNodeID());
 
 		for (auto slot : m_Inputs)
 		{

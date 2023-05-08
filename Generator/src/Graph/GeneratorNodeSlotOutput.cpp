@@ -51,7 +51,7 @@ std::string GeneratorNodeSlotOutput::getXml(const std::string& vOffset, const st
 		name.c_str(),
 		slotType.c_str(),
 		NodeSlot::sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(),
-		(uint32_t)pinID.Get(),
+		(uint32_t)GetSlotID(),
 		hideName ? "true" : "false",
 		editorSlotTypeIndex,
 		editorSlotSubTypeIndex,
@@ -112,7 +112,7 @@ bool GeneratorNodeSlotOutput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 			idAlreadySetbyXml = true;
 
 			// pour eviter que des slots aient le meme id qu'un nodePtr
-			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)pinID.Get());
+			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)GetSlotID());
 
 			return false;
 		}

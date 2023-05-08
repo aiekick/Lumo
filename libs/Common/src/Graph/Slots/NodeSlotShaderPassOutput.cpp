@@ -35,23 +35,23 @@ NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(NodeSlotShaderPassO
 	return res;
 }
 
-NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName, const uint32_t& vBindingPoint)
+NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName)
 {
-	auto res = std::make_shared<NodeSlotShaderPassOutput>(vName, vBindingPoint);
+	auto res = std::make_shared<NodeSlotShaderPassOutput>(vName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
+NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName, const bool& vHideName)
 {
-	auto res = std::make_shared<NodeSlotShaderPassOutput>(vName, vBindingPoint, vHideName);
+	auto res = std::make_shared<NodeSlotShaderPassOutput>(vName, vHideName);
 	res->m_This = res;
 	return res;
 }
 
-NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
+NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
 {
-	auto res = std::make_shared<NodeSlotShaderPassOutput>(vName, vBindingPoint, vHideName, vShowWidget);
+	auto res = std::make_shared<NodeSlotShaderPassOutput>(vName, vHideName, vShowWidget);
 	res->m_This = res;
 	return res;
 }
@@ -68,31 +68,28 @@ NodeSlotShaderPassOutput::NodeSlotShaderPassOutput()
 	colorIsSet = true;
 }
 
-NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName, const uint32_t& vBindingPoint)
+NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName)
 	: NodeSlotOutput(vName, "SHADER_PASS")
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
 }
 
-NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
+NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName, const bool& vHideName)
 	: NodeSlotOutput(vName, "SHADER_PASS", vHideName)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
 }
 
-NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
+NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
 	: NodeSlotOutput(vName, "SHADER_PASS", vHideName, vShowWidget)
 {
 	pinID = sGetNewSlotId();
 	color = sGetSlotColors()->GetSlotColor(slotType);
 	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
 }
 
 NodeSlotShaderPassOutput::~NodeSlotShaderPassOutput() = default;
@@ -120,7 +117,7 @@ void NodeSlotShaderPassOutput::Unit()
 					auto graphPtr = graph.lock();
 					if (graphPtr)
 					{
-						graphPtr->DisConnectSlot(m_This);
+						graphPtr->BreakAllLinksConnectedToSlot(m_This);
 					}
 				}
 			}
