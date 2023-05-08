@@ -167,6 +167,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :heavy_check_mark:  | Lighting / Cell Shading Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Misc / 2D Layering Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Misc / Scene Merger Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Postpro / Blur Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Postpro / Bloom Node | ![img](https://progress-bar.dev/100) |
