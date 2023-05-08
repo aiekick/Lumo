@@ -56,7 +56,6 @@ public:
 	// Interfaces Setters
 	void SetModel(SceneModelWeak vSceneModel) override;
 
-
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) override;
@@ -68,5 +67,4 @@ public:
 
 	// Shader Update
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
-
 };

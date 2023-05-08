@@ -20,8 +20,14 @@ limitations under the License.
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 #include <Graph/Slots/NodeSlotShaderPassOutput.h>
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// STATIC'S ////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 std::shared_ptr<DeferredRendererNode> DeferredRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	ZoneScoped;
+
 	auto res = std::make_shared<DeferredRendererNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
@@ -31,18 +37,34 @@ std::shared_ptr<DeferredRendererNode> DeferredRendererNode::Create(vkApi::Vulkan
 	return res;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 DeferredRendererNode::DeferredRendererNode() : BaseNode()
 {
+	ZoneScoped;
+
 	m_NodeTypeString = "DEFERRED_RENDERER";
 }
 
 DeferredRendererNode::~DeferredRendererNode()
 {
+	ZoneScoped;
+
 	Unit();
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
+	ZoneScoped;
+
+	bool res = false;
+
 	name = "Deferred Renderer";
 
 	AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
@@ -57,8 +79,6 @@ bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
-	bool res = false;
-
 	m_DeferredRendererPtr = DeferredRenderer::Create(vVulkanCorePtr);
 	if (m_DeferredRendererPtr)
 	{
@@ -68,13 +88,14 @@ bool DeferredRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-void DeferredRendererNode::Unit()
-{
-	m_DeferredRendererPtr.reset();
-}
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 bool DeferredRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
+	ZoneScoped;
+
 	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
@@ -88,8 +109,14 @@ bool DeferredRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Com
 	return false;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 bool DeferredRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_DeferredRendererPtr)
@@ -102,6 +129,8 @@ bool DeferredRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 
 void DeferredRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
 {
+	ZoneScoped;
+
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_DeferredRendererPtr)
@@ -110,8 +139,14 @@ void DeferredRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 void DeferredRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
+	ZoneScoped;
+
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
@@ -127,8 +162,14 @@ void DeferredRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeSt
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// RESIZE //////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 void DeferredRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
+	ZoneScoped;
+
 	if (m_DeferredRendererPtr)
 	{
 		m_DeferredRendererPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
@@ -138,16 +179,28 @@ void DeferredRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const ui
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 void DeferredRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
+	ZoneScoped;
+
 	if (m_DeferredRendererPtr)
 	{
 		m_DeferredRendererPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 vk::DescriptorImageInfo* DeferredRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
+	ZoneScoped;
+
 	if (m_DeferredRendererPtr)
 	{
 		return m_DeferredRendererPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
@@ -162,6 +215,8 @@ vk::DescriptorImageInfo* DeferredRendererNode::GetDescriptorImageInfo(const uint
 
 SceneShaderPassWeak DeferredRendererNode::GetShaderPasses(const uint32_t& vSlotID)
 {
+	ZoneScoped;
+
 	if (m_DeferredRendererPtr)
 	{
 		return m_DeferredRendererPtr->GetShaderPasses(vSlotID);
@@ -176,6 +231,8 @@ SceneShaderPassWeak DeferredRendererNode::GetShaderPasses(const uint32_t& vSlotI
 
 std::string DeferredRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
+	ZoneScoped;
+
 	std::string res;
 
 	if (!m_ChildNodes.empty())
@@ -213,6 +270,8 @@ std::string DeferredRendererNode::getXml(const std::string& vOffset, const std::
 
 bool DeferredRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
+	ZoneScoped;
+
 	// The value of this child identifies the name of this element
 	std::string strName;
 	std::string strValue;
@@ -234,8 +293,14 @@ bool DeferredRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 	return true;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 void DeferredRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
+	ZoneScoped;
+
 	if (m_DeferredRendererPtr)
 	{
 		m_DeferredRendererPtr->UpdateShaders(vFiles);

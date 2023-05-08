@@ -43,17 +43,32 @@ private:
 public:
 	DeferredRendererNode();
 	~DeferredRendererNode() override;
+
+	// Init / Unit
 	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
-	void Unit() override;
+
+	// Execute Task
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+
+	// Draw Widgets
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
 	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+
+	// Resize
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+
+	// Interfaces Setters
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+
+	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) override;
+
+	// Configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+
+	// Shader Update
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
 };

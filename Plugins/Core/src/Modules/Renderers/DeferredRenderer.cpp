@@ -82,11 +82,17 @@ bool DeferredRenderer::Init()
 
 	if (TaskRenderer::InitPixel(map_size))
 	{
+		//SetExecutionWhenNeededOnly(true);
+
 		m_DeferredRenderer_Quad_Pass_Ptr = std::make_shared<DeferredRenderer_Quad_Pass>(m_VulkanCorePtr);
 		if (m_DeferredRenderer_Quad_Pass_Ptr)
 		{
+			// by default but can be changed via widget
+			//m_ModelRendererModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(false);
+			//m_ModelRendererModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(true);
+
 			if (m_DeferredRenderer_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
 			{
 				AddGenericPass(m_DeferredRenderer_Quad_Pass_Ptr);
 				m_SceneShaderPassPtr->Add(m_DeferredRenderer_Quad_Pass_Ptr);

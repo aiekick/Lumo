@@ -21,6 +21,10 @@ limitations under the License.
 #include <Graph/Slots/NodeSlotTextureOutput.h>
 #include <Graph/Slots/NodeSlotTextureGroupInput.h>
 
+/*
+// tofix : the select of output crash Lumo...
+*/
+
 std::shared_ptr<BreakTexturesGroupNode> BreakTexturesGroupNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<BreakTexturesGroupNode>();
@@ -35,6 +39,10 @@ std::shared_ptr<BreakTexturesGroupNode> BreakTexturesGroupNode::Create(vkApi::Vu
 BreakTexturesGroupNode::BreakTexturesGroupNode() : BaseNode()
 {
 	m_NodeTypeString = "BREAK_TEXTURE_2D_GROUP";
+
+	// variable slot count only for inputs
+	// important for xml loading
+	m_OutputSlotsInternalMode = NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_DYNAMIC;
 }
 
 BreakTexturesGroupNode::~BreakTexturesGroupNode()
@@ -167,6 +175,40 @@ bool BreakTexturesGroupNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::X
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
 	return true;
+}
+
+NodeSlotWeak BreakTexturesGroupNode::AddPreDefinedOutput(const NodeSlot& vNodeSlot)
+{
+	// tofix : to test xml loading (normally ok like for SceneMergerNode)
+	CTOOL_DEBUG_BREAK;
+
+	if (vNodeSlot.slotType == "TEXTURE_2D")
+	{
+		auto slot_ptr = NodeSlotTextureOutput::Create(ct::toStr("Output %u", vNodeSlot.index), vNodeSlot.index);
+		if (slot_ptr)
+		{
+			slot_ptr->parentNode = m_This;
+			slot_ptr->slotPlace = NodeSlot::PlaceEnum::OUTPUT;
+			slot_ptr->hideName = true;
+			slot_ptr->type = uType::uTypeEnum::U_FLOW;
+			slot_ptr->index = vNodeSlot.index;
+			slot_ptr->pinID = vNodeSlot.pinID;
+			const auto& slotID = vNodeSlot.GetSlotID();
+
+			// pour eviter que des slots aient le meme id qu'un nodePtr
+			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, slotID) + 1U;
+
+			m_Outputs[slotID] = slot_ptr;
+			return m_Outputs.at(slotID);
+		}
+	}
+	else
+	{
+		CTOOL_DEBUG_BREAK;
+		LogVarError("node slot is of type %s.. must be of type TEXTURE_2D", vNodeSlot.slotType.c_str());
+	}
+
+	return NodeSlotWeak();
 }
 
 void BreakTexturesGroupNode::ReorganizeSlots()

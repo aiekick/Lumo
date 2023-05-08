@@ -151,14 +151,10 @@ bool ModelRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Model Renderer##ModelRendererModule", -1.0f, true, true, &m_CanWeRender))
 		{
-			bool change = false;
-
 			if (m_ModelRendererModule_Mesh_Pass_Ptr)
 			{
-				change |= m_ModelRendererModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_ModelRendererModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
 			}
-
-			return change;
 		}
 	}
 

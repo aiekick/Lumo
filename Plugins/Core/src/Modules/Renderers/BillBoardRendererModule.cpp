@@ -102,7 +102,7 @@ bool BillBoardRendererModule::Init()
 			m_BillBoardRendererModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
 
 			if (m_BillBoardRendererModule_Mesh_Pass_Ptr->InitPixel(map_size, 1U, false, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
 			{
 				AddGenericPass(m_BillBoardRendererModule_Mesh_Pass_Ptr);
 				m_SceneShaderPassPtr->Add(m_BillBoardRendererModule_Mesh_Pass_Ptr);

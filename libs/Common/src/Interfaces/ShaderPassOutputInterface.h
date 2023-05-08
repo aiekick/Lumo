@@ -23,6 +23,8 @@ limitations under the License.
 // binding point use make no sense
 // instead for the slot removing/adding it make more sens eto link it to SlotID's
 
+// TO NOTE : SHADER PASS OUTPUT need a vk::SampleCountFlagBits::e2 for the FBO
+
 class ShaderPassOutputInterface
 {
 public:

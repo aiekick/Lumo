@@ -84,10 +84,6 @@ bool ModelShadowModule::Init()
 		m_ModelShadowModule_Quad_Pass_Ptr = std::make_shared<ModelShadowModule_Quad_Pass>(m_VulkanCorePtr);
 		if (m_ModelShadowModule_Quad_Pass_Ptr)
 		{
-			// eR8G8B8A8Unorm is used for have nice white and black display
-			// unfortunatly not for perf, but the main purpose is for nice widget display
-			// or maybe there is a way in glsl to know the component count of a texture
-			// so i could modify in this way the shader of imgui
 			if (m_ModelShadowModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, false, true, 0.0f,
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
