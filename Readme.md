@@ -25,11 +25,6 @@ at least, support all rendering features and result of the SketchFab Renderer (y
 - Middle mouse double click on a texture slot (Orange) of nodes for show the result in the 2d viewport
 - select a node and you can tune it in the tuning pane
 
-## to note :
- the resize events are propagated from the head of the graph (the head is the texture slots you selected)
- so when you just select a texture slot from a already created node, maybe you need to reisze the 3d viewport for make it updated.
- (to fix in few version, the resize system will be improved, but its not my priority, for the moment)
-
 thats all
 
 # How to build
