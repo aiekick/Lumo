@@ -151,10 +151,7 @@ vk::DescriptorImageInfo* BloomModule_Comp_2D_Pass::GetDescriptorImageInfo(const 
 {
 	if (m_ComputeBufferPtr)
 	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+		AutoResizeBuffer(m_ComputeBufferPtr.get(), vOutSize);
 
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
@@ -297,9 +294,9 @@ void BloomModule_Comp_2D_Pass::DestroyUBO()
 
 void BloomModule_Comp_2D_Pass::ReComputeGaussianBlurWeights()
 {
-	// gauss curve : exp(-x²)
+	// gauss curve : exp(-xï¿½)
 	// integration of curve give sqrt(pi)
-	// exp(-x²/(2*sigma²)
+	// exp(-xï¿½/(2*sigmaï¿½)
 	// here we will compute weights value for X Samples from 0 to  
 	m_GaussianWeights.clear();
 	m_GaussianWeights.resize((size_t)m_UBOComp.u_blur_radius);

@@ -147,10 +147,7 @@ vk::DescriptorImageInfo* PBRRenderer_Quad_Pass::GetDescriptorImageInfo(const uin
 {
 	if (m_FrameBufferPtr)
 	{
-		if (vOutSize)
-		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
-		}
+		AutoResizeBuffer(m_FrameBufferPtr.get(), vOutSize);
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

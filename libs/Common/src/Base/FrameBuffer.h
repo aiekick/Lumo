@@ -25,6 +25,8 @@ limitations under the License.
 
 #include <Utils/Mesh/VertexStruct.h>
 
+#include <Interfaces/OutputSizeInterface.h>
+
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -37,7 +39,7 @@ limitations under the License.
 
 #include <Base/Base.h>
 
-class FrameBuffer
+class FrameBuffer : public OutputSizeInterface
 {
 public:
 	static FrameBufferPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -147,12 +149,13 @@ public: // contructor
 	// Get
 	vk::Viewport GetViewport() const;
 	vk::Rect2D GetRenderArea() const;
-	float GetOutputRatio() const;
 	vk::RenderPass* GetRenderPass();
 	void SetRenderPass(const vk::RenderPass& vExternalRenderPass);
 	vk::SampleCountFlagBits GetSampleCount() const;
-	ct::fvec2 GetOutputSize() const;
 	uint32_t GetBuffersCount() const;
+
+	float GetOutputRatio() const override;
+	ct::fvec2 GetOutputSize() const override;
 	
 	void BeginRenderPass(vk::CommandBuffer* vCmdBuffer);
 	void ClearAttachmentsIfNeeded(vk::CommandBuffer* vCmdBuffer, const bool& vForce = false); // clear if clear is needed internally (set by ClearAttachments)

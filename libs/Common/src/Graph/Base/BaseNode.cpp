@@ -947,7 +947,7 @@ NodeSlotWeak BaseNode::AddInput(NodeSlotInputPtr vSlotPtr, bool vIncSlotId, bool
 		}
 		vSlotPtr->index = (uint32_t)m_Inputs.size();
 		const auto& slotID = vSlotPtr->GetSlotID();
-		LogVarDebug("input slot(%u) creation", slotID);
+		//LogVarDebug("input slot(%u) creation", slotID);
 		m_Inputs[slotID] = vSlotPtr;
 		return m_Inputs.at(slotID);
 	}
@@ -970,7 +970,7 @@ NodeSlotWeak BaseNode::AddOutput(NodeSlotOutputPtr vSlotPtr, bool vIncSlotId, bo
 		}
 		vSlotPtr->index = (uint32_t)m_Outputs.size();
 		const auto& slotID = vSlotPtr->GetSlotID();
-		LogVarDebug("output slot(%u) creation", slotID);
+		//LogVarDebug("output slot(%u) creation", slotID);
 		m_Outputs[slotID] = vSlotPtr;
 		return m_Outputs.at(slotID);
 	}
@@ -2154,7 +2154,7 @@ bool BaseNode::AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd)
 			link.linkId = GetNextNodeId();
 
 			m_Links[link.linkId] = std::make_shared<NodeLink>(link);
-			LogVarDebug("link(%u) creation from slot(%u) to slot(%u)", link.linkId, inID, outID);
+			//LogVarDebug("link(%u) creation from slot(%u) to slot(%u)", link.linkId, inID, outID);
 
 			m_LinksDico[inID].emplace(m_Links[link.linkId]->linkId);
 			m_LinksDico[outID].emplace(m_Links[link.linkId]->linkId);
@@ -2210,7 +2210,7 @@ bool BaseNode::BreakLink(const uint32_t& vLinkId)
 										if (m_Links.find(vLinkId) != m_Links.end())
 										{
 											m_Links.erase(vLinkId);
-											LogVarDebug("link(%u) erasing from slot(%u) to slot(%u)", vLinkId, inPinID, outPinID);
+											//LogVarDebug("link(%u) erasing from slot(%u) to slot(%u)", vLinkId, inPinID, outPinID);
 
 											CallSlotsOnDisConnectEvent(inPtr, outPtr);
 
@@ -2280,7 +2280,7 @@ bool BaseNode::BreakAllLinksConnectedToSlot(NodeSlotWeak vSlot)
 				{
 					if (m_Links.find(lid) != m_Links.end()) 
 					{
-						auto inPtr = m_Links[lid]->in.lock();
+						/*auto inPtr = m_Links[lid]->in.lock();
 						auto outPtr = m_Links[lid]->out.lock();
 						if (inPtr && outPtr)
 						{
@@ -2293,7 +2293,7 @@ bool BaseNode::BreakAllLinksConnectedToSlot(NodeSlotWeak vSlot)
 						else if (outPtr)
 						{
 							LogVarDebug("link(%u) erasing from slot(expired) to slot(%u)", lid, outPtr->GetSlotID());
-						}
+						}*/
 
 						res &= BreakLink(m_Links[lid]->in, m_Links[lid]->out);
 					}
@@ -2341,7 +2341,7 @@ bool BaseNode::BreakLink(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 					{
 						if (tid == fid)
 						{
-							LogVarDebug("Break link %u from slot(%u) to slot(%u)", tid, fromPinId, endPinId);
+							//LogVarDebug("Break link %u from slot(%u) to slot(%u)", tid, fromPinId, endPinId);
 							bool res = BreakLink(tid);
 							fromPtr->NotifyConnectionChangeToParent(true);
 							toPtr->NotifyConnectionChangeToParent(true);
@@ -2392,11 +2392,12 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 			vFrom.swap(vTo); 
 			fromPtr = vTo.lock();
 			toPtr = vFrom.lock();
-		}
 
-		if (fromPtr->IsAnInput() && toPtr->IsAnOutput())
-		{
-			CTOOL_DEBUG_BREAK;
+			// bizarre donc ont est...
+			if (fromPtr->IsAnInput() && toPtr->IsAnOutput())
+			{
+				CTOOL_DEBUG_BREAK;
+			}
 		}
 
 		auto fromParentNodePtr = fromPtr->parentNode.getValidShared();

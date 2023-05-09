@@ -202,10 +202,7 @@ vk::DescriptorImageInfo* BlurModule_Comp_Pass::GetDescriptorImageInfo(const uint
 
 	if (m_ComputeBufferPtr)
 	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+		AutoResizeBuffer(m_ComputeBufferPtr.get(), vOutSize);
 
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
@@ -317,9 +314,9 @@ void BlurModule_Comp_Pass::DestroyUBO()
 
 void BlurModule_Comp_Pass::ReComputeGaussianBlurWeights(GaussianKernel& vOutGaussian, const uint32_t& vRadius)
 {
-	// gauss curve : exp(-x²)
+	// gauss curve : exp(-xï¿½)
 	// integration of curve give sqrt(pi)
-	// exp(-x²/(2*sigma²)
+	// exp(-xï¿½/(2*sigmaï¿½)
 	// here we will compute weights value for X Samples from 0 to  
 	vOutGaussian.m_GaussianWeights.clear();
 	vOutGaussian.m_GaussianWeights.resize((size_t)vRadius);

@@ -101,10 +101,7 @@ vk::DescriptorImageInfo* GridModule_Vertex_Pass::GetDescriptorImageInfo(const ui
 
 	if (m_FrameBufferPtr)
 	{
-		if (vOutSize)
-		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
-		}
+		AutoResizeBuffer(m_FrameBufferPtr.get(), vOutSize);
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

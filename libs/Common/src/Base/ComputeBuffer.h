@@ -25,6 +25,8 @@ limitations under the License.
 
 #include <Utils/Mesh/VertexStruct.h>
 
+#include <Interfaces/OutputSizeInterface.h>
+
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/Texture2D.h>
 #include <vkFramework/VulkanCore.h>
@@ -35,7 +37,7 @@ limitations under the License.
 
 #include <Base/Base.h>
 
-class ComputeBuffer
+class ComputeBuffer : public OutputSizeInterface
 {
 public:
 	static ComputeBufferPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
@@ -105,10 +107,11 @@ public: // contructor
 	vk::DescriptorImageInfo* GetBackDescriptorImageInfo(const uint32_t& vBindingPoint);
 	vk::DescriptorImageInfo* GetFrontDescriptorImageInfo(const uint32_t& vBindingPoint);
 	
-	float GetOutputRatio() const;
-	ct::fvec2 GetOutputSize() const;
 	uint32_t GetBuffersCount() const;
 	bool IsMultiPassMode() const;
+
+	float GetOutputRatio() const override;
+	ct::fvec2 GetOutputSize() const override;
 
 	void Swap();
 

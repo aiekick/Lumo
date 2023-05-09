@@ -139,10 +139,7 @@ vk::DescriptorImageInfo* VignetteModule_Comp_2D_Pass::GetDescriptorImageInfo(con
 	ZoneScoped;
 	if (m_ComputeBufferPtr)
 	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+		AutoResizeBuffer(m_ComputeBufferPtr.get(), vOutSize);
 
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

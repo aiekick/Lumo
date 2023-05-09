@@ -144,10 +144,7 @@ vk::DescriptorImageInfo* ModelShadowModule_Quad_Pass::GetDescriptorImageInfo(con
 
 	if (m_FrameBufferPtr)
 	{
-		if (vOutSize)
-		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
-		}
+		AutoResizeBuffer(m_ComputeBufferPtr.get(), vOutSize);
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

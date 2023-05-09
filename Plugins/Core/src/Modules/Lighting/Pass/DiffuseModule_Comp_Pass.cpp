@@ -123,10 +123,7 @@ vk::DescriptorImageInfo* DiffuseModule_Comp_Pass::GetDescriptorImageInfo(const u
 {
 	if (m_ComputeBufferPtr)
 	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+		AutoResizeBuffer(m_ComputeBufferPtr.get(), vOutSize);
 
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

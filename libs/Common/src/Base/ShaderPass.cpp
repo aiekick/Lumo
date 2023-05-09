@@ -656,6 +656,23 @@ void ShaderPass::Resize(const ct::uvec2& vNewSize)
 	}
 }
 
+void ShaderPass::AutoResizeBuffer(OutputSizeInterface* vBufferOutSizePtr, ct::fvec2* vParentOutSizePtr)
+{
+	if (vBufferOutSizePtr && vParentOutSizePtr)
+	{
+		auto buffer_size = vBufferOutSizePtr->GetOutputSize();
+		if (!vParentOutSizePtr->emptyAND() &&
+			IS_FLOAT_DIFFERENT(buffer_size.x, (float)vParentOutSizePtr->x) ||
+			IS_FLOAT_DIFFERENT(buffer_size.y, (float)vParentOutSizePtr->y))
+		{
+			ct::ivec2 new_size = ct::ivec2((int32_t)vParentOutSizePtr->x, (int32_t)vParentOutSizePtr->y);
+			NeedResizeByResizeEvent(&new_size, nullptr);
+		}
+
+		*vParentOutSizePtr = vBufferOutSizePtr->GetOutputSize();
+	}
+}
+
 void ShaderPass::UpdatePixel2DViewportSize(const ct::uvec2& vNewSize)
 {
 	if (m_ResizingByHandIsAllowed ||

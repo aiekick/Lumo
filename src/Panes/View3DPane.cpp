@@ -230,7 +230,7 @@ ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 {
 	ZoneScoped;
 
-	ct::fvec2 outSize;
+	ct::fvec2 outSize = ct::fvec2((float)m_PaneSize.x, (float)m_PaneSize.y);
 
 	auto slotPtr = vTextureOutputSlot.getValidShared();
 	if (slotPtr)

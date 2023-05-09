@@ -132,10 +132,7 @@ vk::DescriptorImageInfo* CellShadingModule_Comp_Pass::GetDescriptorImageInfo(con
 {
 	if (m_ComputeBufferPtr)
 	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+		AutoResizeBuffer(m_ComputeBufferPtr.get(), vOutSize);
 
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

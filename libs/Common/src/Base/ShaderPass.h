@@ -36,6 +36,7 @@ limitations under the License.
 #include <SceneGraph/SceneModel.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/ResizerInterface.h>
+#include <Interfaces/OutputSizeInterface.h>
 
 #include <Utils/Mesh/VertexStruct.h>
 
@@ -413,6 +414,15 @@ private:
 	void NeedResize(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers); // to call at any moment
 	void NeedResize(ct::ivec2* vNewSize); // to call at any moment
 	void Resize(const ct::uvec2& vNewSize);
+
+protected: // auto resize helper
+	/// <summary>
+	/// will ask to the buffer for resize if the buffer size and the parent size mismatch
+	/// its just an helper
+	/// </summary>
+	/// <param name="vOutputSizePtr">the buffer</param>
+	/// <param name="vOutSizePtr">the parent sier</param>
+	void AutoResizeBuffer(OutputSizeInterface* vBufferOutSizePtr, ct::fvec2* vParentOutSizePtr);
 
 protected:
 	virtual void ActionBeforeCompilation();

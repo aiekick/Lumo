@@ -144,10 +144,7 @@ vk::DescriptorImageInfo* ChannelRenderer_Mesh_Pass::GetDescriptorImageInfo(const
 {
 	if (m_FrameBufferPtr)
 	{
-		if (vOutSize)
-		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
-		}
+		AutoResizeBuffer(m_FrameBufferPtr.get(), vOutSize);
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
