@@ -20,8 +20,9 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/vkFramework.h>
+#include <Common/Globals.h>
 
-class StorageBufferOutputInterface
+class COMMON_API StorageBufferOutputInterface
 {
 public:
 	virtual vk::DescriptorBufferInfo* GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize = nullptr) = 0;

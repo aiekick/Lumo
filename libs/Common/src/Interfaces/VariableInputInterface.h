@@ -17,9 +17,10 @@ limitations under the License.
 #pragma once
 
 #include <SceneGraph/SceneVariable.h>
+#include <Common/Globals.h>
 
 template<size_t size_of_array>
-class VariableInputInterface
+class COMMON_API VariableInputInterface
 {
 protected:
 	bool m_NeedVariableUpdate = false;

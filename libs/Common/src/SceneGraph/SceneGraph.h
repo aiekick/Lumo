@@ -16,7 +16,9 @@ limitations under the License.
 
 #pragma once
 
-class SceneGraph
+#include <Common/Globals.h>
+
+class COMMON_API SceneGraph
 {
 public:
 	SceneGraph();

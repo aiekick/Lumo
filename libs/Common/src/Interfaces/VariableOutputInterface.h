@@ -17,8 +17,9 @@ limitations under the License.
 #pragma once
 
 #include <SceneGraph/SceneVariable.h>
+#include <Common/Globals.h>
 
-class VariableOutputInterface
+class COMMON_API VariableOutputInterface
 {
 public:
 	// return a Variable

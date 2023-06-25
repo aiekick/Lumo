@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <Base/ShaderPass.h>
 #include <SceneGraph/SceneMesh.hpp>
+#include <Common/Globals.h>
 
 enum class MeshShaderPassType : uint8_t
 {
@@ -28,7 +29,7 @@ enum class MeshShaderPassType : uint8_t
 };
 
 template<typename T_VertexType>
-class MeshShaderPass : public ShaderPass
+class COMMON_API MeshShaderPass : public ShaderPass
 {
 protected:
 	MeshInfo<T_VertexType> m_Vertices;

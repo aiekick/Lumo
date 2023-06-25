@@ -19,6 +19,7 @@ limitations under the License.
 #include <vector>
 #include <ctools/cTools.h>
 #include <Base/ShaderPass.h>
+#include <Common/Globals.h>
 
 class SceneShaderPass;
 typedef std::shared_ptr<SceneShaderPass> SceneShaderPassPtr;
@@ -30,7 +31,7 @@ typedef std::unordered_map<uint32_t, SceneShaderPassWeak> SceneShaderPassContain
 // et donc un ensemble de pluieurs passes peut etre mit sur un slot input
 // au lieu de jsute 1, donc cet un objet simple qui cotient des passes en provenance d'autre nodes
 
-class SceneShaderPass
+class COMMON_API SceneShaderPass
 {
 public:
 	static SceneShaderPassPtr Create();

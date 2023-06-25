@@ -21,8 +21,9 @@ limitations under the License.
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/ImGuiTexture.h>
 #include <vkFramework/vkFramework.h>
+#include <Common/Globals.h>
 
-class TextureGroupOutputInterface
+class COMMON_API TextureGroupOutputInterface
 {
 public:
 	virtual DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes) = 0;

@@ -19,6 +19,7 @@ limitations under the License.
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
 #include <ctools/ConfigAbstract.h>
 #include <imgui/imgui.h>
+#include <Common/Globals.h>
 #include <string>
 #include <map>
 #include <ImGuiColorTextEdit/TextEditor.h>
@@ -27,7 +28,7 @@ limitations under the License.
 #endif
  //#define USE_SHADOW
 
-class ThemeHelper : public conf::ConfigAbstract
+class COMMON_API ThemeHelper : public conf::ConfigAbstract
 {
 public:
 #ifdef USE_SHADOW

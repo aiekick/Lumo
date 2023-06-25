@@ -21,11 +21,12 @@ limitations under the License.
 #include <ctools/cTools.h>
 
 #include <vkFramework/VulkanFrameBuffer.h>
+#include <Common/Globals.h>
 
 #include <string>
 #include <memory>
 
-class ShaderInterface
+class COMMON_API ShaderInterface
 {
 public:
 	ct::uvec3 m_OutputSize;			// size of the output

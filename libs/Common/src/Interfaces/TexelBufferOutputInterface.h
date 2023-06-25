@@ -20,10 +20,11 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/vkFramework.h>
+#include <Common/Globals.h>
 
 //todo : split the interface in one input interface and one output interface
 // can clarify some code who jsut need output and not input 
-class TexelBufferOutputInterface
+class COMMON_API TexelBufferOutputInterface
 {
 public:
 	virtual vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) = 0;

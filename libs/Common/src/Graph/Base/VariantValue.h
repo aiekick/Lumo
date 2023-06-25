@@ -17,9 +17,10 @@ limitations under the License.
 #pragma once
 
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 #include <string>
 
-class VariantValue
+class COMMON_API VariantValue
 {
 private:
 	int type = 0; // 0:float,2:bool,3:int;

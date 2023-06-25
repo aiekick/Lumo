@@ -22,6 +22,7 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/VulkanRessource.h>
 #include <Utils/Mesh/VertexStruct.h>
+#include <Common/Globals.h>
 
 template<typename T_VertexType> class SceneMesh;
 typedef std::shared_ptr<SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>> SceneMeshPtr;
@@ -37,7 +38,7 @@ enum class SceneModelPrimitiveType
 };
 
 template<typename T_VertexType>
-class MeshInfo
+class COMMON_API MeshInfo
 {
 public:
 	VulkanBufferObjectPtr m_Buffer = nullptr;
@@ -54,7 +55,7 @@ public:
 };
 
 template<typename T_VertexType>
-class SceneMesh
+class COMMON_API SceneMesh
 {
 public:
 	static std::shared_ptr<SceneMesh<T_VertexType>> Create(vkApi::VulkanCorePtr vVulkanCorePtr);

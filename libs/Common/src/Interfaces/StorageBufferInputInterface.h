@@ -24,9 +24,10 @@ limitations under the License.
 #include <ImWidgets/ImWidgets.h>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/vkFramework.h>
+#include <Common/Globals.h>
 
 template<size_t size_of_array>
-class StorageBufferInputInterface
+class COMMON_API StorageBufferInputInterface
 {
 protected:
 	std::array<vk::DescriptorBufferInfo, size_of_array> m_StorageBuffers;

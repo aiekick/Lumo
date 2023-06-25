@@ -17,7 +17,7 @@ manage in auto the alignement of Uniform Buffer for the standard std140 only
 
 #define OffsetExist(key) offsets.find(vKey) != offsets.end()
 
-class UniformBlockStd140
+class VKFRAMEWORK_API UniformBlockStd140
 {
 private:
 	// key = uniform name, offset in buffer for have op on uniform data

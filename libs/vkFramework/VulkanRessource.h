@@ -24,7 +24,7 @@ limitations under the License.
 #include <vector>
 #include <string>
 
-struct VulkanAccelStructObject
+struct VKFRAMEWORK_API VulkanAccelStructObject
 {
 	vk::AccelerationStructureKHR handle = nullptr;
 	vk::Buffer buffer = nullptr;
@@ -35,14 +35,14 @@ struct VulkanAccelStructObject
 };
 typedef std::shared_ptr<VulkanAccelStructObject> VulkanAccelStructObjectPtr;
 
-struct VulkanImageObject
+struct VKFRAMEWORK_API VulkanImageObject
 {
 	vk::Image image = nullptr;
 	VmaAllocation alloc_meta = nullptr;
 };
 typedef std::shared_ptr<VulkanImageObject> VulkanImageObjectPtr;
 
-class VulkanBufferObject
+class VKFRAMEWORK_API VulkanBufferObject
 {
 public:
 	vk::Buffer buffer = nullptr;
@@ -55,7 +55,7 @@ public:
 typedef std::shared_ptr<VulkanBufferObject> VulkanBufferObjectPtr;
 
 namespace vkApi {
-class VulkanRessource
+class VKFRAMEWORK_API VulkanRessource
 {
 public:
 	static vk::DescriptorBufferInfo* getEmptyDescriptorBufferInfo() 

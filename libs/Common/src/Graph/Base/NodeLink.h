@@ -19,6 +19,7 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <uTypes/uTypes.h>
+#include <Common/Globals.h>
 #include <imgui/imgui.h>
 #include <string>
 #include <set>
@@ -29,7 +30,7 @@ namespace nd = ax::NodeEditor;
 
 class BaseNode;
 class NodeSlot;
-class NodeLink
+class COMMON_API NodeLink
 {
 public:
 	NodeSlotWeak in;

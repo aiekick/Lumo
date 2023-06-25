@@ -20,8 +20,9 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <Graph/Base/BaseNode.h>
+#include <Common/Globals.h>
 
-class NodeManagerInterface
+class COMMON_API NodeManagerInterface
 {
 public:
 	virtual void Select(BaseNodeWeak) = 0;

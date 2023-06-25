@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
+#include <Common/Globals.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -53,7 +54,7 @@ enum class GenericType : uint8_t
 	Count
 };
 
-class ShaderPass :
+class COMMON_API ShaderPass :
 	public conf::ConfigAbstract,
 	public ShaderUpdateInterface,
 	public ResizerInterface

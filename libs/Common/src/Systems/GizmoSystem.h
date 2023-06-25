@@ -19,6 +19,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ImGuizmo/ImGuizmo.h>
 #include <Interfaces/GizmoInterface.h>
+#include <Common/Globals.h>
 
 class CommonSystem;
 class GizmoSystem

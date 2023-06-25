@@ -18,8 +18,9 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/NodeSlot.h>
+#include <Common/Globals.h>
 
-class NodeSlotOutput : public NodeSlot
+class COMMON_API NodeSlotOutput : public NodeSlot
 {
 public:
 	static NodeSlotOutputPtr Create();

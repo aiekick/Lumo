@@ -44,7 +44,7 @@ class VulkanShader;
 struct GLFWwindow;
 namespace vkApi
 {
-	class VulkanCore
+	class VKFRAMEWORK_API VulkanCore
 	{
 	public:
 		static VmaAllocator sAllocator;

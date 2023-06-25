@@ -23,7 +23,7 @@ limitations under the License.
 
 namespace vkApi
 {
-	class VulkanFrameBufferAttachment
+	class VKFRAMEWORK_API VulkanFrameBufferAttachment
 	{
 	public:
 		std::shared_ptr<VulkanImageObject> attachment = nullptr;

@@ -17,8 +17,9 @@ limitations under the License.
 #pragma once
 
 #include <SceneGraph/SceneLightGroup.h>
+#include <Common/Globals.h>
 
-class LightGroupOutputInterface
+class COMMON_API LightGroupOutputInterface
 {
 public:
 	virtual SceneLightGroupWeak GetLightGroup() = 0;

@@ -20,10 +20,11 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/vkFramework.h>
+#include <Common/Globals.h>
 
 //todo : split the interface in one input interface and one output interface
 // can clarify some code who jsut need output and not input 
-class TextureOutputInterface
+class COMMON_API TextureOutputInterface
 {
 public:
 	virtual vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) = 0;

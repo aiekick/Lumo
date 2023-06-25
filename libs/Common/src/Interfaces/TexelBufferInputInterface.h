@@ -24,9 +24,10 @@ limitations under the License.
 #include <ImWidgets/ImWidgets.h>
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/vkFramework.h>
+#include <Common/Globals.h>
 
 template<size_t size_of_array>
-class TexelBufferInputInterface
+class COMMON_API TexelBufferInputInterface
 {
 protected:
 	std::array<vk::Buffer, size_of_array> m_TexelBuffers;

@@ -18,8 +18,9 @@ limitations under the License.
 
 #include <set>
 #include <string>
+#include <Common/Globals.h>
 
-class ShaderUpdateInterface
+class COMMON_API ShaderUpdateInterface
 {
 public:
 	virtual void UpdateShaders(const std::set<std::string>& vFiles) = 0;

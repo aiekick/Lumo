@@ -24,7 +24,7 @@ limitations under the License.
 namespace vkApi
 {
 	class VulkanCore;
-	class VulkanCommandBuffer
+	class VKFRAMEWORK_API VulkanCommandBuffer
 	{
 	public:
 		static vk::CommandBuffer beginSingleTimeCommands(vkApi::VulkanCorePtr vVulkanCorePtr, bool begin, vk::CommandPool* vCommandPool = 0);

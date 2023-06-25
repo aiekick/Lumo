@@ -19,12 +19,13 @@ limitations under the License.
 #include <vector>
 #include <ctools/cTools.h>
 #include <SceneGraph/SceneMesh.hpp>
+#include <Common/Globals.h>
 
 class SceneModel;
 typedef std::shared_ptr<SceneModel> SceneModelPtr;
 typedef ct::cWeak<SceneModel> SceneModelWeak;
 
-class SceneModel
+class COMMON_API SceneModel
 {
 public:
 	static SceneModelPtr Create();

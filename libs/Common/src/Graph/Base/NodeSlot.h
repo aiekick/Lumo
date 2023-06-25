@@ -20,6 +20,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
 #include <uTypes/uTypes.h>
+#include <Common/Globals.h>
 #include "NodeStamp.h"
 #include <imgui/imgui.h>
 #include <string>
@@ -32,7 +33,7 @@ limitations under the License.
 
 namespace nd = ax::NodeEditor;
 
-class SlotColor
+class COMMON_API SlotColor
 {
 private:
 	std::map<std::string, ImVec4> m_ColorSlots;
@@ -47,7 +48,7 @@ struct ImRect;
 class BaseNode;
 class UniformWidgetBase;
 struct BaseNodeState;
-class NodeSlot :
+class COMMON_API NodeSlot :
 	public conf::ConfigAbstract
 {
 public:

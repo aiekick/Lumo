@@ -18,9 +18,10 @@ limitations under the License.
 
 #include <imgui/imgui.h>
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 
 class VulkanImGuiRenderer;
-class GuiInterface
+class COMMON_API GuiInterface
 {
 public:
 	ImVec4 goodColor = ImVec4(0.2f, 0.8f, 0.2f, 0.8f);

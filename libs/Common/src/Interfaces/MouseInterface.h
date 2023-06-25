@@ -15,8 +15,9 @@ limitations under the License.
 */
 
 #pragma once
+#include <Common/Globals.h>
 
-class MouseInterface
+class COMMON_API MouseInterface
 {
 public:
 	bool canUpdateMouse = false;

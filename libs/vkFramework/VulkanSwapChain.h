@@ -40,7 +40,7 @@ namespace vkApi
 {
 	class VulkanWindow;
 	class VulkanCore;
-	class VulkanSwapChain
+	class VKFRAMEWORK_API VulkanSwapChain
 	{
 	public:
 		enum FrameType

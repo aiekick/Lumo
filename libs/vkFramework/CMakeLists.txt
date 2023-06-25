@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 
+set(PROJECT vkFramework)
+
 enable_language(C CXX)
 
 set(LLVM_USE_CRT_DEBUG MTd CACHE STRING "" FORCE)
@@ -50,11 +52,20 @@ add_definitions(-DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
 ## for prevent cast issues betwwen vk:: and VK if compiling a 32 bits version
 add_definitions(-DVULKAN_HPP_TYPESAFE_CONVERSION=1) 
 
-add_library(vkFramework STATIC ${PROJECT_SRC_RECURSE} vkFramework.h)
+#if (BUILD_SHARED_LIBS)
+#	add_library(${PROJECT} ${PROJECT_SRC_RECURSE})
+#	target_compile_definitions(${PROJECT} INTERFACE BUILD_SHARED_LIBS)
+#	set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+#	set_target_properties(${PROJECT} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+#	target_link_libraries(${PROJECT} ${GLSLANG_LIBRARIES})
+#else()
+	add_library(${PROJECT} STATIC ${PROJECT_SRC_RECURSE})
+#endif()
 
-target_link_libraries(vkFramework PRIVATE 
+target_link_libraries(${PROJECT} 
 	${Vulkan_LIBRARIES}
 	${UTYPES_LIBRARIES}
+	${GLSLANG_LIBRARIES}
 	${TRACY_LIBRARIES} ## profiler
 	${LODEPNG_LIBRARIES}
 )
@@ -63,8 +74,8 @@ include_directories(
 	${Vulkan_INCLUDE_DIRS}
 )
 
-set_target_properties(vkFramework PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(${PROJECT} PROPERTIES LINKER_LANGUAGE CXX)
 
 set(VKFRAMEWORK_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
-set(VKFRAMEWORK_LIBRARIES vkFramework PARENT_SCOPE)
+set(VKFRAMEWORK_LIBRARIES ${PROJECT} PARENT_SCOPE)
 set(VKFRAMEWORK_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR} PARENT_SCOPE)

@@ -8,5 +8,5 @@ include_directories(
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/ctools)
 
-set_target_properties(ctools PROPERTIES FOLDER Lumo_Libs/tools)
+set_target_properties(ctools PROPERTIES FOLDER Lumo_Libs/Static/tools)
 set_target_properties(ctools PROPERTIES LINK_FLAGS "/ignore:4244")

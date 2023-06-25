@@ -18,12 +18,13 @@ limitations under the License.
 
 #include <string>
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 
 class GizmoInterface;
 typedef ct::cWeak<GizmoInterface> GizmoInterfaceWeak;
 typedef std::shared_ptr<GizmoInterface> GizmoInterfacePtr;
 
-class GizmoInterface
+class COMMON_API GizmoInterface
 {
 public:
 	std::string name = "";

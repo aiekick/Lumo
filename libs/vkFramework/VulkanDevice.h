@@ -28,7 +28,7 @@ limitations under the License.
 
 namespace vkApi
 {
-	struct VulkanQueue
+	struct VKFRAMEWORK_API VulkanQueue
 	{
 		uint32_t familyQueueIndex = 0U;
 		vk::Queue vkQueue;
@@ -36,7 +36,7 @@ namespace vkApi
 	};
 
 	class VulkanWindow;
-	class VulkanDevice
+	class VKFRAMEWORK_API VulkanDevice
 	{
 	public:
 		static VulkanDevicePtr Create(

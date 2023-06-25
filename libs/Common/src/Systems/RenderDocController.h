@@ -1,8 +1,9 @@
 #pragma once
 
 #include <renderdoc/util/test/demos/renderdoc_app.h>
+#include <Common/Globals.h>
 
-class RenderDocController
+class COMMON_API RenderDocController
 {
 private:
 	RENDERDOC_API_1_0_0* m_RDdocPtr = nullptr;

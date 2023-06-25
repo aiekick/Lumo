@@ -25,8 +25,9 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/ImGuiTexture.h>
 #include <vkFramework/vkFramework.h>
+#include <Common/Globals.h>
 
-class TextureGroupInputFunctions
+class COMMON_API TextureGroupInputFunctions
 {
 protected:
 	void UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs);
@@ -36,7 +37,7 @@ public:
 };
 
 template<size_t size_of_array>
-class TextureGroupInputInterface : public TextureGroupInputFunctions
+class COMMON_API TextureGroupInputInterface : public TextureGroupInputFunctions
 {
 protected:
 	std::array<DescriptorImageInfoVector, size_of_array> m_ImageGroups;

@@ -17,8 +17,9 @@ limitations under the License.
 #pragma once
 
 #include <SceneGraph/SceneLight.h>
+#include <Common/Globals.h>
 
-class LightInputInterface
+class COMMON_API LightInputInterface
 {
 protected:
 	SceneLightWeak m_SceneLightWeak;

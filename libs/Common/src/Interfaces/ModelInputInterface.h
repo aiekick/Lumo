@@ -17,8 +17,9 @@ limitations under the License.
 #pragma once
 
 #include <SceneGraph/SceneModel.h>
+#include <Common/Globals.h>
 
-class ModelInputInterface
+class COMMON_API ModelInputInterface
 {
 protected:
 	SceneModelWeak m_SceneModel;

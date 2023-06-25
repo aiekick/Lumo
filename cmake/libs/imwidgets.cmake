@@ -2,6 +2,6 @@ set(IMWIDGETS_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/libs/ImWidgets)
 set(IMWIDGETS_LIBRARIES ${IMWIDGETS_LIBRARIES} ImWidgets)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/ImWidgets)
-set_target_properties(${IMWIDGETS_LIBRARIES} PROPERTIES FOLDER Lumo_Libs/ui)
+set_target_properties(${IMWIDGETS_LIBRARIES} PROPERTIES FOLDER Lumo_Libs/Static/ui)
 ##set_target_properties(${IMWIDGETS_LIBRARIES} PROPERTIES LINK_FLAGS "/ignore:4244")
 

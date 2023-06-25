@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
+#include <Common/Globals.h>
 
 #include <Utils/Mesh/VertexStruct.h>
 
@@ -39,7 +40,7 @@ limitations under the License.
 
 #include <Base/Base.h>
 
-class FrameBuffer : public OutputSizeInterface
+class COMMON_API FrameBuffer : public OutputSizeInterface
 {
 public:
 	static FrameBufferPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);

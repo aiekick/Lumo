@@ -26,7 +26,7 @@ typedef ct::cWeak<ImGuiTexture> ImGuiTextureWeak;
 
 namespace vkApi { class VulkanFrameBufferAttachment; }
 class VulkanImGuiRenderer;
-class ImGuiTexture
+class VKFRAMEWORK_API ImGuiTexture
 {
 public:
 	static ImGuiTexturePtr Create();

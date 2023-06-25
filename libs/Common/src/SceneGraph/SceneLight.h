@@ -21,6 +21,7 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include <SceneGraph/SceneMesh.hpp>
 #include <Interfaces/GizmoInterface.h>
+#include <Common/Globals.h>
 
 #pragma warning(push)
 #pragma warning(disable:4201)   // suppress even more warnings about nameless structs
@@ -71,7 +72,7 @@ inline static LightTypeEnum GetLightTypeEnumFromString(const std::string& vNodeT
 	return LightTypeEnum::NONE;
 }
 
-class SceneLight : public GizmoInterface
+class COMMON_API SceneLight : public GizmoInterface
 {
 public:
 	static SceneLightPtr Create();

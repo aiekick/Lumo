@@ -20,12 +20,13 @@ limitations under the License.
 #include <memory>
 #include <ctools/cTools.h>
 #include <Graph/Graph.h>
+#include <Common/Globals.h>
 
 class SceneVariable;
 typedef std::shared_ptr<SceneVariable> SceneVariablePtr;
 typedef ct::cWeak<SceneVariable> SceneVariableWeak;
 
-class SceneVariable
+class COMMON_API SceneVariable
 {
 public:
 	static SceneVariablePtr Create(const std::string& vType);

@@ -18,6 +18,7 @@ limitations under the License.
 #pragma once
 
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 
 #include <functional>
 #include <cstdarg>
@@ -26,7 +27,7 @@ limitations under the License.
 #include <vector>
 #include <memory>
 
-class MessageData
+class COMMON_API MessageData
 {
 private:
 	std::shared_ptr<void> puDatas;
@@ -52,7 +53,7 @@ public:
 };
 
 class ProjectFile;
-class Messaging
+class COMMON_API Messaging
 {
 private:
 	const ImVec4 puErrorColor = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);

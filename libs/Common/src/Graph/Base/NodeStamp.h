@@ -18,9 +18,10 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 #include <string>
 
-class NodeStamp
+class COMMON_API NodeStamp
 {
 public:
 	std::string typeStamp; // float(vec3)

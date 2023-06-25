@@ -21,6 +21,7 @@ limitations under the License.
 #include <uTypes/uTypes.h>
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
+#include <Common/Globals.h>
 #include <Graph/Base/NodeSlotInput.h>
 #include <Graph/Base/NodeSlotOutput.h>
 #include <Graph/Base/NodeLink.h>
@@ -54,7 +55,7 @@ POUR EFFACER LES NODES
 il faut appeler la fonction DestroyNodesIfAnys() apres le rendu de imgui voir meme apres le swap buffer ou swapchain
 */
 
-struct GraphStyleStruct
+struct COMMON_API GraphStyleStruct
 {
 	// node
 	float DEFAULT_WIDTH = 100.0f;
@@ -87,7 +88,7 @@ struct GraphStyleStruct
 	nd::Style graphStyle;
 };
 
-struct OldFuncToChangeStruct
+struct COMMON_API OldFuncToChangeStruct
 {
 	std::string parentFunc;
 	std::string callName;
@@ -105,7 +106,7 @@ struct OldFuncToChangeStruct
 	}
 };
 
-struct Func_Loc_In_Code_Struct
+struct COMMON_API Func_Loc_In_Code_Struct
 {
 	std::string parentFunc;
 	std::string stamp;
@@ -140,7 +141,7 @@ enum class NODE_INTERNAL_MODE_Enum : uint8_t
 	NODE_INTERNAL_MODE_DYNAMIC
 };
 
-struct BaseNodeState
+struct COMMON_API BaseNodeState
 {
 	ImGuiContext* m_Context = nullptr;
 	nd::EditorContext* m_NodeGraphContext = nullptr;
@@ -183,7 +184,7 @@ struct BaseNodeState
 	BaseNodeWeak m_CustomContextMenuNode;
 };
 
-class BaseNode : 
+class COMMON_API BaseNode :
 	public conf::ConfigAbstract, 
 	public GuiInterface,
 	public NodeInterface,

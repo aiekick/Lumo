@@ -18,9 +18,10 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 #include <glslang/MachineIndependent/localintermediate.h>
 
-class NodeUtils
+class COMMON_API NodeUtils
 {
 public:
 	static std::string GetStringFromTOperatorEnum(const glslang::TOperator& vTOperator);

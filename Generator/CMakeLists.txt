@@ -138,7 +138,7 @@ target_include_directories(${PROJECT} PRIVATE
 	${COMMON_INCLUDE_DIR}
 )
 
-target_link_libraries(${PROJECT} PRIVATE
+target_link_libraries(${PROJECT}
 	${COMMON_LIBRARIES}
 )
 

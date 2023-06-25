@@ -21,6 +21,7 @@ limitations under the License.
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
+#include <Common/Globals.h>
 
 #include <Utils/Mesh/VertexStruct.h>
 
@@ -43,7 +44,7 @@ limitations under the License.
 // il pourra etre derivé et certaine focntionnalité dependant en temps normal du shader
 // pouront etre bloqué en code pour specialisation
 
-class BaseRenderer : 
+class COMMON_API BaseRenderer :
 	public conf::ConfigAbstract,
 	public ShaderUpdateInterface,
 	public ResizerInterface

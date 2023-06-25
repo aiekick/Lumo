@@ -16,25 +16,27 @@ limitations under the License.
 
 #pragma once
 
+#include <Common/Globals.h>
+
 #include <string>
 #include <unordered_map>
 #include <memory>
 #include <vector>
 
-struct MidiMessage
+struct COMMON_API MidiMessage
 {
 	std::string name;
 	std::vector<uint8_t> bytes;
 };
 
-struct MidiStruct
+struct COMMON_API MidiStruct
 {
 	std::string deviceName;
 	MidiMessage lastMessage;
 	MidiMessage currentMessage;
 };
 
-class MidiInterface
+class COMMON_API MidiInterface
 {
 protected:
 	std::vector<MidiStruct> m_MidiDevices;

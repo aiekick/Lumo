@@ -20,6 +20,7 @@ limitations under the License.
 #include <memory>
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
+#include <Common/Globals.h>
 
 class BaseNode;
 typedef ct::cWeak<BaseNode> BaseNodeWeak;

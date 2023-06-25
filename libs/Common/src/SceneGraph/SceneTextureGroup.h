@@ -20,6 +20,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <Interfaces/BufferObjectInterface.h>
+#include <Common/Globals.h>
 
 /*
 - group of lights
@@ -31,7 +32,7 @@ class SceneTextureGroup;
 typedef std::shared_ptr<SceneTextureGroup> SceneTextureGroupPtr;
 typedef ct::cWeak<SceneTextureGroup> SceneTextureGroupWeak;
 
-class SceneTextureGroup :
+class COMMON_API SceneTextureGroup :
 	public BufferObjectInterface
 {
 public:

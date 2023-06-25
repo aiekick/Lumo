@@ -27,7 +27,7 @@ limitations under the License.
 namespace vkApi
 {
 	class VulkanCore;
-	class VulkanSubmitter
+	class VKFRAMEWORK_API VulkanSubmitter
 	{
 	public:
 		static std::mutex criticalSectionMutex;

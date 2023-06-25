@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <array>
 #include <SceneGraph/SceneShaderPass.h>
+#include <Common/Globals.h>
 
 // the shader passes ar not attached to shader so
 // binding point use make no sense
@@ -25,7 +26,7 @@ limitations under the License.
 
 // TO NOTE : SHADER PASS OUTPUT need a vk::SampleCountFlagBits::e2 for the FBO
 
-class ShaderPassOutputInterface
+class COMMON_API ShaderPassOutputInterface
 {
 public:
 	virtual SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) = 0;

@@ -33,7 +33,7 @@ manage in auto the alignement of Buffer for the standard std430 only
 
 #define OffsetExist(key) offsets.find(vKey) != offsets.end()
 
-class StorageBufferStd430
+class VKFRAMEWORK_API StorageBufferStd430
 {
 private:
 	// key = uniform name, offset in buffer for have op on uniform data

@@ -24,7 +24,7 @@ limitations under the License.
 namespace vkApi
 {
 	class VulkanCore;
-	class VulkanFrameBuffer
+	class VKFRAMEWORK_API VulkanFrameBuffer
 	{
 	public:
 		std::vector<VulkanFrameBufferAttachment> attachments;

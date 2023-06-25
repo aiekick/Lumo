@@ -23,7 +23,7 @@ limitations under the License.
 struct GLFWwindow;
 namespace vkApi
 {
-	class VulkanWindow
+	class VKFRAMEWORK_API VulkanWindow
 	{
 	public:
 		static VulkanWindowPtr Create(const int& vWidth, const int& vHeight, const std::string& vName, const bool& vOffScreen, const bool& vDecorated = true);

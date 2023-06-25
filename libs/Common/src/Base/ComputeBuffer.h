@@ -22,6 +22,7 @@ limitations under the License.
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
+#include <Common/Globals.h>
 
 #include <Utils/Mesh/VertexStruct.h>
 
@@ -37,7 +38,7 @@ limitations under the License.
 
 #include <Base/Base.h>
 
-class ComputeBuffer : public OutputSizeInterface
+class COMMON_API ComputeBuffer : public OutputSizeInterface
 {
 public:
 	static ComputeBufferPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);

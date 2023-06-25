@@ -17,8 +17,9 @@ limitations under the License.
 #pragma once
 
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 
-class ResizerInterface
+class COMMON_API ResizerInterface
 {
 protected:
 	ct::fvec2 m_fOutputSize;

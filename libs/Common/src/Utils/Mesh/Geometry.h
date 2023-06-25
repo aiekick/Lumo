@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <ctools/cTools.h>
 #include <Utils/Mesh/VertexStruct.h>
+#include <Common/Globals.h>
 
 #include <future>
 #include <functional>
@@ -27,7 +28,7 @@ limitations under the License.
 
 namespace Geometry
 {
-	struct Face
+	struct COMMON_API Face
 	{
 		size_t v1;
 		size_t v2;
@@ -41,7 +42,7 @@ namespace Geometry
 		}
 	};
 
-	struct Vertex
+	struct COMMON_API Vertex
 	{
 		ct::fvec3 p;
 		ct::fvec3 n;
@@ -70,20 +71,20 @@ namespace Geometry
 		}
 	};
 
-	struct GeometryDataStruct
+	struct COMMON_API GeometryDataStruct
 	{
 		std::vector<VertexStruct::P3_N3_TA3_BTA3_T2_C4> vertexs;
 		std::vector<VertexStruct::I1> indexs;
 	};
 
-	struct MeshFrameStruct
+	struct COMMON_API MeshFrameStruct
 	{
 		int frame = 0;
 		bool isAbsolute = true;
 		GeometryDataStruct datas;
 	};
 
-	class Geometry
+	class COMMON_API Geometry
 	{
 	public:
 		enum class GeometryTypeEnum : uint8_t

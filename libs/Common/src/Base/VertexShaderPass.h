@@ -17,8 +17,9 @@ limitations under the License.
 #pragma once
 
 #include <Base/ShaderPass.h>
+#include <Common/Globals.h>
 
-class VertexShaderPass : public ShaderPass
+class COMMON_API VertexShaderPass : public ShaderPass
 {
 public:
 	VertexShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr);

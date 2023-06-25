@@ -25,8 +25,9 @@ limitations under the License.
 #include <vkFramework/VulkanCore.h>
 #include <vkFramework/ImGuiTexture.h>
 #include <vkFramework/vkFramework.h>
+#include <Common/Globals.h>
 
-class TextureInputFunctions
+class COMMON_API TextureInputFunctions
 {
 protected:
 	void UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs);
@@ -36,7 +37,7 @@ public:
 };
 
 template<size_t size_of_array>
-class TextureInputInterface : public TextureInputFunctions
+class COMMON_API TextureInputInterface : public TextureInputFunctions
 {
 protected:
 	std::array<vk::DescriptorImageInfo, size_of_array> m_ImageInfos;
@@ -48,7 +49,7 @@ protected: // internal use
 };
 
 template<size_t size_of_array>
-void TextureInputInterface<size_of_array>::DrawInputTexture(vkApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio)
+void COMMON_API TextureInputInterface<size_of_array>::DrawInputTexture(vkApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio)
 {
 	if (vVKCore && vLabel && vIdx <= (uint32_t)size_of_array) {
 		auto imguiRendererPtr = vVKCore->GetVulkanImGuiRenderer().getValidShared();

@@ -21,6 +21,7 @@ limitations under the License.
 #include <Interfaces/CameraInterface.h>
 #include <Interfaces/BufferObjectInterface.h>
 #include <vkFramework/VulkanRessource.h>
+#include <Common/Globals.h>
 
 #pragma warning(push)
 #pragma warning(disable:4201)   // suppress even more warnings about nameless structs

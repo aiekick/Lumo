@@ -25,12 +25,13 @@ limitations under the License.
 #include <vkFramework/vkFramework.h>
 #include <Panes/Abstract/AbstractPane.h>
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
+#include <Common/Globals.h>
 
 class PluginInterface;
 typedef ct::cWeak<PluginInterface> PluginInterfaceWeak;
 typedef std::shared_ptr<PluginInterface> PluginInterfacePtr;
 
-class PluginPane
+class COMMON_API PluginPane
 {
 public:
 	AbstractPaneWeak paneWeak;
@@ -64,7 +65,7 @@ class VulkanShader;
 class CommonSystem;
 struct ImGuiContext;
 namespace ImGui { class CustomStyle; }
-class PluginInterface
+class COMMON_API PluginInterface
 {
 protected:
 	vkApi::VulkanCoreWeak m_VulkanCoreWeak;

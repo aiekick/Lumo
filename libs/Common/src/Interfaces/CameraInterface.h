@@ -17,20 +17,11 @@ limitations under the License.
 #pragma once
 
 #include <vulkan/vulkan.hpp>
-
 #include <glm/mat4x4.hpp>
+#include <Common/Globals.h>
 
 #include <string>
 #include <memory>
-
-#ifdef BUILD_SHARED
-#ifdef _WIN32
-#define COMMON_API   __declspec( dllimport )
-#endif // _WIN32
-#endif // BUILD_SHARED
-#ifndef COMMON_API
-#define COMMON_API
-#endif // COMMON_API
 
 class COMMON_API CameraInterface
 {

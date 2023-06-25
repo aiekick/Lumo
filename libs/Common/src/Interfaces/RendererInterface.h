@@ -23,9 +23,10 @@ limitations under the License.
 #include <vulkan/vulkan.hpp>
 #include <Utils/Mesh/VertexStruct.h>
 #include <vkFramework/VulkanFrameBufferAttachment.h>
+#include <Common/Globals.h>
 
 class CameraInterface;
-class RendererInterface
+class COMMON_API RendererInterface
 {
 public:
 	std::string name;

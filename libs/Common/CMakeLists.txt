@@ -64,8 +64,15 @@ endif ()
 find_package(Vulkan REQUIRED)
 add_definitions(-DVULKAN)
 
-add_library(${PROJECT} STATIC ${PROJECT_SRC_RECURSE} ${IMGUI_FREETYPE_SOURCES})
-##target_compile_definitions(${PROJECT} PUBLIC -DBUILD_SHARED)
+#set(BUILD_SHARED_LIBS ON)
+#if (BUILD_SHARED_LIBS)
+#	add_library(${PROJECT} SHARED ${PROJECT_SRC_RECURSE} ${IMGUI_FREETYPE_SOURCES})
+#	target_compile_definitions(${PROJECT} INTERFACE BUILD_SHARED_LIBS)
+#	set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+#	set_target_properties(${PROJECT} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+#else()
+	add_library(${PROJECT} STATIC ${PROJECT_SRC_RECURSE} ${IMGUI_FREETYPE_SOURCES})
+#endif()
 
 target_include_directories(${PROJECT} PUBLIC
 	src
@@ -90,7 +97,7 @@ target_include_directories(${PROJECT} PUBLIC
 	${IMGUI_NODE_EDITOR_INCLUDE_DIR}
 )
 
-target_link_libraries(${PROJECT} PUBLIC
+target_link_libraries(${PROJECT} PRIVATE
 	${GLFW_LIBRARIES}
 	${EFSW_LIBRARIES}
 	${IMGUI_LIBRARIES}
@@ -128,6 +135,6 @@ set(COMMON_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR} PARENT_SCOPE)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=Common 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/CommonBuild.h>
+	COMMAND BuildInc -prefix=Common 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Common/CommonBuild.h>
 	DEPENDS ${PROJECT}
 )

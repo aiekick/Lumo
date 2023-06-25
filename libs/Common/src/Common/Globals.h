@@ -17,6 +17,23 @@ limitations under the License.
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+
+#if defined(__WIN32__) || defined(WIN32) || defined(_WIN32) || defined(__WIN64__) || defined(WIN64) || defined(_WIN64) || defined(_MSC_VER)
+#if defined(Common_EXPORTS)
+#define COMMON_API __declspec(dllexport)
+#define COMMON_EXTERN 
+#elif defined(BUILD_SHARED_LIBS)
+#define COMMON_API __declspec(dllimport)
+#define COMMON_EXTERN extern
+#else
+#define COMMON_API
+#define COMMON_EXTERN
+#endif
+#else
+#define COMMON_API
+#define COMMON_EXTERN
+#endif
+
 enum class ModelRenderModeEnum : uint8_t
 {
 	MODEL_RENDER_MODE_POINTS = (uint8_t)vk::PrimitiveTopology::ePointList,

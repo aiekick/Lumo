@@ -19,6 +19,7 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <imgui/imgui.h>
+#include <Common/Globals.h>
 
 #include <string>
 #include <unordered_map>
@@ -36,7 +37,7 @@ limitations under the License.
 class BaseNode;
 class NodeSlot;
 
-struct ColumnContainerStruct
+struct COMMON_API ColumnContainerStruct
 {
 	std::map<int, BaseNodeWeak> nodes;
 	ImVec2 size;
@@ -46,7 +47,7 @@ struct ColumnContainerStruct
 	void Clear();
 };
 
-class GraphLayout
+class COMMON_API GraphLayout
 {
 public:
 	static ImVec2 s_NodeSpacing;

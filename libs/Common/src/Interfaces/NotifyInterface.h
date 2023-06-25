@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <string>
 #include <Graph/Graph.h>
+#include <Common/Globals.h>
 
 // NotifyEvent : need to update the model
 #define ModelUpdateDone "ModelUpdateDone"
@@ -50,7 +51,7 @@ limitations under the License.
 
 typedef std::string NotifyEvent;
 
-class NotifyInterface
+class COMMON_API NotifyInterface
 {
 public:
 	virtual void Notify(

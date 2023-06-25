@@ -23,7 +23,7 @@ limitations under the License.
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/vkFramework.h>
 
-class Texture2D
+class VKFRAMEWORK_API Texture2D
 {
 public:
 	static bool loadPNG(const std::string& inFile, std::vector<uint8_t>& outBuffer, uint32_t& outWidth, uint32_t& outHeight);

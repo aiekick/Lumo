@@ -21,6 +21,7 @@ limitations under the License.
 #include <SceneGraph/SceneLight.h>
 #include <Interfaces/BufferObjectInterface.h>
 #include <vkFramework/StorageBufferStd430.h>
+#include <Common/Globals.h>
 
 /*
 - group of lights
@@ -32,7 +33,7 @@ class SceneLightGroup;
 typedef std::shared_ptr<SceneLightGroup> SceneLightGroupPtr;
 typedef ct::cWeak<SceneLightGroup> SceneLightGroupWeak;
 
-class SceneLightGroup :
+class COMMON_API SceneLightGroup :
 	public BufferObjectInterface
 {
 public:

@@ -19,6 +19,7 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <Graph/Base/NodeSlot.h>
+#include <Common/Globals.h>
 #include <unordered_map>
 #include <map>
 #include <set>
@@ -28,7 +29,7 @@ limitations under the License.
 
 // shader type, shader filepathname
 
-class LibraryItem
+class COMMON_API LibraryItem
 {
 public:
 	enum class LibraryItemTypeEnum : uint8_t
@@ -59,7 +60,7 @@ typedef std::pair<std::string, LibraryItem> LibraryEntry;
 
 class BaseNode;
 struct BaseNodeState;
-class LibraryCategory
+class COMMON_API LibraryCategory
 {
 public:
 	std::string m_CategoryName;

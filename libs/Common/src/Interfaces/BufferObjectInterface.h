@@ -22,15 +22,7 @@ limitations under the License.
 #include <vulkan/vulkan.hpp>
 #include <vkFramework/VulkanRessource.h>
 #include <vkFramework/vkFramework.h>
-
-#ifdef BUILD_SHARED
-#ifdef _WIN32
-#define COMMON_API   __declspec( dllimport )
-#endif // _WIN32
-#endif // BUILD_SHARED
-#ifndef COMMON_API
-#define COMMON_API
-#endif // COMMON_API
+#include <Common/Globals.h>
 
 class COMMON_API BufferObjectInterface
 {

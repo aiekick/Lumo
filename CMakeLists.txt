@@ -9,6 +9,7 @@ project(${PROJECT} CXX)
 option(USE_PLUGINS "Enable the plugins building" ON)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 option(USE_LUMO_TEST "Enable Tests" OFF)
+##option(BUILD_SHARED_LIBS "build shared lib" OFF)
 
 add_definitions(-DVMA_VULKAN_VERSION=1002000)
 
@@ -234,9 +235,9 @@ target_include_directories(${PROJECT} PRIVATE
 	${OPENXR_INCLUDE_DIRS}
 )
 
-target_link_libraries(${PROJECT} PRIVATE
-	${COMMON_LIBRARIES}
-	${PROJECT_PLUGINS}
+target_link_libraries(${PROJECT} 
+	${COMMON_LIBRARIES} 
+	${PROJECT_PLUGINS} 
 	${OPENXR_LIBRARIES}
 )
 
@@ -246,7 +247,7 @@ target_link_libraries(${PROJECT} PRIVATE
 
 ## only for Debug
 add_subdirectory(3rdparty/BuildInc)
-set_target_properties(BuildInc PROPERTIES FOLDER Lumo_Libs/tools)
+set_target_properties(BuildInc PROPERTIES FOLDER Lumo_Libs/Tools)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD

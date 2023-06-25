@@ -17,6 +17,7 @@ limitations under the License.
 #pragma once
 
 #include <efsw/efsw.hpp>
+#include <Common/Globals.h>
 #include <set>
 #include <list>
 #include <string>

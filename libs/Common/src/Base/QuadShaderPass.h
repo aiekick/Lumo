@@ -17,8 +17,9 @@ limitations under the License.
 #pragma once
 
 #include <Base/MeshShaderPass.h>
+#include <Common/Globals.h>
 
-class QuadShaderPass : public MeshShaderPass<VertexStruct::P2_T2>
+class COMMON_API QuadShaderPass : public MeshShaderPass<VertexStruct::P2_T2>
 {
 public:
 	QuadShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType);

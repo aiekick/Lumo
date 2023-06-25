@@ -19,8 +19,9 @@ limitations under the License.
 #include <vector>
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
+#include <Common/Globals.h>
 
-class MergedInterface
+class COMMON_API MergedInterface
 {
 public:
 	virtual bool Init(

@@ -37,7 +37,7 @@ todo : to Refactor and Convert for use of Vulkan.hpp
 
 typedef std::string ShaderEntryPoint;
 
-class VulkanShader
+class VKFRAMEWORK_API VulkanShader
 {
 public:
 	static VulkanShaderPtr Create();

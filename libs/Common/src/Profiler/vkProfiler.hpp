@@ -22,12 +22,13 @@ limitations under the License.
 #include <cassert>
 #include <stdarg.h>  // For va_start, etc.
 #include <vulkan/vulkan.h>
+#include <Common/Globals.h>
 
 namespace vkprof
 {
     typedef uint64_t vkTimeStamp;
     
-    class vkProfiler
+    class COMMON_API vkProfiler
     {
     public:
         bool isActive = false;

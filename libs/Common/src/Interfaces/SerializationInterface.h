@@ -17,8 +17,9 @@ limitations under the License.
 #pragma once
 
 #include <string>
+#include <Common/Globals.h>
 
-class SerializationInterface
+class COMMON_API SerializationInterface
 {
 public:
 	virtual void DeSerialize(const std::string& vString, const std::string& vMode) = 0;

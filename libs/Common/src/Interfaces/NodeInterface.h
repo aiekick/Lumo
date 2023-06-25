@@ -19,8 +19,9 @@ limitations under the License.
 #include <vector>
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 
-class NodeInterface
+class COMMON_API NodeInterface
 {
 protected:
 	BaseNodeWeak m_ParentNode; // node parent dans le cas d'un ndoe enfant d'un graph

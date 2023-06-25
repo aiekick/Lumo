@@ -21,8 +21,9 @@ limitations under the License.
 #include <Base/BaseRenderer.h>
 #include <vkFramework/VulkanCore.h>
 #include <Interfaces/TaskInterface.h>
+#include <Common/Globals.h>
 
-class TaskRenderer :
+class COMMON_API TaskRenderer :
 	public BaseRenderer,
 	public TaskInterface
 {

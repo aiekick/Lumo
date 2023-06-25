@@ -17,8 +17,9 @@ limitations under the License.
 #pragma once
 
 #include <SceneGraph/SceneModel.h>
+#include <Common/Globals.h>
 
-class ModelOutputInterface
+class COMMON_API ModelOutputInterface
 {
 public:
 	// return a model composed of many mesh

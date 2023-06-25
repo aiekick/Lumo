@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <list>
 #include <functional>
+#include <Common/Globals.h>
 
 /*
  list of sequential actions

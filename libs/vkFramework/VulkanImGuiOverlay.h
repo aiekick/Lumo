@@ -27,7 +27,7 @@ namespace vkApi
 {
 	class VulkanCore;
 	class VulkanWindow;
-	class VulkanImGuiOverlay
+	class VKFRAMEWORK_API VulkanImGuiOverlay
 	{
 	public:
 		static VulkanImGuiOverlayPtr Create(

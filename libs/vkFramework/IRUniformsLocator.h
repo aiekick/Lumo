@@ -28,7 +28,7 @@ limitations under the License.
 // pour le moment on cherche pas à savoir si l'uniforms est vraiment utilisé
 // genre si au bout du compte ca valeur ne sert a rien. on verra ca plus tard
 
-class TIRUniformsLocator : public glslang::TIntermTraverser
+class VKFRAMEWORK_API TIRUniformsLocator : public glslang::TIntermTraverser
 {
 public:
 	std::unordered_map<std::string, bool> usedUniforms;

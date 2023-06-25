@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <memory>
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 
 class BaseRenderer;
 typedef std::shared_ptr<BaseRenderer> BaseRendererPtr;

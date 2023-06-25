@@ -18,8 +18,9 @@ limitations under the License.
 
 #include <imgui/imgui.h>
 #include <ctools/cTools.h>
+#include <Common/Globals.h>
 
-class OutputSizeInterface
+class COMMON_API OutputSizeInterface
 {
 public:
 	virtual float GetOutputRatio() const = 0;

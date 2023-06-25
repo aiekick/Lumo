@@ -17,9 +17,10 @@ limitations under the License.
 #pragma once
 
 #include <vulkan/vulkan.hpp>
+#include <Common/Globals.h>
 
 struct BaseNodeState;
-class TaskInterface
+class COMMON_API TaskInterface
 {
 protected:
 	// to compare to current frame
