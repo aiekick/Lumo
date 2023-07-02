@@ -13,7 +13,7 @@ namespace dlloader
 	{
 
 	private:
-		HMODULE			_handle;
+		HMODULE			_handle = nullptr;
 		std::string		_pathToLib;
 		std::string		_allocClassSymbol;
 		std::string		_deleteClassSymbol;
@@ -65,7 +65,7 @@ namespace dlloader
 
 		void DLCloseLib() override
 		{
-			if (FreeLibrary(_handle) == 0) {
+			if (_handle && FreeLibrary(_handle) == 0) {
 				LogVarDebug("Can't close %s", _pathToLib.c_str());
 			}
 		}

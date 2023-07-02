@@ -130,6 +130,7 @@ include_directories(
 )
 
 target_link_libraries(${PROJECT} PRIVATE
+	${COMMON_LIBRARIES}
 	${TINYEXPR_LIBRARIES}
 	${TINYEXPRCPP_LIBRARIES}
 )

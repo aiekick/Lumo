@@ -484,7 +484,7 @@ public:
 	// when the xml laoding of the node is finished
 	void AfterNodeXmlLoading() override;
 
-protected: // Add slots internally
+public: // Add slots 
 	NodeSlotWeak AddInput(NodeSlotInputPtr vSlotPtr, bool vIncSlotId = false, bool vHideName = true);
 	NodeSlotWeak AddOutput(NodeSlotOutputPtr  vSlotPtr, bool vIncSlotId = false, bool vHideName = true);
 

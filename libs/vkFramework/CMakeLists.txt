@@ -65,7 +65,6 @@ add_definitions(-DVULKAN_HPP_TYPESAFE_CONVERSION=1)
 target_link_libraries(${PROJECT} 
 	${Vulkan_LIBRARIES}
 	${UTYPES_LIBRARIES}
-	${GLSLANG_LIBRARIES}
 	${TRACY_LIBRARIES} ## profiler
 	${LODEPNG_LIBRARIES}
 )

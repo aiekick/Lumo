@@ -347,12 +347,16 @@ std::vector<PluginPane> PluginManager::GetPluginsPanes()
 			auto pluginInstancePtr = plugin.second->Get().getValidShared();
 			if (pluginInstancePtr)
 			{
-				auto pluginPanes = pluginInstancePtr->GetPanes();
-				pluginsPanes.insert(pluginsPanes.end(), pluginPanes.begin(), pluginPanes.end());
+				auto _pluginPanes = pluginInstancePtr->GetPanes();
+				if (!_pluginPanes.empty()) {
+					pluginsPanes.insert(pluginsPanes.end(), _pluginPanes.begin(), _pluginPanes.end());
+				}
 			}
 #else // USE_PLUGIN_STATIC_LINKING
-			auto pluginPanes = plugin.second->GetPanes();
-			pluginsPanes.insert(pluginsPanes.end(), pluginPanes.begin(), pluginPanes.end());
+			auto _pluginPanes = plugin.second->GetPanes();
+			if (!_pluginPanes.empty()) {
+				pluginsPanes.insert(pluginsPanes.end(), _pluginPanes.begin(), _pluginPanes.end());
+		}
 #endif // USE_PLUGIN_STATIC_LINKING
 		}
 	}

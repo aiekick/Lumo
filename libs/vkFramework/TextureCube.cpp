@@ -388,7 +388,6 @@ bool TextureCube::LoadEmptyTexture(const ct::uvec2& vSize, const vk::Format& vFo
 	default:
 		LogVarDebug("Debug : unsupported type: %s", vk::to_string(vFormat).c_str());
 		throw std::invalid_argument("unsupported fomat type!");
-		assert(0);
 	}
 
 	size_t dataSize = vSize.x * vSize.y;

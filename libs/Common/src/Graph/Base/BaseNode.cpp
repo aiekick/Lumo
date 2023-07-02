@@ -2917,7 +2917,8 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 					slot.pinID = ct::ivariant(attValue).GetU();
 			}	
 
-			const auto& _nodeID = this->GetNodeID();
+			// not used
+			//const auto& _nodeID = this->GetNodeID();
 
 			if (slot.slotPlace == NodeSlot::PlaceEnum::INPUT)
 			{
