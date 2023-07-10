@@ -22,10 +22,10 @@ limitations under the License.
 #include <imgui/imgui.h>
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/vkFramework.h>
-#include <vkFramework/ImGuiTexture.h>
+#include <gaia/gaia.h>
+#include <gaia/ImGuiTexture.h>
 #include <Panes/Abstract/AbstractPane.h>
-#include <vkFramework/VulkanFrameBuffer.h>
+#include <gaia/VulkanFrameBuffer.h>
 #include <Interfaces/GuiInterface.h>
 #include <Graph/Graph.h>
 

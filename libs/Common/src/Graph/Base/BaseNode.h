@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <imgui/imgui.h>
 #include <Graph/Graph.h>
@@ -31,7 +32,7 @@ limitations under the License.
 #include <Interfaces/TaskInterface.h>
 #include <Interfaces/NotifyInterface.h>
 #include <Interfaces/ResizerInterface.h>
-#include <vkFramework/vkFramework.h>
+#include <gaia/gaia.h>
 
 #include <imgui_node_editor/NodeEditor/Include/imgui_node_editor.h>
 namespace nd = ax::NodeEditor;

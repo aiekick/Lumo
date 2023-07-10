@@ -9,7 +9,6 @@ project(${PROJECT} CXX)
 option(USE_PLUGINS "Enable the plugins building" ON)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 option(USE_LUMO_TEST "Enable Tests" OFF)
-##option(BUILD_SHARED_LIBS "build shared lib" OFF)
 
 add_definitions(-DVMA_VULKAN_VERSION=1002000)
 
@@ -53,12 +52,6 @@ if (USE_LUMO_TEST)
 	add_definitions(-DTEST_ENABLED)
 endif()
 
-set(LLVM_USE_CRT_DEBUG MTd CACHE STRING "" FORCE)
-set(LLVM_USE_CRT_MINSIZEREL MT CACHE STRING "" FORCE)
-set(LLVM_USE_CRT_RELEASE MT CACHE STRING "" FORCE)
-set(LLVM_USE_CRT_RELWITHDEBINFO MT CACHE STRING "" FORCE)
-set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF CACHE BOOL "" FORCE)
-
 ## for group smake targets in the dir cmakeTargets
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmakeTargets")
@@ -80,7 +73,6 @@ endif()
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
 
-message("${PROJECT} => ${FINAL_BIN_DIR}")
 set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
 set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
 
@@ -204,11 +196,16 @@ set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Z_Apps)
 
 set(${PROJECT}_Output_Name "${PROJECT}_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${${PROJECT}_Output_Name}")
-
 set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 
 message("BACKEND_INCLUDE_DIRS : ${Vulkan_INCLUDE_DIRS}")
 message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
+
+include_directories(
+	${CTOOLS_INCLUDE_DIR}
+)
 
 target_include_directories(${PROJECT} PRIVATE
 	src

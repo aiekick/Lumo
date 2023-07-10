@@ -27,10 +27,11 @@ include(${CMAKE_SOURCE_DIR}/cmake/libs/imguifiledialog.cmake)
 
 message("----------------------------------- Start Libs Messages -----------------------------------")
 
-include(${CMAKE_SOURCE_DIR}/cmake/libs/vkframework.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/libs/gaia.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/libs/vkprofiler.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/libs/utypes.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/libs/imwidgets.cmake)
+#include(${CMAKE_SOURCE_DIR}/cmake/libs/imcoolbar.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/libs/fonticons.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/libs/common.cmake)
 

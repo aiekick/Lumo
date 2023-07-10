@@ -15,11 +15,12 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <Base/BaseRenderer.h>
-#include <vkFramework/VulkanCore.h>
+#include <gaia/VulkanCore.h>
 #include <Interfaces/TaskInterface.h>
 #include <Common/Globals.h>
 

@@ -42,12 +42,12 @@ limitations under the License.
 
 #include <ctools/Logger.h>
 
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanWindow.h>
-#include <vkFramework/VulkanImGuiOverlay.h>
-#include <vkFramework/VulkanImGuiRenderer.h>
-#include <vkFramework/Texture2D.h>
+#include <gaia/VulkanShader.h>
+#include <gaia/VulkanCore.h>
+#include <gaia/VulkanWindow.h>
+#include <gaia/VulkanImGuiOverlay.h>
+#include <gaia/VulkanImGuiRenderer.h>
+#include <gaia/Texture2D.h>
 
 #include <ImGuizmo/ImGuizmo.h>
 

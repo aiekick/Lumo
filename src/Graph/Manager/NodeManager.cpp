@@ -24,7 +24,7 @@ limitations under the License.
 #include <ImGuizmo/ImGuizmo.h>
 
 #include <Systems/CommonSystem.h>
-#include <vkFramework/VulkanCore.h>
+#include <gaia/VulkanCore.h>
 #include <Interfaces/CameraInterface.h>
 #include <Interfaces/ShaderUpdateInterface.h>
 #include <Systems/GizmoSystem.h>

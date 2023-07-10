@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "PluginManager.h"
 #include <ctools/FileHelper.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
+#include <gaia/VulkanCore.h>
+#include <gaia/VulkanShader.h>
 #include <ctools/FileHelper.h>
 #include <Systems/CommonSystem.h>
 #include <ImWidgets/ImWidgets.h>

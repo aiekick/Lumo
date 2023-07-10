@@ -15,11 +15,12 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <map>
 #include <Graph/Graph.h>
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/vkFramework.h>
+#include <gaia/gaia.h>
 #include <Common/Globals.h>
 
 //todo : split the interface in one input interface and one output interface

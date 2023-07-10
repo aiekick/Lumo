@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <set>
 #include <string>
@@ -26,13 +27,13 @@ limitations under the License.
 #include <Utils/Mesh/VertexStruct.h>
 
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
+#include <gaia/Texture2D.h>
+#include <gaia/VulkanCore.h>
+#include <gaia/VulkanDevice.h>
+#include <gaia/VulkanShader.h>
+#include <gaia/vk_mem_alloc.h>
+#include <gaia/VulkanRessource.h>
+#include <gaia/VulkanFrameBuffer.h>
 
 #include <Interfaces/ShaderUpdateInterface.h>
 

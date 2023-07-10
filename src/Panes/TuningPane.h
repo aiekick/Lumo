@@ -24,9 +24,9 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <Interfaces/NodeInterface.h>
-#include <vkFramework/ImGuiTexture.h>
+#include <gaia/ImGuiTexture.h>
 #include <Panes/Abstract/AbstractPane.h>
-#include <vkFramework/VulkanFrameBuffer.h>
+#include <gaia/VulkanFrameBuffer.h>
 #include <ImGuiColorTextEdit/TextEditor.h>
 
 class BaseNode;

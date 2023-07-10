@@ -18,7 +18,7 @@ limitations under the License.
 
 #include <glm/glm.hpp>
 
-#include <vkFramework/vkFramework.h>
+#include <gaia/gaia.h>
 
 #include <string>
 #include <functional>

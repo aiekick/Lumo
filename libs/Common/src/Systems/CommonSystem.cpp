@@ -21,7 +21,7 @@ limitations under the License.
 #include <ImWidgets/ImWidgets.h>
 #include <FontIcons/CustomFont2.h>
 
-#include <vkFramework/VulkanCore.h>
+#include <gaia/VulkanCore.h>
 
 #define TRACE_MEMORY
 #include <vkProfiler/Profiler.h>

@@ -24,7 +24,7 @@ limitations under the License.
 #include <ImWidgets/ImWidgets.h>
 #include <Graph/Base/BaseNode.h>
 #include <Graph/Base/NodeSlot.h>
-#include <vkFramework/VulkanCore.h>
+#include <gaia/VulkanCore.h>
 #include <Interfaces/TextureGroupOutputInterface.h>
 
 void TextureGroupInputFunctions::UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs)

@@ -15,11 +15,12 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <map>
 #include <Graph/Graph.h>
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/vkFramework.h>
+#include <gaia/gaia.h>
 #include <Common/Globals.h>
 
 class COMMON_API StorageBufferOutputInterface

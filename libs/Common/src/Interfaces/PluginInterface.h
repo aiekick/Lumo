@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <memory>
 #include <string>
@@ -22,7 +23,7 @@ limitations under the License.
 #include <Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <Graph/Library/LibraryCategory.h>
-#include <vkFramework/vkFramework.h>
+#include <gaia/gaia.h>
 #include <Panes/Abstract/AbstractPane.h>
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
 #include <Common/Globals.h>

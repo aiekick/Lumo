@@ -15,6 +15,8 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
+
 #include <Common/Globals.h>
 
 class COMMON_API MouseInterface

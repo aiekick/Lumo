@@ -25,7 +25,7 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
-#include <vkFramework/VulkanSubmitter.h>
+#include <gaia/VulkanSubmitter.h>
 
 #include <FontIcons/CustomFont.h>
 

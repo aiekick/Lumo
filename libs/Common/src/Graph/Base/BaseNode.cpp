@@ -21,7 +21,7 @@ limitations under the License.
 #include <imgui/imgui.h>
 #include <ImWidgets/ImWidgets.h>
 #include <imgui/imgui_internal.h>
-#include <vkFramework/VulkanCore.h>
+#include <gaia/VulkanCore.h>
 #include <imgui_node_editor/NodeEditor/Source/imgui_node_editor_internal.h>
 
 #include <Graph/Base/NodeSlotInput.h>

@@ -15,12 +15,13 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <vector>
 #include <Graph/Graph.h>
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/vkFramework.h>
+#include <gaia/ImGuiTexture.h>
+#include <gaia/gaia.h>
 #include <Common/Globals.h>
 
 class COMMON_API TextureGroupOutputInterface

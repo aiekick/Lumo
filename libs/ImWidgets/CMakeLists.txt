@@ -27,4 +27,5 @@ add_library(${PROJECT} STATIC ${PROJECT_SRC_RECURSE})
 include_directories(
 	${CMAKE_SOURCE_DIR}/libs
 	${CMAKE_SOURCE_DIR}/3rdparty
+	${CTOOLS_INCLUDE_DIR}
 )

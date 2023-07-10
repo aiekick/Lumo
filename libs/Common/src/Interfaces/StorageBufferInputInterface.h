@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <map>
 #include <memory>
@@ -22,8 +23,8 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <ImWidgets/ImWidgets.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/vkFramework.h>
+#include <gaia/VulkanCore.h>
+#include <gaia/gaia.h>
 #include <Common/Globals.h>
 
 template<size_t size_of_array>

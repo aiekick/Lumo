@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <Graph/Graph.h>
 #include <Graph/Base/NodeSlotOutput.h>

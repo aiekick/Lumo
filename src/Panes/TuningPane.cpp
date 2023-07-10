@@ -22,7 +22,7 @@ limitations under the License.
 #include <Panes/Manager/LayoutManager.h>
 #include <ImWidgets/ImWidgets.h>
 #include <ImGuiFileDialog/ImGuiFileDialog.h>
-#include <vkFramework/VulkanImGuiRenderer.h>
+#include <gaia/VulkanImGuiRenderer.h>
 #include <Project/ProjectFile.h>
 #include <Gui/MainFrame.h>
 #include <imgui/imgui_internal.h>

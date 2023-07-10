@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <vulkan/vulkan.hpp>
 #include <Common/Globals.h>

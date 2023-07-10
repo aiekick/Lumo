@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <Base/ShaderPass.h>
 #include <SceneGraph/SceneMesh.hpp>

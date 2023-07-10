@@ -23,7 +23,7 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
-#include <vkFramework/VulkanSubmitter.h>
+#include <gaia/VulkanSubmitter.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <Base/FrameBuffer.h>
 

@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <ctools/cTools.h>
 #include <ImGuizmo/ImGuizmo.h>

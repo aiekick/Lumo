@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <renderdoc/util/test/demos/renderdoc_app.h>
 #include <Common/Globals.h>

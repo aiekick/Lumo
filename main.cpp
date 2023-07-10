@@ -58,7 +58,7 @@ void operator delete[](void* ptr) noexcept
 #include <ctools/Logger.h>
 #include <string>
 #include <iostream>
-#include <vkFramework/VulkanWindow.h>
+#include <gaia/VulkanWindow.h>
 
 int main(int, char** argv)
 {

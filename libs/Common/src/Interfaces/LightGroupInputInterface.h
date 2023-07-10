@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <SceneGraph/SceneLightGroup.h>
 #include <Common/Globals.h>

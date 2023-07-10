@@ -45,6 +45,7 @@ target_link_libraries(${PROJECT_LIB_NAME} PRIVATE
 )
 include_directories(
 	${DEPENDS_PATH}
+	${CTOOLS_INCLUDE_DIR}
 )
 
 set_target_properties(${PROJECT_LIB_NAME} PROPERTIES LINKER_LANGUAGE CXX)

@@ -4,12 +4,12 @@
 #include "PluginInterface.h"
 
 #include <Graph/Base/BaseNode.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
+#include <gaia/VulkanCore.h>
+#include <gaia/VulkanShader.h>
 #include <ctools/FileHelper.h>
 #include <Systems/CommonSystem.h>
 #include <ImWidgets/ImWidgets.h>
-#include <vkFramework/VulkanWindow.h>
+#include <gaia/VulkanWindow.h>
 #include <Graph/Base/NodeSlot.h>
 
 PluginInterface::~PluginInterface()

@@ -15,12 +15,14 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
+
 #include <vector>
 #include <glm/glm.hpp>
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanRessource.h>
+#include <gaia/VulkanCore.h>
+#include <gaia/VulkanRessource.h>
 #include <Utils/Mesh/VertexStruct.h>
 #include <Common/Globals.h>
 

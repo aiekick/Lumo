@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <imgui/imgui.h>
 #include <ctools/cTools.h>

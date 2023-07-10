@@ -15,12 +15,13 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <vector>
 #include <ctools/cTools.h>
 #include <SceneGraph/SceneLight.h>
 #include <Interfaces/BufferObjectInterface.h>
-#include <vkFramework/StorageBufferStd430.h>
+#include <gaia/StorageBufferStd430.h>
 #include <Common/Globals.h>
 
 /*

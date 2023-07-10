@@ -1,6 +1,25 @@
-file(GLOB TINYXML2_FILES ${CMAKE_SOURCE_DIR}/3rdparty/tinyxml2/tinyxml2.h ${CMAKE_SOURCE_DIR}/3rdparty/tinyxml2/tinyxml2.cpp)
-add_library(tinyxml2 STATIC ${TINYXML2_FILES})
-set_target_properties(tinyxml2 PROPERTIES LINKER_LANGUAGE CXX)
+
+option(USE_SHARED_LIB_TINYXML2  "Enable TinyXml2 Shared Lib" OFF)
+
+if (USE_SHARED_LIB_TINYXML2)
+	set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+	set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE BOOL "" FORCE)
+	add_library(tinyxml2 ${CMAKE_SOURCE_DIR}/3rdparty/tinyxml2/tinyxml2.cpp ${CMAKE_SOURCE_DIR}/3rdparty/tinyxml2/tinyxml2.h)
+	target_compile_definitions(tinyxml2 INTERFACE BUILD_SHARED_LIBS)
+	set_target_properties(tinyxml2 PROPERTIES POSITION_INDEPENDENT_CODE ON)
+	set_target_properties(tinyxml2 PROPERTIES DEFINE_SYMBOL "TINYXML2_EXPORT")
+else()
+	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+	set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF CACHE BOOL "" FORCE)
+	add_library(tinyxml2 STATIC ${CMAKE_SOURCE_DIR}/3rdparty/tinyxml2/tinyxml2.cpp ${CMAKE_SOURCE_DIR}/3rdparty/tinyxml2/tinyxml2.h)
+endif()
+
+set_target_properties(tinyxml2 PROPERTIES RUNTIME_OUTPUT_NAME_DEBUG "tinyxml2d")
 set_target_properties(tinyxml2 PROPERTIES FOLDER 3rdparty)
+set_target_properties(tinyxml2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(tinyxml2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
+set_target_properties(tinyxml2 PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
+
 set(TINYXML2_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/3rdparty/tinyxml2)
 set(TINYXML2_LIBRARIES tinyxml2)
+set(TINYXML2_LIB_DIR ${CMAKE_CURRENT_BINARY_DIR})

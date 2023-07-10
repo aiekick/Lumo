@@ -15,12 +15,13 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 #include <Interfaces/CameraInterface.h>
 #include <Interfaces/BufferObjectInterface.h>
-#include <vkFramework/VulkanRessource.h>
+#include <gaia/VulkanRessource.h>
 #include <Common/Globals.h>
 
 #pragma warning(push)

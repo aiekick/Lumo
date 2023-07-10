@@ -15,6 +15,7 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <set>
 #include <string>
@@ -22,7 +23,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <Utils/Mesh/VertexStruct.h>
-#include <vkFramework/VulkanFrameBufferAttachment.h>
+#include <gaia/VulkanFrameBufferAttachment.h>
 #include <Common/Globals.h>
 
 class CameraInterface;

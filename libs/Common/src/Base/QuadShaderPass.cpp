@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "QuadShaderPass.h"
 
-#include <vkFramework/VulkanRessource.h>
+#include <gaia/VulkanRessource.h>
 
 QuadShaderPass::QuadShaderPass(
 	vkApi::VulkanCorePtr vVulkanCorePtr,

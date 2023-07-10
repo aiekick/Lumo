@@ -15,13 +15,14 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4251)
 
 #include <string>
 #include <memory>
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/vkFramework.h>
+#include <gaia/VulkanRessource.h>
+#include <gaia/gaia.h>
 #include <Common/Globals.h>
 
 class COMMON_API BufferObjectInterface
