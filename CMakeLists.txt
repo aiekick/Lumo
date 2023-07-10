@@ -87,6 +87,11 @@ include_directories(
 	${CMAKE_SOURCE_DIR}/3rdparty
 )
 
+find_package(Vulkan REQUIRED)
+add_definitions(-DVULKAN_HPP_STORAGE_SHARED)
+
+add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/3rdparty/imgui/imgui.h")
+
 include(cmake/3rdparty/3rdparty.cmake)
 include(cmake/libs/libs.cmake)
 if (USE_PLUGINS)
@@ -98,8 +103,6 @@ endif()
 
 set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 
-find_package(Vulkan REQUIRED)
-
 ## other define
 add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
 add_definitions(-DGLM_FORCE_LEFT_HANDED)
@@ -108,7 +111,6 @@ add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(-DIMGUI_ENABLE_FREETYPE)
 add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/3rdparty/imgui/imgui.h")
 add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
 add_definitions(-DUSE_VULKAN)

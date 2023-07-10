@@ -30,7 +30,7 @@ limitations under the License.
 #include <utility>
 
 static bool showNodeStyleEditor = false;
-uint32_t BaseNode::freeNodeId = MAGIC_NUMBER;
+COMMON_API uint32_t BaseNode::freeNodeId = MAGIC_NUMBER;
 
 //////////////////////////////////////////////////////////////////////////////
 ////// STATIC ////////////////////////////////////////////////////////////////
