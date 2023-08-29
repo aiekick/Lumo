@@ -1,0 +1,4 @@
+C:/Gamedev/gitlab/SdfMesher/3rdparty/tracy/build/CMakeFiles/TracyClient.dir
+C:/Gamedev/gitlab/SdfMesher/3rdparty/tracy/build/CMakeFiles/INSTALL.dir
+C:/Gamedev/gitlab/SdfMesher/3rdparty/tracy/build/CMakeFiles/ALL_BUILD.dir
+C:/Gamedev/gitlab/SdfMesher/3rdparty/tracy/build/CMakeFiles/ZERO_CHECK.dir

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Gamedev\gitlab\SdfMesher\3rdparty\tracy\build\CMakeFiles\d5856c6692008ea8b21d1998f37afbd5\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{115F8CC1-CFF2-3317-8DB4-C2616A732E57}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
