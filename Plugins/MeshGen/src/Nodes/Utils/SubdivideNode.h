@@ -14,10 +14,10 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/ModelOutputInterface.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Interfaces/ModelOutputInterface.h>
 class SubdivideModule;
 class SubdivideNode :
 	public ModelInputInterface,
@@ -25,7 +25,7 @@ class SubdivideNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<SubdivideNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SubdivideNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<SubdivideModule> m_SubdivideModulePtr = nullptr;
@@ -35,11 +35,18 @@ public:
 	~SubdivideNode() override;
 
 	// Init / Unit
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 
 	// Draw Widgets
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame,
+        const ImRect& vRect,
+        ImGuiContext* vContext,
+        const std::string& vUserDatas) override;
+    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
+        const ImVec2& vMaxSize,
+        ImGuiContext* vContext,
+        const std::string& vUserDatas) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 	// Interfaces Setters
 	void SetModel(SceneModelWeak vSceneModel) override;

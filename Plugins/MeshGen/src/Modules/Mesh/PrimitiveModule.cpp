@@ -23,13 +23,13 @@ limitations under the License.
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <ImWidgets/ImWidgets.h>
 #include <Systems/CommonSystem.h>
 #include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
+#include <Gaia/VulkanCore.h>
+#include <Gaia/VulkanShader.h>
+#include <Gaia/VulkanSubmitter.h>
 #include <utils/Mesh/VertexStruct.h>
 #include <Base/FrameBuffer.h>
 #include <SceneGraph/SceneModel.h>
@@ -37,7 +37,7 @@ limitations under the License.
 #include <cmath>
 #include <glm/gtx/euler_angles.hpp>
 
-using namespace vkApi;
+using namespace GaiApi;
 
 #define TORUS_MODE_MAJOR_MINOR 0
 #define TORUS_MODE_EXT_INT 1
@@ -46,7 +46,7 @@ using namespace vkApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PrimitiveModule> PrimitiveModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<PrimitiveModule> PrimitiveModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -66,7 +66,7 @@ std::shared_ptr<PrimitiveModule> PrimitiveModule::Create(vkApi::VulkanCorePtr vV
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PrimitiveModule::PrimitiveModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+PrimitiveModule::PrimitiveModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -111,7 +111,7 @@ void PrimitiveModule::Unit()
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PrimitiveModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PrimitiveModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -138,7 +138,7 @@ bool PrimitiveModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	return change;
 }
 
-void PrimitiveModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void PrimitiveModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -146,7 +146,7 @@ void PrimitiveModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frec
 	ImGui::SetCurrentContext(vContext);
 }
 
-void PrimitiveModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void PrimitiveModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -1104,7 +1104,7 @@ void PrimitiveModule::BuildMesh()
 			m_SceneModelPtr->clear();
 			m_SceneModelPtr->Add(mesh_ptr);
 
-			auto parentNodePtr = GetParentNode().getValidShared();
+			auto parentNodePtr = GetParentNode().lock();
 			if (parentNodePtr)
 			{
 				parentNodePtr->SendFrontNotification(ModelUpdateDone);

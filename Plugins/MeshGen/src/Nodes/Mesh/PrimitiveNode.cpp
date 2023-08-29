@@ -19,13 +19,13 @@ limitations under the License.
 
 #include "PrimitiveNode.h"
 #include <Modules/Mesh/PrimitiveModule.h>
-#include <Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<PrimitiveNode> PrimitiveNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<PrimitiveNode> PrimitiveNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -57,7 +57,7 @@ PrimitiveNode::~PrimitiveNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PrimitiveNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool PrimitiveNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -80,7 +80,7 @@ bool PrimitiveNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PrimitiveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PrimitiveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -97,7 +97,7 @@ bool PrimitiveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 	return res;
 }
 
-void PrimitiveNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void PrimitiveNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 

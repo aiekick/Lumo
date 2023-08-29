@@ -19,14 +19,14 @@ limitations under the License.
 
 #include "ParametricSurfaceUVNode.h"
 #include <Modules/Surface/ParametricSurfaceUVModule.h>
-#include <Graph/Slots/NodeSlotVariableInput.h>
-#include <Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricSurfaceUVNode> ParametricSurfaceUVNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParametricSurfaceUVNode> ParametricSurfaceUVNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +58,7 @@ ParametricSurfaceUVNode::~ParametricSurfaceUVNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricSurfaceUVNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ParametricSurfaceUVNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -82,7 +82,7 @@ bool ParametricSurfaceUVNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricSurfaceUVNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ParametricSurfaceUVNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -99,7 +99,7 @@ bool ParametricSurfaceUVNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 	return res;
 }
 
-void ParametricSurfaceUVNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ParametricSurfaceUVNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -120,7 +120,7 @@ void ParametricSurfaceUVNode::DrawInputWidget(BaseNodeState* vBaseNodeState, Nod
 {
 	ZoneScoped;
 
-	auto slotPtr = vSlot.getValidShared();
+	auto slotPtr = vSlot.lock();
 	if (slotPtr && slotPtr->showWidget)
 	{
 		if (m_ParametricSurfaceUVModulePtr)

@@ -19,14 +19,14 @@ limitations under the License.
 
 #include "SubdivideNode.h"
 #include <Modules/Utils/SubdivideModule.h>
-#include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SubdivideNode> SubdivideNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SubdivideNode> SubdivideNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +58,7 @@ SubdivideNode::~SubdivideNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SubdivideNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SubdivideNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -82,7 +82,7 @@ bool SubdivideNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SubdivideNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SubdivideNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -99,7 +99,7 @@ bool SubdivideNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 	return res;
 }
 
-void SubdivideNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void SubdivideNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 

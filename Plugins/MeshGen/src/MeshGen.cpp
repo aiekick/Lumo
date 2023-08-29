@@ -1,23 +1,25 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-//#define _CRTDBG_MAP_ALLOC
+#include "MeshGen.h"
+#include <Headers/MeshGenBuild.h>
+#include <Gaia/gaia.h>
+
 #include <stdlib.h>
 #include <crtdbg.h>
 
-#include "MeshGen.h"
-#include <Headers/MeshGenBuild.h>
-#include <Graph/Base/BaseNode.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
 #include <ctools/FileHelper.h>
-#include <Systems/CommonSystem.h>
-#include <ImWidgets/ImWidgets.h>
-#include <vkFramework/VulkanWindow.h>
 
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Gui/VulkanWindow.h>
+#include <Gaia/Shader/VulkanShader.h>
+
+#include <Nodes/Mesh/PrimitiveNode.h>
 #include <Nodes/Curve/ParametricCurveNode.h>
 #include <Nodes/Curve/ParametricCurveDiffNode.h>
-#include <Nodes/Mesh/PrimitiveNode.h>
 #include <Nodes/Surface/ParametricSurfaceUVNode.h>
 
 // needed for plugin creating / destroying
@@ -113,13 +115,13 @@ BaseNodePtr MeshGen::CreatePluginNode(const std::string& vPluginNodeName)
 	BaseNodePtr res = nullptr;
 
 	if (vPluginNodeName == "PARAMETRIC_CURVE")
-		res = ParametricCurveNode::Create(m_VulkanCoreWeak.getValidShared());
+		res = ParametricCurveNode::Create(m_VulkanCoreWeak.lock());
 	else if (vPluginNodeName == "PARAMETRIC_CURVE_DIFF")
-		res = ParametricCurveDiffNode::Create(m_VulkanCoreWeak.getValidShared());
+		res = ParametricCurveDiffNode::Create(m_VulkanCoreWeak.lock());
 	else if (vPluginNodeName == "PARAMETRIC_SURFACE_UV")
-		res = ParametricSurfaceUVNode::Create(m_VulkanCoreWeak.getValidShared());
+		res = ParametricSurfaceUVNode::Create(m_VulkanCoreWeak.lock());
 	else if (vPluginNodeName == "PRIMITIVE")
-		res = PrimitiveNode::Create(m_VulkanCoreWeak.getValidShared());
+		res = PrimitiveNode::Create(m_VulkanCoreWeak.lock());
 
 	return res;
 }
@@ -133,7 +135,7 @@ std::vector<PluginPane> MeshGen::GetPanes() const
 
 int MeshGen::ResetImGuiID(const int& vWidgetId)
 {
-	auto ids = ImGui::CustomStyle::Instance()->pushId;
-	ImGui::CustomStyle::Instance()->pushId = vWidgetId;
+    auto ids = ImGui::GetPUSHID();
+    ImGui::SetPUSHID(vWidgetId);
 	return ids;
 }

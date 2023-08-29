@@ -24,23 +24,23 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include <Base/FrameBuffer.h>
 #include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <ImWidgets/ImWidgets.h>
 #include <FontIcons/CustomFont.h>
 #include <Systems/CommonSystem.h>
 #include <Profiler/vkProfiler.hpp>
 #include <utils/Mesh/VertexStruct.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
+#include <Gaia/VulkanCore.h>
+#include <Gaia/VulkanShader.h>
+#include <Gaia/VulkanSubmitter.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricSurfaceUVModule> ParametricSurfaceUVModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<ParametricSurfaceUVModule> ParametricSurfaceUVModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -60,7 +60,7 @@ std::shared_ptr<ParametricSurfaceUVModule> ParametricSurfaceUVModule::Create(vkA
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ParametricSurfaceUVModule::ParametricSurfaceUVModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+ParametricSurfaceUVModule::ParametricSurfaceUVModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -101,7 +101,7 @@ void ParametricSurfaceUVModule::Unit()
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricSurfaceUVModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ParametricSurfaceUVModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -113,7 +113,7 @@ bool ParametricSurfaceUVModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 	return false;
 }
 
-void ParametricSurfaceUVModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+void ParametricSurfaceUVModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -121,7 +121,7 @@ void ParametricSurfaceUVModule::DrawOverlays(const uint32_t& vCurrentFrame, cons
 	ImGui::SetCurrentContext(vContext);
 }
 
-void ParametricSurfaceUVModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ParametricSurfaceUVModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -573,7 +573,7 @@ void ParametricSurfaceUVModule::prUpdateMesh()
 		m_SceneModelPtr->clear();
 		m_SceneModelPtr->Add(sceneMeshPtr);
 
-		auto parentNodePtr = GetParentNode().getValidShared();
+		auto parentNodePtr = GetParentNode().lock();
 		if (parentNodePtr)
 		{
 			parentNodePtr->SendFrontNotification(ModelUpdateDone);

@@ -19,14 +19,14 @@ limitations under the License.
 
 #include "ParametricCurveNode.h"
 #include <Modules/Curve/ParametricCurveModule.h>
-#include <Graph/Slots/NodeSlotVariableInput.h>
-#include <Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricCurveNode> ParametricCurveNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParametricCurveNode> ParametricCurveNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +58,7 @@ ParametricCurveNode::~ParametricCurveNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ParametricCurveNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -82,7 +82,7 @@ bool ParametricCurveNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ParametricCurveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -99,7 +99,7 @@ bool ParametricCurveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 	return res;
 }
 
-void ParametricCurveNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ParametricCurveNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -120,7 +120,7 @@ void ParametricCurveNode::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlo
 {
 	ZoneScoped;
 
-	auto slotPtr = vSlot.getValidShared();
+	auto slotPtr = vSlot.lock();
 	if (slotPtr && slotPtr->showWidget)
 	{
 		if (m_ParametricCurveModulePtr)

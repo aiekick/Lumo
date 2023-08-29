@@ -19,14 +19,14 @@ limitations under the License.
 
 #include "ParametricCurveDiffNode.h"
 #include <Modules/Curve/ParametricCurveDiffModule.h>
-#include <Graph/Slots/NodeSlotVariableInput.h>
-#include <Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricCurveDiffNode> ParametricCurveDiffNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParametricCurveDiffNode> ParametricCurveDiffNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +58,7 @@ ParametricCurveDiffNode::~ParametricCurveDiffNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveDiffNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ParametricCurveDiffNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -82,7 +82,7 @@ bool ParametricCurveDiffNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveDiffNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ParametricCurveDiffNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -99,7 +99,7 @@ bool ParametricCurveDiffNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 	return res;
 }
 
-void ParametricCurveDiffNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+void ParametricCurveDiffNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -120,7 +120,7 @@ void ParametricCurveDiffNode::DrawInputWidget(BaseNodeState* vBaseNodeState, Nod
 {
 	ZoneScoped;
 
-	auto slotPtr = vSlot.getValidShared();
+	auto slotPtr = vSlot.lock();
 	if (slotPtr && slotPtr->showWidget)
 	{
 		if (m_ParametricCurveDiffModulePtr)

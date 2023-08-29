@@ -21,26 +21,14 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-#include <ctools/Logger.h>
-#include <Base/FrameBuffer.h>
-#include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <FontIcons/CustomFont.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <utils/Mesh/VertexStruct.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricCurveModule> ParametricCurveModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<ParametricCurveModule> ParametricCurveModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -60,7 +48,7 @@ std::shared_ptr<ParametricCurveModule> ParametricCurveModule::Create(vkApi::Vulk
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ParametricCurveModule::ParametricCurveModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+ParametricCurveModule::ParametricCurveModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -100,7 +88,7 @@ void ParametricCurveModule::Unit()
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ParametricCurveModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -112,20 +100,24 @@ bool ParametricCurveModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 	return false;
 }
 
-void ParametricCurveModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool ParametricCurveModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+
+    return false;
 }
 
-void ParametricCurveModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool ParametricCurveModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -394,7 +386,7 @@ void ParametricCurveModule::prUpdateMesh()
 		m_SceneModelPtr->clear();
 		m_SceneModelPtr->Add(sceneMeshPtr);
 
-		auto parentNodePtr = GetParentNode().getValidShared();
+		auto parentNodePtr = GetParentNode().lock();
 		if (parentNodePtr)
 		{
 			parentNodePtr->SendFrontNotification(ModelUpdateDone);

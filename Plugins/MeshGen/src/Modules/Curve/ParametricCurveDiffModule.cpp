@@ -21,26 +21,14 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-#include <ctools/Logger.h>
-#include <Base/FrameBuffer.h>
-#include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <FontIcons/CustomFont.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricCurveDiffModule> ParametricCurveDiffModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<ParametricCurveDiffModule> ParametricCurveDiffModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -60,7 +48,7 @@ std::shared_ptr<ParametricCurveDiffModule> ParametricCurveDiffModule::Create(vkA
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ParametricCurveDiffModule::ParametricCurveDiffModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+ParametricCurveDiffModule::ParametricCurveDiffModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -102,7 +90,7 @@ void ParametricCurveDiffModule::Unit()
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveDiffModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ParametricCurveDiffModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -114,20 +102,23 @@ bool ParametricCurveDiffModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 	return false;
 }
 
-void ParametricCurveDiffModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool ParametricCurveDiffModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+
+    return false;
 }
 
-void ParametricCurveDiffModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool ParametricCurveDiffModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -488,7 +479,7 @@ void ParametricCurveDiffModule::prUpdateMesh()
 		m_SceneModelPtr->clear();
 		m_SceneModelPtr->Add(sceneMeshPtr);
 
-		auto parentNodePtr = GetParentNode().getValidShared();
+		auto parentNodePtr = GetParentNode().lock();
 		if (parentNodePtr)
 		{
 			parentNodePtr->SendFrontNotification(ModelUpdateDone);
