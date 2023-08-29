@@ -116,36 +116,17 @@ set(CMAKE_INSTALL_PREFIX ${FINAL_BIN_DIR}/plugins)
 install(TARGETS ${PROJECT} DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT ${PROJECT}_PLUGINS)
 
 include_directories(
-	src
-	${CMAKE_SOURCE_DIR}/src
-	${CMAKE_SOURCE_DIR}/libs/Common/src
-	${CMAKE_SOURCE_DIR}/libs
-	${CMAKE_SOURCE_DIR}/3rdparty
-	${CMAKE_SOURCE_DIR}/3rdparty/glm
-	${CMAKE_SOURCE_DIR}/3rdparty/glslang
-	${CMAKE_SOURCE_DIR}/3rdparty/assimp/include
-	${EFSW_INCLUDE_DIR}
-	${GLFW_INCLUDE_DIR}
-	${PLOG_INCLUDE_DIR}
-	${IMGUI_INCLUDE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
+	${LUMO_BACKEND_INCLUDE_DIRS}
 	${ASSIMP_INCLUDE_DIR}
-	${OPENGL_INCLUDE_DIR}
-	${CPPIPC_INCLUDE_DIR}
-	${LFWATCH_INCLUDE_DIR}
-	${Vulkan_INCLUDE_DIRS}
-	${TINYXML2_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIR}
-	${IMGUIZMO_INCLUDE_DIR}
-	${IMGUIFILEDIALOG_INCLUDE_DIR}
-	${IMGUI_NODE_EDITOR_INCLUDE_DIR}
-	${COMMON_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT}
-	${COMMON_LIBRARIES}
+	${LUMO_BACKEND_LIBRARIES}
 	${ASSIMP_LIBRARIES}
 )
-
 
 ########################################################
 ################# BUILD INCREMENT TOOL #################
@@ -158,3 +139,6 @@ add_custom_command(
 	DEPENDS ${PROJECT}
 )
 
+########################################################
+########################################################
+########################################################
