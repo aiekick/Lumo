@@ -5,8 +5,7 @@ set(PROJECT_VER 0.1.0)
 
 enable_language(C CXX)
 
-option(USE_SHARED_LIBS "Use Shared libs" ON)
-option(USE_PLUGINS "Enable the plugins building" OFF)
+option(USE_PLUGINS "Enable the plugins building" ON)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 option(USE_TRACY_PROFILER "Enable Tracy Profiler" OFF)
 option(USE_TESTING_LUMO "Enable Tests" OFF)
@@ -65,6 +64,8 @@ else()
 	set(USE_PLUGIN_SMOKE OFF CACHE BOOL "" FORCE)
 	set(USE_PLUGIN_VR OFF CACHE BOOL "" FORCE)
 endif()
+
+set(USE_SHARED_LIBS ON CACHE BOOL "" FORCE)
 
 if (USE_CODE_GENERATOR)
 	add_definitions(-DUSE_CODE_GENERATOR)
@@ -233,28 +234,17 @@ set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FI
 set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 
 if (USE_TESTING_LUMO)
-	if(USE_SHARED_LIBS)
-		set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
-	endif()
 	enable_testing()
 	add_definitions(-DTEST_ENABLED)
 	#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 endif()
 
 if (USE_TRACY_PROFILER)
-	if(USE_SHARED_LIBS)
-		set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
-	endif()
 	remove_definitions(-DTRACY_ENABLE)
 	add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/tracy)
-
-	if(USE_SHARED_LIBS)
-		set_target_properties(TracyClient PROPERTIES FOLDER 3rdparty/Shared/tracy)
-		set_target_properties(capstone PROPERTIES FOLDER 3rdparty/Shared/tracy)
-	else()
-		set_target_properties(TracyClient PROPERTIES FOLDER 3rdparty/Static/tracy)
-		set_target_properties(capstone PROPERTIES FOLDER 3rdparty/Static/tracy)
-	endif()
+	
+	set_target_properties(TracyClient PROPERTIES FOLDER 3rdparty/Shared/tracy)
+	set_target_properties(capstone PROPERTIES FOLDER 3rdparty/Shared/tracy)
 
 	set_target_properties(TracyClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 	set_target_properties(TracyClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
