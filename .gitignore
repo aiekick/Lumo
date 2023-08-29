@@ -74,3 +74,4 @@
 /bin/plugins/Debug/Core_Windows_Debug_x64.dll
 /bin/assimpd.dll
 /bin/glmd.dll
+/bin/plugins/MeshGen_Windows_Debug_x64.dll
