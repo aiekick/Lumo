@@ -85,31 +85,33 @@ bool SubdivideNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 bool SubdivideNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
-	bool res = false;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	if (m_SubdivideModulePtr)
 	{
-		res = m_SubdivideModulePtr->DrawWidgets(vCurrentFrame, vContext);
+        return m_SubdivideModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
-
-	return res;
+	return false;
 }
 
-void SubdivideNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SubdivideNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
+}
 
+bool SubdivideNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+	ZoneScoped;
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	if (m_SubdivideModulePtr)
 	{
-		m_SubdivideModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_SubdivideModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

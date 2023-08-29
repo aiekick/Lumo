@@ -83,31 +83,33 @@ bool PrimitiveNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 bool PrimitiveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
-	bool res = false;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	if (m_PrimitiveModulePtr)
 	{
-		res = m_PrimitiveModulePtr->DrawWidgets(vCurrentFrame, vContext);
+        return m_PrimitiveModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
-
-	return res;
+	return false;
 }
 
-void PrimitiveNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool PrimitiveNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
+}
 
+bool PrimitiveNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+	ZoneScoped;
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	if (m_PrimitiveModulePtr)
 	{
-		m_PrimitiveModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_PrimitiveModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

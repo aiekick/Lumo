@@ -85,31 +85,34 @@ bool ParametricCurveDiffNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 bool ParametricCurveDiffNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	bool res = false;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	if (m_ParametricCurveDiffModulePtr)
 	{
-		res = m_ParametricCurveDiffModulePtr->DrawWidgets(vCurrentFrame, vContext);
+        return m_ParametricCurveDiffModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
-
-	return res;
+	return false;
 }
 
-void ParametricCurveDiffNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ParametricCurveDiffNode::DrawOverlays(
+	const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
+}
 
+bool ParametricCurveDiffNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+	ZoneScoped;
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	if (m_ParametricCurveDiffModulePtr)
 	{
-		m_ParametricCurveDiffModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		return m_ParametricCurveDiffModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
 	}
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -33,7 +33,7 @@ set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/LumoBackendConfig.h")
+add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomLumoBackendConfig.h")
 add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
 add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
 add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
@@ -86,9 +86,7 @@ set(ENABLE_EXPORTS ON CACHE STRING "" FORCE)
 add_library(${PROJECT} MODULE
 	${CMAKE_RECURSE}
 	${SHADER_SOURCES}
-	${IMGUIIMPL_SOURCES}
 	${PROJECT_SRC_RECURSE}
-	${IMGUI_FREETYPE_SOURCES}
 	${PROJECT_SHADERS_RECURSE}
 )
 

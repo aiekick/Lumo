@@ -21,21 +21,10 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-#include <ctools/Logger.h>
-#include <ctools/FileHelper.h>
-#include <LumoBackend/Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <Gaia/VulkanCore.h>
-#include <Gaia/VulkanShader.h>
-#include <Gaia/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
-#include <SceneGraph/SceneModel.h>
-#include <SceneGraph/SceneMesh.hpp>
-#include <cmath>
+#include <glm/gtx/transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/NotifyInterface.h>
 
 using namespace GaiApi;
 
@@ -138,20 +127,20 @@ bool PrimitiveModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	return change;
 }
 
-void PrimitiveModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool PrimitiveModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
-void PrimitiveModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
-{
+bool PrimitiveModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -726,7 +715,8 @@ void PrimitiveModule::CreateTorusMesh(
 	uint32_t tot_verts = vMajorSegments * vMinorSegments;
 	for (uint32_t major_index = 0; major_index < (uint32_t)vMajorSegments; ++major_index)
 	{
-		const glm::mat4 rotation_matrix = glm::rotate(major_index * majorSegFactor * pi_2, glm::vec3(0, 1, 0)); // up is Y
+        const float angle = major_index * majorSegFactor * pi_2;
+        const glm::mat4 rotation_matrix = glm::rotate(angle, glm::vec3(0, 1, 0));  // up is Y
 		const float major_twist_angle = major_index * twist_step_angle;
 
 		for (uint32_t minor_index = 0; minor_index < (uint32_t)vMinorSegments; ++minor_index)

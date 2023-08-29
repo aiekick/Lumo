@@ -85,31 +85,33 @@ bool ParametricSurfaceUVNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 bool ParametricSurfaceUVNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
-	bool res = false;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	if (m_ParametricSurfaceUVModulePtr)
 	{
-		res = m_ParametricSurfaceUVModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_ParametricSurfaceUVModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
-
-	return res;
+	return false;
 }
 
-void ParametricSurfaceUVNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ParametricSurfaceUVNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
+}
 
+bool ParametricSurfaceUVNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+	ZoneScoped;
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	if (m_ParametricSurfaceUVModulePtr)
 	{
-		m_ParametricSurfaceUVModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+        return m_ParametricSurfaceUVModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
 	}
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

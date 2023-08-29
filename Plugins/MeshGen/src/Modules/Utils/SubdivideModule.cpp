@@ -21,17 +21,6 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-#include <ctools/Logger.h>
-#include <ctools/FileHelper.h>
-#include <LumoBackend/Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <Gaia/VulkanCore.h>
-#include <Gaia/VulkanShader.h>
-#include <Gaia/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
 
 using namespace GaiApi;
 
@@ -99,27 +88,25 @@ void SubdivideModule::Unit()
 bool SubdivideModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	return false;
 }
 
-void SubdivideModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+bool SubdivideModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
-void SubdivideModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+bool SubdivideModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -21,7 +21,7 @@ limitations under the License.
 #include <array>
 #include <string>
 #include <memory>
-#include <Headers/Globals.h>
+
 #include <Gaia/gaia.h>
 #include <ImGuiPack.h>
 #include <ctools/cTools.h>

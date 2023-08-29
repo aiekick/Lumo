@@ -21,6 +21,15 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/NotifyInterface.h>
+
+#ifdef CUSTOM_LUMO_BACKEND_CONFIG
+#include CUSTOM_LUMO_BACKEND_CONFIG
+#else
+#include <LumoBackend/Headers/LumoBackendConfigHeader.h>
+#endif  // CUSTOM_LUMO_BACKEND_CONFIG
 
 using namespace GaiApi;
 
@@ -91,32 +100,25 @@ void ParametricCurveModule::Unit()
 bool ParametricCurveModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
 	prDrawWidgets();
-
 	return false;
 }
 
 bool ParametricCurveModule::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
     return false;
 }
 
 bool ParametricCurveModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
     return false;
 }
 
@@ -418,8 +420,8 @@ bool ParametricCurveModule::prDrawInputExpr(
 	ImGui::Text(vLabel);
 	ImGui::SameLine();
 	if (vError)
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::CustomStyle::Instance()->BadColor);
-	if (ImGui::ContrastedButton(ICON_NDP_RESET)) {
+		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImGui::CustomStyle::BadColor);
+	if (ImGui::ContrastedButton(LUMO_BACKEND_ICON_LABEL_RESET)) {
 		ct::ResetBuffer(vBuffer);
 		ct::AppendToBuffer(vBuffer, vBufferSize, vDdefaultValue);
 	}
