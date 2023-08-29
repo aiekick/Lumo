@@ -17,30 +17,36 @@ limitations under the License.
 #include "ShadowMapModule.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Lighting/Pass/ShadowMapModule_Mesh_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
-
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<ShadowMapModule>(vVulkanCorePtr);
@@ -56,7 +62,7 @@ std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(vkApi::VulkanCorePtr vV
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ShadowMapModule::ShadowMapModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+ShadowMapModule::ShadowMapModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
@@ -157,7 +163,7 @@ void ShadowMapModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 
 	if (m_ShadowMapModule_Mesh_Pass_Ptr)
 	{
-		auto lightGroupPtr = m_SceneLightGroupWeak.getValidShared();
+		auto lightGroupPtr = m_SceneLightGroupWeak.lock();
 		if (lightGroupPtr)
 		{
 			uint32_t idx = 0U;
@@ -185,7 +191,7 @@ bool ShadowMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	return true;
 }
 
-bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -200,7 +206,7 @@ bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (passGuiPtr)
 				{
-					change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext);
+                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 				}
 			}
 
@@ -211,17 +217,18 @@ bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	return false;
 }
 
-void ShadowMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool ShadowMapModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
-void ShadowMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool ShadowMapModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -229,6 +236,7 @@ void ShadowMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	{
 
 	}
+    return false;
 }
 
 void ShadowMapModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
@@ -301,7 +309,7 @@ std::string ShadowMapModule::getXml(const std::string& vOffset, const std::strin
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto pass_ptr = pass.getValidShared();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
@@ -334,7 +342,7 @@ bool ShadowMapModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto pass_ptr = pass.getValidShared();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			pass_ptr->setFromXml(vElem, vParent, vUserDatas);

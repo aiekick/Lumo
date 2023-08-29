@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 #pragma once
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 
 class NodeFactory
 {

@@ -17,32 +17,38 @@ limitations under the License.
 #include "SmoothNormalModule.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Graph/Base/BaseNode.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Modifiers/Pass/SmoothNormalModule_Comp_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
-
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
 std::shared_ptr<SmoothNormalModule> SmoothNormalModule::Create(
-	vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+	GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<SmoothNormalModule>(vVulkanCorePtr);
@@ -59,7 +65,7 @@ std::shared_ptr<SmoothNormalModule> SmoothNormalModule::Create(
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SmoothNormalModule::SmoothNormalModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+SmoothNormalModule::SmoothNormalModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
@@ -114,7 +120,7 @@ bool SmoothNormalModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Co
 
 	// mesh was updated, we notify the parent here
 	// becasue this execution is event based
-	auto parentNodePtr = GetParentNode().getValidShared();
+	auto parentNodePtr = GetParentNode().lock();
 	if (parentNodePtr)
 	{
 		parentNodePtr->SendFrontNotification(ModelUpdateDone);
@@ -125,7 +131,7 @@ bool SmoothNormalModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Co
 	return true;
 }
 
-bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -147,7 +153,7 @@ bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (passGuiPtr)
 				{
-					change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext);
+                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 				}
 			}
 
@@ -158,7 +164,7 @@ bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 	return false;
 }
 
-void SmoothNormalModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool SmoothNormalModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -166,9 +172,10 @@ void SmoothNormalModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::f
 	{
 
 	}
+    return false;
 }
 
-void SmoothNormalModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool SmoothNormalModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -176,6 +183,7 @@ void SmoothNormalModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, 
 	{
 
 	}
+    return false;
 }
 
 void SmoothNormalModule::SetModel(SceneModelWeak vSceneModel)

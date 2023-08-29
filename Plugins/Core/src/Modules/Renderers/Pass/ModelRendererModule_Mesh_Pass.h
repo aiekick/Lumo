@@ -26,28 +26,28 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/BaseRenderer.h>
-#include <Base/MeshShaderPass.h>
-#include <vulkan/vulkan.hpp>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
+#include <LumoBackend/Base/BaseRenderer.h>
+#include <LumoBackend/Base/MeshShaderPass.h>
+#include <Gaia/gaia.h>
+#include <Gaia/Resources/Texture2D.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <Gaia/Core/vk_mem_alloc.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Gui/ImGuiTexture.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Resources/VulkanFrameBuffer.h>
 
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class ModelRendererModule_Mesh_Pass :
 	public MeshShaderPass<VertexStruct::P3_N3_TA3_BTA3_T2_C4>,
 	public ModelInputInterface,
 	public TextureOutputInterface,
-	public GuiInterface,
+	
 	public NodeInterface
 {
 private:
@@ -99,16 +99,16 @@ private:
 	uint32_t m_RestrictedIndicesCountToDraw = 0U;
 
 public:
-	ModelRendererModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	ModelRendererModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~ModelRendererModule_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
 
 	void DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 
 	// Interfaces Setters
 	void SetModel(SceneModelWeak vSceneModel) override;

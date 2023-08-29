@@ -19,14 +19,22 @@ limitations under the License.
 
 #include "CubeMapPreviewNode.h"
 #include <Modules/Preview/CubeMapPreviewModule.h>
-#include <Graph/Slots/NodeSlotTextureCubeInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureCubeInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<CubeMapPreviewNode> CubeMapPreviewNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<CubeMapPreviewNode> CubeMapPreviewNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -57,7 +65,7 @@ CubeMapPreviewNode::~CubeMapPreviewNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapPreviewNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool CubeMapPreviewNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -103,7 +111,7 @@ bool CubeMapPreviewNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapPreviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CubeMapPreviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -114,13 +122,21 @@ bool CubeMapPreviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 
 	if (m_CubeMapPreviewModulePtr)
 	{
-		res = m_CubeMapPreviewModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_CubeMapPreviewModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void CubeMapPreviewNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool CubeMapPreviewNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool CubeMapPreviewNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -129,8 +145,9 @@ void CubeMapPreviewNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, 
 
 	if (m_CubeMapPreviewModulePtr)
 	{
-		m_CubeMapPreviewModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_CubeMapPreviewModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

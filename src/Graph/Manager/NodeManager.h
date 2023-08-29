@@ -16,12 +16,13 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Graph.h>
+#include <LumoBackend/Graph/Graph.h>
 #include <ctools/cTools.h>
-#include <Graph/Base/BaseNode.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <ctools/ConfigAbstract.h>
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/TaskInterface.h>
 
 class NodeManager : 
 	public GuiInterface, 
@@ -35,7 +36,7 @@ public:
 
 public:
 	// init / unit
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr);
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	void Unit();
 	
 	void Clear();
@@ -44,9 +45,9 @@ public:
 
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
 	
 	void FinalizeGraphLoading();
 

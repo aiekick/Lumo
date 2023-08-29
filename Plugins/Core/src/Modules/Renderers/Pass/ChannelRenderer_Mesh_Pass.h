@@ -18,16 +18,16 @@ limitations under the License.
 
 #include <array>
 #include <memory>
-#include <Base/ShaderPass.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanDevice.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Base/ShaderPass.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <LumoBackend/Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class ChannelRenderer_Mesh_Pass :
 	public ShaderPass,
-	public GuiInterface,
+	
 	public ModelInputInterface,
 	public TextureOutputInterface
 {
@@ -53,14 +53,14 @@ private:
 	std::vector<std::string> m_Layers;
 
 public:
-	ChannelRenderer_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	ChannelRenderer_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~ChannelRenderer_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;

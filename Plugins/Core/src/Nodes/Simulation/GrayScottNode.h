@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class GrayScottModule;
 class GrayScottNode :
@@ -28,7 +28,7 @@ class GrayScottNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<GrayScottNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<GrayScottNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<GrayScottModule> m_GrayScottModulePtr = nullptr;
@@ -36,11 +36,20 @@ private:
 public:
 	GrayScottNode();
 	~GrayScottNode() override;
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame,
+        const ImRect& vRect,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
+        const ImVec2& vMaxSize,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;

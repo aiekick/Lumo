@@ -16,9 +16,17 @@ limitations under the License.
 
 #include "VariableNode.h"
 #include <Modules/Widgets/VariableModule.h>
-#include <Graph/Slots/NodeSlotVariableOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>
 
-std::shared_ptr<VariableNode> VariableNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr, const std::string& vNodeType)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<VariableNode> VariableNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, const std::string& vNodeType)
 {
 	auto res = std::make_shared<VariableNode>(vNodeType);
 	res->m_This = res;
@@ -39,7 +47,7 @@ VariableNode::~VariableNode()
 	Unit();
 }
 
-bool VariableNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool VariableNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Widget Bool";
 
@@ -76,26 +84,36 @@ bool VariableNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 	return false;
 }
 
-bool VariableNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool VariableNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_VariableModulePtr)
 	{
-		return m_VariableModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_VariableModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void VariableNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool VariableNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool VariableNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_VariableModulePtr)
 	{
-		m_VariableModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_VariableModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+
+    return false;
 }
 
 void VariableNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
@@ -183,7 +201,7 @@ void VariableNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak 
 {
 	if (vBaseNodeState)
 	{
-		auto slotPtr = vSlot.getValidShared();
+		auto slotPtr = vSlot.lock();
 		if (slotPtr)
 		{
 			if (m_VariableModulePtr)

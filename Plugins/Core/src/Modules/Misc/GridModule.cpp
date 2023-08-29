@@ -16,18 +16,26 @@ limitations under the License.
 
 #include "GridModule.h"
 
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
 #include <Modules/Misc/Pass/GridModule_Vertex_Pass.h>
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<GridModule> GridModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<GridModule> GridModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<GridModule>(vVulkanCorePtr);
@@ -43,7 +51,7 @@ std::shared_ptr<GridModule> GridModule::Create(vkApi::VulkanCorePtr vVulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GridModule::GridModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+GridModule::GridModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: TaskRenderer(vVulkanCorePtr)
 {
 	m_SceneShaderPassPtr = SceneShaderPass::Create();
@@ -104,7 +112,7 @@ void GridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vC
 	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -116,7 +124,7 @@ bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 		{
 			if (m_GridModule_Vertex_Pass_Ptr)
 			{
-				return m_GridModule_Vertex_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_GridModule_Vertex_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 		}
 	}
@@ -124,7 +132,7 @@ bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 	return false;
 }
 
-void GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -132,9 +140,10 @@ void GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vR
 	{
 
 	}
+    return false;
 }
 
-void GridModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool GridModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -142,6 +151,7 @@ void GridModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 	{
 
 	}
+    return false;
 }
 
 vk::DescriptorImageInfo* GridModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)

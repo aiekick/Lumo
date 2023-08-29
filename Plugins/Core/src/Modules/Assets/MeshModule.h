@@ -16,17 +16,16 @@ limitations under the License.
 
 #pragma once
 
+#include <Gaia/gaia.h>
 #include <functional>
 #include <ctools/cTools.h>
-#include <vulkan/vulkan.hpp>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <ctools/ConfigAbstract.h>
-#include <Interfaces/CameraInterface.h>
-#include <Interfaces/ModelOutputInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/GuiInterface.h>
-#include <Utils/Mesh/VertexStruct.h>
-
+#include <LumoBackend/Interfaces/CameraInterface.h>
+#include <LumoBackend/Interfaces/ModelOutputInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 
 class MeshModule : 
 	public conf::ConfigAbstract, 
@@ -35,11 +34,11 @@ class MeshModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<MeshModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<MeshModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
-	ct::cWeak<MeshModule> m_This;
-	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	std::weak_ptr<MeshModule> m_This;
+	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 	std::string m_FilePathName;
 	std::string m_FilePath;
@@ -58,7 +57,7 @@ private:
 	std::string unique_OpenMeshFileDialog_id;
 
 public:
-	MeshModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	MeshModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~MeshModule();
 
 	bool Init();
@@ -66,9 +65,9 @@ public:
 
 	std::string GetFileName() { return m_FileName; }
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 	SceneModelWeak GetModel() override;
 
 private:

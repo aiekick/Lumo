@@ -115,7 +115,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :heavy_check_mark: | Planet System | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Planet System Renderer |
 | :heavy_check_mark: | RTX | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | RTX Pipeline |
 | :x:  | SdfMesher | :x: | :x: | ![img](https://progress-bar.dev/50) | Procedural Mesh Generation from Shader, Pictures or SDF |
-| :x:  | SoGLSL | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | Advanced Shader System Over GLSL (Used in NoodlesPlate) |
+| :x:  | Common | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | Advanced Shader System Over GLSL (Used in NoodlesPlate) |
 | :x:  | Smoke | :x: | :x: | ![img](https://progress-bar.dev/30) | GPU RT Smoke System |
 | :x:  | UVDiffMap | :x: | :x: | ![img](https://progress-bar.dev/10) | Fast UV Mapping idea for any mesh Based on Vertex Diffusion |
 | :x:  | VDBTools | :x: | :x: | ![img](https://progress-bar.dev/20) | OpenVDB Toolkit |
@@ -248,7 +248,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | Published | Node | status |
 | - | - | - |
 
-## SoGLSL Plugin : 
+## Common Plugin : 
 
 | Published | Node | status |
 | - | - | - |

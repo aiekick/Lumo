@@ -21,17 +21,22 @@ limitations under the License.
 #include <assimp/version.h>
 #include <ctools/FileHelper.h>
 #include <assimp/postprocess.h>
-#include <ImWidgets/ImWidgets.h>
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
+#include <ImWidgets.h>
+#include <ImGuiFileDialog.h>
 
-#define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MeshModule> MeshModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<MeshModule> MeshModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -50,7 +55,7 @@ std::shared_ptr<MeshModule> MeshModule::Create(vkApi::VulkanCorePtr vVulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshModule::MeshModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+MeshModule::MeshModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	unique_OpenMeshFileDialog_id = ct::toStr("OpenMeshFileDialog%u", (uintptr_t)this);
 	m_VulkanCorePtr = vVulkanCorePtr;
@@ -81,7 +86,7 @@ void MeshModule::Unit()
 	m_SceneModelPtr.reset();
 }
 
-bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -144,14 +149,16 @@ bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 	return false;
 }
 
-void MeshModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool MeshModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
+
+    return false;
 }
 
-void MeshModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool MeshModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -170,7 +177,9 @@ void MeshModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct
 		}
 
 		ImGuiFileDialog::Instance()->Close();
-	}
+    }
+
+    return false;
 }
 
 SceneModelWeak MeshModule::GetModel()
@@ -340,7 +349,7 @@ void MeshModule::MeshLoadingFinished()
 		m_FileName = ps.name;
 	}
 
-	auto parentNodePtr = GetParentNode().getValidShared();
+	auto parentNodePtr = GetParentNode().lock();
 	if (parentNodePtr)
 	{
 		parentNodePtr->SendFrontNotification(ModelUpdateDone);

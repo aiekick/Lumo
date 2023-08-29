@@ -23,25 +23,33 @@ limitations under the License.
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Lighting/Pass/Reflection_Quad_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ReflectionModule> ReflectionModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<ReflectionModule> ReflectionModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -60,7 +68,7 @@ std::shared_ptr<ReflectionModule> ReflectionModule::Create(vkApi::VulkanCorePtr 
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ReflectionModule::ReflectionModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+ReflectionModule::ReflectionModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -133,7 +141,7 @@ bool ReflectionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Comm
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -148,7 +156,7 @@ bool ReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 			if (m_Reflection_Quad_Pass_Ptr)
 			{
-				change |= m_Reflection_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_Reflection_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 
 			return change;
@@ -158,7 +166,7 @@ bool ReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 	return false;
 }
 
-void ReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool ReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -169,10 +177,11 @@ void ReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 	{
 
 	}
+    return false;
 }
 
-void ReflectionModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool ReflectionModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -182,6 +191,7 @@ void ReflectionModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 	{
 
 	}
+    return false;
 }
 
 void ReflectionModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)

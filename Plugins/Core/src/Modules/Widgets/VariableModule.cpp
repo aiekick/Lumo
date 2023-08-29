@@ -17,18 +17,26 @@ limitations under the License.
 #include "VariableModule.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Graph/Base/BaseNode.h>
-using namespace vkApi;
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
@@ -94,7 +102,7 @@ bool VariableModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return true;
 }
 
-bool VariableModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool VariableModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -109,24 +117,26 @@ bool VariableModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 	return false;
 }
 
-void VariableModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool VariableModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
-void VariableModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool VariableModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
 bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
@@ -141,7 +151,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 			{
 				if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Boolean, false))
 				{
-					auto parentNodePtr = GetParentNode().getValidShared();
+					auto parentNodePtr = GetParentNode().lock();
 					if (parentNodePtr)
 					{
 						parentNodePtr->SendFrontNotification(VariableUpdateDone);
@@ -152,7 +162,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 			{
 				/*if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Float, false))
 				{
-					auto parentNodePtr = GetParentNode().getValidShared();
+					auto parentNodePtr = GetParentNode().lock();
 					if (parentNodePtr)
 					{
 						parentNodePtr->SendFrontNotification(VariableUpdateDone);
@@ -163,7 +173,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 			{
 				/*if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Boolean, false))
 				{
-					auto parentNodePtr = GetParentNode().getValidShared();
+					auto parentNodePtr = GetParentNode().lock();
 					if (parentNodePtr)
 					{
 						parentNodePtr->SendFrontNotification(VariableUpdateDone);
@@ -174,7 +184,7 @@ bool VariableModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext*
 			{
 				/*if (ImGui::CheckBoxBoolDefault("Variable", &m_VariablePtr->GetDatas().m_Boolean, false))
 				{
-					auto parentNodePtr = GetParentNode().getValidShared();
+					auto parentNodePtr = GetParentNode().lock();
 					if (parentNodePtr)
 					{
 						parentNodePtr->SendFrontNotification(VariableUpdateDone);

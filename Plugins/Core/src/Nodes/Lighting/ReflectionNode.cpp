@@ -19,15 +19,23 @@ limitations under the License.
 
 #include "ReflectionNode.h"
 #include <Modules/Lighting/ReflectionModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureCubeInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureCubeInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ReflectionNode> ReflectionNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ReflectionNode> ReflectionNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +66,7 @@ ReflectionNode::~ReflectionNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ReflectionNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ReflectionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -108,7 +116,7 @@ bool ReflectionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ReflectionNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ReflectionNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -119,14 +127,22 @@ bool ReflectionNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 	if (m_ReflectionModulePtr)
 	{
-		res = m_ReflectionModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_ReflectionModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void ReflectionNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool ReflectionNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool ReflectionNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -134,8 +150,9 @@ void ReflectionNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 
 	if (m_ReflectionModulePtr)
 	{
-		m_ReflectionModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_ReflectionModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -193,7 +210,7 @@ void ReflectionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIma
 		if (vBindingPoint == 1U) // connect/disconnet to longlat
 		{
 			// show/hide cube map
-			auto slotPtr = m_CubeMapInputSlot.getValidShared();
+			auto slotPtr = m_CubeMapInputSlot.lock();
 			if (slotPtr)
 			{
 				slotPtr->hidden = (vImageInfo != nullptr);
@@ -217,7 +234,7 @@ void ReflectionNode::SetTextureCube(const uint32_t& vBindingPoint, vk::Descripto
 		if (vBindingPoint == 0U) // connect/disconnet to cubemap
 		{
 			// show/hide long lat
-			auto slotPtr = m_LongLatInputSlot.getValidShared();
+			auto slotPtr = m_LongLatInputSlot.lock();
 			if (slotPtr)
 			{
 				slotPtr->hidden = (vImageCubeInfo != nullptr);

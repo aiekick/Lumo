@@ -17,25 +17,33 @@ limitations under the License.
 #include "PosToDepthModule.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <Modules/Utils/Pass/PosToDepthModule_Quad_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PosToDepthModule> PosToDepthModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<PosToDepthModule> PosToDepthModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<PosToDepthModule>(vVulkanCorePtr);
@@ -51,7 +59,7 @@ std::shared_ptr<PosToDepthModule> PosToDepthModule::Create(vkApi::VulkanCorePtr 
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PosToDepthModule::PosToDepthModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+PosToDepthModule::PosToDepthModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
@@ -104,7 +112,7 @@ bool PosToDepthModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 	return true;
 }
 
-bool PosToDepthModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PosToDepthModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -114,7 +122,7 @@ bool PosToDepthModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 		{
 			if (m_PosToDepthModule_Quad_Pass_Ptr)
 			{
-				return m_PosToDepthModule_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_PosToDepthModule_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 		}
 	}
@@ -122,7 +130,7 @@ bool PosToDepthModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 	return false;
 }
 
-void PosToDepthModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool PosToDepthModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -130,16 +138,18 @@ void PosToDepthModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fre
 	{
 
 	}
+    return false;
 }
 
-void PosToDepthModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool PosToDepthModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
 void PosToDepthModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)

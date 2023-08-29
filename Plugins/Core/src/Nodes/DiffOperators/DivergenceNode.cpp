@@ -19,14 +19,22 @@ limitations under the License.
 
 #include "DivergenceNode.h"
 #include <Modules/DiffOperators/DivergenceModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<DivergenceNode> DivergenceNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<DivergenceNode> DivergenceNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +66,7 @@ DivergenceNode::~DivergenceNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool DivergenceNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool DivergenceNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -103,7 +111,7 @@ bool DivergenceNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool DivergenceNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool DivergenceNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -114,14 +122,22 @@ bool DivergenceNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 	if (m_DivergenceModulePtr)
 	{
-		res = m_DivergenceModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_DivergenceModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void DivergenceNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool DivergenceNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool DivergenceNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -129,8 +145,9 @@ void DivergenceNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 
 	if (m_DivergenceModulePtr)
 	{
-		m_DivergenceModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_DivergenceModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

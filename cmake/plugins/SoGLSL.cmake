@@ -4,18 +4,18 @@ set(LLVM_USE_CRT_RELEASE MT CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_RELWITHDEBINFO MT CACHE STRING "" FORCE)
 set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF CACHE BOOL "")
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/SoGLSL)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/Common)
 
-set_target_properties(SoGLSL PROPERTIES FOLDER Lumo_Plugins)
+set_target_properties(Common PROPERTIES FOLDER Lumo_Plugins)
 
-set_target_properties(SoGLSL PROPERTIES OUTPUT_NAME "SoGLSL_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
+set_target_properties(Common PROPERTIES OUTPUT_NAME "Common_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
 
-set_target_properties(SoGLSL PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(Common PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/SoGLSL/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/Common/src)
 
 if (USE_PLUGIN_STATIC_LINKING)
-set(PROJECT_PLUGINS ${PROJECT_PLUGINS} SoGLSL)
+set(PROJECT_PLUGINS ${PROJECT_PLUGINS} Common)
 endif()
 
 

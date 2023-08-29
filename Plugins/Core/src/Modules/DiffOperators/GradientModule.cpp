@@ -23,25 +23,33 @@ limitations under the License.
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/DiffOperators/Pass/GradientModule_Comp_2D_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<GradientModule> GradientModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<GradientModule> GradientModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -61,7 +69,7 @@ std::shared_ptr<GradientModule> GradientModule::Create(vkApi::VulkanCorePtr vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GradientModule::GradientModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+GradientModule::GradientModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -134,7 +142,7 @@ bool GradientModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Comman
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GradientModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool GradientModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -149,7 +157,7 @@ bool GradientModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 
 			if (m_GradientModule_Comp_2D_Pass_Ptr)
 			{
-				change |= m_GradientModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_GradientModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 
 			return change;
@@ -159,7 +167,7 @@ bool GradientModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 	return false;
 }
 
-void GradientModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool GradientModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -170,9 +178,10 @@ void GradientModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect
 	{
 
 	}
+    return false;
 }
 
-void GradientModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool GradientModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -183,6 +192,7 @@ void GradientModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 	{
 
 	}
+    return false;
 }
 
 void GradientModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)

@@ -16,18 +16,26 @@ limitations under the License.
 
 #include "GridModule_Vertex_Pass.h"
 
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <Base/FrameBuffer.h>
-using namespace vkApi;
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Buffer/FrameBuffer.h>
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GridModule_Vertex_Pass::GridModule_Vertex_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+GridModule_Vertex_Pass::GridModule_Vertex_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: VertexShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Vertex Pass 1 : Grid", VERTEX_SHADER_PASS_DEBUG_COLOR);
@@ -52,7 +60,7 @@ void GridModule_Vertex_Pass::ActionBeforeInit()
 	m_LineWidth.z = 2.0f;	// default value
 }
 
-bool GridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool GridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -83,15 +91,18 @@ bool GridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 	return change;
 }
 
-void GridModule_Vertex_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool GridModule_Vertex_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
+    return false;
 
 }
 
-void GridModule_Vertex_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool GridModule_Vertex_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 
 }
 
@@ -101,7 +112,7 @@ vk::DescriptorImageInfo* GridModule_Vertex_Pass::GetDescriptorImageInfo(const ui
 
 	if (m_FrameBufferPtr)
 	{
-		AutoResizeBuffer(m_FrameBufferPtr.get(), vOutSize);
+		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

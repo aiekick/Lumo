@@ -17,22 +17,30 @@ limitations under the License.
 #include "HeatmapRenderer_Mesh_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <Base/FrameBuffer.h>
-using namespace vkApi;
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Buffer/FrameBuffer.h>
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-HeatmapRenderer_Mesh_Pass::HeatmapRenderer_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+HeatmapRenderer_Mesh_Pass::HeatmapRenderer_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Heatmap", MESH_SHADER_PASS_DEBUG_COLOR);
@@ -72,12 +80,12 @@ void HeatmapRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const i
 
 	if (vCmdBuffer)
 	{
-		auto modelPtr = m_SceneModel.getValidShared();
+		auto modelPtr = m_SceneModel.lock();
 		if (!modelPtr || modelPtr->empty()) return;
 
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 		{
-			VKFPScoped(*vCmdBuffer, "HeatmapRenderer", "DrawModel");
+			//VKFPScoped(*vCmdBuffer, "HeatmapRenderer", "DrawModel");
 
 			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
@@ -103,7 +111,7 @@ void HeatmapRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const i
 	}
 }
 
-bool HeatmapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool HeatmapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -135,16 +143,20 @@ bool HeatmapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 	return change;
 }
 
-void HeatmapRenderer_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-
+bool HeatmapRenderer_Mesh_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
-void HeatmapRenderer_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-
+bool HeatmapRenderer_Mesh_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 void HeatmapRenderer_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
@@ -158,7 +170,7 @@ vk::DescriptorImageInfo* HeatmapRenderer_Mesh_Pass::GetDescriptorImageInfo(const
 {
 	if (m_FrameBufferPtr)
 	{
-		AutoResizeBuffer(m_FrameBufferPtr.get(), vOutSize);
+		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

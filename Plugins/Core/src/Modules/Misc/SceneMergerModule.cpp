@@ -23,23 +23,31 @@ limitations under the License.
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SceneMergerModule> SceneMergerModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<SceneMergerModule> SceneMergerModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -59,7 +67,7 @@ std::shared_ptr<SceneMergerModule> SceneMergerModule::Create(vkApi::VulkanCorePt
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneMergerModule::SceneMergerModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+SceneMergerModule::SceneMergerModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -134,7 +142,7 @@ void SceneMergerModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 
 		for (auto pass : m_ShaderPasses)
 		{
-			auto pass_ptr = pass.getValidShared();
+			auto pass_ptr = pass.lock();
 			if (pass_ptr && pass_ptr->StartDrawPass(vCmdBuffer))
 			{
 				pass_ptr->SetLastExecutedFrame(m_LastExecutedFrame); // for have widgets use
@@ -153,7 +161,7 @@ void SceneMergerModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SceneMergerModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SceneMergerModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -173,7 +181,7 @@ bool SceneMergerModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	return false;
 }
 
-void SceneMergerModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool SceneMergerModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -184,9 +192,10 @@ void SceneMergerModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fr
 	{
 
 	}
+    return false;
 }
 
-void SceneMergerModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool SceneMergerModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -197,6 +206,7 @@ void SceneMergerModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 	{
 
 	}
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,7 +252,7 @@ bool SceneMergerModule::ResizeIfNeeded()
 			auto output_size = m_FrameBufferPtr->GetOutputSize();
 			for (auto pass : m_ShaderPasses)
 			{
-				auto pass_ptr = pass.getValidShared();
+				auto pass_ptr = pass.lock();
 				if (pass_ptr)
 				{
 					pass_ptr->UpdatePixel2DViewportSize(output_size);
@@ -276,12 +286,12 @@ void SceneMergerModule::SetShaderPasses(const uint32_t& vSlotID, SceneShaderPass
 			// il faut rediriger la pass vers son FBO natif
 			if (vShaderPasses.expired() && !m_SceneShaderPassContainer.at(vSlotID).expired())
 			{
-				auto scene_pass_ptr = m_SceneShaderPassContainer.at(vSlotID).getValidShared();
+				auto scene_pass_ptr = m_SceneShaderPassContainer.at(vSlotID).lock();
 				if (scene_pass_ptr)
 				{
 					for (auto pass : *scene_pass_ptr)
 					{
-						auto pass_ptr = pass.getValidShared();
+						auto pass_ptr = pass.lock();
 						if (pass_ptr)
 						{
 							pass_ptr->ReSetRenderPassToNative();
@@ -313,15 +323,15 @@ void SceneMergerModule::SetShaderPasses(const uint32_t& vSlotID, SceneShaderPass
 		// iterate over scene shader passes
 		// and add child passes to BaseRenderer::m_ShaderPasses
 		// but if many pass are the sam, we must have only one rendering for perf
-		std::set<ShaderPassWeak> m_unique_passes;
+		std::set<ShaderPassPtr> m_unique_passes;
 		for (auto scene_pass : m_SceneShaderPassContainer)
 		{
-			auto scene_pass_ptr = scene_pass.second.getValidShared();
+			auto scene_pass_ptr = scene_pass.second.lock();
 			if (scene_pass_ptr)
 			{
 				for (auto pass : *scene_pass_ptr)
 				{
-					auto pass_ptr = pass.getValidShared();
+					auto pass_ptr = pass.lock();
 					if (pass_ptr && 
 						m_unique_passes.find(pass_ptr) == m_unique_passes.end()) // to be sure than no identic pass was inserted before
 					{

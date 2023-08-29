@@ -16,10 +16,18 @@ limitations under the License.
 
 #include "SdfTextureNode.h"
 #include <Modules/Misc/SdfTextureModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<SdfTextureNode> SdfTextureNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<SdfTextureNode> SdfTextureNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<SdfTextureNode>();
 	res->m_This = res;
@@ -40,7 +48,7 @@ SdfTextureNode::~SdfTextureNode()
 	Unit();
 }
 
-bool SdfTextureNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SdfTextureNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "SdfTexture";
 
@@ -72,26 +80,35 @@ bool SdfTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return false;
 }
 
-bool SdfTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SdfTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SdfTextureModulePtr)
 	{
-		return m_SdfTextureModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_SdfTextureModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void SdfTextureNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool SdfTextureNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool SdfTextureNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SdfTextureModulePtr)
 	{
-		m_SdfTextureModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_SdfTextureModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 void SdfTextureNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

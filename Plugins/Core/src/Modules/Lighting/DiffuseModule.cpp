@@ -17,30 +17,36 @@ limitations under the License.
 #include "DiffuseModule.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Lighting/Pass/DiffuseModule_Comp_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
-
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DiffuseModule> DiffuseModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<DiffuseModule> DiffuseModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<DiffuseModule>(vVulkanCorePtr);
@@ -56,7 +62,7 @@ std::shared_ptr<DiffuseModule> DiffuseModule::Create(vkApi::VulkanCorePtr vVulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DiffuseModule::DiffuseModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+DiffuseModule::DiffuseModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
@@ -108,7 +114,7 @@ bool DiffuseModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 	return true;
 }
 
-bool DiffuseModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool DiffuseModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -120,7 +126,7 @@ bool DiffuseModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 
 			if (m_DiffuseModule_Comp_Pass_Ptr)
 			{
-				change |= m_DiffuseModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_DiffuseModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 
 			return change;
@@ -130,7 +136,7 @@ bool DiffuseModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 	return false;
 }
 
-void DiffuseModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool DiffuseModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -138,9 +144,10 @@ void DiffuseModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect&
 	{
 
 	}
+    return false;
 }
 
-void DiffuseModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool DiffuseModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -148,6 +155,7 @@ void DiffuseModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const
 	{
 
 	}
+    return false;
 }
 
 void DiffuseModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)

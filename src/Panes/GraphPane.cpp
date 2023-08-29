@@ -19,14 +19,11 @@ limitations under the License.
 
 #include "GraphPane.h"
 
-#include <Gui/MainFrame.h>
-#include <Panes/Manager/LayoutManager.h>
-#include <ImWidgets/ImWidgets.h>
 #include <Project/ProjectFile.h>
 #include <ctools/FileHelper.h>
-#include <imgui/imgui_internal.h>
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
-#include <Graph/Layout/GraphLayout.h>
+#include <imgui_internal.h>
+#include <ImGuiFileDialog.h>
+#include <LumoBackend/Graph/Layout/GraphLayout.h>
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
 #include <Graph/Library/UserNodeLibrary.h>
@@ -34,15 +31,19 @@ limitations under the License.
 #include <Plugins/PluginManager.h>
 #include <cinttypes> // printf zu
 
-static int MainPane_WidgetId = 0;
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 GraphPane::GraphPane() = default;
 GraphPane::~GraphPane() = default;
 
 bool GraphPane::Init()
 {
-	UserNodeLibrary::Instance()->AnalyseRootDirectory();
-
 	// add graph pane
 	BaseNode::sOpenGraphCallback = std::bind(&GraphPane::AddGraphPane, this, std::placeholders::_1);
 
@@ -119,13 +120,11 @@ void GraphPane::DrawProperties()
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-int GraphPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown)
+bool GraphPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	MainPane_WidgetId = vWidgetId;
-
 	bool change = false;
 
-	if (vInOutPaneShown & m_PaneFlag)
+	if (vInOutPaneShown & paneFlag)
 	{
 		// main graph
 		bool opened = true;
@@ -144,35 +143,26 @@ int GraphPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::stri
 		ProjectFile::Instance()->SetProjectChange();
 	}
 
-	return MainPane_WidgetId;
+	return change;
 }
 
-void GraphPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas)
+bool GraphPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	//ImVec2 min = MainFrame::Instance()->m_DisplaySize * 0.5f;
-	//ImVec2 max = MainFrame::Instance()->m_DisplaySize;
-
-	/*if (ImGuiFileDialog::Instance()->Display("ShaderDlg",
-		ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, min, max))
-	{
-		if (ImGuiFileDialog::Instance()->IsOk())
-		{
-			auto GoodFilePathName = ImGuiFileDialog::Instance()->GetFilepathName();
-			//auto UserDatas = std::string((const char*)ImGuiFileDialog::Instance()->GetUserDatas());
-
-			if (FileHelper::Instance()->IsFileExist(GoodFilePathName))
-			{
-				MainFrame::Instance()->OpenShaderFile(GoodFilePathName);
-			}
-		}
-
-		ImGuiFileDialog::Instance()->Close();
-	}*/
+	return false;
 }
 
-int GraphPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
+bool GraphPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	ZoneScoped;
+	UNUSED(vCurrentFrame);
+	UNUSED(vRect);
+	ImGui::SetCurrentContext(vContextPtr);
+	UNUSED(vUserDatas);
+	return false;
+}
+
+bool GraphPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	return vWidgetId;
+	return false;
 }
 
 void GraphPane::DeleteNodesIfAnys()
@@ -288,7 +278,7 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 			{
 				if (!nodeEntryPtr->uniquePaneId.empty() || vRootNode)
 				{
-					if (vInOutPaneShown & m_PaneFlag)
+					if (vInOutPaneShown & paneFlag)
 					{
 						if (vRootNode)
 						{
@@ -297,9 +287,8 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 								ImGuiWindowFlags_NoBringToFrontOnFocus |
 								ImGuiWindowFlags_MenuBar |
 								ImGuiWindowFlags_NoScrollbar;
-							if (ImGui::Begin<PaneFlags>(m_PaneName,
-								&vInOutPaneShown , m_PaneFlag, flags))
-							{
+							if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+								&vInOutPaneShown, paneFlag, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 								auto win = ImGui::GetCurrentWindowRead();
 								if (win->Viewport->Idx != 0)
@@ -388,55 +377,73 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 								ImGuiWindowFlags_NoBringToFrontOnFocus | 
 								ImGuiWindowFlags_MenuBar | 
 								ImGuiWindowFlags_NoScrollbar;
-							if (ImGui::Begin<PaneFlags>(m_PaneName,
-								&vInOutPaneShown , m_PaneFlag, flags))
-								if (ImGui::Begin(nodeEntryPtr->uniquePaneId.c_str(), &vCanShow,	flags))
-							{
-#ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
-								auto win = ImGui::GetCurrentWindowRead();
-								if (win->Viewport->Idx != 0)
-									flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
-								else
-									flags = ImGuiWindowFlags_NoCollapse |
-									ImGuiWindowFlags_NoBringToFrontOnFocus |
-									ImGuiWindowFlags_MenuBar |
-									ImGuiWindowFlags_NoScrollbar;
-#endif
-								if (ProjectFile::Instance()->IsLoaded())
+							if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+								&vInOutPaneShown, paneFlag, flags)) {
+								if (ImGui::Begin(nodeEntryPtr->uniquePaneId.c_str(), &vCanShow, flags))
 								{
+#ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 									auto win = ImGui::GetCurrentWindowRead();
-									if (win)
+									if (win->Viewport->Idx != 0)
+										flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
+									else
+										flags = ImGuiWindowFlags_NoCollapse |
+										ImGuiWindowFlags_NoBringToFrontOnFocus |
+										ImGuiWindowFlags_MenuBar |
+										ImGuiWindowFlags_NoScrollbar;
+#endif
+									if (ProjectFile::Instance()->IsLoaded())
 									{
-										if (win->DockTabIsVisible)
+										auto win = ImGui::GetCurrentWindowRead();
+										if (win)
 										{
-											m_LastFocusedGraph = nodeEntryPtr;
-
-											if (ImGui::BeginMenuBar())
+											if (win->DockTabIsVisible)
 											{
-												if (ImGui::MenuItem("Layout", "apply Layout"))
-												{
-													GraphLayout::Instance()->ApplyLayout(nodeEntryPtr);
-													ProjectFile::Instance()->SetProjectChange();
-												}
+												m_LastFocusedGraph = nodeEntryPtr;
 
-												nodeEntryPtr->DrawToolMenu();
-
-												if (nodeEntryPtr->m_BaseNodeState.m_NodeGraphContext)
+												if (ImGui::BeginMenuBar())
 												{
-													nd::SetCurrentEditor(nodeEntryPtr->m_BaseNodeState.m_NodeGraphContext);
-													if (nd::GetSelectedObjectCount())
+													if (ImGui::MenuItem("Layout", "apply Layout"))
 													{
-														if (ImGui::BeginMenu("Selection"))
+														GraphLayout::Instance()->ApplyLayout(nodeEntryPtr);
+														ProjectFile::Instance()->SetProjectChange();
+													}
+
+													nodeEntryPtr->DrawToolMenu();
+
+													if (nodeEntryPtr->m_BaseNodeState.m_NodeGraphContext)
+													{
+														nd::SetCurrentEditor(nodeEntryPtr->m_BaseNodeState.m_NodeGraphContext);
+														if (nd::GetSelectedObjectCount())
 														{
-															if (ImGui::MenuItem("Zoom on Selection"))
+															if (ImGui::BeginMenu("Selection"))
 															{
-																nodeEntryPtr->ZoomToSelection();
+																if (ImGui::MenuItem("Zoom on Selection"))
+																{
+																	nodeEntryPtr->ZoomToSelection();
+																	ProjectFile::Instance()->SetProjectChange();
+																}
+
+																if (ImGui::MenuItem("Center on Selection"))
+																{
+																	nodeEntryPtr->NavigateToSelection();
+																	ProjectFile::Instance()->SetProjectChange();
+																}
+
+																ImGui::EndMenu();
+															}
+														}
+
+														if (ImGui::BeginMenu("Content"))
+														{
+															if (ImGui::MenuItem("Zoom on Content"))
+															{
+																nodeEntryPtr->ZoomToContent();
 																ProjectFile::Instance()->SetProjectChange();
 															}
 
-															if (ImGui::MenuItem("Center on Selection"))
+															if (ImGui::MenuItem("Center on Content"))
 															{
-																nodeEntryPtr->NavigateToSelection();
+																nodeEntryPtr->NavigateToContent();
 																ProjectFile::Instance()->SetProjectChange();
 															}
 
@@ -444,43 +451,26 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 														}
 													}
 
-													if (ImGui::BeginMenu("Content"))
+													if (ImGui::BeginMenu("Style"))
 													{
-														if (ImGui::MenuItem("Zoom on Content"))
-														{
-															nodeEntryPtr->ZoomToContent();
-															ProjectFile::Instance()->SetProjectChange();
-														}
-
-														if (ImGui::MenuItem("Center on Content"))
-														{
-															nodeEntryPtr->NavigateToContent();
-															ProjectFile::Instance()->SetProjectChange();
-														}
-
+														nodeEntryPtr->DrawStyleMenu();
+														GraphLayout::Instance()->DrawSettings();
+														ProjectFile::Instance()->SetProjectChange();
 														ImGui::EndMenu();
 													}
+
+													ImGui::EndMenuBar();
 												}
 
-												if (ImGui::BeginMenu("Style"))
+												nodeEntryPtr->DrawGraph();
+
+												// si on a cree un autre pane, pour eviter de blocker
+												// l'iterateur on quitte pour cette frame
+												if (vInitialPanesCount != m_GraphPanes.size())
 												{
-													nodeEntryPtr->DrawStyleMenu();
-													GraphLayout::Instance()->DrawSettings();
-													ProjectFile::Instance()->SetProjectChange();
-													ImGui::EndMenu();
+													ImGui::End();
+													return true;
 												}
-
-												ImGui::EndMenuBar();
-											}
-
-											nodeEntryPtr->DrawGraph();
-
-											// si on a cree un autre pane, pour eviter de blocker
-											// l'iterateur on quitte pour cette frame
-											if (vInitialPanesCount != m_GraphPanes.size())
-											{
-												ImGui::End();
-												return true;
 											}
 										}
 									}

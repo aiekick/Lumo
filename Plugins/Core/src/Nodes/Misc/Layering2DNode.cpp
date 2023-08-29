@@ -16,10 +16,18 @@ limitations under the License.
 
 #include "Layering2DNode.h"
 #include <Modules/Misc/Layering2DModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<Layering2DNode> Layering2DNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<Layering2DNode> Layering2DNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<Layering2DNode>();
 	res->m_This = res;
@@ -40,7 +48,7 @@ Layering2DNode::~Layering2DNode()
 	Unit();
 }
 
-bool Layering2DNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool Layering2DNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "2D Layering";
 
@@ -78,26 +86,35 @@ bool Layering2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return res;
 }
 
-bool Layering2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool Layering2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_Layering2DModulePtr)
 	{
-		return m_Layering2DModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_Layering2DModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void Layering2DNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool Layering2DNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool Layering2DNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_Layering2DModulePtr)
 	{
-		m_Layering2DModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_Layering2DModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 void Layering2DNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

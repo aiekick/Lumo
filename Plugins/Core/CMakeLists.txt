@@ -29,21 +29,14 @@ add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize im
 
 set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 
-find_package(Vulkan REQUIRED)
-
-## Vulkan HPP, default dispatcher
-add_definitions(-DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
-
-## for prevent cast issues betwwen vk:: and VK if compiling a 32 bits version
-add_definitions(-DVULKAN_HPP_TYPESAFE_CONVERSION=1) 
-
 ## other define
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
-add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="../../../src/Gui/CustomImGuiFileDialogConfig.h")
-add_definitions(-DUSE_IMGUI="../imgui/imgui.h")
+add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/LumoBackendConfig.h")
+add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
+add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
+add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
 add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
 add_definitions(-DUSE_VULKAN)
@@ -90,10 +83,11 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${CMAKE_R
 
 set(ENABLE_EXPORTS ON CACHE STRING "" FORCE)
 
-set(LINKING_TYPE MODULE)
 if (USE_PLUGIN_STATIC_LINKING)
 	set(LINKING_TYPE STATIC)
 	add_definitions(-DUSE_PLUGIN_STATIC_LINKING)
+else()
+	set(LINKING_TYPE MODULE)
 endif()
 
 add_library(${PROJECT} ${LINKING_TYPE}
@@ -113,13 +107,21 @@ endif()
 
 ## set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}")
+target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
-message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
-set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
-
-message("BACKEND_INCLUDE_DIRS : ${Vulkan_INCLUDE_DIRS}")
-message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
+if (NOT USE_PLUGIN_STATIC_LINKING)
+	set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins)
+	message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
+	set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
+	set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
+	set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "Core_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
+	set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+	set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
+	set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
+endif()
 
 set(CMAKE_INSTALL_PREFIX ${FINAL_BIN_DIR}/plugins)
 install(TARGETS ${PROJECT} DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT ${PROJECT}_PLUGINS)
@@ -150,9 +152,11 @@ include_directories(
 	${COMMON_INCLUDE_DIR}
 )
 
-target_link_libraries(${PROJECT} PRIVATE
+target_link_libraries(${PROJECT}
 	${COMMON_LIBRARIES}
+	${ASSIMP_LIBRARIES}
 )
+
 
 ########################################################
 ################# BUILD INCREMENT TOOL #################

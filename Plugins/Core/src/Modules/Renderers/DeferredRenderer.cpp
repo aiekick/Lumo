@@ -17,27 +17,33 @@ limitations under the License.
 #include "DeferredRenderer.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <Modules/Renderers/Pass/DeferredRenderer_Quad_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
-
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<DeferredRenderer>(vVulkanCorePtr);
@@ -53,7 +59,7 @@ std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(vkApi::VulkanCorePtr 
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DeferredRenderer::DeferredRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+DeferredRenderer::DeferredRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: TaskRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -117,7 +123,7 @@ bool DeferredRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 	return true;
 }
 
-bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -127,7 +133,7 @@ bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 		{
 			if (m_DeferredRenderer_Quad_Pass_Ptr)
 			{
-				return m_DeferredRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_DeferredRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 		}
 	}
@@ -135,24 +141,26 @@ bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 	return false;
 }
 
-void DeferredRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool DeferredRenderer::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
-void DeferredRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool DeferredRenderer::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
 void DeferredRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)

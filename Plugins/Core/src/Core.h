@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Interfaces/PluginInterface.h>
-
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/vk_mem_alloc.h>
+#include <LumoBackend/Interfaces/PluginInterface.h>
 
 class Core : public PluginInterface
 {

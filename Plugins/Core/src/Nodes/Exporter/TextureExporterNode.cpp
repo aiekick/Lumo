@@ -19,13 +19,21 @@ limitations under the License.
 
 #include "TextureExporterNode.h"
 #include <Modules/Exporter/TextureExporterModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<TextureExporterNode> TextureExporterNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<TextureExporterNode> TextureExporterNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -57,7 +65,7 @@ TextureExporterNode::~TextureExporterNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool TextureExporterNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool TextureExporterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -80,7 +88,7 @@ bool TextureExporterNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool TextureExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool TextureExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -91,14 +99,22 @@ bool TextureExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 
 	if (m_TextureExporterModulePtr)
 	{
-		res = m_TextureExporterModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_TextureExporterModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void TextureExporterNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool TextureExporterNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool TextureExporterNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -106,8 +122,9 @@ void TextureExporterNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame,
 
 	if (m_TextureExporterModulePtr)
 	{
-		m_TextureExporterModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_TextureExporterModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

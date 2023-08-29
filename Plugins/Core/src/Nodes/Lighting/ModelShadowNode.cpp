@@ -16,14 +16,22 @@ limitations under the License.
 
 #include "ModelShadowNode.h"
 #include <Modules/Lighting/ModelShadowModule.h>
-#include <Interfaces/LightGroupOutputInterface.h>
-#include <Interfaces/TextureGroupOutputInterface.h>
-#include <Graph/Slots/NodeSlotLightGroupInput.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureGroupInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
+#include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<ModelShadowNode> ModelShadowNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<ModelShadowNode> ModelShadowNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ModelShadowNode>();
 	res->m_This = res;
@@ -44,7 +52,7 @@ ModelShadowNode::~ModelShadowNode()
 	Unit();
 }
 
-bool ModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ModelShadowNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Model Shadow";
 
@@ -86,26 +94,40 @@ bool ModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	return false;
 }
 
-bool ModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ModelShadowModulePtr)
 	{
-		return m_ModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_ModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void ModelShadowNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool ModelShadowNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ModelShadowModulePtr)
 	{
-		m_ModelShadowModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext);
-	}
+        return m_ModelShadowModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext, vUserDatas);
+    }
+    return false;
+}
+
+bool ModelShadowNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    if (m_ModelShadowModulePtr) {
+        return m_ModelShadowModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 void ModelShadowNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)

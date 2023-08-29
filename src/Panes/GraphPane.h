@@ -16,15 +16,13 @@ limitations under the License.
 
 #pragma once
 
-#include <Panes/Abstract/AbstractPane.h>
-
-#include <imgui/imgui.h>
+#include <ImGuiPack.h>
 
 #include <stdint.h>
 #include <string>
 #include <map>
 
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <ctools/ConfigAbstract.h>
 
 class ProjectFile;
@@ -39,10 +37,11 @@ private:
 public:
 	bool Init() override;
 	void Unit() override;
-	int DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown) override;
-	void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas) override;
-	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
-
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	
 	void DrawDebugInfos();
 	void DrawProperties();
 

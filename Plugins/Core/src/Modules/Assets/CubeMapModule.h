@@ -27,25 +27,12 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
+#include <Gaia/Gui/ImGuiTexture.h>
+#include <Gaia/Resources/TextureCube.h>
 
-#include <vulkan/vulkan.hpp>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/TextureCube.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
-
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/ResizerInterface.h>
-#include <Interfaces/TextureCubeOutputInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/TextureCubeOutputInterface.h>
 
 class CubeMapModule :
 	public conf::ConfigAbstract,
@@ -54,11 +41,11 @@ class CubeMapModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<CubeMapModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<CubeMapModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
-	ct::cWeak<CubeMapModule> m_This;
-	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	std::weak_ptr<CubeMapModule> m_This;
+	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 	std::string unique_OpenPictureFileDialog_id;
 	TextureCubePtr m_TextureCubePtr = nullptr;
 	std::string m_SelectedFilePathName; // to save
@@ -69,15 +56,15 @@ private:
 	std::array<std::string, 6U> m_FileNames;
 
 public:
-	CubeMapModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	CubeMapModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~CubeMapModule();
 
 	bool Init();
 	void Unit();
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;

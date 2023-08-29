@@ -21,25 +21,33 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BillBoardRendererModule_Mesh_Pass::BillBoardRendererModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+BillBoardRendererModule_Mesh_Pass::BillBoardRendererModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	ZoneScoped;
@@ -68,7 +76,7 @@ void BillBoardRendererModule_Mesh_Pass::ActionBeforeInit()
 	}
 }
 
-bool BillBoardRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool BillBoardRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -95,20 +103,20 @@ bool BillBoardRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFram
 	return change;
 }
 
-void BillBoardRendererModule_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
-	ZoneScoped;
-
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+bool BillBoardRendererModule_Mesh_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
-void BillBoardRendererModule_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	ZoneScoped;
-
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+bool BillBoardRendererModule_Mesh_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -128,10 +136,10 @@ void BillBoardRendererModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
 
 	m_Vertices_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 	
-	auto inputModelPtr = m_SceneModel.getValidShared();
+	auto inputModelPtr = m_SceneModel.lock();
 	if (inputModelPtr && !inputModelPtr->empty())
 	{
-		auto inputMeshPtr = inputModelPtr->at(0).getValidShared(); // only the first mesh for the moment
+		auto inputMeshPtr = inputModelPtr->at(0).lock(); // only the first mesh for the moment
 		if (inputMeshPtr)
 		{
 			m_Vertices_Vert_BufferInfos.buffer = inputMeshPtr->GetVerticesBufferInfo()->buffer;
@@ -186,7 +194,7 @@ vk::DescriptorImageInfo* BillBoardRendererModule_Mesh_Pass::GetDescriptorImageIn
 
 	if (m_FrameBufferPtr)
 	{
-		AutoResizeBuffer(m_FrameBufferPtr.get(), vOutSize);
+		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

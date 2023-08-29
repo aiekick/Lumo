@@ -16,144 +16,134 @@ limitations under the License.
 
 #include "MeshNode.h"
 #include <Modules/Assets/MeshModule.h>
-#include <Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
-std::shared_ptr<MeshNode> MeshNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
-{
-	auto res = std::make_shared<MeshNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
-	{
-		res.reset();
-	}
-	return res;
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<MeshNode> MeshNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    auto res = std::make_shared<MeshNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCorePtr)) {
+        res.reset();
+    }
+    return res;
 }
 
-MeshNode::MeshNode() : BaseNode()
-{
-	m_NodeTypeString = "MESH";
+MeshNode::MeshNode() : BaseNode() { m_NodeTypeString = "MESH"; }
+
+MeshNode::~MeshNode() {}
+
+bool MeshNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    name = "Model";
+
+    AddOutput(NodeSlotModelOutput::Create("Output"), true, true);
+
+    m_MeshModule = MeshModule::Create(vVulkanCorePtr, m_This);
+    if (m_MeshModule) {
+        return true;
+    }
+    return false;
 }
 
-MeshNode::~MeshNode()
-{
+bool MeshNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
 
+    if (m_MeshModule) {
+        return m_MeshModule->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+    }
+
+    return false;
 }
 
-bool MeshNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
-{
-	name = "Model";
+bool MeshNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
 
-	AddOutput(NodeSlotModelOutput::Create("Output"), true, true);
-
-	m_MeshModule = MeshModule::Create(vVulkanCorePtr, m_This);
-	if (m_MeshModule)
-	{
-		return true;
-	}
-	return false;
+    return false;
 }
 
-bool MeshNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+bool MeshNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
 
-	if (m_MeshModule)
-	{
-		return m_MeshModule->DrawWidgets(vCurrentFrame, vContext);
-	}
-
-	return false;
+    if (m_MeshModule) {
+        return m_MeshModule->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
-void MeshNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+SceneModelWeak MeshNode::GetModel() {
+    if (m_MeshModule) {
+        return m_MeshModule->GetModel();
+    }
 
-	if (m_MeshModule)
-	{
-		m_MeshModule->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+    return SceneModelWeak();
 }
 
-SceneModelWeak MeshNode::GetModel()
-{
-	if (m_MeshModule)
-	{
-		return m_MeshModule->GetModel();
-	}
-
-	return SceneModelWeak();
-}
-
-void MeshNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
-{
-	// one output only
-	if (m_MeshModule)
-	{
-		ImGui::Text("%s", m_MeshModule->GetFileName().c_str());
-	}
+void MeshNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) {
+    // one output only
+    if (m_MeshModule) {
+        ImGui::Text("%s", m_MeshModule->GetFileName().c_str());
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string MeshNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string res;
+std::string MeshNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(),
+                             m_NodeTypeString.c_str(), ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_MeshModule)
-		{
-			res += m_MeshModule->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_MeshModule) {
+            res += m_MeshModule->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool MeshNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool MeshNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_MeshModule)
-	{
-		m_MeshModule->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_MeshModule) {
+        m_MeshModule->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }

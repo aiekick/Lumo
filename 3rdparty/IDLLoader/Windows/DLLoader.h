@@ -37,7 +37,7 @@ namespace dlloader
 		void DLOpenLib() override
 		{
 			if (!(_handle = LoadLibrary(_pathToLib.c_str()))) {
-				LogVarDebug("Can't open and load %s", _pathToLib.c_str());
+				LogVarDebugError("Can't open and load %s", _pathToLib.c_str());
 			}
 		}
 
@@ -53,7 +53,7 @@ namespace dlloader
 
 			if (!allocFunc || !deleteFunc) {
 				DLCloseLib();
-				//LogVarDebug("Can't find allocator or deleter symbol in %s", _pathToLib.c_str());
+				LogVarDebugError("Can't find allocator or deleter symbol in %s", _pathToLib.c_str());
 				return nullptr;
 			}
 
@@ -66,7 +66,7 @@ namespace dlloader
 		void DLCloseLib() override
 		{
 			if (_handle && FreeLibrary(_handle) == 0) {
-				LogVarDebug("Can't close %s", _pathToLib.c_str());
+				LogVarDebugError("Can't close %s", _pathToLib.c_str());
 			}
 		}
 

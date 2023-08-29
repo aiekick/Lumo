@@ -25,71 +25,64 @@ SOFTWARE.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include <vkProfiler/Profiler.h>
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif  // PROFILER_INCLUDE
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif  // ZoneScoped
 
 #include <cstdlib>
 
+#ifdef PROFILER_INCLUDE
 #ifdef TRACY_ENABLE
-void* operator new(size_t count)
-{
-	auto ptr = std::malloc(count);
-	TracyAlloc(ptr, count);
-	return ptr;
+void* operator new(size_t count) {
+    auto ptr = std::malloc(count);
+    TracyAlloc(ptr, count);
+    return ptr;
 }
-void* operator new[](size_t count)
-{
-	auto ptr = std::malloc(count);
-	TracyAlloc(ptr, count);
-	return ptr;
+void* operator new[](size_t count) {
+    auto ptr = std::malloc(count);
+    TracyAlloc(ptr, count);
+    return ptr;
 }
-void operator delete(void* ptr) noexcept
-{
-	TracyFree(ptr);
-	std::free(ptr);
+void operator delete(void* ptr) noexcept {
+    TracyFree(ptr);
+    std::free(ptr);
 }
-void operator delete[](void* ptr) noexcept
-{
-	TracyFree(ptr);
-	std::free(ptr);
+void operator delete[](void* ptr) noexcept {
+    TracyFree(ptr);
+    std::free(ptr);
 }
-#endif
+#endif  // TRACY_ENABLE
+#endif  // PROFILER_INCLUDE
 
 #include "src/App.h"
 #include <ctools/Logger.h>
 #include <string>
 #include <iostream>
-#include <gaia/VulkanWindow.h>
 
-int main(int, char** argv)
-{
+int main(int argc, char** argv) {
 #ifdef _MSC_VER
 #ifdef _DEBUG
-	// active memory leak detector
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    // active memory leak detector
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 #endif
 
-	ZoneScoped;
+    ZoneScoped;
 
-	try
-	{
-		App::Instance()->Run(std::string(argv[0]));
-	}
-	catch (const std::exception& e)
-	{
-		LogVarLightInfo("Exception %s", e.what());
-		Logger::Instance()->Close();
+    try {
+        App app;
+        app.run(argc, argv);
+    } catch (const std::exception& e) {
+        LogVarLightInfo("Exception %s", e.what());
+        Logger::Instance()->Close();
+        CTOOL_DEBUG_BREAK;
+        return EXIT_FAILURE;
+    }
 
-		CTOOL_DEBUG_BREAK;
-
-		/*if (App::Instance()->GetWindowPtr())
-		{
-			const auto& main_window = App::Instance()->GetWindowPtr()->getWindowPtr();
-			App::Instance()->Unit(main_window);
-		}*/
-
-		return EXIT_FAILURE;
-	}
-
-	return EXIT_SUCCESS;
+    Logger::Instance()->Close();
+    return EXIT_SUCCESS;
 }

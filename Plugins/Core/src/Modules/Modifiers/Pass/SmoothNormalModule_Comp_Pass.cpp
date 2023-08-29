@@ -17,26 +17,26 @@ limitations under the License.
 #include "SmoothNormalModule_Comp_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <cinttypes>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //// SSAO FIRST PASS : AO ////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SmoothNormalModule_Comp_Pass::SmoothNormalModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+SmoothNormalModule_Comp_Pass::SmoothNormalModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Smooth Normal", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -59,13 +59,13 @@ void SmoothNormalModule_Comp_Pass::ActionBeforeInit()
 	SetPushConstantRange(push_constant);
 }
 
-bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ImGui::Header("Infos");
 
-	auto modelPtr = m_SceneModel.getValidShared();
+	auto modelPtr = m_SceneModel.lock();
 	if (modelPtr)
 	{
 		for (auto meshPtr : *modelPtr)
@@ -90,17 +90,18 @@ bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, Im
 	return false;
 }
 
-void SmoothNormalModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool SmoothNormalModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
+    return false;
 }
 
-void SmoothNormalModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool SmoothNormalModule_Comp_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
@@ -110,7 +111,7 @@ void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const 
 
 	if (vCmdBuffer)
 	{
-		auto modelPtr = m_SceneModel.getValidShared();
+		auto modelPtr = m_SceneModel.lock();
 		if (modelPtr)
 		{
 			for (auto meshPtr : *modelPtr)
@@ -178,7 +179,7 @@ SceneModelWeak SmoothNormalModule_Comp_Pass::GetModel()
 
 bool SmoothNormalModule_Comp_Pass::BuildModel()
 {
-	auto meshPtr = m_InputMesh.getValidShared();
+	auto meshPtr = m_InputMesh.lock();
 	if (meshPtr)
 	{
 		m_SBO_Normals_Compute_Helper.reset();
@@ -225,7 +226,7 @@ bool SmoothNormalModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	bool res = true;
 
-	auto inputMeshPtr = m_InputMesh.getValidShared();
+	auto inputMeshPtr = m_InputMesh.lock();
 	if (inputMeshPtr && inputMeshPtr->GetVerticesBufferInfo()->range > 0U)
 	{
 		// VertexStruct::P3_N3_TA3_BTA3_T2_C4

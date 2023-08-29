@@ -17,24 +17,32 @@ limitations under the License.
 #include "MatcapRenderer.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
 
 #include <Modules/Renderers/Pass/MatcapRenderer_Mesh_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<MatcapRenderer>(vVulkanCorePtr);
@@ -50,7 +58,7 @@ std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(vkApi::VulkanCorePtr vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MatcapRenderer::MatcapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+MatcapRenderer::MatcapRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: TaskRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -113,7 +121,7 @@ void MatcapRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t
 	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -123,7 +131,7 @@ bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 		{
 			if (m_MatcapRenderer_Mesh_Pass_Ptr)
 			{
-				return m_MatcapRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_MatcapRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 		}
 	}
@@ -131,24 +139,26 @@ bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 	return false;
 }
 
-void MatcapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool MatcapRenderer::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
-void MatcapRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool MatcapRenderer::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
 void MatcapRenderer::SetModel(SceneModelWeak vSceneModel)

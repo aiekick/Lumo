@@ -17,26 +17,34 @@ limitations under the License.
 #include "BloomModule_Comp_2D_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <cinttypes>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BloomModule_Comp_2D_Pass::BloomModule_Comp_2D_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+BloomModule_Comp_2D_Pass::BloomModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp 2D Pass : Bloom", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -63,7 +71,7 @@ void BloomModule_Comp_2D_Pass::ActionBeforeCompilation()
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "gamma_correction");
 }
 
-bool BloomModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool BloomModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -108,15 +116,19 @@ bool BloomModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 	return false;
 }
 
-void BloomModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+bool BloomModule_Comp_2D_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 
 }
 
-void BloomModule_Comp_2D_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool BloomModule_Comp_2D_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 
 }
 
@@ -151,7 +163,7 @@ vk::DescriptorImageInfo* BloomModule_Comp_2D_Pass::GetDescriptorImageInfo(const 
 {
 	if (m_ComputeBufferPtr)
 	{
-		AutoResizeBuffer(m_ComputeBufferPtr.get(), vOutSize);
+		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
 
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
@@ -616,16 +628,16 @@ bool BloomModule_Comp_2D_Pass::CreateComputePipeline()
 			(uint32_t)push_constants.size(), push_constants.data()
 		));
 
-	auto cs_HFT = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_HFT = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["high_freq_thresholding"][0].m_SPIRV);
 	
-	auto cs_HBL = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_HBL = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["horizontal_blur"][0].m_SPIRV);
 
-	auto cs_VBL = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_VBL = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["vertical_blur"][0].m_SPIRV);
 
-	auto cs_GCO = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_GCO = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["gamma_correction"][0].m_SPIRV);
 
 	m_ShaderCreateInfos = {
@@ -667,10 +679,10 @@ bool BloomModule_Comp_2D_Pass::CreateComputePipeline()
 		.setStage(m_ShaderCreateInfos[3]).setLayout(m_Pipelines[3].m_PipelineLayout);
 	m_Pipelines[3].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_GCO).value;
 
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_HFT);
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_HBL);
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_VBL);
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_GCO);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_HFT);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_HBL);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_VBL);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_GCO);
 
 	return true;
 }

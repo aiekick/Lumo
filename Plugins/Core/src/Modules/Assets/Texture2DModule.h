@@ -18,38 +18,38 @@ limitations under the License.
 
 #include <functional>
 #include <ctools/cTools.h>
-#include <vulkan/vulkan.hpp>
-#include <Graph/Base/BaseNode.h>
-#include <vkFramework/Texture2D.h>
+#include <Gaia/gaia.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <Gaia/Resources/Texture2D.h>
 #include <ctools/ConfigAbstract.h>
-#include <Interfaces/NodeInterface.h>
-#include <vkFramework/ImGuiTexture.h>
-#include <Interfaces/CameraInterface.h>
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <Gaia/Gui/ImGuiTexture.h>
+#include <LumoBackend/Interfaces/CameraInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 
-class Texture2DModule :
+class Texture2DModule : 
 	public conf::ConfigAbstract,
-	public GuiInterface,
+    public GuiInterface,
 	public NodeInterface,
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<Texture2DModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<Texture2DModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
-	ct::cWeak<Texture2DModule> m_This;
+	std::weak_ptr<Texture2DModule> m_This;
 	std::string m_FilePathName;
 	std::string m_FilePath;
 	std::string m_FileName;
 	std::string unique_OpenPictureFileDialog_id;
 	Texture2DPtr m_Texture2DPtr = nullptr;
 	ImGuiTexture m_ImGuiTexture;
-	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 public:
-	Texture2DModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	Texture2DModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~Texture2DModule();
 
 	bool Init();
@@ -59,9 +59,9 @@ public:
 
 	void NeedResize(ct::ivec2* vNewSize);
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 
 	void DrawTexture(ct::ivec2 vMaxSize);
 

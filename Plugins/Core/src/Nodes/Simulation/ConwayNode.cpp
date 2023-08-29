@@ -16,10 +16,18 @@ limitations under the License.
 
 #include "ConwayNode.h"
 #include <Modules/Simulation/ConwayModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<ConwayNode> ConwayNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<ConwayNode> ConwayNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ConwayNode>();
 	res->m_This = res;
@@ -40,7 +48,7 @@ ConwayNode::~ConwayNode()
 	Unit();
 }
 
-bool ConwayNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ConwayNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Conway";
 
@@ -78,26 +86,36 @@ bool ConwayNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 	return res;
 }
 
-bool ConwayNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ConwayNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ConwayModulePtr)
 	{
-		return m_ConwayModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_ConwayModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void ConwayNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool ConwayNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool ConwayNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ConwayModulePtr)
 	{
-		m_ConwayModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_ConwayModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+
+    return false;
 }
 
 void ConwayNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

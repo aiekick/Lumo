@@ -16,10 +16,18 @@ limitations under the License.
 
 #include "MathNode.h"
 #include <Modules/Utils/MathModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<MathNode> MathNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<MathNode> MathNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<MathNode>();
 	res->m_This = res;
@@ -40,7 +48,7 @@ MathNode::~MathNode()
 	Unit();
 }
 
-bool MathNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool MathNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Math";
 
@@ -93,7 +101,7 @@ bool MathNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 	return res;
 }
 
-bool MathNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MathNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -101,7 +109,7 @@ bool MathNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 
 	if (m_MathModulePtr)
 	{
-		change = m_MathModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		change = m_MathModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	if (change)
@@ -112,14 +120,24 @@ bool MathNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 	return change;
 }
 
-void MathNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool MathNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool MathNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_MathModulePtr)
 	{
-		m_MathModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_MathModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+
+    return false;
 }
 
 void MathNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
@@ -256,7 +274,7 @@ void MathNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlo
 {
 	if (vBaseNodeState)
 	{
-		auto slotPtr = vSlot.getValidShared();
+		auto slotPtr = vSlot.lock();
 		if (slotPtr)
 		{
 			if (m_MathModulePtr)

@@ -16,13 +16,13 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureGroupInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/LightGroupInputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/LightGroupInputInterface.h>
+#include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class ModelShadowModule;
 class ModelShadowNode : 
@@ -34,7 +34,7 @@ class ModelShadowNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<ModelShadowNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ModelShadowNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<ModelShadowModule> m_ModelShadowModulePtr = nullptr;
@@ -42,12 +42,22 @@ private:
 public:
 	ModelShadowNode();
 	~ModelShadowNode() override;
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame,
+        const ImRect& vRect,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
+        const ImVec2& vMaxSize,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    void SetTexture(
+        const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;

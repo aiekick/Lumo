@@ -16,9 +16,17 @@ limitations under the License.
 
 #include "WidgetColorNode.h"
 #include <Modules/Widgets/WidgetColorModule.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<WidgetColorNode> WidgetColorNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<WidgetColorNode> WidgetColorNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<WidgetColorNode>();
 	res->m_This = res;
@@ -39,7 +47,7 @@ WidgetColorNode::~WidgetColorNode()
 	Unit();
 }
 
-bool WidgetColorNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool WidgetColorNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Widget Color";
 
@@ -79,26 +87,34 @@ bool WidgetColorNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	return false;
 }
 
-bool WidgetColorNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool WidgetColorNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_WidgetColorModule)
 	{
-		return m_WidgetColorModule->DrawWidgets(vCurrentFrame, vContext);
+		return m_WidgetColorModule->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void WidgetColorNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool WidgetColorNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
+}
+
+bool WidgetColorNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_WidgetColorModule)
 	{
-		m_WidgetColorModule->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+        return m_WidgetColorModule->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
 	}
+    return false;
 }
 
 void WidgetColorNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
@@ -132,7 +148,7 @@ void WidgetColorNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWe
 {
 	if (vBaseNodeState)
 	{
-		auto slotPtr = vSlot.getValidShared();
+		auto slotPtr = vSlot.lock();
 		if (slotPtr)
 		{
 			if (m_WidgetColorModule)

@@ -23,32 +23,32 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <Headers/Globals.h>
-#include <vulkan/vulkan.hpp>
-#include <vkFramework/vk_mem_alloc.h>
+#include <Gaia/gaia.h>
+#include <Gaia/Core/vk_mem_alloc.h>
 #include <ctools/cTools.h>
-#include <Base/ShaderPass.h>
+#include <LumoBackend/Base/ShaderPass.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/VulkanFrameBuffer.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/ImGuiTexture.h>
+#include <Gaia/Resources/Texture2D.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <Gaia/Resources/VulkanFrameBuffer.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Gui/ImGuiTexture.h>
 
-#include <SceneGraph/SceneMesh.hpp>
+#include <LumoBackend/SceneGraph/SceneMesh.hpp>
 
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/TextureGroupOutputInterface.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/LightGroupInputInterface.h>
-#include <Interfaces/LightGroupOutputInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/TaskInterface.h>
+#include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>
+#include <LumoBackend/Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Interfaces/LightGroupInputInterface.h>
+#include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
 
 class ShadowMapModule_Mesh_Pass :
 	public ShaderPass,
-	public GuiInterface,
+	
 	public TextureGroupOutputInterface,
 	public ModelInputInterface,
 	public LightGroupInputInterface,
@@ -60,14 +60,14 @@ protected:
 	} m_PushConstants;
 
 public:
-	ShadowMapModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	ShadowMapModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~ShadowMapModule_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;
 	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes) override;
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;

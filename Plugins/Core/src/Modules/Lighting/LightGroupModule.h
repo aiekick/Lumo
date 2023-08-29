@@ -25,16 +25,16 @@ limitations under the License.
 #include <glm/glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <ctools/ConfigAbstract.h>
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/GizmoInterface.h>
-#include <Interfaces/LightGroupOutputInterface.h>
-#include <Interfaces/BufferObjectInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/TaskInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/GizmoInterface.h>
+#include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
+#include <LumoBackend/Interfaces/BufferObjectInterface.h>
 
 class LightGroupModule;
 typedef std::shared_ptr<LightGroupModule> LightGroupModulePtr;
-typedef ct::cWeak<LightGroupModule> LightGroupModuleWeak;
+typedef std::weak_ptr<LightGroupModule> LightGroupModuleWeak;
 
 class LightGroupModule :
 	public conf::ConfigAbstract,
@@ -44,12 +44,12 @@ class LightGroupModule :
 	public TaskInterface
 {
 public:
-	static LightGroupModulePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static LightGroupModulePtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
 	LightGroupModuleWeak m_This;
 	SceneLightGroupPtr m_SceneLightGroupPtr = nullptr;
-	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 private: // imgui
 	ct::fvec4 m_DefaultLightGroupColor = 1.0f;
@@ -59,15 +59,15 @@ private: // imgui
 	bool m_FirstXmlLightGroup = true;
 
 public:
-	LightGroupModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	LightGroupModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~LightGroupModule();
 
 	bool Init();
 	void Unit();
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 	SceneLightGroupWeak GetLightGroup() override;
 
 public:

@@ -14,41 +14,46 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
-#include <Interfaces/TextureCubeOutputInterface.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/TextureCubeOutputInterface.h>
+
 class CubeMapModule;
-class CubeMapNode :
-	public TextureCubeOutputInterface,
-	public BaseNode
-{
+class CubeMapNode : public TextureCubeOutputInterface, public BaseNode {
 public:
-	static std::shared_ptr<CubeMapNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<CubeMapNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<CubeMapModule> m_CubeMapModulePtr = nullptr;
+    std::shared_ptr<CubeMapModule> m_CubeMapModulePtr = nullptr;
 
 public:
-	CubeMapNode();
-	~CubeMapNode() override;
+    CubeMapNode();
+    ~CubeMapNode() override;
 
-	// Init / Unit
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+    // Init / Unit
+    bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 
-	// Draw Widgets
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+    // Draw Widgets
+    bool DrawWidgets(const uint32_t& vCurrentFrame,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame,
+        const ImRect& vRect,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
+        const ImVec2& vMaxSize,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
+    // Input / Ouput slot widgets
+    void DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;
 
-	// Input / Ouput slot widgets
-	void DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;
-
-	// Configuration
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-
+    // Configuration
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

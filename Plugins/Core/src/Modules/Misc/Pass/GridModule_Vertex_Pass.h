@@ -17,19 +17,19 @@ limitations under the License.
 #pragma once
 
 #include <ctools/cTools.h>
-#include <vulkan/vulkan.hpp>
+#include <Gaia/gaia.h>
 #include <ctools/ConfigAbstract.h>
-#include <Base/VertexShaderPass.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanDevice.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/ResizerInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Base/VertexShaderPass.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <LumoBackend/Interfaces/TaskInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/ResizerInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class GridModule_Vertex_Pass :
 	public VertexShaderPass,
-	public GuiInterface,
+	
 	public TextureOutputInterface
 {
 private:
@@ -46,13 +46,13 @@ private:
 	} m_UBOVert;
 
 public:
-	GridModule_Vertex_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	GridModule_Vertex_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~GridModule_Vertex_Pass() override;
 
 	void ActionBeforeInit() override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
 private:

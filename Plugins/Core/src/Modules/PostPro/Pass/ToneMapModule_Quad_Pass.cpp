@@ -17,30 +17,38 @@ limitations under the License.
 #include "ToneMapModule_Quad_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <cinttypes>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+using namespace GaiApi;
 
 /*
 use the code from https://dmnsgn.github.io/glsl-tone-map/
 */
 
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
 //////////////////////////////////////////////////////////////
 //// ToneMap SECOND PASS : BLUR ////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ToneMapModule_Quad_Pass::ToneMapModule_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+ToneMapModule_Quad_Pass::ToneMapModule_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass : Tone Map", QUAD_SHADER_PASS_DEBUG_COLOR);
@@ -58,7 +66,7 @@ void ToneMapModule_Quad_Pass::ActionBeforeInit()
 	m_ToneMap_Algos = { "Aces", "Filmic",  "Lottes",  "Reinhard",  "Reinhard 2",  "Uchimura",  "Uncharted 2",  "Unreal" };
 }
 
-bool ToneMapModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ToneMapModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -128,15 +136,19 @@ bool ToneMapModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 	return change;
 }
 
-void ToneMapModule_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+bool ToneMapModule_Quad_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 
 }
 
-void ToneMapModule_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+bool ToneMapModule_Quad_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 
 }
 
@@ -171,7 +183,7 @@ vk::DescriptorImageInfo* ToneMapModule_Quad_Pass::GetDescriptorImageInfo(const u
 {
 	if (m_FrameBufferPtr)
 	{
-		AutoResizeBuffer(m_FrameBufferPtr.get(), vOutSize);
+		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}

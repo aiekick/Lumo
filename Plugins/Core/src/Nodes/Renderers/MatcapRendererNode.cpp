@@ -16,13 +16,21 @@ limitations under the License.
 
 #include "MatcapRendererNode.h"
 #include <Modules/Renderers/MatcapRenderer.h>
-#include <Interfaces/ModelOutputInterface.h>
-#include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
-#include <Graph/Slots/NodeSlotShaderPassOutput.h>
+#include <LumoBackend/Interfaces/ModelOutputInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
-std::shared_ptr<MatcapRendererNode> MatcapRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<MatcapRendererNode> MatcapRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<MatcapRendererNode>();
 	res->m_This = res;
@@ -43,7 +51,7 @@ MatcapRendererNode::~MatcapRendererNode()
 	Unit();
 }
 
-bool MatcapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool MatcapRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Matcap";
 
@@ -82,26 +90,35 @@ bool MatcapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 	return false;
 }
 
-bool MatcapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MatcapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_MatcapRenderer)
 	{
-		return m_MatcapRenderer->DrawWidgets(vCurrentFrame, vContext);
+		return m_MatcapRenderer->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void MatcapRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool MatcapRendererNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool MatcapRendererNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_MatcapRenderer)
 	{
-		m_MatcapRenderer->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_MatcapRenderer->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 void MatcapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

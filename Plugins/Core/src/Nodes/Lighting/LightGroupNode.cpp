@@ -16,9 +16,17 @@ limitations under the License.
 
 #include "LightGroupNode.h"
 #include <Modules/Lighting/LightGroupModule.h>
-#include <Graph/Slots/NodeSlotLightGroupOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupOutput.h>
 
-std::shared_ptr<LightGroupNode> LightGroupNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<LightGroupNode> LightGroupNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<LightGroupNode>();
 	res->m_This = res;
@@ -39,7 +47,7 @@ LightGroupNode::~LightGroupNode()
 
 }
 
-bool LightGroupNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool LightGroupNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Lights";
 
@@ -65,26 +73,40 @@ bool LightGroupNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return false;
 }
 
-bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LightGroupModulePtr)
 	{
-		return m_LightGroupModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_LightGroupModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void LightGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool LightGroupNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LightGroupModulePtr)
 	{
-		m_LightGroupModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext);
-	}
+        return m_LightGroupModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext, vUserDatas);
+    }
+    return false;
+}
+
+bool LightGroupNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    if (m_LightGroupModulePtr) {
+        return m_LightGroupModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 SceneLightGroupWeak LightGroupNode::GetLightGroup()

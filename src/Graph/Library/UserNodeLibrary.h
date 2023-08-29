@@ -22,9 +22,9 @@ limitations under the License.
 #include <string>
 #include <memory>
 #include <unordered_map>
-#include <Graph/Graph.h>
+#include <LumoBackend/Graph/Graph.h>
 #include <ctools/cTools.h>
-#include <Graph/Library/LibraryCategory.h>
+#include <LumoBackend/Graph/Library/LibraryCategory.h>
 
 class UserNodeLibrary
 {

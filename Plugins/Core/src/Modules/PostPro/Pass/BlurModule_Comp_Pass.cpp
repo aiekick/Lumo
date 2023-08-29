@@ -17,26 +17,34 @@ limitations under the License.
 #include "BlurModule_Comp_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <cinttypes>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BlurModule_Comp_Pass::BlurModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+BlurModule_Comp_Pass::BlurModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Blur", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -69,7 +77,7 @@ void BlurModule_Comp_Pass::ActionBeforeCompilation()
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "blur_V");
 }
 
-bool BlurModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool BlurModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -154,19 +162,23 @@ bool BlurModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	return false;
 }
 
-void BlurModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool BlurModule_Comp_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 
 }
 
-void BlurModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool BlurModule_Comp_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 void BlurModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -202,7 +214,7 @@ vk::DescriptorImageInfo* BlurModule_Comp_Pass::GetDescriptorImageInfo(const uint
 
 	if (m_ComputeBufferPtr)
 	{
-		AutoResizeBuffer(m_ComputeBufferPtr.get(), vOutSize);
+		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
 
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
@@ -613,10 +625,10 @@ bool BlurModule_Comp_Pass::CreateComputePipeline()
 			(uint32_t)push_constants.size(), push_constants.data()
 		));
 
-	auto cs_H = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_H = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_H"][0].m_SPIRV);
 	
-	auto cs_V = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_V = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_V"][0].m_SPIRV);
 
 
@@ -641,8 +653,8 @@ bool BlurModule_Comp_Pass::CreateComputePipeline()
 		.setStage(m_ShaderCreateInfos[1]).setLayout(m_Pipelines[1].m_PipelineLayout);
 	m_Pipelines[1].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_V).value;
 
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_H);
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_V);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_H);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_V);
 
 	return true;
 }

@@ -17,30 +17,36 @@ limitations under the License.
 #include "CellShadingModule.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Lighting/Pass/CellShadingModule_Comp_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
-
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<CellShadingModule> CellShadingModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<CellShadingModule> CellShadingModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<CellShadingModule>(vVulkanCorePtr);
@@ -56,7 +62,7 @@ std::shared_ptr<CellShadingModule> CellShadingModule::Create(vkApi::VulkanCorePt
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CellShadingModule::CellShadingModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+CellShadingModule::CellShadingModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
@@ -108,7 +114,7 @@ bool CellShadingModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 	return true;
 }
 
-bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -120,7 +126,7 @@ bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 			if (m_CellShadingModule_Comp_Pass_Ptr)
 			{
-				change |= m_CellShadingModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_CellShadingModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 
 			return change;
@@ -130,7 +136,7 @@ bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	return false;
 }
 
-void CellShadingModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool CellShadingModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -138,9 +144,10 @@ void CellShadingModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::fr
 	{
 
 	}
+    return false;
 }
 
-void CellShadingModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool CellShadingModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -148,6 +155,7 @@ void CellShadingModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 	{
 
 	}
+    return false;
 }
 
 void CellShadingModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)

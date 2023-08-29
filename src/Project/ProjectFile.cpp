@@ -19,11 +19,11 @@ limitations under the License.
 
 #include "ProjectFile.h"
 #include <Panes/GraphPane.h>
-#include <Helper/Messaging.h>
+#include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <Systems/CommonSystem.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 #include <Graph/Manager/NodeManager.h>
-#include <Panes/Manager/LayoutManager.h>
+#include <LayoutManager.h>
 
 ProjectFile::ProjectFile() = default;
 
@@ -100,8 +100,7 @@ bool ProjectFile::LoadAs(const std::string vFilePathName)
 			Clear();
 
 			auto errMsg = getTinyXml2ErrorMessage(xmlError);
-			Messaging::Instance()->AddError(true, nullptr, nullptr,
-				"The project file %s cant be loaded, Error : %s", filePathName.c_str(), errMsg.c_str());
+			LogVarError("The project file % s cant be loaded, Error : % s", filePathName.c_str(), errMsg.c_str());
 		}
 	}
 

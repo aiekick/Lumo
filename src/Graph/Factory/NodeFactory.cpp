@@ -21,7 +21,7 @@ limitations under the License.
 
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType)
 {
-	auto graphPtr = vNodeGraph.getValidShared();
+	auto graphPtr = vNodeGraph.lock();
 	if (graphPtr)
 	{
 		auto corePtr = graphPtr->m_VulkanCorePtr;

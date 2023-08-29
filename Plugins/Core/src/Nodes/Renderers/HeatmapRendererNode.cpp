@@ -16,12 +16,20 @@ limitations under the License.
 
 #include "HeatmapRendererNode.h"
 #include <Modules/Renderers/HeatmapRenderer.h>
-#include <Interfaces/ModelOutputInterface.h>
-#include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
-#include <Graph/Slots/NodeSlotShaderPassOutput.h>
+#include <LumoBackend/Interfaces/ModelOutputInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
-std::shared_ptr<HeatmapRendererNode> HeatmapRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<HeatmapRendererNode> HeatmapRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<HeatmapRendererNode>();
 	res->m_This = res;
@@ -42,7 +50,7 @@ HeatmapRendererNode::~HeatmapRendererNode()
 	Unit();
 }
 
-bool HeatmapRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool HeatmapRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Heatmap";
 
@@ -77,26 +85,35 @@ bool HeatmapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comm
 	return false;
 }
 
-bool HeatmapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool HeatmapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_HeatmapRenderer)
 	{
-		return m_HeatmapRenderer->DrawWidgets(vCurrentFrame, vContext);
+		return m_HeatmapRenderer->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void HeatmapRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool HeatmapRendererNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool HeatmapRendererNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_HeatmapRenderer)
 	{
-		m_HeatmapRenderer->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_HeatmapRenderer->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 void HeatmapRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

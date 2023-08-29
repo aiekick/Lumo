@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "UserNodeLibrary.h"
 
-#include <imgui/imgui.h>
-#include <Graph/Base/BaseNode.h>
+#include <imgui.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <ctools/FileHelper.h>
 
 #include <Graph/Manager/NodeManager.h>
@@ -36,7 +36,7 @@ limitations under the License.
 
 // for directory/files lister
 #if defined(__WIN32__) || defined(_WIN32)
-#include <ImGuiFileDialog/dirent/dirent.h>
+#include <dirent/dirent.h>
 #define PATH_SEP '\\'
 #elif defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__APPLE__)
 #include <dirent.h>
@@ -89,7 +89,7 @@ BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeS
 		if (!entry.first.empty())
 		{
 			createdNode = CreateNode(vNodeGraph, entry);
-			auto createdNodePtr = createdNode.getValidShared();
+			auto createdNodePtr = createdNode.lock();
 			if (createdNodePtr)
 			{
 				createdNodePtr->TreatNotification(GraphIsLoaded);
@@ -144,7 +144,7 @@ BaseNodeWeak UserNodeLibrary::CreateNode(BaseNodeWeak vNodeGraph, const LibraryE
 
 	if (nodePtr)
 	{
-		auto graphPtr = vNodeGraph.getValidShared();
+		auto graphPtr = vNodeGraph.lock();
 		if (graphPtr)
 		{
 			/*if (vLibraryEntry.second.nodeType == "OUTPUT_3D")

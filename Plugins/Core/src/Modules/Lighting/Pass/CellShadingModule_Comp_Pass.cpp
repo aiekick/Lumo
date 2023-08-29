@@ -17,27 +17,35 @@ limitations under the License.
 #include "CellShadingModule_Comp_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 #include <Modules/Lighting/LightGroupModule.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CellShadingModule_Comp_Pass::CellShadingModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+CellShadingModule_Comp_Pass::CellShadingModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Cell Shading", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -60,7 +68,7 @@ void CellShadingModule_Comp_Pass::ActionBeforeInit()
 	}
 }
 
-bool CellShadingModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CellShadingModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
@@ -77,16 +85,18 @@ bool CellShadingModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 	return change;
 }
 
-void CellShadingModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool CellShadingModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
-void CellShadingModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool CellShadingModule_Comp_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 void CellShadingModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -132,7 +142,7 @@ vk::DescriptorImageInfo* CellShadingModule_Comp_Pass::GetDescriptorImageInfo(con
 {
 	if (m_ComputeBufferPtr)
 	{
-		AutoResizeBuffer(m_ComputeBufferPtr.get(), vOutSize);
+		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
 
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
@@ -146,7 +156,7 @@ void CellShadingModule_Comp_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightG
 
 	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
-	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	auto lightGroupPtr = m_SceneLightGroup.lock();
 	if (lightGroupPtr && 
 		lightGroupPtr->GetBufferInfo())
 	{

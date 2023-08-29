@@ -17,18 +17,23 @@ limitations under the License.
 #include "Texture2DModule.h"
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <vkFramework/VulkanCore.h>
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
+#include <ImWidgets.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <ImGuiFileDialog.h>
 
-#define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<Texture2DModule> Texture2DModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<Texture2DModule> Texture2DModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -47,7 +52,7 @@ std::shared_ptr<Texture2DModule> Texture2DModule::Create(vkApi::VulkanCorePtr vV
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Texture2DModule::Texture2DModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+Texture2DModule::Texture2DModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	unique_OpenPictureFileDialog_id = ct::toStr("OpenPictureFileDialog%u", (uintptr_t)this);
@@ -82,7 +87,7 @@ void Texture2DModule::NeedResize(ct::ivec2* vNewSize)
 	ZoneScoped;
 }
 
-bool Texture2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool Texture2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -111,14 +116,15 @@ bool Texture2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	return false;
 }
 
-void Texture2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool Texture2DModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	ZoneScoped;
+    return false;
 }
 
-void Texture2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool Texture2DModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -138,6 +144,8 @@ void Texture2DModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 
 		ImGuiFileDialog::Instance()->Close();
 	}
+
+    return false;
 }
 
 void Texture2DModule::DrawTexture(ct::ivec2 vMaxSize)
@@ -184,13 +192,13 @@ void Texture2DModule::LoadTexture2D(const std::string& vFilePathName)
 			m_FileName = ps.name;
 		}
 
-		auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().getValidShared();
+		auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().lock();
 		if (imguiRendererPtr)
 		{
 			m_ImGuiTexture.SetDescriptor(imguiRendererPtr, &m_Texture2DPtr->m_DescriptorImageInfo, m_Texture2DPtr->m_Ratio);
 		}
 
-		auto parentNodePtr = GetParentNode().getValidShared();
+		auto parentNodePtr = GetParentNode().lock();
 		if (parentNodePtr)
 		{
 			parentNodePtr->SendFrontNotification(TextureUpdateDone);

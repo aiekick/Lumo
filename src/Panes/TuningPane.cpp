@@ -19,26 +19,28 @@ limitations under the License.
 
 #include "TuningPane.h"
 
-#include <Panes/Manager/LayoutManager.h>
-#include <ImWidgets/ImWidgets.h>
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
-#include <gaia/VulkanImGuiRenderer.h>
+#include <ImWidgets.h>
+#include <ImGuiFileDialog.h>
+#include <Gaia/Gui/VulkanImGuiRenderer.h>
 #include <Project/ProjectFile.h>
-#include <Gui/MainFrame.h>
-#include <imgui/imgui_internal.h>
-#include <Graph/Base/BaseNode.h>
+#include <Frontend/MainFrontend.h>
+#include <imgui_internal.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
 
-#include <Systems/CommonSystem.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
 #include <cinttypes> // printf zu
 
-#define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
-
-static int SourcePane_WidgetId = 0;
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// CONSTRUCTORS /////////////////////////////////////////////////////////////////
@@ -73,20 +75,20 @@ void TuningPane::Unit()
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-int TuningPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown)
+bool TuningPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	SourcePane_WidgetId = vWidgetId;
+	bool change = false;
 
-	if (vInOutPaneShown & m_PaneFlag)
+	if (vInOutPaneShown & paneFlag)
 	{
 		static ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus |
 			ImGuiWindowFlags_MenuBar;
-		if (ImGui::Begin<PaneFlags>(m_PaneName,
-			&vInOutPaneShown , m_PaneFlag, flags))
+		if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+			&vInOutPaneShown , paneFlag, flags))
 		{
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 			auto win = ImGui::GetCurrentWindowRead();
@@ -99,36 +101,49 @@ int TuningPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
-				SourcePane_WidgetId = DrawWidgets(vCurrentFrame, SourcePane_WidgetId, vUserDatas);
+				change = DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 		}
 
 		ImGui::End();
 	}
 
-	return SourcePane_WidgetId;
+	return change;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// DIALOGS //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-void TuningPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas)
+bool TuningPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
+
+	return false;
 }
 
-int TuningPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
+bool TuningPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	CommonSystem::Instance()->DrawImGui();
+	bool change = false;
 
-	auto ptr = GetParentNode().getValidShared();
+	change |= CommonSystem::Instance()->DrawImGui();
+
+	auto ptr = GetParentNode().lock();
 	if (ptr)
 	{
-		ptr->DrawWidgets(vCurrentFrame, ImGui::GetCurrentContext());
+		change |= ptr->DrawWidgets(vCurrentFrame, ImGui::GetCurrentContext(), vUserDatas);
 	}
 
-	return vWidgetId;
+	return change;
+}
+
+bool TuningPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	ZoneScoped;
+	UNUSED(vCurrentFrame);
+	UNUSED(vRect);
+	ImGui::SetCurrentContext(vContextPtr);
+	UNUSED(vUserDatas);
+	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

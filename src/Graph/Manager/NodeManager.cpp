@@ -19,24 +19,22 @@ limitations under the License.
 
 #include "NodeManager.h"
 
-#include <Gui/MainFrame.h>
+#include <Frontend/MainFrontend.h>
 #include <ctools/FileHelper.h>
-#include <ImGuizmo/ImGuizmo.h>
+#include <ImGuiPack.h>
+#include <ImGuizmo.h>
 
-#include <Systems/CommonSystem.h>
-#include <gaia/VulkanCore.h>
-#include <Interfaces/CameraInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
-#include <Systems/GizmoSystem.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <LumoBackend/Interfaces/CameraInterface.h>
+#include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
+#include <LumoBackend/Systems/GizmoSystem.h>
 
 #include <Plugins/PluginManager.h>
 
 #include <Graph/Factory/NodeFactory.h>
 
-#define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
-
-using namespace vkApi;
+using namespace GaiApi;
 
 NodeManager::NodeManager()
 {
@@ -48,7 +46,7 @@ NodeManager::NodeManager()
 //// INIT / UNIT ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool NodeManager::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -91,13 +89,13 @@ bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 	m_RootNodePtr->m_BaseNodeState.m_Context = ImGui::GetCurrentContext();
 
 	// double click on a node
-	auto rootNode3DPtr = m_RootNodePtr->m_GraphRoot3DNode.getValidShared();
+	auto rootNode3DPtr = m_RootNodePtr->m_GraphRoot3DNode.lock();
 	if (rootNode3DPtr)
 	{
 		res |= rootNode3DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
 	}
 
-	auto rootNode2DPtr = m_RootNodePtr->m_GraphRoot2DNode.getValidShared();
+	auto rootNode2DPtr = m_RootNodePtr->m_GraphRoot2DNode.lock();
 	if (rootNode2DPtr)
 	{
 		res |= rootNode2DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
@@ -110,7 +108,7 @@ bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 //// IMGUI /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -127,7 +125,7 @@ bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 		{
 			if (ImGui::CollapsingHeader(nodePtr->name.c_str()))
 			{
-				change |= nodePtr->DrawWidgets(vCurrentFrame, vContext);
+				change |= nodePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 		}
 	}
@@ -135,36 +133,43 @@ bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 	return change;
 }
 
-void NodeManager::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool NodeManager::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
+
+	bool change = false;
 
 	ImGuizmo::SetDrawlist(ImGui::GetCurrentWindow()->DrawList);
-
-	ImGuizmo::SetRect(vRect.x, vRect.y, vRect.w, vRect.h);
+	ImGuizmo::SetRect(vRect.Min.x, vRect.Min.y, vRect.GetWidth(), vRect.GetHeight());
 
 	for (auto eff : m_RootNodePtr->m_ChildNodes)
 	{
 		auto nodePtr = eff.second;
 		if (nodePtr)
 		{
-			nodePtr->DrawOverlays(vCurrentFrame, vRect, vContext);
+			change |= nodePtr->DrawOverlays(vCurrentFrame, vRect, vContext, vUserDatas);
 		}
 	}
+
+	return change;
 }
 
-void NodeManager::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool NodeManager::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
+	bool change = false;
+
 	for (auto eff : m_RootNodePtr->m_ChildNodes)
 	{
 		auto nodePtr = eff.second;
 		if (nodePtr)
 		{
-			nodePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+			change |= nodePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
 		}
 	}
+
+	return change;
 }
 
 void NodeManager::FinalizeGraphLoading()

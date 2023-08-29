@@ -23,36 +23,36 @@ limitations under the License.
 
 #include <Headers/Globals.h>
 
-#include <vulkan/vulkan.hpp>
+#include <Gaia/gaia.h>
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/QuadShaderPass.h>
+#include <LumoBackend/Base/QuadShaderPass.h>
 
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
+#include <Gaia/Resources/Texture2D.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <Gaia/Core/vk_mem_alloc.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Gui/ImGuiTexture.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Resources/VulkanFrameBuffer.h>
 
-#include <SceneGraph/SceneMesh.hpp>
+#include <LumoBackend/SceneGraph/SceneMesh.hpp>
 
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/ShaderInterface.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/ResizerInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/TaskInterface.h>
+#include <LumoBackend/Interfaces/ShaderInterface.h>
+#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/ResizerInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class ShadowMapModule;
 
 class DeferredRenderer_Quad_Pass :
 	public QuadShaderPass,
-	public GuiInterface,
+	
 	public TextureInputInterface<9U>,
 	public TextureOutputInterface
 {
@@ -76,12 +76,12 @@ private:
 	std::string m_FragmentShaderCode;
 
 public:
-	DeferredRenderer_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	DeferredRenderer_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~DeferredRenderer_Quad_Pass() override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

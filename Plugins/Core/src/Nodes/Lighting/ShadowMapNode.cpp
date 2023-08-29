@@ -16,15 +16,23 @@ limitations under the License.
 
 #include "ShadowMapNode.h"
 #include <Modules/Lighting/ShadowMapModule.h>
-#include <Interfaces/ModelOutputInterface.h>
-#include <Graph/Slots/NodeSlotLightGroupInput.h>
-#include <Graph/Slots/NodeSlotLightGroupOutput.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotTextureGroupInput.h>
-#include <Graph/Slots/NodeSlotTextureGroupOutput.h>
+#include <LumoBackend/Interfaces/ModelOutputInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupOutput.h>
 
-std::shared_ptr<ShadowMapNode> ShadowMapNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<ShadowMapNode> ShadowMapNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ShadowMapNode>();
 	res->m_This = res;
@@ -45,7 +53,7 @@ ShadowMapNode::~ShadowMapNode()
 	Unit();
 }
 
-bool ShadowMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ShadowMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Shadow Map";
 
@@ -80,26 +88,38 @@ bool ShadowMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 	return false;
 }
 
-bool ShadowMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ShadowMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ShadowMapModulePtr)
 	{
-		return m_ShadowMapModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_ShadowMapModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void ShadowMapNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool ShadowMapNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ShadowMapModulePtr)
 	{
-		m_ShadowMapModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext);
-	}
+        return m_ShadowMapModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext, vUserDatas);
+    }
+    return false;
+}
+
+bool ShadowMapNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    if (m_ShadowMapModulePtr) {
+        return m_ShadowMapModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 void ShadowMapNode::SetModel(SceneModelWeak vSceneModel)

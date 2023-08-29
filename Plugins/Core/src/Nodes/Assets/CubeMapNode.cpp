@@ -19,216 +19,200 @@ limitations under the License.
 
 #include "CubeMapNode.h"
 #include <Modules/Assets/CubeMapModule.h>
-#include <Graph/Slots/NodeSlotTextureCubeOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureCubeOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<CubeMapNode> CubeMapNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
-{
-	ZoneScoped;
+std::shared_ptr<CubeMapNode> CubeMapNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    ZoneScoped;
 
-	auto res = std::make_shared<CubeMapNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
-	{
-		res.reset();
-	}
-	return res;
+    auto res = std::make_shared<CubeMapNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCorePtr)) {
+        res.reset();
+    }
+    return res;
 }
 
-CubeMapNode::CubeMapNode() : BaseNode()
-{
-	ZoneScoped;
+CubeMapNode::CubeMapNode() : BaseNode() {
+    ZoneScoped;
 
-	m_NodeTypeString = "CUBE_MAP";
+    m_NodeTypeString = "CUBE_MAP";
 }
 
-CubeMapNode::~CubeMapNode()
-{
-	ZoneScoped;
+CubeMapNode::~CubeMapNode() {
+    ZoneScoped;
 
-	Unit();
-}		
+    Unit();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
-{
-	ZoneScoped;
+bool CubeMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	name = "CubeMap";
+    name = "CubeMap";
 
-	auto ptr = NodeSlotTextureCubeOutput::Create("New Slot", 0);
-	ptr->showWidget = true;
-	AddOutput(ptr, false, true);
+    auto ptr = NodeSlotTextureCubeOutput::Create("New Slot", 0);
+    ptr->showWidget = true;
+    AddOutput(ptr, false, true);
 
-	m_CubeMapModulePtr = CubeMapModule::Create(vVulkanCorePtr, m_This);
-	if (m_CubeMapModulePtr)
-	{
-		res = true;
-	}
+    m_CubeMapModulePtr = CubeMapModule::Create(vVulkanCorePtr, m_This);
+    if (m_CubeMapModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
-{
-	ZoneScoped;
+bool CubeMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
 
-	if (m_CubeMapModulePtr)
-	{
-		res = m_CubeMapModulePtr->DrawWidgets(vCurrentFrame, vContext);
-	}
+    if (m_CubeMapModulePtr) {
+        res = m_CubeMapModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+    }
 
-	return res;
+    return res;
 }
 
-void CubeMapNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	ZoneScoped;
+bool CubeMapNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
+}
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
-
-	if (m_CubeMapModulePtr)
-	{
-		m_CubeMapModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+bool CubeMapNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    if (m_CubeMapModulePtr) {
+        return m_CubeMapModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW SLOTS WIDGET ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CubeMapNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
-{
-	auto slotPtr = vSlot.getValidShared();
-	if (slotPtr && slotPtr->showWidget)
-	{
-		if (m_CubeMapModulePtr)
-		{
-			m_CubeMapModulePtr->DrawTextures(ct::ivec2(100, 75));
-		}
-	}
+void CubeMapNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) {
+    auto slotPtr = vSlot.lock();
+    if (slotPtr && slotPtr->showWidget) {
+        if (m_CubeMapModulePtr) {
+            m_CubeMapModulePtr->DrawTextures(ct::ivec2(100, 75));
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CubeMapNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+void CubeMapNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used[%s]\nCell[%i, %i]",
-				(used ? "true" : "false"), cell.x, cell.y);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used[%s]\nCell[%i, %i]", (used ? "true" : "false"), cell.x, cell.y);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE CUBE SLOT OUTPUT ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* CubeMapNode::GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
-	if (m_CubeMapModulePtr)
-	{
-		return m_CubeMapModulePtr->GetTextureCube(vBindingPoint, vOutSize);
-	}
+vk::DescriptorImageInfo* CubeMapNode::GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+    if (m_CubeMapModulePtr) {
+        return m_CubeMapModulePtr->GetTextureCube(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CubeMapNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+std::string CubeMapNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string res;
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(),
+                             m_NodeTypeString.c_str(), ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_CubeMapModulePtr)
-		{
-			res += m_CubeMapModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_CubeMapModulePtr) {
+            res += m_CubeMapModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool CubeMapNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+bool CubeMapNode::setFromXml(
+    tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_CubeMapModulePtr)
-	{
-		m_CubeMapModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_CubeMapModulePtr) {
+        m_CubeMapModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	// continue recurse child exploring
-	return true;
+    // continue recurse child exploring
+    return true;
 }

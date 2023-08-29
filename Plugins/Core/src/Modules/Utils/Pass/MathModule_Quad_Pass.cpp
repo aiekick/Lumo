@@ -17,32 +17,37 @@ limitations under the License.
 #include "MathModule_Quad_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <cinttypes>
-#include <Base/FrameBuffer.h>
-#include <FontIcons/CustomFont.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-#include <imgui_node_editor/NodeEditor/Include/imgui_node_editor.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <cinttypes>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+#include <imgui_node_editor.h>
 namespace nd = ax::NodeEditor;
 
-using namespace vkApi;
+using namespace GaiApi;
 
-
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MathModule_Quad_Pass::MathModule_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+MathModule_Quad_Pass::MathModule_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass : Math", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -132,7 +137,7 @@ void MathModule_Quad_Pass::ActionBeforeInit()
 	m_Functions.push_back(MathModuleEntry("faceforward", 3U, "N", "I", "Nref"));
 }
 
-bool MathModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MathModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -144,16 +149,20 @@ bool MathModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	return false;
 }
 
-void MathModule_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-
+bool MathModule_Quad_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
-void MathModule_Quad_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-
+bool MathModule_Quad_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 void MathModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -491,13 +500,13 @@ bool MathModule_Quad_Pass::DrawCombo(const float vWidth)
 	{
 		float px = ImGui::GetCursorPosX();
 
-		ImGui::PushID(++ImGui::CustomStyle::Instance()->pushId);
+		ImGui::PushID(ImGui::IncPUSHID());
 
-		change = ImGui::ContrastedButton(ICON_NDP_RESET);
+		change = ImGui::ContrastedButton("R");
 		if (change)
 			m_UBOFrag.u_Function_index = 0;
 
-		ImGui::CustomSameLine();
+		//ImGui::CustomSameLine();
 
 		//nd::Suspend();
 

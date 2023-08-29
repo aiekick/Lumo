@@ -18,20 +18,24 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "DebugPane.h"
-#include <Gui/MainFrame.h>
+#include <Frontend/MainFrontend.h>
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
+#include <ImWidgets.h>
 #include <Project/ProjectFile.h>
-#include <Project/ProjectFile.h>
-#include <Graph/Base/BaseNode.h>
-#include <imgui/imgui_internal.h>
-#include <Panes/Manager/LayoutManager.h>
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <imgui_internal.h>
+#include <ImGuiFileDialog.h>
 
 #include <cinttypes> // printf zu
 
-static int SourcePane_WidgetId = 0;
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 DebugPane::DebugPane() = default;
 DebugPane::~DebugPane()
@@ -53,31 +57,33 @@ void DebugPane::Unit()
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-int DebugPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown)
-{
-	SourcePane_WidgetId = vWidgetId;
+bool DebugPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	ZoneScoped;
+	UNUSED(vCurrentFrame);
+	ImGui::SetCurrentContext(vContextPtr);
+	UNUSED(vUserDatas);
+	bool change = false;
 
-	if (vInOutPaneShown & m_PaneFlag)
+	if (vInOutPaneShown & paneFlag)
 	{
 		static ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus |
 			ImGuiWindowFlags_MenuBar;
-		if (ImGui::Begin<PaneFlags>(m_PaneName,
-			&vInOutPaneShown , m_PaneFlag, flags))
-		{
+		if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+			&vInOutPaneShown, paneFlag, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 			auto win = ImGui::GetCurrentWindowRead();
 			if (win->Viewport->Idx != 0)
 				flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
 			else
-				flags =	ImGuiWindowFlags_NoCollapse |
+				flags = ImGuiWindowFlags_NoCollapse |
 				ImGuiWindowFlags_NoBringToFrontOnFocus |
 				ImGuiWindowFlags_MenuBar;
 #endif
 			if (ProjectFile::Instance()->IsLoaded())
 			{
-				auto nodePtr = m_NodeToDebug.getValidShared();
+				auto nodePtr = m_NodeToDebug.lock();
 				if (nodePtr)
 				{
 					nodePtr->DrawDebugInfos(nullptr);
@@ -88,10 +94,10 @@ int DebugPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::stri
 		ImGui::End();
 	}
 
-	return SourcePane_WidgetId;
+	return false;
 }
 
-void DebugPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas)
+bool DebugPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	if (ProjectFile::Instance()->IsLoaded())
 	{
@@ -110,11 +116,21 @@ void DebugPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string 
 			ImGuiFileDialog::Instance()->Close();
 		}*/
 	}
+	return false;
 }
 
-int DebugPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
+bool DebugPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	return vWidgetId;
+	return false;
+}
+
+bool DebugPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	ZoneScoped;
+	UNUSED(vCurrentFrame);
+	UNUSED(vRect);
+	ImGui::SetCurrentContext(vContextPtr);
+	UNUSED(vUserDatas);
+	return false;
 }
 
 void DebugPane::Select(BaseNodeWeak vNode)

@@ -23,28 +23,32 @@ limitations under the License.
 #include <filesystem>
 #include <functional>
 #include <ctools/Logger.h>
-#include <Base/FrameBuffer.h>
 #include <ctools/FileHelper.h>
-#include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Graph/Base/BaseNode.h>
-#include <Systems/CommonSystem.h>
-#include <imgui/imgui_internal.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Buffer/FrameBuffer.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+
+using namespace GaiApi;
 
 #define MAX_THUMBNAIL_HEIGHT 50
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<CubeMapModule> CubeMapModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<CubeMapModule> CubeMapModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -63,7 +67,7 @@ std::shared_ptr<CubeMapModule> CubeMapModule::Create(vkApi::VulkanCorePtr vVulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CubeMapModule::CubeMapModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+CubeMapModule::CubeMapModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -100,7 +104,7 @@ void CubeMapModule::Unit()
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CubeMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -139,17 +143,16 @@ bool CubeMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 	return false;
 }
 
-void CubeMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool CubeMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	assert(vContext); 
 	ImGui::SetCurrentContext(vContext);
-
+	return false;
 }
 
-void CubeMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool CubeMapModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -170,7 +173,9 @@ void CubeMapModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const
 		}
 
 		ImGuiFileDialog::Instance()->Close();
-	}
+    }
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -249,7 +254,7 @@ void CubeMapModule::LoadTextures(const std::string& vFilePathName)
 							m_FileNames[idx] = ps.name;
 						}
 
-						auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().getValidShared();
+						auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().lock();
 						if (imguiRendererPtr)
 						{
 							m_ImGuiTextures[idx].SetDescriptor(
@@ -260,7 +265,7 @@ void CubeMapModule::LoadTextures(const std::string& vFilePathName)
 					}
 				}
 
-				auto parentNodePtr = GetParentNode().getValidShared();
+				auto parentNodePtr = GetParentNode().lock();
 				if (parentNodePtr)
 				{
 					parentNodePtr->SendFrontNotification(TextureUpdateDone);
@@ -279,7 +284,7 @@ void CubeMapModule::ClearTextures()
 
 	m_TextureCubePtr.reset();
 
-	auto parentNodePtr = GetParentNode().getValidShared();
+	auto parentNodePtr = GetParentNode().lock();
 	if (parentNodePtr)
 	{
 		parentNodePtr->SendFrontNotification(TextureUpdateDone);

@@ -19,25 +19,24 @@ limitations under the License.
 
 #include "View2DPane.h"
 
-#include <Panes/Manager/LayoutManager.h>
-#include <ImWidgets/ImWidgets.h>
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
-#include <gaia/VulkanImGuiRenderer.h>
-#include <Project/ProjectFile.h>
-#include <imgui/imgui_internal.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Graph/Base/BaseNode.h>
-#include <Graph/Base/NodeSlot.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <Graph/Manager/NodeManager.h>
-#include <Systems/CommonSystem.h>
-#include <ctools/cTools.h>
+#include <Project/ProjectFile.h>
 #include <ctools/FileHelper.h>
+#include <ctools/cTools.h>
+#include <ImWidgets.h>
+
 #include <cinttypes> // printf zu
 
-#define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
-
-static int SourcePane_WidgetId = 0;
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// CONSTRUCTORS /////////////////////////////////////////////////////////////////
@@ -71,20 +70,20 @@ void View2DPane::Unit()
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown)
+bool View2DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	SourcePane_WidgetId = vWidgetId;
+	bool change = false;
 
-	if (vInOutPaneShown & m_PaneFlag)
+	if (vInOutPaneShown & paneFlag)
 	{
 		static ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus |
 			ImGuiWindowFlags_MenuBar;
-		if (ImGui::Begin<PaneFlags>(m_PaneName,
-			&vInOutPaneShown , m_PaneFlag, flags))
+		if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+			&vInOutPaneShown , paneFlag, flags))
 		{
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 			auto win = ImGui::GetCurrentWindowRead();
@@ -99,7 +98,7 @@ int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 			{
 				auto outputSize = SetOrUpdateOutput(m_TextureOutputSlot);
 
-				auto slotPtr = m_TextureOutputSlot.getValidShared();
+				auto slotPtr = m_TextureOutputSlot.lock();
 				if (slotPtr)
 				{
 					if (ImGui::BeginMenuBar())
@@ -134,7 +133,7 @@ int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 								if (m_CanWeTuneMouse && CanUpdateMouse(true, 0))
 								{
 									ct::fvec2 norPos = (ImGui::GetMousePos() - org) / siz;
-									CommonSystem::Instance()->SetMousePos(norPos, outputSize, GImGui->IO.MouseDown);
+									CommonSystem::Instance()->SetMousePos(norPos, outputSize, ImGui::GetCurrentContext()->IO.MouseDown);
 								}
 							}
 						}
@@ -146,39 +145,32 @@ int View2DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 		ImGui::End();
 	}
 
-	return SourcePane_WidgetId;
+	return change;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// DIALOGS //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-void View2DPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas)
+bool View2DPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	/*if (ProjectFile::Instance()->IsLoaded())
-	{
-		ImVec2 maxSize = MainFrame::Instance()->m_DisplaySize;
-		ImVec2 minSize = maxSize * 0.5f;
-		if (ImGuiFileDialog::Instance()->Display("OpenShaderCode",
-			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking,
-			minSize, maxSize))
-		{
-			if (ImGuiFileDialog::Instance()->IsOk())
-			{
-				std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-				auto code = FileHelper::Instance()->LoadFileToString(filePathName);
-				SetCode(code);
-			}
-			ImGuiFileDialog::Instance()->Close();
-		}
-	}*/
+	return false;
 }
 
-int View2DPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
+bool View2DPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	return vWidgetId;
+	return false;
+}
+
+bool View2DPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	ZoneScoped;
+	UNUSED(vCurrentFrame);
+	UNUSED(vRect);
+	ImGui::SetCurrentContext(vContextPtr);
+	UNUSED(vUserDatas);
+	return false;
 }
 
 ct::fvec2 View2DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
@@ -187,10 +179,10 @@ ct::fvec2 View2DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 
 	ct::fvec2 outSize;
 
-	auto slotPtr = vTextureOutputSlot.getValidShared();
+	auto slotPtr = vTextureOutputSlot.lock();
 	if (slotPtr)
 	{
-		auto otherNodePtr = std::dynamic_pointer_cast<TextureOutputInterface>(slotPtr->parentNode.getValidShared());
+		auto otherNodePtr = std::dynamic_pointer_cast<TextureOutputInterface>(slotPtr->parentNode.lock());
 		if (otherNodePtr)
 		{
 			NodeSlot::sSlotGraphOutputMouseMiddle = vTextureOutputSlot;

@@ -19,14 +19,22 @@ limitations under the License.
 
 #include "LongLatPeviewNode.h"
 #include <Modules/Preview/LongLatPeviewModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<LongLatPeviewNode> LongLatPeviewNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<LongLatPeviewNode> LongLatPeviewNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -57,7 +65,7 @@ LongLatPeviewNode::~LongLatPeviewNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool LongLatPeviewNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool LongLatPeviewNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -103,7 +111,7 @@ bool LongLatPeviewNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool LongLatPeviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool LongLatPeviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -114,14 +122,22 @@ bool LongLatPeviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 	if (m_LongLatPeviewModulePtr)
 	{
-		res = m_LongLatPeviewModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_LongLatPeviewModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void LongLatPeviewNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool LongLatPeviewNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool LongLatPeviewNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -129,8 +145,9 @@ void LongLatPeviewNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 
 	if (m_LongLatPeviewModulePtr)
 	{
-		m_LongLatPeviewModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_LongLatPeviewModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

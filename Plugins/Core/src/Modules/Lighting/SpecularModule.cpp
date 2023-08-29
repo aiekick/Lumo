@@ -17,30 +17,36 @@ limitations under the License.
 #include "SpecularModule.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Lighting/Pass/SpecularModule_Comp_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
-
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SpecularModule> SpecularModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SpecularModule> SpecularModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<SpecularModule>(vVulkanCorePtr);
@@ -56,7 +62,7 @@ std::shared_ptr<SpecularModule> SpecularModule::Create(vkApi::VulkanCorePtr vVul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SpecularModule::SpecularModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+SpecularModule::SpecularModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
@@ -108,7 +114,7 @@ bool SpecularModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return true;
 }
 
-bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -123,7 +129,7 @@ bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (passGuiPtr)
 				{
-					change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext);
+                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 				}
 			}
 
@@ -134,17 +140,16 @@ bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 	return false;
 }
 
-void SpecularModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool SpecularModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+	if (m_LastExecutedFrame == vCurrentFrame) {
+    }
+    return false;
 }
 
-void SpecularModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool SpecularModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -152,6 +157,7 @@ void SpecularModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 	{
 
 	}
+    return false;
 }
 
 void SpecularModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
@@ -203,7 +209,7 @@ std::string SpecularModule::getXml(const std::string& vOffset, const std::string
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto pass_ptr = pass.getValidShared();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
@@ -236,7 +242,7 @@ bool SpecularModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto pass_ptr = pass.getValidShared();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			pass_ptr->setFromXml(vElem, vParent, vUserDatas);

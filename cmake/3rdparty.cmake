@@ -1,0 +1,21 @@
+if (CMAKE_SYSTEM_NAME STREQUAL Linux)
+  find_package(X11 REQUIRED)
+  if (NOT X11_Xi_FOUND)
+    message(FATAL_ERROR "X11 Xi library is required")
+  endif ()
+endif ()
+
+## contrib
+include(cmake/3rdparty/tinyxml2.cmake)
+include(cmake/3rdparty/efsw.cmake)
+include(cmake/3rdparty/rtmidi.cmake)
+include(cmake/3rdparty/glm.cmake)
+include(cmake/3rdparty/stb.cmake)
+include(cmake/3rdparty/lodepng.cmake)
+include(cmake/3rdparty/zlib.cmake)
+include(cmake/3rdparty/cpp_ipc.cmake)
+include(cmake/3rdparty/assimp.cmake)
+
+if (USE_VR)
+	include(cmake/3rdparty/openxr.cmake)
+endif()

@@ -16,46 +16,56 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureGroupInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class BreakTexturesGroupModule;
-class BreakTexturesGroupNode : 
-	public BaseNode,
-	public TextureGroupInputInterface<0U>,
-	public TextureOutputInterface
-{
+class BreakTexturesGroupNode : public BaseNode, public TextureGroupInputInterface<0U>, public TextureOutputInterface {
 private:
-	DescriptorImageInfoVector m_Textures;
+    DescriptorImageInfoVector m_Textures;
 
 public:
-	static std::shared_ptr<BreakTexturesGroupNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<BreakTexturesGroupNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 public:
-	BreakTexturesGroupNode();
-	~BreakTexturesGroupNode() override;
-	
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
-	void Unit() override;
-	
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	
-	void TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot) override;
-	
-	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) override;
-	
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    BreakTexturesGroupNode();
+    ~BreakTexturesGroupNode() override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	NodeSlotWeak AddPreDefinedOutput(const NodeSlot& vNodeSlot) override;
+    bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+    void Unit() override;
+
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame,
+        vk::CommandBuffer* vCmd = nullptr,
+        BaseNodeState* vBaseNodeState = nullptr) override;
+
+    bool DrawWidgets(const uint32_t& vCurrentFrame,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame,
+        const ImRect& vRect,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
+        const ImVec2& vMaxSize,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+
+    void TreatNotification(
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot) override;
+
+    void SetTextures(
+        const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) override;
+
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(
+        const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    NodeSlotWeak AddPreDefinedOutput(const NodeSlot& vNodeSlot) override;
 
 private:
-	void ReorganizeSlots();
+    void ReorganizeSlots();
 };

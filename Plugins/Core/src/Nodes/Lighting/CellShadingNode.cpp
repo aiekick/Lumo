@@ -16,12 +16,20 @@ limitations under the License.
 
 #include "CellShadingNode.h"
 #include <Modules/Lighting/CellShadingModule.h>
-#include <Interfaces/LightGroupOutputInterface.h>
-#include <Graph/Slots/NodeSlotLightGroupInput.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<CellShadingNode> CellShadingNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<CellShadingNode> CellShadingNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<CellShadingNode>();
 	res->m_This = res;
@@ -42,7 +50,7 @@ CellShadingNode::~CellShadingNode()
 	Unit();
 }
 
-bool CellShadingNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool CellShadingNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "CellShading";
 
@@ -78,26 +86,35 @@ bool CellShadingNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	return false;
 }
 
-bool CellShadingNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CellShadingNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_CellShadingModulePtr)
 	{
-		return m_CellShadingModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_CellShadingModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void CellShadingNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool CellShadingNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool CellShadingNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_CellShadingModulePtr)
 	{
-		m_CellShadingModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_CellShadingModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 void CellShadingNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

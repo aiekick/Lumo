@@ -16,10 +16,18 @@ limitations under the License.
 
 #include "SmoothNormalNode.h"
 #include <Modules/Modifiers/SmoothNormalModule.h>
-#include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
-std::shared_ptr<SmoothNormalNode> SmoothNormalNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<SmoothNormalNode> SmoothNormalNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<SmoothNormalNode>();
 	res->m_This = res;
@@ -40,7 +48,7 @@ SmoothNormalNode::~SmoothNormalNode()
 
 }
 
-bool SmoothNormalNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SmoothNormalNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Smooth Normal";
 
@@ -69,26 +77,35 @@ bool SmoothNormalNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 	return false;
 }
 
-bool SmoothNormalNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SmoothNormalNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SmoothNormalModulePtr)
 	{
-		return m_SmoothNormalModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_SmoothNormalModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void SmoothNormalNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool SmoothNormalNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool SmoothNormalNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_SmoothNormalModulePtr)
 	{
-		m_SmoothNormalModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_SmoothNormalModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 void SmoothNormalNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

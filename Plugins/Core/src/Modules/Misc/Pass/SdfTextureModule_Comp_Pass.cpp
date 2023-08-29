@@ -17,26 +17,34 @@ limitations under the License.
 #include "SdfTextureModule_Comp_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <cinttypes>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SdfTextureModule_Comp_Pass::SdfTextureModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+SdfTextureModule_Comp_Pass::SdfTextureModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : SdfTexture", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -75,7 +83,7 @@ void SdfTextureModule_Comp_Pass::ActionBeforeCompilation()
 	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "DisplaySDF");
 }
 
-bool SdfTextureModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SdfTextureModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -89,19 +97,21 @@ bool SdfTextureModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGu
 	return false;
 }
 
-void SdfTextureModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool SdfTextureModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 
 }
 
-void SdfTextureModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool SdfTextureModule_Comp_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 void SdfTextureModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
@@ -439,16 +449,16 @@ bool SdfTextureModule_Comp_Pass::CreateComputePipeline()
 			(uint32_t)push_constants.size(), push_constants.data()
 		));
 
-	auto cs_I = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_I = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["Init"][0].m_SPIRV);
 
-	auto cs_H = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_H = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassH"][0].m_SPIRV);
 	
-	auto cs_V = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_V = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassV"][0].m_SPIRV);
 
-	auto cs_S = vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+	auto cs_S = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DisplaySDF"][0].m_SPIRV);
 
 
@@ -491,10 +501,10 @@ bool SdfTextureModule_Comp_Pass::CreateComputePipeline()
 		.setStage(m_ShaderCreateInfos[3]).setLayout(m_Pipelines[3].m_PipelineLayout);
 	m_Pipelines[3].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_S).value;
 
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_I);
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_H);
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_V);
-	vkApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_S);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_I);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_H);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_V);
+	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_S);
 
 	return true;
 }

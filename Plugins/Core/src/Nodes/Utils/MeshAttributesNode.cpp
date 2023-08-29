@@ -16,12 +16,20 @@ limitations under the License.
 
 #include "MeshAttributesNode.h"
 #include <Modules/Utils/MeshAttributesModule.h>
-#include <Interfaces/ModelOutputInterface.h>
-#include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Interfaces/ModelOutputInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<MeshAttributesNode> MeshAttributesNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<MeshAttributesNode> MeshAttributesNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<MeshAttributesNode>();
 	res->m_This = res;
@@ -42,7 +50,7 @@ MeshAttributesNode::~MeshAttributesNode()
 	Unit();
 }
 
-bool MeshAttributesNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool MeshAttributesNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Mesh Attributes";
 
@@ -86,26 +94,36 @@ bool MeshAttributesNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 	return false;
 }
 
-bool MeshAttributesNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MeshAttributesNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_MeshAttributesModulePtr)
 	{
-		return m_MeshAttributesModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_MeshAttributesModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void MeshAttributesNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool MeshAttributesNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool MeshAttributesNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_MeshAttributesModulePtr)
 	{
-		m_MeshAttributesModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+        return m_MeshAttributesModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
 	}
+
+	return false;
 }
 
 void MeshAttributesNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

@@ -17,10 +17,18 @@ limitations under the License.
 #include "GridNode.h"
 
 #include <Modules/Misc/GridModule.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
-#include <Graph/Slots/NodeSlotShaderPassOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
-std::shared_ptr<GridNode> GridNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<GridNode> GridNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<GridNode>();
 	res->m_This = res;
@@ -41,7 +49,7 @@ GridNode::~GridNode()
 
 }
 
-bool GridNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool GridNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Grid / Axis";
 
@@ -71,22 +79,31 @@ bool GridNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 	return false;
 }
 
-bool GridNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool GridNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_GridModulePtr)
 	{
-		return m_GridModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_GridModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void GridNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool GridNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool GridNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
+    return false;
 }
 
 void GridNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

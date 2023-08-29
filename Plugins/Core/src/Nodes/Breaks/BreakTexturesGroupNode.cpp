@@ -15,211 +15,196 @@ limitations under the License.
 */
 
 #include "BreakTexturesGroupNode.h"
-#include <Interfaces/LightGroupOutputInterface.h>
-#include <Interfaces/TextureGroupOutputInterface.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
-#include <Graph/Slots/NodeSlotTextureGroupInput.h>
+#include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
+#include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>
 
 /*
 // tofix : the select of output crash Lumo...
 */
 
-std::shared_ptr<BreakTexturesGroupNode> BreakTexturesGroupNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
-{
-	auto res = std::make_shared<BreakTexturesGroupNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
-	{
-		res.reset();
-	}
-	return res;
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<BreakTexturesGroupNode> BreakTexturesGroupNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    auto res = std::make_shared<BreakTexturesGroupNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCorePtr)) {
+        res.reset();
+    }
+    return res;
 }
 
-BreakTexturesGroupNode::BreakTexturesGroupNode() : BaseNode()
-{
-	m_NodeTypeString = "BREAK_TEXTURE_2D_GROUP";
+BreakTexturesGroupNode::BreakTexturesGroupNode() : BaseNode() {
+    m_NodeTypeString = "BREAK_TEXTURE_2D_GROUP";
 
-	// variable slot count only for inputs
-	// important for xml loading
-	m_OutputSlotsInternalMode = NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_DYNAMIC;
+    // variable slot count only for inputs
+    // important for xml loading
+    m_OutputSlotsInternalMode = NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_DYNAMIC;
 }
 
-BreakTexturesGroupNode::~BreakTexturesGroupNode()
-{
-	Unit();
+BreakTexturesGroupNode::~BreakTexturesGroupNode() { Unit(); }
+
+bool BreakTexturesGroupNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    name = "Break Tex2D Group";
+
+    AddInput(NodeSlotTextureGroupInput::Create("Textures"), true, false);
+
+    return true;
 }
 
-bool BreakTexturesGroupNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
-{
-	name = "Break Tex2D Group";
+void BreakTexturesGroupNode::Unit() {}
 
-	AddInput(NodeSlotTextureGroupInput::Create("Textures"), true, false);
+bool BreakTexturesGroupNode::ExecuteAllTime(
+    const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-	return true;
+    // for update input texture buffer infos => avoid vk crash
+    UpdateTextureGroupInputDescriptorImageInfos(m_Inputs);
+
+    return true;
 }
 
-void BreakTexturesGroupNode::Unit()
-{
+bool BreakTexturesGroupNode::DrawWidgets(
+    const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
 
+    return false;
 }
 
-bool BreakTexturesGroupNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+bool BreakTexturesGroupNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
 
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureGroupInputDescriptorImageInfos(m_Inputs);
-
-	return true;
+    return false;
 }
 
-bool BreakTexturesGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-
-	return false;
+bool BreakTexturesGroupNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
-void BreakTexturesGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-}
-
-void BreakTexturesGroupNode::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot)
-{
-	if (vEvent == GraphIsLoaded || 
-		vEvent == TextureGroupUpdateDone)
-	{
-		ReorganizeSlots();
-	}
+void BreakTexturesGroupNode::TreatNotification(
+    const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot) {
+    if (vEvent == GraphIsLoaded || vEvent == TextureGroupUpdateDone) {
+        ReorganizeSlots();
+    }
 }
 
 void BreakTexturesGroupNode::SetTextures(
-	const uint32_t& vBindingPoint, 
-	DescriptorImageInfoVector* vImageInfos, 
-	fvec2Vector* vOutSizes)
-{
-	m_Textures.clear();
+    const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) {
+    m_Textures.clear();
 
-	if (vImageInfos)
-	{
-		for (auto& info : *vImageInfos)
-		{
-			m_Textures.push_back(info);
-		}
-	}
+    if (vImageInfos) {
+        for (auto& info : *vImageInfos) {
+            m_Textures.push_back(info);
+        }
+    }
 
-	ReorganizeSlots();
+    ReorganizeSlots();
 }
 
-vk::DescriptorImageInfo* BreakTexturesGroupNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (vBindingPoint < (uint32_t)m_Textures.size())
-	{
-		return &m_Textures[vBindingPoint];
-	}
+vk::DescriptorImageInfo* BreakTexturesGroupNode::GetDescriptorImageInfo(
+    const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (vBindingPoint < (uint32_t)m_Textures.size()) {
+        return &m_Textures[vBindingPoint];
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string BreakTexturesGroupNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string res;
+std::string BreakTexturesGroupNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(),
+                             m_NodeTypeString.c_str(), ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool BreakTexturesGroupNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool BreakTexturesGroupNode::setFromXml(
+    tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	return true;
+    return true;
 }
 
-NodeSlotWeak BreakTexturesGroupNode::AddPreDefinedOutput(const NodeSlot& vNodeSlot)
-{
-	// tofix : to test xml loading (normally ok like for SceneMergerNode)
-	CTOOL_DEBUG_BREAK;
+NodeSlotWeak BreakTexturesGroupNode::AddPreDefinedOutput(const NodeSlot& vNodeSlot) {
+    // tofix : to test xml loading (normally ok like for SceneMergerNode)
+    CTOOL_DEBUG_BREAK;
 
-	if (vNodeSlot.slotType == "TEXTURE_2D")
-	{
-		auto slot_ptr = NodeSlotTextureOutput::Create(ct::toStr("Output %u", vNodeSlot.index), vNodeSlot.index);
-		if (slot_ptr)
-		{
-			slot_ptr->parentNode = m_This;
-			slot_ptr->slotPlace = NodeSlot::PlaceEnum::OUTPUT;
-			slot_ptr->hideName = true;
-			slot_ptr->type = uType::uTypeEnum::U_FLOW;
-			slot_ptr->index = vNodeSlot.index;
-			slot_ptr->pinID = vNodeSlot.pinID;
-			const auto& slotID = vNodeSlot.GetSlotID();
+    if (vNodeSlot.slotType == "TEXTURE_2D") {
+        auto slot_ptr = NodeSlotTextureOutput::Create(ct::toStr("Output %u", vNodeSlot.index), vNodeSlot.index);
+        if (slot_ptr) {
+            slot_ptr->parentNode = m_This;
+            slot_ptr->slotPlace = NodeSlot::PlaceEnum::OUTPUT;
+            slot_ptr->hideName = true;
+            slot_ptr->type = uType::uTypeEnum::U_FLOW;
+            slot_ptr->index = vNodeSlot.index;
+            slot_ptr->pinID = vNodeSlot.pinID;
+            const auto& slotID = vNodeSlot.GetSlotID();
 
-			// pour eviter que des slots aient le meme id qu'un nodePtr
-			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, slotID) + 1U;
+            // pour eviter que des slots aient le meme id qu'un nodePtr
+            BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, slotID) + 1U;
 
-			m_Outputs[slotID] = slot_ptr;
-			return m_Outputs.at(slotID);
-		}
-	}
-	else
-	{
-		CTOOL_DEBUG_BREAK;
-		LogVarError("node slot is of type %s.. must be of type TEXTURE_2D", vNodeSlot.slotType.c_str());
-	}
+            m_Outputs[slotID] = slot_ptr;
+            return m_Outputs.at(slotID);
+        }
+    } else {
+        CTOOL_DEBUG_BREAK;
+        LogVarError("node slot is of type %s.. must be of type TEXTURE_2D", vNodeSlot.slotType.c_str());
+    }
 
-	return NodeSlotWeak();
+    return NodeSlotWeak();
 }
 
-void BreakTexturesGroupNode::ReorganizeSlots()
-{
-	if (m_Textures.size() != m_Outputs.size())
-	{
-		m_Outputs.clear();
+void BreakTexturesGroupNode::ReorganizeSlots() {
+    if (m_Textures.size() != m_Outputs.size()) {
+        m_Outputs.clear();
 
-		for (uint32_t idx = 0U; idx < (uint32_t)m_Textures.size(); ++idx)
-		{
-			AddOutput(NodeSlotTextureOutput::Create(ct::toStr("Output %u", idx), idx), true, true);
-		}
-	}
+        for (uint32_t idx = 0U; idx < (uint32_t)m_Textures.size(); ++idx) {
+            AddOutput(NodeSlotTextureOutput::Create(ct::toStr("Output %u", idx), idx), true, true);
+        }
+    }
 }

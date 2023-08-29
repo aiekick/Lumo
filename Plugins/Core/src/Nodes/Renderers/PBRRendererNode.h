@@ -16,17 +16,17 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Graph.h>
+#include <LumoBackend/Graph/Graph.h>
 
 #include <ctools/cTools.h>
 
-#include <Graph/Base/BaseNode.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
-#include <Interfaces/TextureGroupInputInterface.h>
-#include <Interfaces/LightGroupInputInterface.h>
-#include <Interfaces/ShaderPassOutputInterface.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
+#include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
+#include <LumoBackend/Interfaces/LightGroupInputInterface.h>
+#include <LumoBackend/Interfaces/ShaderPassOutputInterface.h>
 
 class PBRRenderer;
 class PBRRendererNode : 
@@ -39,7 +39,7 @@ class PBRRendererNode :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<PBRRendererNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<PBRRendererNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<PBRRenderer> m_PBRRendererPtr = nullptr;
@@ -47,12 +47,21 @@ private:
 public:
 	PBRRendererNode();
 	~PBRRendererNode() override;
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
-	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame,
+        const ImRect& vRect,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
+        const ImVec2& vMaxSize,
+        ImGuiContext* vContextPtr = nullptr,
+        const std::string& vUserDatas = {}) override;
+    void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;

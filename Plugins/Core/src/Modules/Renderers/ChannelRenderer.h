@@ -19,47 +19,47 @@ limitations under the License.
 #include <array>
 #include <memory>
 #include <ctools/ConfigAbstract.h>
-#include <Base/TaskRenderer.h>
-#include <Base/ShaderPass.h>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanDevice.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/CameraInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ResizerInterface.h>
-#include <Interfaces/MergedInterface.h>
-#include <Interfaces/ShaderPassOutputInterface.h>
+#include <LumoBackend/Base/TaskRenderer.h>
+#include <LumoBackend/Base/ShaderPass.h>
+#include <Gaia/Resources/Texture2D.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <LumoBackend/Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/TaskInterface.h>
+#include <LumoBackend/Interfaces/CameraInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/ResizerInterface.h>
+#include <LumoBackend/Interfaces/MergedInterface.h>
+#include <LumoBackend/Interfaces/ShaderPassOutputInterface.h>
 
 class ChannelRenderer_Mesh_Pass;
 class ChannelRenderer :
 	public TaskRenderer,
 	public NodeInterface,
-	public GuiInterface,
+	
 	public ModelInputInterface,
 	public TextureOutputInterface,
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<ChannelRenderer> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ChannelRenderer> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<ChannelRenderer_Mesh_Pass> m_ChannelRenderer_Mesh_Pass_Ptr = nullptr;
 	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
-	ChannelRenderer(vkApi::VulkanCorePtr vVulkanCorePtr);
+	ChannelRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~ChannelRenderer() override;
 
 	bool Init();
 
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;

@@ -20,6 +20,7 @@ limitations under the License.
 #include <memory>
 
 #include <ctools/cTools.h>
+#include <ImGuiPack.h>
 
 #ifdef WIN32
 #include <IDLLoader/Windows/DLLoader.h>
@@ -27,10 +28,10 @@ limitations under the License.
 #include <IDLLoader/Unix/DLLoader.h>
 #endif
 
-#include <Interfaces/PluginInterface.h>
+#include <LumoBackend/Interfaces/PluginInterface.h>
 
 class PluginInstance;
-typedef ct::cWeak<PluginInstance> PluginInstanceWeak;
+typedef std::weak_ptr<PluginInstance> PluginInstanceWeak;
 typedef std::shared_ptr<PluginInstance> PluginInstancePtr;
 
 class PluginInstance
@@ -44,7 +45,7 @@ public:
 	PluginInstance();
 	~PluginInstance();
 
-	bool Init(vkApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName);
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName);
 	void Unit();
 
 	PluginInterfaceWeak Get();
@@ -60,7 +61,7 @@ private:
 #endif // USE_PLUGIN_STATIC_LINKING
 
 public:
-	void LoadPlugins(vkApi::VulkanCoreWeak vVulkanCorePtr);
+	void LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCorePtr);
 	std::vector<LibraryEntry> GetLibraryEntrys();
 	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName);
 	std::vector<PluginPane> GetPluginsPanes();
@@ -74,7 +75,7 @@ private:
 	void AddPlugin(
 		const std::string& vPluginName,
 		PluginInterfacePtr vPluginPtr,
-		vkApi::VulkanCoreWeak vVulkanCoreWeak);
+		GaiApi::VulkanCoreWeak vVulkanCoreWeak);
 #endif
 
 public:

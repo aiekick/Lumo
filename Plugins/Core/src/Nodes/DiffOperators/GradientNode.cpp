@@ -19,14 +19,22 @@ limitations under the License.
 
 #include "GradientNode.h"
 #include <Modules/DiffOperators/GradientModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<GradientNode> GradientNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<GradientNode> GradientNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +66,7 @@ GradientNode::~GradientNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GradientNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool GradientNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -103,7 +111,7 @@ bool GradientNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GradientNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool GradientNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -114,14 +122,22 @@ bool GradientNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 
 	if (m_GradientModulePtr)
 	{
-		res = m_GradientModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_GradientModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void GradientNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool GradientNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool GradientNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -129,8 +145,9 @@ void GradientNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 
 	if (m_GradientModulePtr)
 	{
-		m_GradientModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_GradientModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

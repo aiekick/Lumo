@@ -21,25 +21,33 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelRendererModule_Mesh_Pass::ModelRendererModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+ModelRendererModule_Mesh_Pass::ModelRendererModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: MeshShaderPass<VertexStruct::P3_N3_TA3_BTA3_T2_C4>(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	ZoneScoped;
@@ -71,7 +79,7 @@ void ModelRendererModule_Mesh_Pass::ActionBeforeInit()
 	m_LineWidth.w; // value to change
 }
 
-bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -106,7 +114,7 @@ bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 		change |= ImGui::CheckBoxIntDefault("Show Shaded Wireframe", &m_UBO_Frag.u_show_shaded_wireframe, 0);
 	}
 
-	auto modelPtr = m_SceneModel.getValidShared();
+	auto modelPtr = m_SceneModel.lock();
 	if (modelPtr && !modelPtr->empty())
 	{
 		auto meshPtr = modelPtr->at(0).lock();
@@ -128,20 +136,20 @@ bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 	return change;
 }
 
-void ModelRendererModule_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
-	ZoneScoped;
-
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+bool ModelRendererModule_Mesh_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
-void ModelRendererModule_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	ZoneScoped;
-
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+bool ModelRendererModule_Mesh_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +162,7 @@ void ModelRendererModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
 
 	m_SceneModel = vSceneModel;
 
-	auto modelPtr = m_SceneModel.getValidShared();
+	auto modelPtr = m_SceneModel.lock();
 	if (modelPtr && !modelPtr->empty())
 	{
 		auto meshPtr = modelPtr->at(0).lock();
@@ -182,7 +190,7 @@ vk::DescriptorImageInfo* ModelRendererModule_Mesh_Pass::GetDescriptorImageInfo(c
 
 	if (m_FrameBufferPtr)
 	{
-		AutoResizeBuffer(m_FrameBufferPtr.get(), vOutSize);
+		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
@@ -207,12 +215,12 @@ void ModelRendererModule_Mesh_Pass::DrawModel(vk::CommandBuffer * vCmdBuffer, co
 
 	if (vCmdBuffer)
 	{
-		auto modelPtr = m_SceneModel.getValidShared();
+		auto modelPtr = m_SceneModel.lock();
 		if (!modelPtr || modelPtr->empty()) return;
 
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 		{
-			VKFPScoped(*vCmdBuffer, "Model Renderer", "DrawModel");
+			//VKFPScoped(*vCmdBuffer, "Model Renderer", "DrawModel");
 
 			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, 
 				m_Pipelines[0].m_PipelineLayout, 0, 

@@ -19,13 +19,21 @@ limitations under the License.
 
 #include "AlienRockNode.h"
 #include <Modules/Tesselation/AlienRockModule.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<AlienRockNode> AlienRockNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<AlienRockNode> AlienRockNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -57,7 +65,7 @@ AlienRockNode::~AlienRockNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AlienRockNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool AlienRockNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -100,7 +108,7 @@ bool AlienRockNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AlienRockNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool AlienRockNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -111,13 +119,20 @@ bool AlienRockNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 
 	if (m_AlienRockModulePtr)
 	{
-		res = m_AlienRockModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_AlienRockModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void AlienRockNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool AlienRockNode::DrawOverlays(const uint32_t& vCurrentFrame,
+	const ImRect& vRect,
+	ImGuiContext* vContextPtr,
+	const std::string& vUserDatas) {
+    return false;
+}
+
+bool AlienRockNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -126,8 +141,9 @@ void AlienRockNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const
 
 	if (m_AlienRockModulePtr)
 	{
-		m_AlienRockModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+        return m_AlienRockModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
 	}
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

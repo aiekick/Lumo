@@ -1,16 +1,40 @@
 cmake_minimum_required(VERSION 3.1)
 
 set(PROJECT Lumo)
+set(PROJECT_VER 0.1.0)
 
 enable_language(C CXX)
 
-project(${PROJECT} CXX)
-
-option(USE_PLUGINS "Enable the plugins building" ON)
+option(USE_SHARED_LIBS "Use Shared libs" ON)
+option(USE_PLUGINS "Enable the plugins building" OFF)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
-option(USE_LUMO_TEST "Enable Tests" OFF)
+option(USE_TRACY_PROFILER "Enable Tracy Profiler" OFF)
+option(USE_TESTING_LUMO "Enable Tests" OFF)
+option(USE_CONSOLE_APP "Enable Console" OFF)
 
-add_definitions(-DVMA_VULKAN_VERSION=1002000)
+project(
+	${PROJECT} 
+	VERSION ${PROJECT_VER} 
+	LANGUAGES CXX
+)
+
+## for group smake targets in the dir cmakeTargets
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmakeTargets")
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+## some defines for debug mode (before 3rdparty.cmake)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+
+## some defines for debug mode (before 3rdparty.cmake)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+
+set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
+set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
+set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 
 if (USE_PLUGINS)
 	option(USE_PLUGIN_STATIC_LINKING "Enable the static linking of plugins for easier dev" ON)
@@ -21,7 +45,7 @@ if (USE_PLUGINS)
 	option(USE_PLUGIN_MESH_SSS "Enable the plugin MeshSSS" OFF)
 	option(USE_PLUGIN_PLANET_SYSTEM "Enable the plugin Planet System" OFF)
 	option(USE_PLUGIN_SDF_MESHER "Enable the plugin SdfMesher" OFF)
-	option(USE_PLUGIN_SO_GLSL "Enable the plugin SoGLSL" OFF)
+	option(USE_PLUGIN_SO_GLSL "Enable the plugin Common" OFF)
 	option(USE_PLUGIN_MORPHOGENESIS "Enable the plugin MorphoGenesis" OFF)
 	option(USE_PLUGIN_RTX "Enable the plugin RTX" OFF)
 	option(USE_PLUGIN_PARTICLES "Enable the plugin Particles" OFF)
@@ -71,10 +95,38 @@ if (USE_RTX)
 	add_definitions(-DUSE_RTX)
 endif()
 
+add_definitions(-DUSE_GLFW3)
+add_definitions(-DUSE_STD_FILESYSTEM)
+add_definitions(-DIMGUI_ENABLE_FREETYPE)
+add_definitions(-DPROJECT_NAME="${PROJECT}")
+add_definitions(-DVMA_VULKAN_VERSION=1002000)
+add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
+add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
+add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
+add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomLumoBackendConfig.h")
+add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
+add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
+add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
-set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
+set(USE_XML_CONFIG ON CACHE BOOL "" FORCE) # used by ImGuiPack by ex
+if (USE_XML_CONFIG)
+	add_definitions(-DUSE_XML_CONFIG)
+endif()
+
+if (USE_TRACY_PROFILER)
+	add_definitions(-DPROFILER_INCLUDE="${CMAKE_SOURCE_DIR}/3rdparty/tracy/public/tracy/TracyVulkan.hpp")
+	add_definitions(-DTRACY_ON_DEMAND)
+	add_definitions(-DTRACY_ENABLE)
+	set(TRACY_LIBRARIES TracyClient)
+endif ()
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(LLVM_USE_CRT_DEBUG MTd CACHE STRING "" FORCE)
+set(LLVM_USE_CRT_MINSIZEREL MT CACHE STRING "" FORCE)
+set(LLVM_USE_CRT_RELEASE MT CACHE STRING "" FORCE)
+set(LLVM_USE_CRT_RELWITHDEBINFO MT CACHE STRING "" FORCE)
+set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF CACHE BOOL "")
 
 if ("${CMAKE_EXE_LINKER_FLAGS}" STREQUAL "/machine:x64")
 	set(ARCH x64)
@@ -82,38 +134,16 @@ else()
 	set(ARCH x32)
 endif()
 
-include_directories(
-	${CMAKE_SOURCE_DIR}/libs
-	${CMAKE_SOURCE_DIR}/3rdparty
-)
-
-find_package(Vulkan REQUIRED)
-add_definitions(-DVULKAN_HPP_STORAGE_SHARED)
-
-add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/3rdparty/imgui/imgui.h")
-
-include(cmake/3rdparty/3rdparty.cmake)
-include(cmake/libs/libs.cmake)
+include(cmake/3rdparty.cmake)
+include(cmake/libs.cmake)
 if (USE_PLUGINS)
 	if(USE_PLUGIN_STATIC_LINKING)
 		set(PROJECT_PLUGINS)
 	endif()
-	include(cmake/plugins/plugins.cmake)
+	include(cmake/plugins.cmake)
 endif()
 
 set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
-
-## other define
-add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
-add_definitions(-DGLM_FORCE_LEFT_HANDED)
-add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
-add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
-add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
-add_definitions(-DIMGUI_ENABLE_FREETYPE)
-add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DPROJECT_NAME="${PROJECT}")
-add_definitions(-DUSE_STD_FILESYSTEM)
-add_definitions(-DUSE_VULKAN)
 
 if(UNIX)
     add_definitions(-DUNIX)
@@ -122,11 +152,13 @@ elseif(WIN32)
 endif()
 
 if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /IGNORE:4055 /std:c++17")
     add_definitions(-D_USE_MATH_DEFINES)
     add_definitions(-DMSVC)
+    add_definitions(-DGLFW_EXPOSE_NATIVE_WIN32)
 	add_definitions(-DNOMINMAX) ## for avoid issue regarding std::max and std::min
 else ()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wdeprecated-declarations -Wunused-parameter")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++17 -Wunused-parameter")
 endif ()
 
 if(NOT CMAKE_DEBUG_POSTFIX)
@@ -136,65 +168,73 @@ endif()
 file(GLOB PROJECT_MAIN ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp)
 source_group(main FILES ${PROJECT_MAIN})
 
-file(GLOB_RECURSE PROJECT_SRC_RECURSE 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/*.c 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/*.h 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp 
+file(GLOB_RECURSE PROJECT_CMAKE_FILES
+		${CMAKE_CURRENT_SOURCE_DIR}/cmake/*.cmake)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${PROJECT_CMAKE_FILES})
+
+file(GLOB_RECURSE PROJECT_DOC_FILES
+		${CMAKE_CURRENT_SOURCE_DIR}/doc/*.*)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/doc PREFIX doc FILES ${PROJECT_DOC_FILES})
+
+file(GLOB_RECURSE PROJECT_SRC_FILES 
+	${CMAKE_CURRENT_SOURCE_DIR}/src/*.c
+	${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX src FILES ${PROJECT_SRC_RECURSE})
-
-file(GLOB IMGUIIMPL_SOURCES 
-		${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui/backends/imgui_impl_glfw.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/imgui/backends/imgui_impl_glfw.h)
-source_group(src\\ImGui_Impl FILES ${IMGUIIMPL_SOURCES})
-
-file(GLOB SHADER_SOURCES 
-		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.vert
-		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.frag
-		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.geom
-		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.tesseval
-		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.tessctrl
-		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.comp)
-source_group(Shaders FILES ${SHADER_SOURCES})
-
-file(GLOB_RECURSE PROJECT_SHADERS_RECURSE 
-	${CMAKE_CURRENT_SOURCE_DIR}/Builtins/*.glsl 
-	${CMAKE_CURRENT_SOURCE_DIR}/Builtins/*.scen 
-	${CMAKE_CURRENT_SOURCE_DIR}/Builtins/*.comp)
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX Shaders FILES ${PROJECT_SHADERS_RECURSE})
-
-file(GLOB_RECURSE CMAKE_RECURSE 
-	${CMAKE_CURRENT_SOURCE_DIR}/cmake/*.cmake)
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${CMAKE_RECURSE})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX src FILES ${PROJECT_SRC_FILES})
 
 file(GLOB README_MD 
 	${CMAKE_CURRENT_SOURCE_DIR}/*.md)
 source_group(help FILES ${README_MD})
 
-if (MSVC)
-	set(ICON res/MSVCInfo.rc)
-elseif (APPLE)
-	set(ICON MACOSX_BUNDLE res/icon.icns)
-	set_source_files_properties(res/icon.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-endif()
-
 add_executable(${PROJECT}
 	${ICON}
 	${README_MD}
 	${PROJECT_MAIN}
-	${CMAKE_RECURSE}
-	${SHADER_SOURCES}
-	${IMGUIIMPL_SOURCES}
-	${PROJECT_SRC_RECURSE}
-	${IMGUI_FREETYPE_SOURCES}
-	${PROJECT_SHADERS_RECURSE}
+	${PROJECT_DOC_FILES}
+	${PROJECT_SRC_FILES}
+	${PROJECT_CMAKE_FILES}
 )
 
-target_compile_definitions(${PROJECT} PUBLIC -DPROJECT_NAME=${PROJECT})
-target_compile_definitions(${PROJECT} PUBLIC -DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Gui/CustomImGuiFileDialogConfig.h")
-target_compile_definitions(${IMGUIFILEDIALOG_LIBRARIES} PUBLIC -DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Gui/CustomImGuiFileDialogConfig.h")
+if (USE_PLUGINS)
+	if(NOT USE_PLUGIN_STATIC_LINKING)
+		include(cmake/plugins_building.cmake)
+	endif()
+endif()
 
-set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Z_Apps)
+if(USE_CONSOLE_APP)
+	if (MSVC)
+		target_link_options(${PROJECT} PRIVATE "/SUBSYSTEM:WINDOWS")
+		target_link_options(${PROJECT} PRIVATE "/ENTRY:mainCRTStartup")
+	endif()
+endif()
+
+target_compile_definitions(${PROJECT} PUBLIC -DPROJECT_NAME=${PROJECT})
+target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
+
+target_include_directories(${PROJECT} PRIVATE
+	${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/src
+	${CMAKE_SOURCE_DIR}/3rdparty
+	${COMMON_INCLUDE_DIRS}
+	${Vulkan_INCLUDE_DIRS}
+	${TINYXML2_INCLUDE_DIR}
+)
+
+target_link_libraries(${PROJECT}
+	${PROJECT_PLUGINS}
+	${COMMON_LIBRARIES}
+	${TINYXML2_LIBRARIES}
+)
+
+if ("${CMAKE_EXE_LINKER_FLAGS}" STREQUAL "/machine:x64")
+	set(ARCH x64)
+else()
+	set(ARCH x32)
+endif()
 
 set(${PROJECT}_Output_Name "${PROJECT}_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${${PROJECT}_Output_Name}")
@@ -202,43 +242,34 @@ set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BI
 set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 
-message("BACKEND_INCLUDE_DIRS : ${Vulkan_INCLUDE_DIRS}")
-message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
+if (USE_TESTING_LUMO)
+	if(USE_SHARED_LIBS)
+		set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+	endif()
+	enable_testing()
+	add_definitions(-DTEST_ENABLED)
+	#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+endif()
 
-include_directories(
-	${CTOOLS_INCLUDE_DIR}
-)
+if (USE_TRACY_PROFILER)
+	if(USE_SHARED_LIBS)
+		set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+	endif()
+	remove_definitions(-DTRACY_ENABLE)
+	add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/tracy)
 
-target_include_directories(${PROJECT} PRIVATE
-	src
-	${CMAKE_SOURCE_DIR}/libs/Common/src
-	${CMAKE_SOURCE_DIR}/3rdparty
-	${CMAKE_SOURCE_DIR}/3rdparty/glm
-	${CMAKE_SOURCE_DIR}/3rdparty/glslang
-	${CMAKE_SOURCE_DIR}/3rdparty/assimp/include
-	${EFSW_INCLUDE_DIR}
-	${GLFW_INCLUDE_DIR}
-	${PLOG_INCLUDE_DIR}
-	${IMGUI_INCLUDE_DIR}
-	${ASSIMP_INCLUDE_DIR}
-	${OPENGL_INCLUDE_DIR}
-	${CPPIPC_INCLUDE_DIR}
-	${LFWATCH_INCLUDE_DIR}
-	${Vulkan_INCLUDE_DIRS}
-	${TINYXML2_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIR}
-	${IMGUIZMO_INCLUDE_DIR}
-	${IMGUIFILEDIALOG_INCLUDE_DIR}
-	${IMGUI_NODE_EDITOR_INCLUDE_DIR}
-	${COMMON_INCLUDE_DIR}
-	${OPENXR_INCLUDE_DIRS}
-)
+	if(USE_SHARED_LIBS)
+		set_target_properties(TracyClient PROPERTIES FOLDER 3rdparty/Shared/tracy)
+		set_target_properties(capstone PROPERTIES FOLDER 3rdparty/Shared/tracy)
+	else()
+		set_target_properties(TracyClient PROPERTIES FOLDER 3rdparty/Static/tracy)
+		set_target_properties(capstone PROPERTIES FOLDER 3rdparty/Static/tracy)
+	endif()
 
-target_link_libraries(${PROJECT} 
-	${COMMON_LIBRARIES} 
-	${PROJECT_PLUGINS} 
-	${OPENXR_LIBRARIES}
-)
+	set_target_properties(TracyClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+	set_target_properties(TracyClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
+	set_target_properties(TracyClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
+endif()
 
 ########################################################
 ################# BUILD INCREMENT TOOL #################
@@ -246,11 +277,11 @@ target_link_libraries(${PROJECT}
 
 ## only for Debug
 add_subdirectory(3rdparty/BuildInc)
-set_target_properties(BuildInc PROPERTIES FOLDER Lumo_Libs/Tools)
+set_target_properties(BuildInc PROPERTIES FOLDER Libs/Tools)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=${PROJECT} 1000:10 $<$<CONFIG:Debug>:${CMAKE_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
+	COMMAND BuildInc -prefix=${PROJECT} 1000000:10 $<$<CONFIG:Debug>:${CMAKE_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
 	DEPENDS ${PROJECT}
 )
 

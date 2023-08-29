@@ -16,10 +16,18 @@ limitations under the License.
 
 #include "ToneMapNode.h"
 #include <Modules/PostPro/ToneMapModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<ToneMapNode> ToneMapNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<ToneMapNode> ToneMapNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ToneMapNode>();
 	res->m_This = res;
@@ -40,7 +48,7 @@ ToneMapNode::~ToneMapNode()
 	Unit();
 }
 
-bool ToneMapNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ToneMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Tone Map";
 
@@ -74,26 +82,35 @@ bool ToneMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 	return false;
 }
 
-bool ToneMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ToneMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ToneMapModulePtr)
 	{
-		return m_ToneMapModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_ToneMapModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void ToneMapNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool ToneMapNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool ToneMapNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_ToneMapModulePtr)
 	{
-		m_ToneMapModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_ToneMapModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 void ToneMapNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

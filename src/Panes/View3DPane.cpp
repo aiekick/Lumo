@@ -19,26 +19,25 @@ limitations under the License.
 
 #include "View3DPane.h"
 
-#include <Panes/Manager/LayoutManager.h>
-#include <ImWidgets/ImWidgets.h>
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
-#include <gaia/VulkanImGuiRenderer.h>
-#include <Project/ProjectFile.h>
-#include <imgui/imgui_internal.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Graph/Base/BaseNode.h>
-#include <Graph/Base/NodeSlot.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <Graph/Manager/NodeManager.h>
-#include <Systems/CommonSystem.h>
-#include <ImGuizmo/ImGuizmo.h>
-#include <ctools/cTools.h>
+#include <Project/ProjectFile.h>
 #include <ctools/FileHelper.h>
+#include <ctools/cTools.h>
+#include <ImWidgets.h>
+#include <ImGuizmo.h>
+
 #include <cinttypes> // printf zu
 
-#define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
-
-static int SourcePane_WidgetId = 0;
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// CONSTRUCTORS /////////////////////////////////////////////////////////////////
@@ -72,20 +71,20 @@ void View3DPane::Unit()
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown)
+bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	SourcePane_WidgetId = vWidgetId;
+	bool change = false;
 
-	if (vInOutPaneShown & m_PaneFlag)
+	if (vInOutPaneShown & paneFlag)
 	{
 		static ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus |
 			ImGuiWindowFlags_MenuBar;
-		if (ImGui::Begin<PaneFlags>(m_PaneName,
-			&vInOutPaneShown , m_PaneFlag, flags))
+		if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+			&vInOutPaneShown , paneFlag, flags))
 		{
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 			auto win = ImGui::GetCurrentWindowRead();
@@ -100,7 +99,7 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 			{
 				SetOrUpdateOutput(m_TextureOutputSlot);
 
-				auto slotPtr = m_TextureOutputSlot.getValidShared();
+				auto slotPtr = m_TextureOutputSlot.lock();
 				if (slotPtr)
 				{
 					if (ImGui::BeginMenuBar())
@@ -136,7 +135,7 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 						ImVec2 org = ImGui::GetCursorScreenPos() + pos;
 						ImGui::ImageRect((ImTextureID)&m_ImGuiTexture.descriptor, pos, siz);
 
-						NodeManager::Instance()->DrawOverlays(vCurrentFrame, ct::frect(org, siz), ImGui::GetCurrentContext());
+						change |= NodeManager::Instance()->DrawOverlays(vCurrentFrame, ImRect(org, siz), ImGui::GetCurrentContext(), vUserDatas);
 
 						if (ImGui::IsWindowHovered())
 						{
@@ -145,7 +144,7 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 								if (m_CanWeTuneMouse && CanUpdateMouse(true, 0))
 								{
 									ct::fvec2 norPos = (ImGui::GetMousePos() - org) / siz;
-									CommonSystem::Instance()->SetMousePos(norPos, m_PaneSize, GImGui->IO.MouseDown);
+									CommonSystem::Instance()->SetMousePos(norPos, m_PaneSize, ImGui::GetCurrentContext()->IO.MouseDown);
 								}
 
 								UpdateCamera(org, siz);
@@ -154,7 +153,8 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 
 						if (CommonSystem::Instance()->UpdateIfNeeded(ct::uvec2((uint32_t)siz.x, (uint32_t)siz.y)))
 						{
-							CommonSystem::Instance()->SetScreenSize(ct::uvec2((uint32_t)siz.x, (uint32_t)siz.y));
+							CommonSystem::Instance()->SetScreenSize(ct::uvec2((uint32_t)siz.x, (uint32_t)siz.y)); 
+							change = true;
 						}
 					}
 
@@ -166,16 +166,16 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 						if (m_PaneSize.x != contentSize.x ||
 							m_PaneSize.y != contentSize.y)
 						{
-							auto parentNodePtr = slotPtr->parentNode.getValidShared();
+							auto parentNodePtr = slotPtr->parentNode.lock();
 							if (parentNodePtr)
 							{
 								parentNodePtr->NeedResizeByResizeEvent(&contentSize, nullptr);
 								CommonSystem::Instance()->SetScreenSize(ct::uvec2(contentSize.x, contentSize.y));
 								CommonSystem::Instance()->NeedCamChange();
+								change = true;
 							}
 
 							m_PaneSize = contentSize;
-
 						}
 					}
 				}
@@ -185,41 +185,32 @@ int View3DPane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::str
 		ImGui::End();
 	}
 
-	return SourcePane_WidgetId;
+	return change;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// DIALOGS //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-void View3DPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas)
+bool View3DPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	/*
-	if (ProjectFile::Instance()->IsLoaded())
-	{
-		ImVec2 maxSize = MainFrame::Instance()->m_DisplaySize;
-		ImVec2 minSize = maxSize * 0.5f;
-		if (ImGuiFileDialog::Instance()->Display("OpenShaderCode",
-			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking,
-			minSize, maxSize))
-		{
-			if (ImGuiFileDialog::Instance()->IsOk())
-			{
-				std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-				auto code = FileHelper::Instance()->LoadFileToString(filePathName);
-				SetCode(code);
-			}
-			ImGuiFileDialog::Instance()->Close();
-		}
-	}
-	*/
+	return false;
 }
 
-int View3DPane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
+bool View3DPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	return vWidgetId;
+	return false;
+}
+
+bool View3DPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	ZoneScoped;
+	UNUSED(vCurrentFrame);
+	UNUSED(vRect);
+	ImGui::SetCurrentContext(vContextPtr);
+	UNUSED(vUserDatas);
+	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -232,10 +223,10 @@ ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot)
 
 	ct::fvec2 outSize = ct::fvec2((float)m_PaneSize.x, (float)m_PaneSize.y);
 
-	auto slotPtr = vTextureOutputSlot.getValidShared();
+	auto slotPtr = vTextureOutputSlot.lock();
 	if (slotPtr)
 	{
-		auto otherNodePtr = std::dynamic_pointer_cast<TextureOutputInterface>(slotPtr->parentNode.getValidShared());
+		auto otherNodePtr = std::dynamic_pointer_cast<TextureOutputInterface>(slotPtr->parentNode.lock());
 		if (otherNodePtr)
 		{
 			NodeSlot::sSlotGraphOutputMouseLeft = vTextureOutputSlot;
@@ -275,7 +266,7 @@ void View3DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRend
 	m_VulkanImGuiRenderer = vVulkanImGuiRenderer; 
 }
 
-void View3DPane::SetDescriptor(vkApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment)
+void View3DPane::SetDescriptor(GaiApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment)
 {
 	m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, vVulkanFrameBufferAttachment);
 }

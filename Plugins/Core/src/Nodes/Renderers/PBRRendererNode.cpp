@@ -16,15 +16,23 @@ limitations under the License.
 
 #include "PBRRendererNode.h"
 #include <Modules/Renderers/PBRRenderer.h>
-#include <Interfaces/LightGroupOutputInterface.h>
-#include <Interfaces/TextureGroupOutputInterface.h>
-#include <Graph/Slots/NodeSlotLightGroupInput.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureGroupInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
-#include <Graph/Slots/NodeSlotShaderPassOutput.h>
+#include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
+#include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
-std::shared_ptr<PBRRendererNode> PBRRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<PBRRendererNode> PBRRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<PBRRendererNode>();
 	res->m_This = res;
@@ -45,7 +53,7 @@ PBRRendererNode::~PBRRendererNode()
 	Unit();
 }
 
-bool PBRRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool PBRRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "PBR Renderer";
 
@@ -90,26 +98,36 @@ bool PBRRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	return false;
 }
 
-bool PBRRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PBRRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_PBRRendererPtr)
 	{
-		return m_PBRRendererPtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_PBRRendererPtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void PBRRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool PBRRendererNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool PBRRendererNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_PBRRendererPtr)
 	{
-		m_PBRRendererPtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_PBRRendererPtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+
+    return false;
 }
 
 void PBRRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

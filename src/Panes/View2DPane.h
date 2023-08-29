@@ -16,18 +16,14 @@ limitations under the License.
 
 #pragma once
 
+#include <LumoBackend/Headers/LumoBackendDefs.h>
+#include <Gaia/Gui/ImGuiTexture.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <ImGuiPack.h>
+#include <AbstractPane.h>
+#include <stdint.h>
 #include <string>
-#include <memory>
-#include <cstdint>
-#include <imgui/imgui.h>
-#include <ctools/cTools.h>
-#include <vulkan/vulkan.hpp>
-#include <gaia/gaia.h>
-#include <gaia/ImGuiTexture.h>
-#include <Panes/Abstract/AbstractPane.h>
-#include <gaia/VulkanFrameBuffer.h>
-#include <Interfaces/GuiInterface.h>
-#include <Graph/Graph.h>
+#include <map>
 
 class ProjectFile;
 class View2DPane : public AbstractPane
@@ -53,9 +49,11 @@ private:
 public:
 	bool Init() override;
 	void Unit() override;
-	int DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown) override;
-	void DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas) override;
-	int DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	void Select(BaseNodeWeak vObjet);
 
 	ct::fvec2 SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot);
 	void SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRenderer);

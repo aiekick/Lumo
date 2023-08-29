@@ -19,14 +19,22 @@ limitations under the License.
 
 #include "VignetteNode.h"
 #include <Modules/PostPro/VignetteModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<VignetteNode> VignetteNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<VignetteNode> VignetteNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -57,7 +65,7 @@ VignetteNode::~VignetteNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VignetteNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool VignetteNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -102,7 +110,7 @@ bool VignetteNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VignetteNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool VignetteNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -113,14 +121,22 @@ bool VignetteNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
 
 	if (m_VignetteModulePtr)
 	{
-		res = m_VignetteModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_VignetteModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void VignetteNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool VignetteNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool VignetteNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -128,8 +144,9 @@ void VignetteNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 
 	if (m_VignetteModulePtr)
 	{
-		m_VignetteModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_VignetteModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

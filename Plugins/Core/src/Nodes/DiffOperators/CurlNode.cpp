@@ -19,14 +19,22 @@ limitations under the License.
 
 #include "CurlNode.h"
 #include <Modules/DiffOperators/CurlModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<CurlNode> CurlNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<CurlNode> CurlNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +66,7 @@ CurlNode::~CurlNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CurlNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool CurlNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -103,7 +111,7 @@ bool CurlNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CurlNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool CurlNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -114,14 +122,22 @@ bool CurlNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
 
 	if (m_CurlModulePtr)
 	{
-		res = m_CurlModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_CurlModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void CurlNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool CurlNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool CurlNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -129,8 +145,9 @@ void CurlNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::
 
 	if (m_CurlModulePtr)
 	{
-		m_CurlModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_CurlModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

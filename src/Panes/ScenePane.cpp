@@ -18,24 +18,20 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ScenePane.h"
-
-#include <Gui/MainFrame.h>
-
-#include <Panes/Manager/LayoutManager.h>
-#include <ImWidgets/ImWidgets.h>
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
-
-#include <imgui/imgui_internal.h>
-
+#include <ImWidgets.h>
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
+#include <Project/ProjectFile.h>
 
 #include <cinttypes> // printf zu
 
-#define TRACE_MEMORY
-#include <vkProfiler/Profiler.h>
-
-static int SourcePane_WidgetId = 0;
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 ScenePane::ScenePane() = default;
 ScenePane::~ScenePane() = default;
@@ -56,20 +52,18 @@ void ScenePane::Unit()
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-int ScenePane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas, PaneFlags& vInOutPaneShown)
+bool ScenePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	SourcePane_WidgetId = vWidgetId;
-
-	if (vInOutPaneShown & m_PaneFlag)
+	if (vInOutPaneShown & paneFlag)
 	{
 		static ImGuiWindowFlags flags =
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus |
 			ImGuiWindowFlags_MenuBar;
-		if (ImGui::Begin<PaneFlags>(m_PaneName,
-			&vInOutPaneShown , m_PaneFlag, flags))
+		if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+			&vInOutPaneShown , paneFlag, flags))
 		{
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 			auto win = ImGui::GetCurrentWindowRead();
@@ -89,10 +83,10 @@ int ScenePane::DrawPanes(const uint32_t& vCurrentFrame, int vWidgetId, std::stri
 		ImGui::End();
 	}
 
-	return SourcePane_WidgetId;
+	return false;
 }
 
-void ScenePane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string vUserDatas)
+bool ScenePane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -116,9 +110,20 @@ void ScenePane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, std::string 
 		}
 		*/
 	}
+
+	return false;
 }
 
-int ScenePane::DrawWidgets(const uint32_t& vCurrentFrame, int vWidgetId, std::string vUserDatas)
+bool ScenePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	return vWidgetId;
+	return false;
+}
+
+bool ScenePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	ZoneScoped;
+	UNUSED(vCurrentFrame);
+	UNUSED(vRect);
+	ImGui::SetCurrentContext(vContextPtr);
+	UNUSED(vUserDatas);
+	return false;
 }

@@ -17,25 +17,33 @@ limitations under the License.
 #include "PBRRenderer.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <Modules/Renderers/Pass/PBRRenderer_Quad_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PBRRenderer> PBRRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<PBRRenderer> PBRRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<PBRRenderer>(vVulkanCorePtr);
@@ -51,7 +59,7 @@ std::shared_ptr<PBRRenderer> PBRRenderer::Create(vkApi::VulkanCorePtr vVulkanCor
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PBRRenderer::PBRRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+PBRRenderer::PBRRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: TaskRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -108,7 +116,7 @@ bool PBRRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 	return true;
 }
 
-bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -118,7 +126,7 @@ bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 		{
 			if (m_PBRRenderer_Quad_Pass_Ptr)
 			{
-				return m_PBRRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_PBRRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 		}
 	}
@@ -126,17 +134,18 @@ bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 	return false;
 }
 
-void PBRRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool PBRRenderer::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
-void PBRRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool PBRRenderer::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -144,6 +153,7 @@ void PBRRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const c
 	{
 
 	}
+    return false;
 }
 
 void PBRRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)

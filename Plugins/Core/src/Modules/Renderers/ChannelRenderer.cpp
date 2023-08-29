@@ -17,24 +17,32 @@ limitations under the License.
 #include "ChannelRenderer.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
 
 #include <Modules/Renderers/Pass/ChannelRenderer_Mesh_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ChannelRenderer> ChannelRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ChannelRenderer> ChannelRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<ChannelRenderer>(vVulkanCorePtr);
@@ -50,7 +58,7 @@ std::shared_ptr<ChannelRenderer> ChannelRenderer::Create(vkApi::VulkanCorePtr vV
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ChannelRenderer::ChannelRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+ChannelRenderer::ChannelRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: TaskRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -112,7 +120,7 @@ void ChannelRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-bool ChannelRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ChannelRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -122,7 +130,7 @@ bool ChannelRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 		{
 			if (m_ChannelRenderer_Mesh_Pass_Ptr)
 			{
-				return m_ChannelRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_ChannelRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 		}
 	}
@@ -130,24 +138,26 @@ bool ChannelRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	return false;
 }
 
-void ChannelRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool ChannelRenderer::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
-void ChannelRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool ChannelRenderer::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
 void ChannelRenderer::SetModel(SceneModelWeak vSceneModel)

@@ -19,13 +19,21 @@ limitations under the License.
 
 #include "ModelExporterNode.h"
 #include <Modules/Exporter/ModelExporterModule.h>
-#include <Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ModelExporterNode> ModelExporterNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ModelExporterNode> ModelExporterNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -57,7 +65,7 @@ ModelExporterNode::~ModelExporterNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelExporterNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ModelExporterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -80,7 +88,7 @@ bool ModelExporterNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ModelExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -91,14 +99,22 @@ bool ModelExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 	if (m_ModelExporterModulePtr)
 	{
-		res = m_ModelExporterModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_ModelExporterModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void ModelExporterNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool ModelExporterNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool ModelExporterNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -106,8 +122,9 @@ void ModelExporterNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, c
 
 	if (m_ModelExporterModulePtr)
 	{
-		m_ModelExporterModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_ModelExporterModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

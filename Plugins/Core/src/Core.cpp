@@ -4,13 +4,13 @@
 #include "Core.h"
 #include <Headers/CoreBuild.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Graph/Base/BaseNode.h>
-#include <Systems/CommonSystem.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanWindow.h>
-#include <Graph/Base/NodeSlot.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Gui/VulkanWindow.h>
+#include <LumoBackend/Graph/Base/NodeSlot.h>
 
 #include <Nodes/Assets/MeshNode.h>
 #include <Nodes/Assets/Texture2DNode.h>
@@ -229,7 +229,7 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 
 BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 {
-	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
+	auto vkCorePtr = m_VulkanCoreWeak.lock();
 
 	// assets
 	if (vPluginNodeName == "MESH")								return MeshNode::Create(vkCorePtr);
@@ -317,7 +317,7 @@ std::vector<PluginPane> Core::GetPanes() const
 
 int Core::ResetImGuiID(const int& vWidgetId)
 {
-	auto ids = ImGui::CustomStyle::Instance()->pushId;
-	ImGui::CustomStyle::Instance()->pushId = vWidgetId;
+    auto ids = ImGui::GetPUSHID();
+    ImGui::SetPUSHID(vWidgetId);
 	return ids;
 }

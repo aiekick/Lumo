@@ -19,15 +19,23 @@ limitations under the License.
 
 #include "FlatGradientNode.h"
 #include <Modules/Utils/FlatGradientModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotVariableInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<FlatGradientNode> FlatGradientNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<FlatGradientNode> FlatGradientNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -59,7 +67,7 @@ FlatGradientNode::~FlatGradientNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool FlatGradientNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool FlatGradientNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -106,7 +114,7 @@ bool FlatGradientNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool FlatGradientNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool FlatGradientNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -117,14 +125,22 @@ bool FlatGradientNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 	if (m_FlatGradientModulePtr)
 	{
-		res = m_FlatGradientModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_FlatGradientModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void FlatGradientNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool FlatGradientNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool FlatGradientNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -132,8 +148,10 @@ void FlatGradientNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, co
 
 	if (m_FlatGradientModulePtr)
 	{
-		m_FlatGradientModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_FlatGradientModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

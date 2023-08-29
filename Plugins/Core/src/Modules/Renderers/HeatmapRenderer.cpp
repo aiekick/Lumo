@@ -17,22 +17,30 @@ limitations under the License.
 #include "HeatmapRenderer.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
 #include <Modules/Renderers/Pass/HeatmapRenderer_Mesh_Pass.h>
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<HeatmapRenderer>(vVulkanCorePtr);
@@ -48,7 +56,7 @@ std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(vkApi::VulkanCorePtr vV
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-HeatmapRenderer::HeatmapRenderer(vkApi::VulkanCorePtr vVulkanCorePtr)
+HeatmapRenderer::HeatmapRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: TaskRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -111,7 +119,7 @@ void HeatmapRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -123,7 +131,7 @@ bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 			if (m_HeatmapRenderer_Mesh_Pass_Ptr)
 			{
-				return m_HeatmapRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_HeatmapRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 			}
 		}
 	}
@@ -131,24 +139,26 @@ bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	return false;
 }
 
-void HeatmapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool HeatmapRenderer::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
-void HeatmapRenderer::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool HeatmapRenderer::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
 void HeatmapRenderer::SetModel(SceneModelWeak vSceneModel)

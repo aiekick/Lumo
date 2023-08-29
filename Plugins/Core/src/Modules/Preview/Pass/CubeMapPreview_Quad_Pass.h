@@ -26,27 +26,27 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
-#include <vulkan/vulkan.hpp>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
+#include <LumoBackend/Base/BaseRenderer.h>
+#include <LumoBackend/Base/QuadShaderPass.h>
 
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TextureCubeInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <Gaia/gaia.h>
+#include <Gaia/Resources/Texture2D.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <Gaia/Core/vk_mem_alloc.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Gui/ImGuiTexture.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Resources/VulkanFrameBuffer.h>
+
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/TextureCubeInputInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class CubeMapPreview_Quad_Pass :
 	public QuadShaderPass,
 	public TextureCubeInputInterface<1>,
-	public TextureOutputInterface,
-	public GuiInterface
+	public TextureOutputInterface
 {
 private:
 	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
@@ -56,15 +56,15 @@ private:
 	} m_UBOFrag;
 
 public:
-	CubeMapPreview_Quad_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	CubeMapPreview_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~CubeMapPreview_Quad_Pass() override;
 
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext = nullptr, const std::string& vUserDatas = {}) override;
 
 	// Interfaces Setters
 	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;

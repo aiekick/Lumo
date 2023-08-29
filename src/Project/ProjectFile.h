@@ -17,7 +17,6 @@ limitations under the License.
 #pragma once
 
 #include <ctools/ConfigAbstract.h>
-#include <imgui/imgui.h>
 #include <string>
 #include <memory>
 

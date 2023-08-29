@@ -19,14 +19,22 @@ limitations under the License.
 
 #include "SceneMergerNode.h"
 #include <Modules/Misc/SceneMergerModule.h>
-#include <Graph/Slots/NodeSlotShaderPassInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotShaderPassInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SceneMergerNode> SceneMergerNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SceneMergerNode> SceneMergerNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -62,7 +70,7 @@ SceneMergerNode::~SceneMergerNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SceneMergerNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SceneMergerNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -106,7 +114,7 @@ bool SceneMergerNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SceneMergerNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SceneMergerNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -117,14 +125,22 @@ bool SceneMergerNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 
 	if (m_SceneMergerModulePtr)
 	{
-		res = m_SceneMergerModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_SceneMergerModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return res;
 }
 
-void SceneMergerNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool SceneMergerNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool SceneMergerNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	assert(vContext); 
@@ -132,8 +148,9 @@ void SceneMergerNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, con
 
 	if (m_SceneMergerModulePtr)
 	{
-		m_SceneMergerModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_SceneMergerModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -360,7 +377,7 @@ void SceneMergerNode::ReorganizeSlots(const std::vector<uint32_t>& vSlotsToErase
 		// - delete orphan slots (connected to nothing)
 		// - add slots if all slots are full 
 		
-		auto graph_ptr = this->GetParentNode().getValidShared();
+		auto graph_ptr = this->GetParentNode().lock();
 		if (graph_ptr)
 		{
 			// array of slot to prevent destroying during this connect
@@ -374,11 +391,12 @@ void SceneMergerNode::ReorganizeSlots(const std::vector<uint32_t>& vSlotsToErase
 					if (slots_to_keep.find(slotID) == slots_to_keep.end())
 					{
 						m_Inputs.erase(slotID);
-						LogVarDebug("erase input slot(%u)", slotID);
+						LogVarDebugWarning("erase input slot(%u)", slotID);
 					}
 					else
 					{
-						LogVarDebug("input slot(%u) not destroyed because of 'no destroy' rule during this connect", slotID);
+                        LogVarDebugWarning(
+                            "input slot(%u) not destroyed because of 'no destroy' rule during this connect", slotID);
 					}
 				}
 				else

@@ -17,25 +17,33 @@ limitations under the License.
 #include "ShadowMapModule_Mesh_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
+
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <ImWidgets.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
-using namespace vkApi;
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
+
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ShadowMapModule_Mesh_Pass::ShadowMapModule_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+ShadowMapModule_Mesh_Pass::ShadowMapModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : LightGroup Shadow Map", MESH_SHADER_PASS_DEBUG_COLOR);
@@ -71,12 +79,12 @@ void ShadowMapModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const i
 	if (vCmdBuffer &&
 		m_PushConstants.light_id_to_use < SceneLightGroup::sMaxLightCount)
 	{
-		auto modelPtr = m_SceneModel.getValidShared();
+		auto modelPtr = m_SceneModel.lock();
 		if (!modelPtr || modelPtr->empty()) return;
 
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 		{
-			VKFPScoped(*vCmdBuffer, "ShadowMapModule_Mesh_Pass", "DrawMesh");
+			//VKFPScoped(*vCmdBuffer, "ShadowMapModule_Mesh_Pass", "DrawMesh");
 
 			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
@@ -106,7 +114,7 @@ void ShadowMapModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const i
 	}
 }
 
-bool ShadowMapModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ShadowMapModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
@@ -120,16 +128,18 @@ bool ShadowMapModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 	return change;
 }
 
-void ShadowMapModule_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-
+bool ShadowMapModule_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
-void ShadowMapModule_Mesh_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-
+bool ShadowMapModule_Mesh_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+    return false;
 }
 
 void ShadowMapModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
@@ -145,7 +155,7 @@ void ShadowMapModule_Mesh_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGro
 
 	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
-	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	auto lightGroupPtr = m_SceneLightGroup.lock();
 	if (lightGroupPtr && lightGroupPtr->GetBufferInfo())
 	{
 		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();

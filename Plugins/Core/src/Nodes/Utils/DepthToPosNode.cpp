@@ -16,10 +16,18 @@ limitations under the License.
 
 #include "DepthToPosNode.h"
 #include <Modules/Utils/DepthToPosModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<DepthToPosNode> DepthToPosNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<DepthToPosNode> DepthToPosNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<DepthToPosNode>();
 	res->m_This = res;
@@ -40,7 +48,7 @@ DepthToPosNode::~DepthToPosNode()
 	Unit();
 }
 
-bool DepthToPosNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool DepthToPosNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Depth To Pos";
 
@@ -72,26 +80,36 @@ bool DepthToPosNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return false;
 }
 
-bool DepthToPosNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool DepthToPosNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
 {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_DepthToPosModulePtr)
 	{
-		return m_DepthToPosModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_DepthToPosModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
 	}
 
 	return false;
 }
 
-void DepthToPosNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool DepthToPosNode::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    assert(vContext);
+    ImGui::SetCurrentContext(vContext);
+
+    return false;
+}
+
+bool DepthToPosNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
 	assert(vContext); ImGui::SetCurrentContext(vContext);
 
 	if (m_DepthToPosModulePtr)
 	{
-		m_DepthToPosModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_DepthToPosModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+    }
+
+    return false;
 }
 
 void DepthToPosNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
