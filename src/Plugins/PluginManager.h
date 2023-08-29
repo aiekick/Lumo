@@ -54,11 +54,7 @@ public:
 class PluginManager
 {
 private:
-#ifndef USE_PLUGIN_STATIC_LINKING
 	std::map<std::string, PluginInstancePtr> m_Plugins;
-#else // USE_PLUGIN_STATIC_LINKING
-	std::map<std::string, PluginInterfacePtr> m_Plugins;
-#endif // USE_PLUGIN_STATIC_LINKING
 
 public:
 	void LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCorePtr);
@@ -69,14 +65,7 @@ public:
 	void Clear();
 
 private:
-#ifndef USE_PLUGIN_STATIC_LINKING
 	PluginInstanceWeak Get(const std::string& vPluginName);
-#else // USE_PLUGIN_STATIC_LINKING
-	void AddPlugin(
-		const std::string& vPluginName,
-		PluginInterfacePtr vPluginPtr,
-		GaiApi::VulkanCoreWeak vVulkanCoreWeak);
-#endif
 
 public:
 	static PluginManager* Instance()

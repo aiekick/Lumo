@@ -7,7 +7,3 @@ set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE BOOL "")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/Core)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/Core/src)
 set_target_properties(Core PROPERTIES FOLDER Lumo_Plugins)
-
-if (USE_PLUGIN_STATIC_LINKING)
-	set(PROJECT_PLUGINS ${PROJECT_PLUGINS} Core)
-endif()

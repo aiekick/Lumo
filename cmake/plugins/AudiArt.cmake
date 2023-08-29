@@ -14,8 +14,3 @@ set_target_properties(AudiArt PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_D
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/AudiArt/src)
 
-if (USE_PLUGIN_STATIC_LINKING)
-set(PROJECT_PLUGINS ${PROJECT_PLUGINS} AudiArt)
-endif()
-
-

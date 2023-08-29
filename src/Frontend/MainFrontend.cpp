@@ -246,7 +246,7 @@ void MainFrontend::Display(const uint32_t& vCurrentFrame) {
 
         MainFrontend::sCentralWindowHovered = (ImGui::GetCurrentContext()->HoveredWindow == nullptr);
 
-        m_drawLeftButtonBar();
+        //m_drawLeftButtonBar();
         m_drawMainMenuBar();
         m_drawMainStatusBar();
 

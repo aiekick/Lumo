@@ -13,7 +13,3 @@ set_target_properties(Smoke PROPERTIES OUTPUT_NAME "Smoke_${CMAKE_SYSTEM_NAME}$<
 set_target_properties(Smoke PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/Smoke/src)
-
-if (USE_PLUGIN_STATIC_LINKING)
-set(PROJECT_PLUGINS ${PROJECT_PLUGINS} Smoke)
-endif()

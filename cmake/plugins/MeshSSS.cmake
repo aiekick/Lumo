@@ -11,7 +11,3 @@ set_target_properties(MeshSSS PROPERTIES OUTPUT_NAME "MeshSSS_${CMAKE_SYSTEM_NAM
 set_target_properties(MeshSSS PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MeshSSS/src)
-
-if (USE_PLUGIN_STATIC_LINKING)
-set(PROJECT_PLUGINS ${PROJECT_PLUGINS} MeshSSS)
-endif()

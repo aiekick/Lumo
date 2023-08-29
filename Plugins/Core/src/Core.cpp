@@ -72,7 +72,6 @@
 #include <Nodes/Widgets/VariableNode.h>
 #include <Nodes/Widgets/WidgetColorNode.h>
 
-#ifndef USE_PLUGIN_STATIC_LINKING
 // needed for plugin creating / destroying
 extern "C" // needed for avoid renaming of funcs by the compiler
 {
@@ -92,7 +91,6 @@ extern "C" // needed for avoid renaming of funcs by the compiler
 		delete ptr;
 	}
 }
-#endif // USE_PLUGIN_STATIC_LINKING
 
 Core::Core()
 {

@@ -629,7 +629,6 @@ void MainBackend::m_InitNodes() {
 }
 
 void MainBackend::m_InitPlugins() {
-    auto imgui_ctx_ptr = ImGui::GetCurrentContext();
     PluginManager::Instance()->LoadPlugins(m_VulkanCorePtr);
 }
 

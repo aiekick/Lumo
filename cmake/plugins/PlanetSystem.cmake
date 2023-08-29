@@ -13,9 +13,3 @@ set_target_properties(PlanetSystem PROPERTIES OUTPUT_NAME "PlanetSystem_${CMAKE_
 set_target_properties(PlanetSystem PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/PlanetSystem/src)
-
-if (USE_PLUGIN_STATIC_LINKING)
-set(PROJECT_PLUGINS ${PROJECT_PLUGINS} PlanetSystem)
-endif()
-
-

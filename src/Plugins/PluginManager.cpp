@@ -30,48 +30,6 @@ limitations under the License.
 
 namespace fs = std::filesystem;
 
-#ifdef USE_PLUGIN_STATIC_LINKING
-#ifdef USE_PLUGIN_CORE
-#include <Core.h>
-#endif
-#ifdef USE_PLUGIN_MESH_SIM
-#include <MeshSim.h>
-#endif
-#ifdef USE_PLUGIN_MESH_SSS
-#include <MeshSSS.h>
-#endif
-#ifdef USE_PLUGIN_SDF_MESHER
-#include <SdfMesher.h>
-#endif
-#ifdef USE_PLUGIN_SO_GLSL
-#include <Common.h>
-#endif
-#ifdef USE_PLUGIN_MORPHOGENESIS
-#include <MorphoGenesis.h>
-#endif
-#ifdef USE_PLUGIN_RTX
-#include <RTX.h>
-#endif
-#ifdef USE_PLUGIN_PARTICLES
-#include <Particles.h>
-#endif
-#ifdef USE_PLUGIN_SMOKE
-#include <Smoke.h>
-#endif
-#ifdef USE_PLUGIN_VR
-#include <VR.h>
-#endif
-#ifdef USE_PLUGIN_MESH_GEN
-#include <MeshGen.h>
-#endif
-#ifdef USE_PLUGIN_AUDIART
-#include <Audiart.h>
-#endif
-#ifdef USE_PLUGIN_PLANET_SYSTEM
-#include <PlanetSystem.h>
-#endif
-#endif  // USE_PLUGIN_STATIC_LINKING
-
 //////////////////////////////////////////////////////////////////////////////
 ////// PluginInstance ////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -88,14 +46,7 @@ bool PluginInstance::Init(
     if (m_Loader.IsValid()) {
         m_PluginInstance = m_Loader.DLGetInstance();
         if (m_PluginInstance) {
-            ImGui::CustomStyle toto;
-            auto file_helper_ptr = FileHelper::Instance();
-            auto common_system_ptr = CommonSystem::Instance();
-            auto imgui_ctx_ptr = ImGui::GetCurrentContext();
-            auto imgui_file_dialog_ptr = ImGuiFileDialog::Instance();
-            auto slot_color_ptr = NodeSlot::sGetSlotColors();
-            if (!m_PluginInstance->Init(vVulkanCoreWeak, file_helper_ptr, common_system_ptr, imgui_ctx_ptr,
-                    imgui_file_dialog_ptr, slot_color_ptr, &toto)) {
+            if (!m_PluginInstance->Init(vVulkanCoreWeak)) {
                 m_PluginInstance.reset();
             } else {
                 return true;
@@ -135,7 +86,6 @@ void PluginManager::LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
     printf("-----------\n");
     LogVarInfo("Availables Plugins :\n");
 
-#ifndef USE_PLUGIN_STATIC_LINKING
     auto plugin_directory = std::filesystem::path(FileHelper::Instance()->GetAppPath()).append("plugins");
     if (std::filesystem::exists(plugin_directory)) {
         const auto dir_iter = std::filesystem::directory_iterator(plugin_directory);
@@ -191,47 +141,6 @@ void PluginManager::LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
         LogVarLightInfo("Plugin directory %s not found !", plugin_directory.string().c_str());
     }
     printf("-----------\n");
-#else  // USE_PLUGIN_STATIC_LINKING
-#ifdef USE_PLUGIN_CORE
-    AddPlugin("Core", std::make_shared<Core>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_MESH_SIM
-    AddPlugin("MeshSim", std::make_shared<MeshSim>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_MESH_SSS
-    AddPlugin("MeshSSS", std::make_shared<MeshSSS>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_SDF_MESHER
-    AddPlugin("SdfMesher", std::make_shared<SdfMesher>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_SO_GLSL
-    AddPlugin("Common", std::make_shared<Common>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_MORPHOGENESIS
-    AddPlugin("MorphoGenesis", std::make_shared<MorphoGenesis>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_RTX
-    AddPlugin("RTX", std::make_shared<RTX>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_PARTICLES
-    AddPlugin("Particles", std::make_shared<Particles>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_SMOKE
-    AddPlugin("Smoke", std::make_shared<Smoke>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_VR
-    AddPlugin("VR", std::make_shared<VR>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_MESH_GEN
-    AddPlugin("MeshGen", std::make_shared<MeshGen>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_AUDIART
-    AddPlugin("AudiArt", std::make_shared<AudiArt>(), vVulkanCoreWeak);
-#endif
-#ifdef USE_PLUGIN_PLANET_SYSTEM
-    AddPlugin("PlanetSystem", std::make_shared<PlanetSystem>(), vVulkanCoreWeak);
-#endif
-#endif  // USE_PLUGIN_STATIC_LINKING
 }
 
 std::vector<LibraryEntry> PluginManager::GetLibraryEntrys() {
@@ -239,7 +148,6 @@ std::vector<LibraryEntry> PluginManager::GetLibraryEntrys() {
 
     for (auto plugin : m_Plugins) {
         if (plugin.second) {
-#ifndef USE_PLUGIN_STATIC_LINKING
             auto pluginInstancePtr = plugin.second->Get().lock();
             if (pluginInstancePtr) {
                 auto lib_entrys = pluginInstancePtr->GetLibrary();
@@ -247,12 +155,6 @@ std::vector<LibraryEntry> PluginManager::GetLibraryEntrys() {
                     res.insert(res.end(), lib_entrys.begin(), lib_entrys.end());
                 }
             }
-#else   // USE_PLUGIN_STATIC_LINKING
-            auto lib_entrys = plugin.second->GetLibrary();
-            if (!lib_entrys.empty()) {
-                res.insert(res.end(), lib_entrys.begin(), lib_entrys.end());
-            }
-#endif  // USE_PLUGIN_STATIC_LINKING
         }
     }
 
@@ -263,7 +165,6 @@ BaseNodePtr PluginManager::CreatePluginNode(const std::string& vPluginNodeName) 
     if (!vPluginNodeName.empty()) {
         for (auto plugin : m_Plugins) {
             if (plugin.second) {
-#ifndef USE_PLUGIN_STATIC_LINKING
                 auto pluginInstancePtr = plugin.second->Get().lock();
                 if (pluginInstancePtr) {
                     auto nodePtr = pluginInstancePtr->CreatePluginNode(vPluginNodeName);
@@ -271,12 +172,6 @@ BaseNodePtr PluginManager::CreatePluginNode(const std::string& vPluginNodeName) 
                         return nodePtr;
                     }
                 }
-#else   // USE_PLUGIN_STATIC_LINKING
-                auto nodePtr = plugin.second->CreatePluginNode(vPluginNodeName);
-                if (nodePtr) {
-                    return nodePtr;
-                }
-#endif  // USE_PLUGIN_STATIC_LINKING
             }
         }
     }
@@ -288,7 +183,6 @@ std::vector<PluginPane> PluginManager::GetPluginsPanes() {
 
     for (auto plugin : m_Plugins) {
         if (plugin.second) {
-#ifndef USE_PLUGIN_STATIC_LINKING
             auto pluginInstancePtr = plugin.second->Get().lock();
             if (pluginInstancePtr) {
                 auto _pluginPanes = pluginInstancePtr->GetPanes();
@@ -296,12 +190,6 @@ std::vector<PluginPane> PluginManager::GetPluginsPanes() {
                     pluginsPanes.insert(pluginsPanes.end(), _pluginPanes.begin(), _pluginPanes.end());
                 }
             }
-#else   // USE_PLUGIN_STATIC_LINKING
-            auto _pluginPanes = plugin.second->GetPanes();
-            if (!_pluginPanes.empty()) {
-                pluginsPanes.insert(pluginsPanes.end(), _pluginPanes.begin(), _pluginPanes.end());
-            }
-#endif  // USE_PLUGIN_STATIC_LINKING
         }
     }
 
@@ -313,14 +201,10 @@ void PluginManager::ResetImGuiID(int vWidgetId) {
     for (auto plugin : m_Plugins) {
         id += 10000;
         if (plugin.second) {
-#ifndef USE_PLUGIN_STATIC_LINKING
             auto pluginInstancePtr = plugin.second->Get().lock();
             if (pluginInstancePtr) {
                 id += pluginInstancePtr->ResetImGuiID(id);
             }
-#else   // USE_PLUGIN_STATIC_LINKING
-            id += plugin.second->ResetImGuiID(id);
-#endif  // USE_PLUGIN_STATIC_LINKING
         }
     }
 }
@@ -328,8 +212,6 @@ void PluginManager::ResetImGuiID(int vWidgetId) {
 //////////////////////////////////////////////////////////////
 //// PRIVATE /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-
-#ifndef USE_PLUGIN_STATIC_LINKING
 
 std::weak_ptr<PluginInstance> PluginManager::Get(const std::string& vPluginName) {
     if (!vPluginName.empty()) {
@@ -339,49 +221,3 @@ std::weak_ptr<PluginInstance> PluginManager::Get(const std::string& vPluginName)
     }
     return {};
 }
-
-#else  // USE_PLUGIN_STATIC_LINKING
-
-void PluginManager::AddPlugin(
-    const std::string& vPluginName, PluginInterfacePtr vPluginPtr, GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
-    bool loaded = vPluginPtr->Init(vVulkanCoreWeak, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
-
-    char spaceBuffer[40 + 1] = "";
-    spaceBuffer[0] = '\0';
-
-    size_t tag_len = (loaded ? 19U : 15U);
-
-    std::string name = vPluginPtr->GetName();
-    if (name.size() < tag_len) {
-        size_t of = tag_len - name.size();
-        memset(spaceBuffer, 32, of);  // 32 is space code in ASCII table
-        spaceBuffer[of] = '\0';
-        name += spaceBuffer;
-    } else {
-        name = name.substr(0, tag_len);
-    }
-
-    std::string version = vPluginPtr->GetVersion();
-    if (version.size() < 10U) {
-        size_t of = 10U - version.size();
-        memset(spaceBuffer, 32, of);  // 32 is space code in ASCII table
-        spaceBuffer[of] = '\0';
-        version += spaceBuffer;
-    } else {
-        version = version.substr(0, 10U);
-    }
-
-    std::string desc = vPluginPtr->GetDescription();
-
-    if (!loaded) {
-        LogVarError("Plugin Not loaded : %s v%s (%s)\n", name.c_str(), version.c_str(), desc.c_str());
-
-        vPluginPtr.reset();
-    } else {
-        LogVarInfo("Plugin loaded : %s v%s (%s)\n", name.c_str(), version.c_str(), desc.c_str());
-
-        m_Plugins[vPluginName] = vPluginPtr;
-    }
-}
-
-#endif  // USE_PLUGIN_STATIC_LINKING

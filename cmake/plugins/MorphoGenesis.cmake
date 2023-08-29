@@ -13,9 +13,3 @@ set_target_properties(MorphoGenesis PROPERTIES OUTPUT_NAME "MorphoGenesis_${CMAK
 set_target_properties(MorphoGenesis PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MorphoGenesis/src)
-
-if (USE_PLUGIN_STATIC_LINKING)
-set(PROJECT_PLUGINS ${PROJECT_PLUGINS} MorphoGenesis)
-endif()
-
-
