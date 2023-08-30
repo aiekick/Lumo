@@ -73,7 +73,7 @@ static const float& font_scale_ratio = 1.0f / 3.5f;
 //////////////////////////////////////////////////////////////////////////////////
 
 MainFrontendPtr MainFrontend::create() {
-    auto res    = std::make_shared<MainFrontend>();
+    auto res = std::make_shared<MainFrontend>();
     res->m_This = res;
     if (!res->init()) {
         res.reset();
@@ -99,7 +99,7 @@ bool MainFrontend::init() {
         MESSAGING_TYPE_VKLAYER, "Vk Layer(s)", MESSAGING_LABEL_VKLAYER, ImVec4(0.8f, 0.0f, 0.4f, 1.0f));
     Messaging::Instance()->AddCategory(
         MESSAGING_TYPE_DEBUG, "Debug(s)", MESSAGING_LABEL_DEBUG, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
-    
+
     Logger::sStandardLogFunction = [this](const int& vType, const std::string& vMessage) {
         MessageData msg_datas;
         const auto& type = vType;
@@ -132,9 +132,7 @@ bool MainFrontend::init() {
         }
     }
 
-    LayoutManager::Instance()->InitPanes();
-
-    //a faire apres InitPanes() sinon ConsolePane::Instance()->paneFlag vaudra 0 et changeras apres InitPanes()
+    // a faire apres InitPanes() sinon ConsolePane::Instance()->paneFlag vaudra 0 et changeras apres InitPanes()
     Messaging::sMessagePaneId = ConsolePane::Instance()->paneFlag;
 
     using namespace std::placeholders;
@@ -143,7 +141,6 @@ bool MainFrontend::init() {
     NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
     NodeSlot::sSlotGraphOutputMouseMiddleColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
 
-    
 #ifdef USE_THUMBNAILS
     ImGuiFileDialog::Instance()->SetCreateThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info) {
         if (vThumbnail_Info && vThumbnail_Info->isReadyToUpload && vThumbnail_Info->textureFileDatas) {
@@ -208,27 +205,18 @@ bool MainFrontend::init() {
 
 void MainFrontend::unit() { LayoutManager::Instance()->UnitPanes(); }
 
-void MainFrontend::SelectNode(const BaseNodeWeak& vNode)
-{
+void MainFrontend::SelectNode(const BaseNodeWeak& vNode) {
     TuningPane::Instance()->Select(vNode);
     DebugPane::Instance()->Select(vNode);
 }
 
-void MainFrontend::SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton)
-{
-    if (NodeManager::Instance()->m_RootNodePtr)
-    {
-        if (vButton == ImGuiMouseButton_Left)
-        {
+void MainFrontend::SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton) {
+    if (NodeManager::Instance()->m_RootNodePtr) {
+        if (vButton == ImGuiMouseButton_Left) {
             View3DPane::Instance()->SetOrUpdateOutput(vSlot);
-        }
-        else if (vButton == ImGuiMouseButton_Middle)
-        {
+        } else if (vButton == ImGuiMouseButton_Middle) {
             View2DPane::Instance()->SetOrUpdateOutput(vSlot);
-        }
-        else if (vButton == ImGuiMouseButton_Right)
-        {
-
+        } else if (vButton == ImGuiMouseButton_Right) {
         }
     }
 }
@@ -246,7 +234,7 @@ void MainFrontend::Display(const uint32_t& vCurrentFrame) {
 
         MainFrontend::sCentralWindowHovered = (ImGui::GetCurrentContext()->HoveredWindow == nullptr);
 
-        //m_drawLeftButtonBar();
+        // m_drawLeftButtonBar();
         m_drawMainMenuBar();
         m_drawMainStatusBar();
 
@@ -273,78 +261,11 @@ void MainFrontend::Display(const uint32_t& vCurrentFrame) {
     }
 }
 
-void MainFrontend::NeedToNewProject(const std::string& vFilePathName)
-{
-    m_NeedToNewProject = true;
-    m_FilePathNameToLoad = vFilePathName;
-}
-
-void MainFrontend::NeedToLoadProject(const std::string& vFilePathName)
-{
-    m_NeedToLoadProject = true;
-    m_FilePathNameToLoad = vFilePathName;
-}
-
-void MainFrontend::NeedToCloseProject()
-{
-    m_NeedToCloseProject = true;
-}
-
-bool MainFrontend::SaveProject()
-{
-    return ProjectFile::Instance()->Save();
-}
-
-void MainFrontend::SaveAsProject(const std::string& vFilePathName)
-{
-    ProjectFile::Instance()->SaveAs(vFilePathName);
-
-    if (m_NeedToCloseApp)
-    {
-        //glfwSetWindowShouldClose(m_Window, 1); // close app
-    }
-}
-
-// actions to do after rendering
-void MainFrontend::PostRenderingActions()
-{
-    if (m_NeedToNewProject)
-    {
-        ProjectFile::Instance()->New(m_FilePathNameToLoad);
-        //SetAppTitle(m_FilePathNameToLoad);
-
-        m_FilePathNameToLoad.clear();
-        m_NeedToNewProject = false;
-    }
-
-    if (m_NeedToLoadProject)
-    {
-        if (ProjectFile::Instance()->LoadAs(m_FilePathNameToLoad))
-        {
-            //SetAppTitle(m_FilePathNameToLoad);
-            ProjectFile::Instance()->SetProjectChange(false);
-        }
-        else
-        {
-            LogVarError("Failed to load project %s", m_FilePathNameToLoad.c_str());
-        }
-
-        m_FilePathNameToLoad.clear();
-        m_NeedToLoadProject = false;
-    }
-
-    if (m_NeedToCloseProject)
-    {
-        NodeManager::Instance()->Clear();
-        ProjectFile::Instance()->Clear();
-        m_NeedToCloseProject = false;
-    }
-}
-
 void MainFrontend::m_CanMouseAffectRendering() {
-    const auto& CanUpdateMouse = MainFrontend::sCentralWindowHovered &&             // only update mouse when hovering the central node
-                                 !ImGuizmo::IsUsing() &&                            // only update mouse if no gizmo is moving
-                                 ImGui::GetTopMostAndVisiblePopupModal() == nullptr;  // only update mouse if no modal dialog is opened
+    const auto& CanUpdateMouse =
+        MainFrontend::sCentralWindowHovered &&               // only update mouse when hovering the central node
+        !ImGuizmo::IsUsing() &&                              // only update mouse if no gizmo is moving
+        ImGui::GetTopMostAndVisiblePopupModal() == nullptr;  // only update mouse if no modal dialog is opened
     MainBackend::Instance()->UpdateMouseDatas(CanUpdateMouse);
 }
 
@@ -354,17 +275,20 @@ const ct::ivec2& MainFrontend::getSize() const { return m_size; }
 
 bool MainFrontend::resize(const ct::ivec2& /*vNewSize*/) { return false; }
 
-bool MainFrontend::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MainFrontend::DrawWidgets(
+    const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     bool res = false;
     return res;
 }
 
-bool MainFrontend::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MainFrontend::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     bool res = false;
     return res;
 }
 
-bool MainFrontend::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MainFrontend::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     bool change = false;
     m_ActionSystem.RunActions();
     if (m_ShowImGui) {
@@ -373,63 +297,50 @@ bool MainFrontend::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImV
     if (m_ShowMetric) {
         ImGui::ShowMetricsWindow(&m_ShowMetric);
     }
-    
+
     return false;
 }
 
-void MainFrontend::OpenAboutDialog()
-{
-    m_ShowAboutDialog = true;
-}
+void MainFrontend::OpenAboutDialog() { m_ShowAboutDialog = true; }
 
 void MainFrontend::m_drawMainMenuBar() {
     if (ImGui::BeginMainMenuBar()) {
-
-        if (ImGui::BeginMenu( " Project"))
-        {
-            if (ImGui::MenuItem( " New"))
-            {
+        if (ImGui::BeginMenu(" Project")) {
+            if (ImGui::MenuItem(" New")) {
                 Action_Menu_NewProject();
             }
 
-            if (ImGui::MenuItem( " Open"))
-            {
+            if (ImGui::MenuItem(" Open")) {
                 Action_Menu_OpenProject();
             }
 
-            if (ProjectFile::Instance()->IsLoaded())
-            {
+            if (ProjectFile::Instance()->IsLoaded()) {
                 ImGui::Separator();
 
-                if (ImGui::MenuItem( " Re Open"))
-                {
+                if (ImGui::MenuItem(" Re Open")) {
                     Action_Menu_ReOpenProject();
                 }
 
                 ImGui::Separator();
 
-                if (ImGui::MenuItem( " Save"))
-                {
+                if (ImGui::MenuItem(" Save")) {
                     Action_Menu_SaveProject();
                 }
 
-                if (ImGui::MenuItem( " Save As"))
-                {
+                if (ImGui::MenuItem(" Save As")) {
                     Action_Menu_SaveAsProject();
                 }
 
                 ImGui::Separator();
 
-                if (ImGui::MenuItem( " Close"))
-                {
+                if (ImGui::MenuItem(" Close")) {
                     Action_Menu_CloseProject();
                 }
             }
 
             ImGui::Separator();
 
-            if (ImGui::MenuItem( " About"))
-            {
+            if (ImGui::MenuItem(" About")) {
                 OpenAboutDialog();
             }
 
@@ -458,19 +369,17 @@ void MainFrontend::m_drawMainMenuBar() {
             ImGui::EndMenu();
         }
 
-        if (ProjectFile::Instance()->IsThereAnyNotSavedChanged())
-        {
+        if (ProjectFile::Instance()->IsThereAnyNotSavedChanged()) {
             ImGui::Spacing(200.0f);
 
-            if (ImGui::MenuItem(" Save"))
-            {
+            if (ImGui::MenuItem(" Save")) {
                 Action_Menu_SaveProject();
             }
         }
 
         // ImGui Infos
         const auto label = ct::toStr("Dear ImGui %s (Docking)", ImGui::GetVersion());
-        const auto size  = ImGui::CalcTextSize(label.c_str());
+        const auto size = ImGui::CalcTextSize(label.c_str());
         ImGui::Spacing(ImGui::GetContentRegionAvail().x - size.x - ImGui::GetStyle().FramePadding.x * 2.0f);
         ImGui::Text("%s", label.c_str());
 
@@ -485,9 +394,9 @@ void MainFrontend::m_drawMainStatusBar() {
         Messaging::Instance()->DrawStatusBar();
 
         //  ImGui Infos
-        const auto& io   = ImGui::GetIO();
-        const auto  fps  = ct::toStr("%.1f ms/frame (%.1f fps)", 1000.0f / io.Framerate, io.Framerate);
-        const auto  size = ImGui::CalcTextSize(fps.c_str());
+        const auto& io = ImGui::GetIO();
+        const auto fps = ct::toStr("%.1f ms/frame (%.1f fps)", 1000.0f / io.Framerate, io.Framerate);
+        const auto size = ImGui::CalcTextSize(fps.c_str());
         ImGui::Spacing(ImGui::GetContentRegionAvail().x - size.x - ImGui::GetStyle().FramePadding.x * 2.0f);
         ImGui::Text("%s", fps.c_str());
 
@@ -503,10 +412,10 @@ void MainFrontend::m_drawLeftButtonBar() {
     const float& toolbar_width = 35.0f;
 
     static ImGui::ImCoolBarConfig _config;
-    _config.normal_size  = 30.0f;
+    _config.normal_size = 30.0f;
     _config.hovered_size = 75.0f;
-    _config.anchor       = ImVec2(0.0f, 0.5f);
-    _config.anim_step    = 0.2f;
+    _config.anchor = ImVec2(0.0f, 0.5f);
+    _config.anim_step = 0.2f;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2());
     bool left_bar_opened = ImGui::BeginLeftToolBar(toolbar_width);
@@ -517,19 +426,19 @@ void MainFrontend::m_drawLeftButtonBar() {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2, 2));
         bool _opened = ImGui::BeginCoolBar("##coolbar", ImCoolBarFlags_Vertical, _config);
-        auto window  = ImGui::GetCurrentWindow();
+        auto window = ImGui::GetCurrentWindow();
         if (window) {
             // correct the rect of the window. maybe a bug on imgui..
             // the workrect can cause issue when click a timeline
             // channel close button when close to the toolbar
             // this thing correct the issue
-            const auto& rc            = window->Rect();
-            window->WorkRect          = rc;
-            window->OuterRectClipped  = rc;
-            window->InnerRect         = rc;
-            window->InnerClipRect     = rc;
-            window->ParentWorkRect    = rc;
-            window->ClipRect          = rc;
+            const auto& rc = window->Rect();
+            window->WorkRect = rc;
+            window->OuterRectClipped = rc;
+            window->InnerRect = rc;
+            window->InnerClipRect = rc;
+            window->ParentWorkRect = rc;
+            window->ClipRect = rc;
             window->ContentRegionRect = rc;
         }
         ImGui::PopStyleVar(2);
@@ -537,18 +446,11 @@ void MainFrontend::m_drawLeftButtonBar() {
         if (_opened) {
 #ifdef _DEBUG
             if (ImGui::CoolBarItem()) {  // Debug Pane
-                const auto aw           = ImGui::GetCoolBarItemWidth();
+                const auto aw = ImGui::GetCoolBarItemWidth();
                 m_ToolbarFontPtr->Scale = font_scale_ratio * ImGui::GetCoolBarItemScale();
-                ImGui::RadioButtonLabeled_BitWize<PaneFlags>(ImVec2(aw, aw),
-                                                             DEBUG_PANE_ICON "##Debug",
-                                                             nullptr,
-                                                             &LayoutManager::Instance()->pane_Shown,
-                                                             DebugPane::Instance()->paneFlag,
-                                                             false,
-                                                             true,
-                                                             0,
-                                                             false,
-                                                             m_ToolbarFontPtr);
+                ImGui::RadioButtonLabeled_BitWize<PaneFlags>(ImVec2(aw, aw), DEBUG_PANE_ICON "##Debug", nullptr,
+                    &LayoutManager::Instance()->pane_Shown, DebugPane::Instance()->paneFlag, false, true, 0, false,
+                    m_ToolbarFontPtr);
             }
 #endif  // _DEBUG
 
@@ -568,42 +470,39 @@ void MainFrontend::m_drawLeftButtonBar() {
             }*/
 
             if (ImGui::CoolBarItem()) {  // show/hide Tuning Pane
-                const auto aw           = ImGui::GetCoolBarItemWidth();
+                const auto aw = ImGui::GetCoolBarItemWidth();
                 m_ToolbarFontPtr->Scale = font_scale_ratio * ImGui::GetCoolBarItemScale();
-                ImGui::RadioButtonLabeled_BitWize<PaneFlags>(ImVec2(aw, aw),
-                                                             TUNING_PANE_ICON "##Tuning",
-                                                             nullptr,
-                                                             &LayoutManager::Instance()->pane_Shown,
-                                                             TuningPane::Instance()->paneFlag,
-                                                             false,
-                                                             true,
-                                                             0,
-                                                             false,
-                                                             m_ToolbarFontPtr);
+                ImGui::RadioButtonLabeled_BitWize<PaneFlags>(ImVec2(aw, aw), TUNING_PANE_ICON "##Tuning", nullptr,
+                    &LayoutManager::Instance()->pane_Shown, TuningPane::Instance()->paneFlag, false, true, 0, false,
+                    m_ToolbarFontPtr);
             }
 
             if (ImGui::CoolBarItem()) {  // show/hide Grid Renderer
-                const auto aw           = ImGui::GetCoolBarItemWidth();
+                const auto aw = ImGui::GetCoolBarItemWidth();
                 m_ToolbarFontPtr->Scale = font_scale_ratio * ImGui::GetCoolBarItemScale();
-                ImGui::RadioButtonLabeled(ImVec2(aw, aw), GRID_ICON "##Grid", nullptr, &MainBackend::Instance()->GetBackendDatasRef().canWeShowGrid, false, m_ToolbarFontPtr);
+                ImGui::RadioButtonLabeled(ImVec2(aw, aw), GRID_ICON "##Grid", nullptr,
+                    &MainBackend::Instance()->GetBackendDatasRef().canWeShowGrid, false, m_ToolbarFontPtr);
             }
 
             if (ImGui::CoolBarItem()) {  // enable/disable Camera
-                const auto aw           = ImGui::GetCoolBarItemWidth();
+                const auto aw = ImGui::GetCoolBarItemWidth();
                 m_ToolbarFontPtr->Scale = font_scale_ratio * ImGui::GetCoolBarItemScale();
-                ImGui::RadioButtonLabeled(ImVec2(aw, aw), CAMERA_ICON "##Camera", nullptr, &MainBackend::Instance()->GetBackendDatasRef().canWeTuneCamera, false, m_ToolbarFontPtr);
+                ImGui::RadioButtonLabeled(ImVec2(aw, aw), CAMERA_ICON "##Camera", nullptr,
+                    &MainBackend::Instance()->GetBackendDatasRef().canWeTuneCamera, false, m_ToolbarFontPtr);
             }
 
             if (ImGui::CoolBarItem()) {  // enable/disable Mouse
-                const auto aw           = ImGui::GetCoolBarItemWidth();
+                const auto aw = ImGui::GetCoolBarItemWidth();
                 m_ToolbarFontPtr->Scale = font_scale_ratio * ImGui::GetCoolBarItemScale();
-                ImGui::RadioButtonLabeled(ImVec2(aw, aw), MOUSE_ICON "##Mouse", nullptr, &MainBackend::Instance()->GetBackendDatasRef().canWeTuneMouse, false, m_ToolbarFontPtr);
+                ImGui::RadioButtonLabeled(ImVec2(aw, aw), MOUSE_ICON "##Mouse", nullptr,
+                    &MainBackend::Instance()->GetBackendDatasRef().canWeTuneMouse, false, m_ToolbarFontPtr);
             }
 
             if (ImGui::CoolBarItem()) {  // enable/disable Gizmo
-                const auto aw           = ImGui::GetCoolBarItemWidth();
+                const auto aw = ImGui::GetCoolBarItemWidth();
                 m_ToolbarFontPtr->Scale = font_scale_ratio * ImGui::GetCoolBarItemScale();
-                ImGui::RadioButtonLabeled(ImVec2(aw, aw), GIZMO_ICON "##Gizmo", nullptr, &MainBackend::Instance()->GetBackendDatasRef().canWeTuneGizmo, false, m_ToolbarFontPtr);
+                ImGui::RadioButtonLabeled(ImVec2(aw, aw), GIZMO_ICON "##Gizmo", nullptr,
+                    &MainBackend::Instance()->GetBackendDatasRef().canWeTuneGizmo, false, m_ToolbarFontPtr);
             }
 
             ImGui::EndCoolBar();
@@ -615,28 +514,20 @@ void MainFrontend::m_drawLeftButtonBar() {
 //// SAVE DIALOG WHEN UN SAVED CHANGES ////////////////
 ///////////////////////////////////////////////////////
 
-void MainFrontend::OpenUnSavedDialog()
-{
+void MainFrontend::OpenUnSavedDialog() {
     // force close dialog if any dialog is opened
     ImGuiFileDialog::Instance()->Close();
 
     m_SaveDialogIfRequired = true;
 }
-void MainFrontend::CloseUnSavedDialog()
-{
-    m_SaveDialogIfRequired = false;
-}
+void MainFrontend::CloseUnSavedDialog() { m_SaveDialogIfRequired = false; }
 
-bool MainFrontend::ShowUnSavedDialog()
-{
+bool MainFrontend::ShowUnSavedDialog() {
     bool res = false;
 
-    if (m_SaveDialogIfRequired)
-    {
-        if (ProjectFile::Instance()->IsLoaded())
-        {
-            if (ProjectFile::Instance()->IsThereAnyNotSavedChanged())
-            {
+    if (m_SaveDialogIfRequired) {
+        if (ProjectFile::Instance()->IsLoaded()) {
+            if (ProjectFile::Instance()->IsThereAnyNotSavedChanged()) {
                 /*
                 Unsaved dialog behavior :
                 -	save :
@@ -652,25 +543,20 @@ bool MainFrontend::ShowUnSavedDialog()
                 ImGui::CloseCurrentPopup();
                 ImGui::OpenPopup("Do you want to save before ?");
                 if (ImGui::BeginPopupModal("Do you want to save before ?", (bool*)0,
-                    ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking))
-                {
-                    if (ImGui::Button("Save"))
-                    {
+                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking)) {
+                    if (ImGui::Button("Save")) {
                         res = Action_UnSavedDialog_SaveProject();
                     }
                     ImGui::SameLine();
-                    if (ImGui::Button("Save As"))
-                    {
+                    if (ImGui::Button("Save As")) {
                         Action_UnSavedDialog_SaveAsProject();
                     }
 
-                    if (ImGui::Button("Continue without saving"))
-                    {
-                        res = true; // quit the action
+                    if (ImGui::Button("Continue without saving")) {
+                        res = true;  // quit the action
                     }
                     ImGui::SameLine();
-                    if (ImGui::Button("Cancel"))
-                    {
+                    if (ImGui::Button("Cancel")) {
                         Action_Cancel();
                     }
 
@@ -679,18 +565,17 @@ bool MainFrontend::ShowUnSavedDialog()
             }
         }
 
-        return res; // quit if true, else continue on the next frame
+        return res;  // quit if true, else continue on the next frame
     }
 
-    return true; // quit the action
+    return true;  // quit the action
 }
 
 ///////////////////////////////////////////////////////
 //// ACTIONS //////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-void MainFrontend::Action_Menu_NewProject()
-{
+void MainFrontend::Action_Menu_NewProject() {
     /*
     new project :
     -	unsaved :
@@ -701,21 +586,16 @@ void MainFrontend::Action_Menu_NewProject()
     */
     m_ActionSystem.Clear();
     Action_OpenUnSavedDialog_IfNeeded();
-    m_ActionSystem.Add([this]()
-        {
-            CloseUnSavedDialog();
-    ImGuiFileDialog::Instance()->OpenDialog(
-        "NewProjectDlg", "New Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
-    return true;
-        });
-    m_ActionSystem.Add([this]()
-        {
-            return Display_NewProjectDialog();
-        });
+    m_ActionSystem.Add([this]() {
+        CloseUnSavedDialog();
+        ImGuiFileDialog::Instance()->OpenDialog(
+            "NewProjectDlg", "New Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
+        return true;
+    });
+    m_ActionSystem.Add([this]() { return Display_NewProjectDialog(); });
 }
 
-void MainFrontend::Action_Menu_OpenProject()
-{
+void MainFrontend::Action_Menu_OpenProject() {
     /*
     open project :
     -	unsaved :
@@ -726,21 +606,16 @@ void MainFrontend::Action_Menu_OpenProject()
     */
     m_ActionSystem.Clear();
     Action_OpenUnSavedDialog_IfNeeded();
-    m_ActionSystem.Add([this]()
-        {
-            CloseUnSavedDialog();
-    ImGuiFileDialog::Instance()->OpenDialog(
-        "OpenProjectDlg", "Open Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
-    return true;
-        });
-    m_ActionSystem.Add([this]()
-        {
-            return Display_OpenProjectDialog();
-        });
+    m_ActionSystem.Add([this]() {
+        CloseUnSavedDialog();
+        ImGuiFileDialog::Instance()->OpenDialog(
+            "OpenProjectDlg", "Open Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
+        return true;
+    });
+    m_ActionSystem.Add([this]() { return Display_OpenProjectDialog(); });
 }
 
-void MainFrontend::Action_Menu_ReOpenProject()
-{
+void MainFrontend::Action_Menu_ReOpenProject() {
     /*
     re open project :
     -	unsaved :
@@ -751,15 +626,13 @@ void MainFrontend::Action_Menu_ReOpenProject()
     */
     m_ActionSystem.Clear();
     Action_OpenUnSavedDialog_IfNeeded();
-    m_ActionSystem.Add([this]()
-        {
-            NeedToLoadProject(ProjectFile::Instance()->GetProjectFilepathName());
-    return true;
-        });
+    m_ActionSystem.Add([this]() {
+        MainBackend::Instance()->NeedToLoadProject(ProjectFile::Instance()->GetProjectFilepathName());
+        return true;
+    });
 }
 
-void MainFrontend::Action_Menu_SaveProject()
-{
+void MainFrontend::Action_Menu_SaveProject() {
     /*
     save project :
     -	never saved :
@@ -768,45 +641,33 @@ void MainFrontend::Action_Menu_SaveProject()
         -	add action : save project
     */
     m_ActionSystem.Clear();
-    m_ActionSystem.Add([this]()
-        {
-            if (!SaveProject())
-            {
-                CloseUnSavedDialog();
-                ImGuiFileDialog::Instance()->OpenDialog(
-                    "SaveProjectDlg", "Save Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
-            }
-    return true;
-        });
-    m_ActionSystem.Add([this]()
-        {
-            return Display_SaveProjectDialog();
-        });
+    m_ActionSystem.Add([this]() {
+        if (!MainBackend::Instance()->SaveProject()) {
+            CloseUnSavedDialog();
+            ImGuiFileDialog::Instance()->OpenDialog(
+                "SaveProjectDlg", "Save Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
+        }
+        return true;
+    });
+    m_ActionSystem.Add([this]() { return Display_SaveProjectDialog(); });
 }
 
-void MainFrontend::Action_Menu_SaveAsProject()
-{
+void MainFrontend::Action_Menu_SaveAsProject() {
     /*
     save as project :
     -	add action : save as project
     */
     m_ActionSystem.Clear();
-    m_ActionSystem.Add([this]()
-        {
-            CloseUnSavedDialog();
-    ImGuiFileDialog::Instance()->OpenDialog(
-        "SaveProjectDlg", "Save Project File", ".lum", "",
-        1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal);
-    return true;
-        });
-    m_ActionSystem.Add([this]()
-        {
-            return Display_SaveProjectDialog();
-        });
+    m_ActionSystem.Add([this]() {
+        CloseUnSavedDialog();
+        ImGuiFileDialog::Instance()->OpenDialog("SaveProjectDlg", "Save Project File", ".lum", "", 1, nullptr,
+            ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal);
+        return true;
+    });
+    m_ActionSystem.Add([this]() { return Display_SaveProjectDialog(); });
 }
 
-void MainFrontend::Action_Menu_CloseProject()
-{
+void MainFrontend::Action_Menu_CloseProject() {
     /*
     Close project :
     -	unsaved :
@@ -817,16 +678,15 @@ void MainFrontend::Action_Menu_CloseProject()
     */
     m_ActionSystem.Clear();
     Action_OpenUnSavedDialog_IfNeeded();
-    m_ActionSystem.Add([this]()
-        {
-            NeedToCloseProject();
-    return true;
-        });
+    m_ActionSystem.Add([this]() {
+        MainBackend::Instance()->NeedToCloseProject();
+        return true;
+    });
 }
 
-void MainFrontend::Action_Window_CloseApp()
-{
-    if (m_NeedToCloseApp) return; // block next call to close app when running
+void MainFrontend::Action_Window_CloseApp() {
+    if (MainBackend::Instance()->IsNeedToCloseApp())
+        return;  // block next call to close app when running
     /*
     Close app :
     -	unsaved :
@@ -835,134 +695,77 @@ void MainFrontend::Action_Window_CloseApp()
     -	saved :
         -	add action : Close app
     */
-    m_NeedToCloseApp = true;
 
     m_ActionSystem.Clear();
     Action_OpenUnSavedDialog_IfNeeded();
-    m_ActionSystem.Add([this]()
-        {
-            //glfwSetWindowShouldClose(m_Window, 1); // close app
-    return true;
-        });
+    m_ActionSystem.Add([this]() {
+        MainBackend::Instance()->CloseApp();
+        return true;
+    });
 }
 
-void MainFrontend::Action_OpenUnSavedDialog_IfNeeded()
-{
-    if (ProjectFile::Instance()->IsLoaded() &&
-        ProjectFile::Instance()->IsThereAnyNotSavedChanged())
-    {
+void MainFrontend::Action_OpenUnSavedDialog_IfNeeded() {
+    if (ProjectFile::Instance()->IsLoaded() && ProjectFile::Instance()->IsThereAnyNotSavedChanged()) {
         OpenUnSavedDialog();
-        m_ActionSystem.Add([this]()
-            {
-                return ShowUnSavedDialog();
-            });
+        m_ActionSystem.Add([this]() { return ShowUnSavedDialog(); });
     }
 }
 
-void MainFrontend::Action_Cancel()
-{
+void MainFrontend::Action_Cancel() {
     /*
     -	cancel :
         -	clear actions
     */
     CloseUnSavedDialog();
     m_ActionSystem.Clear();
-    m_NeedToCloseApp = false;
+    MainBackend::Instance()->NeedToCloseApp(false);
 }
 
-bool MainFrontend::Action_UnSavedDialog_SaveProject()
-{
-    bool res = SaveProject();
-    if (!res)
-    {
-        m_ActionSystem.Insert([this]()
-            {
-                return Display_SaveProjectDialog();
-            });
-        m_ActionSystem.Insert([this]()
-            {
-                CloseUnSavedDialog();
-        ImGuiFileDialog::Instance()->OpenDialog(
-            "SaveProjectDlg", "Save Project File", ".lum",
-            ".", 1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal);
-        return true;
-            });
+bool MainFrontend::Action_UnSavedDialog_SaveProject() {
+    bool res = MainBackend::Instance()->SaveProject();
+    if (!res) {
+        m_ActionSystem.Insert([this]() { return Display_SaveProjectDialog(); });
+        m_ActionSystem.Insert([this]() {
+            CloseUnSavedDialog();
+            ImGuiFileDialog::Instance()->OpenDialog("SaveProjectDlg", "Save Project File", ".lum", ".", 1, nullptr,
+                ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal);
+            return true;
+        });
     }
     return res;
 }
 
-void MainFrontend::Action_UnSavedDialog_SaveAsProject()
-{
-    m_ActionSystem.Insert([this]()
-        {
-            return Display_SaveProjectDialog();
-        });
-    m_ActionSystem.Insert([this]()
-        {
-            CloseUnSavedDialog();
-    ImGuiFileDialog::Instance()->OpenDialog(
-        "SaveProjectDlg", "Save Project File", ".lum",
-        ".", 1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal);
-    return true;
-        });
+void MainFrontend::Action_UnSavedDialog_SaveAsProject() {
+    m_ActionSystem.Insert([this]() { return Display_SaveProjectDialog(); });
+    m_ActionSystem.Insert([this]() {
+        CloseUnSavedDialog();
+        ImGuiFileDialog::Instance()->OpenDialog("SaveProjectDlg", "Save Project File", ".lum", ".", 1, nullptr,
+            ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal);
+        return true;
+    });
 }
 
-void MainFrontend::Action_UnSavedDialog_Cancel()
-{
-    Action_Cancel();
-}
+void MainFrontend::Action_UnSavedDialog_Cancel() { Action_Cancel(); }
 
 ///////////////////////////////////////////////////////
 //// DIALOG FUNCS /////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool MainFrontend::Display_NewProjectDialog()
-{
+bool MainFrontend::Display_NewProjectDialog() {
     // need to return false to continue to be displayed next frame
 
     ImVec2 min = m_DisplaySize * 0.5f;
     ImVec2 max = m_DisplaySize;
 
-    if (ImGuiFileDialog::Instance()->Display("NewProjectDlg",
-        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, min, max))
-    {
-        if (ImGuiFileDialog::Instance()->IsOk())
-        {
+    if (ImGuiFileDialog::Instance()->Display(
+            "NewProjectDlg", ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, min, max)) {
+        if (ImGuiFileDialog::Instance()->IsOk()) {
             CloseUnSavedDialog();
             auto file = ImGuiFileDialog::Instance()->GetFilePathName();
-            NeedToNewProject(file);
-        }
-        else // cancel
+            MainBackend::Instance()->NeedToNewProject(file);
+        } else  // cancel
         {
-            Action_Cancel(); // we interrupts all actions
-        }
-
-        ImGuiFileDialog::Instance()->Close();
-
-        return true;
-    }
-
-    return false;
-}
-
-bool MainFrontend::Display_OpenProjectDialog()
-{
-    // need to return false to continue to be displayed next frame
-
-    ImVec2 min = m_DisplaySize * 0.5f;
-    ImVec2 max = m_DisplaySize;
-
-    if (ImGuiFileDialog::Instance()->Display("OpenProjectDlg",
-        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, min, max))
-    {
-        if (ImGuiFileDialog::Instance()->IsOk())
-        {
-            CloseUnSavedDialog();
-            NeedToLoadProject(ImGuiFileDialog::Instance()->GetFilePathName());
-        }
-        else // cancel
-        {
-            Action_Cancel(); // we interrupts all actions
+            Action_Cancel();  // we interrupts all actions
         }
 
         ImGuiFileDialog::Instance()->Close();
@@ -973,24 +776,44 @@ bool MainFrontend::Display_OpenProjectDialog()
     return false;
 }
 
-bool MainFrontend::Display_SaveProjectDialog()
-{
+bool MainFrontend::Display_OpenProjectDialog() {
     // need to return false to continue to be displayed next frame
 
     ImVec2 min = m_DisplaySize * 0.5f;
     ImVec2 max = m_DisplaySize;
 
-    if (ImGuiFileDialog::Instance()->Display("SaveProjectDlg",
-        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, min, max))
-    {
-        if (ImGuiFileDialog::Instance()->IsOk())
-        {
+    if (ImGuiFileDialog::Instance()->Display(
+            "OpenProjectDlg", ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, min, max)) {
+        if (ImGuiFileDialog::Instance()->IsOk()) {
             CloseUnSavedDialog();
-            SaveAsProject(ImGuiFileDialog::Instance()->GetFilePathName());
-        }
-        else // cancel
+            MainBackend::Instance()->NeedToLoadProject(ImGuiFileDialog::Instance()->GetFilePathName());
+        } else  // cancel
         {
-            Action_Cancel(); // we interrupts all actions
+            Action_Cancel();  // we interrupts all actions
+        }
+
+        ImGuiFileDialog::Instance()->Close();
+
+        return true;
+    }
+
+    return false;
+}
+
+bool MainFrontend::Display_SaveProjectDialog() {
+    // need to return false to continue to be displayed next frame
+
+    ImVec2 min = m_DisplaySize * 0.5f;
+    ImVec2 max = m_DisplaySize;
+
+    if (ImGuiFileDialog::Instance()->Display(
+            "SaveProjectDlg", ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking, min, max)) {
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            CloseUnSavedDialog();
+            MainBackend::Instance()->SaveAsProject(ImGuiFileDialog::Instance()->GetFilePathName());
+        } else  // cancel
+        {
+            Action_Cancel();  // we interrupts all actions
         }
 
         ImGuiFileDialog::Instance()->Close();
@@ -1005,24 +828,19 @@ bool MainFrontend::Display_SaveProjectDialog()
 //// APP CLOSING //////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-void MainFrontend::IWantToCloseTheApp()
-{
-    Action_Window_CloseApp();
-}
+void MainFrontend::IWantToCloseTheApp() { Action_Window_CloseApp(); }
 
 ///////////////////////////////////////////////////////
 //// DROP /////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-void MainFrontend::JustDropFiles(int count, const char** paths)
-{
+void MainFrontend::JustDropFiles(int count, const char** paths) {
     assert(0);
 
     std::map<std::string, std::string> dicoFont;
     std::string prj;
 
-    for (int i = 0; i < count; ++i)
-    {
+    for (int i = 0; i < count; ++i) {
         // file
         auto f = std::string(paths[i]);
 
@@ -1032,23 +850,20 @@ void MainFrontend::JustDropFiles(int count, const char** paths)
             c = (char)std::tolower((int)c);
 
         // well known extention
-        if (f_opt.find(".ttf") != std::string::npos			// truetype (.ttf)
-            || f_opt.find(".otf") != std::string::npos			// opentype (.otf)
+        if (f_opt.find(".ttf") != std::string::npos     // truetype (.ttf)
+            || f_opt.find(".otf") != std::string::npos  // opentype (.otf)
             //||	f_opt.find(".ttc") != std::string::npos		// ttf/otf collection for futur (.ttc)
-            )
-        {
+        ) {
             dicoFont[f] = f;
         }
-        if (f_opt.find(".lum") != std::string::npos)
-        {
+        if (f_opt.find(".lum") != std::string::npos) {
             prj = f;
         }
     }
 
     // priority to project file
-    if (!prj.empty())
-    {
-        NeedToLoadProject(prj);
+    if (!prj.empty()) {
+        MainBackend::Instance()->NeedToLoadProject(prj);
     }
 }
 
@@ -1059,11 +874,12 @@ void MainFrontend::JustDropFiles(int count, const char** paths)
 bool MainFrontend::m_build() {
     // toolbar
     static ImFontConfig icons_config3;
-    icons_config3.MergeMode              = false;
-    icons_config3.PixelSnapH             = true;
+    icons_config3.MergeMode = false;
+    icons_config3.PixelSnapH = true;
     static const ImWchar icons_ranges3[] = {ICON_MIN_SDFMT, ICON_MAX_SDFMT, 0};
-    const float&         font_size       = 20.0f / font_scale_ratio;
-    m_ToolbarFontPtr                     = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_SDFMT, font_size, &icons_config3, icons_ranges3);
+    const float& font_size = 20.0f / font_scale_ratio;
+    m_ToolbarFontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(
+        FONT_ICON_BUFFER_NAME_SDFMT, font_size, &icons_config3, icons_ranges3);
     if (m_ToolbarFontPtr != nullptr) {
         m_ToolbarFontPtr->Scale = font_scale_ratio;
         return true;
@@ -1092,7 +908,8 @@ std::string MainFrontend::getXml(const std::string& vOffset, const std::string& 
     return str;
 }
 
-bool MainFrontend::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+bool MainFrontend::setFromXml(
+    tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
     UNUSED(vUserDatas);
 
     // The value of this child identifies the name of this element
@@ -1111,9 +928,8 @@ bool MainFrontend::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 
     if (strName == "bookmarks") {
         ImGuiFileDialog::Instance()->DeserializeBookmarks(strValue);
-    }
-    else if (strName == "project"){
-        NeedToLoadProject(strValue);
+    } else if (strName == "project") {
+        MainBackend::Instance()->NeedToLoadProject(strValue);
     } else if (strName == "showaboutdialog") {
         m_ShowAboutDialog = ct::ivariant(strValue).GetB();
     } else if (strName == "showimgui") {

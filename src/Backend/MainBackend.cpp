@@ -15,15 +15,13 @@
 #include <Plugins/PluginManager.h>
 #include <Graph/Manager/NodeManager.h>
 #include <Graph/Library/UserNodeLibrary.h>
+#include <LayoutManager.h>
 
 #include <Panes/View2DPane.h>
 #include <Panes/View3DPane.h>
 
 #include <Headers/Globals.h>
 #include <Headers/LumoBuild.h>
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
@@ -59,6 +57,15 @@ using namespace gaia;
 //// STATIC //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
+static void glfw_window_close_callback(GLFWwindow* window) {
+    glfwSetWindowShouldClose(window, GL_FALSE);  // block app closing
+    MainBackend::Instance()->GetOverlayPtr()->getFrontend()->Action_Window_CloseApp();
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+//// STATIC //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
+
 MainBackendPtr MainBackend::Create() {
     auto res = std::make_shared<MainBackend>();
     res->m_This = res;
@@ -89,6 +96,7 @@ bool MainBackend::init() {
                     m_InitNodes();
                     m_Resize();
                     m_InitSystems();
+                    LayoutManager::Instance()->InitPanes();
                     // if (m_CreateRenderers()) {
                     LoadConfigFile("config.xml");
                     if (!m_ProjectFileToLoad.empty()) {
@@ -122,6 +130,59 @@ bool MainBackend::isValid() const {
 }
 
 bool MainBackend::isThereAnError() const { return false; }
+
+void MainBackend::NeedToNewProject(const std::string& vFilePathName) {
+    m_NeedToNewProject = true;
+    m_ProjectFileToLoad = vFilePathName;
+}
+
+void MainBackend::NeedToLoadProject(const std::string& vFilePathName) {
+    m_NeedToLoadProject = true;
+    m_ProjectFileToLoad = vFilePathName;
+}
+
+void MainBackend::NeedToCloseProject() { m_NeedToCloseProject = true; }
+
+bool MainBackend::SaveProject() { return ProjectFile::Instance()->Save(); }
+
+void MainBackend::SaveAsProject(const std::string& vFilePathName) {
+    ProjectFile::Instance()->SaveAs(vFilePathName);
+}
+
+// actions to do after rendering
+void MainBackend::PostRenderingActions() {
+    if (m_NeedToNewProject) {
+        ProjectFile::Instance()->New(m_ProjectFileToLoad);
+        m_VulkanWindowPtr->setAppTitle(m_ProjectFileToLoad);
+
+        m_ProjectFileToLoad.clear();
+        m_NeedToNewProject = false;
+    }
+
+    if (m_NeedToLoadProject) {
+        if (ProjectFile::Instance()->LoadAs(m_ProjectFileToLoad)) {
+            m_VulkanWindowPtr->setAppTitle(m_ProjectFileToLoad);
+            ProjectFile::Instance()->SetProjectChange(false);
+        } else {
+            LogVarError("Failed to load project %s", m_ProjectFileToLoad.c_str());
+        }
+
+        m_ProjectFileToLoad.clear();
+        m_NeedToLoadProject = false;
+    }
+
+    if (m_NeedToCloseProject) {
+        NodeManager::Instance()->Clear();
+        ProjectFile::Instance()->Clear();
+        m_NeedToCloseProject = false;
+    }
+}
+
+bool MainBackend::IsNeedToCloseApp() { return m_NeedToCloseApp; }
+
+void MainBackend::NeedToCloseApp(const bool& vFlag) { m_NeedToCloseApp = vFlag; }
+
+void MainBackend::CloseApp() { getWindowPtr()->CloseWindowWhenPossible(); }
 
 void MainBackend::setSize(const ct::ivec2& vSize) { m_size = vSize; }
 
@@ -268,10 +329,10 @@ void MainBackend::m_MainLoop() {
 
         // delete imgui nodes now
         // like that => no issue with imgui descriptors because after imgui render and before next node computing
-        GraphPane::Instance()->DeleteNodesIfAnys();
+        m_DeleteNodesIfAnys();
 
         // mainframe post actions
-        m_ImGuiOverlayPtr->getFrontend()->PostRenderingActions();
+        PostRenderingActions();
 
         ++m_CurrentFrame;
 
@@ -549,7 +610,7 @@ std::string MainBackend::getXml(const std::string& vOffset, const std::string& v
 
     str += m_ImGuiOverlayPtr->getFrontend()->getXml(vOffset, vUserDatas);
     str += CommonSystem::Instance()->getXml(vOffset, vUserDatas);
-    str += vOffset + "<project>" + m_ProjectFile + "</project>\n";
+    str += vOffset + "<project>" + ProjectFile::Instance()->GetProjectFilepathName() + "</project>\n";
     str += vOffset +
            ct::toStr("<can_we_tune_mouse>%s</can_we_tune_mouse>", (m_BackendDatas.canWeTuneMouse ? "true" : "false"));
     str += vOffset + ct::toStr("<can_we_tune_camera>%s</can_we_tune_camera>",
@@ -581,7 +642,7 @@ bool MainBackend::setFromXml(
     CommonSystem::Instance()->setFromXml(vElem, vParent, vUserDatas);
 
     if (strName == "project") {
-        m_ProjectFileToLoad = strValue;
+        NeedToLoadProject(strValue);
     } else if (strName == "can_we_tune_mouse") {
         m_BackendDatas.canWeTuneMouse = ct::ivariant(strValue).GetB();
     } else if (strName == "can_we_tune_camera") {
@@ -603,6 +664,9 @@ bool MainBackend::m_build() { return false; }
 
 bool MainBackend::m_CreateVulkanWindow() {
     m_VulkanWindowPtr = GaiApi::VulkanWindow::Create(INITIAL_WIDTH, INITIAL_HEIGHT, Lumo_Prefix " beta", false);
+    if (m_VulkanWindowPtr != nullptr && m_VulkanWindowPtr->getWindowPtr() != nullptr) {
+        glfwSetWindowCloseCallback(m_VulkanWindowPtr->getWindowPtr(), glfw_window_close_callback);
+    }
     return (m_VulkanWindowPtr != nullptr);
 }
 
@@ -630,6 +694,14 @@ void MainBackend::m_InitNodes() {
 
 void MainBackend::m_InitPlugins() {
     PluginManager::Instance()->LoadPlugins(m_VulkanCorePtr);
+    auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
+    for (auto& pluginPane : pluginPanes) {
+        if (!pluginPane.paneWeak.expired()) {
+            LayoutManager::Instance()->AddPane(pluginPane.paneWeak, pluginPane.paneName, pluginPane.paneCategory,
+                pluginPane.paneDisposal, pluginPane.isPaneOpenedDefault, pluginPane.isPaneFocusedDefault);
+        }
+    }
+    LayoutManager::Instance()->InitPanes();
 }
 
 void MainBackend::m_InitSystems() {
@@ -661,3 +733,9 @@ bool MainBackend::m_CreateRenderers() {
 }
 
 void MainBackend::m_DestroyRenderers() { m_DisplaySizeQuadRendererPtr.reset(); }
+
+void MainBackend::m_DeleteNodesIfAnys() {
+    if (NodeManager::Instance()->m_RootNodePtr) {
+        NodeManager::Instance()->m_RootNodePtr->DestroyNodesIfAnys();
+    }
+}

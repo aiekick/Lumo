@@ -165,12 +165,6 @@ bool GraphPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContex
 	return false;
 }
 
-void GraphPane::DeleteNodesIfAnys()
-{
-	if (NodeManager::Instance()->m_RootNodePtr)
-		NodeManager::Instance()->m_RootNodePtr->DestroyNodesIfAnys();
-}
-
 void GraphPane::AddGraphPane(BaseNodeWeak vNodeGraphToShow)
 {
 	if (!vNodeGraphToShow.expired())

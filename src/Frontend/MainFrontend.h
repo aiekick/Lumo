@@ -119,14 +119,9 @@ private:
 	ImVec2 m_DisplayPos = ImVec2(0, 0); // viewport
 	ImVec2 m_DisplaySize = ImVec2(1280, 720);
 	bool m_ShowAboutDialog = false;			// show about dlg
-	bool m_NeedToCloseApp = false;			// whenn app closing app is required
 	bool m_SaveDialogIfRequired = false;	// open save options dialog (save / save as / continue without saving / cancel)
 	bool m_SaveDialogActionWasDone = false;	// if action was done by save options dialog
 	FrameActionSystem m_ActionSystem;
-	bool m_NeedToNewProject = false;
-	bool m_NeedToLoadProject = false;
-	bool m_NeedToCloseProject = false;
-	std::string m_FilePathNameToLoad;
 
 public:
     static MainFrontendPtr create();
@@ -145,15 +140,6 @@ public:
 
 	void SelectNode(const BaseNodeWeak& vNode);
 	void SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton);
-
-	void NeedToNewProject(const std::string& vFilePathName);
-	void NeedToLoadProject(const std::string& vFilePathName);
-	void NeedToCloseProject();
-
-	bool SaveProject();
-	void SaveAsProject(const std::string& vFilePathName);
-
-	void PostRenderingActions();
 
     void Display(const uint32_t& vCurrentFrame);
 
@@ -187,11 +173,10 @@ public: // actions
 	void Action_Menu_ReOpenProject();
 	void Action_Menu_SaveProject();
 	void Action_Menu_SaveAsProject();
-	void Action_Menu_CloseProject();
+    void Action_Menu_CloseProject();
+    void Action_Window_CloseApp();
 
 private: // actions
-	// view the window
-	void Action_Window_CloseApp();
 	// via the unsaved dialog
 	bool Action_UnSavedDialog_SaveProject();
 	void Action_UnSavedDialog_SaveAsProject();

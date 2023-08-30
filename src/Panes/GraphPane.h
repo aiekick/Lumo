@@ -47,8 +47,6 @@ public:
 
 	void Clear();
 
-	void DeleteNodesIfAnys();
-
 	void AddGraphPane(BaseNodeWeak vNodeGraphToShow);
 	void RemoveGraphPane(BaseNodeWeak vNodeGraphToShow);
 	void ClearGraphPanes();

@@ -73,6 +73,8 @@ void ProjectFile::New(const std::string& vFilePathName)
 
 	// then load
 	NodeManager::Instance()->FinalizeGraphLoading();
+
+	Save(); // save tp fome
 }
 
 bool ProjectFile::Load()

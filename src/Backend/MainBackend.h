@@ -67,10 +67,14 @@ private:
     bool         m_ConsoleVisiblity   = false;
     BackendDatas m_BackendDatas;
     float        m_DisplayQuality = 1.0f;
-    uint32_t     m_CurrentFrame   = 0U;
+    uint32_t m_CurrentFrame = 0U;
 
+    bool m_NeedToCloseApp = false;  // when app closing app is required
+
+    bool m_NeedToNewProject = false;
+    bool m_NeedToLoadProject = false;
+    bool m_NeedToCloseProject = false;
     std::string m_ProjectFileToLoad;
-    std::string m_ProjectFile;
 
     std::function<void(std::set<std::string>)> m_ChangeFunc;
     std::set<std::string>                      m_PathsToTrack;
@@ -91,9 +95,23 @@ public:
 
     MainBackendWeak GetWeak() { return m_This; }
     MainFrontendWeak GetFrontend() { return m_Frontend; }
+    ImGuiOverlayPtr GetOverlayPtr() { return m_ImGuiOverlayPtr; }
 
     bool isValid() const override;
     bool isThereAnError() const override;
+
+    void NeedToNewProject(const std::string& vFilePathName);
+    void NeedToLoadProject(const std::string& vFilePathName);
+    void NeedToCloseProject();
+
+    bool SaveProject();
+    void SaveAsProject(const std::string& vFilePathName);
+
+    void PostRenderingActions();
+
+    bool IsNeedToCloseApp();
+    void NeedToCloseApp(const bool& vFlag = true);
+    void CloseApp();
 
     void setSize(const ct::ivec2& vSize) override;
     const ct::ivec2& getSize() const override;
@@ -139,6 +157,8 @@ private:
     void m_DestroyImGuiOverlay();
     void m_DestroyRenderers();
 
+    void m_DeleteNodesIfAnys();
+
     void m_MainLoop();
     bool m_BeginRender(bool& vNeedResize);
     void m_EndRender();
@@ -155,6 +175,7 @@ private:
     void m_UpdateMouse();
     void m_UpdateCamera(const bool& vForce = false);
     void m_UpdateSound();
+    void m_UpdateMidi();
 
     void m_UpdateCameraAndMouse();
 
