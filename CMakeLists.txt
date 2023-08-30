@@ -5,7 +5,6 @@ set(PROJECT_VER 0.1.0)
 
 enable_language(C CXX)
 
-option(USE_PLUGINS "Enable the plugins building" ON)
 option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 option(USE_TRACY_PROFILER "Enable Tracy Profiler" OFF)
 option(USE_TESTING_LUMO "Enable Tests" OFF)
@@ -35,35 +34,23 @@ set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
 set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 
-if (USE_PLUGINS)
-	option(USE_PLUGIN_CORE "Enable the Core Nodes" ON)
-	option(USE_PLUGIN_AUDIART "Enable the plugin AudiArt" OFF)
-	option(USE_PLUGIN_MESH_GEN "Enable the plugin MeshGen" OFF)
-	option(USE_PLUGIN_MESH_SIM "Enable the plugin MeshSim" OFF)
-	option(USE_PLUGIN_MESH_SSS "Enable the plugin MeshSSS" OFF)
-	option(USE_PLUGIN_PLANET_SYSTEM "Enable the plugin Planet System" OFF)
-	option(USE_PLUGIN_SDF_MESHER "Enable the plugin SdfMesher" OFF)
-	option(USE_PLUGIN_BLUE_PRINTS "Enable the plugin BluePrints" OFF)
-	option(USE_PLUGIN_MORPHOGENESIS "Enable the plugin MorphoGenesis" OFF)
-	option(USE_PLUGIN_RTX "Enable the plugin RTX" OFF)
-	option(USE_PLUGIN_PARTICLES "Enable the plugin Particles" OFF)
-	option(USE_PLUGIN_SMOKE "Enable the plugin Smoke" OFF)
-	option(USE_PLUGIN_VR "Enable VR Backend via OpenXR" OFF)
-else()
-	set(USE_PLUGIN_CORE OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_AUDIART OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_MESH_GEN OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_MESH_SIM OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_MESH_SSS OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_PLANET_SYSTEM OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_SDF_MESHER OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_BLUE_PRINTS OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_MORPHOGENESIS OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_RTX OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_PARTICLES OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_SMOKE OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_VR OFF CACHE BOOL "" FORCE)
-endif()
+###########################################################
+##### SEARCH FOR PLUGINS ##################################
+###########################################################
+
+set(PLUGINS_DIRECTORY ${CMAKE_SOURCE_DIR}/Plugins)
+file(GLOB SUBDIRS RELATIVE ${PLUGINS_DIRECTORY} ${PLUGINS_DIRECTORY}/*)
+FOREACH(SUBDIR ${SUBDIRS})
+	if(IS_DIRECTORY ${PLUGINS_DIRECTORY}/${SUBDIR})
+		if (EXISTS ${PLUGINS_DIRECTORY}/${SUBDIR}/CMakeLists.txt)
+			add_subdirectory(${PLUGINS_DIRECTORY}/${SUBDIR})
+		endif()
+	endif()
+ENDFOREACH()
+
+###########################################################
+###########################################################
+###########################################################
 
 set(USE_SHARED_LIBS ON CACHE BOOL "" FORCE)
 

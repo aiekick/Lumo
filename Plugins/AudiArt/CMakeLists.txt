@@ -6,6 +6,10 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
+option(USE_PLUGIN_AUDIART "Enable the plugin AudiArt" OFF)
+
+if (USE_PLUGIN_AUDIART)
+
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MD CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_RELEASE MD CACHE STRING "" FORCE)
@@ -147,3 +151,5 @@ add_custom_command(
 ########################################################
 ########################################################
 ########################################################
+
+endif() #USE_PLUGIN_AUDIART

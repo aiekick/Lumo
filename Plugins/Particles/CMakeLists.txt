@@ -6,6 +6,10 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
+option(USE_PLUGIN_PARTICLES "Enable the plugin Particles" OFF)
+
+if (USE_PLUGIN_PARTICLES)
+
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MD CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_RELEASE MD CACHE STRING "" FORCE)
@@ -27,7 +31,9 @@ add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize im
 
 ## include(cmake/3rdparty.cmake)
 
-set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
+if (uninstall)
+	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
+endif()
 
 find_package(Vulkan REQUIRED)
 
@@ -111,6 +117,7 @@ set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}")
 set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
 
 message("BACKEND_INCLUDE_DIRS : ${Vulkan_INCLUDE_DIRS}")
 message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
@@ -171,3 +178,4 @@ add_custom_command(
 	DEPENDS ${PROJECT}
 )
 
+endif() #USE_PLUGIN_PARTICLES

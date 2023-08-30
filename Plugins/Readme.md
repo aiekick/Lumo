@@ -6,7 +6,7 @@
 | :heavy_check_mark: | Core | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | Core pack of Nodes |
 | :heavy_check_mark: | MeshGen | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | Procedural Mesh generation |
 | :x:  | MeshSim | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/90) | Texture Less Reaction Diffusion Simulation on Meshs |
-| :x:  | MeshSSS | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | My Own SSS Idea For RT SSS for Static mesh with Moving Ligth |
+| :x:  | MeshSSS | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | My Own SSS Idea For RT SSS for Static mesh with Moving Ligth |
 | :x:  | MorphoGenesis | :x: | :x: | ![img](https://progress-bar.dev/30) | Real Time MorphoGenesis Algos |
 | :heavy_check_mark: | Particles | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/50) | GPU Particle Engine |
 | :heavy_check_mark: | RTX | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | RTX Pipeline |

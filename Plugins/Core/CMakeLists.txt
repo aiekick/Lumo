@@ -6,6 +6,10 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
+option(USE_PLUGIN_CORE "Enable the plugin Core" OFF)
+
+if (USE_PLUGIN_CORE)
+
 set(LLVM_USE_CRT_DEBUG MTd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MT CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_RELEASE MT CACHE STRING "" FORCE)
@@ -27,7 +31,9 @@ add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize im
 
 ## include(cmake/3rdparty.cmake)
 
-set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
+if (uninstall)
+	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
+endif()
 
 ## other define
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
@@ -111,7 +117,8 @@ set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PROJECT}_${CMAKE_SYST
 set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
-
+set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
+			
 set(CMAKE_INSTALL_PREFIX ${FINAL_BIN_DIR}/plugins)
 install(TARGETS ${PROJECT} DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT ${PROJECT}_PLUGINS)
 
@@ -142,3 +149,5 @@ add_custom_command(
 ########################################################
 ########################################################
 ########################################################
+
+endif() #USE_PLUGIN_CORE

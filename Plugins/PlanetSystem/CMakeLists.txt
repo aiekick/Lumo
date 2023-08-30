@@ -6,6 +6,10 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
+option(USE_PLUGIN_PLANET_SYSTEM "Enable the plugin PlanetSystem" OFF)
+
+if (USE_PLUGIN_PLANET_SYSTEM)
+
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MD CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_RELEASE MD CACHE STRING "" FORCE)
@@ -25,7 +29,9 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
 
-set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
+if (uninstall)
+	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
+endif()
 
 find_package(Vulkan REQUIRED)
 
@@ -90,6 +96,7 @@ set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}")
 set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
 
 message("BACKEND_INCLUDE_DIRS : ${Vulkan_INCLUDE_DIRS}")
 message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
@@ -143,3 +150,5 @@ add_custom_command(
 ########################################################
 ########################################################
 ########################################################
+
+endif() #USE_PLUGIN_PLANET_SYSTEM
