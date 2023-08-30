@@ -4,7 +4,7 @@ set(LLVM_USE_CRT_RELEASE MT CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_RELWITHDEBINFO MT CACHE STRING "" FORCE)
 set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF CACHE BOOL "")
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/VR)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MyPlugins/VR)
 
 set_target_properties(VR PROPERTIES FOLDER Lumo_Plugins)
 
@@ -12,4 +12,4 @@ set_target_properties(VR PROPERTIES OUTPUT_NAME "VR_${CMAKE_SYSTEM_NAME}$<$<CONF
 
 set_target_properties(VR PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/VR/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/Plugins/MyPlugins/VR/src)

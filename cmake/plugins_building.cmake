@@ -16,24 +16,8 @@ if(USE_PLUGIN_MESH_SIM)
 	add_dependencies(${PROJECT} MeshSim)
 endif()
 
-if(USE_PLUGIN_MESH_SSS)
-	add_dependencies(${PROJECT} MeshSSS)
-endif()
-
 if(USE_PLUGIN_PLANET_SYSTEM)
 	add_dependencies(${PROJECT} PlanetSystem)
-endif()
-
-if(USE_PLUGIN_SDF_MESHER)
-	add_dependencies(${PROJECT} SdfMesher)
-endif()
-
-if(USE_PLUGIN_BLUE_PRINTS)
-	add_dependencies(${PROJECT} BluePrints)
-endif()
-
-if(USE_PLUGIN_MORPHOGENESIS)
-	add_dependencies(${PROJECT} MorphoGenesis)
 endif()
 
 if(USE_PLUGIN_RTX)
@@ -44,10 +28,25 @@ if(USE_PLUGIN_PARTICLES)
 	add_dependencies(${PROJECT} Particles)
 endif()
 
-if(USE_PLUGIN_SMOKE)
-	add_dependencies(${PROJECT} Smoke)
-endif()
+if(USE_MY_PLUGINS)
+	if(USE_PLUGIN_MESH_SSS)
+		add_dependencies(${PROJECT} MeshSSS)
+	endif()
 
-if(USE_PLUGIN_VR)
-	add_dependencies(${PROJECT} VR)
+	if(USE_PLUGIN_SDF_MESHER)
+		add_dependencies(${PROJECT} BluePrints)
+		add_dependencies(${PROJECT} SdfMesher)
+	endif()
+
+	if(USE_PLUGIN_MORPHOGENESIS)
+		add_dependencies(${PROJECT} MorphoGenesis)
+	endif()
+
+	if(USE_PLUGIN_SMOKE)
+		add_dependencies(${PROJECT} Smoke)
+	endif()
+
+	if(USE_PLUGIN_VR)
+		add_dependencies(${PROJECT} VR)
+	endif()
 endif()
