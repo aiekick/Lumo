@@ -135,6 +135,9 @@ target_link_libraries(${PROJECT}
 	${ASSIMP_LIBRARIES}
 )
 
+# add plugin name in parent LOADED_LUMO_PLUGINS list
+set(LOADED_LUMO_PLUGINS ${LOADED_LUMO_PLUGINS} ${PROJECT} PARENT_SCOPE)
+
 ########################################################
 ################# BUILD INCREMENT TOOL #################
 ########################################################
@@ -142,7 +145,7 @@ target_link_libraries(${PROJECT}
 ## only for Debug
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=${PROJECT} 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
+	COMMAND BuildInc -prefix=${PROJECT} 1000000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
 	DEPENDS ${PROJECT}
 )
 

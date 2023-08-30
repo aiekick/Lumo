@@ -137,6 +137,9 @@ target_link_libraries(${PROJECT} PRIVATE
 	${MINIAUDIO_LIBRARIES}
 )
 
+# add plugin name in parent LOADED_LUMO_PLUGINS list
+set(LOADED_LUMO_PLUGINS ${LOADED_LUMO_PLUGINS} ${PROJECT} PARENT_SCOPE)
+
 ########################################################
 ################# BUILD INCREMENT TOOL #################
 ########################################################

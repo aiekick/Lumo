@@ -34,24 +34,6 @@ set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
 set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 
-###########################################################
-##### SEARCH FOR PLUGINS ##################################
-###########################################################
-
-set(PLUGINS_DIRECTORY ${CMAKE_SOURCE_DIR}/Plugins)
-file(GLOB SUBDIRS RELATIVE ${PLUGINS_DIRECTORY} ${PLUGINS_DIRECTORY}/*)
-FOREACH(SUBDIR ${SUBDIRS})
-	if(IS_DIRECTORY ${PLUGINS_DIRECTORY}/${SUBDIR})
-		if (EXISTS ${PLUGINS_DIRECTORY}/${SUBDIR}/CMakeLists.txt)
-			add_subdirectory(${PLUGINS_DIRECTORY}/${SUBDIR})
-		endif()
-	endif()
-ENDFOREACH()
-
-###########################################################
-###########################################################
-###########################################################
-
 set(USE_SHARED_LIBS ON CACHE BOOL "" FORCE)
 
 if (USE_CODE_GENERATOR)
@@ -119,9 +101,25 @@ endif()
 
 include(cmake/3rdparty.cmake)
 include(cmake/libs.cmake)
-if (USE_PLUGINS)
-	include(cmake/plugins.cmake)
-endif()
+
+###########################################################
+##### SEARCH FOR PLUGINS ##################################
+###########################################################
+
+set(PLUGINS_DIRECTORY ${CMAKE_SOURCE_DIR}/Plugins)
+set(LOADED_LUMO_PLUGINS)
+file(GLOB SUBDIRS RELATIVE ${PLUGINS_DIRECTORY} ${PLUGINS_DIRECTORY}/*)
+FOREACH(SUBDIR ${SUBDIRS})
+	if(IS_DIRECTORY ${PLUGINS_DIRECTORY}/${SUBDIR})
+		if (EXISTS ${PLUGINS_DIRECTORY}/${SUBDIR}/CMakeLists.txt)
+			add_subdirectory(${PLUGINS_DIRECTORY}/${SUBDIR})
+		endif()
+	endif()
+ENDFOREACH()
+
+###########################################################
+###########################################################
+###########################################################
 
 set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 
@@ -237,6 +235,14 @@ if (USE_TRACY_PROFILER)
 	set_target_properties(TracyClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 	set_target_properties(TracyClient PROPERTIES RUNTIME_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 endif()
+
+########################################################
+############## FROCE BUILD OF PLUGINS ##################
+########################################################
+
+FOREACH(PLUGIN ${LOADED_LUMO_PLUGINS})
+	add_dependencies(${PROJECT} ${PLUGIN})
+ENDFOREACH()
 
 ########################################################
 ################# BUILD INCREMENT TOOL #################
