@@ -21,7 +21,7 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-#include <Headers/Globals.h>
+
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>

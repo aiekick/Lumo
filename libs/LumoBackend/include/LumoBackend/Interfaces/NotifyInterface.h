@@ -48,6 +48,8 @@ limitations under the License.
 #define CountEvents "CountEvents"
 // NotifyEvent : need to update the shader pass
 #define ShaderPassUpdateDone "ShaderPassUpdateDone"
+// NotifyEvent : need to update the code
+#define CodeUpdateDone "CodeUpdateDone"
 
 typedef std::string NotifyEvent;
 

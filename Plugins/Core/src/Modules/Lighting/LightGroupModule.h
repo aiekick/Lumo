@@ -22,7 +22,7 @@ limitations under the License.
 #include <memory>
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
-#include <glm/glm/mat4x4.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <ctools/ConfigAbstract.h>
 #include <LumoBackend/Interfaces/GuiInterface.h>

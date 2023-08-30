@@ -28,10 +28,9 @@ if(USE_PLUGIN_SDF_MESHER)
 	add_dependencies(${PROJECT} SdfMesher)
 endif()
 
-if(USE_PLUGIN_SO_GLSL)
-	add_dependencies(${PROJECT} SoGLSL)
+if(USE_PLUGIN_BLUE_PRINTS)
+	add_dependencies(${PROJECT} BluePrints)
 endif()
-
 
 if(USE_PLUGIN_MORPHOGENESIS)
 	add_dependencies(${PROJECT} MorphoGenesis)

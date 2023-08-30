@@ -43,7 +43,7 @@ if (USE_PLUGINS)
 	option(USE_PLUGIN_MESH_SSS "Enable the plugin MeshSSS" OFF)
 	option(USE_PLUGIN_PLANET_SYSTEM "Enable the plugin Planet System" OFF)
 	option(USE_PLUGIN_SDF_MESHER "Enable the plugin SdfMesher" OFF)
-	option(USE_PLUGIN_SO_GLSL "Enable the plugin Common" OFF)
+	option(USE_PLUGIN_BLUE_PRINTS "Enable the plugin BluePrints" OFF)
 	option(USE_PLUGIN_MORPHOGENESIS "Enable the plugin MorphoGenesis" OFF)
 	option(USE_PLUGIN_RTX "Enable the plugin RTX" OFF)
 	option(USE_PLUGIN_PARTICLES "Enable the plugin Particles" OFF)
@@ -57,7 +57,7 @@ else()
 	set(USE_PLUGIN_MESH_SSS OFF CACHE BOOL "" FORCE)
 	set(USE_PLUGIN_PLANET_SYSTEM OFF CACHE BOOL "" FORCE)
 	set(USE_PLUGIN_SDF_MESHER OFF CACHE BOOL "" FORCE)
-	set(USE_PLUGIN_SO_GLSL OFF CACHE BOOL "" FORCE)
+	set(USE_PLUGIN_BLUE_PRINTS OFF CACHE BOOL "" FORCE)
 	set(USE_PLUGIN_MORPHOGENESIS OFF CACHE BOOL "" FORCE)
 	set(USE_PLUGIN_RTX OFF CACHE BOOL "" FORCE)
 	set(USE_PLUGIN_PARTICLES OFF CACHE BOOL "" FORCE)
@@ -201,23 +201,23 @@ if(USE_CONSOLE_APP)
 endif()
 
 target_compile_definitions(${PROJECT} PUBLIC -DPROJECT_NAME=${PROJECT})
-target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
 target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
 target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
 
 target_include_directories(${PROJECT} PRIVATE
 	${CMAKE_SOURCE_DIR}
 	${CMAKE_SOURCE_DIR}/src
 	${CMAKE_SOURCE_DIR}/3rdparty
-	${COMMON_INCLUDE_DIRS}
+	${LUMO_BACKEND_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
 	${TINYXML2_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT}
 	${PROJECT_PLUGINS}
-	${COMMON_LIBRARIES}
+	${LUMO_BACKEND_LIBRARIES}
 	${TINYXML2_LIBRARIES}
 )
 

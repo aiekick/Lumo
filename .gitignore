@@ -75,3 +75,7 @@
 /bin/assimpd.dll
 /bin/glmd.dll
 /bin/plugins/MeshGen_Windows_Debug_x64.dll
+/bin/plugins/BluePrints_Windows_Debug_x64.dll
+/bin/ShaderTreed.dll
+/bin/SoGLSLd.dll
+/bin/rtmidid.dll

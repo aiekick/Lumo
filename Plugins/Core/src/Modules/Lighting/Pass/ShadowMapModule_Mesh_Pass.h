@@ -22,7 +22,7 @@ limitations under the License.
 #include <memory>
 #include <ctools/ConfigAbstract.h>
 
-#include <Headers/Globals.h>
+
 #include <Gaia/gaia.h>
 #include <Gaia/Core/vk_mem_alloc.h>
 #include <ctools/cTools.h>

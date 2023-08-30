@@ -17,11 +17,9 @@ limitations under the License.
 #pragma once
 #pragma warning(disable : 4251)
 
-#include <map>
-#include <LumoBackend/Graph/Graph.h>
-#include <Gaia/gaia.h>
 #include <Gaia/gaia.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
+#include <LumoBackend/Graph/Graph.h>
 
 //todo : split the interface in one input interface and one output interface
 // can clarify some code who jsut need output and not input 
