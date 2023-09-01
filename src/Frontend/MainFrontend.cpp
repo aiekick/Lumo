@@ -203,7 +203,16 @@ bool MainFrontend::init() {
     return m_build();
 }
 
-void MainFrontend::unit() { LayoutManager::Instance()->UnitPanes(); }
+void MainFrontend::unit() {
+    LayoutManager::Instance()->UnitPanes();
+
+    auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
+    for (auto& pluginPane : pluginPanes) {
+        if (!pluginPane.paneWeak.expired()) {
+            LayoutManager::Instance()->RemovePane(pluginPane.paneName);
+        }
+    }
+}
 
 void MainFrontend::SelectNode(const BaseNodeWeak& vNode) {
     TuningPane::Instance()->Select(vNode);
