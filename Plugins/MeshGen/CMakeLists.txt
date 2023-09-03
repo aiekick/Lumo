@@ -109,6 +109,12 @@ target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
 
+if(USE_DEBUG_SANITIZER)
+	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	target_link_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	message("Address Sanitizer enabled for projet ${PROJECT}")
+endif()
+
 set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
