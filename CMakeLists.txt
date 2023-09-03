@@ -250,7 +250,7 @@ ENDFOREACH()
 
 ## only for Debug
 add_subdirectory(3rdparty/BuildInc)
-set_target_properties(BuildInc PROPERTIES FOLDER Libs/Tools)
+set_target_properties(BuildInc PROPERTIES FOLDER Tools)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
