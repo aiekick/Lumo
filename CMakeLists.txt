@@ -9,6 +9,7 @@ option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 option(USE_TRACY_PROFILER "Enable Tracy Profiler" OFF)
 option(USE_TESTING_LUMO "Enable Tests" OFF)
 option(USE_CONSOLE_APP "Enable Console" OFF)
+option(USE_DEBUG_SANITIZER "Enable Address Sanitizer" OFF)
 
 project(
 	${PROJECT} 
@@ -190,6 +191,11 @@ target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
 target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
+if(USE_DEBUG_SANITIZER)
+	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	target_link_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	message("Address Sanitizer enabled for projet ${PROJECT}")
+endif()
 
 target_include_directories(${PROJECT} PRIVATE
 	${CMAKE_SOURCE_DIR}

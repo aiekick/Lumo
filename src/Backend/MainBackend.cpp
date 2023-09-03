@@ -401,13 +401,13 @@ void MainBackend::m_Update() {
 
 void MainBackend::m_IncFrame() { ++m_CurrentFrame; }
 
-void MainBackend::m_Resize() {
+void MainBackend::m_Resize() { 
     auto swapChainPtr = m_VulkanCorePtr->getSwapchain().lock();
-    if (swapChainPtr) {
+    if (swapChainPtr != nullptr) {
         const auto& extent = swapChainPtr->getRenderArea().extent;
         ct::ivec2 new_size((int32_t)extent.width, (int32_t)extent.height);
         resize(new_size);
-    }
+    } 
 }
 
 #define SHADER_PATH 0

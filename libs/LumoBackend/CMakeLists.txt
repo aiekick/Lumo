@@ -69,6 +69,12 @@ target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
 set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+if(USE_DEBUG_SANITIZER)
+	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	target_link_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	message("Address Sanitizer enabled for projet ${PROJECT}")
+endif()
+
 target_include_directories(${PROJECT} PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 	${GAIA_INCLUDE_DIRS}

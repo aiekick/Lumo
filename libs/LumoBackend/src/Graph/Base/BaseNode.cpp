@@ -2412,18 +2412,12 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 	if (fromPtr && toPtr)
 	{
 		// ensure that start is an output and end an input
-		if (fromPtr->IsAnInput() && toPtr->IsAnOutput())
+        // ce produit quand le user cree un lien d'un input vers un output
+        if (fromPtr->IsAnInput() && toPtr->IsAnOutput())
 		{
-			//peu etre que std::swap merde quand c'est des shared_ptr ou weak_ptr
 			vFrom.swap(vTo); 
 			fromPtr = vTo.lock();
 			toPtr = vFrom.lock();
-
-			// bizarre donc ont est...
-			if (fromPtr->IsAnInput() && toPtr->IsAnOutput())
-			{
-				CTOOL_DEBUG_BREAK;
-			}
 		}
 
 		auto fromParentNodePtr = fromPtr->parentNode.lock();
