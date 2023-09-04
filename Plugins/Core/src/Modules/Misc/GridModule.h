@@ -30,7 +30,6 @@ limitations under the License.
 class GridModule_Vertex_Pass;
 class GridModule :
 	public TaskRenderer,
-		
 	public TextureOutputInterface,
 	public ShaderPassOutputInterface
 {

@@ -152,6 +152,7 @@ void MainBackend::SaveAsProject(const std::string& vFilePathName) {
 // actions to do after rendering
 void MainBackend::PostRenderingActions() {
     if (m_NeedToNewProject) {
+        ProjectFile::Instance()->Clear();
         ProjectFile::Instance()->New(m_ProjectFileToLoad);
         m_VulkanWindowPtr->setAppTitle(m_ProjectFileToLoad);
 

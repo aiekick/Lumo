@@ -84,7 +84,7 @@ void PluginManager::Clear() { m_Plugins.clear(); }
 
 void PluginManager::LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
     printf("-----------\n");
-    LogVarInfo("Availables Plugins :\n");
+    LogVarLightInfo("Availables Plugins :\n");
 
     auto plugin_directory = std::filesystem::path(FileHelper::Instance()->GetAppPath()).append("plugins");
     if (std::filesystem::exists(plugin_directory)) {
@@ -127,8 +127,8 @@ void PluginManager::LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
 
                                 std::string desc = pluginInstancePtr->GetDescription();
 
-                                LogVarDebugInfo(
-                                    "Plugin loaded : %s v%s (%s)\n", name.c_str(), version.c_str(), desc.c_str());
+                                LogVarLightInfo(
+                                    "Plugin loaded : %s v%s (%s)", name.c_str(), version.c_str(), desc.c_str());
                             }
 
                             m_Plugins[ps.name] = resPtr;

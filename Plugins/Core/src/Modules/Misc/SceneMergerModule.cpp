@@ -146,9 +146,7 @@ void SceneMergerModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 			if (pass_ptr && pass_ptr->StartDrawPass(vCmdBuffer))
 			{
 				pass_ptr->SetLastExecutedFrame(m_LastExecutedFrame); // for have widgets use
-
 				pass_ptr->DrawModel(vCmdBuffer, 1U);
-
 				pass_ptr->EndDrawPass(vCmdBuffer);
 			}
 		}

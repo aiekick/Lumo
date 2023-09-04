@@ -60,7 +60,6 @@ void ProjectFile::New()
 
 void ProjectFile::New(const std::string& vFilePathName)
 {
-	Clear();
 	m_ProjectFilePathName = FileHelper::Instance()->SimplifyFilePath(vFilePathName);
 	auto ps = FileHelper::Instance()->ParsePathFileName(m_ProjectFilePathName);
 	if (ps.isOk)

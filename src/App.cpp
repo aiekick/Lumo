@@ -31,6 +31,20 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
+#include <ImGuiPack.h>
+#include <ctools/Logger.h>
+
+// messaging
+#include <Res/sdfmToolbarFont.cpp>
+#define MESSAGING_CODE_INFOS 0
+#define MESSAGING_LABEL_INFOS ICON_SDFMT_INFORMATION
+#define MESSAGING_CODE_WARNINGS 1
+#define MESSAGING_LABEL_WARNINGS ICON_SDFMT_BELL_ALERT
+#define MESSAGING_CODE_ERRORS 2
+#define MESSAGING_LABEL_ERRORS ICON_SDFMT_CLOSE_CIRCLE
+#define MESSAGING_LABEL_VKLAYER ICON_SDFMT_LAYERS
+#define MESSAGING_LABEL_DEBUG ICON_SDFMT_BUG
+
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -49,8 +63,29 @@ int App::run(int /*argc*/, char** argv) {
 #endif
 
     FileHelper::Instance()->CreateDirectoryIfNotExist("shaders");
+    
+    m_InitMessaging();
 
     MainBackend::Instance()->run();
 
     return 0;
+}
+
+void App::m_InitMessaging() {
+    Messaging::Instance()->AddCategory(
+        MESSAGING_CODE_INFOS, "Infos(s)", MESSAGING_LABEL_INFOS, ImVec4(0.0f, 0.8f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(
+        MESSAGING_CODE_WARNINGS, "Warnings(s)", MESSAGING_LABEL_WARNINGS, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(
+        MESSAGING_CODE_ERRORS, "Errors(s)", MESSAGING_LABEL_ERRORS, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(
+        MESSAGING_TYPE_VKLAYER, "Vk Layer(s)", MESSAGING_LABEL_VKLAYER, ImVec4(0.8f, 0.0f, 0.4f, 1.0f));
+    Messaging::Instance()->AddCategory(
+        MESSAGING_TYPE_DEBUG, "Debug(s)", MESSAGING_LABEL_DEBUG, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
+
+    Logger::sStandardLogFunction = [this](const int& vType, const std::string& vMessage) {
+        MessageData msg_datas;
+        const auto& type = vType;
+        Messaging::Instance()->AddMessage(vMessage, type, false, msg_datas, {});
+    };
 }
