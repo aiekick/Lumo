@@ -135,7 +135,9 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
 						ImVec2 org = ImGui::GetCursorScreenPos() + pos;
 						ImGui::ImageRect((ImTextureID)&m_ImGuiTexture.descriptor, pos, siz);
 
-						change |= NodeManager::Instance()->DrawOverlays(vCurrentFrame, ImRect(org, siz), ImGui::GetCurrentContext(), vUserDatas);
+                        ImGuiContext& g = *GImGui;
+						change |= NodeManager::Instance()->DrawOverlays(
+                            vCurrentFrame, g.LastItemData.Rect, ImGui::GetCurrentContext(), vUserDatas);
 
 						if (ImGui::IsWindowHovered())
 						{
