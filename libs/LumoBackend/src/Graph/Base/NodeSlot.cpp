@@ -266,7 +266,7 @@ uint32_t NodeSlot::GetSlotID() const
 	return (uint32_t)pinID.Get();
 }
 
-std::vector<NodeSlotWeak> NodeSlot::InjectTypeInSlot(uType::uTypeEnum vType)
+std::vector<NodeSlotWeak> NodeSlot::InjectTypeInSlot(Lumo::uType::uTypeEnum vType)
 {
 	std::vector<NodeSlotWeak> res;
 

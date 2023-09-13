@@ -251,7 +251,7 @@ public: // ident
 	// on verra le name en 1er ou second
 	std::string name; // nom raccouris du node, genre nom de la fonction
 	nd::NodeId nodeID;
-	uType::uTypeEnum returnType = uType::uTypeEnum::U_VOID; // type du retour
+	Lumo::uType::uTypeEnum returnType = Lumo::uType::uTypeEnum::U_VOID; // type du retour
 	std::string uniquePaneId;
 	
 public:
@@ -545,7 +545,7 @@ public: // test if slot connection possible for have rule node
 	virtual bool CanWeConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo);
 
 public: // slot splitter
-	virtual std::vector<NodeSlotWeak> InjectTypeInSlot(NodeSlotWeak vSlotToSplit, uType::uTypeEnum vType);
+	virtual std::vector<NodeSlotWeak> InjectTypeInSlot(NodeSlotWeak vSlotToSplit, Lumo::uType::uTypeEnum vType);
 
 public: // ImGui
 	void DrawStyleMenu(); // ImGui

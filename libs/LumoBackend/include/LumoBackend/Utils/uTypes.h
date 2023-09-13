@@ -6,6 +6,7 @@
 #include <string>
 #include <cstdint>
 
+namespace Lumo {
 namespace uType {
 enum class uTypeEnum : uint8_t {
     U_VOID = 0,
@@ -57,16 +58,12 @@ enum class uTypeEnum : uint8_t {
 };
 
 LUMO_BACKEND_API bool IsTypeSplitable(const uTypeEnum& vType);
-
 LUMO_BACKEND_API bool IsTypeCombinable(const uTypeEnum& vType);
-
 LUMO_BACKEND_API std::string ConvertUniformsTypeEnumToString(const uTypeEnum& vType);
-
 LUMO_BACKEND_API uTypeEnum GetBaseGlslTypeFromType(const uTypeEnum& vType, uint32_t* vCountChannels);
-
 LUMO_BACKEND_API uTypeEnum GetBaseGlslTypeFromString(const std::string& vType, bool vIsArray, uint32_t* vCountChannels);
-
 LUMO_BACKEND_API uTypeEnum GetGlslTypeFromString(const std::string& vType, bool vIsArray = false);
-
 LUMO_BACKEND_API uint32_t GetCountChannelForType(const uTypeEnum& vType);
+
 }  // namespace uType
+}  // namespace Lumo

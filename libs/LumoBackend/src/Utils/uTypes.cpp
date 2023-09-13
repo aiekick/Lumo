@@ -4,6 +4,7 @@
 
 #include <LumoBackend/Utils/uTypes.h>
 
+namespace Lumo {
 namespace uType {
 /* Generic Types
 genType: floats
@@ -15,7 +16,7 @@ mat: float matrices
 dmat: double matrices
 */
 
-bool IsTypeSplitable(const uTypeEnum& vType) {
+LUMO_BACKEND_API bool IsTypeSplitable(const uTypeEnum& vType) {
     switch (vType) {
         case uTypeEnum::U_VEC2:
         case uTypeEnum::U_VEC2_ARRAY:
@@ -69,7 +70,7 @@ bool IsTypeSplitable(const uTypeEnum& vType) {
     return false;
 }
 
-bool IsTypeCombinable(const uTypeEnum& vType) {
+LUMO_BACKEND_API bool IsTypeCombinable(const uTypeEnum& vType) {
     switch (vType) {
         case uTypeEnum::U_FLOAT:
         case uTypeEnum::U_VEC2:
@@ -123,7 +124,7 @@ bool IsTypeCombinable(const uTypeEnum& vType) {
     return false;
 }
 
-std::string ConvertUniformsTypeEnumToString(const uTypeEnum& vType) {
+LUMO_BACKEND_API std::string ConvertUniformsTypeEnumToString(const uTypeEnum& vType) {
     switch (vType) {
         case uTypeEnum::U_TEXT: return "text";
         case uTypeEnum::U_FLOAT:
@@ -175,7 +176,7 @@ std::string ConvertUniformsTypeEnumToString(const uTypeEnum& vType) {
     return "";
 }
 
-uTypeEnum GetGlslTypeFromString(const std::string& vType, bool vIsArray) {
+LUMO_BACKEND_API uTypeEnum GetGlslTypeFromString(const std::string& vType, bool vIsArray) {
     if (vType == "text")
         return uTypeEnum::U_TEXT;
 
@@ -287,12 +288,13 @@ uTypeEnum GetGlslTypeFromString(const std::string& vType, bool vIsArray) {
     return uTypeEnum::U_VOID;
 }
 
-uTypeEnum GetBaseGlslTypeFromString(const std::string& vType, bool vIsArray, uint32_t* vCountChannels) {
+LUMO_BACKEND_API uTypeEnum GetBaseGlslTypeFromString(
+    const std::string& vType, bool vIsArray, uint32_t* vCountChannels) {
     auto type = GetGlslTypeFromString(vType, vIsArray);
     return GetBaseGlslTypeFromType(type, vCountChannels);
 }
 
-uint32_t GetCountChannelForType(const uTypeEnum& vType) {
+LUMO_BACKEND_API uint32_t GetCountChannelForType(const uTypeEnum& vType) {
     uint32_t res = 0;
 
     switch (vType) {
@@ -356,7 +358,7 @@ uint32_t GetCountChannelForType(const uTypeEnum& vType) {
     return res;
 }
 
-uTypeEnum GetBaseGlslTypeFromType(const uTypeEnum& vType, uint32_t* vCountChannels) {
+LUMO_BACKEND_API uTypeEnum GetBaseGlslTypeFromType(const uTypeEnum& vType, uint32_t* vCountChannels) {
     uTypeEnum res = uTypeEnum::U_VOID;
 
     switch (vType) {
@@ -424,4 +426,6 @@ uTypeEnum GetBaseGlslTypeFromType(const uTypeEnum& vType, uint32_t* vCountChanne
 
     return res;
 }
+
 }  // namespace uType
+}  // namespace Lumo

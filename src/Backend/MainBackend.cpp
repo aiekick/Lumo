@@ -674,8 +674,8 @@ bool MainBackend::m_CreateVulkanWindow() {
 void MainBackend::m_DestroyVulkanWindow() { m_VulkanWindowPtr.reset(); }
 
 void MainBackend::m_InitFilesTracker() {  //
-    m_InitFilesTracker(
-        std::bind(&MainBackend::m_UpdateFiles, this, std::placeholders::_1), std::list<std::string>{"./", "shaders"});
+    m_InitFilesTracker(std::bind(&MainBackend::m_UpdateFiles, this, std::placeholders::_1),
+        std::list<std::string>{"./", "shaders", "debug"});
 }
 
 bool MainBackend::m_CreateVulkanCore() {

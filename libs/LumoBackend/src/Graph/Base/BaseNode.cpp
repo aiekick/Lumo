@@ -29,6 +29,8 @@ limitations under the License.
 
 #include <utility>
 
+using namespace Lumo::uType;
+
 static bool showNodeStyleEditor = false;
 LUMO_BACKEND_API uint32_t BaseNode::freeNodeId = MAGIC_NUMBER;
 
@@ -253,7 +255,8 @@ void BaseNode::InitGraph(const ax::NodeEditor::Style& vStyle)
 		{
 			nd::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
 			m_Style = vStyle;
-			nd::SetStyle(m_Style);
+            auto& style = nd::GetStyle();
+            memcpy(&style, &m_Style, sizeof(ax::NodeEditor::Style));
 			nd::EnableShortcuts(true);
 		}
 	}
@@ -940,7 +943,7 @@ NodeSlotWeak BaseNode::AddInput(NodeSlotInputPtr vSlotPtr, bool vIncSlotId, bool
 		vSlotPtr->parentNode = m_This;
 		vSlotPtr->slotPlace = NodeSlot::PlaceEnum::INPUT;
 		vSlotPtr->hideName = vHideName;
-		vSlotPtr->type = uType::uTypeEnum::U_FLOW;
+		vSlotPtr->type = uTypeEnum::U_FLOW;
 		if (vIncSlotId)
 		{
 			vSlotPtr->pinID = NodeSlot::sGetNewSlotId();
@@ -963,7 +966,7 @@ NodeSlotWeak BaseNode::AddOutput(NodeSlotOutputPtr vSlotPtr, bool vIncSlotId, bo
 		vSlotPtr->parentNode = m_This;
 		vSlotPtr->slotPlace = NodeSlot::PlaceEnum::OUTPUT;
 		vSlotPtr->hideName = vHideName;
-		vSlotPtr->type = uType::uTypeEnum::U_FLOW;
+		vSlotPtr->type = uTypeEnum::U_FLOW;
 		if (vIncSlotId)
 		{
 			vSlotPtr->pinID = NodeSlot::sGetNewSlotId();
@@ -2453,8 +2456,8 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 			}
 			else
 			{
-				const std::string& fromTypeStr = uType::ConvertUniformsTypeEnumToString(fromPtr->type);
-				const std::string& toTypeStr = uType::ConvertUniformsTypeEnumToString(toPtr->type);
+				const std::string& fromTypeStr = ConvertUniformsTypeEnumToString(fromPtr->type);
+				const std::string& toTypeStr = ConvertUniformsTypeEnumToString(toPtr->type);
 
 				if (!fromParentNodePtr->m_ParentNode.expired())
 				{
@@ -2665,11 +2668,11 @@ bool BaseNode::CanWeConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo)
 //// SLOT SPLITTER ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::vector<NodeSlotWeak> BaseNode::InjectTypeInSlot(NodeSlotWeak vSlotToSplit, uType::uTypeEnum vType)
+std::vector<NodeSlotWeak> BaseNode::InjectTypeInSlot(NodeSlotWeak vSlotToSplit, uTypeEnum vType)
 {
 	std::vector<NodeSlotWeak> res;
 
-	if (vType != uType::uTypeEnum::U_VOID)
+	if (vType != uTypeEnum::U_VOID)
 	{
 		if (!vSlotToSplit.expired())
 		{
@@ -2677,8 +2680,8 @@ std::vector<NodeSlotWeak> BaseNode::InjectTypeInSlot(NodeSlotWeak vSlotToSplit, 
 			if (slotPtr)
 			{
 				auto slotType = slotPtr->type;
-				auto countChannels = uType::GetCountChannelForType(slotType);
-				auto newCountChannels = uType::GetCountChannelForType(vType);
+				auto countChannels = GetCountChannelForType(slotType);
+				auto newCountChannels = GetCountChannelForType(vType);
 				if ((countChannels > 1U && newCountChannels < countChannels) || 
 					slotPtr->IsGenericType())
 				{

@@ -109,7 +109,7 @@ public:
 	NodeStamp stamp; // style vec3(vec3,float), pour le linking
 	ImVec4 color = ImVec4(0.8f, 0.8f, 0.0f, 1.0f);
 	bool colorIsSet = false;
-	uType::uTypeEnum type = uType::uTypeEnum::U_VOID;
+	Lumo::uType::uTypeEnum type = Lumo::uType::uTypeEnum::U_VOID;
 	std::vector<NodeSlotWeak> linkedSlots;
 	BaseNodeWeak parentNode;
 	std::weak_ptr<UniformWidgetBase> uniform;
@@ -124,9 +124,9 @@ public:
 	bool IsGenericType()
 	{
 		return 
-			type == uType::uTypeEnum::U_TYPE || 
-			type == uType::uTypeEnum::U_VEC || 
-			type == uType::uTypeEnum::U_MAT;
+			type == Lumo::uType::uTypeEnum::U_TYPE || 
+			type == Lumo::uType::uTypeEnum::U_VEC || 
+			type == Lumo::uType::uTypeEnum::U_MAT;
 	}
 	bool IsGenericStampType()
 	{
@@ -167,7 +167,7 @@ public:
 	uint32_t GetSlotID() const;
 
 	// splitter
-	std::vector<NodeSlotWeak> InjectTypeInSlot(uType::uTypeEnum vType);
+	std::vector<NodeSlotWeak> InjectTypeInSlot(Lumo::uType::uTypeEnum vType);
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

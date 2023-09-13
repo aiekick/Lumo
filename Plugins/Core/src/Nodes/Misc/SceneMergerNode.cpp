@@ -313,7 +313,7 @@ NodeSlotWeak SceneMergerNode::AddPreDefinedInput(const NodeSlot& vNodeSlot)
 			slot_ptr->parentNode = m_This;
 			slot_ptr->slotPlace = NodeSlot::PlaceEnum::INPUT;
 			slot_ptr->hideName = true;
-			slot_ptr->type = uType::uTypeEnum::U_FLOW;
+			slot_ptr->type = Lumo::uType::uTypeEnum::U_FLOW;
 			slot_ptr->index = vNodeSlot.index;
 			slot_ptr->pinID = vNodeSlot.pinID;
 			const auto& slotID = vNodeSlot.GetSlotID();
