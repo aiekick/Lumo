@@ -30,7 +30,7 @@ limitations under the License.
 #include <cinttypes>
 #include <Gaia/Buffer/FrameBuffer.h>
 
-#include <imgui_node_editor.h>
+#include <ImGuiPack.h>
 namespace nd = ax::NodeEditor;
 
 using namespace GaiApi;

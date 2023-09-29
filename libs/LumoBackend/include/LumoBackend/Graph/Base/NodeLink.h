@@ -26,7 +26,7 @@ limitations under the License.
 #include <set>
 #include <memory>
 
-#include <imgui_node_editor.h>
+#include <ImGuiPack.h>
 namespace nd = ax::NodeEditor;
 
 class BaseNode;

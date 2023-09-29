@@ -32,7 +32,6 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
 #include <ctools/ConfigAbstract.h>
-namespace nd = ax::NodeEditor;
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/utils/uTypes.h>

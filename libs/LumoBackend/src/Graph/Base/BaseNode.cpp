@@ -18,11 +18,8 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <imgui.h>
-#include <ImWidgets.h>
-#include <imgui_internal.h>
+#include <ImGuiPack.h>
 #include <Gaia/Core/VulkanCore.h>
-#include <imgui_node_editor_internal.h>
 
 #include <LumoBackend/Graph/Base/NodeSlotInput.h>
 #include <LumoBackend/Graph/Base/NodeSlotOutput.h>
@@ -249,15 +246,15 @@ void BaseNode::InitGraph(const ax::NodeEditor::Style& vStyle)
 			m_NodeGraphConfigFile = "json\\root.json";
 
 		config.SettingsFile = m_NodeGraphConfigFile.c_str();
-		m_BaseNodeState.m_NodeGraphContext = nd::CreateEditor(&config);
+		m_BaseNodeState.m_NodeGraphContext = ax::NodeEditor::CreateEditor(&config);
 
 		if (m_BaseNodeState.m_NodeGraphContext)
 		{
-			nd::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+			ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
 			m_Style = vStyle;
-            auto& style = nd::GetStyle();
+            auto& style = ax::NodeEditor::GetStyle();
             memcpy(&style, &m_Style, sizeof(ax::NodeEditor::Style));
-			nd::EnableShortcuts(true);
+			ax::NodeEditor::EnableShortcuts(true);
 		}
 	}
 } 
@@ -277,7 +274,7 @@ void BaseNode::UnitGraph()
 	if (m_BaseNodeState.m_NodeGraphContext)
 	{
 		ClearGraph();
-		nd::DestroyEditor(m_BaseNodeState.m_NodeGraphContext);
+		ax::NodeEditor::DestroyEditor(m_BaseNodeState.m_NodeGraphContext);
 		m_BaseNodeState.m_NodeGraphContext = nullptr;
 	}
 
@@ -322,10 +319,10 @@ void BaseNode::FinalizeGraphLoading()
 
 void BaseNode::DoGraphActions(BaseNodeState *vBaseNodeState)
 {
-	auto editor = nd::GetCurrentEditor();
+	auto editor = ax::NodeEditor::GetCurrentEditor();
 	if (editor)
 	{
-		if (nd::IsBackgroundClicked())
+		if (ax::NodeEditor::IsBackgroundClicked())
 		{
 			vBaseNodeState->node_to_select.reset();
 			vBaseNodeState->current_selected_node.reset();
@@ -557,24 +554,24 @@ void BaseNode::SetCanvasScale(const float& vScale)
 
 void BaseNode::CopySelectedNodes()
 {
-	auto countSelectecdNodes = nd::GetSelectedObjectCount();
+	auto countSelectecdNodes = ax::NodeEditor::GetSelectedObjectCount();
 	m_NodesToCopy.resize(countSelectecdNodes);
-	nd::GetActionContextNodes(m_NodesToCopy.data(), (int)m_NodesToCopy.size());
+	ax::NodeEditor::GetActionContextNodes(m_NodesToCopy.data(), (int)m_NodesToCopy.size());
 
 	// calcul du point de centre de tout ces nodes
 	// sa servira d'offset avec le point de destinatiion
 	m_BaseCopyOffset = ImVec2(0,0);
 	for (const auto& id : m_NodesToCopy)
 	{
-		m_BaseCopyOffset += nd::GetNodePosition(id) * 0.5f;
+		m_BaseCopyOffset += ax::NodeEditor::GetNodePosition(id) * 0.5f;
 	}
 }
 
 void BaseNode::PasteNodesAtMousePos()
 {
-	nd::Suspend(); // necessaire pour avoir le bon MousePos
-	auto newOffset = nd::ScreenToCanvas(ImGui::GetMousePos()) - m_BaseCopyOffset;
-	nd::Resume();
+	ax::NodeEditor::Suspend(); // necessaire pour avoir le bon MousePos
+	auto newOffset = ax::NodeEditor::ScreenToCanvas(ImGui::GetMousePos()) - m_BaseCopyOffset;
+	ax::NodeEditor::Resume();
 	DuplicateSelectedNodes(newOffset);
 }
 
@@ -596,7 +593,7 @@ void BaseNode::DrawNode(BaseNodeState *vBaseNodeState)
 	if (vBaseNodeState)
 	{
 		ImGui::SetCurrentContext(vBaseNodeState->m_Context);
-		nd::SetCurrentEditor(vBaseNodeState->m_NodeGraphContext);
+		ax::NodeEditor::SetCurrentEditor(vBaseNodeState->m_NodeGraphContext);
 
 		if (DrawBegin(vBaseNodeState))
 		{
@@ -757,7 +754,7 @@ bool BaseNode::DrawBegin(BaseNodeState *vBaseNodeState)
 {
 	UNUSED(vBaseNodeState);
 
-	nd::BeginNode(nodeID);
+	ax::NodeEditor::BeginNode(nodeID);
 	ImGui::PushID(nodeID.AsPointer());
 	ImGui::BeginVertical("node");
 
@@ -791,24 +788,24 @@ bool BaseNode::DrawEnd(BaseNodeState *vBaseNodeState)
 {
 	ImGui::EndVertical();
 
-	nd::EndNode();
+	ax::NodeEditor::EndNode();
 
 	if (ImGui::IsItemVisible())
 	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+		auto drawList = ax::NodeEditor::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)
 		{
 			if (m_HeaderRect.GetSize().y > 0.0f)
 			{
-				const auto halfBorderWidth = nd::GetStyle().NodeBorderWidth * 0.5f;
+				const auto halfBorderWidth = ax::NodeEditor::GetStyle().NodeBorderWidth * 0.5f;
 				/*drawList->AddRectFilled(
-					m_HeaderRect.Min - ImVec2(nd::GetStyle().NodePadding.x - halfBorderWidth, 4 - halfBorderWidth),
-					m_HeaderRect.Max + ImVec2(nd::GetStyle().NodePadding.z - halfBorderWidth, 0),
-					ImGui::GetColorU32(m_HeaderColor), nd::GetStyle().NodeRounding, 1 | 2);*/
+					m_HeaderRect.Min - ImVec2(ax::NodeEditor::GetStyle().NodePadding.x - halfBorderWidth, 4 - halfBorderWidth),
+					m_HeaderRect.Max + ImVec2(ax::NodeEditor::GetStyle().NodePadding.z - halfBorderWidth, 0),
+					ImGui::GetColorU32(m_HeaderColor), ax::NodeEditor::GetStyle().NodeRounding, 1 | 2);*/
 				auto alpha = static_cast<int>(255 * ImGui::GetStyle().Alpha);
 				drawList->AddLine(
-					ImVec2(m_HeaderRect.Min.x - (nd::GetStyle().NodePadding.x - halfBorderWidth), m_HeaderRect.Max.y - 0.5f),
-					ImVec2(m_HeaderRect.Max.x + (nd::GetStyle().NodePadding.z - halfBorderWidth), m_HeaderRect.Max.y - 0.5f),
+					ImVec2(m_HeaderRect.Min.x - (ax::NodeEditor::GetStyle().NodePadding.x - halfBorderWidth), m_HeaderRect.Max.y - 0.5f),
+					ImVec2(m_HeaderRect.Max.x + (ax::NodeEditor::GetStyle().NodePadding.z - halfBorderWidth), m_HeaderRect.Max.y - 0.5f),
 					ImColor(255, 255, 255, 96 * alpha / (3 * 255)), 1.0f);
 			}
 
@@ -841,7 +838,7 @@ void BaseNode::DrawLinks(BaseNodeState *vBaseNodeState)
 				auto outPtr = link.second->out.lock();
 				if (inPtr && outPtr)
 				{
-					nd::Link(
+					ax::NodeEditor::Link(
 						link.first, inPtr->pinID, outPtr->pinID,
 						inPtr->color, link.second->thick);
 				}
@@ -912,7 +909,7 @@ void BaseNode::DisplayInfosOnTopOfTheNode(BaseNodeState *vBaseNodeState)
 {
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+		auto drawList = ax::NodeEditor::GetNodeBackgroundDrawList(nodeID);
 		if (drawList)
 		{
 			char debugBuffer[255] = "\0";
@@ -1060,10 +1057,10 @@ void BaseNode::DrawNodeGraphStyleMenu() const
 	{
 		if (ImGui::Begin("Editor", &showNodeStyleEditor))
 		{
-			nd::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+			ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
 
-			static nd::Style def = nd::Style();
-			auto& editorStyle = nd::GetStyle();
+			static ax::NodeEditor::Style def = ax::NodeEditor::Style();
+			auto& editorStyle = ax::NodeEditor::GetStyle();
 
 			ImGui::SliderFloatDefault(200, "Node Padding x", &editorStyle.NodePadding.x, 0.0f, 40.0f, def.NodePadding.x);
 			ImGui::SliderFloatDefault(200, "Node Padding y", &editorStyle.NodePadding.y, 0.0f, 40.0f, def.NodePadding.y);
@@ -1142,11 +1139,11 @@ bool BaseNode::DrawGraph()
 	m_BaseNodeState.m_Context = ImGui::GetCurrentContext();
 	if (m_BaseNodeState.m_NodeGraphContext)
 	{
-		nd::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+		ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
 		
 		DrawNodeGraphStyleMenu();
 
-		nd::Begin("GraphNode");
+		ax::NodeEditor::Begin("GraphNode");
 		
 		m_BaseNodeState.itemPushId = 1;
 		if (!m_ChildNodes.empty())
@@ -1169,14 +1166,14 @@ bool BaseNode::DrawGraph()
 
 		DoPopups(&m_BaseNodeState);
 
-		/*nd::Suspend();
+		/*ax::NodeEditor::Suspend();
 		ImVec2 smp = ImGui::GetMousePos();
-		ImVec2 cmp = nd::ScreenToCanvas(smp);
+		ImVec2 cmp = ax::NodeEditor::ScreenToCanvas(smp);
 		ImGui::SetTooltip("Screen Mouse Pos : %.1f %.1f\nCanvas Mouse Pos : %.1f %.1f\nCanvas offset : %.1f %.1f / %.1f %.1f", smp.x, smp.y, cmp.x, cmp.y, co1.x, co1.y, co2.x, co2.y);
-		nd::Resume();*/
+		ax::NodeEditor::Resume();*/
 		
-		nd::End();
-		nd::SetCurrentEditor(nullptr);
+		ax::NodeEditor::End();
+		ax::NodeEditor::SetCurrentEditor(nullptr);
 
 		DoGraphActions(&m_BaseNodeState);
 	}
@@ -1198,7 +1195,7 @@ uint32_t BaseNode::GetNodeID() const
 	return (uint32_t)nodeID.Get();
 }
 
-BaseNodeWeak BaseNode::FindNode(nd::NodeId vId)
+BaseNodeWeak BaseNode::FindNode(ax::NodeEditor::NodeId vId)
 {
 	BaseNodeWeak res;
 
@@ -1262,7 +1259,7 @@ std::vector<BaseNodeWeak> BaseNode::GetPublicNodes()
 	return res;
 }
 
-NodeLinkWeak BaseNode::FindLink(nd::LinkId vId)
+NodeLinkWeak BaseNode::FindLink(ax::NodeEditor::LinkId vId)
 {
 	UNUSED(vId);
 
@@ -1277,7 +1274,7 @@ NodeLinkWeak BaseNode::FindLink(nd::LinkId vId)
 	return NodeLinkWeak();
 }
 
-NodeSlotWeak BaseNode::FindSlot(nd::PinId vId)
+NodeSlotWeak BaseNode::FindSlot(ax::NodeEditor::PinId vId)
 {
 	if (vId)
 	{
@@ -1334,7 +1331,7 @@ NodeSlotWeak BaseNode::FindNodeSlotByName(BaseNodeWeak vNode, std::string vName)
 	return NodeSlotWeak();
 }
 
-NodeSlotWeak BaseNode::FindNodeSlotById(nd::NodeId vNodeId, nd::PinId vSlotId)
+NodeSlotWeak BaseNode::FindNodeSlotById(ax::NodeEditor::NodeId vNodeId, ax::NodeEditor::PinId vSlotId)
 {
 	auto nodePtr = FindNode(vNodeId).lock();
 	if (nodePtr)
@@ -1413,7 +1410,7 @@ NodeSlotWeak BaseNode::AddPreDefinedOutput(const NodeSlot& /*vNodeSlot*/)
 
 void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 {
-	if (nd::BeginCreate(ImColor(255, 255, 255), 2.0f))
+	if (ax::NodeEditor::BeginCreate(ImColor(255, 255, 255), 2.0f))
 	{
 		auto showLabel = [](const char* label, ImColor color)
 		{
@@ -1434,8 +1431,8 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 		};
 
 		// new link
-		nd::PinId startSlotId = 0, endSlotId = 0;
-		if (nd::QueryNewLink(&startSlotId, &endSlotId))
+		ax::NodeEditor::PinId startSlotId = 0, endSlotId = 0;
+		if (ax::NodeEditor::QueryNewLink(&startSlotId, &endSlotId))
 		{
 			auto startSlot = FindSlot(startSlotId);
 			auto endSlot = FindSlot(endSlotId);
@@ -1452,28 +1449,28 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 						{
 							if (startSlotPtr == endSlotPtr)
 							{
-								nd::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+								ax::NodeEditor::RejectNewItem(ImColor(255, 0, 0), 2.0f);
 							}
 							else if (startSlotPtr->slotPlace == endSlotPtr->slotPlace)
 							{
 								showLabel("x Incompatible Slot Kind", ImColor(45, 32, 32, 180)); //-V112
-								nd::RejectNewItem(ImColor(255, 0, 0), 2.0f);
+								ax::NodeEditor::RejectNewItem(ImColor(255, 0, 0), 2.0f);
 							}
 							/*else if (endSlot->parentNode == startSlot->parentNode) // desactivé pour les self connect en compute et fragment effect
 							{
 								showLabel("x Cannot connect to self", ImColor(45, 32, 32, 180));
-								nd::RejectNewItem(ImColor(255, 0, 0), 1.0f);
+								ax::NodeEditor::RejectNewItem(ImColor(255, 0, 0), 1.0f);
 							}*/
 							else if (!startSlotPtr->CanWeConnectToSlot(endSlot) || 
 								!endSlotPtr->CanWeConnectToSlot(startSlot)) // si un des deux est pas d'accord pour ken on ce barre
 							{
 								showLabel("x Incompatible Slot Type", ImColor(45, 32, 32, 180)); //-V112
-								nd::RejectNewItem(ImColor(255, 128, 128), 1.0f);
+								ax::NodeEditor::RejectNewItem(ImColor(255, 128, 128), 1.0f);
 							}
 							else
 							{
 								showLabel("+ Create Link", ImColor(32, 45, 32, 180)); //-V112
-								if (nd::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
+								if (ax::NodeEditor::AcceptNewItem(ImColor(128, 255, 128), 4.0f))
 								{
 									ConnectSlots(startSlot, endSlot);
 								}
@@ -1485,8 +1482,8 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 		}
 
 		// new node
-		nd::PinId slotId = 0;
-		if (nd::QueryNewNode(&slotId))
+		ax::NodeEditor::PinId slotId = 0;
+		if (ax::NodeEditor::QueryNewNode(&slotId))
 		{
 			auto newNodeLinkSlot = FindSlot(slotId);
 			if (!newNodeLinkSlot.expired())
@@ -1498,30 +1495,30 @@ void BaseNode::DoCreateLinkOrNode(BaseNodeState *vBaseNodeState)
 				}
 			}
 
-			if (nd::AcceptNewItem())
+			if (ax::NodeEditor::AcceptNewItem())
 			{
 				vBaseNodeState->linkFromSlot = newNodeLinkSlot;
 				m_CreateNewNode = true;
-				nd::Suspend();
+				ax::NodeEditor::Suspend();
 				ImGui::OpenPopup("CreateNewNode");
-				nd::Resume();
+				ax::NodeEditor::Resume();
 			}
 		}
 	}
-	nd::EndCreate();
+	ax::NodeEditor::EndCreate();
 }
 
 void BaseNode::DoDeleteLinkOrNode(BaseNodeState *vBaseNodeState)
 {
 	UNUSED(vBaseNodeState);
 
-	if (nd::BeginDelete())
+	if (ax::NodeEditor::BeginDelete())
 	{
 		bool canDeleteLinks = true;
-		nd::NodeId nodeId = 0;
-		while (nd::QueryDeletedNode(&nodeId))
+		ax::NodeEditor::NodeId nodeId = 0;
+		while (ax::NodeEditor::QueryDeletedNode(&nodeId))
 		{
-			if (nd::AcceptDeletedItem())
+			if (ax::NodeEditor::AcceptDeletedItem())
 			{
 				if (!DestroyChildNodeByIdIfAllowed((int)nodeId.Get(), false))
 				{
@@ -1532,10 +1529,10 @@ void BaseNode::DoDeleteLinkOrNode(BaseNodeState *vBaseNodeState)
 
 		if (canDeleteLinks)
 		{
-			nd::LinkId linkId = 0;
-			while (nd::QueryDeletedLink(&linkId))
+			ax::NodeEditor::LinkId linkId = 0;
+			while (ax::NodeEditor::QueryDeletedLink(&linkId))
 			{
-				if (nd::AcceptDeletedItem())
+				if (ax::NodeEditor::AcceptDeletedItem())
 				{
 					auto id = (int)linkId.Get();
 					if (m_Links.find(id) != m_Links.end())
@@ -1548,39 +1545,39 @@ void BaseNode::DoDeleteLinkOrNode(BaseNodeState *vBaseNodeState)
 		}
 	}
 
-	nd::EndDelete();
+	ax::NodeEditor::EndDelete();
 }
 
 void BaseNode::DoShorcutsOnNode(BaseNodeState *vBaseNodeState)
 {
 	UNUSED(vBaseNodeState);
 
-	if (nd::BeginShortcut())
+	if (ax::NodeEditor::BeginShortcut())
 	{
-		if (nd::AcceptCopy())
+		if (ax::NodeEditor::AcceptCopy())
 		{
 			CopySelectedNodes();
 		}
 
-		if (nd::AcceptPaste())
+		if (ax::NodeEditor::AcceptPaste())
 		{
 			PasteNodesAtMousePos();
 		}
 
-		if (nd::AcceptDuplicate())
+		if (ax::NodeEditor::AcceptDuplicate())
 		{
 			//DuplicateSelectedNodes();
 		}
 	}
 
-	nd::EndShortcut();
+	ax::NodeEditor::EndShortcut();
 }
 
 void BaseNode::DoPopups(BaseNodeState *vBaseNodeState)
 {
 	m_OpenPopupPosition = ImGui::GetMousePos();
 
-	nd::Suspend();
+	ax::NodeEditor::Suspend();
 
 	if (vBaseNodeState->m_CustomContextMenuRequested &&
 		!vBaseNodeState->m_CustomContextMenuNode.expired())
@@ -1588,19 +1585,19 @@ void BaseNode::DoPopups(BaseNodeState *vBaseNodeState)
 		ImGui::OpenPopup("CustomNodePopup");
 		vBaseNodeState->m_CustomContextMenuRequested = false;
 	}
-	else if (nd::ShowNodeContextMenu(&m_ContextMenuNodeId))
+	else if (ax::NodeEditor::ShowNodeContextMenu(&m_ContextMenuNodeId))
 	{
 		ImGui::OpenPopup("NodeContextMenu");
 	}
-	else if (nd::ShowPinContextMenu(&m_ContextMenuSlotId))
+	else if (ax::NodeEditor::ShowPinContextMenu(&m_ContextMenuSlotId))
 	{
 		ImGui::OpenPopup("SlotContextMenu");
 	}
-	else if (nd::ShowLinkContextMenu(&m_ContextMenuLinkId))
+	else if (ax::NodeEditor::ShowLinkContextMenu(&m_ContextMenuLinkId))
 	{
 		ImGui::OpenPopup("LinkContextMenu");
 	}
-	else if (nd::ShowBackgroundContextMenu())
+	else if (ax::NodeEditor::ShowBackgroundContextMenu())
 	{
 		vBaseNodeState->linkFromSlot.reset();
 		ImGui::OpenPopup("CreateNewNode");
@@ -1611,7 +1608,7 @@ void BaseNode::DoPopups(BaseNodeState *vBaseNodeState)
 	DoCheckLinkPopup(vBaseNodeState);
 	DoNewNodePopup(vBaseNodeState);
 
-	nd::Resume();
+	ax::NodeEditor::Resume();
 }
 
 void BaseNode::DoCheckNodePopup(BaseNodeState *vBaseNodeState)
@@ -1657,7 +1654,7 @@ void BaseNode::DoCheckNodePopup(BaseNodeState *vBaseNodeState)
 			
 			if (ImGui::MenuItem("Delete"))
 			{
-				nd::DeleteNode(m_ContextMenuNodeId);
+				ax::NodeEditor::DeleteNode(m_ContextMenuNodeId);
 			}
 
 			ImGui::EndPopup();
@@ -1708,7 +1705,7 @@ void BaseNode::DoCheckLinkPopup(BaseNodeState *vBaseNodeState)
 		}
 		ImGui::Separator();
 		if (ImGui::MenuItem("Delete"))
-			nd::DeleteLink(m_ContextMenuLinkId);
+			ax::NodeEditor::DeleteLink(m_ContextMenuLinkId);
 		ImGui::EndPopup();
 	}
 }
@@ -1735,7 +1732,7 @@ void BaseNode::DoNewNodePopup(BaseNodeState *vBaseNodeState)
 
 void BaseNode::DuplicateNode(uint32_t vNodeId, ImVec2 vOffsetPos)
 {
-	nd::NodeId nodeId = vNodeId;
+	ax::NodeEditor::NodeId nodeId = vNodeId;
 	auto foundNode = FindNode(nodeId);
 	if (!foundNode.expired())
 	{
@@ -1749,7 +1746,7 @@ void BaseNode::DuplicateNode(uint32_t vNodeId, ImVec2 vOffsetPos)
 				auto createdNodePtr = createdNode.lock();
 				if (createdNodePtr)
 				{
-					nd::SetNodePosition(
+					ax::NodeEditor::SetNodePosition(
 						createdNodePtr->nodeID,
 						createdNodePtr->pos + vOffsetPos);
 				}
