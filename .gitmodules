@@ -1,4 +1,0 @@
-[submodule "libs/Gaia"]
-	path = libs/Gaia
-	url = https://github.com/aiekick/Gaia.git
-	branch = master
