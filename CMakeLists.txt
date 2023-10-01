@@ -75,6 +75,13 @@ add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/Cust
 add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
 add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
 
+add_definitions(-DUSE_IM_TOOLS)
+add_definitions(-DUSE_IM_GUIZMO)
+add_definitions(-DUSE_IMCOOL_BAR)
+add_definitions(-DUSE_IMGUI_MARKDOW)
+add_definitions(-DUSE_IMGUI_FILE_DIALOG)
+add_definitions(-DUSE_IMGUI_NODE_EDITOR)
+
 set(USE_XML_CONFIG ON CACHE BOOL "" FORCE) # used by ImGuiPack by ex
 if (USE_XML_CONFIG)
 	add_definitions(-DUSE_XML_CONFIG)
@@ -191,6 +198,7 @@ target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
 target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
+
 if(USE_DEBUG_SANITIZER)
 	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
 	target_link_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)

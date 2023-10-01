@@ -60,12 +60,21 @@ else ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++11") ## -std=gnu++0x
 endif ()
 
+add_definitions(-DUSE_IM_TOOLS)
+add_definitions(-DUSE_IM_GUIZMO)
+add_definitions(-DUSE_IMCOOL_BAR)
+add_definitions(-DUSE_IMGUI_MARKDOW)
+add_definitions(-DUSE_IMGUI_FILE_DIALOG)
+add_definitions(-DUSE_IMGUI_NODE_EDITOR)
+
 set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE BOOL "" FORCE)
-add_library(${PROJECT} ${PROJECT_SRC_RECURSE} ${PROJECT_INC_RECURSE})
+add_library(${PROJECT} 
+	${PROJECT_SRC_RECURSE} 
+	${PROJECT_INC_RECURSE})
 target_compile_definitions(${PROJECT} INTERFACE BUILD_LUMO_BACKEND_SHARED_LIBS)
-target_compile_definitions(${PROJECT} INTERFACE BUILD_GAIA_SHARED_LIBS)	
-target_compile_definitions(${PROJECT} INTERFACE BUILD_CTOOLS_SHARED_LIBS)	
-target_compile_definitions(${PROJECT} INTERFACE BUILD_IMGUI_PACK_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
 set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -113,6 +122,6 @@ PARENT_SCOPE)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=LumoBackend 100000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/include/LumoBackend/Headers/LumoBackendBuild.h>
+	COMMAND BuildInc -prefix=${PROJECT} 100000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/include/LumoBackend/Headers/${PROJECT}Build.h>
 	DEPENDS ${PROJECT}
 )

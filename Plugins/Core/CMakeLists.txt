@@ -47,6 +47,13 @@ add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
 add_definitions(-DUSE_VULKAN)
 
+add_definitions(-DUSE_IM_TOOLS)
+add_definitions(-DUSE_IM_GUIZMO)
+add_definitions(-DUSE_IMCOOL_BAR)
+add_definitions(-DUSE_IMGUI_MARKDOW)
+add_definitions(-DUSE_IMGUI_FILE_DIALOG)
+add_definitions(-DUSE_IMGUI_NODE_EDITOR)
+
 if(UNIX)
     add_definitions(-DUNIX)
 elseif(WIN32)

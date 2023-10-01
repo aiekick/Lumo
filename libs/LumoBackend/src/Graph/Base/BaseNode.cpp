@@ -470,37 +470,33 @@ bool BaseNode::ExecuteInputTasks(const uint32_t& vCurrentFrame, vk::CommandBuffe
 
 void BaseNode::ZoomToContent() const
 {
-	if (m_BaseNodeState.m_NodeGraphContext)
-	{
-		auto context = reinterpret_cast<ax::NodeEditor::Detail::EditorContext*>(m_BaseNodeState.m_NodeGraphContext);
-		context->NavigateTo(context->GetContentBounds(), true);
+	if (m_BaseNodeState.m_NodeGraphContext) {
+        ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+        ax::NodeEditor::NavigateToContent(true);
 	}
 }
 
 void BaseNode::NavigateToContent() const
 {
-	if (m_BaseNodeState.m_NodeGraphContext)
-	{
-		auto context = reinterpret_cast<ax::NodeEditor::Detail::EditorContext*>(m_BaseNodeState.m_NodeGraphContext);
-		context->NavigateTo(context->GetContentBounds(), false);
+	if (m_BaseNodeState.m_NodeGraphContext) {
+        ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+        ax::NodeEditor::NavigateToContent(false);
 	}
 }
 
 void BaseNode::ZoomToSelection() const
 {
-	if (m_BaseNodeState.m_NodeGraphContext)
-	{
-		auto context = reinterpret_cast<ax::NodeEditor::Detail::EditorContext*>(m_BaseNodeState.m_NodeGraphContext);
-		context->NavigateTo(context->GetSelectionBounds(), true);
+	if (m_BaseNodeState.m_NodeGraphContext) {
+        ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+        ax::NodeEditor::NavigateToSelection(true);
 	}
 }
 
 void BaseNode::NavigateToSelection() const
 {
-	if (m_BaseNodeState.m_NodeGraphContext)
-	{
-		auto context = reinterpret_cast<ax::NodeEditor::Detail::EditorContext*>(m_BaseNodeState.m_NodeGraphContext);
-		context->NavigateTo(context->GetSelectionBounds(), false);
+	if (m_BaseNodeState.m_NodeGraphContext) {
+        ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+        ax::NodeEditor::NavigateToSelection(false);
 	}
 }
 
@@ -510,10 +506,9 @@ void BaseNode::NavigateToSelection() const
 
 ImVec2 BaseNode::GetCanvasOffset() const
 {
-	if (m_BaseNodeState.m_NodeGraphContext)
-	{
-		auto context = reinterpret_cast<ax::NodeEditor::Detail::EditorContext*>(m_BaseNodeState.m_NodeGraphContext);
-		return context->GetView().Origin;
+	if (m_BaseNodeState.m_NodeGraphContext) {
+        ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+        ax::NodeEditor::GetCanvasOffset();
 	}
 
 	return ImVec2(0, 0);
@@ -521,10 +516,9 @@ ImVec2 BaseNode::GetCanvasOffset() const
 
 float BaseNode::GetCanvasScale() const
 {
-	if (m_BaseNodeState.m_NodeGraphContext)
-	{
-		auto context = reinterpret_cast<ax::NodeEditor::Detail::EditorContext*>(m_BaseNodeState.m_NodeGraphContext);
-		return context->GetView().Scale;
+	if (m_BaseNodeState.m_NodeGraphContext) {
+        ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+        ax::NodeEditor::GetCanvasScale();
 	}
 
 	return 1.0f;
@@ -532,19 +526,17 @@ float BaseNode::GetCanvasScale() const
 
 void BaseNode::SetCanvasOffset(const ImVec2& vOffset)
 {
-	if (m_BaseNodeState.m_NodeGraphContext)
-	{
-		auto context = reinterpret_cast<ax::NodeEditor::Detail::EditorContext*>(m_BaseNodeState.m_NodeGraphContext);
-		context->NavigateTo(vOffset);
+	if (m_BaseNodeState.m_NodeGraphContext) {
+        ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+        ax::NodeEditor::SetCanvasOffset(vOffset);
 	}
 }
 
 void BaseNode::SetCanvasScale(const float& vScale)
 {
-	if (m_BaseNodeState.m_NodeGraphContext)
-	{
-		auto context = reinterpret_cast<ax::NodeEditor::Detail::EditorContext*>(m_BaseNodeState.m_NodeGraphContext);
-		context->NavigateTo(vScale);
+	if (m_BaseNodeState.m_NodeGraphContext) {
+        ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
+        ax::NodeEditor::SetCanvasScale(vScale);
 	}
 }
 
