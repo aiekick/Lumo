@@ -191,7 +191,7 @@ void GraphPane::AddGraphPane(BaseNodeWeak vNodeGraphToShow)
 				m_GraphPanes.emplace_back(vNodeGraphToShow, true);
 				nodePtr->InitGraph();
 				nodePtr->uniquePaneId = nodePtr->name + "##" + ct::toStr((int)nodePtr->GetNodeID());
-				LayoutManager::Instance()->AddSpecificPaneToExisting(nodePtr->uniquePaneId.c_str(), m_PaneName);
+				LayoutManager::Instance()->AddSpecificPaneToExisting(nodePtr->uniquePaneId.c_str(), paneName);
 			}
 
 			LayoutManager::Instance()->FocusSpecificPane(nodePtr->uniquePaneId.c_str());
@@ -281,7 +281,7 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 								ImGuiWindowFlags_NoBringToFrontOnFocus |
 								ImGuiWindowFlags_MenuBar |
 								ImGuiWindowFlags_NoScrollbar;
-							if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+							if (ImGui::Begin<PaneFlags>(paneName.c_str(),
 								&vInOutPaneShown, paneFlag, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 								auto win = ImGui::GetCurrentWindowRead();
@@ -371,7 +371,7 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 								ImGuiWindowFlags_NoBringToFrontOnFocus | 
 								ImGuiWindowFlags_MenuBar | 
 								ImGuiWindowFlags_NoScrollbar;
-							if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+							if (ImGui::Begin<PaneFlags>(paneName.c_str(),
 								&vInOutPaneShown, paneFlag, flags)) {
 								if (ImGui::Begin(nodeEntryPtr->uniquePaneId.c_str(), &vCanShow, flags))
 								{

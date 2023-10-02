@@ -70,7 +70,7 @@ bool DebugPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneSh
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoBringToFrontOnFocus |
 			ImGuiWindowFlags_MenuBar;
-		if (ImGui::Begin<PaneFlags>(m_PaneName.c_str(),
+		if (ImGui::Begin<PaneFlags>(paneName.c_str(),
 			&vInOutPaneShown, paneFlag, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
 			auto win = ImGui::GetCurrentWindowRead();
