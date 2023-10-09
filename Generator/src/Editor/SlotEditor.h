@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/NodeSlot.h>
-#include <ImWidgets/ImWidgets.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/NodeSlot.h>
+#include <ImGuiPack.h>
 #include <Graph/GeneratorNode.h>
 
 class SlotEditor

@@ -16,9 +16,15 @@ limitations under the License.
 
 #pragma once
 
-#include <glm/glm.hpp>
+#include <Headers/Globals.h>
 
-#include <vkFramework/vkFramework.h>
+#include <Gaia/gaia.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Gui/VulkanWindow.h>
+
+#include <Frontend/ImGuiOverlay.h>
+
+#include <Gaia/Interfaces/iService.h>
 
 #include <string>
 #include <functional>
@@ -29,59 +35,19 @@ limitations under the License.
 #include <array>
 #include <memory>
 
-struct FileDialogAsset
-{
-	Texture2DPtr texturePtr = nullptr;
-	vk::DescriptorSet descriptorSet = vk::DescriptorSet{};
-};
-
-const uint32_t WIDTH = 1700;
-const uint32_t HEIGHT = 700;
 struct GLFWwindow;
-class App
-{
-private:
-	vkApi::VulkanImGuiOverlayPtr m_VulkanImGuiOverlayPtr = nullptr;
-	vkApi::VulkanWindowPtr m_VulkanWindowPtr = nullptr;
-	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+class App {
+public:
+    int run(int argc, char** argv);
 
 public:
-	std::vector<std::shared_ptr<FileDialogAsset>> m_FileDialogAssets;
-
-	ct::fvec2 m_NormalizedMousePos;
-	ct::fvec2 m_LastNormalizedMousePos;
-	bool m_MouseDrag = false;
-	bool m_UINeedRefresh = false;
-	bool m_CanWeTuneCamera = true;
-	bool m_CanWeCatchMouse = true;
-	float m_DisplayQuality = 1.0f;
-
-	uint32_t m_CurrentFrame = 0U;
-
-public:
-	int Run(const std::string& vAppPath);
-	vkApi::VulkanWindowPtr GetWindowPtr();
-	bool Unit(GLFWwindow* vWindow);
+    App() = default;   // Prevent construction
+    ~App() = default;  // Prevent unwanted destruction
 
 private:
-	bool Init(GLFWwindow* vWindow);
-	void MainLoop(GLFWwindow* vWindow);
-	bool BeginRender(bool& vNeedResize);
-	void EndRender();
-	void PrepareImGui(ct::ivec4 vViewport);
-	void Update();
-	void IncFrame();
-
-public: // singleton
-	static App* Instance()
-	{
-		static App _instance;
-		return &_instance;
-	}
+    void m_InitMessaging();
 
 protected:
-	App() = default; // Prevent construction
-	App(const App&) = default; // Prevent construction by copying
-	App& operator =(const App&) { return *this; }; // Prevent assignment
-	~App() = default; // Prevent unwanted destruction
+    App(const App&) = default;                     // Prevent construction by copying
+    App& operator=(const App&) { return *this; };  // Prevent assignment
 };

@@ -19,408 +19,73 @@ limitations under the License.
 
 #include "App.h"
 
-#include <cstdio>			// printf, fprintf
-#include <cstdlib>			// abort
-#include <iostream>			// std::cout
-#include <stdexcept>		// std::exception
-#include <algorithm>		// std::min, std::max
-#include <fstream>			// std::ifstream
-#include <chrono>			// timer
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include <Headers/LumoCodeGeneratorBuild.h>
 #include <ctools/FileHelper.h>
-#include <ctools/cTools.h>
+#include <Backend/MainBackend.h>
 
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+#include <ImGuiPack.h>
 #include <ctools/Logger.h>
 
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanWindow.h>
-#include <vkFramework/VulkanImGuiOverlay.h>
-#include <vkFramework/VulkanImGuiRenderer.h>
-#include <vkFramework/Texture2D.h>
-
-#include <imgui/imgui.h>
-#include <imgui/imgui_internal.h>
-#include <ImWidgets/ImWidgets.h>
-
-#include <Gui/MainFrame.h>
-#include <Project/ProjectFile.h>
-
-#include <ImGuiFileDialog/ImGuiFileDialog.h>
-#include <Systems/CommonSystem.h>
-#include <vkProfiler/Profiler.h>
-#include <Profiler/vkProfiler.hpp>
-
-#include <Headers/LumoCodeGeneratorBuild.h>
-
-#include <Base/Base.h>
+// messaging
+#include <Res/sdfmToolbarFont.cpp>
+#define MESSAGING_CODE_INFOS 0
+#define MESSAGING_LABEL_INFOS ICON_SDFMT_INFORMATION
+#define MESSAGING_CODE_WARNINGS 1
+#define MESSAGING_LABEL_WARNINGS ICON_SDFMT_BELL_ALERT
+#define MESSAGING_CODE_ERRORS 2
+#define MESSAGING_LABEL_ERRORS ICON_SDFMT_CLOSE_CIRCLE
+#define MESSAGING_LABEL_VKLAYER ICON_SDFMT_LAYERS
+#define MESSAGING_LABEL_DEBUG ICON_SDFMT_BUG
 
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-int App::Run(const std::string& vAppPath)
-{
-	ZoneScoped;
+int App::run(int /*argc*/, char** argv) {
+    ZoneScoped;
 
-	printf("-----------\n");
-	printf("[[ Lumo Code Generator Beta %s ]]\n", LumoCodeGenerator_BuildId);
+    printf("-----------\n");
+    printf("[[ Lumo Code Generator Beta %s ]]\n", LumoCodeGenerator_BuildId);
 
-	FileHelper::Instance()->SetAppPath(vAppPath);
-	FileHelper::Instance()->SetCurDirectory(FileHelper::Instance()->GetAppPath());
+    FileHelper::Instance()->SetAppPath(argv[0]);
+    FileHelper::Instance()->SetCurDirectory(FileHelper::Instance()->GetAppPath());
 
 #ifdef _DEBUG
-	FileHelper::Instance()->CreateDirectoryIfNotExist("debug");
+    FileHelper::Instance()->CreateDirectoryIfNotExist("debug");
 #endif
 
-	FileHelper::Instance()->CreateDirectoryIfNotExist("plugins");
-	FileHelper::Instance()->CreateDirectoryIfNotExist("shaders");
-	FileHelper::Instance()->CreateDirectoryIfNotExist("projects");
+    FileHelper::Instance()->CreateDirectoryIfNotExist("shaders");
 
-	m_VulkanWindowPtr = vkApi::VulkanWindow::Create(WIDTH, HEIGHT, PROJECT_NAME " beta", false);
-	if (m_VulkanWindowPtr)
-	{
-		const auto& main_window = m_VulkanWindowPtr->getWindowPtr();
-		if (Init(main_window))
-		{
-			MainLoop(main_window);
-			Unit(main_window);
-		}
+    m_InitMessaging();
 
-		m_VulkanWindowPtr->Unit();
-		m_VulkanWindowPtr.reset();
-	}
+    MainBackend::Instance()->run();
 
-	return 0;
+    return 0;
 }
 
-bool App::Init(GLFWwindow* vWindow)
-{
-	ZoneScoped;
-
-	bool res = false;
-
-	// Setup Vulkan
-	if (glfwVulkanSupported())
-	{
-		// Core
-		vkApi::VulkanCore::sVulkanShader = VulkanShader::Create();
-		if (vkApi::VulkanCore::sVulkanShader)
-		{
-			m_VulkanCorePtr = vkApi::VulkanCore::Create(m_VulkanWindowPtr, "Lumo", 1, "Lumo Engine", 1, true, true);
-			if (m_VulkanCorePtr)
-			{
-				ProjectFile::Instance(m_VulkanCorePtr);
-
-				// apres la creation du core
-				CommonSystem::Instance()->CreateBufferObject(m_VulkanCorePtr);
-
-				m_VulkanImGuiOverlayPtr = vkApi::VulkanImGuiOverlay::Create(
-					m_VulkanCorePtr, m_VulkanWindowPtr); // needed for alloc ImGui Textures
-				m_VulkanCorePtr->SetVulkanImGuiRenderer(m_VulkanImGuiOverlayPtr->GetImGuiRenderer());
-
-
-				ImGui::CustomStyle::Instance();
-
-				// apres les autres, car on charge le fichier projet
-				MainFrame::Instance(vWindow)->Init(m_VulkanCorePtr);
-
-#ifdef USE_THUMBNAILS
-				ImGuiFileDialog::Instance()->SetCreateThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info)
-					{
-						if (vThumbnail_Info &&
-							vThumbnail_Info->isReadyToUpload &&
-							vThumbnail_Info->textureFileDatas)
-						{
-							m_VulkanCorePtr->getDevice().waitIdle();
-
-							std::shared_ptr<FileDialogAsset> resPtr = std::shared_ptr<FileDialogAsset>(new FileDialogAsset,
-								[](FileDialogAsset* obj)
-								{
-									delete obj;
-								}
-							);
-
-							if (resPtr)
-							{
-								resPtr->texturePtr = Texture2D::CreateFromMemory(
-									m_VulkanCorePtr,
-									vThumbnail_Info->textureFileDatas,
-									vThumbnail_Info->textureWidth,
-									vThumbnail_Info->textureHeight,
-									vThumbnail_Info->textureChannels);
-
-								if (resPtr->texturePtr)
-								{
-									auto imguiRendererPtr = m_VulkanImGuiOverlayPtr->GetImGuiRenderer().getValidShared();
-									if (imguiRendererPtr)
-									{
-										resPtr->descriptorSet = imguiRendererPtr->CreateImGuiTexture(
-											(VkSampler)resPtr->texturePtr->m_DescriptorImageInfo.sampler,
-											(VkImageView)resPtr->texturePtr->m_DescriptorImageInfo.imageView,
-											(VkImageLayout)resPtr->texturePtr->m_DescriptorImageInfo.imageLayout);
-
-										vThumbnail_Info->userDatas = (void*)resPtr.get();
-
-										m_FileDialogAssets.push_back(resPtr);
-
-										vThumbnail_Info->textureID = (ImTextureID)&resPtr->descriptorSet;
-									}
-
-									delete[] vThumbnail_Info->textureFileDatas;
-									vThumbnail_Info->textureFileDatas = nullptr;
-
-									vThumbnail_Info->isReadyToUpload = false;
-									vThumbnail_Info->isReadyToDisplay = true;
-
-									m_VulkanCorePtr->getDevice().waitIdle();
-								}
-							}
-						}
-					});
-				ImGuiFileDialog::Instance()->SetDestroyThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info)
-					{
-						if (vThumbnail_Info)
-						{
-							if (vThumbnail_Info->userDatas)
-							{
-								m_VulkanCorePtr->getDevice().waitIdle();
-
-								auto assetPtr = (FileDialogAsset*)vThumbnail_Info->userDatas;
-								if (assetPtr)
-								{
-									assetPtr->texturePtr.reset();
-									assetPtr->descriptorSet = vk::DescriptorSet{};
-									auto imguiRendererPtr = m_VulkanImGuiOverlayPtr->GetImGuiRenderer().getValidShared();
-									if (imguiRendererPtr)
-									{
-										imguiRendererPtr->DestroyImGuiTexture(&assetPtr->descriptorSet);
-									}
-								}
-
-								m_VulkanCorePtr->getDevice().waitIdle();
-							}
-						}
-					});
-#endif // USE_THUMBNAILS
-
-				vkprof::vkProfiler::Instance()->Init(
-					m_VulkanCorePtr->getPhysicalDevice(),
-					m_VulkanCorePtr->getDevice());
-
-				res = true;
-			}
-		} 
-	}
-
-	return res;
-}
-
-void App::MainLoop(GLFWwindow* vWindow)
-{
-	while (!glfwWindowShouldClose(vWindow))
-	{
-		ZoneScoped;
-
-		// maintain active, prevent user change via imgui dialog
-		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
-		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Viewport
-
-		glfwPollEvents();
-
-		// to absolutly do beofre all vk rendering commands
-		m_VulkanCorePtr->ResetCommandPools();
-
-		Update(); // to do absolutly beofre imgui rendering
-
-		ct::ivec4 viewportRect = ct::ivec4(0, m_VulkanWindowPtr->getWindowResolution());
-
-		ImGui::SetPUSHID(125);
-
-		PrepareImGui(viewportRect);
-
-		// Merged Rendering
-		bool needResize = false;
-		if (BeginRender(needResize))
-		{
-			m_VulkanImGuiOverlayPtr->render();
-			EndRender();
-		}
-
-		// Update and Render additional Platform Windows
-		// (Platform functions may change the current OpenGL context, so we save/restore it to make it easier to paste this code elsewhere.
-		//  For this specific demo app we could also call glfwMakeContextCurrent(window) directly)
-		if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			GLFWwindow* backup_current_context = glfwGetCurrentContext();
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-			glfwMakeContextCurrent(backup_current_context);
-		}
-
-#ifdef USE_THUMBNAILS
-		vkDeviceWaitIdle((VkDevice)m_VulkanCorePtr->getDevice());
-		ImGuiFileDialog::Instance()->ManageGPUThumbnails();
-#endif
-
-		// mainframe post actions
-		MainFrame::Instance()->PostRenderingActions();
-
-		++m_CurrentFrame;
-	}
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// RENDER ////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-bool App::BeginRender(bool& vNeedResize)
-{
-	ZoneScoped;
-
-	if (m_VulkanCorePtr->AcquireNextImage(m_VulkanWindowPtr))
-	{
-		m_VulkanCorePtr->frameBegin();
-
-		auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
-		if (devicePtr)
-		{
-			auto cmd = m_VulkanCorePtr->getGraphicCommandBuffer();
-			devicePtr->BeginDebugLabel(&cmd, "ImGui", IMGUI_RENDERER_DEBUG_COLOR);
-
-			{
-				TracyVkZone(m_VulkanCorePtr->getTracyContext(), cmd, "Record Renderer Command buffer");
-			}
-
-			m_VulkanCorePtr->beginMainRenderPass();
-
-			return true;
-		}
-	}
-	else // maybe a resize will fix
-	{
-		vNeedResize = true;
-	}
-
-	return false;
-}
-
-void App::EndRender()
-{
-	ZoneScoped;
-
-	m_VulkanCorePtr->endMainRenderPass();
-
-	auto cmd = m_VulkanCorePtr->getGraphicCommandBuffer();
-	
-	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
-	if (devicePtr)
-	{
-		devicePtr->EndDebugLabel(&cmd);
-	}
-
-	{
-		TracyVkCollect(m_VulkanCorePtr->getTracyContext(), cmd);
-	}
-
-	{
-		vkprof::vkProfiler::Instance()->Collect(cmd);
-	}
-
-	m_VulkanCorePtr->frameEnd();
-	m_VulkanCorePtr->Present();
-}
-
-void App::PrepareImGui(ct::ivec4 vViewport)
-{
-	ZoneScoped;
-
-	// ImGui Calc juste avant de rendre dnas la swapchain
-	m_VulkanImGuiOverlayPtr->begin();
-
-	auto io = ImGui::GetIO();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		const auto viewport = ImGui::GetMainViewport();
-		if (viewport)
-		{
-			const auto pos = viewport->WorkPos;
-			const auto size = viewport->WorkSize;
-			vViewport.x = (int)pos.x;
-			vViewport.y = (int)pos.y;
-			vViewport.z = (int)size.x;
-			vViewport.w = (int)size.y;
-		}
-	}
-	else
-	{
-		vViewport.x = 0;
-		vViewport.y = 0;
-	}
-
-	MainFrame::Instance()->Display(m_CurrentFrame, vViewport);
-
-	m_VulkanImGuiOverlayPtr->end();
-}
-
-void App::Update()
-{
-	ZoneScoped;
-
-	m_VulkanCorePtr->GetDeltaTime(m_CurrentFrame);
-
-	CommonSystem::Instance()->UploadBufferObjectIfDirty(m_VulkanCorePtr);
-}
-
-void App::IncFrame()
-{
-	++m_CurrentFrame;
-}
-
-vkApi::VulkanWindowPtr App::GetWindowPtr()
-{
-	return m_VulkanWindowPtr;
-}
-
-bool App::Unit(GLFWwindow* vWindow)
-{
-	ZoneScoped;
-
-	UNUSED(vWindow);
-
-	if (m_VulkanCorePtr)
-	{
-		vkDeviceWaitIdle((VkDevice)m_VulkanCorePtr->getDevice());
-	}
-
-	vkprof::vkProfiler::Instance()->Unit();
-
-	m_FileDialogAssets.clear();
-
-	MainFrame::Instance()->Unit(); // detruit tout les panes, dont les nodes
-
-	ProjectFile::Instance()->Clear();
-
-	if (m_VulkanImGuiOverlayPtr)
-	{
-		m_VulkanImGuiOverlayPtr->Unit();
-		m_VulkanImGuiOverlayPtr.reset();
-	}
-
-	CommonSystem::Instance()->DestroyBufferObject();
-	if (vkApi::VulkanCore::sVulkanShader)
-	{
-		vkApi::VulkanCore::sVulkanShader->Unit();
-		vkApi::VulkanCore::sVulkanShader.reset();
-	}
-
-	if (m_VulkanCorePtr)
-	{
-		m_VulkanCorePtr->Unit();
-		m_VulkanCorePtr.reset();
-	}
-
-	return true;
+void App::m_InitMessaging() {
+    Messaging::Instance()->AddCategory(
+        MESSAGING_CODE_INFOS, "Infos(s)", MESSAGING_LABEL_INFOS, ImVec4(0.0f, 0.8f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(
+        MESSAGING_CODE_WARNINGS, "Warnings(s)", MESSAGING_LABEL_WARNINGS, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(
+        MESSAGING_CODE_ERRORS, "Errors(s)", MESSAGING_LABEL_ERRORS, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(
+        MESSAGING_TYPE_VKLAYER, "Vk Layer(s)", MESSAGING_LABEL_VKLAYER, ImVec4(0.8f, 0.0f, 0.4f, 1.0f));
+    Messaging::Instance()->AddCategory(
+        MESSAGING_TYPE_DEBUG, "Debug(s)", MESSAGING_LABEL_DEBUG, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
+
+    Logger::sStandardLogFunction = [this](const int& vType, const std::string& vMessage) {
+        MessageData msg_datas;
+        const auto& type = vType;
+        Messaging::Instance()->AddMessage(vMessage, type, false, msg_datas, {});
+    };
 }

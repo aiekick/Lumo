@@ -27,12 +27,12 @@ limitations under the License.
 
 namespace fs = std::filesystem;
 
-ProjectFile::ProjectFile(vkApi::VulkanCorePtr vVulkanCorePtr)
+ProjectFile::ProjectFile(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	m_RootNodePtr = GeneratorNode::Create(vVulkanCorePtr);
 }
 
-ProjectFile::ProjectFile(vkApi::VulkanCorePtr vVulkanCorePtr, const std::string& vFilePathName)
+ProjectFile::ProjectFile(GaiApi::VulkanCorePtr vVulkanCorePtr, const std::string& vFilePathName)
 {
 	m_RootNodePtr = GeneratorNode::Create(vVulkanCorePtr);
 
@@ -474,7 +474,7 @@ public:
 
 #include <utility>
 #include <SceneGraph/%s.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <Interfaces/%sInputInterface.h>
 #include <Interfaces/%sOutputInterface.h>
 
@@ -583,13 +583,13 @@ void NodeSlot%sInput::Unit()
 
 void NodeSlot%sInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
-	auto endSlotPtr = vOtherSlot.getValidShared();
+	auto endSlotPtr = vOtherSlot.lock();
 	if (endSlotPtr)
 	{
-		auto parentNodePtr = dynamic_pointer_cast<%sInputInterface>(parentNode.getValidShared());
+		auto parentNodePtr = dynamic_pointer_cast<%sInputInterface>(parentNode.lock());
 		if (parentNodePtr)
 		{
-			auto otherCodeNodePtr = dynamic_pointer_cast<%sOutputInterface>(endSlotPtr->parentNode.getValidShared());
+			auto otherCodeNodePtr = dynamic_pointer_cast<%sOutputInterface>(endSlotPtr->parentNode.lock());
 			if (otherCodeNodePtr)
 			{
 				parentNodePtr->Set%s(name,
@@ -601,10 +601,10 @@ void NodeSlot%sInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 
 void NodeSlot%sInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
-	auto endSlotPtr = vOtherSlot.getValidShared();
+	auto endSlotPtr = vOtherSlot.lock();
 	if (endSlotPtr)
 	{
-		auto parentNodePtr = dynamic_pointer_cast<%sInputInterface>(parentNode.getValidShared());
+		auto parentNodePtr = dynamic_pointer_cast<%sInputInterface>(parentNode.lock());
 		if (parentNodePtr)
 		{
 			parentNodePtr->Set%s(name, %sWeak());
@@ -619,18 +619,18 @@ void NodeSlot%sInput::TreatNotification(
 {
 	if (vEvent == %sUpdateDone)
 	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.lock();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto parentCodeInputNodePtr = dynamic_pointer_cast<%sInputInterface>(parentNode.getValidShared());
+				auto parentCodeInputNodePtr = dynamic_pointer_cast<%sInputInterface>(parentNode.lock());
 				if (parentCodeInputNodePtr)
 				{
-					auto otherNodePtr = dynamic_pointer_cast<%sOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+					auto otherNodePtr = dynamic_pointer_cast<%sOutputInterface>(emiterSlotPtr->parentNode.lock());
 					if (otherNodePtr)
 					{
-						auto receiverSlotPtr = vReceiverSlot.getValidShared();
+						auto receiverSlotPtr = vReceiverSlot.lock();
 						if (receiverSlotPtr)
 						{
 							parentCodeInputNodePtr->Set%s(receiverSlotPtr->name,
@@ -659,8 +659,8 @@ void NodeSlot%sInput::DrawDebugInfos()
 	scene_input_slot_h_file_code += u8R"(
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/NodeSlotInput.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/NodeSlotInput.h>
 
 class NodeSlot%sInput;
 typedef ct::cWeak<NodeSlot%sInput> NodeSlot%sInputWeak;
@@ -706,7 +706,7 @@ public:
 
 #include <utility>
 #include <SceneGraph/%s.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 
 static const float slotIconSize = 15.0f;
 
@@ -835,8 +835,8 @@ void NodeSlot%sOutput::DrawDebugInfos()
 	scene_output_slot_h_file_code += u8R"(
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/NodeSlotOutput.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/NodeSlotOutput.h>
 
 class NodeSlot%sOutput;
 typedef ct::cWeak<NodeSlot%sOutput> NodeSlot%sOutputWeak;

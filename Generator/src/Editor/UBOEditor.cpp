@@ -1,12 +1,12 @@
 #include "UBOEditor.h"
 
 #include <ImWidgets/ImWidgets.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 
-#include <Graph/GeneratorNode.h>
-#include <Graph/GeneratorCommon.h>
-#include <Graph/GeneratorNodeSlotInput.h>
-#include <Graph/GeneratorNodeSlotOutput.h>
+#include <LumoBackend/Graph/GeneratorNode.h>
+#include <LumoBackend/Graph/GeneratorCommon.h>
+#include <LumoBackend/Graph/GeneratorNodeSlotInput.h>
+#include <LumoBackend/Graph/GeneratorNodeSlotOutput.h>
 
 ///////////////////////////////////////////////////////
 //// UBOItem //////////////////////////////////////////

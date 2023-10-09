@@ -21,16 +21,16 @@ limitations under the License.
 #include <vector>
 #include <functional>
 #include <imgui/imgui.h>
-#include <Graph/Graph.h>
+#include <LumoBackend/Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <Editor/UBOEditor.h>
 #include <Editor/SlotEditor.h>
 #include <ImWidgets/ImWidgets.h>
 #include <ctools/ConfigAbstract.h>
 #include <vkFramework/VulkanCore.h>
-#include <Graph/Base/NodeSlotInput.h>
+#include <LumoBackend/Graph/Base/NodeSlotInput.h>
 #include <Systems/FrameActionSystem.h>
-#include <Graph/Base/NodeSlotOutput.h>
+#include <LumoBackend/Graph/Base/NodeSlotOutput.h>
 
 struct GLFWwindow;
 class MainFrame : public conf::ConfigAbstract
@@ -72,13 +72,13 @@ private:
 
 	std::vector<ImWidgets::InputText> m_CustomTypeInputTexts;
 
-	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
 	// need one frame update for make it work
 	bool m_NeedToApplyLayout = false;
 
 public:
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr);
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	void Unit();
 
 	void Display(const uint32_t& vCurrentFrame, ct::ivec4 vViewport);

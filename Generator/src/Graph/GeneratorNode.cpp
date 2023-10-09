@@ -5,25 +5,25 @@
 #include <Gui/MainFrame.h>
 #include <ctools/FileHelper.h>
 #include <ImWidgets/ImWidgets.h>
-#include <Graph/Base/NodeSlot.h>
-#include <Graph/Base/BaseNode.h>
-#include <Graph/GeneratorCommon.h>
-#include <Graph/GeneratorNodeSlotInput.h>
-#include <Graph/GeneratorNodeSlotOutput.h>
-#include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotModelOutput.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
-#include <Graph/Slots/NodeSlotVariableInput.h>
-#include <Graph/Slots/NodeSlotVariableOutput.h>
-#include <Graph/Slots/NodeSlotLightGroupInput.h>
-#include <Graph/Slots/NodeSlotLightGroupOutput.h>
-#include <Graph/Slots/NodeSlotTexelBufferInput.h>
-#include <Graph/Slots/NodeSlotTexelBufferOutput.h>
-#include <Graph/Slots/NodeSlotTextureGroupInput.h>
-#include <Graph/Slots/NodeSlotTextureGroupOutput.h>
-#include <Graph/Slots/NodeSlotStorageBufferInput.h>
-#include <Graph/Slots/NodeSlotStorageBufferOutput.h>
+#include <LumoBackend/Graph/Base/NodeSlot.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/GeneratorCommon.h>
+#include <LumoBackend/Graph/GeneratorNodeSlotInput.h>
+#include <LumoBackend/Graph/GeneratorNodeSlotOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexelBufferInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexelBufferOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotStorageBufferInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotStorageBufferOutput.h>
 
 namespace fs = std::filesystem;
 
@@ -31,7 +31,7 @@ namespace fs = std::filesystem;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-GeneratorNodePtr GeneratorNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+GeneratorNodePtr GeneratorNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	GeneratorNodePtr res = std::make_shared<GeneratorNode>();
 	res->m_This = res;
@@ -115,10 +115,10 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 		res += vOffset + "\t<outputs>\n";
 
 		std::string outLeftSlot;
-		auto slotLeftPtr = NodeSlot::sSlotGraphOutputMouseLeft.getValidShared();
+		auto slotLeftPtr = NodeSlot::sSlotGraphOutputMouseLeft.lock();
 		if (slotLeftPtr)
 		{
-			auto slotLeftParentNodePtr = slotLeftPtr->parentNode.getValidShared();
+			auto slotLeftParentNodePtr = slotLeftPtr->parentNode.lock();
 			if (slotLeftParentNodePtr)
 			{
 				outLeftSlot = ct::toStr("%u:%u", slotLeftParentNodePtr->GetNodeID(), slotLeftPtr->GetSlotID());
@@ -127,10 +127,10 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 		}
 
 		std::string outMiddleSlot;
-		auto slotMiddlePtr = NodeSlot::sSlotGraphOutputMouseMiddle.getValidShared();
+		auto slotMiddlePtr = NodeSlot::sSlotGraphOutputMouseMiddle.lock();
 		if (slotMiddlePtr)
 		{
-			auto slotMiddleParentNodePtr = slotMiddlePtr->parentNode.getValidShared();
+			auto slotMiddleParentNodePtr = slotMiddlePtr->parentNode.lock();
 			if (slotMiddleParentNodePtr)
 			{
 				outMiddleSlot = ct::toStr("%u:%u", slotMiddleParentNodePtr->GetNodeID(), slotMiddlePtr->GetSlotID());
@@ -139,10 +139,10 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 		}
 
 		std::string outRightSlot;
-		auto slotRightPtr = NodeSlot::sSlotGraphOutputMouseMiddle.getValidShared();
+		auto slotRightPtr = NodeSlot::sSlotGraphOutputMouseMiddle.lock();
 		if (slotRightPtr)
 		{
-			auto slotRightParentNodePtr = slotRightPtr->parentNode.getValidShared();
+			auto slotRightParentNodePtr = slotRightPtr->parentNode.lock();
 			if (slotRightParentNodePtr)
 			{
 				outRightSlot = ct::toStr("%u:%u", slotRightParentNodePtr->GetNodeID(), slotRightPtr->GetSlotID());
@@ -356,7 +356,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				}
 				if (!wasSet)
 				{
-					auto slotPtr = AddInput(slot_input_ptr, false, slot.hideName).getValidShared();
+					auto slotPtr = AddInput(slot_input_ptr, false, slot.hideName).lock();
 					if (slotPtr)
 					{
 						slotPtr->idAlreadySetbyXml = true;
@@ -391,7 +391,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 				}
 				if (!wasSet)
 				{
-					auto slotPtr = AddOutput(slot_output_ptr, false, slot.hideName).getValidShared();
+					auto slotPtr = AddOutput(slot_output_ptr, false, slot.hideName).lock();
 					if (slotPtr)
 					{
 						slotPtr->idAlreadySetbyXml = true;
@@ -526,8 +526,8 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath, const ProjectF
 	cpp_node_file_code += GetPVSStudioHeader();
 
 	h_node_file_code += u8R"(
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>)";
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>)";
 
 	cpp_node_file_code += ct::toStr(u8R"(
 #include "%s.h")", node_class_name.c_str());
@@ -567,7 +567,7 @@ class NODE_CLASS_NAME :)";
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<NODE_CLASS_NAME> NODE_CLASS_NAME::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<NODE_CLASS_NAME> NODE_CLASS_NAME::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -599,7 +599,7 @@ NODE_CLASS_NAME::~NODE_CLASS_NAME()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NODE_CLASS_NAME::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool NODE_CLASS_NAME::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -740,7 +740,7 @@ void NODE_CLASS_NAME::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWea
 {
 	ZoneScoped;
 
-	auto slotPtr = vSlot.getValidShared();
+	auto slotPtr = vSlot.lock();
 	if (slotPtr && slotPtr->showWidget)
 	{
 		if (m_MODULE_CLASS_NAMEPtr)
@@ -759,7 +759,7 @@ void NODE_CLASS_NAME::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWe
 {
 	ZoneScoped;
 
-	auto slotPtr = vSlot.getValidShared();
+	auto slotPtr = vSlot.lock();
 	if (slotPtr && slotPtr->showWidget)
 	{
 		if (m_MODULE_CLASS_NAMEPtr)
@@ -960,7 +960,7 @@ void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
 	h_node_file_code += u8R"(
 {
 public:
-	static std::shared_ptr<NODE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<NODE_CLASS_NAME> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 )";
 
 	if (m_GenerateAModule)
@@ -977,7 +977,7 @@ public:
 	~NODE_CLASS_NAME() override;
 
 	// Init / Unit
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 )";
 	if (m_IsATask)
 	{
@@ -1110,7 +1110,7 @@ void GeneratorNode::GenerateModules(const std::string& vPath, const ProjectFile*
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <ImWidgets/ImWidgets.h>
 #include <Systems/CommonSystem.h>
 #include <Profiler/vkProfiler.hpp>
@@ -1128,13 +1128,13 @@ void GeneratorNode::GenerateModules(const std::string& vPath, const ProjectFile*
 	}
 
 	cpp_module_file_code += u8R"(
-using namespace vkApi;
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -1154,7 +1154,7 @@ std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(vkApi::VulkanCorePt
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MODULE_CLASS_NAME::MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
+MODULE_CLASS_NAME::MODULE_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		cpp_module_file_code += u8R"(
@@ -1680,14 +1680,14 @@ class MODULE_CLASS_NAME :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<MODULE_CLASS_NAME> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<MODULE_CLASS_NAME> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
 	ct::cWeak<MODULE_CLASS_NAME> m_This;
 )";
 	if (!m_GenerateAPass)
 	{
-		h_module_file_code += u8R"(	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+		h_module_file_code += u8R"(	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 )";
 	}
 
@@ -1700,7 +1700,7 @@ private:
 
 	h_module_file_code += u8R"(
 public:
-	MODULE_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr);
+	MODULE_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~MODULE_CLASS_NAME())";
 	if (m_GenerateAPass)
 	{
@@ -1828,13 +1828,13 @@ void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* 
 #include <utils/Mesh/VertexStruct.h>
 #include <Base/FrameBuffer.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PASS_CLASS_NAME::PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr))";
+PASS_CLASS_NAME::PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
 
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
@@ -2070,7 +2070,7 @@ bool PASS_CLASS_NAME::CanUpdateDescriptors()
 
 	if (!m_SceneAccelStructure.expired())
 	{
-		auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+		auto accelStructurePtr = m_SceneAccelStructure.lock();
 		if (accelStructurePtr)
 		{
 			return accelStructurePtr->IsOk();
@@ -2292,7 +2292,7 @@ private:)";
 	h_pass_file_code += u8R"(
 
 public:
-	PASS_CLASS_NAME(vkApi::VulkanCorePtr vVulkanCorePtr);
+	PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~PASS_CLASS_NAME() override;
 )";
 
@@ -2515,7 +2515,7 @@ void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIter
 
 	if (vCmdBuffer)
 	{
-		auto modelPtr = m_SceneModel.getValidShared();
+		auto modelPtr = m_SceneModel.lock();
 		if (!modelPtr || modelPtr->empty()) return;
 
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
@@ -2674,7 +2674,7 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
 	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
 	res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights
 		
-	auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+	auto accelStructurePtr = m_SceneAccelStructure.lock();
 	if (accelStructurePtr && 
 		accelStructurePtr->GetTLASInfo() && 
 		accelStructurePtr->GetBufferAddressInfo())
@@ -3920,7 +3920,7 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetBufferAddressInfo()
 #include <Interfaces/AccelStructureOutputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotAccelStructureOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotAccelStructureOutput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public AccelStructureOutputInterface,)";
@@ -4020,7 +4020,7 @@ void PASS_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 
 	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
-	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	auto lightGroupPtr = m_SceneLightGroup.lock();
 	if (lightGroupPtr && 
 		lightGroupPtr->GetBufferInfo())
 	{
@@ -4038,7 +4038,7 @@ void PASS_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 #include <Interfaces/LightGroupInputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotLightGroupInput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public LightGroupInputInterface,)";
@@ -4139,7 +4139,7 @@ SceneLightGroupWeak PASS_CLASS_NAME::GetLightGroup()
 #include <Interfaces/LightGroupOutputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotLightGroupOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupOutput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public LightGroupOutputInterface,)";
@@ -4246,7 +4246,7 @@ void PASS_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 #include <Interfaces/ModelInputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotModelInput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public ModelInputInterface,)";
@@ -4347,7 +4347,7 @@ SceneModelWeak PASS_CLASS_NAME::GetModel()
 #include <Interfaces/ModelOutputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotModelOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public ModelOutputInterface,)";
@@ -4472,7 +4472,7 @@ void PASS_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 #include <Interfaces/StorageBufferInputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotStorageBufferInput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotStorageBufferInput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public StorageBufferInputInterface<0U>,)";
@@ -4573,7 +4573,7 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 #include <Interfaces/StorageBufferOutputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotStorageBufferOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotStorageBufferOutput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public StorageBufferOutputInterface,)";
@@ -4768,7 +4768,7 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 #include <Interfaces/TexelBufferInputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotTexelBufferInput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTexelBufferInput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public TexelBufferInputInterface<0U>,)";
@@ -4915,7 +4915,7 @@ vk::BufferView* PASS_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 #include <Interfaces/TexelBufferOutputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotTexelBufferOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTexelBufferOutput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public TexelBufferOutputInterface,)";
@@ -5042,7 +5042,7 @@ void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 #include <Interfaces/TextureInputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotTextureInput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public TextureInputInterface<0U>,)";
@@ -5178,7 +5178,7 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 #include <Interfaces/TextureOutputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotTextureOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public TextureOutputInterface,)";
@@ -5303,7 +5303,7 @@ void PASS_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 #include <Interfaces/TextureCubeInputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotTextureCubeInput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTextureCubeInput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public TextureCubeInputInterface<0U>,)";
@@ -5406,7 +5406,7 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetTextureCube(const uint32_t& vBindin
 #include <Interfaces/TextureCubeOutputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotTextureCubeOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTextureCubeOutput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public TextureCubeOutputInterface,)";
@@ -5531,7 +5531,7 @@ void PASS_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 #include <Interfaces/TextureGroupInputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotTextureGroupInput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public TextureGroupInputInterface<0U>,)";
@@ -5632,7 +5632,7 @@ DescriptorImageInfoVector* PASS_CLASS_NAME::GetDescriptorImageInfos(const uint32
 #include <Interfaces/TextureGroupOutputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotTextureGroupOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupOutput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public TextureGroupOutputInterface,)";
@@ -5742,7 +5742,7 @@ void PASS_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 #include <Interfaces/VariableInputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotVariableInput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public VariableInputInterface<0U>,)";
@@ -5851,7 +5851,7 @@ SceneVariableWeak PASS_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 #include <Interfaces/VariableOutputInterface.h>)";
 
 	res.include_slot = u8R"(
-#include <Graph/Slots/NodeSlotVariableOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>)";
 
 	res.node_module_public_interface = u8R"(
 	public VariableOutputInterface,)";

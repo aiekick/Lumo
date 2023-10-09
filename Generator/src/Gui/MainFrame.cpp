@@ -30,9 +30,9 @@ limitations under the License.
 #include <FontIcons/CustomFont.h>
 #include <Helper/ThemeHelper.h>
 #include <Helper/Messaging.h>
-#include <Graph/GeneratorNode.h>
+#include <LumoBackend/Graph/GeneratorNode.h>
 #include <imgui/imgui_internal.h>
-#include <Graph/Layout/GraphLayout.h>
+#include <LumoBackend/Graph/Layout/GraphLayout.h>
 #include <Project/ProjectFile.h>
 
 MainFrame::MainFrame(GLFWwindow* vWin)
@@ -46,7 +46,7 @@ MainFrame::~MainFrame()
 	
 }
 
-bool MainFrame::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool MainFrame::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	m_VulkanCorePtr = vVulkanCorePtr;
 
@@ -118,7 +118,7 @@ void MainFrame::PostRenderingActions()
 
 			// on selectionne les 1ers slots du node selectionné 
 			// a l'issue du chargement
-			auto nodePtr = ProjectFile::Instance()->m_SelectedNode.getValidShared();
+			auto nodePtr = ProjectFile::Instance()->m_SelectedNode.lock();
 			if (nodePtr)
 			{
 				// selection of the first slot
@@ -454,8 +454,8 @@ void MainFrame::DrawNodeCreationPane()
 	if (ImGui::ContrastedButton("New Node"))
 	{
 		SelectNode(std::dynamic_pointer_cast<GeneratorNode>(
-			ProjectFile::Instance()->m_RootNodePtr->AddChildNode(GeneratorNode::Create(m_VulkanCorePtr)).getValidShared()));
-		auto nodePtr = ProjectFile::Instance()->m_SelectedNode.getValidShared();
+			ProjectFile::Instance()->m_RootNodePtr->AddChildNode(GeneratorNode::Create(m_VulkanCorePtr)).lock()));
+		auto nodePtr = ProjectFile::Instance()->m_SelectedNode.lock();
 		if (nodePtr)
 		{
 			nodePtr->name = "New Node";
@@ -463,7 +463,7 @@ void MainFrame::DrawNodeCreationPane()
 		m_NeedToApplyLayout = true;
 	}
 
-	auto nodePtr = ProjectFile::Instance()->m_SelectedNode.getValidShared();
+	auto nodePtr = ProjectFile::Instance()->m_SelectedNode.lock();
 	if (nodePtr)
 	{
 		ImGui::SameLine();
@@ -535,7 +535,7 @@ void MainFrame::DrawNodeCreationPane()
 			m_InputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 10.0f), 
 				ProjectFile::Instance()->m_SelectedNode,
 				m_SelectedNodeSlotInput,
-				NodeSlot::PlaceEnum::INPUT).getValidShared());
+				NodeSlot::PlaceEnum::INPUT).lock());
 
 		ImGui::SameLine();
 
@@ -543,7 +543,7 @@ void MainFrame::DrawNodeCreationPane()
 			m_OutputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 10.0f),
 				ProjectFile::Instance()->m_SelectedNode,
 				m_SelectedNodeSlotOutput,
-				NodeSlot::PlaceEnum::OUTPUT).getValidShared());
+				NodeSlot::PlaceEnum::OUTPUT).lock());
 
 		ImGui::Separator();
 
@@ -659,8 +659,8 @@ void MainFrame::DrawNodeCreationPane()
 
 void MainFrame::SelectNode(const BaseNodeWeak& vNode)
 {
-	auto currentNodePtr = std::dynamic_pointer_cast<GeneratorNode>(ProjectFile::Instance()->m_SelectedNode.getValidShared());
-	auto nodePtr = std::dynamic_pointer_cast<GeneratorNode>(vNode.getValidShared());
+	auto currentNodePtr = std::dynamic_pointer_cast<GeneratorNode>(ProjectFile::Instance()->m_SelectedNode.lock());
+	auto nodePtr = std::dynamic_pointer_cast<GeneratorNode>(vNode.lock());
 	if (nodePtr)
 	{
 		ProjectFile::Instance()->m_SelectedNode = nodePtr;
@@ -701,18 +701,18 @@ void MainFrame::SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vB
 	{
 		if (vButton == ImGuiMouseButton_Left)
 		{
-			auto slotPtr = vSlot.getValidShared();
+			auto slotPtr = vSlot.lock();
 			if (slotPtr)
 			{
 				if (slotPtr->IsAnInput())
 				{
-					m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(vSlot.getValidShared());
+					m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(vSlot.lock());
 					NodeSlot::sSlotGraphOutputMouseLeft = m_SelectedNodeSlotInput;
 					m_InputSlotEditor.SelectSlot(m_SelectedNodeSlotInput);
 				}
 				else if (slotPtr->IsAnOutput())
 				{
-					m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(vSlot.getValidShared());
+					m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(vSlot.lock());
 					NodeSlot::sSlotGraphOutputMouseRight = m_SelectedNodeSlotOutput;
 					m_OutputSlotEditor.SelectSlot(m_SelectedNodeSlotOutput);
 				}

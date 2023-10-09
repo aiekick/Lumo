@@ -53,7 +53,7 @@ int App::run(int /*argc*/, char** argv) {
     ZoneScoped;
 
     printf("-----------\n");
-    printf("[[ SdfMesher Beta %s ]]\n", Lumo_BuildId);
+    printf("[[ Lumo Beta %s ]]\n", Lumo_BuildId);
 
     FileHelper::Instance()->SetAppPath(argv[0]);
     FileHelper::Instance()->SetCurDirectory(FileHelper::Instance()->GetAppPath());

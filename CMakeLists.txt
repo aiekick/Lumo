@@ -46,17 +46,6 @@ if (USE_LUMO_TEST)
 	add_definitions(-DTEST_ENABLED)
 endif()
 
-## for group smake targets in the dir cmakeTargets
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmakeTargets")
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-## some defines for debug mode (before 3rdparty.cmake)
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
-
 if (USE_RTX)
 	add_definitions(-DUSE_RTX)
 endif()
@@ -171,12 +160,17 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX src FILES ${PROJECT_SRC
 
 file(GLOB README_MD 
 	${CMAKE_CURRENT_SOURCE_DIR}/*.md)
-source_group(help FILES ${README_MD})
+source_group(Readmes/main FILES ${README_MD})
+
+file(GLOB PLUGINS_README_MD 
+	${CMAKE_CURRENT_SOURCE_DIR}/plugins/*.md)
+source_group(Readmes/plugins FILES ${PLUGINS_README_MD})
 
 add_executable(${PROJECT}
 	${ICON}
 	${README_MD}
 	${PROJECT_MAIN}
+	${PLUGINS_README_MD}
 	${PROJECT_DOC_FILES}
 	${PROJECT_SRC_FILES}
 	${PROJECT_CMAKE_FILES}
@@ -219,12 +213,6 @@ target_link_libraries(${PROJECT}
 	${LUMO_BACKEND_LIBRARIES}
 	${TINYXML2_LIBRARIES}
 )
-
-if ("${CMAKE_EXE_LINKER_FLAGS}" STREQUAL "/machine:x64")
-	set(ARCH x64)
-else()
-	set(ARCH x32)
-endif()
 
 set(${PROJECT}_Output_Name "${PROJECT}_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${${PROJECT}_Output_Name}")

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/NodeSlotOutput.h>
-#include <Graph/GeneratorCommon.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/NodeSlotOutput.h>
+#include <LumoBackend/Graph/GeneratorCommon.h>
 #include <ctools/cTools.h>
 
 class GeneratorNodeSlotOutput;

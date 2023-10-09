@@ -61,11 +61,11 @@ class GeneratorNode;
 typedef ct::cWeak<GeneratorNode> GeneratorNodeWeak;
 typedef std::shared_ptr<GeneratorNode> GeneratorNodePtr;
 
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <vkFramework/VulkanCore.h>
 #include <Project/ProjectFile.h>
-#include <Graph/Base/NodeSlot.h>
+#include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <Editor/UBOEditor.h>
 
 #ifndef RENDERER_TYPE_NONE
@@ -150,7 +150,7 @@ public: // to save
 	UBOEditors m_UBOEditors;
 
 public:
-	static GeneratorNodePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static GeneratorNodePtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	static std::string GetLicenceHeader();
 	static std::string GetPVSStudioHeader();
 

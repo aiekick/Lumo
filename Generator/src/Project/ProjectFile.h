@@ -19,9 +19,9 @@ limitations under the License.
 #include <string>
 #include <memory>
 #include <imgui/imgui.h>
-#include <Graph/Graph.h>
+#include <LumoBackend/Graph/Graph.h>
 #include <ctools/cTools.h>
-#include <Graph/GeneratorNode.h>
+#include <LumoBackend/Graph/GeneratorNode.h>
 #include <ctools/ConfigAbstract.h>
 
 class ProjectFile : public conf::ConfigAbstract
@@ -43,8 +43,8 @@ private: // dont save
 	bool m_IsThereAnyNotSavedChanged = false;
 
 public:
-	ProjectFile(vkApi::VulkanCorePtr vVulkanCorePtr);
-	explicit ProjectFile(vkApi::VulkanCorePtr vVulkanCorePtr, const std::string& vFilePathName);
+	ProjectFile(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	explicit ProjectFile(GaiApi::VulkanCorePtr vVulkanCorePtr, const std::string& vFilePathName);
 	~ProjectFile();
 
 	void Clear();
@@ -75,7 +75,7 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 public:
-	static ProjectFile* Instance(vkApi::VulkanCorePtr vVulkanCorePtr = nullptr)
+	static ProjectFile* Instance(GaiApi::VulkanCorePtr vVulkanCorePtr = nullptr)
 	{
 		static ProjectFile _instance(vVulkanCorePtr);
 		return &_instance;

@@ -23,34 +23,39 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 ## some defines for debug mode (before 3rdparty.cmake)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
-add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
+## some defines for debug mode (before 3rdparty.cmake)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
-message("${PROJECT} => ${FINAL_BIN_DIR}")
 set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
 set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
+set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 
-if ("${CMAKE_EXE_LINKER_FLAGS}" STREQUAL "/machine:x64")
-	set(ARCH x64)
-else()
-	set(ARCH x32)
-endif()
+set(USE_SHARED_LIBS ON CACHE BOOL "" FORCE)
 
 set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 
 find_package(Vulkan REQUIRED)
 
-## other define
-add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
-add_definitions(-DGLM_FORCE_LEFT_HANDED)
-add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
-add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
-add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
-add_definitions(-DIMGUI_ENABLE_FREETYPE)
-add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/3rdparty/imgui/imgui.h")
-add_definitions(-DPROJECT_NAME="${PROJECT}")
+add_definitions(-DUSE_GLFW3)
 add_definitions(-DUSE_STD_FILESYSTEM)
-add_definitions(-DUSE_VULKAN)
+add_definitions(-DIMGUI_ENABLE_FREETYPE)
+add_definitions(-DPROJECT_NAME="${PROJECT}")
+add_definitions(-DVMA_VULKAN_VERSION=1002000)
+add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
+add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
+add_definitions(-DPROJECT_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
+add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
+add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/src/Frontend/CustomLumoBackendConfig.h")
+add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
+add_definitions(-DUSE_IMGUI="${CMAKE_CURRENT_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
+add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
+
+add_definitions(-DUSE_IM_TOOLS)
+add_definitions(-DUSE_IM_GUIZMO)
+add_definitions(-DUSE_IMCOOL_BAR)
+add_definitions(-DUSE_IMGUI_MARKDOW)
+add_definitions(-DUSE_IMGUI_FILE_DIALOG)
+add_definitions(-DUSE_IMGUI_NODE_EDITOR)
 
 if(UNIX)
     add_definitions(-DUNIX)
@@ -59,18 +64,20 @@ elseif(WIN32)
 endif()
 
 if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /IGNORE:4055 /std:c++17")
     add_definitions(-D_USE_MATH_DEFINES)
     add_definitions(-DMSVC)
+    add_definitions(-DGLFW_EXPOSE_NATIVE_WIN32)
 	add_definitions(-DNOMINMAX) ## for avoid issue regarding std::max and std::min
 else ()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wdeprecated-declarations -Wunused-parameter")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++17 -Wunused-parameter")
 endif ()
 
 if(NOT CMAKE_DEBUG_POSTFIX)
   set(CMAKE_DEBUG_POSTFIX _debug)
 endif()
 
-file(GLOB PROJECT_MAIN ${CMAKE_SOURCE_DIR}/*.cpp)
+file(GLOB PROJECT_MAIN ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 source_group(main FILES ${PROJECT_MAIN})
 
 file(GLOB_RECURSE PROJECT_SRC_RECURSE 
@@ -106,41 +113,37 @@ add_executable(${PROJECT}
 )
 
 target_compile_definitions(${PROJECT} PUBLIC -DPROJECT_NAME=${PROJECT})
-target_compile_definitions(${PROJECT} PUBLIC -DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/Generator/src/Gui/CustomImGuiFileDialogConfig.h")
-target_compile_definitions(${IMGUIFILEDIALOG_LIBRARIES} PUBLIC -DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/Generator/src/Gui/CustomImGuiFileDialogConfig.h")
+target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
 
-set(${PROJECT}_Output_Name "${PROJECT}_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
-set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${${PROJECT}_Output_Name}")
-
-set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+if(USE_DEBUG_SANITIZER)
+	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	target_link_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	message("Address Sanitizer enabled for projet ${PROJECT}")
+endif()
 
 target_include_directories(${PROJECT} PRIVATE
-	src
-	${CMAKE_SOURCE_DIR}/libs
-	${CMAKE_SOURCE_DIR}/3rdparty
-	${CMAKE_SOURCE_DIR}/3rdparty/glm
-	${CMAKE_SOURCE_DIR}/3rdparty/glslang
-	${CMAKE_SOURCE_DIR}/3rdparty/assimp/include
-	${EFSW_INCLUDE_DIR}
-	${GLFW_INCLUDE_DIR}
-	${PLOG_INCLUDE_DIR}
-	${IMGUI_INCLUDE_DIR}
-	${ASSIMP_INCLUDE_DIR}
-	${OPENGL_INCLUDE_DIR}
-	${CPPIPC_INCLUDE_DIR}
-	${LFWATCH_INCLUDE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
+	${LUMO_BACKEND_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
 	${TINYXML2_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIR}
-	${IMGUIZMO_INCLUDE_DIR}
-	${IMGUIFILEDIALOG_INCLUDE_DIR}
-	${IMGUI_NODE_EDITOR_INCLUDE_DIR}
-	${COMMON_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT}
-	${COMMON_LIBRARIES}
+	${PROJECT_PLUGINS}
+	${LUMO_BACKEND_LIBRARIES}
+	${TINYXML2_LIBRARIES}
 )
+
+set(${PROJECT}_Output_Name "${PROJECT}_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
+set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${${PROJECT}_Output_Name}")
+set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 
 ########################################################
 ################# BUILD INCREMENT TOOL #################

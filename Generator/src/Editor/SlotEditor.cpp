@@ -2,44 +2,44 @@
 
 #include <Gui/MainFrame.h>
 
-#include <ImWidgets/ImWidgets.h>
-#include <FontIcons/CustomFont.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 
-#include <Graph/Base/NodeSlotInput.h>
-#include <Graph/Base/NodeSlotOutput.h>
+#include <LumoBackend/Graph/Base/NodeSlotInput.h>
+#include <LumoBackend/Graph/Base/NodeSlotOutput.h>
 
-#include <Graph/Slots/NodeSlotModelInput.h>
-#include <Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-#include <Graph/Slots/NodeSlotVariableInput.h>
-#include <Graph/Slots/NodeSlotVariableOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>
 
-#include <Graph/Slots/NodeSlotLightGroupInput.h>
-#include <Graph/Slots/NodeSlotLightGroupOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupOutput.h>
 
-#include <Graph/Slots/NodeSlotTexelBufferInput.h>
-#include <Graph/Slots/NodeSlotTexelBufferOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexelBufferInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexelBufferOutput.h>
 
-#include <Graph/Slots/NodeSlotTextureGroupOutput.h>
-#include <Graph/Slots/NodeSlotTextureGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>
 
-#include <Graph/Slots/NodeSlotTextureCubeOutput.h>
-#include <Graph/Slots/NodeSlotTextureCubeInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureCubeOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureCubeInput.h>
 
-#include <Graph/Slots/NodeSlotStorageBufferInput.h>
-#include <Graph/Slots/NodeSlotStorageBufferOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotStorageBufferInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotStorageBufferOutput.h>
 
 #include <Graph/GeneratorCommon.h>
 #include <Graph/GeneratorNodeSlotInput.h>
 #include <Graph/GeneratorNodeSlotOutput.h>
 
+#include <res/sdfmFont.h>
+
 void SlotEditor::SelectSlot(NodeSlotWeak vNodeSlot)
 {
-	auto slotPtr = vNodeSlot.getValidShared();
+	auto slotPtr = vNodeSlot.lock();
 	if (slotPtr)
 	{
 		m_SlotDisplayNameInputText.SetText(slotPtr->name);
@@ -72,19 +72,19 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 
 	if (framedGroupOpened)
 	{
-		auto nodePtr = vNode.getValidShared();
+		auto nodePtr = vNode.lock();
 		if (nodePtr)
 		{
 			if (ImGui::ContrastedButton("New Slot"))
 			{
 				if (vPlace == NodeSlot::PlaceEnum::INPUT)
 				{
-					res = std::dynamic_pointer_cast<GeneratorNodeSlotInput>(nodePtr->AddInput(GeneratorNodeSlotInput::Create("New Slot"), false, false).getValidShared());
+					res = std::dynamic_pointer_cast<GeneratorNodeSlotInput>(nodePtr->AddInput(GeneratorNodeSlotInput::Create("New Slot"), false, false).lock());
 					NodeSlot::sSlotGraphOutputMouseLeft = res;
 				}
 				else if (vPlace == NodeSlot::PlaceEnum::OUTPUT)
 				{
-					res = std::dynamic_pointer_cast<GeneratorNodeSlotOutput>(nodePtr->AddOutput(GeneratorNodeSlotOutput::Create("New Slot"), false, false).getValidShared());
+					res = std::dynamic_pointer_cast<GeneratorNodeSlotOutput>(nodePtr->AddOutput(GeneratorNodeSlotOutput::Create("New Slot"), false, false).lock());
 					NodeSlot::sSlotGraphOutputMouseRight = res;
 				}
 
@@ -96,7 +96,7 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 			}
 		}
 
-		auto slotPtr = vNodeSlot.getValidShared();
+		auto slotPtr = vNodeSlot.lock();
 		if (slotPtr)
 		{
 			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(slotPtr);
@@ -155,13 +155,13 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 
 					ImGui::PushID(ImGui::IncPUSHID());
 
-					bool change = ImGui::ContrastedButton(ICON_NDP_RESET);
+					bool change = ImGui::ContrastedButton(ICON_SDFM_TRASH_CAN_OUTLINE);
 					if (change) 
 					{
 						m_SelectedSubTypeIndex = 0;
 					}
 
-					ImGui::CustomSameLine();
+					ImGui::SameLine();
 
 					change |= ImGui::ContrastedCombo(0.0f, "##Custom Types", &m_SelectedSubTypeIndex,
 						[](void* data, int idx, const char** out_text)
@@ -189,13 +189,13 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 					{
 						res = std::dynamic_pointer_cast<GeneratorNodeSlotInput>(
 							ChangeInputSlotType(vNode, m_SelectedType, 
-								m_SelectedSubType, vNodeSlot).getValidShared());
+								m_SelectedSubType, vNodeSlot).lock());
 					}
 					else if (vPlace == NodeSlot::PlaceEnum::OUTPUT)
 					{
 						res = std::dynamic_pointer_cast<GeneratorNodeSlotOutput>(
 							ChangeOutputSlotType(vNode, m_SelectedType, 
-								m_SelectedSubType, vNodeSlot).getValidShared());
+								m_SelectedSubType, vNodeSlot).lock());
 					}
 				}
 
@@ -227,10 +227,10 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 
 NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::string& vType, const std::string& vSubType, const NodeSlotWeak& vSlot)
 {
-	auto nodePtr = vRootNode.getValidShared();
+	auto nodePtr = vRootNode.lock();
 	if (nodePtr)
 	{
-		auto slotPtr = vSlot.getValidShared();
+		auto slotPtr = vSlot.lock();
 		if (slotPtr)
 		{
 			slotPtr->slotType = vSubType;
@@ -304,10 +304,10 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(BaseNodeWeak vRootNode, const std::
 
 NodeSlotWeak SlotEditor::ChangeOutputSlotType(BaseNodeWeak vRootNode, const std::string& vType, const std::string& vSubType, const NodeSlotWeak& vSlot)
 {
-	auto nodePtr = vRootNode.getValidShared();
+	auto nodePtr = vRootNode.lock();
 	if (nodePtr)
 	{
-		auto slotPtr = vSlot.getValidShared();
+		auto slotPtr = vSlot.lock();
 		if (slotPtr)
 		{
 			slotPtr->slotType = vSubType;

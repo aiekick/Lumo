@@ -15,26 +15,27 @@ limitations under the License.
 */
 
 #pragma once
+#pragma warning(disable : 4005)
 
-#include <ImWidgets/ImWidgets.h>
+#include <ImWidgets.h>
 
 // uncomment and modify defines under for customize ImGuiFileDialog
 
 //this options need c++17
-//#define USE_STD_FILESYSTEM
+#define USE_STD_FILESYSTEM
 
 //#define MAX_FILE_DIALOG_NAME_BUFFER 1024
 //#define MAX_PATH_BUFFER_SIZE 1024
 
 // the slash's buttons in path cna be used for quick select parallles directories
-//#define USE_QUICK_PATH_SELECT
+#define USE_QUICK_PATH_SELECT
 // 
 // the spacing between button path's can be customized. 
 // if disabled the spacing is defined by the imgui theme
 // define the space between path buttons 
 //#define CUSTOM_PATH_SPACING 2
 
-#define USE_THUMBNAILS
+//#define USE_THUMBNAILS
 //the thumbnail generation use the stb_image and stb_resize lib who need to define the implementation
 //btw if you already use them in your app, you can have compiler error due to "implemntation found in double"
 //so uncomment these line for prevent the creation of implementation of these libs again
@@ -47,11 +48,11 @@ limitations under the License.
 //#define DisplayMode_FilesList_ButtonHelp "File List"
 //#define DisplayMode_ThumbailsList_ButtonString "TL"
 //#define DisplayMode_ThumbailsList_ButtonHelp "Thumbnails List"
-// todo
+//todo : grid 
 //#define DisplayMode_ThumbailsGrid_ButtonString "TG"
 //#define DisplayMode_ThumbailsGrid_ButtonHelp "Thumbnails Grid"
 
-#define USE_EXPLORATION_BY_KEYS
+//#define USE_EXPLORATION_BY_KEYS
 // this mapping by default is for GLFW but you can use another
 //#include <GLFW/glfw3.h>
 // Up key for explore to the top
@@ -75,19 +76,30 @@ limitations under the License.
 // standar button
 #define IMGUI_BUTTON ImGui::ContrastedButton_For_Dialogs
 
-#include <FontIcons/CustomFont.h>
-#include <FontIcons/CustomFont2.h>
+#define ICON_SDFM_PLUS u8"\uf415"
+#define ICON_SDFM_MINUS u8"\uf374"
+#define ICON_SDFM_CHECK u8"\uf12c"
+#define ICON_SDFM_CANCEL u8"\uf739"
+#define ICON_SDFM_TRASH_CAN_OUTLINE u8"\ufa79"
+#define ICON_SDFM_SERVER u8"\uf48b"
+#define ICON_SDFM_FOLDER_SEARCH_OUTLINE u8"\uf968"
+#define ICON_SDFM_FOLDER u8"\uf24b"
+#define ICON_SDFM_LINK u8"\uf337"
+#define ICON_SDFM_FILE u8"\uf214"
+#define ICON_SDFM_CHEVRON_UP u8"\uf143"
+#define ICON_SDFM_CHEVRON_DOWN u8"\uf140"
+#define ICON_SDFM_BOOKMARK u8"\uf0c0"
 
 // locales string
-#define createDirButtonString ICON_NDP_ADD
-#define okButtonString ICON_NDP_OK " OK"
-#define cancelButtonString ICON_NDP_CANCEL " Cancel"
-#define resetButtonString ICON_NDP_RESET
-#define drivesButtonString ICON_NDP_DRIVES
-#define searchString ICON_NDP_SEARCH
-#define dirEntryString ICON_NDP2_FOLDER " "
-#define linkEntryString ICON_NDP_LINK " "
-#define fileEntryString ICON_NDP_FILE " "
+#define createDirButtonString ICON_SDFM_PLUS
+#define okButtonString ICON_SDFM_CHECK " OK"
+#define cancelButtonString ICON_SDFM_CANCEL " Cancel"
+#define resetButtonString ICON_SDFM_TRASH_CAN_OUTLINE
+#define drivesButtonString ICON_SDFM_SERVER
+#define searchString ICON_SDFM_FOLDER_SEARCH_OUTLINE
+#define dirEntryString ICON_SDFM_FOLDER " "
+#define linkEntryString ICON_SDFM_LINK " "
+#define fileEntryString ICON_SDFM_FILE " "
 //#define fileNameString "File Name : "
 //#define dirNameString "Directory Path :"
 //#define buttonResetSearchString "Reset search"
@@ -96,8 +108,8 @@ limitations under the License.
 //#define buttonCreateDirString "Create Directory"
 //#define OverWriteDialogTitleString "The file Already Exist !"
 //#define OverWriteDialogMessageString "Would you like to OverWrite it ?"
-#define OverWriteDialogConfirmButtonString ICON_NDP_OK " Confirm"
-#define OverWriteDialogCancelButtonString ICON_NDP_CANCEL " Cancel"
+#define OverWriteDialogConfirmButtonString ICON_SDFM_CHECK " Confirm"
+#define OverWriteDialogCancelButtonString ICON_SDFM_CANCEL " Cancel"
 
 //Validation buttons
 //#define okButtonString " OK"
@@ -116,8 +128,8 @@ limitations under the License.
 
 // theses icons will appear in table headers
 #define USE_CUSTOM_SORTING_ICON
-#define tableHeaderAscendingIcon ICON_NDP_SORT_ASC
-#define tableHeaderDescendingIcon ICON_NDP_SORT_DESC
+#define tableHeaderAscendingIcon ICON_SDFM_CHEVRON_UP
+#define tableHeaderDescendingIcon ICON_SDFM_CHEVRON_DOWN
 #define tableHeaderFileNameString " File name"
 #define tableHeaderFileTypeString " Type"
 #define tableHeaderFileSizeString " Size"
@@ -140,7 +152,7 @@ limitations under the License.
 #define USE_BOOKMARK
 #define defaultBookmarkPaneWith 200.0f
 //#define IMGUI_TOGGLE_BUTTON ToggleButton
-#define bookmarksButtonString ICON_NDP_BOOKMARK
+#define bookmarksButtonString ICON_SDFM_BOOKMARK
 //#define bookmarksButtonHelpString "Bookmark"
-#define addBookmarkButtonString ICON_NDP_ADD
-#define removeBookmarkButtonString ICON_NDP_REMOVE
+#define addBookmarkButtonString ICON_SDFM_PLUS
+#define removeBookmarkButtonString ICON_SDFM_MINUS
