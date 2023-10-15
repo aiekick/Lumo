@@ -29,7 +29,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
 
-## include(cmake/3rdparty.cmake)
+include(cmake/zlib.cmake)
+include(cmake/assimp.cmake)
 
 if (uninstall)
 	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
@@ -122,18 +123,19 @@ if(USE_DEBUG_SANITIZER)
 	message("Address Sanitizer enabled for projet ${PROJECT}")
 endif()
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins)
+set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins/${PROJECT})
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
-set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
+set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
 			
-set(CMAKE_INSTALL_PREFIX ${FINAL_BIN_DIR}/plugins)
-install(TARGETS ${PROJECT} DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT ${PROJECT}_PLUGINS)
+install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins/${PROJECT} COMPONENT PLUGIN_BINARY_${PROJECT})
+install(TARGETS ${ASSIMP_LIBRARIES} RUNTIME DESTINATION plugins/${PROJECT} COMPONENT APP_LIBS_${ASSIMP_LIBRARIES})
+install(TARGETS ${ZLIB_LIBRARIES} RUNTIME DESTINATION plugins/${PROJECT} COMPONENT APP_LIBS_${ZLIB_LIBRARIES})
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}

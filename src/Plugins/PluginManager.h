@@ -18,6 +18,7 @@ limitations under the License.
 
 #include <string>
 #include <memory>
+#include <filesystem>
 
 #include <ctools/cTools.h>
 #include <ImGuiPack.h>
@@ -34,6 +35,8 @@ class PluginInstance;
 typedef std::weak_ptr<PluginInstance> PluginInstanceWeak;
 typedef std::shared_ptr<PluginInstance> PluginInstancePtr;
 
+enum class PluginReturnMsg { LOADING_SUCCEED = 1, LOADING_FAILED = 0, NOT_A_PLUGIN = -1 };
+
 class PluginInstance
 {
 private:
@@ -45,7 +48,8 @@ public:
 	PluginInstance();
 	~PluginInstance();
 
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName);
+	PluginReturnMsg Init(
+        GaiApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName);
 	void Unit();
 
 	PluginInterfaceWeak Get();
@@ -57,7 +61,7 @@ private:
 	std::map<std::string, PluginInstancePtr> m_Plugins;
 
 public:
-	void LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCorePtr);
+	void LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCore);
 	std::vector<LibraryEntry> GetLibraryEntrys();
 	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName);
 	std::vector<PluginPane> GetPluginsPanes();
@@ -65,7 +69,7 @@ public:
 	void Clear();
 
 private:
-	PluginInstanceWeak Get(const std::string& vPluginName);
+    void m_LoadPlugin(const std::filesystem::directory_entry& vEntry, GaiApi::VulkanCoreWeak vVulkanCore);
 
 public:
 	static PluginManager* Instance()

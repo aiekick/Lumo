@@ -17,8 +17,6 @@ git submodule add --force -b "main" https://github.com/aiekick/alphanum.git 3rdp
 git submodule add --force -b "master" https://github.com/aiekick/cpp-ipc.git 3rdparty/cpp_ipc
 git submodule add --force -b "master" https://github.com/aiekick/imgui-node-editor.git 3rdparty/imgui_node_editor
 git submodule add --force -b "master" https://github.com/aiekick/ImGuizmo 3rdparty/ImGuizmo
-git submodule add --force -b "master" https://github.com/assimp/assimp 3rdparty/assimp
-git submodule add --force -b "master" https://github.com/madler/zlib.git 3rdparty/zlib
 git submodule add --force -b "master" https://github.com/taskflow/taskflow 3rdparty/taskflow
 git submodule add --force -b "master" https://github.com/aiekick/buildinc.git 3rdparty/BuildInc
 git submodule add --force -b "master" https://github.com/aiekick/OpenXR-SDK-Source.git 3rdparty/OpenXR_SDK

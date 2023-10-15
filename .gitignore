@@ -83,3 +83,9 @@
 /Plugins/LumoPlugins
 /bin/plugins/UVDiffMap_Windows_Debug_x64.dll
 /bin/lodepngd.dll
+/bin/plugins/Plugin_MeshGen_Windows_Debug_x64.dll
+/bin/plugins/Plugin_MeshSim_Windows_Debug_x64.dll
+/bin/plugins/Core/Plugin_Core_Windows_Debug_x64.dll
+/bin/plugins/Core/zlibd.dll
+/bin/plugins/Core/assimpd.dll
+/bin/plugins/Core

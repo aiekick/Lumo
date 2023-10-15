@@ -1,0 +1,32 @@
+name: Linux
+
+on:
+  push:
+  workflow_run:
+    workflows:
+    - scheduled
+    branches:
+    - master
+    types:
+    - requested
+
+jobs:
+  build_Linux_Ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: master
+    - name: checkout submodules
+      run : git submodule update --init --recursive 
+    - name: Install OpenGL lib  / Requirement for Glfw3
+      run : sudo apt-get update && sudo apt-get install libgl1-mesa-dev libx11-dev libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev libasound2-dev libomp-dev
+    - name: configure
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_CORE=ON -DUSE_PLUGIN_MESH_GEN=ON
+    - name: build
+      run: cmake --build build --config Release --target package
+    - name: upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Lumo_Linux
+        path: "bin/packages/Lumo_Linux*.zip"

@@ -1,3 +1,7 @@
+[![Win](https://github.com/aiekick/Lumo/actions/workflows/Win.yml/badge.svg?branch=master)](https://github.com/aiekick/Lumo/actions/workflows/Win.yml)
+[![Linux](https://github.com/aiekick/Lumo/actions/workflows/Linux.yml/badge.svg?branch=master)](https://github.com/aiekick/Lumo/actions/workflows/Linux.yml)
+[![Osx](https://github.com/aiekick/Lumo/actions/workflows/Osx.yml/badge.svg?branch=master)](https://github.com/aiekick/Lumo/actions/workflows/Osx.yml)
+
 # Lumo
 Lumo is a realtime lab software arount 3D models
 

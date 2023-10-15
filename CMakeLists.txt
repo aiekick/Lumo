@@ -10,6 +10,7 @@ option(USE_TRACY_PROFILER "Enable Tracy Profiler" OFF)
 option(USE_TESTING_LUMO "Enable Tests" OFF)
 option(USE_CONSOLE_APP "Enable Console" OFF)
 option(USE_DEBUG_SANITIZER "Enable Address Sanitizer" OFF)
+option(USE_PACKAGE_TO_NSIS_OR_ZIP "Package to NISIS Installer or ZIP" OFF)
 
 project(
 	${PROJECT} 
@@ -100,11 +101,20 @@ include(cmake/3rdparty.cmake)
 include(cmake/libs.cmake)
 
 ###########################################################
+##### PLUGINS PREFIX ######################################
+###########################################################
+
+### each plugins must start by this
+
+set(PLUGIN_PREFIX "Plugin")
+add_definitions(-DPLUGIN_PREFIX="${PLUGIN_PREFIX}")
+
+###########################################################
 ##### SEARCH FOR PLUGINS ##################################
 ###########################################################
 
+set(LOADED_LUMO_PLUGINS) ### musty be fillerd by each pluigns in CMakeLists.txt with plugin name
 set(PLUGINS_DIRECTORY ${CMAKE_SOURCE_DIR}/Plugins)
-set(LOADED_LUMO_PLUGINS)
 file(GLOB SUBDIRS RELATIVE ${PLUGINS_DIRECTORY} ${PLUGINS_DIRECTORY}/*)
 FOREACH(SUBDIR ${SUBDIRS})
 	if(IS_DIRECTORY ${PLUGINS_DIRECTORY}/${SUBDIR})
@@ -151,6 +161,10 @@ file(GLOB_RECURSE PROJECT_DOC_FILES
 		${CMAKE_CURRENT_SOURCE_DIR}/doc/*.*)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/doc PREFIX doc FILES ${PROJECT_DOC_FILES})
 
+file(GLOB_RECURSE GITHUB_FILES 
+	${CMAKE_CURRENT_SOURCE_DIR}/.github/*.*)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/.github PREFIX github FILES ${GITHUB_FILES})
+
 file(GLOB_RECURSE PROJECT_SRC_FILES 
 	${CMAKE_CURRENT_SOURCE_DIR}/src/*.c
 	${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
@@ -169,16 +183,13 @@ source_group(Readmes/plugins FILES ${PLUGINS_README_MD})
 add_executable(${PROJECT}
 	${ICON}
 	${README_MD}
+	${GITHUB_FILES}
 	${PROJECT_MAIN}
 	${PLUGINS_README_MD}
 	${PROJECT_DOC_FILES}
 	${PROJECT_SRC_FILES}
 	${PROJECT_CMAKE_FILES}
 )
-
-if (USE_PLUGINS)
-	include(cmake/plugins_building.cmake)
-endif()
 
 if(USE_CONSOLE_APP)
 	if (MSVC)
@@ -209,13 +220,12 @@ target_include_directories(${PROJECT} PRIVATE
 )
 
 target_link_libraries(${PROJECT}
-	${PROJECT_PLUGINS}
 	${LUMO_BACKEND_LIBRARIES}
 	${TINYXML2_LIBRARIES}
 )
 
-set(${PROJECT}_Output_Name "${PROJECT}_${CMAKE_SYSTEM_NAME}$<$<CONFIG:Debug>:_Debug>$<$<CONFIG:Release>:_Release>$<$<CONFIG:MinSizeRel>:_MinSizeRel>$<$<CONFIG:RelWithDebInfo>:_RelWithDebInfo>_${ARCH}")
-set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${${PROJECT}_Output_Name}")
+set(${PROJECT}_OUTPUT_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")
+set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${${PROJECT}_OUTPUT_NAME}")
 set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES	RUNTIME_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
@@ -239,7 +249,7 @@ if (USE_TRACY_PROFILER)
 endif()
 
 ########################################################
-############## FROCE BUILD OF PLUGINS ##################
+############## FORCE BUILD OF PLUGINS ##################
 ########################################################
 
 FOREACH(PLUGIN ${LOADED_LUMO_PLUGINS})
@@ -270,69 +280,113 @@ if (USE_CODE_GENERATOR)
 endif()
 
 #############################################################
-### INSTALL #################################################
-#############################################################
-
-install(TARGETS 
-	${PROJECT} 
-	${ASSIMP_LIBRARIES}
-	RUNTIME 
-	DESTINATION /
-	COMPONENT APP_BINARY)
-##install(DIRECTORY 
-##	${CMAKE_SOURCE_DIR}/projects 
-##	DESTINATION /
-##	COMPONENT APP_DIRECTORIES)
-if (USE_PLUGINS)
-	install(DIRECTORY 
-		${FINAL_BIN_DIR}/plugins
-		DESTINATION /
-		COMPONENT APP_PLUGINS)
-endif()
-##install(FILES 
-##	${CMAKE_SOURCE_DIR}/LICENSE
-##	${CMAKE_SOURCE_DIR}/VERSION
-##    DESTINATION /
-##	COMPONENT APP_FILES)
-##install(TARGETS ${ZLIB_LIBRARIES} RUNTIME DESTINATION / COMPONENT APP_DLL)
-
-#############################################################
 ### VERSION #################################################
 #############################################################
 
-file(READ ${CMAKE_SOURCE_DIR}/src/Headers/LumoBuild.h BuildIdFile)
+file(READ ${CMAKE_SOURCE_DIR}/src/Headers/${PROJECT}Build.h BuildIdFile)
 string(REGEX MATCH "#define ${PROJECT}_BuildNumber ([0-9]*)" _ ${BuildIdFile})
 set(BuildNumber ${CMAKE_MATCH_1})
 string(REGEX MATCH "#define ${PROJECT}_MinorNumber ([0-9]*)" _ ${BuildIdFile})
 set(MinorNumber ${CMAKE_MATCH_1})
 string(REGEX MATCH "#define ${PROJECT}_MajorNumber ([0-9]*)" _ ${BuildIdFile})
 set(MajorNumber ${CMAKE_MATCH_1})
-set(${PROJECT}_Version "v${MajorNumber}.${MinorNumber}.${BuildNumber}")
+set(${PROJECT}_Version "v${MajorNumber}_${MinorNumber}_${BuildNumber}")
 message("${PROJECT} Version to install : ${${PROJECT}_Version}")
 
+add_custom_command(
+	TARGET ${PROJECT} PRE_BUILD
+	COMMAND echo "${PROJECT}_${CMAKE_SYSTEM_NAME}_${PROJECT_BUILD_CONFIG_NAME}_${ARCH}_v${MajorNumber}.${MinorNumber}.${BuildNumber}" > ${CMAKE_SOURCE_DIR}/VERSION
+	DEPENDS ${PROJECT}
+)
+
 #############################################################
-### PACK ####################################################
+### BUILD CONFIG NAME #######################################
+#############################################################
+
+### will store the build config name in a file
+### only during the building
+add_custom_command(
+	TARGET ${PROJECT} PRE_BUILD
+	COMMAND echo "$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>" > ${CMAKE_BINARY_DIR}/current_build_type
+	DEPENDS ${PROJECT}
+)
+
+### outside of the building we read the last fiale content
+### for get the current building config name
+if (EXISTS ${CMAKE_BINARY_DIR}/current_build_type)
+	file(READ ${CMAKE_BINARY_DIR}/current_build_type PROJECT_BUILD_CONFIG_NAME)
+	string(STRIP ${PROJECT_BUILD_CONFIG_NAME} PROJECT_BUILD_CONFIG_NAME) ### removing end line wrote by echo command
+	message("CURRENT BUILD CONFIG is : ${PROJECT_BUILD_CONFIG_NAME}")
+endif()
+
+#############################################################
+### INSTALL #################################################
+#############################################################
+
+install(TARGETS ${PROJECT} RUNTIME DESTINATION / COMPONENT APP_BINARY)
+install(DIRECTORY ${FINAL_BIN_DIR}/longlats	DESTINATION / COMPONENT APP_LONGLATS)	
+install(DIRECTORY ${FINAL_BIN_DIR}/matcap DESTINATION / COMPONENT APP_MATCAP)
+install(DIRECTORY ${FINAL_BIN_DIR}/meshs DESTINATION / COMPONENT APP_MESHS)
+install(DIRECTORY ${FINAL_BIN_DIR}/shaders DESTINATION / COMPONENT APP_SHADERS)
+install(DIRECTORY ${FINAL_BIN_DIR}/skyboxes	DESTINATION / COMPONENT APP_SKYBOXES)
+install(DIRECTORY ${FINAL_BIN_DIR}/textures	DESTINATION / COMPONENT APP_TEXTURES)
+install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION /	COMPONENT APP_FILES)
+install(FILES ${CMAKE_SOURCE_DIR}/VERSION DESTINATION /	COMPONENT APP_FILES OPTIONAL)
+
+### FOREACH(PLUGIN ${LOADED_LUMO_PLUGINS})
+### 	install(IMPORTED_RUNTIME_ARTIFACTS ${PLUGIN} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PLUGIN})	
+### ENDFOREACH()
+
+#############################################################
+### PACKAGE #################################################
 ## https://gitlab.kitware.com/cmake/community/-/wikis/doc/cpack/Component-Install-With-CPack
 #############################################################
 
-if (USE_PACKAGE_TO_NSIS)
+set(PROJECT_PACKAGE_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}_${PROJECT_BUILD_CONFIG_NAME}_${ARCH}_v${MajorNumber}.${MinorNumber}.${BuildNumber}")
+set(PROJECT_SHORTCUT_NAME "${PROJECT}_v${MajorNumber}.${MinorNumber}.${BuildNumber}")
+set(PROJECT_SHORTCUT_TARGET "${PROJECT}_${CMAKE_SYSTEM_NAME}_${PROJECT_BUILD_CONFIG_NAME}_${ARCH}")
+set(ORGANIZATION_NAME "FunParadigm")
+
+if (USE_PACKAGE_TO_NSIS_OR_ZIP)
 	set(CPACK_GENERATOR "NSIS")
+	set(CPACK_NSIS_MODIFY_PATH ON)
+	set(CPACK_NSIS_DISPLAY_NAME ${PROJECT_SHORTCUT_NAME})
+	set(CPACK_NSIS_PACKAGE_NAME ${PROJECT_SHORTCUT_NAME})
+	if (WIN32)
+		set(CPACK_PACKAGE_INSTALL_DIRECTORY "${ORGANIZATION_NAME}\\\\${PROJECT_PACKAGE_NAME}")
+		set(CPACK_NSIS_CREATE_ICONS_EXTRA
+			"CreateShortCut '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_SHORTCUT_NAME}.lnk' '$INSTDIR\\\\${PROJECT_SHORTCUT_TARGET}.exe'"
+		)
+		set(CPACK_NSIS_DELETE_ICONS_EXTRA
+			"Delete '$SMPROGRAMS\\\\$STARTMENU_FOLDER\\\\${PROJECT_SHORTCUT_NAME}.lnk'"
+		)
+	endif()
 else()
 	set(CPACK_GENERATOR "ZIP")
 endif()
+
 set(CPACK_MONOLITHIC_INSTALL 1)
+set(CPACK_THREADS 8)
 set(CPACK_ZIP_COMPONENT_INSTALL ON)
+set(CPACK_PACKAGE_VENDOR ${ORGANIZATION_NAME})
 set(CPACK_COMPONENTS_ALL_IN_ONE_PACKAGE 1)
-set(CPACK_PACKAGE_FILE_NAME "${${PROJECT}_Output_Name}_v${MajorNumber}.${MinorNumber}.${BuildNumber}")
-set(CPACK_PACKAGE_VENDOR "FunParadigm")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${${PROJECT}_Output_Name} - offline shader editor")
-set(CPACK_PACKAGE_VERSION "${MajorNumber}.${MinorNumber}.${BuildNumber}")
 set(CPACK_PACKAGE_VERSION_MAJOR "${MajorNumber}")
 set(CPACK_PACKAGE_VERSION_MINOR "${MinorNumber}")
 set(CPACK_PACKAGE_VERSION_PATCH "${BuildNumber}")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "${FINAL_BIN_DIR}")
-set(CPACK_COMPONENT_APPLICATIONS_DISPLAY_NAME "${CMAKE_PROJECT_NAME}")
-##set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
-##set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/VERSION")
-SET(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_INSTALL_PREFIX}")
+set(CPACK_PACKAGE_NAME "${PROJECT_PACKAGE_NAME}")
+set(CPACK_PACKAGE_FILE_NAME "${PROJECT_PACKAGE_NAME}")
+set(CPACK_COMPONENT_APPLICATIONS_DISPLAY_NAME "${PROJECT}")
+set(CPACK_SOURCE_PACKAGE_FILE_NAME "${PROJECT_PACKAGE_NAME}")
+SET(CPACK_OUTPUT_FILE_PREFIX "${CMAKE_INSTALL_PREFIX}/packages")
+set(CPACK_PACKAGE_VERSION "${MajorNumber}.${MinorNumber}.${BuildNumber}")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${${PROJECT}_PACKAGE_NAME} - Nodes based mesh composer")
+
+if (EXISTS ${CMAKE_SOURCE_DIR}/LICENSE)
+	set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE")
+endif()
+
+if (EXISTS ${CMAKE_SOURCE_DIR}/VERSION)
+	set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/VERSION")
+endif()
+
 include(CPack)

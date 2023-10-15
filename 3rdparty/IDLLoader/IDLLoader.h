@@ -16,6 +16,9 @@ namespace dlloader
 		virtual ~IDLLoader() = default;
 		virtual void DLOpenLib() = 0;
 
+		virtual bool IsValid() const = 0;
+        virtual bool IsAPlugin() const = 0;
+
 		/* Return a shared pointer on an instance of class loaded through
 		 * a dynamic library. */
 		virtual std::shared_ptr<T>	DLGetInstance() = 0;

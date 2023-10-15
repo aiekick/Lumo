@@ -2,3 +2,11 @@
 	path = libs/Gaia
 	url = https://github.com/aiekick/Gaia.git
 	branch = master
+[submodule "Plugins/Core/3rdparty/assimp"]
+	path = Plugins/Core/3rdparty/assimp
+	url = https://github.com/assimp/assimp
+	branch = master
+[submodule "Plugins/Core/3rdparty/zlib"]
+	path = Plugins/Core/3rdparty/zlib
+	url = https://github.com/madler/zlib.git
+	branch = master

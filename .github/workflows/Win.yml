@@ -1,0 +1,30 @@
+name: Win
+
+on:
+  push:
+  workflow_run:
+    workflows:
+      - scheduled
+    branches:
+    - master
+    types:
+      - requested
+
+jobs:
+  build_Win_latest:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:  
+        ref: master
+    - name: checkout submodules
+      run : git submodule update --init --recursive 
+    - name: configure
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_CORE=ON -DUSE_PLUGIN_MESH_GEN=ON
+    - name: build
+      run: cmake --build build --config Release --target package
+    - name: upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Lumo_Windows
+        path: "bin/packages/Lumo_Windows*.zip"
