@@ -10,3 +10,11 @@
 	path = Plugins/Core/3rdparty/zlib
 	url = https://github.com/madler/zlib.git
 	branch = master
+[submodule "Plugins/AudiArt/3rdparty/miniaudio"]
+	path = Plugins/AudiArt/3rdparty/miniaudio
+	url = https://github.com/aiekick/miniaudio.git
+	branch = master
+[submodule "Plugins/AudiArt/3rdparty/kissfft"]
+	path = Plugins/AudiArt/3rdparty/kissfft
+	url = https://github.com/aiekick/kissfft.git
+	branch = master
