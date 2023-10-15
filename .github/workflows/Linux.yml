@@ -26,7 +26,7 @@ jobs:
         vulkan-components: Vulkan-Headers, Vulkan-Loader
         vulkan-use-cache: true
     - name: Install Vulkan lib  / Requirement for Glfw3
-      run : sudo apt-get update && sudo apt-get install ibvulkan1 mesa-vulkan-drivers vulkan-utils libgl1-mesa-dev libx11-dev libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev libasound2-dev libomp-dev
+      run : sudo apt-get update && sudo apt-get install libvulkan1 mesa-vulkan-drivers vulkan-utils libgl1-mesa-dev libx11-dev libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev libasound2-dev libomp-dev
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_CORE=ON -DUSE_PLUGIN_MESH_GEN=ON
     - name: build
