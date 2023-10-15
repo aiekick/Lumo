@@ -38,6 +38,8 @@ thats all
 * Vulkan SDK 1.2 at least : [latest](https://vulkan.lunarg.com/) and a compatible GPU
 * Python 3.7 at least : [latest](https://www.python.org/downloads/)
 
+Succesfully Tested with Vulkan SDK 1.3.224.1
+
 ## Cmake
 
 You need to use cMake. 
