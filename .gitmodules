@@ -4,7 +4,7 @@
 	branch = master
 [submodule "Plugins/Core/3rdparty/assimp"]
 	path = Plugins/Core/3rdparty/assimp
-	url = https://github.com/assimp/assimp
+	url = https://github.com/assimp/assimp.git
 	branch = master
 [submodule "Plugins/Core/3rdparty/zlib"]
 	path = Plugins/Core/3rdparty/zlib

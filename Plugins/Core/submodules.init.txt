@@ -1,2 +1,2 @@
-git submodule add --force -b "master" https://github.com/assimp/assimp 3rdparty/assimp
+git submodule add --force -b "master" https://github.com/assimp/assimp.git 3rdparty/assimp
 git submodule add --force -b "master" https://github.com/madler/zlib.git 3rdparty/zlib

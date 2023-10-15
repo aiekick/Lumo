@@ -37,9 +37,9 @@ public:
         if (_handle == nullptr) {
             const auto& dw = GetLastError(); 
             if (dw == ERROR_MOD_NOT_FOUND) {
-                LogVarDebugError("Can't open and load %s with error : ERROR_MOD_NOT_FOUND", _pathToLib.c_str());
+                LogVarError("Can't open and load %s with error : ERROR_MOD_NOT_FOUND", _pathToLib.c_str());
             } else {
-                LogVarDebugError("Can't open and load %s", _pathToLib.c_str());
+                LogVarError("Can't open and load %s", _pathToLib.c_str());
             }
         }
     }
