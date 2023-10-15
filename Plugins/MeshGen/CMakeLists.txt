@@ -29,7 +29,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
 
-include(cmake/3rdparty.cmake)
+include(cmake/tinyexpr.cmake)
 
 if (uninstall)
 	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
