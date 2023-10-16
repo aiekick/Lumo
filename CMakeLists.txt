@@ -60,9 +60,12 @@ add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
-add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomLumoBackendConfig.h")
+add_definitions(-DSTB_IMAGE_INCLUDE="${CMAKE_SOURCE_DIR}/3rdparty/stb/stb_image.h")
+add_definitions(-DSTB_IMAGE_RESIZE_INCLUDE="${CMAKE_SOURCE_DIR}/3rdparty/stb/stb_image_resize.h")
+add_definitions(-DSTB_IMAGE_WRITE_INCLUDE="${CMAKE_SOURCE_DIR}/3rdparty/stb/stb_image_write.h")
 add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
 add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
+add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomLumoBackendConfig.h")
 add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
 
 add_definitions(-DUSE_IM_TOOLS)

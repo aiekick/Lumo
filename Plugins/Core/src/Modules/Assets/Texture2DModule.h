@@ -28,7 +28,6 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-
 class Texture2DModule : 
 	public conf::ConfigAbstract,
     public GuiInterface,

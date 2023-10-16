@@ -97,3 +97,11 @@
 /bin/shaders/VisuHexGridModule_Vertex_Pass_Fragment.frag
 /bin/shaders/VisuHexGridModule_Vertex_Pass_Vertex.vert
 /bin/plugins/Plugin_PlanetSystem_Windows_Debug_x64.dll
+/bin/shaders/PlanetModule_Ground_Mesh_Pass_Fragment.frag
+/bin/shaders/PlanetModule_Ground_Mesh_Pass_Tesselation_Control.ctrl
+/bin/shaders/PlanetModule_Ground_Mesh_Pass_Tesselation_Evaluation.eval
+/bin/shaders/PlanetModule_Ground_Mesh_Pass_Vertex.vert
+/bin/shaders/PlanetModule_Water_Mesh_Pass_Fragment.frag
+/bin/shaders/PlanetModule_Water_Mesh_Pass_Tesselation_Control.ctrl
+/bin/shaders/PlanetModule_Water_Mesh_Pass_Tesselation_Evaluation.eval
+/bin/shaders/PlanetModule_Water_Mesh_Pass_Vertex.vert
