@@ -1,5 +1,7 @@
 #include <LumoBackend/Helpers/RenderDocController.h>
-#include <Windows.h>
+#if defined(WIN32)
+	#include <Windows.h>
+#endif // WIN32
 #include <cstdio>
 
 bool RenderDocController::Init()
