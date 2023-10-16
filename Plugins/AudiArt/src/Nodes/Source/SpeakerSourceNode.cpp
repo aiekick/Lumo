@@ -21,11 +21,19 @@ limitations under the License.
 #include <Modules/Source/SpeakerSourceModule.h>
 #include <Slots/NodeSlotSceneAudiArtOutput.h>
 
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SpeakerSourceNode> SpeakerSourceNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SpeakerSourceNode> SpeakerSourceNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -57,7 +65,7 @@ SpeakerSourceNode::~SpeakerSourceNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SpeakerSourceNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SpeakerSourceNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -101,34 +109,47 @@ bool SpeakerSourceNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SpeakerSourceNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SpeakerSourceNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	bool res = false;
-
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_SpeakerSourceModulePtr)
 	{
-		res = m_SpeakerSourceModulePtr->DrawWidgets(vCurrentFrame, vContext);
+        return m_SpeakerSourceModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
-	return res;
+	return false;
 }
 
-void SpeakerSourceNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool SpeakerSourceNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_SpeakerSourceModulePtr) {
+        return m_SpeakerSourceModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+    }
+
+    return false;
+}
+
+bool SpeakerSourceNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_SpeakerSourceModulePtr)
 	{
-		m_SpeakerSourceModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+		return m_SpeakerSourceModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    }
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

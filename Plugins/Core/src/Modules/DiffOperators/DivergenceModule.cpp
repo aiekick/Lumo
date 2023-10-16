@@ -142,12 +142,12 @@ bool DivergenceModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Comm
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool DivergenceModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool DivergenceModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -157,7 +157,7 @@ bool DivergenceModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 			if (m_DivergenceModule_Comp_2D_Pass_Ptr)
 			{
-				change |= m_DivergenceModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+				change |= m_DivergenceModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 
 			return change;
@@ -167,12 +167,12 @@ bool DivergenceModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 	return false;
 }
 
-bool DivergenceModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool DivergenceModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -181,12 +181,12 @@ bool DivergenceModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect&
     return false;
 }
 
-bool DivergenceModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool DivergenceModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

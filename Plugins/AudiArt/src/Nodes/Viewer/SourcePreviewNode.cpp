@@ -21,11 +21,19 @@ limitations under the License.
 #include <Modules/Viewer/SourcePreviewModule.h>
 #include <Slots/NodeSlotSceneAudiArtInput.h>
 
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SourcePreviewNode> SourcePreviewNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SourcePreviewNode> SourcePreviewNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -57,7 +65,7 @@ SourcePreviewNode::~SourcePreviewNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SourcePreviewNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SourcePreviewNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -100,34 +108,48 @@ bool SourcePreviewNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SourcePreviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SourcePreviewNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_SourcePreviewModulePtr)
 	{
-		res = m_SourcePreviewModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_SourcePreviewModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return res;
 }
 
-void SourcePreviewNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool SourcePreviewNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_SourcePreviewModulePtr) {
+        return m_SourcePreviewModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+    }
+
+    return false;
+}
+
+bool SourcePreviewNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_SourcePreviewModulePtr)
 	{
-		m_SourcePreviewModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+		return m_SourcePreviewModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    }
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

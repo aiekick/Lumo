@@ -24,22 +24,22 @@ limitations under the License.
 #include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 #include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PlanetModule_Water_Mesh_Pass::PlanetModule_Water_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+PlanetModule_Water_Mesh_Pass::PlanetModule_Water_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: MeshShaderPass<VertexStruct::P3_N3_C4>(vVulkanCorePtr, MeshShaderPassType::PIXEL)
 {
 	ZoneScoped;

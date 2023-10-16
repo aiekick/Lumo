@@ -118,9 +118,9 @@ bool Layering2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 	return true;
 }
 
-bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -130,7 +130,7 @@ bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 			if (m_Layering2DModule_Comp_Pass_Ptr)
 			{
-				change |= m_Layering2DModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+				change |= m_Layering2DModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 
 			return change;
@@ -140,9 +140,9 @@ bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 	return false;
 }
 
-bool Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -151,9 +151,9 @@ bool Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect&
     return false;
 }
 
-bool Layering2DModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool Layering2DModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

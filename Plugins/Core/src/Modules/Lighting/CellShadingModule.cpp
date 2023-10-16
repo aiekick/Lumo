@@ -114,9 +114,9 @@ bool CellShadingModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 	return true;
 }
 
-bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -126,7 +126,7 @@ bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 			if (m_CellShadingModule_Comp_Pass_Ptr)
 			{
-				change |= m_CellShadingModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+				change |= m_CellShadingModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 
 			return change;
@@ -136,9 +136,9 @@ bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	return false;
 }
 
-bool CellShadingModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool CellShadingModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -147,9 +147,9 @@ bool CellShadingModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
     return false;
 }
 
-bool CellShadingModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool CellShadingModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

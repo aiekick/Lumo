@@ -114,9 +114,9 @@ bool SpecularModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return true;
 }
 
-bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -129,7 +129,7 @@ bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (passGuiPtr)
 				{
-                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 				}
 			}
 
@@ -140,18 +140,18 @@ bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
 	return false;
 }
 
-bool SpecularModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool SpecularModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame) {
     }
     return false;
 }
 
-bool SpecularModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool SpecularModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

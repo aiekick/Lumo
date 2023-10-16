@@ -14,16 +14,17 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <Interfaces/SceneAudiArtInputInterface.h>
+
 class SourcePreviewModule;
 class SourcePreviewNode :
 	public SceneAudiArtInputInterface,
 	public BaseNode
 {
 public:
-	static std::shared_ptr<SourcePreviewNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SourcePreviewNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<SourcePreviewModule> m_SourcePreviewModulePtr = nullptr;
@@ -33,15 +34,17 @@ public:
 	~SourcePreviewNode() override;
 
 	// Init / Unit
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 
 	// Execute Task
 	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;
 
 	// Draw Widgets
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+
 	// Interfaces Setters
 	void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
 

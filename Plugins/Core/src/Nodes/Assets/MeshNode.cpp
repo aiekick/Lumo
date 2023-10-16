@@ -51,32 +51,32 @@ bool MeshNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
     return false;
 }
 
-bool MeshNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas) {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+bool MeshNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     if (m_MeshModule) {
-        return m_MeshModule->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+        return m_MeshModule->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
     }
 
     return false;
 }
 
 bool MeshNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
 bool MeshNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     if (m_MeshModule) {
-        return m_MeshModule->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+        return m_MeshModule->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
     return false;
 }

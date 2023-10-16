@@ -23,25 +23,32 @@ limitations under the License.
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Operations/Pass/AudioTextureModule_Comp_2D_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<AudioTextureModule> AudioTextureModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<AudioTextureModule> AudioTextureModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -61,7 +68,7 @@ std::shared_ptr<AudioTextureModule> AudioTextureModule::Create(vkApi::VulkanCore
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-AudioTextureModule::AudioTextureModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+AudioTextureModule::AudioTextureModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -134,12 +141,12 @@ bool AudioTextureModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Co
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AudioTextureModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool AudioTextureModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -149,7 +156,7 @@ bool AudioTextureModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 
 			if (m_AudioTextureModule_Comp_2D_Pass_Ptr)
 			{
-				change |= m_AudioTextureModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_AudioTextureModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 
 			return change;
@@ -159,30 +166,24 @@ bool AudioTextureModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 	return false;
 }
 
-void AudioTextureModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool AudioTextureModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    return false;
 }
 
-void AudioTextureModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool AudioTextureModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    return false;
 }
 
 void AudioTextureModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)

@@ -148,12 +148,12 @@ bool ModelRendererModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::C
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool ModelRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (IsTheGoodFrame(vCurrentFrame))
 	{
@@ -161,7 +161,7 @@ bool ModelRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 		{
 			if (m_ModelRendererModule_Mesh_Pass_Ptr)
 			{
-				return m_ModelRendererModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+				return m_ModelRendererModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 		}
 	}
@@ -170,11 +170,11 @@ bool ModelRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 }
 
 bool ModelRendererModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -184,11 +184,11 @@ bool ModelRendererModule::DrawOverlays(
 }
 
 bool ModelRendererModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

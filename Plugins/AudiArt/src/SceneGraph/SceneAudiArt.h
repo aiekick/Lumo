@@ -22,7 +22,7 @@ limitations under the License.
 
 class SceneAudiArt;
 typedef std::shared_ptr<SceneAudiArt> SceneAudiArtPtr;
-typedef ct::cWeak<SceneAudiArt> SceneAudiArtWeak;
+typedef std::weak_ptr<SceneAudiArt> SceneAudiArtWeak;
 
 // NotifyEvent : need to update the audio buffer
 #define SceneAudiArtUpdateDone "SceneAudiArtUpdateDone"

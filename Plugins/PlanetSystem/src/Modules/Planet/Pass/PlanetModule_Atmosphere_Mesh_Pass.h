@@ -21,27 +21,27 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-#include <Headers/Globals.h>
+#include <LumoBackend/Headers/LumoBackendDefs.h>
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
 #include <vulkan/vulkan.hpp>
-#include <Base/BaseRenderer.h>
-#include <Base/MeshShaderPass.h>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
+#include <LumoBackend/Base/BaseRenderer.h>
+#include <LumoBackend/Base/MeshShaderPass.h>
+#include <Gaia/Resources/Texture2D.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <Gaia/Core/vk_mem_alloc.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Gui/ImGuiTexture.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Resources/VulkanFrameBuffer.h>
 
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class PlanetModule_Atmosphere_Mesh_Pass :
 	public MeshShaderPass<VertexStruct::P3_N3_C4>,
@@ -124,7 +124,7 @@ private:
 	uint32_t m_RestrictedIndicesCountToDraw = 0U;
 
 public:
-	PlanetModule_Atmosphere_Mesh_Pass(vkApi::VulkanCorePtr vVulkanCorePtr);
+	PlanetModule_Atmosphere_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~PlanetModule_Atmosphere_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;

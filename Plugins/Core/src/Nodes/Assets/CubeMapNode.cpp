@@ -83,35 +83,35 @@ bool CubeMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas) {
+bool CubeMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
 
     bool res = false;
 
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     if (m_CubeMapModulePtr) {
-        res = m_CubeMapModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+        res = m_CubeMapModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
     }
 
     return res;
 }
 
 bool CubeMapNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
 bool CubeMapNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     if (m_CubeMapModulePtr) {
-        return m_CubeMapModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+        return m_CubeMapModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
     return false;
 }

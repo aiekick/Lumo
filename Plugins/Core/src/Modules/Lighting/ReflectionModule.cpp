@@ -141,12 +141,12 @@ bool ReflectionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Comm
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool ReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -156,7 +156,7 @@ bool ReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 			if (m_Reflection_Quad_Pass_Ptr)
 			{
-				change |= m_Reflection_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+				change |= m_Reflection_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 
 			return change;
@@ -166,12 +166,12 @@ bool ReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 	return false;
 }
 
-bool ReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool ReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -181,11 +181,11 @@ bool ReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect&
 }
 
 bool ReflectionModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

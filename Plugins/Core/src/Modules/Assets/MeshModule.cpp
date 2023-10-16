@@ -86,9 +86,9 @@ void MeshModule::Unit()
 	m_SceneModelPtr.reset();
 }
 
-bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	ZoneScoped;
 
@@ -149,18 +149,18 @@ bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 	return false;
 }
 
-bool MeshModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool MeshModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	ZoneScoped;
 
     return false;
 }
 
-bool MeshModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool MeshModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	ImVec2 max = ImVec2((float)vMaxSize.x, (float)vMaxSize.y);
 	ImVec2 min = max * 0.5f;

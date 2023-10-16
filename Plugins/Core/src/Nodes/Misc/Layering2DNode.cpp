@@ -86,33 +86,33 @@ bool Layering2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return res;
 }
 
-bool Layering2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool Layering2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_Layering2DModulePtr)
 	{
-		return m_Layering2DModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+		return m_Layering2DModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return false;
 }
 
 bool Layering2DNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
 bool Layering2DNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_Layering2DModulePtr)
 	{
-        return m_Layering2DModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+        return m_Layering2DModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
     return false;
 }

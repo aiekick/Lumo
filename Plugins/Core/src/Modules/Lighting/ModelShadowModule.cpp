@@ -115,9 +115,9 @@ bool ModelShadowModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 	return true;
 }
 
-bool ModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool ModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -130,7 +130,7 @@ bool ModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (passGuiPtr)
 				{
-                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 				}
 			}
 
@@ -141,9 +141,9 @@ bool ModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	return false;
 }
 
-bool ModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool ModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -153,8 +153,8 @@ bool ModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
 }
 
 bool ModelShadowModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

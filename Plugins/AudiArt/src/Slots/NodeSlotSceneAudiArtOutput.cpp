@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <utility>
 #include <SceneGraph/SceneAudiArt.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 
 static const float slotIconSize = 15.0f;
 
@@ -118,7 +118,7 @@ void NodeSlotSceneAudiArtOutput::Unit()
 					auto graphPtr = graph.lock();
 					if (graphPtr)
 					{
-						graphPtr->DisConnectSlot(m_This);
+						graphPtr->BreakAllLinksConnectedToSlot(m_This);
 					}
 				}
 			}

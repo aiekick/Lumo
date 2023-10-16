@@ -115,9 +115,9 @@ bool SSAOModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 	return true;
 }
 
-bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -130,7 +130,7 @@ bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (passGuiPtr)
 				{
-                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 				}
 			}
 
@@ -142,8 +142,8 @@ bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 }
 
 bool SSAOModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -153,8 +153,8 @@ bool SSAOModule::DrawOverlays(
 }
 
 bool SSAOModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

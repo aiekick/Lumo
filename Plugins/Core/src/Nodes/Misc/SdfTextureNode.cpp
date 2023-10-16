@@ -80,33 +80,33 @@ bool SdfTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
 	return false;
 }
 
-bool SdfTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool SdfTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_SdfTextureModulePtr)
 	{
-		return m_SdfTextureModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+		return m_SdfTextureModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return false;
 }
 
 bool SdfTextureNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
 bool SdfTextureNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_SdfTextureModulePtr)
 	{
-        return m_SdfTextureModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+        return m_SdfTextureModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
     return false;
 }

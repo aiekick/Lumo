@@ -116,9 +116,9 @@ bool PBRRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 	return true;
 }
 
-bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (IsTheGoodFrame(vCurrentFrame))
 	{
@@ -126,7 +126,7 @@ bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 		{
 			if (m_PBRRenderer_Quad_Pass_Ptr)
 			{
-				return m_PBRRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+				return m_PBRRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 		}
 	}
@@ -135,8 +135,8 @@ bool PBRRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 }
 
 bool PBRRenderer::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -145,9 +145,9 @@ bool PBRRenderer::DrawOverlays(
     return false;
 }
 
-bool PBRRenderer::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool PBRRenderer::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

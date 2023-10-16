@@ -59,9 +59,9 @@ void SmoothNormalModule_Comp_Pass::ActionBeforeInit()
 	SetPushConstantRange(push_constant);
 }
 
-bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	ImGui::Header("Infos");
 
@@ -90,17 +90,17 @@ bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, Im
 	return false;
 }
 
-bool SmoothNormalModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool SmoothNormalModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
 bool SmoothNormalModule_Comp_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 

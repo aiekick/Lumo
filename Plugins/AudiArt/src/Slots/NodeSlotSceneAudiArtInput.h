@@ -16,11 +16,11 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/NodeSlotInput.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/NodeSlotInput.h>
 
 class NodeSlotSceneAudiArtInput;
-typedef ct::cWeak<NodeSlotSceneAudiArtInput> NodeSlotSceneAudiArtInputWeak;
+typedef std::weak_ptr<NodeSlotSceneAudiArtInput> NodeSlotSceneAudiArtInputWeak;
 typedef std::shared_ptr<NodeSlotSceneAudiArtInput> NodeSlotSceneAudiArtInputPtr;
 
 class NodeSlotSceneAudiArtInput : 

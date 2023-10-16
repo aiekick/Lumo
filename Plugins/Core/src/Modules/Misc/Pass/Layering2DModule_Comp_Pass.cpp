@@ -57,13 +57,13 @@ Layering2DModule_Comp_Pass::~Layering2DModule_Comp_Pass()
 	Unit();
 }
 
-bool Layering2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool Layering2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	ZoneScoped;
 
-	ImGui::SetCurrentContext(vContext);
+	ImGui::SetCurrentContext(vContextPtr);
 
 	const float aw = ImGui::GetContentRegionAvail().x;
 
@@ -88,18 +88,18 @@ bool Layering2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGu
 	return change;
 }
 
-bool Layering2DModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool Layering2DModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 
 }
 
-bool Layering2DModule_Comp_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool Layering2DModule_Comp_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 
 }

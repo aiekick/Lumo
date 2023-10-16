@@ -73,10 +73,10 @@ void Refraction_Quad_Pass::ActionBeforeInit()
 	}
 }
 
-bool Refraction_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool Refraction_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	ZoneScoped;
 
@@ -92,17 +92,17 @@ bool Refraction_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	return change;
 }
 
-bool Refraction_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+bool Refraction_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool Refraction_Quad_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+bool Refraction_Quad_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////

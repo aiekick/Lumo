@@ -66,9 +66,9 @@ void ToneMapModule_Quad_Pass::ActionBeforeInit()
 	m_ToneMap_Algos = { "Aces", "Filmic",  "Lottes",  "Reinhard",  "Reinhard 2",  "Uchimura",  "Uncharted 2",  "Unreal" };
 }
 
-bool ToneMapModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool ToneMapModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	bool change = false;
 
@@ -137,17 +137,17 @@ bool ToneMapModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 }
 
 bool ToneMapModule_Quad_Pass::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 
 }
 
 bool ToneMapModule_Quad_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 
 }

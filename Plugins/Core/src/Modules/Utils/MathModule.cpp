@@ -119,9 +119,9 @@ bool MathModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 	return true;
 }
 
-bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -134,7 +134,7 @@ bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
 				if (passGuiPtr)
 				{
-                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 				}
 			}
 
@@ -146,8 +146,8 @@ bool MathModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 }
 
 bool MathModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -157,8 +157,8 @@ bool MathModule::DrawOverlays(
 }
 
 bool MathModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -238,13 +238,13 @@ bool MathModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 	return true;
 }
 
-bool MathModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MathModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr)
 {
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (m_MathModule_Quad_Pass_Ptr)
 		{
-			return m_MathModule_Quad_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContext);
+			return m_MathModule_Quad_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContextPtr);
 		}
 	}
 

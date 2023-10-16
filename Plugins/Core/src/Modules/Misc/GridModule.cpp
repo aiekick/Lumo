@@ -112,9 +112,9 @@ void GridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vC
 	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	ZoneScoped;
 
@@ -124,7 +124,7 @@ bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 		{
 			if (m_GridModule_Vertex_Pass_Ptr)
 			{
-				return m_GridModule_Vertex_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+				return m_GridModule_Vertex_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 		}
 	}
@@ -132,9 +132,9 @@ bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
 	return false;
 }
 
-bool GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -143,9 +143,9 @@ bool GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
     return false;
 }
 
-bool GridModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool GridModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{

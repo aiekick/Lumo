@@ -60,9 +60,9 @@ DeferredRenderer_Quad_Pass::~DeferredRenderer_Quad_Pass()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DeferredRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool DeferredRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	/*DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
 	DrawInputTexture(m_VulkanCorePtr, "Normal", 1U, m_OutputRatio);
@@ -78,18 +78,18 @@ bool DeferredRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGu
 }
 
 bool DeferredRenderer_Quad_Pass::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
 bool DeferredRenderer_Quad_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 

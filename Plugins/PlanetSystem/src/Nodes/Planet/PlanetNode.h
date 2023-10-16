@@ -16,9 +16,9 @@ limitations under the License.
 
 #include <Graph/Graph.h>
 #include <Graph/Base/BaseNode.h>
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
+#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class PlanetModule;
 class PlanetNode :
@@ -28,7 +28,7 @@ class PlanetNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<PlanetNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<PlanetNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<PlanetModule> m_PlanetModulePtr = nullptr;
@@ -38,7 +38,7 @@ public:
 	~PlanetNode() override;
 
 	// Init / Unit
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 
 	// Execute Task
 	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;

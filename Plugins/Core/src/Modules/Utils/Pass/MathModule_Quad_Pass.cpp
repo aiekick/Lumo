@@ -137,9 +137,9 @@ void MathModule_Quad_Pass::ActionBeforeInit()
 	m_Functions.push_back(MathModuleEntry("faceforward", 3U, "N", "I", "Nref"));
 }
 
-bool MathModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool MathModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (ImGui::CollapsingHeader("Math", ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -150,18 +150,18 @@ bool MathModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 }
 
 bool MathModule_Quad_Pass::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
 bool MathModule_Quad_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
@@ -483,7 +483,7 @@ bool MathModule_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool MathModule_Quad_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MathModule_Quad_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr)
 {
 	assert(m_UBOFrag.u_Function_index < (int32_t)m_Functions.size());
 

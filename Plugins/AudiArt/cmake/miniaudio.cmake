@@ -9,6 +9,6 @@ add_library(miniaudio STATIC ${MINIAUDIO_SOURCES})
 include_directories(${MINIAUDIO_INCLUDE_DIR})
     
 set_target_properties(miniaudio PROPERTIES LINKER_LANGUAGE CXX)
-set_target_properties(miniaudio PROPERTIES FOLDER 3rdparty/audio)
+set_target_properties(miniaudio PROPERTIES FOLDER 3rdparty/Static)
 
 set(MINIAUDIO_LIBRARIES miniaudio)

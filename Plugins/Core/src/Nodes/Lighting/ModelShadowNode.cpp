@@ -94,38 +94,38 @@ bool ModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	return false;
 }
 
-bool ModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool ModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_ModelShadowModulePtr)
 	{
-		return m_ModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+		return m_ModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return false;
 }
 
 bool ModelShadowNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_ModelShadowModulePtr)
 	{
-        return m_ModelShadowModulePtr->DrawOverlays(vCurrentFrame, vRect, vContext, vUserDatas);
+        return m_ModelShadowModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
     }
     return false;
 }
 
 bool ModelShadowNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
 
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     if (m_ModelShadowModulePtr) {
-        return m_ModelShadowModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+        return m_ModelShadowModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
     return false;
 }

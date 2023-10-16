@@ -19,14 +19,22 @@ limitations under the License.
 
 #include "HistorizeNode.h"
 #include <Modules/Operations/HistorizeModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<HistorizeNode> HistorizeNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<HistorizeNode> HistorizeNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +66,7 @@ HistorizeNode::~HistorizeNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HistorizeNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool HistorizeNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -104,34 +112,49 @@ bool HistorizeNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HistorizeNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool HistorizeNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_HistorizeModulePtr)
 	{
-		res = m_HistorizeModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_HistorizeModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return res;
 }
 
-void HistorizeNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool HistorizeNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_HistorizeModulePtr) {
+        return m_HistorizeModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+    }
+
+    return false;
+}
+
+bool HistorizeNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_HistorizeModulePtr)
 	{
-		m_HistorizeModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+		return m_HistorizeModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    }
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

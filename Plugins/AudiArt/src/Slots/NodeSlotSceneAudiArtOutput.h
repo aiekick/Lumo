@@ -16,11 +16,11 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/NodeSlotOutput.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/NodeSlotOutput.h>
 
 class NodeSlotSceneAudiArtOutput;
-typedef ct::cWeak<NodeSlotSceneAudiArtOutput> NodeSlotSceneAudiArtOutputWeak;
+typedef std::weak_ptr<NodeSlotSceneAudiArtOutput> NodeSlotSceneAudiArtOutputWeak;
 typedef std::shared_ptr<NodeSlotSceneAudiArtOutput> NodeSlotSceneAudiArtOutputPtr;
 
 class NodeSlotSceneAudiArtOutput : 

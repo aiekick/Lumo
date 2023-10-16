@@ -21,32 +21,32 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-#include <Headers/Globals.h>
+#include <LumoBackend/Headers/LumoBackendDefs.h>
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
+#include <LumoBackend/Base/BaseRenderer.h>
+#include <LumoBackend/Base/QuadShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
+#include <Gaia/Resources/Texture2D.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <Gaia/Core/vk_mem_alloc.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Gui/ImGuiTexture.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Resources/VulkanFrameBuffer.h>
 
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/ResizerInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/TaskInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/ResizerInterface.h>
 
-#include <Interfaces/TextureInputInterface.h>
-#include <Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class PlanetModule_Water_Mesh_Pass;
 class PlanetModule_Ground_Mesh_Pass;
@@ -60,17 +60,17 @@ class PlanetModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<PlanetModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<PlanetModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
-	ct::cWeak<PlanetModule> m_This;
+	std::weak_ptr<PlanetModule> m_This;
 	std::shared_ptr<PlanetModule_Ground_Mesh_Pass> m_PlanetModule_Ground_Mesh_Pass_Ptr = nullptr;
 	std::shared_ptr<PlanetModule_Atmosphere_Mesh_Pass> m_PlanetModule_Atmosphere_Mesh_Pass_Ptr = nullptr;
 	std::shared_ptr<PlanetModule_Water_Mesh_Pass> m_PlanetModule_Water_Mesh_Pass_Ptr = nullptr;
 	FrameBufferPtr m_FrameBufferPtr = nullptr;
 
 public:
-	PlanetModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	PlanetModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~PlanetModule() override;
 
 	bool Init();

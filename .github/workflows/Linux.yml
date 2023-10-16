@@ -1,7 +1,7 @@
 name: Linux
 
-on:
-  push:
+on: 
+  workflow_dispatch:
   workflow_run:
     workflows:
     - scheduled

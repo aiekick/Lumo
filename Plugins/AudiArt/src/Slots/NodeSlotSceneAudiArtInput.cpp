@@ -21,7 +21,7 @@ limitations under the License.
 
 #include <utility>
 #include <SceneGraph/SceneAudiArt.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <Interfaces/SceneAudiArtInputInterface.h>
 #include <Interfaces/SceneAudiArtOutputInterface.h>
 
@@ -120,7 +120,7 @@ void NodeSlotSceneAudiArtInput::Unit()
 					auto graphPtr = graph.lock();
 					if (graphPtr)
 					{
-						graphPtr->DisConnectSlot(m_This);
+						graphPtr->BreakAllLinksConnectedToSlot(m_This);
 					}
 				}
 			}
@@ -130,13 +130,13 @@ void NodeSlotSceneAudiArtInput::Unit()
 
 void NodeSlotSceneAudiArtInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
-	auto endSlotPtr = vOtherSlot.getValidShared();
+	auto endSlotPtr = vOtherSlot.lock();
 	if (endSlotPtr)
 	{
-		auto parentNodePtr = dynamic_pointer_cast<SceneAudiArtInputInterface>(parentNode.getValidShared());
+		auto parentNodePtr = dynamic_pointer_cast<SceneAudiArtInputInterface>(parentNode.lock());
 		if (parentNodePtr)
 		{
-			auto otherCodeNodePtr = dynamic_pointer_cast<SceneAudiArtOutputInterface>(endSlotPtr->parentNode.getValidShared());
+			auto otherCodeNodePtr = dynamic_pointer_cast<SceneAudiArtOutputInterface>(endSlotPtr->parentNode.lock());
 			if (otherCodeNodePtr)
 			{
 				parentNodePtr->SetSceneAudiArt(name,
@@ -148,10 +148,10 @@ void NodeSlotSceneAudiArtInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 
 void NodeSlotSceneAudiArtInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
-	auto endSlotPtr = vOtherSlot.getValidShared();
+	auto endSlotPtr = vOtherSlot.lock();
 	if (endSlotPtr)
 	{
-		auto parentNodePtr = dynamic_pointer_cast<SceneAudiArtInputInterface>(parentNode.getValidShared());
+		auto parentNodePtr = dynamic_pointer_cast<SceneAudiArtInputInterface>(parentNode.lock());
 		if (parentNodePtr)
 		{
 			parentNodePtr->SetSceneAudiArt(name, SceneAudiArtWeak());
@@ -166,18 +166,18 @@ void NodeSlotSceneAudiArtInput::TreatNotification(
 {
 	if (vEvent == SceneAudiArtUpdateDone)
 	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.lock();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto parentCodeInputNodePtr = dynamic_pointer_cast<SceneAudiArtInputInterface>(parentNode.getValidShared());
+				auto parentCodeInputNodePtr = dynamic_pointer_cast<SceneAudiArtInputInterface>(parentNode.lock());
 				if (parentCodeInputNodePtr)
 				{
-					auto otherNodePtr = dynamic_pointer_cast<SceneAudiArtOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+					auto otherNodePtr = dynamic_pointer_cast<SceneAudiArtOutputInterface>(emiterSlotPtr->parentNode.lock());
 					if (otherNodePtr)
 					{
-						auto receiverSlotPtr = vReceiverSlot.getValidShared();
+						auto receiverSlotPtr = vReceiverSlot.lock();
 						if (receiverSlotPtr)
 						{
 							parentCodeInputNodePtr->SetSceneAudiArt(receiverSlotPtr->name,

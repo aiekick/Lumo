@@ -117,9 +117,9 @@ bool WidgetColorModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 	return true;
 }
 
-bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -129,7 +129,7 @@ bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 			if (m_WidgetColorModule_Pass_Ptr)
 			{
-				change |= m_WidgetColorModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+				change |= m_WidgetColorModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 
 			return change;
@@ -140,8 +140,8 @@ bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 }
 
 bool WidgetColorModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -151,8 +151,8 @@ bool WidgetColorModule::DrawOverlays(
 }
 
 bool WidgetColorModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -161,9 +161,9 @@ bool WidgetColorModule::DrawDialogsAndPopups(
     return false;
 }
 
-bool WidgetColorModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool WidgetColorModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -171,7 +171,7 @@ bool WidgetColorModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiConte
 
 		if (m_WidgetColorModule_Pass_Ptr)
 		{
-			change |= m_WidgetColorModule_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContext);
+			change |= m_WidgetColorModule_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContextPtr);
 		}
 
 		return change;

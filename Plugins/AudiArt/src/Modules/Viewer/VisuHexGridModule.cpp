@@ -23,25 +23,32 @@ limitations under the License.
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Viewer/Pass/VisuHexGridModule_Vertex_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<VisuHexGridModule> VisuHexGridModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<VisuHexGridModule> VisuHexGridModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -61,7 +68,7 @@ std::shared_ptr<VisuHexGridModule> VisuHexGridModule::Create(vkApi::VulkanCorePt
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VisuHexGridModule::VisuHexGridModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+VisuHexGridModule::VisuHexGridModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -97,9 +104,8 @@ bool VisuHexGridModule::Init()
 			m_VisuHexGridModule_Vertex_Pass_Ptr->AllowResizeOnResizeEvents(true);
 			m_VisuHexGridModule_Vertex_Pass_Ptr->AllowResizeByHandOrByInputs(false);
 
-
 			if (m_VisuHexGridModule_Vertex_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
+				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
 				AddGenericPass(m_VisuHexGridModule_Vertex_Pass_Ptr);
 				m_Loaded = true;
@@ -136,12 +142,12 @@ bool VisuHexGridModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Com
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VisuHexGridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool VisuHexGridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -151,7 +157,7 @@ bool VisuHexGridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 			if (m_VisuHexGridModule_Vertex_Pass_Ptr)
 			{
-				change |= m_VisuHexGridModule_Vertex_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_VisuHexGridModule_Vertex_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 
 			return change;
@@ -161,30 +167,24 @@ bool VisuHexGridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	return false;
 }
 
-void VisuHexGridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool VisuHexGridModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    return false;
 }
 
-void VisuHexGridModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool VisuHexGridModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    return false;
 }
 
 void VisuHexGridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)

@@ -24,26 +24,26 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 #include <Graph/Base/BaseNode.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 #include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Planet/Pass/PlanetModule_Ground_Mesh_Pass.h>
 #include <Modules/Planet/Pass/PlanetModule_Atmosphere_Mesh_Pass.h>
 #include <Modules/Planet/Pass/PlanetModule_Water_Mesh_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PlanetModule> PlanetModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<PlanetModule> PlanetModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
@@ -63,7 +63,7 @@ std::shared_ptr<PlanetModule> PlanetModule::Create(vkApi::VulkanCorePtr vVulkanC
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PlanetModule::PlanetModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+PlanetModule::PlanetModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -186,7 +186,7 @@ void PlanetModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 
 		for (auto pass : m_ShaderPasses)
 		{
-			auto pass_ptr = pass.getValidShared();
+			auto pass_ptr = pass.lock();
 			if (pass_ptr && pass_ptr->StartDrawPass(vCmdBuffer))
 			{
 				pass_ptr->DrawModel(vCmdBuffer, 1U);
@@ -351,7 +351,7 @@ std::string PlanetModule::getXml(const std::string& vOffset, const std::string& 
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto pass_ptr = pass.getValidShared();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
@@ -386,7 +386,7 @@ bool PlanetModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto pass_ptr = pass.getValidShared();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			pass_ptr->setFromXml(vElem, vParent, vUserDatas);

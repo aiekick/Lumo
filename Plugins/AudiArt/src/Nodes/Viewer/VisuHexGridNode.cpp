@@ -19,14 +19,22 @@ limitations under the License.
 
 #include "VisuHexGridNode.h"
 #include <Modules/Viewer/VisuHexGridModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<VisuHexGridNode> VisuHexGridNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<VisuHexGridNode> VisuHexGridNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +66,7 @@ VisuHexGridNode::~VisuHexGridNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VisuHexGridNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool VisuHexGridNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -104,34 +112,48 @@ bool VisuHexGridNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VisuHexGridNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool VisuHexGridNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_VisuHexGridModulePtr)
 	{
-		res = m_VisuHexGridModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_VisuHexGridModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return res;
 }
 
-void VisuHexGridNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool VisuHexGridNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_VisuHexGridModulePtr) {
+        return m_VisuHexGridModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+    }
+
+    return false;
+}
+
+bool VisuHexGridNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_VisuHexGridModulePtr)
 	{
-		m_VisuHexGridModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+		m_VisuHexGridModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

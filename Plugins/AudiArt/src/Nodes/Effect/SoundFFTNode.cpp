@@ -22,11 +22,19 @@ limitations under the License.
 #include <Slots/NodeSlotSceneAudiArtInput.h>
 #include <Slots/NodeSlotSceneAudiArtOutput.h>
 
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SoundFFTNode> SoundFFTNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SoundFFTNode> SoundFFTNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -58,7 +66,7 @@ SoundFFTNode::~SoundFFTNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SoundFFTNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool SoundFFTNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -102,34 +110,49 @@ bool SoundFFTNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SoundFFTNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool SoundFFTNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_SoundFFTModulePtr)
 	{
-		res = m_SoundFFTModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_SoundFFTModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return res;
 }
 
-void SoundFFTNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool SoundFFTNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_SoundFFTModulePtr) {
+        return m_SoundFFTModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+    }
+
+    return false;
+}
+
+bool SoundFFTNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_SoundFFTModulePtr)
 	{
-		m_SoundFFTModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
-	}
+        return m_SoundFFTModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    }
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

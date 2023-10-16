@@ -92,48 +92,38 @@ endif()
 
 ## set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}")
+target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
+if(USE_DEBUG_SANITIZER)
+	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	target_link_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	message("Address Sanitizer enabled for projet ${PROJECT}")
+endif()
+
+set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
+set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
+set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
+set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
 
-message("BACKEND_INCLUDE_DIRS : ${Vulkan_INCLUDE_DIRS}")
-message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
-
-set(CMAKE_INSTALL_PREFIX ${FINAL_BIN_DIR}/plugins)
-install(TARGETS ${PROJECT} DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT ${PROJECT}_PLUGINS)
+install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
 include_directories(
-	src
-	${CMAKE_SOURCE_DIR}/src
-	${CMAKE_SOURCE_DIR}/libs/Common/src
-	${CMAKE_SOURCE_DIR}/libs
-	${CMAKE_SOURCE_DIR}/3rdparty
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/src
 	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
-	${CMAKE_SOURCE_DIR}/3rdparty/glm
-	${CMAKE_SOURCE_DIR}/3rdparty/glslang
-	${CMAKE_SOURCE_DIR}/3rdparty/assimp/include
-	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
-	${EFSW_INCLUDE_DIR}
-	${GLFW_INCLUDE_DIR}
-	${PLOG_INCLUDE_DIR}
-	${IMGUI_INCLUDE_DIR}
-	${ASSIMP_INCLUDE_DIR}
-	${OPENGL_INCLUDE_DIR}
-	${CPPIPC_INCLUDE_DIR}
-	${LFWATCH_INCLUDE_DIR}
-	${Vulkan_INCLUDE_DIRS}
-	${TINYXML2_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIR}
-	${IMGUIZMO_INCLUDE_DIR}
-	${IMGUIFILEDIALOG_INCLUDE_DIR}
-	${IMGUI_NODE_EDITOR_INCLUDE_DIR}
-	${COMMON_INCLUDE_DIR}
+	${LUMO_BACKEND_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT} PRIVATE
-	${COMMON_LIBRARIES}
+	${LUMO_BACKEND_LIBRARIES}
 )
 
 # add plugin name in parent LOADED_LUMO_PLUGINS list

@@ -39,10 +39,10 @@ public:
 	}
 
 	// draw the widget of the node (so not related to input or output widgets)
-	virtual bool DrawNodeWidget(const uint32_t& /*vCurrentFrame*/, ImGuiContext* vContext)
+	virtual bool DrawNodeWidget(const uint32_t& /*vCurrentFrame*/, ImGuiContext* vContextPtr)
 	{
-		assert(vContext);
-		ImGui::SetCurrentContext(vContext);
+		assert(vContextPtr);
+		ImGui::SetCurrentContext(vContextPtr);
 		return false; 
 	}
 

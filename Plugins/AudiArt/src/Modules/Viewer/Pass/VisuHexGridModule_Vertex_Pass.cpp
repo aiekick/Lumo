@@ -21,25 +21,31 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VisuHexGridModule_Vertex_Pass::VisuHexGridModule_Vertex_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+VisuHexGridModule_Vertex_Pass::VisuHexGridModule_Vertex_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: VertexShaderPass(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -73,12 +79,12 @@ void VisuHexGridModule_Vertex_Pass::ActionBeforeInit()
 	}
 }
 
-bool VisuHexGridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool VisuHexGridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	bool change = false;
 
@@ -95,20 +101,24 @@ bool VisuHexGridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 	return change;
 }
 
-void VisuHexGridModule_Vertex_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool VisuHexGridModule_Vertex_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+
+    return false;
 }
 
-void VisuHexGridModule_Vertex_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool VisuHexGridModule_Vertex_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

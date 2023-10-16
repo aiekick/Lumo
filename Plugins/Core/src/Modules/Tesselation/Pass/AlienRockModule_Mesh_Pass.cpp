@@ -84,12 +84,12 @@ void AlienRockModule_Mesh_Pass::ActionBeforeInit()
 	}
 }
 
-bool AlienRockModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool AlienRockModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext);
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr);
+	ImGui::SetCurrentContext(vContextPtr);
 
 	bool need_ubos_update = false;
 	bool need_model_update = false;
@@ -168,18 +168,18 @@ bool AlienRockModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 }
 
 bool AlienRockModule_Mesh_Pass::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
 bool AlienRockModule_Mesh_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 

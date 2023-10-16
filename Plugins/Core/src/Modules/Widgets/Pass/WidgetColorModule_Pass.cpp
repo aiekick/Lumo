@@ -57,9 +57,9 @@ WidgetColorModule_Pass::~WidgetColorModule_Pass()
 	Unit();
 }
 
-bool WidgetColorModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool WidgetColorModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (ImGui::ColorEdit4Default(0.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x))
 	{
@@ -71,22 +71,22 @@ bool WidgetColorModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCon
 	return false;
 }
 
-bool WidgetColorModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool WidgetColorModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-    assert(vContext);
-    ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool WidgetColorModule_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool WidgetColorModule_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool WidgetColorModule_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool WidgetColorModule_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	/*if (ImGui::ColorPicker4DefaultForNode(100.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x))
 	{

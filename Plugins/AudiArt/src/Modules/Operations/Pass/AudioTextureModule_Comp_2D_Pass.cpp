@@ -21,25 +21,31 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-AudioTextureModule_Comp_2D_Pass::AudioTextureModule_Comp_2D_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+AudioTextureModule_Comp_2D_Pass::AudioTextureModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -64,12 +70,12 @@ void AudioTextureModule_Comp_2D_Pass::ActionBeforeInit()
 
 }
 
-bool AudioTextureModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool AudioTextureModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	bool change = false;
 
@@ -79,20 +85,24 @@ bool AudioTextureModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame,
 	return change;
 }
 
-void AudioTextureModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool AudioTextureModule_Comp_2D_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+
+    return false;
 }
 
-void AudioTextureModule_Comp_2D_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool AudioTextureModule_Comp_2D_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +151,7 @@ void AudioTextureModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, con
 	{
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		{
-			VKFPScoped(*vCmdBuffer, "Audio Texture", "Compute");
+			//VKFPScoped(*vCmdBuffer, "Audio Texture", "Compute");
 
 			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 

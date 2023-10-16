@@ -4,12 +4,12 @@
 #include "PlanetSystem.h"
 #include <Headers/PlanetSystemBuild.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
+#include <ImGuiPack.h>
 #include <Graph/Base/BaseNode.h>
-#include <Systems/CommonSystem.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanWindow.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/VulkanWindow.h>
 
 #include <Nodes/Planet/PlanetNode.h>
 
@@ -100,7 +100,7 @@ std::vector<LibraryEntry> PlanetSystem::GetLibrary() const
 
 BaseNodePtr PlanetSystem::CreatePluginNode(const std::string& vPluginNodeName)
 {
-	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
+	auto vkCorePtr = m_VulkanCoreWeak.lock();
 
 	if (vPluginNodeName == "PLANET_RENDERER")	return PlanetNode::Create(vkCorePtr);
 
