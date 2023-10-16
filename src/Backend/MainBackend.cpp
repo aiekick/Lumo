@@ -709,9 +709,10 @@ void MainBackend::m_InitSystems() {
 }
 
 void MainBackend::m_InitPanes() {
-    LayoutManager::Instance()->InitPanes();
-    // a faire apres InitPanes() sinon ConsolePane::Instance()->paneFlag vaudra 0 et changeras apres InitPanes()
-    Messaging::sMessagePaneId = ConsolePane::Instance()->paneFlag;
+    if (LayoutManager::Instance()->InitPanes()) {
+        // a faire apres InitPanes() sinon ConsolePane::Instance()->paneFlag vaudra 0 et changeras apres InitPanes()
+        Messaging::Instance()->sMessagePaneId = ConsolePane::Instance()->paneFlag;
+    }
 }
 
 void MainBackend::m_DestroyVulkanCore() {
