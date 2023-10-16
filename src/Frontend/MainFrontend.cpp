@@ -105,73 +105,11 @@ bool MainFrontend::init() {
         }
     }
 
-    // a faire apres InitPanes() sinon ConsolePane::Instance()->paneFlag vaudra 0 et changeras apres InitPanes()
-    Messaging::sMessagePaneId = ConsolePane::Instance()->paneFlag;
-
     using namespace std::placeholders;
     BaseNode::sSelectCallback = std::bind(&MainFrontend::SelectNode, this, _1);
     BaseNode::sSelectForGraphOutputCallback = std::bind(&MainFrontend::SelectNodeForGraphOutput, this, _1, _2);
     NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
     NodeSlot::sSlotGraphOutputMouseMiddleColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
-
-#ifdef USE_THUMBNAILS
-    ImGuiFileDialog::Instance()->SetCreateThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info) {
-        if (vThumbnail_Info && vThumbnail_Info->isReadyToUpload && vThumbnail_Info->textureFileDatas) {
-            m_VulkanCorePtr->getDevice().waitIdle();
-
-            std::shared_ptr<FileDialogAsset> resPtr =
-                std::shared_ptr<FileDialogAsset>(new FileDialogAsset, [](FileDialogAsset* obj) { delete obj; });
-
-            if (resPtr) {
-                resPtr->texturePtr = Texture2D::CreateFromMemory(m_VulkanCorePtr, vThumbnail_Info->textureFileDatas,
-                    vThumbnail_Info->textureWidth, vThumbnail_Info->textureHeight, vThumbnail_Info->textureChannels);
-
-                if (resPtr->texturePtr) {
-                    auto imguiRendererPtr = m_VulkanImGuiOverlayPtr->GetImGuiRenderer().getValidShared();
-                    if (imguiRendererPtr) {
-                        resPtr->descriptorSet = imguiRendererPtr->CreateImGuiTexture(
-                            (VkSampler)resPtr->texturePtr->m_DescriptorImageInfo.sampler,
-                            (VkImageView)resPtr->texturePtr->m_DescriptorImageInfo.imageView,
-                            (VkImageLayout)resPtr->texturePtr->m_DescriptorImageInfo.imageLayout);
-
-                        vThumbnail_Info->userDatas = (void*)resPtr.get();
-
-                        m_FileDialogAssets.push_back(resPtr);
-
-                        vThumbnail_Info->textureID = (ImTextureID)&resPtr->descriptorSet;
-                    }
-
-                    delete[] vThumbnail_Info->textureFileDatas;
-                    vThumbnail_Info->textureFileDatas = nullptr;
-
-                    vThumbnail_Info->isReadyToUpload = false;
-                    vThumbnail_Info->isReadyToDisplay = true;
-
-                    m_VulkanCorePtr->getDevice().waitIdle();
-                }
-            }
-        }
-    });
-    ImGuiFileDialog::Instance()->SetDestroyThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info) {
-        if (vThumbnail_Info) {
-            if (vThumbnail_Info->userDatas) {
-                m_VulkanCorePtr->getDevice().waitIdle();
-
-                auto assetPtr = (FileDialogAsset*)vThumbnail_Info->userDatas;
-                if (assetPtr) {
-                    assetPtr->texturePtr.reset();
-                    assetPtr->descriptorSet = vk::DescriptorSet{};
-                    auto imguiRendererPtr = m_VulkanImGuiOverlayPtr->GetImGuiRenderer().getValidShared();
-                    if (imguiRendererPtr) {
-                        imguiRendererPtr->DestroyImGuiTexture(&assetPtr->descriptorSet);
-                    }
-                }
-
-                m_VulkanCorePtr->getDevice().waitIdle();
-            }
-        }
-    });
-#endif  // USE_THUMBNAILS
 
     return m_build();
 }

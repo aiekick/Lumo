@@ -35,12 +35,12 @@ limitations under the License.
 // define the space between path buttons 
 //#define CUSTOM_PATH_SPACING 2
 
-//#define USE_THUMBNAILS
+#define USE_THUMBNAILS
 //the thumbnail generation use the stb_image and stb_resize lib who need to define the implementation
 //btw if you already use them in your app, you can have compiler error due to "implemntation found in double"
 //so uncomment these line for prevent the creation of implementation of these libs again
-#define DONT_DEFINE_AGAIN__STB_IMAGE_IMPLEMENTATION
-#define DONT_DEFINE_AGAIN__STB_IMAGE_RESIZE_IMPLEMENTATION
+// #define DONT_DEFINE_AGAIN__STB_IMAGE_IMPLEMENTATION
+// #define DONT_DEFINE_AGAIN__STB_IMAGE_RESIZE_IMPLEMENTATION
 //#define IMGUI_RADIO_BUTTON RadioButton
 //#define DisplayMode_ThumbailsList_ImageHeight 32.0f
 //#define tableHeaderFileThumbnailsString "Thumbnails"

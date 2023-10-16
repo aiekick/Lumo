@@ -149,6 +149,7 @@ private:
     void m_InitNodes();
     void m_InitPlugins();
     void m_InitSystems();
+    void m_InitPanes();
     bool m_CreateImGuiOverlay();
     bool m_CreateRenderers();
 
