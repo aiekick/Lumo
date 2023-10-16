@@ -27,7 +27,7 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <LumoBackend/utils/uTypes.h>
+#include <LumoBackend/Utils/uTypes.h>
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>

@@ -34,7 +34,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <LumoBackend/Graph/Graph.h>
-#include <LumoBackend/utils/uTypes.h>
+#include <LumoBackend/Utils/uTypes.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 #include <LumoBackend/Graph/Base/NodeLink.h>
 #include <LumoBackend/Interfaces/GuiInterface.h>
