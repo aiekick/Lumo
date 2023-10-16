@@ -110,7 +110,7 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 | Published | Plugin | Open Source | Free | status | Description |
 | - | - | - | - | - | - |
-| :heavy_check_mark: | AudiArt | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation |
+| :heavy_check_mark: | AudiArt | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
 | :heavy_check_mark: | Core | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | Core pack of Nodes |
 | :heavy_check_mark: | MeshGen | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | Procedural Mesh generation |
 | :x:  | MeshSim | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/90) | Texture Less Reaction Diffusion Simulation on Meshs |
