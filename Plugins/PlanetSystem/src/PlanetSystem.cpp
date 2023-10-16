@@ -5,11 +5,10 @@
 #include <Headers/PlanetSystemBuild.h>
 #include <ctools/FileHelper.h>
 #include <ImGuiPack.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <LumoBackend/Systems/CommonSystem.h>
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Shader/VulkanShader.h>
-#include <Gaia/VulkanWindow.h>
 
 #include <Nodes/Planet/PlanetNode.h>
 
@@ -114,9 +113,8 @@ std::vector<PluginPane> PlanetSystem::GetPanes() const
 	return res;
 }
 
-int PlanetSystem::ResetImGuiID(const int& vWidgetId)
-{
-	auto ids = ImGui::CustomStyle::Instance()->pushId;
-	ImGui::CustomStyle::Instance()->pushId = vWidgetId;
-	return ids;
+int PlanetSystem::ResetImGuiID(const int& vWidgetId) {
+    auto ids = ImGui::GetPUSHID();
+    ImGui::SetPUSHID(vWidgetId);
+    return ids;
 }

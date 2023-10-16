@@ -19,8 +19,16 @@ limitations under the License.
 
 #include "PlanetNode.h"
 #include <Modules/Planet/PlanetModule.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
@@ -109,34 +117,32 @@ bool PlanetNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PlanetNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool PlanetNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
-	bool res = false;
-
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
-
-	if (m_PlanetModulePtr)
-	{
-		res = m_PlanetModulePtr->DrawWidgets(vCurrentFrame, vContext);
-	}
-
-	return res;
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+	if (m_PlanetModulePtr) {
+        return m_PlanetModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
+    return false;
 }
 
-void PlanetNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool PlanetNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    return false;
+}
+
+bool PlanetNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
-
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
-
-	if (m_PlanetModulePtr)
-	{
-		m_PlanetModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+	if (m_PlanetModulePtr) {
+		return m_PlanetModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 	}
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

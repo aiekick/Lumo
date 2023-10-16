@@ -96,3 +96,4 @@
 /bin/shaders/HistorizeModule_Comp_2D_Pass_Compute.comp
 /bin/shaders/VisuHexGridModule_Vertex_Pass_Fragment.frag
 /bin/shaders/VisuHexGridModule_Vertex_Pass_Vertex.vert
+/bin/plugins/Plugin_PlanetSystem_Windows_Debug_x64.dll
