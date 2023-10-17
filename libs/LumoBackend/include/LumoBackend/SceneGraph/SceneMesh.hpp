@@ -56,6 +56,12 @@ public:
 	}
 };
 
+class SceneMeshBuffers {
+public:
+    vk::DeviceAddress vertices_address = vk::DeviceAddress{};
+    vk::DeviceAddress indices_address = vk::DeviceAddress{};
+};
+
 template<typename T_VertexType>
 class SceneMesh
 {
@@ -63,14 +69,6 @@ public:
 	static std::shared_ptr<SceneMesh<T_VertexType>> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	static std::shared_ptr<SceneMesh<T_VertexType>> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray);
 	static std::shared_ptr<SceneMesh<T_VertexType>> Copy(const std::weak_ptr<SceneMesh<T_VertexType>>& vSceneMeshToCopy);
-
-public:
-	class SceneMeshBuffers
-	{
-	public:
-		vk::DeviceAddress vertices_address = vk::DeviceAddress {};
-		vk::DeviceAddress indices_address = vk::DeviceAddress {};
-	};
 
 private:
 	std::weak_ptr<SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>> m_This;

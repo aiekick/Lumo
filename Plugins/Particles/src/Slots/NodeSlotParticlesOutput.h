@@ -16,11 +16,11 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/NodeSlotOutput.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/NodeSlotOutput.h>
 
 class NodeSlotParticlesOutput;
-typedef ct::cWeak<NodeSlotParticlesOutput> NodeSlotParticlesOutputWeak;
+typedef std::weak_ptr<NodeSlotParticlesOutput> NodeSlotParticlesOutputWeak;
 typedef std::shared_ptr<NodeSlotParticlesOutput> NodeSlotParticlesOutputPtr;
 
 class NodeSlotParticlesOutput : 

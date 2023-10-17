@@ -18,13 +18,21 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "NodeSlotAccelStructureInput.h"
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <Interfaces/AccelStructureInputInterface.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
 #include <Headers/RTXCommon.h>
 
 #include <utility>
 static const float slotIconSize = 15.0f;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +127,7 @@ void NodeSlotAccelStructureInput::Unit()
 					auto graphPtr = graph.lock();
 					if (graphPtr)
 					{
-						graphPtr->DisConnectSlot(m_This);
+						graphPtr->BreakAllLinksConnectedToSlot(m_This);
 					}
 				}
 			}
@@ -131,13 +139,13 @@ void NodeSlotAccelStructureInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "RTX_ACCEL_STRUCTURE")
 	{
-		auto endSlotPtr = vOtherSlot.getValidShared();
+		auto endSlotPtr = vOtherSlot.lock();
 		if (endSlotPtr)
 		{
-			auto parentNodePtr = dynamic_pointer_cast<AccelStructureInputInterface>(parentNode.getValidShared());
+			auto parentNodePtr = dynamic_pointer_cast<AccelStructureInputInterface>(parentNode.lock());
 			if (parentNodePtr)
 			{
-				auto otherAccelStructureNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				auto otherAccelStructureNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(endSlotPtr->parentNode.lock());
 				if (otherAccelStructureNodePtr)
 				{
 					parentNodePtr->SetAccelStructure(otherAccelStructureNodePtr->GetAccelStruct());
@@ -151,10 +159,10 @@ void NodeSlotAccelStructureInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "RTX_ACCEL_STRUCTURE")
 	{
-		auto endSlotPtr = vOtherSlot.getValidShared();
+		auto endSlotPtr = vOtherSlot.lock();
 		if (endSlotPtr)
 		{
-			auto parentNodePtr = dynamic_pointer_cast<AccelStructureInputInterface>(parentNode.getValidShared());
+			auto parentNodePtr = dynamic_pointer_cast<AccelStructureInputInterface>(parentNode.lock());
 			if (parentNodePtr)
 			{
 				parentNodePtr->SetAccelStructure(SceneAccelStructureWeak());
@@ -170,15 +178,15 @@ void NodeSlotAccelStructureInput::TreatNotification(
 {
 	if (vEvent == AccelStructureUpdateDone)
 	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.lock();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto parentAccelStructureInputNodePtr = dynamic_pointer_cast<AccelStructureInputInterface>(parentNode.getValidShared());
+				auto parentAccelStructureInputNodePtr = dynamic_pointer_cast<AccelStructureInputInterface>(parentNode.lock());
 				if (parentAccelStructureInputNodePtr)
 				{
-					auto otherNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+					auto otherNodePtr = dynamic_pointer_cast<AccelStructureOutputInterface>(emiterSlotPtr->parentNode.lock());
 					if (otherNodePtr)
 					{
 						parentAccelStructureInputNodePtr->SetAccelStructure(otherNodePtr->GetAccelStruct());

@@ -21,58 +21,57 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-#include <Headers/Globals.h>
+#include <LumoBackend/Headers/LumoBackendDefs.h>
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
-#include <Base/BaseRenderer.h>
-#include <Base/QuadShaderPass.h>
+#include <LumoBackend/Base/BaseRenderer.h>
+#include <LumoBackend/Base/QuadShaderPass.h>
 
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/Texture2D.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanDevice.h>
-#include <vkFramework/vk_mem_alloc.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/ImGuiTexture.h>
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanFrameBuffer.h>
+#include <Gaia/Resources/Texture2D.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Core/VulkanDevice.h>
+#include <Gaia/Core/vk_mem_alloc.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Gui/ImGuiTexture.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Resources/VulkanFrameBuffer.h>
 
-#include <Interfaces/GuiInterface.h>
-#include <Interfaces/TaskInterface.h>
-#include <Interfaces/NodeInterface.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/TaskInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <Interfaces/ParticlesOutputInterface.h>
 
 class MeshEmitterModule_Comp_Pass;
 class MeshEmitterModule :
 	public BaseRenderer,
-	public GuiInterface,
 	public TaskInterface,
 	public NodeInterface,
 	public ModelInputInterface,
 	public ParticlesOutputInterface
 {
 public:
-	static std::shared_ptr<MeshEmitterModule> Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<MeshEmitterModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
-	ct::cWeak<MeshEmitterModule> m_This;
+	std::weak_ptr<MeshEmitterModule> m_This;
 	std::shared_ptr<MeshEmitterModule_Comp_Pass> m_MeshEmitterModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	MeshEmitterModule(vkApi::VulkanCorePtr vVulkanCorePtr);
+	MeshEmitterModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~MeshEmitterModule() override;
 
 	bool Init();
 
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	SceneParticlesWeak GetParticles() override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

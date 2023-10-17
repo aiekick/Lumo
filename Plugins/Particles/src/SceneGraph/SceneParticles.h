@@ -19,13 +19,13 @@ limitations under the License.
 #include <vector>
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
-#include <vkFramework/VulkanRessource.h>
-#include <Utils/GpuOnlyStorageBuffer.h>
-#include <Utils/Mesh/VertexStruct.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Resources/GpuOnlyStorageBuffer.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 
 class SceneParticles;
 typedef std::shared_ptr<SceneParticles> SceneParticlesPtr;
-typedef ct::cWeak<SceneParticles> SceneParticlesWeak;
+typedef std::weak_ptr<SceneParticles> SceneParticlesWeak;
 
 /*
 the particles management is pretty simple
@@ -75,7 +75,7 @@ public:
 	};
 
 public:
-	static SceneParticlesPtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static SceneParticlesPtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	static std::string GetParticlesDatasBufferHeader(const uint32_t& vStartBindingPoint);
 	static std::string GetParticlesVertexInputBufferHeader();
 	static std::string GetAliveParticlesIndexBufferHeader(const uint32_t& vStartBindingPoint);
@@ -85,7 +85,7 @@ public:
 
 private:
 	SceneParticlesWeak m_This;
-	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 	vk::DescriptorBufferInfo m_EmptyDescriptorBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 	CounterStruct m_Counters;
@@ -97,7 +97,7 @@ private:
 	GpuOnlyStorageBufferPtr m_DrawArraysIndirectCommandBufferPtr = nullptr;
 
 public:
-	SceneParticles(vkApi::VulkanCorePtr vVulkanCorePtr);
+	SceneParticles(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~SceneParticles();
 
 	bool IsOk();

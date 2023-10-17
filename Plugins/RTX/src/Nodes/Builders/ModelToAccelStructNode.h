@@ -16,12 +16,12 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Graph.h>
+#include <LumoBackend/Graph/Graph.h>
 
 #include <ctools/cTools.h>
 
-#include <Graph/Base/BaseNode.h>
-#include <Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/ModelInputInterface.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
 
 class ModelToAccelStructModule;
@@ -31,7 +31,7 @@ class ModelToAccelStructNode :
 	public AccelStructureOutputInterface
 {
 public:
-	static std::shared_ptr<ModelToAccelStructNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ModelToAccelStructNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	SceneAccelStructurePtr m_SceneAccelStructurePtr = nullptr;
@@ -40,7 +40,7 @@ public:
 	ModelToAccelStructNode();
 	~ModelToAccelStructNode() override;
 
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;

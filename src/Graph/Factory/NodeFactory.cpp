@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "NodeFactory.h"
 
-//#include <Graph/Nodes/Output/Output3DNode.h>
-//#include <Graph/Nodes/Output/Output2DNode.h>
+//#include <LumoBackend/Graph/Nodes/Output/Output3DNode.h>
+//#include <LumoBackend/Graph/Nodes/Output/Output2DNode.h>
 
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType)
 {

@@ -19,27 +19,26 @@ limitations under the License.
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Base/FrameBuffer.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/Emitters/Pass/MeshEmitterModule_Comp_Pass.h>
 
-#include <Systems/RenderDocController.h>
+#include <LumoBackend/Helpers/RenderDocController.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MeshEmitterModule> MeshEmitterModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<MeshEmitterModule> MeshEmitterModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<MeshEmitterModule>(vVulkanCorePtr);
@@ -56,7 +55,7 @@ std::shared_ptr<MeshEmitterModule> MeshEmitterModule::Create(vkApi::VulkanCorePt
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshEmitterModule::MeshEmitterModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+MeshEmitterModule::MeshEmitterModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
@@ -120,9 +119,9 @@ bool MeshEmitterModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Com
 	return true;
 }
 
-bool MeshEmitterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MeshEmitterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	//if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -150,7 +149,7 @@ bool MeshEmitterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 
 			if (m_MeshEmitterModule_Comp_Pass_Ptr)
 			{
-				change |= m_MeshEmitterModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				change |= m_MeshEmitterModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 
 			if (change)
@@ -165,24 +164,27 @@ bool MeshEmitterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	return false;
 }
 
-void MeshEmitterModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool MeshEmitterModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+
+    return false;
 }
 
-void MeshEmitterModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+bool MeshEmitterModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+
+    return false;
 }
 
 void MeshEmitterModule::SetModel(SceneModelWeak vSceneModel)

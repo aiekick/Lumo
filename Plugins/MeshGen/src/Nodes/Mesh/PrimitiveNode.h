@@ -36,14 +36,14 @@ public:
 	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 
 	// Draw Widgets
-    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
     bool DrawOverlays(const uint32_t& vCurrentFrame,
         const ImRect& vRect,
-        ImGuiContext* vContext,
+        ImGuiContext* vContextPtr,
         const std::string& vUserDatas) override;
     bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
         const ImVec2& vMaxSize,
-        ImGuiContext* vContext,
+        ImGuiContext* vContextPtr,
         const std::string& vUserDatas) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 

@@ -176,7 +176,6 @@ private:
     void m_UpdateMouse();
     void m_UpdateCamera(const bool& vForce = false);
     void m_UpdateSound();
-    void m_UpdateMidi();
 
     void m_UpdateCameraAndMouse();
 

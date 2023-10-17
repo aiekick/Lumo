@@ -108,9 +108,9 @@ bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 //// IMGUI /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext, const std::string& vUserDatas)
+bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	ZoneScoped;
 
@@ -125,7 +125,7 @@ bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 		{
 			if (ImGui::CollapsingHeader(nodePtr->name.c_str()))
 			{
-				change |= nodePtr->DrawWidgets(vCurrentFrame, vContext, vUserDatas);
+				change |= nodePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 		}
 	}
@@ -133,9 +133,9 @@ bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 	return change;
 }
 
-bool NodeManager::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContext, const std::string& vUserDatas)
+bool NodeManager::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	bool change = false;
 
@@ -147,16 +147,16 @@ bool NodeManager::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRec
 		auto nodePtr = eff.second;
 		if (nodePtr)
 		{
-			change |= nodePtr->DrawOverlays(vCurrentFrame, vRect, vContext, vUserDatas);
+			change |= nodePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
 		}
 	}
 
 	return change;
 }
 
-bool NodeManager::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContext, const std::string& vUserDatas)
+bool NodeManager::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	bool change = false;
 
@@ -165,7 +165,7 @@ bool NodeManager::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVe
 		auto nodePtr = eff.second;
 		if (nodePtr)
 		{
-			change |= nodePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContext, vUserDatas);
+			change |= nodePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 		}
 	}
 

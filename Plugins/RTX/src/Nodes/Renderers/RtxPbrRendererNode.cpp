@@ -20,15 +20,23 @@ limitations under the License.
 #include "RtxPbrRendererNode.h"
 #include <Modules/Renderers/RtxPbrRendererModule.h>
 #include <Slots/NodeSlotAccelStructureInput.h>
-#include <Graph/Slots/NodeSlotLightGroupInput.h>
-#include <Graph/Slots/NodeSlotTextureInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<RtxPbrRendererNode> RtxPbrRendererNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RtxPbrRendererNode> RtxPbrRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -60,7 +68,7 @@ RtxPbrRendererNode::~RtxPbrRendererNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RtxPbrRendererNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool RtxPbrRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
@@ -108,34 +116,46 @@ bool RtxPbrRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RtxPbrRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool RtxPbrRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_RtxPbrRendererModulePtr)
 	{
-		res = m_RtxPbrRendererModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		res = m_RtxPbrRendererModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return res;
 }
 
-void RtxPbrRendererNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool RtxPbrRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr , const std::string& vUserDatas ) {
+    ZoneScoped;
+
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_RtxPbrRendererModulePtr) {
+        return m_RtxPbrRendererModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+    }
+    return false;
+}
+
+bool RtxPbrRendererNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_RtxPbrRendererModulePtr)
 	{
-		m_RtxPbrRendererModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		return m_RtxPbrRendererModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 	}
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

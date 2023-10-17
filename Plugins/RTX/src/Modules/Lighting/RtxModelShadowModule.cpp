@@ -17,27 +17,31 @@ limitations under the License.
 #include "RtxModelShadowModule.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <Modules/Lighting/Pass/ModelShadow_Rtx_Pass.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
-
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<RtxModelShadowModule> RtxModelShadowModule::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RtxModelShadowModule> RtxModelShadowModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
 	auto res = std::make_shared<RtxModelShadowModule>(vVulkanCorePtr);
@@ -53,7 +57,7 @@ std::shared_ptr<RtxModelShadowModule> RtxModelShadowModule::Create(vkApi::Vulkan
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RtxModelShadowModule::RtxModelShadowModule(vkApi::VulkanCorePtr vVulkanCorePtr)
+RtxModelShadowModule::RtxModelShadowModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
@@ -105,9 +109,9 @@ bool RtxModelShadowModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Com
 	return true;
 }
 
-bool RtxModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool RtxModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
@@ -115,7 +119,7 @@ bool RtxModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 		{
 			if (m_ModelShadow_Rtx_Pass_Ptr)
 			{
-				return m_ModelShadow_Rtx_Pass_Ptr->DrawWidgets(vCurrentFrame, vContext);
+				return m_ModelShadow_Rtx_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 		}
 	}
@@ -123,24 +127,25 @@ bool RtxModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	return false;
 }
 
-void RtxModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool RtxModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
-void RtxModelShadowModule::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+bool RtxModelShadowModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 
 	}
+    return false;
 }
 
 void RtxModelShadowModule::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)

@@ -16,11 +16,11 @@ limitations under the License.
 
 #pragma once
 
-#include <Graph/Graph.h>
-#include <Graph/Base/NodeSlotInput.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/NodeSlotInput.h>
 
 class NodeSlotAccelStructureInput;
-typedef ct::cWeak<NodeSlotAccelStructureInput> NodeSlotAccelStructureInputWeak;
+typedef std::weak_ptr<NodeSlotAccelStructureInput> NodeSlotAccelStructureInputWeak;
 typedef std::shared_ptr<NodeSlotAccelStructureInput> NodeSlotAccelStructureInputPtr;
 
 class NodeSlotAccelStructureInput : 

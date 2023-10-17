@@ -17,20 +17,26 @@ limitations under the License.
 #include "ModelShadow_Rtx_Pass.h"
 
 #include <functional>
-#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <vkFramework/VulkanCommandBuffer.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <Gaia/Core/VulkanCommandBuffer.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
@@ -38,7 +44,7 @@ using namespace vkApi;
 
 #define RTX_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.6f, 0.2f, 0.9f, 0.5f)
 
-ModelShadow_Rtx_Pass::ModelShadow_Rtx_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+ModelShadow_Rtx_Pass::ModelShadow_Rtx_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: RtxShaderPass(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -66,11 +72,11 @@ void ModelShadow_Rtx_Pass::ActionBeforeCompilation()
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR, "main"), "main");
 }
 
-bool ModelShadow_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool ModelShadow_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	bool change = false;
 
@@ -94,19 +100,17 @@ bool ModelShadow_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	return false;
 }
 
-void ModelShadow_Rtx_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
+bool ModelShadow_Rtx_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
-
-	assert(vContext); ImGui::SetCurrentContext(vContext);
-
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+    return false;
 }
 
-void ModelShadow_Rtx_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
-{
+bool ModelShadow_Rtx_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
-
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    return false;
 
 }
 
@@ -144,7 +148,7 @@ void ModelShadow_Rtx_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 
 	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
-	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	auto lightGroupPtr = m_SceneLightGroup.lock();
 	if (lightGroupPtr &&
 		lightGroupPtr->GetBufferInfo())
 	{
@@ -257,7 +261,7 @@ bool ModelShadow_Rtx_Pass::CanUpdateDescriptors()
 
 	if (!m_SceneAccelStructure.expired())
 	{
-		auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+		auto accelStructurePtr = m_SceneAccelStructure.lock();
 		if (accelStructurePtr)
 		{
 			return accelStructurePtr->IsOk();
@@ -289,7 +293,7 @@ bool ModelShadow_Rtx_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	bool res = false;
 
-	auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+	auto accelStructurePtr = m_SceneAccelStructure.lock();
 	if (accelStructurePtr && 
 		accelStructurePtr->GetTLASInfo() && 
 		accelStructurePtr->GetBufferAddressInfo())

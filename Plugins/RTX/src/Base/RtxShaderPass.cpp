@@ -19,28 +19,36 @@ limitations under the License.
 
 #include "RtxShaderPass.h"
 
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/VulkanCommandBuffer.h>
-#include <glm/gtc/type_ptr.hpp>
-#include <vulkan/vulkan.hpp>
 #include <map>
+#include <glm/gtc/type_ptr.hpp>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Core/VulkanCommandBuffer.h>
+#include <Gaia/gaia.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
-RtxShaderPass::RtxShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+RtxShaderPass::RtxShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr, GenericType::RTX)
 {
-	auto devPtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+	auto devPtr = m_VulkanCorePtr->getFrameworkDevice().lock();
 	if (devPtr)
 	{
 		m_RayTracingPipelineProperties = devPtr->m_RayTracingDeviceProperties;
 	}
 }
 
-RtxShaderPass::RtxShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
+RtxShaderPass::RtxShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
 	: ShaderPass(vVulkanCorePtr, GenericType::RTX, vCommandPool, vDescriptorPool)
 {
-	auto devPtr = m_VulkanCorePtr->getFrameworkDevice().getValidShared();
+	auto devPtr = m_VulkanCorePtr->getFrameworkDevice().lock();
 	if (devPtr)
 	{
 		m_RayTracingPipelineProperties = devPtr->m_RayTracingDeviceProperties;
@@ -128,7 +136,7 @@ bool RtxShaderPass::CreateRtxPipeline()
 				if (shader.m_Used)
 				{
 					shader.m_ShaderModule =
-						vkApi::VulkanCore::sVulkanShader->CreateShaderModule(
+						GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
 							(vk::Device)m_Device, shader.m_SPIRV);
 
 					if (shader.m_ShaderModule)
@@ -211,7 +219,7 @@ bool RtxShaderPass::CreateRtxPipeline()
 				if (shader.m_Used &&
 					shader.m_ShaderModule)
 				{
-					vkApi::VulkanCore::sVulkanShader->DestroyShaderModule(
+					GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule(
 						(vk::Device)m_Device, shader.m_ShaderModule);
 				}
 			}
@@ -297,18 +305,17 @@ bool RtxShaderPass::CreateShaderBindingTable()
 					if (vBufferPtr)
 					{
 						void* mapped_dst = nullptr;
-						VulkanCore::check_error(vmaMapMemory(vkApi::VulkanCore::sAllocator, vBufferPtr->alloc_meta, &mapped_dst));
+                        if (vBufferPtr->MapMemory(&mapped_dst)) {
+                            auto* pBuffer = static_cast<uint8_t*>(mapped_dst);
+                            for (uint32_t index = 0; index < static_cast<uint32_t>(indices.size()); index++) {
+                                auto* pStart = pBuffer;
+                                // Copy the handle
+                                memcpy(pBuffer, shader_handle_storage.data() + (indices[(size_t)index] * handle_size), handle_size);
+                                pBuffer = pStart + stride;  // Jumping to next group
+                            }
 
-						auto* pBuffer = static_cast<uint8_t*>(mapped_dst);
-						for (uint32_t index = 0; index < static_cast<uint32_t>(indices.size()); index++)
-						{
-							auto* pStart = pBuffer;
-							// Copy the handle
-							memcpy(pBuffer, shader_handle_storage.data() + (indices[(size_t)index] * handle_size), handle_size);
-							pBuffer = pStart + stride;        // Jumping to next group
-						}
-
-						vmaUnmapMemory(vkApi::VulkanCore::sAllocator, vBufferPtr->alloc_meta);
+                            vBufferPtr->UnmapMemory();
+                        }
 					}
 				};
 

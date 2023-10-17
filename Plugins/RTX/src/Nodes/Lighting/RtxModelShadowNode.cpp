@@ -16,13 +16,21 @@ limitations under the License.
 
 #include "RtxModelShadowNode.h"
 #include <Modules/Lighting/RtxModelShadowModule.h>
-#include <Interfaces/LightGroupOutputInterface.h>
+#include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
 #include <Interfaces/AccelStructureOutputInterface.h>
 #include <Slots/NodeSlotAccelStructureInput.h>
-#include <Graph/Slots/NodeSlotLightGroupInput.h>
-#include <Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
-std::shared_ptr<RtxModelShadowNode> RtxModelShadowNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<RtxModelShadowNode> RtxModelShadowNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<RtxModelShadowNode>();
 	res->m_This = res;
@@ -43,7 +51,7 @@ RtxModelShadowNode::~RtxModelShadowNode()
 	Unit();
 }
 
-bool RtxModelShadowNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool RtxModelShadowNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Rtx Model Shadow";
 
@@ -79,26 +87,39 @@ bool RtxModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 	return false;
 }
 
-bool RtxModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool RtxModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_RtxModelShadowModulePtr)
 	{
-		return m_RtxModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContext);
+		return m_RtxModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return false;
 }
 
-void RtxModelShadowNode::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool RtxModelShadowNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_RtxModelShadowModulePtr) {
+        return m_RtxModelShadowModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+    }
+    return false;
+}
+
+bool RtxModelShadowNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	if (m_RtxModelShadowModulePtr)
 	{
-		m_RtxModelShadowModulePtr->DisplayDialogsAndPopups(vCurrentFrame, vMaxSize, vContext);
+		return m_RtxModelShadowModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 	}
+    return false;
 }
 
 void RtxModelShadowNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)

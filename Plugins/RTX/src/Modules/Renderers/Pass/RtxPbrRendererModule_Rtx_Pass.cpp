@@ -21,25 +21,31 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-#include <Gui/MainFrame.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
-#include <Base/FrameBuffer.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
+#include <Gaia/Buffer/FrameBuffer.h>
 
-using namespace vkApi;
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RtxPbrRendererModule_Rtx_Pass::RtxPbrRendererModule_Rtx_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+RtxPbrRendererModule_Rtx_Pass::RtxPbrRendererModule_Rtx_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: RtxShaderPass(vVulkanCorePtr)
 {
 	ZoneScoped;
@@ -75,12 +81,12 @@ void RtxPbrRendererModule_Rtx_Pass::ActionBeforeInit()
 	}
 }
 
-bool RtxPbrRendererModule_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool RtxPbrRendererModule_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
 
 	bool change = false;
 
@@ -101,20 +107,22 @@ bool RtxPbrRendererModule_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 	return change;
 }
 
-void RtxPbrRendererModule_Rtx_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
+bool RtxPbrRendererModule_Rtx_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+    return false;
 }
 
-void RtxPbrRendererModule_Rtx_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool RtxPbrRendererModule_Rtx_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
-	assert(vContext); 
-	ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +150,7 @@ void RtxPbrRendererModule_Rtx_Pass::SetLightGroup(SceneLightGroupWeak vSceneLigh
 
 	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
-	auto lightGroupPtr = m_SceneLightGroup.getValidShared();
+	auto lightGroupPtr = m_SceneLightGroup.lock();
 	if (lightGroupPtr && 
 		lightGroupPtr->GetBufferInfo())
 	{
@@ -258,7 +266,7 @@ bool RtxPbrRendererModule_Rtx_Pass::CanUpdateDescriptors()
 
 	if (!m_SceneAccelStructure.expired())
 	{
-		auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+		auto accelStructurePtr = m_SceneAccelStructure.lock();
 		if (accelStructurePtr)
 		{
 			return accelStructurePtr->IsOk();
@@ -297,7 +305,7 @@ bool RtxPbrRendererModule_Rtx_Pass::UpdateBufferInfoInRessourceDescriptor()
 	{
 		res = false;
 
-		auto accelStructurePtr = m_SceneAccelStructure.getValidShared();
+		auto accelStructurePtr = m_SceneAccelStructure.lock();
 		if (accelStructurePtr &&
 			accelStructurePtr->GetTLASInfo() &&
 			accelStructurePtr->GetBufferAddressInfo())

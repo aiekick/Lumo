@@ -16,7 +16,7 @@ limitations under the License.
 
 #pragma once
 
-#include <Base/ShaderPass.h>
+#include <LumoBackend/Base/ShaderPass.h>
 
 /*
 	https://www.gsn-lib.org/docs/nodes/raytracing.php
@@ -72,8 +72,8 @@ protected:
 	vk::StridedDeviceAddressRegionKHR m_CallableShaderSbtEntry = {};
 
 public:
-	RtxShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr);
-	RtxShaderPass(vkApi::VulkanCorePtr vVulkanCorePtr,
+	RtxShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	RtxShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
 protected:

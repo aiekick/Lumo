@@ -16,10 +16,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <Interfaces/PluginInterface.h>
+#include <LumoBackend/Interfaces/PluginInterface.h>
 
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/vk_mem_alloc.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Core/vk_mem_alloc.h>
 
 class RTX : public PluginInterface
 {

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Interfaces/PluginInterface.h>
+#include <LumoBackend/Interfaces/PluginInterface.h>
 
-#include <vkFramework/VulkanRessource.h>
-#include <vkFramework/vk_mem_alloc.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <Gaia/Core/vk_mem_alloc.h>
 
 
 class Particles : public PluginInterface
@@ -20,5 +20,6 @@ public:
 	std::vector<std::string> GetNodes() const override;
 	std::vector<LibraryEntry> GetLibrary() const override;
 	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName) override;
-	int ResetImGuiID(const int& vWidgetId) override;
+    std::vector<PluginPane> GetPanes() const override;
+    int ResetImGuiID(const int& vWidgetId) override;
 };

@@ -19,13 +19,12 @@ limitations under the License.
 #include "RTX.h"
 #include <Headers/RTXBuild.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Graph/Base/BaseNode.h>
-#include <Systems/CommonSystem.h>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanWindow.h>
-#include <Graph/Base/NodeSlot.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <LumoBackend/Graph/Base/NodeSlot.h>
 
 #include <Nodes/Renderers/RtxPbrRendererNode.h>
 #include <Nodes/Lighting/RtxModelShadowNode.h>
@@ -63,7 +62,7 @@ RTX::RTX()
 
 bool RTX::AuthorizeLoading()
 {
-	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
+	auto vkCorePtr = m_VulkanCoreWeak.lock();
 	return (vkCorePtr && vkCorePtr->GetSupportedFeatures().is_RTX_Supported); // autohrisation to load if RTX Feature available
 }
 
@@ -99,7 +98,7 @@ std::string RTX::GetVersion() const
 
 std::string RTX::GetDescription() const
 {
-	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
+	auto vkCorePtr = m_VulkanCoreWeak.lock();
 	if (!vkCorePtr->GetSupportedFeatures().is_RTX_Supported)
 	{
 		return "Err : the RTX Features are not availables";
@@ -131,7 +130,7 @@ std::vector<LibraryEntry> RTX::GetLibrary() const
 
 BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
 {
-	auto vkCorePtr = m_VulkanCoreWeak.getValidShared();
+	auto vkCorePtr = m_VulkanCoreWeak.lock();
 
 	if (vPluginNodeName == "RTX_MODEL_SHADOW")
 		return RtxModelShadowNode::Create(vkCorePtr);
@@ -150,9 +149,8 @@ std::vector<PluginPane> RTX::GetPanes() const
 	return res;
 }
 
-int RTX::ResetImGuiID(const int& vWidgetId)
-{
-	auto ids = ImGui::CustomStyle::Instance()->pushId;
-	ImGui::CustomStyle::Instance()->pushId = vWidgetId;
-	return ids;
+int RTX::ResetImGuiID(const int& vWidgetId) {
+    auto ids = ImGui::GetPUSHID();
+    ImGui::SetPUSHID(vWidgetId);
+    return ids;
 }

@@ -19,22 +19,22 @@ limitations under the License.
 #include <vector>
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
-#include <vkFramework/VulkanRessource.h>
-#include <SceneGraph/SceneModel.h>
+#include <Gaia/Resources/VulkanRessource.h>
+#include <LumoBackend/SceneGraph/SceneModel.h>
 
 class SceneAccelStructure;
 typedef std::shared_ptr<SceneAccelStructure> SceneAccelStructurePtr;
-typedef ct::cWeak<SceneAccelStructure> SceneAccelStructureWeak;
+typedef std::weak_ptr<SceneAccelStructure> SceneAccelStructureWeak;
 
 class SceneAccelStructure
 {
 public:
-	static SceneAccelStructurePtr Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static SceneAccelStructurePtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	SceneAccelStructureWeak m_This;
 	vk::Device m_Device = nullptr;
-	vkApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 	std::vector<VulkanAccelStructObjectPtr> m_AccelStructure_Bottom_Ptrs;
 	VulkanAccelStructObjectPtr m_AccelStructure_Top_Ptr = nullptr;
 	vk::WriteDescriptorSetAccelerationStructureKHR m_AccelStructureTopDescriptorInfo;
@@ -44,7 +44,7 @@ private:
 	bool m_SuccessfullyBuilt = false;
 
 public:
-	SceneAccelStructure(vkApi::VulkanCorePtr vVulkanCorePtr);
+	SceneAccelStructure(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	~SceneAccelStructure();
 	void Clear();
 	bool BuildForModel(SceneModelWeak vSceneModelWeak);

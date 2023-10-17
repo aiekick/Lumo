@@ -6,9 +6,9 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(USE_PLUGIN_PARTICLES "Enable the plugin Particles" OFF)
+option(USE_PLUGIN_PARTICLES_SIM "Enable the plugin ${PROJECT}" OFF)
 
-if (USE_PLUGIN_PARTICLES)
+if (USE_PLUGIN_MESH_SIM)
 
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MD CACHE STRING "" FORCE)
@@ -29,24 +29,30 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
 
-## include(cmake/3rdparty.cmake)
+#include(cmake/3rdparty.cmake)
 
 if (uninstall)
 	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 endif()
 
-find_package(Vulkan REQUIRED)
-
 ## other define
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
-add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="../../../src/Gui/CustomImGuiFileDialogConfig.h")
-add_definitions(-DUSE_IMGUI="../imgui/imgui.h")
+add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomLumoBackendConfig.h")
+add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
+add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
+add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
 add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
 add_definitions(-DUSE_VULKAN)
+
+add_definitions(-DUSE_IM_TOOLS)
+add_definitions(-DUSE_IM_GUIZMO)
+add_definitions(-DUSE_IMCOOL_BAR)
+add_definitions(-DUSE_IMGUI_MARKDOW)
+add_definitions(-DUSE_IMGUI_FILE_DIALOG)
+add_definitions(-DUSE_IMGUI_NODE_EDITOR)
 
 if(UNIX)
     add_definitions(-DUNIX)
@@ -90,18 +96,10 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${CMAKE_R
 
 set(ENABLE_EXPORTS ON CACHE STRING "" FORCE)
 
-set(LINKING_TYPE MODULE)
-if (USE_PLUGIN_STATIC_LINKING)
-	set(LINKING_TYPE STATIC)
-	add_definitions(-DUSE_PLUGIN_STATIC_LINKING)
-endif()
-
-add_library(${PROJECT} ${LINKING_TYPE}
+add_library(${PROJECT} MODULE
 	${CMAKE_RECURSE}
 	${SHADER_SOURCES}
-	${IMGUIIMPL_SOURCES}
 	${PROJECT_SRC_RECURSE}
-	${IMGUI_FREETYPE_SOURCES}
 	${PROJECT_SHADERS_RECURSE}
 )
 
@@ -113,58 +111,38 @@ endif()
 
 ## set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}")
+target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
+if(USE_DEBUG_SANITIZER)
+	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	target_link_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	message("Address Sanitizer enabled for projet ${PROJECT}")
+endif()
+
+set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
+set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
+set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
+set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
 
-message("BACKEND_INCLUDE_DIRS : ${Vulkan_INCLUDE_DIRS}")
-message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
+install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
-set(CMAKE_INSTALL_PREFIX ${FINAL_BIN_DIR}/plugins)
-install(TARGETS ${PROJECT} DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT ${PROJECT}_PLUGINS)
-
-target_include_directories(${PROJECT} PRIVATE
-	src
-	${CMAKE_SOURCE_DIR}/libs/Common/src
-	${CMAKE_SOURCE_DIR}/libs
-	${CMAKE_SOURCE_DIR}/3rdparty
-	${CMAKE_SOURCE_DIR}/3rdparty/glm
-	${CMAKE_SOURCE_DIR}/3rdparty/glslang
-	${CMAKE_SOURCE_DIR}/3rdparty/assimp/include
-	${EFSW_INCLUDE_DIR}
-	${GLFW_INCLUDE_DIR}
-	${PLOG_INCLUDE_DIR}
-	${IMGUI_INCLUDE_DIR}
-	${Vulkan_INCLUDE_DIRS}
-	${TINYXML2_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIR}
-	${IMGUIFILEDIALOG_INCLUDE_DIR}
-	${COMMON_INCLUDE_DIR}
+include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
+	${LUMO_BACKEND_INCLUDE_DIRS}
 )
 
-target_link_libraries(${PROJECT} PRIVATE
-	${GLFW_LIBRARIES}
-	${EFSW_LIBRARIES}
-	${IMGUI_LIBRARIES}
-	${ASSIMP_LIBRARIES}
-	${CTOOLS_LIBRARIES}
-	${CPPIPC_LIBRARIES}
-	${LODEPNG_LIBRARIES}
-	${GLSLANG_LIBRARIES}
-	${LFWATCH_LIBRARIES}
-	${IMGUIZMO_LIBRARIES}
-	${TINYXML2_LIBRARIES}
-	${FREETYPE_LIBRARIES}
-	${FONTICONS_LIBRARIES}
-	${IMWIDGETS_LIBRARIES}
-	${VKFRAMEWORK_LIBRARIES}
-	${INTERFACEBLOCK_LIBRARIES}
-	${IMGUIFILEDIALOG_LIBRARIES}
-	${IMGUI_NODE_EDITOR_LIBRARIES}
-	${IMGUICOLORTEXTEDIT_LIBRARIES}
-	${COMMON_LIBRARIES}
+target_link_libraries(${PROJECT}
+	${LUMO_BACKEND_LIBRARIES}
 )
 
 # add plugin name in parent LOADED_LUMO_PLUGINS list
@@ -177,8 +155,12 @@ set(LOADED_LUMO_PLUGINS ${LOADED_LUMO_PLUGINS} ${PROJECT} PARENT_SCOPE)
 ## only for Debug
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=Particles 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/ParticlesBuild.h>
+	COMMAND BuildInc -prefix=${PROJECT} 1000000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
 	DEPENDS ${PROJECT}
 )
 
-endif() #USE_PLUGIN_PARTICLES
+########################################################
+########################################################
+########################################################
+
+endif() #USE_PLUGIN_MESH_SIM

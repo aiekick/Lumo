@@ -35,24 +35,24 @@ if (uninstall)
 	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 endif()
 
-find_package(Vulkan REQUIRED)
-
-## Vulkan HPP, default dispatcher
-add_definitions(-DVULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
-
-## for prevent cast issues betwwen vk:: and VK if compiling a 32 bits version
-add_definitions(-DVULKAN_HPP_TYPESAFE_CONVERSION=1) 
-
 ## other define
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
-add_definitions(-DIMGUI_DISABLE_OBSOLETE_FUNCTIONS)
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="../../../src/Gui/CustomImGuiFileDialogConfig.h")
-add_definitions(-DUSE_IMGUI="../imgui/imgui.h")
+add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomLumoBackendConfig.h")
+add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
+add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
+add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
 add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
 add_definitions(-DUSE_VULKAN)
+
+add_definitions(-DUSE_IM_TOOLS)
+add_definitions(-DUSE_IM_GUIZMO)
+add_definitions(-DUSE_IMCOOL_BAR)
+add_definitions(-DUSE_IMGUI_MARKDOW)
+add_definitions(-DUSE_IMGUI_FILE_DIALOG)
+add_definitions(-DUSE_IMGUI_NODE_EDITOR)
 
 if(UNIX)
     add_definitions(-DUNIX)
@@ -117,48 +117,42 @@ else()
 	set(ARCH x32)
 endif()
 
-## set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}_${ARCH}")
-set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}")
+target_compile_definitions(${PROJECT} PRIVATE VULKAN)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
+target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE VULKAN_HPP_STORAGE_SHARED)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE VULKAN_HPP_TYPESAFE_CONVERSION=1) 
+target_compile_definitions(${PROJECT} PRIVATE VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
+if(USE_DEBUG_SANITIZER)
+	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	target_link_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
+	message("Address Sanitizer enabled for projet ${PROJECT}")
+endif()
+
+set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
+set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
+set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
+set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")
 set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
+set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
 
-message("BACKEND_INCLUDE_DIRS : ${Vulkan_INCLUDE_DIRS}")
-message("BACKEND_LIBRARIES : ${Vulkan_LIBRARIES}")
-
-set(CMAKE_INSTALL_PREFIX ${FINAL_BIN_DIR}/plugins)
-install(TARGETS ${PROJECT} DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT ${PROJECT}_PLUGINS)
+install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
 include_directories(
-	src
-	${CMAKE_SOURCE_DIR}/src
-	${CMAKE_SOURCE_DIR}/libs/Common/src
-	${CMAKE_SOURCE_DIR}/libs
-	${CMAKE_SOURCE_DIR}/3rdparty
-	${CMAKE_SOURCE_DIR}/3rdparty/glm
-	${CMAKE_SOURCE_DIR}/3rdparty/glslang
-	${CMAKE_SOURCE_DIR}/3rdparty/assimp/include
-	${EFSW_INCLUDE_DIR}
-	${GLFW_INCLUDE_DIR}
-	${PLOG_INCLUDE_DIR}
-	${IMGUI_INCLUDE_DIR}
-	${ASSIMP_INCLUDE_DIR}
-	${OPENGL_INCLUDE_DIR}
-	${CPPIPC_INCLUDE_DIR}
-	${LFWATCH_INCLUDE_DIR}
-	${Vulkan_INCLUDE_DIRS}
-	${TINYXML2_INCLUDE_DIR}
-	${FREETYPE_INCLUDE_DIR}
-	${IMGUIZMO_INCLUDE_DIR}
-	${IMGUIFILEDIALOG_INCLUDE_DIR}
-	${IMGUI_NODE_EDITOR_INCLUDE_DIR}
-	${COMMON_INCLUDE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/src
+	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
+	${LUMO_BACKEND_INCLUDE_DIRS}
 )
 
-target_link_libraries(${PROJECT} PRIVATE
-	${COMMON_LIBRARIES}
+target_link_libraries(${PROJECT}
+	${LUMO_BACKEND_LIBRARIES}
 )
 
 # add plugin name in parent LOADED_LUMO_PLUGINS list
@@ -171,7 +165,7 @@ set(LOADED_LUMO_PLUGINS ${LOADED_LUMO_PLUGINS} ${PROJECT} PARENT_SCOPE)
 ## only for Debug
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=RTX 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/RTXBuild.h>
+	COMMAND BuildInc -prefix=${PROJECT} 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
 	DEPENDS ${PROJECT}
 )
 

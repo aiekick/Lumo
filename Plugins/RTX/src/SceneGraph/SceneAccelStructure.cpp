@@ -18,15 +18,26 @@ limitations under the License.
 */
 
 #include <SceneGraph/SceneAccelStructure.h>
-#include <vkFramework/VulkanCommandBuffer.h>
+
 #include <glm/gtc/type_ptr.hpp>
-using namespace vkApi;
+#include <Gaia/Core/VulkanCommandBuffer.h>
+#include <LumoBackend/SceneGraph/SceneMesh.hpp>
+
+using namespace GaiApi;
+
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneAccelStructurePtr SceneAccelStructure::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+SceneAccelStructurePtr SceneAccelStructure::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (vVulkanCorePtr && vVulkanCorePtr->getDevice())
 	{
@@ -41,7 +52,7 @@ SceneAccelStructurePtr SceneAccelStructure::Create(vkApi::VulkanCorePtr vVulkanC
 //// PUBLIC : BUILD / CLEAR //////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneAccelStructure::SceneAccelStructure(vkApi::VulkanCorePtr vVulkanCorePtr)
+SceneAccelStructure::SceneAccelStructure(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: m_VulkanCorePtr(vVulkanCorePtr), m_Device(vVulkanCorePtr->getDevice())
 {
 
@@ -58,11 +69,11 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 
 	m_ModelAdressesBufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
 
-	auto modelPtr = vSceneModelWeak.getValidShared();
+	auto modelPtr = vSceneModelWeak.lock();
 	if (modelPtr &&
 		!modelPtr->empty())
 	{
-		std::vector<SceneMesh::SceneMeshBuffers> modelBufferAddresses;
+		std::vector<SceneMeshBuffers> modelBufferAddresses;
 
 		m_SuccessfullyBuilt = true;
 
@@ -70,7 +81,7 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 		{
 			if (meshPtr)
 			{
-				SceneMesh::SceneMeshBuffers buffer;
+                SceneMeshBuffers buffer;
 				buffer.vertices_address = meshPtr->GetVerticesDeviceAddress();
 				buffer.indices_address = meshPtr->GetIndiceDeviceAddress();
 				modelBufferAddresses.push_back(buffer);
@@ -84,7 +95,7 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak)
 		{
 			vk::BufferUsageFlags bufferUsageFlags = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
-			auto sizeInBytes = modelPtr->size() * sizeof(SceneMesh::SceneMeshBuffers);
+			auto sizeInBytes = modelPtr->size() * sizeof(SceneMeshBuffers);
 			m_ModelAdressesPtr = VulkanRessource::createStorageBufferObject(
 				m_VulkanCorePtr, sizeInBytes,
 				bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
@@ -148,7 +159,7 @@ vk::DescriptorBufferInfo* SceneAccelStructure::GetBufferAddressInfo()
 // will convert model in accel struct
 bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(const SceneMeshWeak& vMesh)
 {
-	auto meshPtr = vMesh.getValidShared();
+	auto meshPtr = vMesh.lock();
 	if (meshPtr)
 	{
 		auto buffer_usage_flags =

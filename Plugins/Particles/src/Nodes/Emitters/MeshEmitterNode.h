@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include <Graph/Graph.h>
-#include <Graph/Base/BaseNode.h>
-#include <Interfaces/ModelInputInterface.h>
-#include <Interfaces/ShaderUpdateInterface.h>
+#include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 #include <Interfaces/ParticlesOutputInterface.h>
 
 class MeshEmitterModule;
@@ -28,7 +28,7 @@ class MeshEmitterNode :
 	public ParticlesOutputInterface
 {
 public:
-	static std::shared_ptr<MeshEmitterNode> Create(vkApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<MeshEmitterNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	std::shared_ptr<MeshEmitterModule> m_MeshEmitterModulePtr = nullptr;
@@ -36,10 +36,11 @@ private:
 public:
 	MeshEmitterNode();
 	~MeshEmitterNode() override;
-	bool Init(vkApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext = nullptr) override;
-	void DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext = nullptr) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	SceneParticlesWeak GetParticles() override;

@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "NodeSlotParticlesInput.h"
 #include <Headers/ParticlesCommon.h>
-#include <Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <Interfaces/ParticlesInputInterface.h>
 #include <Interfaces/ParticlesOutputInterface.h>
 
@@ -119,7 +119,7 @@ void NodeSlotParticlesInput::Unit()
 					auto graphPtr = graph.lock();
 					if (graphPtr)
 					{
-						graphPtr->DisConnectSlot(m_This);
+						graphPtr->BreakAllLinksConnectedToSlot(m_This);
 					}
 				}
 			}
@@ -131,13 +131,13 @@ void NodeSlotParticlesInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "PARTICLES")
 	{
-		auto endSlotPtr = vOtherSlot.getValidShared();
+		auto endSlotPtr = vOtherSlot.lock();
 		if (endSlotPtr)
 		{
-			auto parentNodePtr = dynamic_pointer_cast<ParticlesInputInterface>(parentNode.getValidShared());
+			auto parentNodePtr = dynamic_pointer_cast<ParticlesInputInterface>(parentNode.lock());
 			if (parentNodePtr)
 			{
-				auto otherParticlesNodePtr = dynamic_pointer_cast<ParticlesOutputInterface>(endSlotPtr->parentNode.getValidShared());
+				auto otherParticlesNodePtr = dynamic_pointer_cast<ParticlesOutputInterface>(endSlotPtr->parentNode.lock());
 				if (otherParticlesNodePtr)
 				{
 					parentNodePtr->SetParticles(otherParticlesNodePtr->GetParticles());
@@ -151,10 +151,10 @@ void NodeSlotParticlesInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
 {
 	if (slotType == "PARTICLES")
 	{
-		auto endSlotPtr = vOtherSlot.getValidShared();
+		auto endSlotPtr = vOtherSlot.lock();
 		if (endSlotPtr)
 		{
-			auto parentNodePtr = dynamic_pointer_cast<ParticlesInputInterface>(parentNode.getValidShared());
+			auto parentNodePtr = dynamic_pointer_cast<ParticlesInputInterface>(parentNode.lock());
 			if (parentNodePtr)
 			{
 				parentNodePtr->SetParticles(SceneParticlesWeak());
@@ -170,15 +170,15 @@ void NodeSlotParticlesInput::TreatNotification(
 {
 	if (vEvent == ParticlesUpdateDone)
 	{
-		auto emiterSlotPtr = vEmitterSlot.getValidShared();
+		auto emiterSlotPtr = vEmitterSlot.lock();
 		if (emiterSlotPtr)
 		{
 			if (emiterSlotPtr->IsAnOutput())
 			{
-				auto parentParticlesInputNodePtr = dynamic_pointer_cast<ParticlesInputInterface>(parentNode.getValidShared());
+				auto parentParticlesInputNodePtr = dynamic_pointer_cast<ParticlesInputInterface>(parentNode.lock());
 				if (parentParticlesInputNodePtr)
 				{
-					auto otherNodePtr = dynamic_pointer_cast<ParticlesOutputInterface>(emiterSlotPtr->parentNode.getValidShared());
+					auto otherNodePtr = dynamic_pointer_cast<ParticlesOutputInterface>(emiterSlotPtr->parentNode.lock());
 					if (otherNodePtr)
 					{
 						parentParticlesInputNodePtr->SetParticles(otherNodePtr->GetParticles());

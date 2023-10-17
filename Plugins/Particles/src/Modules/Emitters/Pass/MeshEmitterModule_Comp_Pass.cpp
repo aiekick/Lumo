@@ -20,24 +20,23 @@ limitations under the License.
 #include <functional>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
-#include <Systems/CommonSystem.h>
-#include <Profiler/vkProfiler.hpp>
-#include <vkFramework/VulkanCore.h>
-#include <vkFramework/VulkanShader.h>
-#include <vkFramework/VulkanSubmitter.h>
-#include <utils/Mesh/VertexStruct.h>
+#include <ImGuiPack.h>
+#include <LumoBackend/Systems/CommonSystem.h>
+#include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Shader/VulkanShader.h>
+#include <Gaia/Core/VulkanSubmitter.h>
+#include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <cinttypes>
-#include <Base/FrameBuffer.h>
-#include <Graph/Base/BaseNode.h>
+#include <Gaia/Buffer/FrameBuffer.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
 
-using namespace vkApi;
+using namespace GaiApi;
 
 //////////////////////////////////////////////////////////////
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshEmitterModule_Comp_Pass::MeshEmitterModule_Comp_Pass(vkApi::VulkanCorePtr vVulkanCorePtr)
+MeshEmitterModule_Comp_Pass::MeshEmitterModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Comp Pass : Particles Simulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
@@ -69,9 +68,9 @@ void MeshEmitterModule_Comp_Pass::ActionAfterInitSucceed()
 	m_PushConstants.delta_time = ct::GetTimeInterval();
 }
 
-bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext)
+bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
 	bool change_ubo = false;
 	bool model_ubo = false;
@@ -131,14 +130,17 @@ bool MeshEmitterModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 	return change_ubo || model_ubo;
 }
 
-void MeshEmitterModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ct::frect& vRect, ImGuiContext* vContext)
-{
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+bool MeshEmitterModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    return false;
 }
 
-void MeshEmitterModule_Comp_Pass::DisplayDialogsAndPopups(const uint32_t& vCurrentFrame, const ct::ivec2& vMaxSize, ImGuiContext* vContext)
+bool MeshEmitterModule_Comp_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	assert(vContext); ImGui::SetCurrentContext(vContext);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    return false;
 }
 
 void MeshEmitterModule_Comp_Pass::SetModel(SceneModelWeak vSceneModel)
@@ -147,7 +149,7 @@ void MeshEmitterModule_Comp_Pass::SetModel(SceneModelWeak vSceneModel)
 
 	m_SceneModel = vSceneModel;
 
-	auto modelPtr = m_SceneModel.getValidShared();
+	auto modelPtr = m_SceneModel.lock();
 	if (modelPtr && !modelPtr->empty())
 	{
 		// only take the first mesh
@@ -242,7 +244,7 @@ bool MeshEmitterModule_Comp_Pass::BuildModel()
 	{
 		m_ParticlesPtr->DestroyBuffers();
 
-		auto meshPtr = m_InputMesh.getValidShared();
+		auto meshPtr = m_InputMesh.lock();
 		if (meshPtr)
 		{
 			m_UBOComp.current_vertexs_count = meshPtr->GetVerticesCount();
@@ -252,7 +254,7 @@ bool MeshEmitterModule_Comp_Pass::BuildModel()
 			{
 				SetDispatchSize1D(m_UBOComp.current_vertexs_count);
 
-				auto parentNodePtr = GetParentNode().getValidShared();
+				auto parentNodePtr = GetParentNode().lock();
 				if (parentNodePtr)
 				{
 					parentNodePtr->SendFrontNotification(ParticlesUpdateDone);
@@ -328,7 +330,7 @@ bool MeshEmitterModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 	m_DescriptorSets[0].m_WriteDescriptorSets.clear();
 
 	// Mesh vertexs
-	auto inputMeshPtr = m_InputMesh.getValidShared();
+	auto inputMeshPtr = m_InputMesh.lock();
 	if (inputMeshPtr && inputMeshPtr->GetVerticesBufferInfo()->range > 0U )
 	{
 		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, 

@@ -17,11 +17,19 @@ limitations under the License.
 #include "ModelToAccelStructNode.h"
 #include <Headers/RTXCommon.h>
 
-#include <Interfaces/ModelOutputInterface.h>
-#include <Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Interfaces/ModelOutputInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <Slots/NodeSlotAccelStructureOutput.h>
 
-std::shared_ptr<ModelToAccelStructNode> ModelToAccelStructNode::Create(vkApi::VulkanCorePtr vVulkanCorePtr)
+#ifdef PROFILER_INCLUDE
+#include <Gaia/gaia.h>
+#include PROFILER_INCLUDE
+#endif
+#ifndef ZoneScoped
+#define ZoneScoped
+#endif
+
+std::shared_ptr<ModelToAccelStructNode> ModelToAccelStructNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	auto res = std::make_shared<ModelToAccelStructNode>();
 	res->m_This = res;
@@ -42,7 +50,7 @@ ModelToAccelStructNode::~ModelToAccelStructNode()
 	Unit();
 }
 
-bool ModelToAccelStructNode::Init(vkApi::VulkanCorePtr vVulkanCorePtr)
+bool ModelToAccelStructNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "Rtx BVH Builder";
 
