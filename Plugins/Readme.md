@@ -1,7 +1,7 @@
 # Plugin Status
 
 | Published | Plugin | Open Source | Free | progress | Win Build | Linux Build | Description |
-| - | - | - | - | - | - |
+| - | - | - | - | - | - | - | - |
 | :heavy_check_mark: | AudiArt | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | [![Win Audiart](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml )| [![Linux Audiart](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml) | Audio Manipulation |
 | :heavy_check_mark: | Core | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | [![Win MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml) | [![Linux Core](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Core.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Core.yml) | Core pack of Nodes |
 | :heavy_check_mark: | MeshGen | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | [![Win MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml) |[![Linux MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_MeshGen.yml) | Procedural Mesh generation |
