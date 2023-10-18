@@ -183,7 +183,7 @@ std::string GridModule::getXml(const std::string& vOffset, const std::string& vU
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto& pass_ptr = pass.lock();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
@@ -216,7 +216,7 @@ bool GridModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto& pass_ptr = pass.lock();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			pass_ptr->setFromXml(vElem, vParent, vUserDatas);

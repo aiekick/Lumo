@@ -205,7 +205,7 @@ std::string ToneMapModule::getXml(const std::string& vOffset, const std::string&
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto& pass_ptr = pass.lock();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
@@ -238,7 +238,7 @@ bool ToneMapModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 
 	for (auto pass : m_ShaderPasses)
 	{
-		auto& pass_ptr = pass.lock();
+		auto pass_ptr = pass.lock();
 		if (pass_ptr)
 		{
 			pass_ptr->setFromXml(vElem, vParent, vUserDatas);
