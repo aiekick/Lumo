@@ -52,7 +52,7 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_CORE=ON
     - name: build
-      run: cmake --build build --config Release --t Core
+      run: cmake --build build --config Release -t Core
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
@@ -76,7 +76,7 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_AUDIART=ON
     - name: build
-      run: cmake --build build --config Release --t AudiArt
+      run: cmake --build build --config Release -t AudiArt
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
@@ -100,7 +100,7 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_MESH_GEN=ON
     - name: build
-      run: cmake --build build --config Release --t MeshGen
+      run: cmake --build build --config Release -t MeshGen
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
@@ -124,7 +124,7 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_PARTICLES_SIM=ON
     - name: build
-      run: cmake --build build --config Release --t Particles
+      run: cmake --build build --config Release -t Particles
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
@@ -148,7 +148,7 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_PLANET_SYSTEM=ON
     - name: build
-      run: cmake --build build --config Release --t PlanetSystem
+      run: cmake --build build --config Release -t PlanetSystem
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
@@ -172,7 +172,7 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_RTX=ON
     - name: build
-      run: cmake --build build --config Release --t RTX
+      run: cmake --build build --config Release -t RTX
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
