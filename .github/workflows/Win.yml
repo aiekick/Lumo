@@ -52,12 +52,12 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_CORE=ON
     - name: build
-      run: cmake --build build --config Release --t Core
+      run: cmake --build build --config Release -t Core
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: Lumo Core
-        path: "bin/plugins/*Core*
+        path: "bin/plugins/*Core*"
 
   build_Win_Plugin_Audiart:
     runs-on: windows-latest
@@ -76,12 +76,12 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_AUDIART=ON
     - name: build
-      run: cmake --build build --config Release --t AudiArt
+      run: cmake --build build --config Release -t AudiArt
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: Lumo AudiArt
-        path: "bin/plugins/*AudiArt*
+        path: "bin/plugins/*AudiArt*"
 
   build_Win_Plugin_MeshGen:
     runs-on: windows-latest
@@ -100,12 +100,12 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_MESH_GEN=ON
     - name: build
-      run: cmake --build build --config Release --t MeshGen
+      run: cmake --build build --config Release -t MeshGen
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: Lumo MeshGen
-        path: "bin/plugins/*MeshGen*
+        path: "bin/plugins/*MeshGen*"
 
   build_Win_Plugin_Particles:
     runs-on: windows-latest
@@ -124,12 +124,12 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_PARTICLES_SIM=ON
     - name: build
-      run: cmake --build build --config Release --t Particles
+      run: cmake --build build --config Release -t Particles
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: Lumo Particles
-        path: "bin/plugins/*Particles*
+        path: "bin/plugins/*Particles*"
 
   build_Win_Plugin_PlanetSystem:
     runs-on: windows-latest
@@ -148,12 +148,12 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_PLANET_SYSTEM=ON
     - name: build
-      run: cmake --build build --config Release --t PlanetSystem
+      run: cmake --build build --config Release -t PlanetSystem
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: Lumo PlanetSystem
-        path: "bin/plugins/*PlanetSystem*
+        path: "bin/plugins/*PlanetSystem*"
 
   build_Win_Plugin_RTX:
     runs-on: windows-latest
@@ -172,9 +172,9 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_RTX=ON
     - name: build
-      run: cmake --build build --config Release --t RTX
+      run: cmake --build build --config Release -t RTX
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: Lumo RTX
-        path: "bin/plugins/*RTX*
+        path: "bin/plugins/*RTX*"
