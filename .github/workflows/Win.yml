@@ -57,7 +57,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Lumo Core
-        path: "bin/plugins/*Core*
+        path: "bin/plugins/*Core*"
 
   build_Win_Plugin_Audiart:
     runs-on: windows-latest
@@ -81,7 +81,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Lumo AudiArt
-        path: "bin/plugins/*AudiArt*
+        path: "bin/plugins/*AudiArt*"
 
   build_Win_Plugin_MeshGen:
     runs-on: windows-latest
@@ -105,7 +105,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Lumo MeshGen
-        path: "bin/plugins/*MeshGen*
+        path: "bin/plugins/*MeshGen*"
 
   build_Win_Plugin_Particles:
     runs-on: windows-latest
@@ -129,7 +129,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Lumo Particles
-        path: "bin/plugins/*Particles*
+        path: "bin/plugins/*Particles*"
 
   build_Win_Plugin_PlanetSystem:
     runs-on: windows-latest
@@ -153,7 +153,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Lumo PlanetSystem
-        path: "bin/plugins/*PlanetSystem*
+        path: "bin/plugins/*PlanetSystem*"
 
   build_Win_Plugin_RTX:
     runs-on: windows-latest
@@ -177,4 +177,4 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Lumo RTX
-        path: "bin/plugins/*RTX*
+        path: "bin/plugins/*RTX*"
