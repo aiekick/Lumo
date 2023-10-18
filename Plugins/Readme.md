@@ -1,19 +1,20 @@
 # Plugin Status
 
-| Published | Plugin | Open Source | Free | status | Description |
+| Published | Plugin | Open Source | Free | progress | Win Build | Linux Build | Description |
 | - | - | - | - | - | - |
-| :heavy_check_mark: | AudiArt | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation |
-| :heavy_check_mark: | Core | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | Core pack of Nodes |
-| :heavy_check_mark: | MeshGen | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | Procedural Mesh generation |
-| :x:  | MeshSim | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/90) | Texture Less Reaction Diffusion Simulation on Meshs |
-| :x:  | MeshSSS | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | My Own SSS Idea For RT SSS for Static mesh with Moving Ligth |
-| :x:  | MorphoGenesis | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | Real Time MorphoGenesis Algos |
-| :heavy_check_mark: | Particles | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/50) | GPU Particle Engine |
-| :heavy_check_mark: | RTX | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | RTX Pipeline |
-| :x:  | SdfMesher | :x: | :x: | ![img](https://progress-bar.dev/50) | Procedural Mesh Generation from Shader, Pictures or SDF |
-| :x:  | SoGLSL | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | Advanced Shader System Over GLSL (Used in NoodlesPlate) |
-| :x:  | Smoke | :x: | :x: | ![img](https://progress-bar.dev/30) | GPU RT Smoke System |
-| :x:  | UVDiffMap | :x: | :x: | ![img](https://progress-bar.dev/10) | Fast UV Mapping idea for any mesh Based on Vertex Diffusion |
-| :x:  | VDBTools | :x: | :x: | ![img](https://progress-bar.dev/20) | OpenVDB Toolkit |
-| :x:  | Voxel | :x: | :x: | ![img](https://progress-bar.dev/20) | Voxel Engine/Editor |
-| :x:  | VR | :x: | :x: | ![img](https://progress-bar.dev/70) | VR Engine |
+| :heavy_check_mark: | AudiArt | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | [![Win Audiart](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml )| [![Linux Audiart](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml) | Audio Manipulation |
+| :heavy_check_mark: | Core | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | [![Win MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml) | [![Linux Core](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Core.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Core.yml) | Core pack of Nodes |
+| :heavy_check_mark: | MeshGen | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | [![Win MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml) |[![Linux MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_MeshGen.yml) | Procedural Mesh generation |
+| :x:  | MeshSim | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/90) | | | Texture Less Reaction Diffusion Simulation on Meshs |
+| :x:  | MeshSSS | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | | | My Own SSS Idea For RT SSS for Static mesh with Moving Ligth |
+| :x:  | MorphoGenesis | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | | | Real Time MorphoGenesis Algos |
+| :heavy_check_mark: | Particles | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/50) | [![Win Particles](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Particles.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Particles.yml) | [![Linux Particles](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Particles.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Particles.yml) | GPU Particle Engine |
+| :heavy_check_mark: | Particles | :heavy_check_mark: | :heavy_check_mark: | ![Win PlanetSystem](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PlanetSystem.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PlanetSystem.yml) | [![Linux PlanetSystem](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PlanetSystem.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PlanetSystem.yml) | Planet System |
+| :heavy_check_mark: | RTX | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | [![Win RTX](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_RTX.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_RTX.yml) |[ ![Linux RTX](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_RTX.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_RTX.yml) | RTX Pipeline |
+| :x:  | SdfMesher | :x: | :x: | ![img](https://progress-bar.dev/50) | | | Procedural Mesh Generation from Shader, Pictures or SDF |
+| :x:  | SoGLSL | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | | | Advanced Shader System Over GLSL (Used in NoodlesPlate) |
+| :x:  | Smoke | :x: | :x: | ![img](https://progress-bar.dev/30) | | | GPU RT Smoke System |
+| :x:  | UVDiffMap | :x: | :x: | ![img](https://progress-bar.dev/10) | | | Fast UV Mapping idea for any mesh Based on Vertex Diffusion |
+| :x:  | VDBTools | :x: | :x: | ![img](https://progress-bar.dev/20) | | | OpenVDB Toolkit |
+| :x:  | Voxel | :x: | :x: | ![img](https://progress-bar.dev/20) | | | Voxel Engine/Editor |
+| :x:  | VR | :x: | :x: | ![img](https://progress-bar.dev/70) | | | VR Engine |
