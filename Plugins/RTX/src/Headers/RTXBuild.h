@@ -1,7 +1,7 @@
 #pragma once
 
 #define RTX_Prefix "RTX"
-#define RTX_BuildNumber 409
+#define RTX_BuildNumber 410
 #define RTX_MinorNumber 0
 #define RTX_MajorNumber 0
-#define RTX_BuildId "0.0.409"
+#define RTX_BuildId "0.0.410"
