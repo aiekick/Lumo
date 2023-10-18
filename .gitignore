@@ -107,3 +107,8 @@
 /bin/shaders/PlanetModule_Water_Mesh_Pass_Vertex.vert
 /bin/plugins/Plugin_Particles_Windows_Debug_x64.dll
 /bin/shaders/MeshEmitterModule_Comp_Pass.comp
+/bin/ImGuiPack.dll
+/bin/ctools.dll
+/bin/freetype.dll
+/bin/glfw3.dll
+/bin/tinyxml2.dll
