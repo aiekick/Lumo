@@ -122,7 +122,7 @@ if(USE_DEBUG_SANITIZER)
 	message("Address Sanitizer enabled for projet ${PROJECT}")
 endif()
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins)
+set(FINAL_BIN_DIR ${CMAKE_SOURCE_DIR}/bin/plugins)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
