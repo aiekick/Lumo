@@ -1,5 +1,5 @@
-[![Win](https://github.com/aiekick/Lumo/actions/workflows/Win.yml/badge.svg?branch=master)](https://github.com/aiekick/Lumo/actions/workflows/Win.yml)
-[![Linux](https://github.com/aiekick/Lumo/actions/workflows/Linux.yml/badge.svg?branch=master)](https://github.com/aiekick/Lumo/actions/workflows/Linux.yml)
+[![Win Lumo](https://github.com/aiekick/Lumo/actions/workflows/Win_Lumo.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Lumo.yml)
+[![Linux Lumo](https://github.com/aiekick/Lumo/actions/workflows/Linux_Lumo.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Lumo.yml)
 
 # Lumo
 Lumo is a realtime lab software arount 3D models
