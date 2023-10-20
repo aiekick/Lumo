@@ -36,3 +36,8 @@ jobs:
       with:
         name: Lumo_Linux
         path: "bin/packages/Lumo_Linux*.zip"
+    - name: upload cmake artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cmake_install
+        path: "build/cmake_install.cmake"
