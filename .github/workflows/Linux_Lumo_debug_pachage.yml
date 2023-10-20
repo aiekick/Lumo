@@ -1,4 +1,4 @@
-name: Linux Lumo
+name: Linux Lumo Debug Package
 
 on: 
   workflow_dispatch:
