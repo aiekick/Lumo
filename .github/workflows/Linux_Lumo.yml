@@ -36,39 +36,3 @@ jobs:
       with:
         name: Lumo_Linux
         path: "bin/packages/Lumo_Linux*.zip"
-    - name: upload cmake_install artifact
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: cmake_install
-        path: "build/cmake_install.cmake"
-    - name: upload CMakeCache artifact
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: CMakeCache
-        path: "build/CMakeCache.txt"
-    - name: upload config_app artifact
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: config_app
-        path: "build/config_app.h"
-    - name: upload CPackConfig artifact
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: CPackConfig
-        path: "build/CPackConfig.cmake"
-    - name: upload CPackSourceConfig artifact
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: CPackSourceConfig
-        path: "build/CPackSourceConfig.cmake"
-    - name: upload install_manifest artifact
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: install_manifest
-        path: "build/install_manifest.txt"
