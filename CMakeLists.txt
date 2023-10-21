@@ -280,7 +280,6 @@ add_custom_command(
 
 if (USE_CODE_GENERATOR)
 	add_subdirectory(Generator)
-	set_target_properties(LumoCodeGenerator PROPERTIES FOLDER Lumo_Z_Apps)
 endif()
 
 #############################################################

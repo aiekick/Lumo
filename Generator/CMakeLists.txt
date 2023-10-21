@@ -26,7 +26,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 ## some defines for debug mode (before 3rdparty.cmake)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin)
+set(FINAL_BIN_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_INSTALL_PREFIX "${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 
@@ -45,10 +45,13 @@ add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(-DGLM_FORCE_DEPTH_ZERO_TO_ONE)
 add_definitions(-DPROJECT_PATH="${CMAKE_CURRENT_SOURCE_DIR}")
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
-add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/src/Frontend/CustomLumoBackendConfig.h")
-add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
-add_definitions(-DUSE_IMGUI="${CMAKE_CURRENT_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
-add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_CURRENT_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
+add_definitions(-DSTB_IMAGE_INCLUDE="${CMAKE_SOURCE_DIR}/3rdparty/stb/stb_image.h")
+add_definitions(-DSTB_IMAGE_RESIZE_INCLUDE="${CMAKE_SOURCE_DIR}/3rdparty/stb/stb_image_resize.h")
+add_definitions(-DSTB_IMAGE_WRITE_INCLUDE="${CMAKE_SOURCE_DIR}/3rdparty/stb/stb_image_write.h")
+add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
+add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
+add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomLumoBackendConfig.h")
+add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
 
 add_definitions(-DUSE_IM_TOOLS)
 add_definitions(-DUSE_IM_GUIZMO)
@@ -125,16 +128,15 @@ if(USE_DEBUG_SANITIZER)
 endif()
 
 target_include_directories(${PROJECT} PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/src
-	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
+	${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/src
+	${CMAKE_SOURCE_DIR}/3rdparty
 	${LUMO_BACKEND_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
 	${TINYXML2_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT}
-	${PROJECT_PLUGINS}
 	${LUMO_BACKEND_LIBRARIES}
 	${TINYXML2_LIBRARIES}
 )

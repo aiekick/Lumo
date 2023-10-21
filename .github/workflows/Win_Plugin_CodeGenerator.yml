@@ -1,0 +1,36 @@
+name: Win Plugin CodeGenerator
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - scheduled
+    branches:
+    - master
+    types:
+      - requested
+
+jobs:
+  build_Win_Plugin_RTX:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:  
+        ref: master
+    - name: checkout submodules
+      run : git submodule update --init --recursive 
+    - name: Prepare Vulkan SDK
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      with:
+        vulkan-query-version: 1.3.224.1
+        vulkan-components: Vulkan-Headers, Vulkan-Loader
+        vulkan-use-cache: true
+    - name: configure
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_CODE_GENERATOR=ON
+    - name: build
+      run: cmake --build build --config Release -t CodeGenerator
+    - name: upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Lumo CodeGenerator
+        path: "bin/plugins/*CodeGenerator*"
