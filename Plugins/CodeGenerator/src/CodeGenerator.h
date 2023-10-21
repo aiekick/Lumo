@@ -21,10 +21,10 @@ limitations under the License.
 #include <Gaia/Resources/VulkanRessource.h>
 #include <Gaia/Core/vk_mem_alloc.h>
 
-class RTX : public PluginInterface
+class CodeGenerator : public PluginInterface
 {
 public:
-	RTX();
+	CodeGenerator();
 	bool AuthorizeLoading() override;
 	void ActionAfterInit() override;
 	uint32_t GetVersionMajor() const override;

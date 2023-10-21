@@ -16,8 +16,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-#include "RTX.h"
-#include <Headers/RTXBuild.h>
+#include "CodeGenerator.h"
+#include <Headers/CodeGeneratorBuild.h>
 #include <ctools/FileHelper.h>
 #include <ImGuiPack.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
@@ -26,8 +26,8 @@ limitations under the License.
 #include <Gaia/Shader/VulkanShader.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 
-#include <Nodes/Renderers/RtxPbrRendererNode.h>
-#include <Nodes/Lighting/RtxModelShadowNode.h>
+#include <Nodes/Renderers/CodeGeneratorPbrRendererNode.h>
+#include <Nodes/Lighting/CodeGeneratorModelShadowNode.h>
 #include <Nodes/Builders/ModelToAccelStructNode.h>
 
 #ifndef USE_PLUGIN_STATIC_LINKING
@@ -40,19 +40,19 @@ extern "C" // needed for avoid renaming of funcs by the compiler
 #define PLUGIN_PREFIX
 #endif
 
-	PLUGIN_PREFIX RTX* allocator()
+	PLUGIN_PREFIX CodeGenerator* allocator()
 	{
-		return new RTX();
+		return new CodeGenerator();
 	}
 
-	PLUGIN_PREFIX void deleter(RTX* ptr)
+	PLUGIN_PREFIX void deleter(CodeGenerator* ptr)
 	{
 		delete ptr;
 	}
 }
 #endif // USE_PLUGIN_STATIC_LINKING
 
-RTX::RTX()
+CodeGenerator::CodeGenerator()
 {
 #ifdef _MSC_VER
 	// active memory leak detector
@@ -60,96 +60,96 @@ RTX::RTX()
 #endif
 }
 
-bool RTX::AuthorizeLoading()
+bool CodeGenerator::AuthorizeLoading()
 {
 	auto vkCorePtr = m_VulkanCoreWeak.lock();
-	return (vkCorePtr && vkCorePtr->GetSupportedFeatures().is_RTX_Supported); // autohrisation to load if RTX Feature available
+	return (vkCorePtr && vkCorePtr->GetSupportedFeatures().is_CodeGenerator_Supported); // autohrisation to load if CodeGenerator Feature available
 }
 
-void RTX::ActionAfterInit()
+void CodeGenerator::ActionAfterInit()
 {
-	NodeSlot::sGetSlotColors()->AddSlotColor("RTX_ACCEL_STRUCTURE", ImVec4(0.8f, 0.5f, 0.8f, 1.0f));
+	NodeSlot::sGetSlotColors()->AddSlotColor("CodeGenerator_ACCEL_STRUCTURE", ImVec4(0.8f, 0.5f, 0.8f, 1.0f));
 }
 
-uint32_t RTX::GetVersionMajor() const
+uint32_t CodeGenerator::GetVersionMajor() const
 {
-	return RTX_MinorNumber;
+	return CodeGenerator_MinorNumber;
 }
 
-uint32_t RTX::GetVersionMinor() const
+uint32_t CodeGenerator::GetVersionMinor() const
 {
-	return RTX_MajorNumber;
+	return CodeGenerator_MajorNumber;
 }
 
-uint32_t RTX::GetVersionBuild() const
+uint32_t CodeGenerator::GetVersionBuild() const
 {
-	return RTX_BuildNumber;
+	return CodeGenerator_BuildNumber;
 }
 
-std::string RTX::GetName() const
+std::string CodeGenerator::GetName() const
 {
-	return "RTX";
+	return "CodeGenerator";
 }
 
-std::string RTX::GetVersion() const
+std::string CodeGenerator::GetVersion() const
 {
-	return RTX_BuildId;
+	return CodeGenerator_BuildId;
 }
 
-std::string RTX::GetDescription() const
+std::string CodeGenerator::GetDescription() const
 {
 	auto vkCorePtr = m_VulkanCoreWeak.lock();
-	if (!vkCorePtr->GetSupportedFeatures().is_RTX_Supported)
+	if (!vkCorePtr->GetSupportedFeatures().is_CodeGenerator_Supported)
 	{
-		return "Err : the RTX Features are not availables";
+		return "Err : the CodeGenerator Features are not availables";
 	}
-	return "Ray Tracing (RTX) plugin";
+	return "Ray Tracing (CodeGenerator) plugin";
 
 }
 
-std::vector<std::string> RTX::GetNodes() const
+std::vector<std::string> CodeGenerator::GetNodes() const
 {
 	return
 	{
-		"RTX_PBR_RENDERER",
-		"RTX_MODEL_SHADOW",
-		"RTX_MODEL_TO_ACCELERATION_STRUCTURE"
+		"CodeGenerator_PBR_RENDERER",
+		"CodeGenerator_MODEL_SHADOW",
+		"CodeGenerator_MODEL_TO_ACCELERATION_STRUCTURE"
 	};
 }
 
-std::vector<LibraryEntry> RTX::GetLibrary() const
+std::vector<LibraryEntry> CodeGenerator::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	res.push_back(AddLibraryEntry("RTX/3D", "AccelStruct Builder", "RTX_MODEL_TO_ACCELERATION_STRUCTURE"));
-	res.push_back(AddLibraryEntry("RTX/3D", "Model Shadw", "RTX_MODEL_SHADOW"));
-	res.push_back(AddLibraryEntry("RTX/3D", "PBR Renderer", "RTX_PBR_RENDERER"));
+	res.push_back(AddLibraryEntry("CodeGenerator/3D", "AccelStruct Builder", "CodeGenerator_MODEL_TO_ACCELERATION_STRUCTURE"));
+	res.push_back(AddLibraryEntry("CodeGenerator/3D", "Model Shadw", "CodeGenerator_MODEL_SHADOW"));
+	res.push_back(AddLibraryEntry("CodeGenerator/3D", "PBR Renderer", "CodeGenerator_PBR_RENDERER"));
 
 	return res;
 }
 
-BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
+BaseNodePtr CodeGenerator::CreatePluginNode(const std::string& vPluginNodeName)
 {
 	auto vkCorePtr = m_VulkanCoreWeak.lock();
 
-	if (vPluginNodeName == "RTX_MODEL_SHADOW")
-		return RtxModelShadowNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "RTX_MODEL_TO_ACCELERATION_STRUCTURE")
+	if (vPluginNodeName == "CodeGenerator_MODEL_SHADOW")
+		return CodeGeneratorModelShadowNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "CodeGenerator_MODEL_TO_ACCELERATION_STRUCTURE")
 		return ModelToAccelStructNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "RTX_PBR_RENDERER")
-		return RtxPbrRendererNode::Create(vkCorePtr);
+	else if (vPluginNodeName == "CodeGenerator_PBR_RENDERER")
+		return CodeGeneratorPbrRendererNode::Create(vkCorePtr);
 
 	return nullptr;
 }
 
-std::vector<PluginPane> RTX::GetPanes() const
+std::vector<PluginPane> CodeGenerator::GetPanes() const
 {
 	std::vector<PluginPane> res;
 
 	return res;
 }
 
-int RTX::ResetImGuiID(const int& vWidgetId) {
+int CodeGenerator::ResetImGuiID(const int& vWidgetId) {
     auto ids = ImGui::GetPUSHID();
     ImGui::SetPUSHID(vWidgetId);
     return ids;
