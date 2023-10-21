@@ -11,7 +11,7 @@ on:
     - requested
 
 jobs:
-  build_Linux_Plugin_RTX:
+  build_Linux_Plugin_CodeGenetator:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
