@@ -51,7 +51,7 @@ using namespace gaia;
 
 // #define CREATE_IN_APP_SHADER_FILES
 
-#define USE_RTX false
+#define USE_RTX true
 #define INITIAL_WIDTH 1700
 #define INITIAL_HEIGHT 700
 

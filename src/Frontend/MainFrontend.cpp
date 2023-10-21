@@ -209,7 +209,6 @@ bool MainFrontend::DrawOverlays(
 
 bool MainFrontend::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-    bool change = false;
     m_ActionSystem.RunActions();
     if (m_ShowImGui) {
         ImGui::ShowDemoWindow(&m_ShowImGui);
@@ -217,7 +216,6 @@ bool MainFrontend::DrawDialogsAndPopups(
     if (m_ShowMetric) {
         ImGui::ShowMetricsWindow(&m_ShowMetric);
     }
-
     return false;
 }
 
