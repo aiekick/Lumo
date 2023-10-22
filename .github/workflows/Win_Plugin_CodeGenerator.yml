@@ -11,7 +11,7 @@ on:
       - requested
 
 jobs:
-  build_Win_Plugin_RTX:
+  build_Win_Plugin_CodeGenerator:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
