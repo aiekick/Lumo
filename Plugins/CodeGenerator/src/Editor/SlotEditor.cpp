@@ -125,7 +125,7 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 					m_SelectedType = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
 					if (m_InputType == BASE_TYPE_Custom)
 					{
-                        auto& arr = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
+                        auto arr = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
 						if (m_SelectedSubTypeIndex > -1 && m_SelectedSubTypeIndex < (int)arr.size())
 						{
 							m_SelectedSubType = arr.at(m_SelectedSubTypeIndex).GetText();
@@ -149,7 +149,7 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak 
 				}
 				else if (m_InputType == BASE_TYPE_Custom)
 				{
-                    auto& arr = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
+                    auto arr = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
 
 					ImGui::PushID(ImGui::IncPUSHID());
 
