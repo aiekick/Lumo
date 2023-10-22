@@ -387,7 +387,6 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, si
 #endif
 									if (ProjectFile::Instance()->IsLoaded())
 									{
-										auto win = ImGui::GetCurrentWindowRead();
 										if (win)
 										{
 											if (win->DockTabIsVisible)

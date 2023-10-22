@@ -62,7 +62,6 @@ bool DebugPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneSh
 	UNUSED(vCurrentFrame);
 	ImGui::SetCurrentContext(vContextPtr);
 	UNUSED(vUserDatas);
-	bool change = false;
 
 	if (vInOutPaneShown & paneFlag)
 	{
