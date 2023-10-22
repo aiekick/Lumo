@@ -43,7 +43,7 @@ void FilesSaver::GenerateGraphFiles(const GeneratorNodeWeak& vRootNode, const st
 		}
 
 		auto custom_types = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
-		for (auto& custom_type_name : custom_types)
+		for (auto custom_type_name : custom_types)
 		{
             CustomSceneGraphItem(vRootPath, custom_type_name.GetText());
 		}

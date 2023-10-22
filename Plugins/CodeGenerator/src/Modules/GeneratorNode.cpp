@@ -71,7 +71,7 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
 
 		// childs
 		res += vOffset + "\t<nodes>\n";
-		for (auto& node : m_ChildNodes)
+		for (const auto& node : m_ChildNodes)
 		{
 			auto nodePtr = node.second;
 			if (nodePtr)

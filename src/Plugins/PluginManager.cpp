@@ -71,14 +71,13 @@ PluginInterfaceWeak PluginInstance::Get() { return m_PluginInstance; }
 static inline std::string GetDLLExtention() {
 #ifdef WIN32
     return "dll";
-#endif
-#ifdef __linux__
+#elif defined(__linux__)
     return "so";
-#endif
-#ifdef __APPLE__
+#elif defined(__APPLE__)
     return "dylib";
-#endif
+#elif
     return "";
+#endif
 }
 
 void PluginManager::Clear() { m_Plugins.clear(); }

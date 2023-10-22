@@ -67,6 +67,20 @@ bool CodeGeneratorPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInO
             else
                 flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
 #endif
+
+            {
+                const auto aw = ImGui::GetContentRegionAvail();
+
+                if (ImGui::BeginChild("Parameters", ImVec2(aw.x * 0.5f, aw.y), false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings)) {
+                    DrawContent();
+                }
+                ImGui::EndChild();
+
+                if (ImGui::BeginChild("Graph", ImVec2(aw.x * 0.5f, aw.y), false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings)) {
+                    DrawGraph();
+                }
+                ImGui::EndChild();
+            }
         }
 
         ImGui::End();
@@ -250,7 +264,7 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
         }
 
         auto it_to_erase = m_CustomTypeInputTexts.end();
-        for (auto& it = m_CustomTypeInputTexts.begin(); it != m_CustomTypeInputTexts.end(); ++it) {
+        for (auto it = m_CustomTypeInputTexts.begin(); it != m_CustomTypeInputTexts.end(); ++it) {
             if (ImGui::ContrastedButton(ICON_SDFM_SHARE)) {
                 it_to_erase = it;
             }
