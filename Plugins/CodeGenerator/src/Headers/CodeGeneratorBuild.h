@@ -1,7 +1,7 @@
 #pragma once
 
-#define RTX_Prefix "RTX"
-#define RTX_BuildNumber 413
-#define RTX_MinorNumber 0
-#define RTX_MajorNumber 0
-#define RTX_BuildId "0.0.413"
+#define CodeGenerator_Prefix "CodeGenerator"
+#define CodeGenerator_BuildNumber 420
+#define CodeGenerator_MinorNumber 0
+#define CodeGenerator_MajorNumber 0
+#define CodeGenerator_BuildId "0.0.420"

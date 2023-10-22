@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ImWidgets/ImWidgets.h>
+#include <ImGuiPack.h>
 #include <ctools/ConfigAbstract.h>
 
 #include <string>

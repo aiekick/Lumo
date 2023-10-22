@@ -17,297 +17,40 @@ limitations under the License.
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "ProjectFile.h"
-
-#include <filesystem>
-#include <Gui/MainFrame.h>
-#include <Helper/Messaging.h>
+#include "FilesSaver.h"
 #include <ctools/FileHelper.h>
-#include <Systems/CommonSystem.h>
-
+#include <Modules/GeneratorNode.h>
+#include <Panes/CodeGeneratorPane.h>
+#include <filesystem>
 namespace fs = std::filesystem;
 
-ProjectFile::ProjectFile(GaiApi::VulkanCorePtr vVulkanCorePtr)
-{
-	m_RootNodePtr = GeneratorNode::Create(vVulkanCorePtr);
-}
-
-ProjectFile::ProjectFile(GaiApi::VulkanCorePtr vVulkanCorePtr, const std::string& vFilePathName)
-{
-	m_RootNodePtr = GeneratorNode::Create(vVulkanCorePtr);
-
-	m_ProjectFilePathName = FileHelper::Instance()->SimplifyFilePath(vFilePathName);
-	auto ps = FileHelper::Instance()->ParsePathFileName(m_ProjectFilePathName);
-	if (ps.isOk)
-	{
-		m_ProjectFileName = ps.name;
-		m_ProjectFilePath = ps.path;
-	}
-}
-
-ProjectFile::~ProjectFile()
-{
-	m_RootNodePtr.reset();
-}
-
-void ProjectFile::Clear()
-{
-	m_ProjectFilePathName.clear();
-	m_ProjectFileName.clear();
-	m_ProjectFilePath.clear();
-	m_IsLoaded = false;
-	m_IsThereAnyNotSavedChanged = false;
-	Messaging::Instance()->Clear();
-}
-
-void ProjectFile::New()
-{
-	Clear();
-	m_IsLoaded = true;
-	m_NeverSaved = true;
-	SetProjectChange(true);
-}
-
-void ProjectFile::New(const std::string& vFilePathName)
-{
-	Clear();
-	m_ProjectFilePathName = FileHelper::Instance()->SimplifyFilePath(vFilePathName);
-	auto ps = FileHelper::Instance()->ParsePathFileName(m_ProjectFilePathName);
-	if (ps.isOk)
-	{
-		m_ProjectFileName = ps.name;
-		m_ProjectFilePath = ps.path;
-	}
-	m_IsLoaded = true;
-	SetProjectChange(false);
-
-	// then load
-	m_RootNodePtr->FinalizeGraphLoading();
-}
-
-bool ProjectFile::Load()
-{
-	return LoadAs(m_ProjectFilePathName);
-}
-
-// ils wanted to not pass the adress for re open case
-// elwse, the clear will set vFilePathName to empty because with re open, target m_ProjectFilePathName
-bool ProjectFile::LoadAs(const std::string vFilePathName)  
-{
-	if (!vFilePathName.empty())
-	{
-		m_RootNodePtr->ClearGraph();
-		nd::SetCurrentEditor(
-			m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext);
-
-		std::string filePathName = FileHelper::Instance()->SimplifyFilePath(vFilePathName);
-		tinyxml2::XMLError xmlError = LoadConfigFile(filePathName);
-		if (xmlError == tinyxml2::XMLError::XML_SUCCESS)
-		{
-			New(filePathName);
-		}
-		else
-		{
-			Clear();
-
-			auto errMsg = getTinyXml2ErrorMessage(xmlError);
-			Messaging::Instance()->AddError(true, nullptr, nullptr,
-				"The project file %s cant be loaded, Error : %s", filePathName.c_str(), errMsg.c_str());
-		}
-	}
-
-	return m_IsLoaded;
-}
-
-bool ProjectFile::Save()
-{
-	if (m_NeverSaved) 
-		return false;
-
-	if (SaveConfigFile(m_ProjectFilePathName))
-	{
-		SetProjectChange(false);
-		return true;
-	}
-	
-	return false;
-}
-
-bool ProjectFile::SaveTemporary()
-{
-	if (m_NeverSaved)
-		return false;
-
-	auto ps = FileHelper::Instance()->ParsePathFileName(m_ProjectFilePathName);
-	if (ps.isOk)
-	{
-		auto ps_tmp = ps.GetFPNE_WithName(ps.name + "_tmp");
-		if (SaveConfigFile(ps_tmp))
-		{
-			SetProjectChange(false);
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool ProjectFile::SaveAs(const std::string& vFilePathName)
-{
-	std::string filePathName = FileHelper::Instance()->SimplifyFilePath(vFilePathName);
-	auto ps = FileHelper::Instance()->ParsePathFileName(filePathName);
-	if (ps.isOk)
-	{
-		m_ProjectFilePathName = FileHelper::Instance()->ComposePath(ps.path, ps.name, "blt");
-		m_ProjectFilePath = ps.path;
-		m_NeverSaved = false;
-		return Save();
-	}
-	return false;
-}
-
-bool ProjectFile::IsLoaded() const
-{
-	return m_IsLoaded;
-}
-
-bool ProjectFile::IsNeverSaved() const
-{
-	return m_NeverSaved;
-}
-
-bool ProjectFile::IsThereAnyNotSavedChanged() const
-{
-	return m_IsThereAnyNotSavedChanged;
-}
-
-void ProjectFile::SetProjectChange(bool vChange)
-{
-	m_IsThereAnyNotSavedChanged = vChange;
-}
-
-std::string ProjectFile::GetAbsolutePath(const std::string& vFilePathName) const
-{
-	std::string res = vFilePathName;
-
-	if (!vFilePathName.empty())
-	{
-		if (!FileHelper::Instance()->IsAbsolutePath(vFilePathName)) // relative
-		{
-			res = FileHelper::Instance()->SimplifyFilePath(
-				m_ProjectFilePath + FileHelper::Instance()->puSlashType + vFilePathName);
-		}
-	}
-
-	return res;
-}
-
-std::string ProjectFile::GetRelativePath(const std::string& vFilePathName) const
-{
-	std::string res = vFilePathName;
-
-	if (!vFilePathName.empty())
-	{
-		res = FileHelper::Instance()->GetRelativePathToPath(vFilePathName, m_ProjectFilePath);
-	}
-
-	return res;
-}
-
-std::string ProjectFile::GetProjectFilepathName() const
-{
-	return m_ProjectFilePathName;
-}
-
-std::string ProjectFile::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
-{
-	std::string str;
-
-	str += vOffset + "<project>\n";
-
-	str += vOffset + "\t<scene>\n";
-
-	str += m_RootNodePtr->getXml(vOffset + "\t\t", "project");
-
-	str += vOffset + "\t</scene>\n";
-
-	str += vOffset + ct::toStr("\t<root_path>%s</root_path>\n", m_GenerationRootPath.c_str());
-
-	str += vOffset + "</project>\n";
-
-	return str;
-}
-
-bool ProjectFile::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
-
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
-
-	if (strName == "config")
-	{
-		return true;
-	}
-	else if (strName == "project")
-	{
-		return true;
-	}
-	else if (strName == "scene")
-	{
-		return true;
-	}
-	else if (strName == "generation")
-	{
-		return true;
-	}
-	else if (strName == "graph")
-	{
-		m_RootNodePtr->RecursParsingConfigChilds(vElem, "project");
-	}
-	else if (strParentName == "project")
-	{
-		if (strName == "root_path")
-			m_GenerationRootPath = strValue;
-	}
-
-	return false;
-}
-
-void ProjectFile::GenerateGraphFiles(const std::string& vRootPath)
-{
-	if (m_RootNodePtr)
+void FilesSaver::GenerateGraphFiles(const GeneratorNodeWeak& vRootNode, const std::string& vRootPath) {
+    auto ptr = vRootNode.lock();
+    if (ptr)
 	{
 		m_GenerationRootPath = vRootPath;
 
-		for (auto node : m_RootNodePtr->m_ChildNodes)
+		for (auto node : ptr->m_ChildNodes)
 		{
 			if (node.second)
 			{
 				auto genNodePtr = std::dynamic_pointer_cast<GeneratorNode>(node.second);
 				if (genNodePtr)
 				{
-					genNodePtr->GenerateNodeClasses(m_GenerationRootPath, this);
+					genNodePtr->GenerateNodeClasses(m_GenerationRootPath);
 				}
 			}
 		}
 
-		auto custom_types = MainFrame::Instance()->GetCustomTypeInputTexts();
+		auto custom_types = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
 		for (auto& custom_type_name : custom_types)
 		{
-			CustomSceneGraphItem(vRootPath, custom_type_name.GetText());
+            CustomSceneGraphItem(vRootPath, custom_type_name.GetText());
 		}
 	}
 }
 
-void ProjectFile::CustomSceneGraphItem(const std::string& vRootPath, const std::string& vSceneGraphItemName)
-{
+void FilesSaver::CustomSceneGraphItem(const std::string& vRootPath, const std::string& vSceneGraphItemName) {
 	fs::path scene_graph_path = vRootPath + "/SceneGraph/";
 	if (!std::filesystem::exists(scene_graph_path))
 		fs::create_directory(scene_graph_path);
@@ -379,7 +122,7 @@ bool %s::IsOk() const
 
 class %s;
 typedef std::shared_ptr<%s> %sPtr;
-typedef ct::cWeak<%s> %sWeak;
+typedef std::weak_ptr<%s> %sWeak;
 
 // NotifyEvent : need to update the accel structure
 #define %sUpdateDone "%sUpdateDone"
@@ -663,7 +406,7 @@ void NodeSlot%sInput::DrawDebugInfos()
 #include <LumoBackend/Graph/Base/NodeSlotInput.h>
 
 class NodeSlot%sInput;
-typedef ct::cWeak<NodeSlot%sInput> NodeSlot%sInputWeak;
+typedef std::weak_ptr<NodeSlot%sInput> NodeSlot%sInputWeak;
 typedef std::shared_ptr<NodeSlot%sInput> NodeSlot%sInputPtr;
 
 class NodeSlot%sInput : 
@@ -839,7 +582,7 @@ void NodeSlot%sOutput::DrawDebugInfos()
 #include <LumoBackend/Graph/Base/NodeSlotOutput.h>
 
 class NodeSlot%sOutput;
-typedef ct::cWeak<NodeSlot%sOutput> NodeSlot%sOutputWeak;
+typedef std::weak_ptr<NodeSlot%sOutput> NodeSlot%sOutputWeak;
 typedef std::shared_ptr<NodeSlot%sOutput> NodeSlot%sOutputPtr;
 
 class NodeSlot%sOutput : 

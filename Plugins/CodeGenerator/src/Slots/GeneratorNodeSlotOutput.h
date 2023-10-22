@@ -2,11 +2,11 @@
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/NodeSlotOutput.h>
-#include <LumoBackend/Graph/GeneratorCommon.h>
+#include <Headers/GeneratorCommon.h>
 #include <ctools/cTools.h>
 
 class GeneratorNodeSlotOutput;
-typedef ct::cWeak<GeneratorNodeSlotOutput> GeneratorNodeSlotOutputWeak;
+typedef std::weak_ptr<GeneratorNodeSlotOutput> GeneratorNodeSlotOutputWeak;
 typedef std::shared_ptr<GeneratorNodeSlotOutput> GeneratorNodeSlotOutputPtr;
 
 class GeneratorNodeSlotOutput : public NodeSlotOutput, public GeneratorNodeSlotDatas

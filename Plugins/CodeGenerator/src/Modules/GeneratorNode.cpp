@@ -2,14 +2,13 @@
 
 #include <filesystem>
 #include <ctools/cTools.h>
-#include <Gui/MainFrame.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets/ImWidgets.h>
+#include <ImGuiPack.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <LumoBackend/Graph/GeneratorCommon.h>
-#include <LumoBackend/Graph/GeneratorNodeSlotInput.h>
-#include <LumoBackend/Graph/GeneratorNodeSlotOutput.h>
+#include <Headers/GeneratorCommon.h>
+#include <Slots/GeneratorNodeSlotInput.h>
+#include <Slots/GeneratorNodeSlotOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
@@ -485,7 +484,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
 //// GENERATOR NODE //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void GeneratorNode::GenerateNodeClasses(const std::string& vPath, const ProjectFile* vDatas)
+void GeneratorNode::GenerateNodeClasses(const std::string& vPath)
 {
 	fs::path root_path = vPath;
 	if (!std::filesystem::exists(vPath))
@@ -1065,7 +1064,7 @@ public:
 
 	if (m_GenerateAModule)
 	{
-		GenerateModules(vPath, vDatas, slotDico);
+		GenerateModules(vPath, slotDico);
 	}
 }
 
@@ -1073,7 +1072,7 @@ public:
 //// GENERATOR MODULLE ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void GeneratorNode::GenerateModules(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico)
+void GeneratorNode::GenerateModules(const std::string& vPath, const SlotDico& vDico)
 {
 	fs::path module_path = vPath + "/Modules/" + m_CategoryName;
 	if (!std::filesystem::exists(module_path))
@@ -1683,7 +1682,7 @@ public:
 	static std::shared_ptr<MODULE_CLASS_NAME> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
-	ct::cWeak<MODULE_CLASS_NAME> m_This;
+	std::weak_ptr<MODULE_CLASS_NAME> m_This;
 )";
 	if (!m_GenerateAPass)
 	{
@@ -1777,7 +1776,7 @@ public:
 
 	if (m_GenerateAPass)
 	{
-		GeneratePasses(vPath, vDatas, vDico);
+		GeneratePasses(vPath, vDico);
 	}
 }
 
@@ -1785,7 +1784,7 @@ public:
 //// GENERATOR PASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void GeneratorNode::GeneratePasses(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico)
+void GeneratorNode::GeneratePasses(const std::string& vPath, const SlotDico& vDico)
 {
 	fs::path path_path = vPath + "/Modules/" + m_CategoryName + "/Pass/";
 	if (!std::filesystem::exists(path_path))

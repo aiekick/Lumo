@@ -58,13 +58,12 @@ public:
 #include <ctools/cTools.h>
 
 class GeneratorNode;
-typedef ct::cWeak<GeneratorNode> GeneratorNodeWeak;
+typedef std::weak_ptr<GeneratorNode> GeneratorNodeWeak;
 typedef std::shared_ptr<GeneratorNode> GeneratorNodePtr;
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <vkFramework/VulkanCore.h>
-#include <Project/ProjectFile.h>
+#include <Gaia/gaia.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <Editor/UBOEditor.h>
 
@@ -158,9 +157,9 @@ public:
 	GeneratorNode();
 
 public:
-	void GenerateNodeClasses(const std::string& vPath, const ProjectFile* vDatas);
-	void GenerateModules(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico);
-	void GeneratePasses(const std::string& vPath, const ProjectFile* vDatas, const SlotDico& vDico);
+	void GenerateNodeClasses(const std::string& vPath);
+	void GenerateModules(const std::string& vPath, const SlotDico& vDico);
+	void GeneratePasses(const std::string& vPath, const SlotDico& vDico);
 
 private:
 	std::string GetRendererDisplayName();

@@ -3,7 +3,7 @@
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <ImGuiPack.h>
-#include <Graph/GeneratorNode.h>
+#include <Modules/GeneratorNode.h>
 
 class SlotEditor
 {

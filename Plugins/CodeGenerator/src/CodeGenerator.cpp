@@ -25,128 +25,55 @@ limitations under the License.
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Shader/VulkanShader.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
+#include <Panes/CodeGeneratorPane.h>
 
-#include <Nodes/Renderers/CodeGeneratorPbrRendererNode.h>
-#include <Nodes/Lighting/CodeGeneratorModelShadowNode.h>
-#include <Nodes/Builders/ModelToAccelStructNode.h>
-
-#ifndef USE_PLUGIN_STATIC_LINKING
 // needed for plugin creating / destroying
-extern "C" // needed for avoid renaming of funcs by the compiler
+extern "C"  // needed for avoid renaming of funcs by the compiler
 {
 #ifdef WIN32
-#define PLUGIN_PREFIX __declspec (dllexport)
+#define PLUGIN_PREFIX __declspec(dllexport)
 #else
 #define PLUGIN_PREFIX
 #endif
 
-	PLUGIN_PREFIX CodeGenerator* allocator()
-	{
-		return new CodeGenerator();
-	}
+PLUGIN_PREFIX CodeGenerator* allocator() { return new CodeGenerator(); }
 
-	PLUGIN_PREFIX void deleter(CodeGenerator* ptr)
-	{
-		delete ptr;
-	}
+PLUGIN_PREFIX void deleter(CodeGenerator* ptr) { delete ptr; }
 }
-#endif // USE_PLUGIN_STATIC_LINKING
 
-CodeGenerator::CodeGenerator()
-{
+CodeGenerator::CodeGenerator() {
 #ifdef _MSC_VER
-	// active memory leak detector
-	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    // active memory leak detector
+    //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 }
 
-bool CodeGenerator::AuthorizeLoading()
-{
-	auto vkCorePtr = m_VulkanCoreWeak.lock();
-	return (vkCorePtr && vkCorePtr->GetSupportedFeatures().is_CodeGenerator_Supported); // autohrisation to load if CodeGenerator Feature available
-}
+bool CodeGenerator::AuthorizeLoading() { return true; }
 
-void CodeGenerator::ActionAfterInit()
-{
-	NodeSlot::sGetSlotColors()->AddSlotColor("CodeGenerator_ACCEL_STRUCTURE", ImVec4(0.8f, 0.5f, 0.8f, 1.0f));
-}
+void CodeGenerator::ActionAfterInit() { }
 
-uint32_t CodeGenerator::GetVersionMajor() const
-{
-	return CodeGenerator_MinorNumber;
-}
+uint32_t CodeGenerator::GetVersionMajor() const { return CodeGenerator_MinorNumber; }
 
-uint32_t CodeGenerator::GetVersionMinor() const
-{
-	return CodeGenerator_MajorNumber;
-}
+uint32_t CodeGenerator::GetVersionMinor() const { return CodeGenerator_MajorNumber; }
 
-uint32_t CodeGenerator::GetVersionBuild() const
-{
-	return CodeGenerator_BuildNumber;
-}
+uint32_t CodeGenerator::GetVersionBuild() const { return CodeGenerator_BuildNumber; }
 
-std::string CodeGenerator::GetName() const
-{
-	return "CodeGenerator";
-}
+std::string CodeGenerator::GetName() const { return "CodeGenerator"; }
 
-std::string CodeGenerator::GetVersion() const
-{
-	return CodeGenerator_BuildId;
-}
+std::string CodeGenerator::GetVersion() const { return CodeGenerator_BuildId; }
 
-std::string CodeGenerator::GetDescription() const
-{
-	auto vkCorePtr = m_VulkanCoreWeak.lock();
-	if (!vkCorePtr->GetSupportedFeatures().is_CodeGenerator_Supported)
-	{
-		return "Err : the CodeGenerator Features are not availables";
-	}
-	return "Ray Tracing (CodeGenerator) plugin";
+std::string CodeGenerator::GetDescription() const { return "Nodes Code Generator plugin for developpers"; }
 
-}
+std::vector<std::string> CodeGenerator::GetNodes() const { return {}; }
 
-std::vector<std::string> CodeGenerator::GetNodes() const
-{
-	return
-	{
-		"CodeGenerator_PBR_RENDERER",
-		"CodeGenerator_MODEL_SHADOW",
-		"CodeGenerator_MODEL_TO_ACCELERATION_STRUCTURE"
-	};
-}
+std::vector<LibraryEntry> CodeGenerator::GetLibrary() const { return {}; }
 
-std::vector<LibraryEntry> CodeGenerator::GetLibrary() const
-{
-	std::vector<LibraryEntry> res;
+BaseNodePtr CodeGenerator::CreatePluginNode(const std::string& vPluginNodeName) { return nullptr; }
 
-	res.push_back(AddLibraryEntry("CodeGenerator/3D", "AccelStruct Builder", "CodeGenerator_MODEL_TO_ACCELERATION_STRUCTURE"));
-	res.push_back(AddLibraryEntry("CodeGenerator/3D", "Model Shadw", "CodeGenerator_MODEL_SHADOW"));
-	res.push_back(AddLibraryEntry("CodeGenerator/3D", "PBR Renderer", "CodeGenerator_PBR_RENDERER"));
-
-	return res;
-}
-
-BaseNodePtr CodeGenerator::CreatePluginNode(const std::string& vPluginNodeName)
-{
-	auto vkCorePtr = m_VulkanCoreWeak.lock();
-
-	if (vPluginNodeName == "CodeGenerator_MODEL_SHADOW")
-		return CodeGeneratorModelShadowNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "CodeGenerator_MODEL_TO_ACCELERATION_STRUCTURE")
-		return ModelToAccelStructNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "CodeGenerator_PBR_RENDERER")
-		return CodeGeneratorPbrRendererNode::Create(vkCorePtr);
-
-	return nullptr;
-}
-
-std::vector<PluginPane> CodeGenerator::GetPanes() const
-{
-	std::vector<PluginPane> res;
-
-	return res;
+std::vector<PluginPane> CodeGenerator::GetPanes() const {
+    std::vector<PluginPane> res;
+    res.push_back(PluginPane(CodeGeneratorPane::Instance(), "Code Generator", "CodeGenerator", PaneDisposal::CENTRAL, false, false));
+    return res;
 }
 
 int CodeGenerator::ResetImGuiID(const int& vWidgetId) {

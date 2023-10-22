@@ -5,7 +5,6 @@ set(PROJECT_VER 0.1.0)
 
 enable_language(C CXX)
 
-option(USE_CODE_GENERATOR "Enable the code generator" OFF)
 option(USE_TRACY_PROFILER "Enable Tracy Profiler" OFF)
 option(USE_TESTING_LUMO "Enable Tests" OFF)
 option(USE_CONSOLE_APP "Enable Console" OFF)
