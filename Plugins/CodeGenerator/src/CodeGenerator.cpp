@@ -50,7 +50,7 @@ CodeGenerator::CodeGenerator() {
 
 bool CodeGenerator::AuthorizeLoading() { return true; }
 
-void CodeGenerator::ActionAfterInit() { }
+void CodeGenerator::ActionAfterInit() { CodeGeneratorPane::Instance()->setVulkanCore(m_VulkanCoreWeak); }
 
 uint32_t CodeGenerator::GetVersionMajor() const { return CodeGenerator_MinorNumber; }
 

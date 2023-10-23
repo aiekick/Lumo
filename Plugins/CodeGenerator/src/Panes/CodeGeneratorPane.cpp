@@ -24,6 +24,7 @@ limitations under the License.
 #include <LumoBackend/Graph/Base/BaseNode.h>
 #include <LumoBackend/Systems/CommonSystem.h>
 #include <LumoBackend/Graph/Layout/GraphLayout.h>
+#include <Modules/FilesSaver.h>
 
 #define ICON_SDFM_SHARE u8"\uf496"
 
@@ -44,9 +45,12 @@ CodeGeneratorPane::~CodeGeneratorPane() = default;
 
 bool CodeGeneratorPane::Init() { return true; }
 
-void CodeGeneratorPane::Unit() {}
+void CodeGeneratorPane::Unit() { m_RootNodePtr.reset(); }
 
-void CodeGeneratorPane::setVulkanCore(GaiApi::VulkanCoreWeak vVulkanCoreWeak) { m_VulkanCore = vVulkanCoreWeak; }
+void CodeGeneratorPane::setVulkanCore(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
+    m_VulkanCore = vVulkanCoreWeak;
+    m_RootNodePtr = GeneratorNode::Create(m_VulkanCore.lock());
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
@@ -58,25 +62,33 @@ bool CodeGeneratorPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInO
     bool change = false;
 
     if (vInOutPaneShown & paneFlag) {
-        static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
+        static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollbar;
         if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
             auto win = ImGui::GetCurrentWindowRead();
             if (win->Viewport->Idx != 0)
-                flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
+                flags |= ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
             else
-                flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
+                flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoScrollbar;
 #endif
 
             {
                 const auto aw = ImGui::GetContentRegionAvail();
 
-                if (ImGui::BeginChild("Parameters", ImVec2(aw.x * 0.5f, aw.y), false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings)) {
+                if (ImGui::BeginChild("Parameters", ImVec2(aw.x * 0.5f, aw.y), true,   //
+                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |           //
+                            ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse |  //
+                            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
                     DrawContent();
                 }
                 ImGui::EndChild();
 
-                if (ImGui::BeginChild("Graph", ImVec2(aw.x * 0.5f, aw.y), false, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings)) {
+                ImGui::SameLine();
+
+                if (ImGui::BeginChild("Graph", ImVec2(aw.x * 0.5f, aw.y), true,         //
+                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |           //
+                            ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse |  //
+                            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
                     DrawGraph();
                 }
                 ImGui::EndChild();
@@ -95,7 +107,14 @@ bool CodeGeneratorPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInO
 
 bool CodeGeneratorPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-
+    if (ImGuiFileDialog::Instance()->Display("GenerateToPath")) {
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            FilesSaver::Instance()->GenerateGraphFiles(  //
+                m_RootNodePtr,                           //
+                ImGuiFileDialog::Instance()->GetCurrentPath());
+        }
+        ImGuiFileDialog::Instance()->Close();
+    }
     return false;
 }
 
@@ -133,19 +152,13 @@ void CodeGeneratorPane::Select(BaseNodeWeak vObjet) { SetParentNode(vObjet); }
 
 void CodeGeneratorPane::DrawContent() {
     if (ImGui::BeginTabBar("##tools")) {
-        /*if (ImGui::BeginTabItem("Plugin Creation"))
-        {
-
-
-            ImGui::EndTabItem();
-        }*/
-
         if (ImGui::BeginTabItem("Node Creation")) {
             DrawNodeCreationPane();
-
             ImGui::EndTabItem();
         }
-
+        if (ImGui::BeginTabItem("Plugin Creation")) {
+            ImGui::EndTabItem();
+        }
         ImGui::EndTabBar();
     }
 }
@@ -156,9 +169,7 @@ void CodeGeneratorPane::DrawGraph() {
             if (ImGui::MenuItem("Layout", "apply Layout")) {
                 GraphLayout::Instance()->ApplyLayout(m_RootNodePtr);
             }
-
             m_RootNodePtr->DrawToolMenu();
-
             if (m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext) {
                 nd::SetCurrentEditor(m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext);
                 if (nd::GetSelectedObjectCount()) {
@@ -166,38 +177,29 @@ void CodeGeneratorPane::DrawGraph() {
                         if (ImGui::MenuItem("Zoom on Selection")) {
                             m_RootNodePtr->ZoomToSelection();
                         }
-
                         if (ImGui::MenuItem("Center on Selection")) {
                             m_RootNodePtr->NavigateToSelection();
                         }
-
                         ImGui::EndMenu();
                     }
                 }
-
                 if (ImGui::BeginMenu("Content")) {
                     if (ImGui::MenuItem("Zoom on Content")) {
                         m_RootNodePtr->ZoomToContent();
                     }
-
                     if (ImGui::MenuItem("Center on Content")) {
                         m_RootNodePtr->NavigateToContent();
                     }
-
                     ImGui::EndMenu();
                 }
             }
-
             if (ImGui::BeginMenu("Style")) {
                 m_RootNodePtr->DrawStyleMenu();
                 GraphLayout::Instance()->DrawSettings();
-
                 ImGui::EndMenu();
             }
-
             ImGui::EndMenuBar();
         }
-
         m_RootNodePtr->DrawGraph();
     }
 }
@@ -207,12 +209,15 @@ void CodeGeneratorPane::DrawPluginCreationPane() {}
 void CodeGeneratorPane::DrawNodeCreationPane() {
     const float aw = ImGui::GetContentRegionAvail().x;
 
-    if (ImGui::ContrastedButton("Clear Graph (WARNING, cant be canceled !)")) {
+    if (ImGui::ContrastedButton("Clear Graph (WARNING, cannot be canceled !)")) {
         m_RootNodePtr->ClearGraph();
     }
 
     if (ImGui::ContrastedButton("New Node")) {
-        SelectNode(std::dynamic_pointer_cast<GeneratorNode>(m_RootNodePtr->AddChildNode(GeneratorNode::Create(m_VulkanCore.lock())).lock()));
+        SelectNode(std::dynamic_pointer_cast<GeneratorNode>(m_RootNodePtr
+                                                                ->AddChildNode(  //
+                                                                    GeneratorNode::Create(m_VulkanCore.lock()))
+                .lock()));
         auto nodePtr = m_SelectedNode.lock();
         if (nodePtr) {
             nodePtr->name = "New Node";
@@ -376,7 +381,7 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
         }
 
         if (ImGui::ContrastedButton("Generate")) {
-            ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", nullptr, m_GenerationRootPath);
+            ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", nullptr, m_GenerationRootPath, 1, nullptr, ImGuiFileDialogFlags_Modal);
         }
     }
 }

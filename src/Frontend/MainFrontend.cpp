@@ -210,6 +210,7 @@ bool MainFrontend::DrawOverlays(
 bool MainFrontend::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     m_ActionSystem.RunActions();
+    LayoutManager::Instance()->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     if (m_ShowImGui) {
         ImGui::ShowDemoWindow(&m_ShowImGui);
     }
