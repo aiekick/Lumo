@@ -94,20 +94,10 @@ file(GLOB_RECURSE CMAKE_RECURSE
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/*.cmake)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${CMAKE_RECURSE})
 
-set(ENABLE_EXPORTS ON CACHE STRING "" FORCE)
-
-set(LINKING_TYPE MODULE)
-if (USE_PLUGIN_STATIC_LINKING)
-	set(LINKING_TYPE STATIC)
-	add_definitions(-DUSE_PLUGIN_STATIC_LINKING)
-endif()
-
-add_library(${PROJECT} ${LINKING_TYPE}
+add_library(${PROJECT} MODULE
 	${CMAKE_RECURSE}
 	${SHADER_SOURCES}
-	${IMGUIIMPL_SOURCES}
 	${PROJECT_SRC_RECURSE}
-	${IMGUI_FREETYPE_SOURCES}
 	${PROJECT_SHADERS_RECURSE}
 )
 
@@ -117,14 +107,12 @@ else()
 	set(ARCH x32)
 endif()
 
-target_compile_definitions(${PROJECT} PRIVATE VULKAN)
+## set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}_${ARCH}")
+set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}")
 target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
-target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)
-target_compile_definitions(${PROJECT} PRIVATE VULKAN_HPP_STORAGE_SHARED)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
 target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
-target_compile_definitions(${PROJECT} PRIVATE VULKAN_HPP_TYPESAFE_CONVERSION=1) 
-target_compile_definitions(${PROJECT} PRIVATE VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
 
 if(USE_DEBUG_SANITIZER)
 	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
@@ -132,7 +120,7 @@ if(USE_DEBUG_SANITIZER)
 	message("Address Sanitizer enabled for projet ${PROJECT}")
 endif()
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins)
+set(FINAL_BIN_DIR ${CMAKE_SOURCE_DIR}/bin/plugins)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")

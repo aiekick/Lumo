@@ -117,8 +117,9 @@ void MainBackend::unit() {
     SaveConfigFile("config.xml");
     m_FileDialogAssets.clear();
     vkDeviceWaitIdle((VkDevice)m_VulkanCorePtr->getDevice());
-    RenderDocController::Instance()->Unit();
-    NodeManager::Instance()->Unit();
+    m_UnitSystems();
+    m_UnitNodes();
+    m_UnitPlugins();
     m_DestroyRenderers();
     m_DestroyImGuiOverlay();
     m_DestroyVulkanCore();
@@ -691,6 +692,10 @@ void MainBackend::m_InitNodes() {
     UserNodeLibrary::Instance()->AnalyseRootDirectory();
 }
 
+void MainBackend::m_UnitNodes() {
+    NodeManager::Instance()->Unit();
+}
+
 void MainBackend::m_InitPlugins() {
     PluginManager::Instance()->LoadPlugins(m_VulkanCorePtr);
     auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
@@ -700,12 +705,20 @@ void MainBackend::m_InitPlugins() {
                 pluginPane.paneDisposal, pluginPane.isPaneOpenedDefault, pluginPane.isPaneFocusedDefault);
         }
     }
-    LayoutManager::Instance()->InitPanes();
+}
+
+void MainBackend::m_UnitPlugins() {
+    PluginManager::Instance()->Clear();
 }
 
 void MainBackend::m_InitSystems() {
     CommonSystem::Instance()->CreateBufferObject(m_VulkanCorePtr);
     RenderDocController::Instance()->Init();
+}
+
+void MainBackend::m_UnitSystems() {
+    CommonSystem::Instance()->DestroyBufferObject();
+    RenderDocController::Instance()->Unit();
 }
 
 void MainBackend::m_InitPanes() {

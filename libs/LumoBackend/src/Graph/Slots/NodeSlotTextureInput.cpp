@@ -223,12 +223,13 @@ void NodeSlotTextureInput::TreatNotification(
 	}
 }
 
-void NodeSlotTextureInput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton)
-{
-	if (!linkedSlots.empty())
-	{
-		BaseNode::SelectForGraphOutput_Callback(linkedSlots[0], vMouseButton);
-	}
+void NodeSlotTextureInput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) {
+    if (!linkedSlots.empty()) {
+        auto ptr = m_GetRootNode();
+        if (ptr != nullptr) {
+            ptr->SelectForGraphOutput_Callback(linkedSlots[0], vMouseButton);
+        }
+    }
 }
 
 void NodeSlotTextureInput::DrawDebugInfos()

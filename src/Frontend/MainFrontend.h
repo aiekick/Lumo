@@ -138,9 +138,6 @@ public:
 
     void setBackend(const MainBackendWeak& vBackend);
 
-	void SelectNode(const BaseNodeWeak& vNode);
-	void SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton);
-
     void Display(const uint32_t& vCurrentFrame);
 
 	FrameActionSystem* GetActionSystem() { return &m_ActionSystem; }

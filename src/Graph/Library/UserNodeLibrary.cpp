@@ -65,11 +65,7 @@ void UserNodeLibrary::AnalyseRootDirectory()
 //// INIT ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-UserNodeLibrary::UserNodeLibrary()
-{
-	using namespace std::placeholders;
-	BaseNode::sShowNewNodeMenuCallback = std::bind(&UserNodeLibrary::ShowNewNodeMenu, this, _1, _2);
-}
+UserNodeLibrary::UserNodeLibrary() = default;
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MENU ////////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +88,7 @@ BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeS
 			auto createdNodePtr = createdNode.lock();
 			if (createdNodePtr)
 			{
+                createdNodePtr->m_RootNode = vNodeGraph;
 				createdNodePtr->TreatNotification(GraphIsLoaded);
 			}
 		}

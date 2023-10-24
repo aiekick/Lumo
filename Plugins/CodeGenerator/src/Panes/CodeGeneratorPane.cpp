@@ -43,13 +43,22 @@ limitations under the License.
 CodeGeneratorPane::CodeGeneratorPane() = default;
 CodeGeneratorPane::~CodeGeneratorPane() = default;
 
-bool CodeGeneratorPane::Init() { return true; }
+bool CodeGeneratorPane::Init() { 
+    
+    return true; }
 
 void CodeGeneratorPane::Unit() { m_RootNodePtr.reset(); }
 
 void CodeGeneratorPane::setVulkanCore(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
     m_VulkanCore = vVulkanCoreWeak;
     m_RootNodePtr = GeneratorNode::Create(m_VulkanCore.lock());
+
+    using namespace std::placeholders;
+    m_RootNodePtr->SetSelectNodeCallback(std::bind(&CodeGeneratorPane::SelectNode, this, _1));
+    m_RootNodePtr->SetSelectSlotCallback(std::bind(&CodeGeneratorPane::SelectSlot, this, _1, _2));
+    m_RootNodePtr->SetLoadNodeFromXMLCallback(std::bind(&CodeGeneratorPane::LoadNodeFromXML, this, _1, _2, _3, _4, _5, _6, _7));
+    NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
+    NodeSlot::sSlotGraphOutputMouseRightColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -214,9 +223,8 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
     }
 
     if (ImGui::ContrastedButton("New Node")) {
-        SelectNode(std::dynamic_pointer_cast<GeneratorNode>(m_RootNodePtr
-                                                                ->AddChildNode(  //
-                                                                    GeneratorNode::Create(m_VulkanCore.lock()))
+        SelectNode(std::dynamic_pointer_cast<GeneratorNode>(  //
+            m_RootNodePtr->AddChildNode(GeneratorNode::Create(m_VulkanCore.lock()))
                 .lock()));
         auto nodePtr = m_SelectedNode.lock();
         if (nodePtr) {

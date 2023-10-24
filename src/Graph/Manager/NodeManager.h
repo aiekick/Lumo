@@ -62,6 +62,9 @@ public:
 
 	void UpdateShaders(const std::set<std::string>& vFiles) const;
 
+	void SelectNode(const BaseNodeWeak& vNode);
+	void SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton);
+
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

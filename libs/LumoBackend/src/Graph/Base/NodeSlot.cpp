@@ -300,7 +300,7 @@ void NodeSlot::DrawContent(BaseNodeState* vBaseNodeState)
 
 				if (showWidget)
 				{
-					DrawInputWidget(vBaseNodeState);
+					m_DrawInputWidget(vBaseNodeState);
 				}
 				if (!hideName)
 				{
@@ -327,7 +327,7 @@ void NodeSlot::DrawContent(BaseNodeState* vBaseNodeState)
 				}
 				if (showWidget)
 				{
-					DrawOutputWidget(vBaseNodeState);
+					m_DrawOutputWidget(vBaseNodeState);
 				}
 
 				nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
@@ -373,7 +373,7 @@ void NodeSlot::DrawSlot(BaseNodeState* vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 			auto draw_list = ImGui::GetWindowDrawList();
 			if (draw_list)
 			{
-				DrawNodeSlot(draw_list, slotCenter, vBaseNodeState, connected, u_color, u_color);
+                m_DrawNodeSlot(draw_list, slotCenter, vBaseNodeState, connected, u_color, u_color);
 			}
 
 			if (ImGui::IsItemHovered())
@@ -383,20 +383,29 @@ void NodeSlot::DrawSlot(BaseNodeState* vBaseNodeState, ImVec2 vSlotSize, ImVec2 
 				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 				{
 					MouseDoubleClickedOnSlot(ImGuiMouseButton_Left);
-					BaseNode::SelectSlot_Callback(m_This, ImGuiMouseButton_Left);
+                    auto ptr = m_GetRootNode();
+                    if (ptr) {
+                        ptr->SelectSlot_Callback(m_This, ImGuiMouseButton_Left);
+					}
 				}
 				else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Right))
 				{
-					MouseDoubleClickedOnSlot(ImGuiMouseButton_Right);
-					BaseNode::SelectSlot_Callback(m_This, ImGuiMouseButton_Right);
+                    MouseDoubleClickedOnSlot(ImGuiMouseButton_Right);
+                    auto ptr = m_GetRootNode();
+                    if (ptr) {
+                        ptr->SelectSlot_Callback(m_This, ImGuiMouseButton_Right);
+                    }
 				}
 				else if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Middle))
 				{
-					MouseDoubleClickedOnSlot(ImGuiMouseButton_Middle);
-					BaseNode::SelectSlot_Callback(m_This, ImGuiMouseButton_Middle);
+                    MouseDoubleClickedOnSlot(ImGuiMouseButton_Middle);
+                    auto ptr = m_GetRootNode();
+                    if (ptr) {
+                        ptr->SelectSlot_Callback(m_This, ImGuiMouseButton_Middle);
+                    }
 				}
 
-				DrawSlotText(draw_list, slotCenter, vBaseNodeState, connected, u_color, u_color);
+				m_DrawSlotText(draw_list, slotCenter, vBaseNodeState, connected, u_color, u_color);
 			}
 		}
 	}
@@ -434,21 +443,27 @@ void NodeSlot::Notify(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlo
 		// also to the LMR selected output slots
 
 		// Left
-		if (vEmitterSlot.lock() == NodeSlot::sSlotGraphOutputMouseLeft.lock())
-		{
-			BaseNode::SelectForGraphOutput_Callback(NodeSlot::sSlotGraphOutputMouseLeft, ImGuiMouseButton_Left);
+		if (vEmitterSlot.lock() == NodeSlot::sSlotGraphOutputMouseLeft.lock()) {
+            auto ptr = m_GetRootNode();
+            if (ptr) {
+                ptr->SelectForGraphOutput_Callback(NodeSlot::sSlotGraphOutputMouseLeft, ImGuiMouseButton_Left);
+            }
 		}
 
 		// Middle
-		if (vEmitterSlot.lock() == NodeSlot::sSlotGraphOutputMouseMiddle.lock())
-		{
-			BaseNode::SelectForGraphOutput_Callback(NodeSlot::sSlotGraphOutputMouseLeft, ImGuiMouseButton_Middle);
+		if (vEmitterSlot.lock() == NodeSlot::sSlotGraphOutputMouseMiddle.lock()) {
+            auto ptr = m_GetRootNode();
+            if (ptr) {
+                ptr->SelectForGraphOutput_Callback(NodeSlot::sSlotGraphOutputMouseLeft, ImGuiMouseButton_Middle);
+            }
 		}
 
 		// Right
-		if (vEmitterSlot.lock() == NodeSlot::sSlotGraphOutputMouseRight.lock())
-		{
-			BaseNode::SelectForGraphOutput_Callback(NodeSlot::sSlotGraphOutputMouseLeft, ImGuiMouseButton_Right);
+		if (vEmitterSlot.lock() == NodeSlot::sSlotGraphOutputMouseRight.lock()) {
+            auto ptr = m_GetRootNode();
+            if (ptr) {
+                ptr->SelectForGraphOutput_Callback(NodeSlot::sSlotGraphOutputMouseLeft, ImGuiMouseButton_Right);
+            }
 		}
 	}
 	else // receiving notification from other slots
@@ -595,7 +610,7 @@ void NodeSlot::DrawDebugInfos()
 //// PRIVATE /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void NodeSlot::DrawInputWidget(BaseNodeState* vBaseNodeState)
+void NodeSlot::m_DrawInputWidget(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && !parentNode.expired())
 	{
@@ -608,8 +623,7 @@ void NodeSlot::DrawInputWidget(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void NodeSlot::DrawOutputWidget(BaseNodeState* vBaseNodeState)
-{
+void NodeSlot::m_DrawOutputWidget(BaseNodeState* vBaseNodeState) {
 	if (vBaseNodeState && !parentNode.expired())
 	{
 		assert(!m_This.expired());
@@ -621,8 +635,7 @@ void NodeSlot::DrawOutputWidget(BaseNodeState* vBaseNodeState)
 	}
 }
 
-void NodeSlot::DrawSlotText(ImDrawList* /*vDrawList*/, ImVec2 /*vCenter*/, BaseNodeState* vBaseNodeState, bool /*vConnected*/, ImU32 /*vColor*/, ImU32 /*vInnerColor*/)
-{
+void NodeSlot::m_DrawSlotText(ImDrawList* /*vDrawList*/, ImVec2 /*vCenter*/, BaseNodeState* vBaseNodeState, bool /*vConnected*/, ImU32 /*vColor*/, ImU32 /*vInnerColor*/) {
 	if (vBaseNodeState)
 	{
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -696,8 +709,7 @@ void NodeSlot::DrawSlotText(ImDrawList* /*vDrawList*/, ImVec2 /*vCenter*/, BaseN
 		}
 	}
 }
-void NodeSlot::DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor)
-{
+void NodeSlot::m_DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor) {
 	UNUSED(vInnerColor);
 	UNUSED(vConnected);
 
@@ -731,6 +743,19 @@ void NodeSlot::DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState
 			vDrawList->AddNgon(vCenter, slotRadius + 2.0f, ImGui::GetColorU32(NodeSlot::sSlotGraphOutputMouseRightColor), 24, 2.5f);
 		}
 	}
+}
+
+BaseNodePtr NodeSlot::m_GetRootNode() {
+    auto parent_ptr = parentNode.lock();
+    if (parent_ptr != nullptr) {
+        auto root_ptr = parent_ptr->m_RootNode.lock();
+        if (root_ptr != nullptr) {
+            return root_ptr;
+        } else {
+            CTOOL_DEBUG_BREAK;
+		}
+	}
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -58,6 +58,8 @@ limitations under the License.
 
 static const float& font_scale_ratio = 1.0f / 3.5f;
 
+using namespace std::placeholders;
+
 //////////////////////////////////////////////////////////////////////////////////
 //// STATIC //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
@@ -105,12 +107,6 @@ bool MainFrontend::init() {
         }
     }
 
-    using namespace std::placeholders;
-    BaseNode::sSelectCallback = std::bind(&MainFrontend::SelectNode, this, _1);
-    BaseNode::sSelectForGraphOutputCallback = std::bind(&MainFrontend::SelectNodeForGraphOutput, this, _1, _2);
-    NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
-    NodeSlot::sSlotGraphOutputMouseMiddleColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
-
     return m_build();
 }
 
@@ -121,22 +117,6 @@ void MainFrontend::unit() {
     for (auto& pluginPane : pluginPanes) {
         if (!pluginPane.paneWeak.expired()) {
             LayoutManager::Instance()->RemovePane(pluginPane.paneName);
-        }
-    }
-}
-
-void MainFrontend::SelectNode(const BaseNodeWeak& vNode) {
-    TuningPane::Instance()->Select(vNode);
-    DebugPane::Instance()->Select(vNode);
-}
-
-void MainFrontend::SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton) {
-    if (NodeManager::Instance()->m_RootNodePtr) {
-        if (vButton == ImGuiMouseButton_Left) {
-            View3DPane::Instance()->SetOrUpdateOutput(vSlot);
-        } else if (vButton == ImGuiMouseButton_Middle) {
-            View2DPane::Instance()->SetOrUpdateOutput(vSlot);
-        } else if (vButton == ImGuiMouseButton_Right) {
         }
     }
 }
@@ -310,7 +290,7 @@ void MainFrontend::m_drawMainMenuBar() {
 
 void MainFrontend::m_drawMainStatusBar() {
     if (ImGui::BeginMainStatusBar()) {
-        Messaging::Instance()->DrawStatusBar();
+        Messaging::Instance()->DrawStatusBar(LayoutManager::Instance());
 
         //  ImGui Infos
         const auto& io = ImGui::GetIO();

@@ -231,8 +231,11 @@ public:
 	void DrawDebugInfos();
 
 private:
-	void DrawInputWidget(BaseNodeState *vBaseNodeState);
-	void DrawOutputWidget(BaseNodeState *vBaseNodeState);
-	void DrawSlotText(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
-	void DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
+    void m_DrawInputWidget(BaseNodeState* vBaseNodeState);
+    void m_DrawOutputWidget(BaseNodeState* vBaseNodeState);
+    void m_DrawSlotText(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
+    void m_DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
+
+protected:
+    BaseNodePtr m_GetRootNode();
 };

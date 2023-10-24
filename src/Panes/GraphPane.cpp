@@ -45,7 +45,9 @@ GraphPane::~GraphPane() = default;
 bool GraphPane::Init()
 {
 	// add graph pane
-	BaseNode::sOpenGraphCallback = std::bind(&GraphPane::AddGraphPane, this, std::placeholders::_1);
+    if (NodeManager::Instance()->m_RootNodePtr != nullptr) {
+        NodeManager::Instance()->m_RootNodePtr->SetOpenGraphCallback(std::bind(&GraphPane::AddGraphPane, this, std::placeholders::_1));
+	}
 
 	return true;
 }
@@ -57,14 +59,13 @@ void GraphPane::Unit()
 
 void GraphPane::Clear()
 {
-	/*if (!vNode.expired())
-	{
+	/*
+	if (!vNode.expired())	{
 		auto ptr = vNode.lock();
-		if (ptr)
-		{
-
+		if (ptr) {
 		}
-	}*/
+	}
+	*/
 
 	ClearGraphPanes();
 	NodeManager::Instance()->m_RootNodePtr->ClearGraph();

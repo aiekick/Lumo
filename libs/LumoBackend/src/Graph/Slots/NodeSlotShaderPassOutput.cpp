@@ -133,9 +133,11 @@ void NodeSlotShaderPassOutput::SendFrontNotification(const NotifyEvent& vEvent)
 	}
 }
 
-void NodeSlotShaderPassOutput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton)
-{
-	BaseNode::SelectForGraphOutput_Callback(m_This, vMouseButton);
+void NodeSlotShaderPassOutput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) {
+    auto ptr = m_GetRootNode();
+    if (ptr != nullptr) {
+        ptr->SelectForGraphOutput_Callback(m_This, vMouseButton);
+    }
 }
 
 void NodeSlotShaderPassOutput::DrawDebugInfos()

@@ -29,17 +29,21 @@ limitations under the License.
 #include <LumoBackend/Interfaces/CameraInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 #include <LumoBackend/Systems/GizmoSystem.h>
-
 #include <Plugins/PluginManager.h>
 
+#include <Panes/DebugPane.h>
+#include <Panes/TuningPane.h>
+#include <Panes/View2DPane.h>
+#include <Panes/View3DPane.h>
+ 
 #include <Graph/Factory/NodeFactory.h>
+#include <Graph/Library/UserNodeLibrary.h>
 
 using namespace GaiApi;
+using namespace std::placeholders;
 
 NodeManager::NodeManager()
 {
-	using namespace std::placeholders;
-	BaseNode::sLoadNodeFromXMLCallback = std::bind(&NodeManager::LoadNodeFromXML, this, _1, _2, _3, _4, _5, _6, _7);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,8 +55,13 @@ bool NodeManager::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	ZoneScoped;
 
 	m_RootNodePtr = BaseNode::Create(vVulkanCorePtr);
-	if (m_RootNodePtr)
-	{
+	if (m_RootNodePtr) {
+        m_RootNodePtr->SetLoadNodeFromXMLCallback(std::bind(&NodeManager::LoadNodeFromXML, this, _1, _2, _3, _4, _5, _6, _7));
+        m_RootNodePtr->SetSelectNodeCallback(std::bind(&NodeManager::SelectNode, this, _1));
+        m_RootNodePtr->SetSelectForGraphOutputCallback(std::bind(&NodeManager::SelectNodeForGraphOutput, this, _1, _2));
+        m_RootNodePtr->SetNewNodeMenuCallback(std::bind(&UserNodeLibrary::ShowNewNodeMenu, UserNodeLibrary::Instance(), _1, _2));
+        NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
+        NodeSlot::sSlotGraphOutputMouseMiddleColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
 		return true;
 	}
 
@@ -205,6 +214,8 @@ bool NodeManager::LoadNodeFromXML(
 
 		if (nodePtr)
 		{
+            nodePtr->m_RootNode = m_RootNodePtr;
+
 			if (!vNodeName.empty())
 				nodePtr->name = vNodeName;
 			nodePtr->pos = ImVec2(vPos.x, vPos.y);
@@ -291,4 +302,24 @@ bool NodeManager::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 	}
 
 	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// SELECT NODES ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void NodeManager::SelectNode(const BaseNodeWeak& vNode) {
+    TuningPane::Instance()->Select(vNode);
+    DebugPane::Instance()->Select(vNode);
+}
+
+void NodeManager::SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton) {
+    if (NodeManager::Instance()->m_RootNodePtr) {
+        if (vButton == ImGuiMouseButton_Left) {
+            View3DPane::Instance()->SetOrUpdateOutput(vSlot);
+        } else if (vButton == ImGuiMouseButton_Middle) {
+            View2DPane::Instance()->SetOrUpdateOutput(vSlot);
+        } else if (vButton == ImGuiMouseButton_Right) {
+        }
+    }
 }
