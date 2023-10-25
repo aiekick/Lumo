@@ -33,9 +33,12 @@ public:
     bool IsAPlugin() const override { return _isAPlugin; }
 
     void DLOpenLib() override {
-        _handle = LoadLibraryExA(_pathToLib.c_str(), NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);
+        _handle = LoadLibraryA(_pathToLib.c_str());
         if (_handle == nullptr) {
-            const auto& dw = GetLastError(); 
+            _handle = LoadLibraryExA(_pathToLib.c_str(), NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);
+        }
+        if (_handle == nullptr) {
+            const auto &dw = GetLastError();
             if (dw == ERROR_MOD_NOT_FOUND) {
                 LogVarError("Can't open and load %s with error : ERROR_MOD_NOT_FOUND", _pathToLib.c_str());
             } else {
