@@ -99,13 +99,13 @@ bool MainFrontend::init() {
     LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D Pane", "", PaneDisposal::LEFT, false, false);
     LayoutManager::Instance()->AddPane(ConsolePane::Instance(), "Console Pane", "", PaneDisposal::BOTTOM, false, false);
 
-    auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
+    /*auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
     for (auto& pluginPane : pluginPanes) {
         if (!pluginPane.paneWeak.expired()) {
             LayoutManager::Instance()->AddPane(pluginPane.paneWeak, pluginPane.paneName, pluginPane.paneCategory,
                 pluginPane.paneDisposal, pluginPane.isPaneOpenedDefault, pluginPane.isPaneFocusedDefault);
         }
-    }
+    }*/
 
     return m_build();
 }

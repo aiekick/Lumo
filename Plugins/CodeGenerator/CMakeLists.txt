@@ -53,6 +53,7 @@ add_definitions(-DUSE_IMCOOL_BAR)
 add_definitions(-DUSE_IMGUI_MARKDOW)
 add_definitions(-DUSE_IMGUI_FILE_DIALOG)
 add_definitions(-DUSE_IMGUI_NODE_EDITOR)
+add_definitions(-DUSE_IMGUI_COLOR_TEXT_EDIT)
 
 if(UNIX)
     add_definitions(-DUNIX)

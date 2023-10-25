@@ -66,6 +66,7 @@ add_definitions(-DUSE_IMCOOL_BAR)
 add_definitions(-DUSE_IMGUI_MARKDOW)
 add_definitions(-DUSE_IMGUI_FILE_DIALOG)
 add_definitions(-DUSE_IMGUI_NODE_EDITOR)
+add_definitions(-DUSE_IMGUI_COLOR_TEXT_EDIT)
 
 set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE BOOL "" FORCE)
 add_library(${PROJECT} 

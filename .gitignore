@@ -121,3 +121,4 @@
 /bin/plugins/libPlugin_AudiArt_Linux_Debug_x32.so
 /bin/plugins/libPlugin_MeshGen_Linux_Debug_x32.so
 /bin/Lumo_Linux_Debug_x32
+/bin/plugins/Plugin_CodeGenerator_Windows_Debug_x64.dll
