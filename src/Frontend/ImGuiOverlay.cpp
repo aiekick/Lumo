@@ -44,6 +44,7 @@ limitations under the License.
 
 #include <Res/sdfmFont.cpp>
 #include <Res/Roboto_Medium.cpp>
+#include <Res/FireCode.cpp>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -94,17 +95,24 @@ bool ImGuiOverlay::Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, GaiApi::VulkanWi
                 corePtr->SetVulkanImGuiRenderer(m_VulkanImGuiRendererPtr);
 
                 // MAIN FONT
-                auto fontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_RM, 60.0f);
-                if (fontPtr) {
-                    fontPtr->Scale = 0.25f;
+                auto mainFontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_RM, 60.0f);
+                if (mainFontPtr) {
+                    mainFontPtr->Scale = 0.25f;
+                }
+
+                // CODE FONT
+                auto codeFontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_FCR, 60.0f);
+                if (codeFontPtr) {
+                    codeFontPtr->Scale = 0.25f;
                 }
 
                 // ICON FONT
                 static ImFontConfig icons_config_SDFM;
-                icons_config_SDFM.MergeMode        = true;
-                icons_config_SDFM.PixelSnapH       = true;
+                icons_config_SDFM.MergeMode = true;
+                icons_config_SDFM.PixelSnapH = true;
                 static ImWchar icons_ranges_SDFM[] = {ICON_MIN_SDFM, ICON_MAX_SDFM, 0};
-                fontPtr                            = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_SDFM, 60.0f, &icons_config_SDFM, icons_ranges_SDFM);
+                auto iconFontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(
+                    FONT_ICON_BUFFER_NAME_SDFM, 60.0f, &icons_config_SDFM, icons_ranges_SDFM);
 
                 m_MainFrontendPtr = MainFrontend::create();
                 if (m_MainFrontendPtr != nullptr) {

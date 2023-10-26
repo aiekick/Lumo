@@ -463,6 +463,10 @@ std::string CodeGeneratorPane::getXml(const std::string& vOffset, const std::str
     }
     str += vOffset + "</custom_types>\n";
 
+    if (m_RootNodePtr) {
+        str += m_RootNodePtr->getXml(vOffset, vUserDatas);
+    }
+
     return str;
 }
 
@@ -482,6 +486,10 @@ bool CodeGeneratorPane::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 
     if (strParentName == "custom_types" && strName == "custom_type_name") {
         m_CustomTypeInputTexts.emplace_back(strValue);
+    }
+
+    if (m_RootNodePtr) {
+        return m_RootNodePtr->setFromXml(vElem, vParent, vUserDatas);
     }
 
     return true;
