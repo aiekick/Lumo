@@ -100,12 +100,6 @@ bool ImGuiOverlay::Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, GaiApi::VulkanWi
                     mainFontPtr->Scale = 0.25f;
                 }
 
-                // CODE FONT
-                auto codeFontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_FCR, 60.0f);
-                if (codeFontPtr) {
-                    codeFontPtr->Scale = 0.25f;
-                }
-
                 // ICON FONT
                 static ImFontConfig icons_config_SDFM;
                 icons_config_SDFM.MergeMode = true;
@@ -113,6 +107,12 @@ bool ImGuiOverlay::Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, GaiApi::VulkanWi
                 static ImWchar icons_ranges_SDFM[] = {ICON_MIN_SDFM, ICON_MAX_SDFM, 0};
                 auto iconFontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(
                     FONT_ICON_BUFFER_NAME_SDFM, 60.0f, &icons_config_SDFM, icons_ranges_SDFM);
+
+                // CODE FONT
+                auto codeFontPtr = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(FONT_ICON_BUFFER_NAME_FCR, 60.0f);
+                if (codeFontPtr) {
+                    codeFontPtr->Scale = 0.25f;
+                }
 
                 m_MainFrontendPtr = MainFrontend::create();
                 if (m_MainFrontendPtr != nullptr) {

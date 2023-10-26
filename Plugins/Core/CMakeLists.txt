@@ -124,7 +124,7 @@ if(USE_DEBUG_SANITIZER)
 	message("Address Sanitizer enabled for projet ${PROJECT}")
 endif()
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins/${PROJECT})
+set(FINAL_BIN_DIR ${CMAKE_SOURCE_DIR}/bin/plugins/${PROJECT})
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")

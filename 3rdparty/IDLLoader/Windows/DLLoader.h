@@ -33,10 +33,8 @@ public:
     bool IsAPlugin() const override { return _isAPlugin; }
 
     void DLOpenLib() override {
-        _handle = LoadLibraryA(_pathToLib.c_str());
-        if (_handle == nullptr) {
-            _handle = LoadLibraryExA(_pathToLib.c_str(), NULL, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR);
-        }
+        _handle = LoadLibraryExA(_pathToLib.c_str(), NULL,  //
+            LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
         if (_handle == nullptr) {
             const auto &dw = GetLastError();
             if (dw == ERROR_MOD_NOT_FOUND) {
