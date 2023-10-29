@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 #include "MeshNode.h"
-#include <Modules/Assets/MeshModule.h>
+#include <Modules/Assets/Load/MeshModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
 #ifdef PROFILER_INCLUDE

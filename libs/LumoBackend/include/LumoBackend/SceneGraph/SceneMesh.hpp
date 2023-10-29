@@ -394,21 +394,45 @@ bool SceneMesh<T_VertexType>::Build(bool vUseSBO)
 template<typename T_VertexType>
 std::vector<T_VertexType> SceneMesh<T_VertexType>::GetVerticesFromGPU()
 {
-	std::vector<T_VertexType> res;
-
-	CTOOL_DEBUG_BREAK;
-
-	return res;
+    vk::BufferCreateInfo stagingBufferInfo = {};
+    VmaAllocationCreateInfo stagingAllocInfo = {};
+    stagingBufferInfo.size = m_Vertices.m_BufferInfo.range;
+    stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferDst;
+    stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU;
+    auto stagebufferPtr = GaiApi::VulkanRessource::createSharedBufferObject(m_VulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+    if (stagebufferPtr) {
+        vk::BufferCopy region = {};
+        region.size = stagingBufferInfo.size;
+        GaiApi::VulkanRessource::copy(m_VulkanCorePtr, stagebufferPtr->buffer, m_Vertices.m_Buffer->buffer, region);
+        std::vector<T_VertexType> res;
+        res.resize(m_Vertices.m_Count);
+        if (GaiApi::VulkanRessource::download(m_VulkanCorePtr, stagebufferPtr, (void*)res.data(), stagingBufferInfo.size)) {
+            return res;
+        }
+    }
+    return {};
 }
 
 template<typename T_VertexType>
 std::vector<VertexStruct::I1> SceneMesh<T_VertexType>::GetIndicesFromGPU()
 {
-	std::vector<VertexStruct::I1> res;
-
-	CTOOL_DEBUG_BREAK;
-
-	return res;
+	vk::BufferCreateInfo stagingBufferInfo = {};
+    VmaAllocationCreateInfo stagingAllocInfo = {};
+    stagingBufferInfo.size = m_Indices.m_BufferInfo.range;
+    stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferDst;
+    stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU;
+    auto stagebufferPtr = GaiApi::VulkanRessource::createSharedBufferObject(m_VulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+    if (stagebufferPtr) {
+        vk::BufferCopy region = {};
+        region.size = stagingBufferInfo.size;
+        GaiApi::VulkanRessource::copy(m_VulkanCorePtr, stagebufferPtr->buffer, m_Indices.m_Buffer->buffer, region);
+        std::vector<VertexStruct::I1> res;
+        res.resize(m_Indices.m_Count);
+        if (GaiApi::VulkanRessource::download(m_VulkanCorePtr, stagebufferPtr, (void*)res.data(), stagingBufferInfo.size)) {
+            return res;
+        }
+    }
+    return {};
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -23,8 +23,6 @@
 #include <Nodes/DiffOperators/GradientNode.h>
 #include <Nodes/DiffOperators/CurlNode.h>
 
-#include <Nodes/Exporter/ModelExporterNode.h>
-#include <Nodes/Exporter/TextureExporterNode.h>
 #include <Nodes/Exporter/TextureGroupExporterNode.h>
 
 #include <Nodes/Lighting/LightGroupNode.h>
@@ -186,8 +184,6 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/2D/Differential Ops", "Gradient", "GRADIENT"));
 	res.push_back(AddLibraryEntry("Core/2D/Differential Ops", "Curl (Rotational)", "CURL"));
 
-	res.push_back(AddLibraryEntry("Core/3D/Exporter", "3D Model Exporter", "MODEL_EXPORTER"));
-	res.push_back(AddLibraryEntry("Core/2D/Exporter", "Texture 2D Exporter", "TEXTURE_2D_EXPORTER"));
 	res.push_back(AddLibraryEntry("Core/2D/Exporter", "Texture Group 2D Exporter", "TEXTURE_2D_GROUP_EXPORTER"));
 
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Blur", "BLUR"));
@@ -228,8 +224,6 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	else if (vPluginNodeName == "CURL")							return CurlNode::Create(vkCorePtr);
 
 	// Exporters
-	else if (vPluginNodeName == "MODEL_EXPORTER")				return ModelExporterNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "TEXTURE_2D_EXPORTER")			return TextureExporterNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "TEXTURE_2D_GROUP_EXPORTER")	return TextureGroupExporterNode::Create(vkCorePtr);
 
 	// Misc

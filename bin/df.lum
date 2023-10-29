@@ -1,0 +1,168 @@
+<config>
+	<project>
+		<CommonSystem>
+			<TargetXYZ>-0;-0;-0</TargetXYZ>
+			<TargetXYZLock>1;1;0</TargetXYZLock>
+			<TransXY>0;0</TransXY>
+			<TransXYLock>1;1</TransXYLock>
+			<TransFactor>5</TransFactor>
+			<RotXYZ>-0.342319;0.131724;0</RotXYZ>
+			<RotXYZLock>0;0;1</RotXYZLock>
+			<RotXYZFactor>1</RotXYZFactor>
+			<Zoom>22.2847</Zoom>
+			<ZoomLock>0</ZoomLock>
+			<ZoomFactor>5</ZoomFactor>
+			<PerspectiveAngle>45</PerspectiveAngle>
+			<CamFar>1000</CamFar>
+			<CameraType>0</CameraType>
+			<CameraType>0</CameraType>
+			<CameraMode>0</CameraMode>
+		</CommonSystem>
+		<scene>
+			<graph>
+				<canvas>
+					<offset>0;0</offset>
+					<scale>1</scale>
+				</canvas>
+				<nodes>
+					<node name="Model" type="MESH" pos="-475;-25" id="7896">
+						<slot index="0" name="Output" type="MESH" place="OUTPUT" id="7900"/>
+						<mesh_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Model Renderer" type="MODEL_RENDERER" pos="0;-74" id="10462">
+						<slot index="0" name="Mesh" type="MESH" place="INPUT" id="10465"/>
+						<slot index="0" name="" type="TEXTURE_2D" place="OUTPUT" id="10468"/>
+						<slot index="1" name="Output" type="SHADER_PASS" place="OUTPUT" id="10472"/>
+						<model_renderer_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<display_mode>3</display_mode>
+							<line_thickness>1</line_thickness>
+							<point_size>1</point_size>
+							<show_layer>5</show_layer>
+							<use_indices_restriction>false</use_indices_restriction>
+							<restricted_indices_count_to_draw>362016</restricted_indices_count_to_draw>
+						</model_renderer_module>
+					</node>
+					<node name="Mesh Sim" type="COMPUTE_MESH_SIM" pos="-326;-105" id="12853">
+						<slot index="0" name="Mesh" type="MESH" place="INPUT" id="12857"/>
+						<slot index="0" name="Mesh" type="MESH" place="OUTPUT" id="12861"/>
+						<compute_mesh_sim>
+							<can_we_render>true</can_we_render>
+							<mouse_radius>0.05</mouse_radius>
+							<mouse_inversion>0</mouse_inversion>
+							<grayscott_diffusion_u>0.192</grayscott_diffusion_u>
+							<grayscott_diffusion_v>1</grayscott_diffusion_v>
+							<grayscott_feed>0.026</grayscott_feed>
+							<grayscott_kill>0.049</grayscott_kill>
+							<displacement>0.2</displacement>
+							<iterations_count>1</iterations_count>
+							<simulation_config>0</simulation_config>
+						</compute_mesh_sim>
+					</node>
+					<node name="ReColorize" type="RECOLORIZE" pos="-173;-44" id="18310">
+						<slot index="0" name="Model" type="MESH" place="INPUT" id="18313"/>
+						<slot index="1" name="Color 0" type="TEXTURE_2D" place="INPUT" id="18316"/>
+						<slot index="2" name="Color 1" type="TEXTURE_2D" place="INPUT" id="18319"/>
+						<slot index="0" name="" type="MESH" place="OUTPUT" id="18322"/>
+						<recolorize_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<strength>1</strength>
+							<smoothness>0.205</smoothness>
+							<inversion>0</inversion>
+						</recolorize_module>
+					</node>
+					<node name="Widget Color" type="WIDGET_COLOR" pos="-343;-25" id="21925">
+						<slot index="0" name="Color" type="TEXTURE_2D" place="OUTPUT" id="21929"/>
+						<widget_color_module>
+							<can_we_render>true</can_we_render>
+							<color>1;0;0;1</color>
+						</widget_color_module>
+					</node>
+					<node name="Widget Color" type="WIDGET_COLOR" pos="-343;55" id="23670">
+						<slot index="0" name="Color" type="TEXTURE_2D" place="OUTPUT" id="23674"/>
+						<widget_color_module>
+							<can_we_render>true</can_we_render>
+							<color>0;0.709677;1;1</color>
+						</widget_color_module>
+					</node>
+					<node name="Model Exporter" type="MODEL_EXPORTER" pos="3;24" id="37254">
+						<slot index="0" name="Model" type="MESH" place="INPUT" id="37257"/>
+						<model_exporter_module>
+						</model_exporter_module>
+					</node>
+				</nodes>
+				<links>
+					<link in="18310:18322" out="37254:37257"/>
+					<link in="12853:12857" out="7896:7900"/>
+					<link in="12853:12861" out="18310:18313"/>
+					<link in="21925:21929" out="18310:18316"/>
+					<link in="23670:23674" out="18310:18319"/>
+					<link in="18310:18322" out="10462:10465"/>
+				</links>
+				<outputs>
+					<output type="left" ids="10462:10468"/>
+				</outputs>
+			</graph>
+		</scene>
+		<plugins>
+			<CodeGenerator>
+				<custom_types>
+				</custom_types>
+				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\MeshSim\src</root_path>
+				<scene>
+					<graph>
+						<canvas>
+							<offset>0;0</offset>
+							<scale>1</scale>
+						</canvas>
+						<nodes>
+							<node name="ReColorize" type="NONE" pos="0;0" id="5178">
+								<slot index="0" name="Model" type="MESH" place="INPUT" id="5181" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="Color 0" type="TEXTURE_2D" place="INPUT" id="5190" hideName="false" typeIndex="6" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="2" name="Color 1" type="TEXTURE_2D" place="INPUT" id="5196" hideName="false" typeIndex="6" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="MESH" place="OUTPUT" id="5184" hideName="true" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>ReColorize</class_name>
+									<category_name>Modifiers</category_name>
+									<node_creation_name>RECOLORIZE</node_creation_name>
+									<node_display_name>ReColorize</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 2D</renderer_type>
+									<module_display_name>ReColorize</module_display_name>
+									<module_xml_name>recolorize_module</module_xml_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<vertex_struct_type>0</vertex_struct_type>
+								</generation>
+								<UBOS renderer="Compute 2D">
+									<UBO stage="0">
+										<UBOItem name="Ratio" typeIndex="0" vx="0.5" vy="" vz="" vw=""/>
+									</UBO>
+								</UBOS>
+							</node>
+						</nodes>
+						<links>
+						</links>
+						<outputs>
+							<output type="left" ids="10462:10468"/>
+						</outputs>
+					</graph>
+				</scene>
+			</CodeGenerator>
+			<MeshSim>
+			</MeshSim>
+		</plugins>
+	</project>
+</config>

@@ -18,7 +18,7 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "CubeMapNode.h"
-#include <Modules/Assets/CubeMapModule.h>
+#include <Modules/Assets/Load/CubeMapModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureCubeOutput.h>
 
 #ifdef PROFILER_INCLUDE

@@ -1,0 +1,77 @@
+
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout (local_size_x = 8, local_size_y = 1, local_size_z = 1 ) in;
+
+layout(std140, binding = 0) uniform UBO_Camera 
+{
+	mat4 cam;			// the MVP matrix
+	mat4 model;			// the model matrix
+	mat4 view;			// the view matrix
+	mat4 proj;			// the proj matrix
+	mat4 normalMat;		// the normal matrix
+	vec4 left_mouse;	// 2pos_2click_normalized
+	vec4 middle_mouse;	// 2pos_2click_normalized
+	vec4 right_mouse;	// 2pos_2click_normalized
+	vec2 screenSize;	// the screensize
+	vec2 viewportSize;	// the viewportSize
+	float cam_near;		// the cam near
+	float cam_far;		// the cam far
+};
+
+float LinearizeDepth(float vDepth)
+{
+	return (cam_near * cam_far) / (cam_far + cam_near - vDepth * (cam_far - cam_near));
+}
+
+float DeLinearizeDepth(float vDepth)
+{
+	return (cam_near + cam_far) * vDepth - cam_far * cam_near / (cam_near - cam_far) * vDepth;
+}
+
+layout(std140, binding = 1) uniform UBO_Comp {
+	float u_Smooth;
+};
+
+struct V3N3T3B3T2C4 {
+	float px, py, pz;
+	float nx, ny, nz;
+	float tax, tay, taz;
+	float btax, btay, btaz;
+	float tx, ty;
+	float cx, cy, cz, cw;
+};
+
+layout(binding = 2) uniform sampler2D input_color_0;
+layout(binding = 3) uniform sampler2D input_color_1;
+
+layout(std430, binding = 4) readonly buffer VertexInput {
+	V3N3T3B3T2C4 inputVertices[];
+};
+
+layout(std430, binding = 5) buffer VertexOutput {
+	V3N3T3B3T2C4 outputVertices[];
+};
+
+void main() {
+	const uint id = gl_GlobalInvocationID.x;
+
+	// current vertex datas
+	V3N3T3B3T2C4 current_vertex = inputVertices[id];
+
+    // re colorize
+	vec4 color0 = texture(input_color_0, vec2(0.5));
+	vec4 color1 = texture(input_color_1, vec2(0.5));
+	float smoothness = smoothstep(0.0, u_Smooth, current_vertex.cx);
+	vec4 output_color = mix(color0, color1, vec4(current_vertex.cx));
+		
+    // output vertex color
+	current_vertex.cx = output_color.x;
+	current_vertex.cy = output_color.y;
+	current_vertex.cz = output_color.z;
+	current_vertex.cw = output_color.w;
+
+	// write datas
+	outputVertices[id] = current_vertex;
+}

@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 #include "Texture2DNode.h"
-#include <Modules/Assets/Texture2DModule.h>
+#include <Modules/Assets/Load/Texture2DModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
 #ifdef PROFILER_INCLUDE

@@ -18,7 +18,7 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "TextureExporterNode.h"
-#include <Modules/Exporter/TextureExporterModule.h>
+#include <Modules/Assets/Save/TextureExporterModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
 
 #ifdef PROFILER_INCLUDE

@@ -16,9 +16,12 @@ limitations under the License.
 
 #include "NodeFactory.h"
 
-#include <Nodes/Assets/MeshNode.h>
-#include <Nodes/Assets/Texture2DNode.h>
-#include <Nodes/Assets/CubeMapNode.h>
+#include <Nodes/Assets/Load/MeshNode.h>
+#include <Nodes/Assets/Load/Texture2DNode.h>
+#include <Nodes/Assets/Load/CubeMapNode.h>
+
+#include <Nodes/Assets/Save/ModelExporterNode.h>
+#include <Nodes/Assets/Save/TextureExporterNode.h>
 
 #include <Nodes/Misc/GridNode.h>
 #include <Nodes/Misc/SceneMergerNode.h>
@@ -44,8 +47,14 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
             else if (vNodeType == "CUBE_MAP")
                 return CubeMapNode::Create(corePtr);
 
+            // Exporters
+            else if (vNodeType == "MODEL_EXPORTER")
+                return ModelExporterNode::Create(corePtr);
+            else if (vNodeType == "TEXTURE_2D_EXPORTER")
+                return TextureExporterNode::Create(corePtr);
+            
             // Misc
-            if (vNodeType == "GRID_AXIS")
+            else if (vNodeType == "GRID_AXIS")
                 return GridNode::Create(corePtr);
             else if (vNodeType == "SCENE_MERGER")
                 return SceneMergerNode::Create(corePtr);

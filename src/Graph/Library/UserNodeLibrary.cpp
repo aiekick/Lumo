@@ -54,13 +54,17 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	// internals
 	
     // Assets
-    m_RootLibraryCategory.AddCustom("Base/3D/Assets", "3D Model", "MESH");
-    m_RootLibraryCategory.AddCustom("Base/2D/Assets", "2D Texture", "TEXTURE_2D");
-    m_RootLibraryCategory.AddCustom("Base/3D/Assets", "CubeMap", "CUBE_MAP");
+    m_RootLibraryCategory.AddCustom("Base/3D/Assets/Load", "3D Model", "MESH");
+    m_RootLibraryCategory.AddCustom("Base/2D/Assets/Load", "2D Texture", "TEXTURE_2D");
+    m_RootLibraryCategory.AddCustom("Base/2D/Assets/Load", "2D CubeMap", "CUBE_MAP");
+
+    // Exporters
+    m_RootLibraryCategory.AddCustom("Base/3D/Assets/Save", "3D Model", "MODEL_EXPORTER");
+    m_RootLibraryCategory.AddCustom("Base/2D/Assets/Save", "2D Texture", "TEXTURE_2D_EXPORTER");
 	
 	// Misc
-    m_RootLibraryCategory.AddCustom("Base/Misc", "Grid / Axis", "GRID_AXIS");
-    m_RootLibraryCategory.AddCustom("Base/Misc", "Scene Merger", "SCENE_MERGER");
+    m_RootLibraryCategory.AddCustom("Base/3D/Scene", "Grid / Axis", "GRID_AXIS");
+    m_RootLibraryCategory.AddCustom("Base/3D/Scene", "Scene Merger", "SCENE_MERGER");
 
     // Renderers
     m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Channels", "CHANNEL_RENDERER");

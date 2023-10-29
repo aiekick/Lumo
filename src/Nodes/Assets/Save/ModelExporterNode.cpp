@@ -18,7 +18,7 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "ModelExporterNode.h"
-#include <Modules/Exporter/ModelExporterModule.h>
+#include <Modules/Assets/Save/ModelExporterModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 
 #ifdef PROFILER_INCLUDE
