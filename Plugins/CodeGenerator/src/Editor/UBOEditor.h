@@ -37,7 +37,7 @@ private:
 
 public:
 	UBOItem() = default;
-	void DrawItem(const std::string& vStage);
+	bool DrawItem(const std::string& vStage);
 	std::string Get_Glsl_Item_Header();
 	std::string Get_Cpp_Item_Header();
 	std::string Get_Cpp_GetXML(const std::string& vStage, const int32_t& vUboIndex);
@@ -62,7 +62,7 @@ public:
 public:
 	UBOEditor();
 	bool DrawStageSelection(const std::string& vRendererType);
-	void DrawPane(const std::string& vRendererType);
+	bool DrawPane(const std::string& vRendererType);
 	
 	std::string Get_Widgets_Header(const std::string& vRendererType, const int32_t& vUboIndex);
 	std::string Get_Glsl_Header(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex);
@@ -95,7 +95,7 @@ public:
 
 public:
 	UBOEditors();
-	void DrawPane(const std::string& vRendererType);
+    bool DrawPane(const std::string& vRendererType);
 
 	std::string Get_Cpp_Functions_Imp();
 	std::string Get_Cpp_Functions_Header();

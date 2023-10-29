@@ -99,7 +99,7 @@ bool TuningPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
 				ImGuiWindowFlags_NoBringToFrontOnFocus |
 				ImGuiWindowFlags_MenuBar;
 #endif
-			if (ProjectFile::Instance()->IsLoaded())
+			if (ProjectFile::Instance()->IsProjectLoaded())
 			{
 				change = DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}

@@ -553,9 +553,9 @@ public:  // test if slot connection possible for have rule node
 public:  // slot splitter
     virtual std::vector<NodeSlotWeak> InjectTypeInSlot(NodeSlotWeak vSlotToSplit, Lumo::uType::uTypeEnum vType);
 
-public:                                   // ImGui
-    void DrawStyleMenu();                 // ImGui
-    void DrawNodeGraphStyleMenu() const;  // imgui_node_editor
+public:                             // ImGui
+    void DrawStyleMenu();           // ImGui
+    void DrawNodeGraphStyleMenu();  // imgui_node_editor
     void DrawToolMenu();
 
 public:  // gui interface

@@ -129,9 +129,9 @@ BaseNodePtr MeshGen::CreatePluginNode(const std::string& vPluginNodeName)
 	return res;
 }
 
-std::vector<PluginPane> MeshGen::GetPanes() const
+std::vector<PluginPaneConfig> MeshGen::GetPanes() const
 {
-	std::vector<PluginPane> res;
+	std::vector<PluginPaneConfig> res;
 
 	return res;
 }

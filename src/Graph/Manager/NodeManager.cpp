@@ -56,9 +56,11 @@ bool NodeManager::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	m_RootNodePtr = BaseNode::Create(vVulkanCorePtr);
 	if (m_RootNodePtr) {
-        m_RootNodePtr->SetLoadNodeFromXMLCallback(std::bind(&NodeManager::LoadNodeFromXML, this, _1, _2, _3, _4, _5, _6, _7));
+        m_RootNodePtr->name = "LumoGraph";
+        m_RootNodePtr->m_NodeTypeString = "Graph";
         m_RootNodePtr->SetSelectNodeCallback(std::bind(&NodeManager::SelectNode, this, _1));
         m_RootNodePtr->SetSelectForGraphOutputCallback(std::bind(&NodeManager::SelectNodeForGraphOutput, this, _1, _2));
+        m_RootNodePtr->SetLoadNodeFromXMLCallback(std::bind(&NodeManager::LoadNodeFromXML, this, _1, _2, _3, _4, _5, _6, _7));
         m_RootNodePtr->SetNewNodeMenuCallback(std::bind(&UserNodeLibrary::ShowNewNodeMenu, UserNodeLibrary::Instance(), _1, _2));
         NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
         NodeSlot::sSlotGraphOutputMouseMiddleColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
@@ -275,7 +277,7 @@ void NodeManager::UpdateShaders(const std::set<std::string>& vFiles) const
 
 std::string NodeManager::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
-	if (m_RootNodePtr)
+    if (m_RootNodePtr && !m_RootNodePtr->m_ChildNodes.empty())
 	{
 		return m_RootNodePtr->getXml(vOffset, vUserDatas);
 	}
@@ -298,7 +300,7 @@ bool NodeManager::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 
 	if (m_RootNodePtr)
 	{
-		return m_RootNodePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_RootNodePtr->RecursParsingConfig(vElem, vParent, vUserDatas);
 	}
 
 	return false;

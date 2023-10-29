@@ -142,9 +142,9 @@ BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
 	return nullptr;
 }
 
-std::vector<PluginPane> RTX::GetPanes() const
+std::vector<PluginPaneConfig> RTX::GetPanes() const
 {
-	std::vector<PluginPane> res;
+	std::vector<PluginPaneConfig> res;
 
 	return res;
 }

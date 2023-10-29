@@ -512,16 +512,12 @@ void NodeSlot::SendNotification(const std::string& vSlotType, const NotifyEvent&
 
 void NodeSlot::OnConnectEvent(NodeSlotWeak /*vOtherSlot*/)
 {
-#ifdef _DEBUG
-	//LogVarInfo("NodeSlot::OnConnectEvent catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
-#endif
+	LogVarDebugWarning("NodeSlot::OnConnectEvent catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 }
 
 void NodeSlot::OnDisConnectEvent(NodeSlotWeak /*vOtherSlot*/)
 {
-#ifdef _DEBUG
-	//LogVarInfo("NodeSlot::OnDisConnectEvent catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
-#endif
+    LogVarDebugWarning("NodeSlot::OnDisConnectEvent catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 }
 
 void NodeSlot::TreatNotification(
@@ -529,30 +525,22 @@ void NodeSlot::TreatNotification(
 	const NodeSlotWeak& /*vEmitterSlot*/,
 	const NodeSlotWeak& /*vReceiverSlot*/)
 {
-#ifdef _DEBUG
-	LogVarInfo("NodeSlot::TreatNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
-#endif
+	LogVarDebugWarning("NodeSlot::TreatNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 }
 
 void NodeSlot::SendFrontNotification(const NotifyEvent& /*vEvent*/)
 {
-#ifdef _DEBUG
-	LogVarInfo("NodeSlot::SendFrontNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
-#endif
+    LogVarDebugWarning("NodeSlot::SendFrontNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 }
 
 void NodeSlot::SendBackNotification(const NotifyEvent& /*vEvent*/)
 {
-#ifdef _DEBUG
-	LogVarInfo("NodeSlot::SendBackNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
-#endif
+    LogVarDebugWarning("NodeSlot::SendBackNotification catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 }
 
 void NodeSlot::MouseDoubleClickedOnSlot(const ImGuiMouseButton& /*vMouseButton*/)
 {
-#ifdef _DEBUG
-	LogVarInfo("NodeSlot::MouseDoubleClickedOnSlot catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
-#endif
+    LogVarDebugWarning("NodeSlot::MouseDoubleClickedOnSlot catched by the slot \"%s\", some class not implement it. maybe its wanted", name.c_str());
 }
 
 bool NodeSlot::RemoveConnectedSlot(NodeSlotWeak vOtherSlot)

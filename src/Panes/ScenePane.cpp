@@ -74,7 +74,7 @@ bool ScenePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneSh
 				ImGuiWindowFlags_NoBringToFrontOnFocus |
 				ImGuiWindowFlags_MenuBar;
 #endif
-			if (ProjectFile::Instance()->IsLoaded())
+			if (ProjectFile::Instance()->IsProjectLoaded())
 			{
 				//SourcePane_WidgetId = SceneManager::Instance()->DrawSceneTree(SourcePane_WidgetId);
 			}
@@ -90,7 +90,7 @@ bool ScenePane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2
 {
 	ZoneScoped;
 
-	if (ProjectFile::Instance()->IsLoaded())
+	if (ProjectFile::Instance()->IsProjectLoaded())
 	{
 		/*
 		ImVec2 maxSize = MainFrame::Instance()->m_DisplaySize;

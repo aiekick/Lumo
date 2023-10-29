@@ -17,20 +17,22 @@ limitations under the License.
 #pragma once
 
 #include <ctools/ConfigAbstract.h>
+#include <LumoBackend/Interfaces/ProjectInterface.h>
 #include <string>
 #include <memory>
 
-class ProjectFile : public conf::ConfigAbstract
-{
+class ProjectFile : public ProjectInterface, public conf::ConfigAbstract {
 private: // to save
 	std::string m_ProjectFilePathName;
 	std::string m_ProjectFileName;
 	std::string m_ProjectFilePath;
 
 private: // dont save
-	bool m_IsLoaded = false; // jsute pour avancer
+	bool m_IsLoaded = false;
 	bool m_NeverSaved = false;
-	bool m_IsThereAnyNotSavedChanged = false;
+	bool m_IsThereAnyChanges = false;
+    bool m_WasJustSaved = false;
+    size_t m_WasJustSavedFrameCounter = 0U; // the state of m_WasJustSaved will be keeped during two frames
 
 public:
 	ProjectFile();
@@ -45,11 +47,14 @@ public:
 	bool Save();
 	bool SaveTemporary();
 	bool SaveAs(const std::string& vFilePathName);
-	bool IsLoaded() const;
-	bool IsNeverSaved() const;
 
-	bool IsThereAnyNotSavedChanged() const;
-	void SetProjectChange(bool vChange = true);
+    bool IsProjectLoaded() const override;
+    bool IsProjectNeverSaved() const override;
+    bool IsThereAnyProjectChanges() const override;
+    void SetProjectChange(bool vChange = true) override;
+
+    void NewFrame();
+    bool WasJustSaved() override;
 
 	std::string GetAbsolutePath(const std::string& vFilePathName) const;
 	std::string GetRelativePath(const std::string& vFilePathName) const;

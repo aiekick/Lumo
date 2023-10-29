@@ -51,9 +51,31 @@ limitations under the License.
 
 void UserNodeLibrary::AnalyseRootDirectory()
 {
-	AnalyseRootDirectoryRecurs(LIBRARY_EFECT_ROOT_PATH, 0, &m_RootLibraryCategory);
-		
-	// les plugins
+	// internals
+	
+    // Assets
+    m_RootLibraryCategory.AddCustom("Base/3D/Assets", "3D Model", "MESH");
+    m_RootLibraryCategory.AddCustom("Base/2D/Assets", "2D Texture", "TEXTURE_2D");
+    m_RootLibraryCategory.AddCustom("Base/3D/Assets", "CubeMap", "CUBE_MAP");
+	
+	// Misc
+    m_RootLibraryCategory.AddCustom("Base/Misc", "Grid / Axis", "GRID_AXIS");
+    m_RootLibraryCategory.AddCustom("Base/Misc", "Scene Merger", "SCENE_MERGER");
+
+    // Renderers
+    m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Channels", "CHANNEL_RENDERER");
+    m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Heatmap", "HEATMAP_RENDERER");
+    m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Matcap", "MATCAP_RENDERER");
+    m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Model", "MODEL_RENDERER");
+
+	// Variables
+    m_RootLibraryCategory.AddCustom("Base/Widgets", "Boolean", "WIDGET_BOOLEAN");
+    m_RootLibraryCategory.AddCustom("Base/Widgets", "Color", "WIDGET_COLOR");
+
+	// shader nodes
+    AnalyseRootDirectoryRecurs(LIBRARY_EFECT_ROOT_PATH, 0, &m_RootLibraryCategory);
+    
+	// plugin nodes
 	auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();
 	for (auto entry : pluginEntrys)
 	{

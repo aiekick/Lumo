@@ -13,17 +13,18 @@
 //// UBOItem //////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-void UBOItem::DrawItem(const std::string& vStage)
+bool UBOItem::DrawItem(const std::string& vStage)
 {
+    bool change = false;
 	const float& aaw = (ImGui::GetContentRegionAvail().x - 150.0f) * 0.5f;
 
 	ImGui::PushID(ImGui::IncPUSHID());
 
-	m_InputName.DisplayInputText(aaw, "", "Name");
+	change |= m_InputName.DisplayInputText(aaw, "", "Name");
 
 	ImGui::SameLine();
 
-	ImGui::ContrastedComboVectorDefault(150.0f, "##Type", &m_InputTypeIndex, m_TypeArray, 0);
+	change |= ImGui::ContrastedComboVectorDefault(150.0f, "##Type", &m_InputTypeIndex, m_TypeArray, 0);
 
 	ImGui::SameLine();
 
@@ -33,30 +34,32 @@ void UBOItem::DrawItem(const std::string& vStage)
 	else if (m_InputTypeIndex % 4 == 2U) aw = aaw / 3.0f;
 	else if (m_InputTypeIndex % 4 == 3U) aw = aaw / 4.0f;
 
-	m_InputValue_x.DisplayInputText(aw, "", "0");
+	change |= m_InputValue_x.DisplayInputText(aw, "", "0");
 
 	if (m_InputTypeIndex % 4 > 0U)
 	{
 		ImGui::SameLine();
 
-		m_InputValue_y.DisplayInputText(aw, "", "0");
+		change |= m_InputValue_y.DisplayInputText(aw, "", "0");
 	}
 		
 	if (m_InputTypeIndex % 4 > 1U)
 	{
 		ImGui::SameLine();
 
-		m_InputValue_z.DisplayInputText(aw, "", "0");
+		change |= m_InputValue_z.DisplayInputText(aw, "", "0");
 	}
 
 	if (m_InputTypeIndex % 4 > 2U)
 	{
 		ImGui::SameLine();
 
-		m_InputValue_w.DisplayInputText(aw, "", "0");
+		change |= m_InputValue_w.DisplayInputText(aw, "", "0");
 	}
 
 	ImGui::PopID();
+
+	return change;
 }
 
 std::string UBOItem::Get_Cpp_Item_Header()
@@ -391,13 +394,16 @@ UBOEditor::UBOEditor()
 	m_InputStageIndex = 0;
 }
 
-void UBOEditor::DrawPane(const std::string& vRendererType)
+bool UBOEditor::DrawPane(const std::string& vRendererType)
 {
+    bool change = false;
+
 	m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
 
 	if (ImGui::ContrastedButton("Add Item"))
 	{
 		m_Items.push_back(UBOItem());
+        change = true;
 	}
 
 	ImGui::Indent();
@@ -407,12 +413,13 @@ void UBOEditor::DrawPane(const std::string& vRendererType)
 	{
 		if (ImGui::ContrastedButton("X"))
 		{
-			idx_to_erase = (int32_t)idx;
+            idx_to_erase = (int32_t)idx;
+            change = true;
 		}
 
 		ImGui::SameLine();
 
-		m_Items[idx].DrawItem(m_Stage);
+		change |= m_Items[idx].DrawItem(m_Stage);
 	}
 
 	ImGui::Unindent();
@@ -422,6 +429,8 @@ void UBOEditor::DrawPane(const std::string& vRendererType)
 		m_Items.erase(m_Items.begin() + (size_t)idx_to_erase); 
 		idx_to_erase = -1;
 	}
+
+	return change;
 }
 
 bool UBOEditor::DrawStageSelection(const std::string& vRendererType)
@@ -699,15 +708,19 @@ UBOEditors::UBOEditors()
 	};
 }
 
-void UBOEditors::DrawPane(const std::string& vRendererType)
+bool UBOEditors::DrawPane(const std::string& vRendererType)
 {
+    bool change = false;
+
 	m_RendererType = vRendererType;
 
 	ImGui::Separator();
 
-	ImGui::CheckBoxBoolDefault("Use A UBO", &m_UseUbos, true);
+	change |= ImGui::CheckBoxBoolDefault("Use A UBO", &m_UseUbos, true);
 
-	if (!m_UseUbos) return;
+	if (!m_UseUbos) {
+        return change;
+	}
 
 	if (ImGui::ContrastedButton("Add UBO"))
 	{
@@ -716,10 +729,10 @@ void UBOEditors::DrawPane(const std::string& vRendererType)
 			if (!UBOEditors::m_StageArray[vRendererType].empty())
 			{
 				auto defaultStage = *m_StageArray[vRendererType].begin();
-				
 				UBOEditor editor;
 				editor.m_RendererType = vRendererType;
 				m_UBOEditors[defaultStage].push_back(editor);
+                change = true;
 			}
 		}
 	}
@@ -740,7 +753,8 @@ void UBOEditors::DrawPane(const std::string& vRendererType)
 			if (ImGui::ContrastedButton("X"))
 			{
 				_editorToDelete.first = uboEditors.first;
-				_editorToDelete.second = idx;
+                _editorToDelete.second = idx;
+                change = true;
 			}
 
 			ImGui::SameLine();
@@ -748,7 +762,8 @@ void UBOEditors::DrawPane(const std::string& vRendererType)
 			if (uboEditor.DrawStageSelection(vRendererType))
 			{
 				_editorToMove.first = uboEditors.first;
-				_editorToMove.second = idx;
+                _editorToMove.second = idx;
+                change = true;
 			}
 			else
 			{
@@ -820,6 +835,8 @@ void UBOEditors::DrawPane(const std::string& vRendererType)
 	}
 	
 	ImGui::Separator();
+
+	return change;
 }
 
 std::string UBOEditors::Get_Widgets_Header()

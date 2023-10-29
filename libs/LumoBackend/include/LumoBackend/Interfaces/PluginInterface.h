@@ -22,10 +22,12 @@ limitations under the License.
 #include <vector>
 
 #include <ctools/cTools.h>
+#include <ctools/ConfigAbstract.h>
 #include <AbstractPane.h>
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
+#include <LumoBackend/Interfaces/ProjectInterface.h>
 #include <LumoBackend/Graph/Library/LibraryCategory.h>
 
 #include <Gaia/Core/VulkanCore.h>
@@ -34,7 +36,54 @@ class PluginInterface;
 typedef std::weak_ptr<PluginInterface> PluginInterfaceWeak;
 typedef std::shared_ptr<PluginInterface> PluginInterfacePtr;
 
-class LUMO_BACKEND_API PluginPane {
+class LUMO_BACKEND_API PluginPane : public AbstractPane, public ProjectInterface {
+public:
+    AbstractPaneWeak paneWeak;
+
+private:
+    ProjectInterface* m_ProjectInstancePtr = nullptr;
+
+public:
+    virtual bool Init() = 0;
+    virtual void Unit() = 0;
+    virtual bool DrawPanes(
+        const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) = 0;
+
+    void SetProjectInstancePtr(ProjectInterface* vProjectInstancePtr) {
+        m_ProjectInstancePtr = vProjectInstancePtr;
+    }
+    bool IsProjectLoaded() const override {
+        if (m_ProjectInstancePtr != nullptr) {
+            return m_ProjectInstancePtr->IsProjectLoaded();
+        }
+        return false;
+    }
+    bool IsProjectNeverSaved() const override {
+        if (m_ProjectInstancePtr != nullptr) {
+            return m_ProjectInstancePtr->IsProjectNeverSaved();
+        }
+        return false;
+    }
+    bool IsThereAnyProjectChanges() const override {
+        if (m_ProjectInstancePtr != nullptr) {
+            return m_ProjectInstancePtr->IsThereAnyProjectChanges();
+        }
+        return false;
+    }
+    void SetProjectChange(bool vChange = true) override {
+        if (m_ProjectInstancePtr != nullptr) {
+            m_ProjectInstancePtr->SetProjectChange(vChange);
+        }
+    }
+    bool WasJustSaved() override {
+        if (m_ProjectInstancePtr != nullptr) {
+            return m_ProjectInstancePtr->WasJustSaved();
+        }
+        return false;
+    }
+};
+
+class LUMO_BACKEND_API PluginPaneConfig {
 public:
     AbstractPaneWeak paneWeak;
     std::string paneName;
@@ -44,7 +93,7 @@ public:
     bool isPaneFocusedDefault = false;
 
 public:
-    PluginPane(AbstractPaneWeak vPaneWeak,
+    PluginPaneConfig(AbstractPaneWeak vPaneWeak,
         std::string vName,
         std::string vPaneCategory,
         PaneDisposal vPaneDisposal,
@@ -58,7 +107,7 @@ public:
           isPaneFocusedDefault(vIsFocusedDefault) {}
 };
 
-class LUMO_BACKEND_API PluginInterface {
+class LUMO_BACKEND_API PluginInterface : public conf::ConfigAbstract {
 protected:
     GaiApi::VulkanCoreWeak m_VulkanCoreWeak;
     bool iSinAPlugin = false;
@@ -91,8 +140,19 @@ public:
     virtual std::vector<std::string> GetNodes() const = 0;
     virtual std::vector<LibraryEntry> GetLibrary() const = 0;
     virtual BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName) = 0;  // factory for nodes
-    virtual std::vector<PluginPane> GetPanes() const = 0;
+    virtual std::vector<PluginPaneConfig> GetPanes() const = 0;
 
     // will reset the ids but will return the id count pre reset
     virtual int ResetImGuiID(const int& vWidgetId) = 0;
+
+    // config
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override {
+        std::string str;
+        str += vOffset + "<" + GetName() + ">\n";
+        str += vOffset + "</" + GetName() + ">\n";
+        return str;
+    }
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override {
+        return false;
+    }
 };

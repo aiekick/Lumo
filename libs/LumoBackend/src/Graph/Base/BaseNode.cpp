@@ -67,7 +67,7 @@ void BaseNode::OpenGraph_Callback(const BaseNodeWeak& vNode) {
     if (m_OpenGraphCallback) {
         m_OpenGraphCallback(vNode);
     } else {
-        LogVarWarning("m_OpenGraphCallback is null");
+        LogVarDebugWarning("m_OpenGraphCallback is null");
     }
 }
 
@@ -79,7 +79,7 @@ void BaseNode::SelectSlot_Callback(const NodeSlotWeak& vSlot, const ImGuiMouseBu
     if (m_SelectSlotCallback) {
         m_SelectSlotCallback(vSlot, vMouseButton);
     } else {
-        LogVarWarning("m_SelectSlotCallback is null");
+        LogVarDebugWarning("m_SelectSlotCallback is null");
     }
 }
 
@@ -91,7 +91,7 @@ void BaseNode::SelectForGraphOutput_Callback(const NodeSlotWeak& vSlot, const Im
     if (m_SelectForGraphOutputCallback) {
         m_SelectForGraphOutputCallback(vSlot, vMouseButton);
     } else {
-        LogVarWarning("m_SelectForGraphOutputCallback is null");
+        LogVarDebugWarning("m_SelectForGraphOutputCallback is null");
     }
 }
 
@@ -103,7 +103,7 @@ void BaseNode::OpenCode_Callback(const std::string& vCode) {
     if (m_OpenCodeCallback) {
         m_OpenCodeCallback(vCode);
     } else {
-        LogVarWarning("m_OpenCodeCallback is null");
+        LogVarDebugWarning("m_OpenCodeCallback is null");
     }
 }
 
@@ -115,7 +115,7 @@ void BaseNode::LogErrors_Callback(const std::string& vErrors) {
     if (m_LogErrorsCallback) {
         m_LogErrorsCallback(vErrors);
     } else {
-        LogVarWarning("m_LogErrorsCallback is null");
+        LogVarDebugWarning("m_LogErrorsCallback is null");
     }
 }
 
@@ -127,7 +127,7 @@ void BaseNode::LogInfos_Callback(const std::string& vInfos) {
     if (m_LogInfosCallback) {
         m_LogInfosCallback(vInfos);
     } else {
-        LogVarWarning("m_LogInfosCallback is null");
+        LogVarDebugWarning("m_LogInfosCallback is null");
     }
 }
 
@@ -139,7 +139,7 @@ void BaseNode::SelectNode_Callback(const BaseNodeWeak& vNode) {
     if (m_SelectNodeCallback) {
         m_SelectNodeCallback(vNode);
     } else {
-        LogVarWarning("m_SelectNodeCallback is null");
+        LogVarDebugWarning("m_SelectNodeCallback is null");
     }
 }
 
@@ -153,11 +153,12 @@ void BaseNode::ShowNewNodeMenu_Callback(const BaseNodeWeak& vNodeGraph, BaseNode
     } else {
         // this one is constantly called for the menu display
         // /so not a good target for spam an error arleady well visible for the dev
-        // LogVarWarning("BaseNode::sShowNewNodeMenuCallback is null");
+        // LogVarDebugWarning("BaseNode::sShowNewNodeMenuCallback is null");
     }
 }
 
 void BaseNode::SetLoadNodeFromXMLCallback(BaseNodeXmlLoadingFunctor vLoadNodeFromXMLCallback) {
+    m_LoadNodeFromXMLCallback = vLoadNodeFromXMLCallback;
 }
 
 bool BaseNode::LoadNodeFromXML_Callback(const BaseNodeWeak& vBaseNodeWeak,
@@ -170,7 +171,7 @@ bool BaseNode::LoadNodeFromXML_Callback(const BaseNodeWeak& vBaseNodeWeak,
     if (m_LoadNodeFromXMLCallback) {
         return m_LoadNodeFromXMLCallback(vBaseNodeWeak, vElem, vParent, vNodeName, vNodeType, vPos, vNodeId);
     } else {
-        LogVarWarning("BaseNode::sLoadNodeFromXMLCallback is null");
+        LogVarDebugWarning("BaseNode::sLoadNodeFromXMLCallback is null");
     }
 
     return false;
@@ -260,9 +261,12 @@ void BaseNode::UnitGraph() {
 // on va cree les links apres le chargement du xml
 void BaseNode::FinalizeGraphLoading() {
     // select outputs
-    SelectForGraphOutput_Callback(FindNodeSlotById(m_OutputLeftSlotToSelectAfterLoading.first, m_OutputLeftSlotToSelectAfterLoading.second), ImGuiMouseButton_Left);
-    SelectForGraphOutput_Callback(FindNodeSlotById(m_OutputMiddleSlotToSelectAfterLoading.first, m_OutputMiddleSlotToSelectAfterLoading.second), ImGuiMouseButton_Middle);
-    SelectForGraphOutput_Callback(FindNodeSlotById(m_OutputRightSlotToSelectAfterLoading.first, m_OutputRightSlotToSelectAfterLoading.second), ImGuiMouseButton_Right);
+    SelectForGraphOutput_Callback(
+        FindNodeSlotById(m_OutputLeftSlotToSelectAfterLoading.first, m_OutputLeftSlotToSelectAfterLoading.second), ImGuiMouseButton_Left);
+    SelectForGraphOutput_Callback(
+        FindNodeSlotById(m_OutputMiddleSlotToSelectAfterLoading.first, m_OutputMiddleSlotToSelectAfterLoading.second), ImGuiMouseButton_Middle);
+    SelectForGraphOutput_Callback(
+        FindNodeSlotById(m_OutputRightSlotToSelectAfterLoading.first, m_OutputRightSlotToSelectAfterLoading.second), ImGuiMouseButton_Right);
 
     for (const auto& entry : m_LinksToBuildAfterLoading) {
         const SlotEntry& entIn = entry.first;
@@ -289,6 +293,9 @@ void BaseNode::DoGraphActions(BaseNodeState* vBaseNodeState) {
         if (ax::NodeEditor::IsBackgroundClicked()) {
             vBaseNodeState->node_to_select.reset();
             vBaseNodeState->current_selected_node.reset();
+        }
+        if (ax::NodeEditor::IsDirty()) {
+            SetChanged();
         }
     }
 
@@ -459,6 +466,7 @@ void BaseNode::SetCanvasOffset(const ImVec2& vOffset) {
     if (m_BaseNodeState.m_NodeGraphContext) {
         ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
         ax::NodeEditor::SetCanvasOffset(vOffset);
+        SetChanged();
     }
 }
 
@@ -466,6 +474,7 @@ void BaseNode::SetCanvasScale(const float& vScale) {
     if (m_BaseNodeState.m_NodeGraphContext) {
         ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
         ax::NodeEditor::SetCanvasScale(vScale);
+        SetChanged();
     }
 }
 
@@ -477,6 +486,7 @@ void BaseNode::CopySelectedNodes() {
     auto countSelectecdNodes = ax::NodeEditor::GetSelectedObjectCount();
     m_NodesToCopy.resize(countSelectecdNodes);
     ax::NodeEditor::GetActionContextNodes(m_NodesToCopy.data(), (int)m_NodesToCopy.size());
+    SetChanged();
 
     // calcul du point de centre de tout ces nodes
     // sa servira d'offset avec le point de destinatiion
@@ -496,6 +506,7 @@ void BaseNode::PasteNodesAtMousePos() {
 void BaseNode::DuplicateSelectedNodes(ImVec2 vOffset) {
     for (auto& it : m_NodesToCopy) {
         DuplicateNode((uint32_t)it.Get(), vOffset);
+        SetChanged();
     }
     m_NodesToCopy.clear();
 }
@@ -689,7 +700,8 @@ bool BaseNode::DrawEnd(BaseNodeState* vBaseNodeState) {
                     m_HeaderRect.Max + ImVec2(ax::NodeEditor::GetStyle().NodePadding.z - halfBorderWidth, 0),
                     ImGui::GetColorU32(m_HeaderColor), ax::NodeEditor::GetStyle().NodeRounding, 1 | 2);*/
                 auto alpha = static_cast<int>(255 * ImGui::GetStyle().Alpha);
-                drawList->AddLine(ImVec2(m_HeaderRect.Min.x - (ax::NodeEditor::GetStyle().NodePadding.x - halfBorderWidth), m_HeaderRect.Max.y - 0.5f),
+                drawList->AddLine(
+                    ImVec2(m_HeaderRect.Min.x - (ax::NodeEditor::GetStyle().NodePadding.x - halfBorderWidth), m_HeaderRect.Max.y - 0.5f),
                     ImVec2(m_HeaderRect.Max.x + (ax::NodeEditor::GetStyle().NodePadding.z - halfBorderWidth), m_HeaderRect.Max.y - 0.5f),
                     ImColor(255, 255, 255, 96 * alpha / (3 * 255)), 1.0f);
             }
@@ -707,8 +719,9 @@ bool BaseNode::DrawEnd(BaseNodeState* vBaseNodeState) {
 
 void BaseNode::DrawLinks(BaseNodeState* vBaseNodeState) {
     UNUSED(vBaseNodeState);
-    if (!m_BaseNodeState.showLinks)
+    if (!m_BaseNodeState.showLinks) {
         return;
+    }
 
     if (!m_ChildNodes.empty()) {
         for (const auto& link : m_Links) {
@@ -777,8 +790,8 @@ void BaseNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
         auto drawList = ax::NodeEditor::GetNodeBackgroundDrawList(nodeID);
         if (drawList) {
             char debugBuffer[255] = "\0";
-            snprintf(
-                debugBuffer, 254, "Used(%s)\nCell(%i, %i)" /*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/, (used ? "true" : "false"), cell.x, cell.y /*, pos.x, pos.y, size.x, size.y*/);
+            snprintf(debugBuffer, 254, "Used(%s)\nCell(%i, %i)" /*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/,  //
+                (used ? "true" : "false"), cell.x, cell.y /*, pos.x, pos.y, size.x, size.y*/);
             ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
             drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
         }
@@ -842,48 +855,61 @@ void BaseNode::DrawStyleMenu() {
     static GraphStyleStruct graphStyleDefault = GraphStyleStruct();
 
     if (ImGui::BeginMenu("Node")) {
-        ImGui::SliderFloatDefault(200, "Width", &m_BaseNodeState.graphStyle.DEFAULT_WIDTH, 1.0f, graphStyleDefault.DEFAULT_WIDTH * 3.0f, graphStyleDefault.DEFAULT_WIDTH);
-        ImGui::SliderFloatDefault(200, "Padding", &m_BaseNodeState.graphStyle.WINDOW_PADDING, 1.0f, graphStyleDefault.WINDOW_PADDING * 3.0f, graphStyleDefault.DEFAULT_WIDTH);
-        ImGui::SliderFloatDefault(200, "Radius", &m_BaseNodeState.graphStyle.BACKGROUND_RADIUS, 1.0f, 20.0, graphStyleDefault.BACKGROUND_RADIUS);
-        ImGui::ColorEdit4Default(200, "Header", &m_BaseNodeState.graphStyle.HEADER_COLOR.x, &graphStyleDefault.HEADER_COLOR.x);
-        ImGui::ColorEdit4Default(200, "Header Hovered", &m_BaseNodeState.graphStyle.HOVERED_HEADER_COLOR.x, &graphStyleDefault.HOVERED_HEADER_COLOR.x);
-        ImGui::ColorEdit4Default(200, "Background", &m_BaseNodeState.graphStyle.BACKGROUND_COLOR.x, &graphStyleDefault.BACKGROUND_COLOR.x);
-        ImGui::ColorEdit4Default(200, "Background Hovered", &m_BaseNodeState.graphStyle.HOVERED_BACKGROUND_COLOR.x, &graphStyleDefault.HOVERED_BACKGROUND_COLOR.x);
-
+        changed |= ImGui::SliderFloatDefault(
+            200, "Width", &m_BaseNodeState.graphStyle.DEFAULT_WIDTH, 1.0f, graphStyleDefault.DEFAULT_WIDTH * 3.0f, graphStyleDefault.DEFAULT_WIDTH);
+        changed |= ImGui::SliderFloatDefault(200, "Padding", &m_BaseNodeState.graphStyle.WINDOW_PADDING, 1.0f,
+            graphStyleDefault.WINDOW_PADDING * 3.0f,
+            graphStyleDefault.DEFAULT_WIDTH);
+        changed |=
+            ImGui::SliderFloatDefault(200, "Radius", &m_BaseNodeState.graphStyle.BACKGROUND_RADIUS, 1.0f, 20.0, graphStyleDefault.BACKGROUND_RADIUS);
+        changed |= ImGui::ColorEdit4Default(200, "Header", &m_BaseNodeState.graphStyle.HEADER_COLOR.x, &graphStyleDefault.HEADER_COLOR.x);
+        changed |= ImGui::ColorEdit4Default(
+            200, "Header Hovered", &m_BaseNodeState.graphStyle.HOVERED_HEADER_COLOR.x, &graphStyleDefault.HOVERED_HEADER_COLOR.x);
+        changed |= ImGui::ColorEdit4Default(200, "Background", &m_BaseNodeState.graphStyle.BACKGROUND_COLOR.x, &graphStyleDefault.BACKGROUND_COLOR.x);
+        changed |= ImGui::ColorEdit4Default(
+            200, "Background Hovered", &m_BaseNodeState.graphStyle.HOVERED_BACKGROUND_COLOR.x, &graphStyleDefault.HOVERED_BACKGROUND_COLOR.x);
         ImGui::EndMenu();
     }
 
     if (ImGui::BeginMenu("Slot")) {
-        ImGui::SliderFloatDefault(200, "Radius", &m_BaseNodeState.graphStyle.SLOT_RADIUS, 1.0f, graphStyleDefault.SLOT_RADIUS * 3.0f, graphStyleDefault.SLOT_RADIUS);
-        ImGui::ColorEdit4Default(200, "Color", &m_BaseNodeState.graphStyle.SLOT_COLOR.x, &graphStyleDefault.SLOT_COLOR.x);
-        ImGui::ColorEdit4Default(200, "Flow Color", &m_BaseNodeState.graphStyle.FLOW_SLOT_COLOR.x, &graphStyleDefault.FLOW_SLOT_COLOR.x);
-        ImGui::ColorEdit4Default(200, "Function Color", &m_BaseNodeState.graphStyle.FLOW_SLOT_COLOR.x, &graphStyleDefault.FLOW_SLOT_COLOR.x);
-
+        changed |= ImGui::SliderFloatDefault(
+            200, "Radius", &m_BaseNodeState.graphStyle.SLOT_RADIUS, 1.0f, graphStyleDefault.SLOT_RADIUS * 3.0f, graphStyleDefault.SLOT_RADIUS);
+        changed |= ImGui::ColorEdit4Default(200, "Color", &m_BaseNodeState.graphStyle.SLOT_COLOR.x, &graphStyleDefault.SLOT_COLOR.x);
+        changed |= ImGui::ColorEdit4Default(200, "Flow Color", &m_BaseNodeState.graphStyle.FLOW_SLOT_COLOR.x, &graphStyleDefault.FLOW_SLOT_COLOR.x);
+        changed |=
+            ImGui::ColorEdit4Default(200, "Function Color", &m_BaseNodeState.graphStyle.FLOW_SLOT_COLOR.x, &graphStyleDefault.FLOW_SLOT_COLOR.x);
         ImGui::EndMenu();
     }
 
     if (ImGui::BeginMenu("Grid")) {
-        ImGui::ColorEdit4Default(200, "Grid Lines", &m_BaseNodeState.graphStyle.GRID_COLOR.x, &graphStyleDefault.GRID_COLOR.x);
-        ImGui::ColorEdit4Default(200, "Grid Zero x", &m_BaseNodeState.graphStyle.GRID_COLOR_ZERO_X.x, &graphStyleDefault.GRID_COLOR_ZERO_X.x);
-        ImGui::ColorEdit4Default(200, "Grid Zero y", &m_BaseNodeState.graphStyle.GRID_COLOR_ZERO_Y.x, &graphStyleDefault.GRID_COLOR_ZERO_Y.x);
-        ImGui::SliderFloatDefault(200, "Grid Spacing", &m_BaseNodeState.graphStyle.GRID_SPACING, 1.0f, 256, graphStyleDefault.GRID_SPACING);
-
+        changed |= ImGui::ColorEdit4Default(200, "Grid Lines", &m_BaseNodeState.graphStyle.GRID_COLOR.x, &graphStyleDefault.GRID_COLOR.x);
+        changed |=
+            ImGui::ColorEdit4Default(200, "Grid Zero x", &m_BaseNodeState.graphStyle.GRID_COLOR_ZERO_X.x, &graphStyleDefault.GRID_COLOR_ZERO_X.x);
+        changed |=
+            ImGui::ColorEdit4Default(200, "Grid Zero y", &m_BaseNodeState.graphStyle.GRID_COLOR_ZERO_Y.x, &graphStyleDefault.GRID_COLOR_ZERO_Y.x);
+        changed |=
+            ImGui::SliderFloatDefault(200, "Grid Spacing", &m_BaseNodeState.graphStyle.GRID_SPACING, 1.0f, 256, graphStyleDefault.GRID_SPACING);
         ImGui::EndMenu();
     }
 
     if (ImGui::BeginMenu("Link")) {
-        ImGui::ColorEdit4Default(200, "link", &m_BaseNodeState.graphStyle.linkDefaultColor.x, &graphStyleDefault.linkDefaultColor.x);
-        ImGui::ColorEdit4Default(200, "selected Link", &m_BaseNodeState.graphStyle.selectedLinkColor.x, &graphStyleDefault.selectedLinkColor.x);
-        ImGui::ColorEdit4Default(200, "extract Link", &m_BaseNodeState.graphStyle.extractionLinkColor.x, &graphStyleDefault.extractionLinkColor.x);
-        ImGui::ColorEdit4Default(200, "selected Extract Link", &m_BaseNodeState.graphStyle.selectedExtractionLinkColor.x, &graphStyleDefault.selectedExtractionLinkColor.x);
-
+        changed |= ImGui::ColorEdit4Default(200, "link", &m_BaseNodeState.graphStyle.linkDefaultColor.x, &graphStyleDefault.linkDefaultColor.x);
+        changed |=
+            ImGui::ColorEdit4Default(200, "selected Link", &m_BaseNodeState.graphStyle.selectedLinkColor.x, &graphStyleDefault.selectedLinkColor.x);
+        changed |= ImGui::ColorEdit4Default(
+            200, "extract Link", &m_BaseNodeState.graphStyle.extractionLinkColor.x, &graphStyleDefault.extractionLinkColor.x);
+        changed |= ImGui::ColorEdit4Default(200, "selected Extract Link", &m_BaseNodeState.graphStyle.selectedExtractionLinkColor.x,
+            &graphStyleDefault.selectedExtractionLinkColor.x);
         ImGui::EndMenu();
     }
 
-    ImGui::MenuItem("Editor", "", &showNodeStyleEditor);
+    changed |= ImGui::MenuItem("Editor", "", &showNodeStyleEditor);
+    if (changed) {
+        SetChanged();
+    }
 }
 
-void BaseNode::DrawNodeGraphStyleMenu() const {
+void BaseNode::DrawNodeGraphStyleMenu() {
     if (m_BaseNodeState.m_NodeGraphContext && showNodeStyleEditor) {
         if (ImGui::Begin("Editor", &showNodeStyleEditor)) {
             ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
@@ -891,24 +917,26 @@ void BaseNode::DrawNodeGraphStyleMenu() const {
             static ax::NodeEditor::Style def = ax::NodeEditor::Style();
             auto& editorStyle = ax::NodeEditor::GetStyle();
 
-            ImGui::SliderFloatDefault(200, "Node Padding x", &editorStyle.NodePadding.x, 0.0f, 40.0f, def.NodePadding.x);
-            ImGui::SliderFloatDefault(200, "Node Padding y", &editorStyle.NodePadding.y, 0.0f, 40.0f, def.NodePadding.y);
-            ImGui::SliderFloatDefault(200, "Node Padding z", &editorStyle.NodePadding.z, 0.0f, 40.0f, def.NodePadding.z);
-            ImGui::SliderFloatDefault(200, "Node Padding w", &editorStyle.NodePadding.w, 0.0f, 40.0f, def.NodePadding.w);
-            ImGui::SliderFloatDefault(200, "Node Rounding", &editorStyle.NodeRounding, 0.0f, 40.0f, def.NodeRounding);
-            ImGui::SliderFloatDefault(200, "Node Border Width", &editorStyle.NodeBorderWidth, 0.0f, 15.0f, def.NodeBorderWidth);
-            ImGui::SliderFloatDefault(200, "Hovered Node Border Width", &editorStyle.HoveredNodeBorderWidth, 0.0f, 15.0f, def.HoveredNodeBorderWidth);
-            ImGui::SliderFloatDefault(200, "Selected Node Border Width", &editorStyle.SelectedNodeBorderWidth, 0.0f, 15.0f, def.SelectedNodeBorderWidth);
-            ImGui::SliderFloatDefault(200, "Slot Rounding", &editorStyle.PinRounding, 0.0f, 40.0f, def.PinRounding);
-            ImGui::SliderFloatDefault(200, "Slot Border Width", &editorStyle.PinBorderWidth, 0.0f, 15.0f, def.PinBorderWidth);
-            ImGui::SliderFloatDefault(200, "Link Strength", &editorStyle.LinkStrength, 0.0f, 500.0f, def.LinkStrength);
+            changed |= ImGui::SliderFloatDefault(200, "Node Padding x", &editorStyle.NodePadding.x, 0.0f, 40.0f, def.NodePadding.x);
+            changed |= ImGui::SliderFloatDefault(200, "Node Padding y", &editorStyle.NodePadding.y, 0.0f, 40.0f, def.NodePadding.y);
+            changed |= ImGui::SliderFloatDefault(200, "Node Padding z", &editorStyle.NodePadding.z, 0.0f, 40.0f, def.NodePadding.z);
+            changed |= ImGui::SliderFloatDefault(200, "Node Padding w", &editorStyle.NodePadding.w, 0.0f, 40.0f, def.NodePadding.w);
+            changed |= ImGui::SliderFloatDefault(200, "Node Rounding", &editorStyle.NodeRounding, 0.0f, 40.0f, def.NodeRounding);
+            changed |= ImGui::SliderFloatDefault(200, "Node Border Width", &editorStyle.NodeBorderWidth, 0.0f, 15.0f, def.NodeBorderWidth);
+            changed |= ImGui::SliderFloatDefault(
+                200, "Hovered Node Border Width", &editorStyle.HoveredNodeBorderWidth, 0.0f, 15.0f, def.HoveredNodeBorderWidth);
+            changed |= ImGui::SliderFloatDefault(
+                200, "Selected Node Border Width", &editorStyle.SelectedNodeBorderWidth, 0.0f, 15.0f, def.SelectedNodeBorderWidth);
+            changed |= ImGui::SliderFloatDefault(200, "Slot Rounding", &editorStyle.PinRounding, 0.0f, 40.0f, def.PinRounding);
+            changed |= ImGui::SliderFloatDefault(200, "Slot Border Width", &editorStyle.PinBorderWidth, 0.0f, 15.0f, def.PinBorderWidth);
+            changed |= ImGui::SliderFloatDefault(200, "Link Strength", &editorStyle.LinkStrength, 0.0f, 500.0f, def.LinkStrength);
 
             // ImVec2 SourceDirection;
             // ImVec2 TargetDirection;
-            ImGui::SliderFloatDefault(200, "Scroll Duration", &editorStyle.ScrollDuration, 0.0f, 2.0f, def.ScrollDuration);
-            ImGui::SliderFloatDefault(200, "Flow Marker Distance", &editorStyle.FlowMarkerDistance, 1.0f, 200.0f, def.FlowMarkerDistance);
-            ImGui::SliderFloatDefault(200, "Flow Speed", &editorStyle.FlowSpeed, 1.0f, 2000.0f, def.FlowSpeed);
-            ImGui::SliderFloatDefault(200, "Flow Duration", &editorStyle.FlowDuration, 0.0f, 5.0f, def.FlowDuration);
+            changed |= ImGui::SliderFloatDefault(200, "Scroll Duration", &editorStyle.ScrollDuration, 0.0f, 2.0f, def.ScrollDuration);
+            changed |= ImGui::SliderFloatDefault(200, "Flow Marker Distance", &editorStyle.FlowMarkerDistance, 1.0f, 200.0f, def.FlowMarkerDistance);
+            changed |= ImGui::SliderFloatDefault(200, "Flow Speed", &editorStyle.FlowSpeed, 1.0f, 2000.0f, def.FlowSpeed);
+            changed |= ImGui::SliderFloatDefault(200, "Flow Duration", &editorStyle.FlowDuration, 0.0f, 5.0f, def.FlowDuration);
 
             // ImVec2 PivotAlignment;
             // ImVec2 PivotSize;
@@ -917,9 +945,12 @@ void BaseNode::DrawNodeGraphStyleMenu() const {
             // float SlotRadius;
             // float SlotArrowSize;
             // float SlotArrowWidth;
-            ImGui::SliderFloatDefault(200, "Group Rounding", &editorStyle.GroupRounding, 0.0f, 40.0f, def.GroupRounding);
-            ImGui::SliderFloatDefault(200, "Group Border Width", &editorStyle.GroupBorderWidth, 0.0f, 15.0f, def.GroupBorderWidth);
+            changed |= ImGui::SliderFloatDefault(200, "Group Rounding", &editorStyle.GroupRounding, 0.0f, 40.0f, def.GroupRounding);
+            changed |= ImGui::SliderFloatDefault(200, "Group Border Width", &editorStyle.GroupBorderWidth, 0.0f, 15.0f, def.GroupBorderWidth);
 
+            if (changed) {
+                SetChanged();
+            }
             // ImGui::EndMenu();
         }
         ImGui::End();
@@ -928,8 +959,10 @@ void BaseNode::DrawNodeGraphStyleMenu() const {
 
 void BaseNode::DrawToolMenu() {
     if (ImGui::BeginMenu("Tools")) {
-        ImGui::CheckBoxBoolDefault("Debug mode", &m_BaseNodeState.debug_mode, false);
-
+        changed |= ImGui::CheckBoxBoolDefault("Debug mode", &m_BaseNodeState.debug_mode, false);
+        if (changed) {
+            SetChanged();
+        }
         ImGui::EndMenu();
     }
 }
@@ -937,21 +970,20 @@ void BaseNode::DrawToolMenu() {
 bool BaseNode::DrawWidgets(const uint32_t& /*vCurrentFrame*/, ImGuiContext* vContextPtr, const std::string& /*vUserDatas*/) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
-
     return false;
 }
 
-bool BaseNode::DrawOverlays(const uint32_t& /*vCurrentFrame*/, const ImRect& /*vRect*/, ImGuiContext* vContextPtr, const std::string& /*vUserDatas*/) {
+bool BaseNode::DrawOverlays(
+    const uint32_t& /*vCurrentFrame*/, const ImRect& /*vRect*/, ImGuiContext* vContextPtr, const std::string& /*vUserDatas*/) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
-
     return false;
 }
 
-bool BaseNode::DrawDialogsAndPopups(const uint32_t& /*vCurrentFrame*/, const ImVec2& /*vMaxSize*/, ImGuiContext* vContextPtr, const std::string& /*vUserDatas*/) {
+bool BaseNode::DrawDialogsAndPopups(
+    const uint32_t& /*vCurrentFrame*/, const ImVec2& /*vMaxSize*/, ImGuiContext* vContextPtr, const std::string& /*vUserDatas*/) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
-
     return false;
 }
 
@@ -960,7 +992,7 @@ bool BaseNode::DrawDialogsAndPopups(const uint32_t& /*vCurrentFrame*/, const ImV
 //////////////////////////////////////////////////////////////////////////////
 
 bool BaseNode::DrawGraph() {
-    bool change = false;
+    changed = false;
 
     m_BaseNodeState.m_Context = ImGui::GetCurrentContext();
     if (m_BaseNodeState.m_NodeGraphContext) {
@@ -991,8 +1023,8 @@ bool BaseNode::DrawGraph() {
         /*ax::NodeEditor::Suspend();
         ImVec2 smp = ImGui::GetMousePos();
         ImVec2 cmp = ax::NodeEditor::ScreenToCanvas(smp);
-        ImGui::SetTooltip("Screen Mouse Pos : %.1f %.1f\nCanvas Mouse Pos : %.1f %.1f\nCanvas offset : %.1f %.1f / %.1f %.1f", smp.x, smp.y, cmp.x, cmp.y, co1.x, co1.y, co2.x,
-        co2.y); ax::NodeEditor::Resume();*/
+        ImGui::SetTooltip("Screen Mouse Pos : %.1f %.1f\nCanvas Mouse Pos : %.1f %.1f\nCanvas offset : %.1f %.1f / %.1f %.1f", smp.x, smp.y, cmp.x,
+        cmp.y, co1.x, co1.y, co2.x, co2.y); ax::NodeEditor::Resume();*/
 
         ax::NodeEditor::End();
         ax::NodeEditor::SetCurrentEditor(nullptr);
@@ -1000,7 +1032,7 @@ bool BaseNode::DrawGraph() {
         DoGraphActions(&m_BaseNodeState);
     }
 
-    return change;
+    return changed;
 }
 
 bool BaseNode::GenerateGraphFromCode(const std::string& /*vCode*/) {
@@ -1475,6 +1507,8 @@ BaseNodeWeak BaseNode::AddChildNode(BaseNodePtr vNodePtr, bool vIncNodeId) {
 
         m_ChildNodes[(int)vNodePtr->GetNodeID()] = vNodePtr;
 
+        SetChanged();
+
         return vNodePtr;
     }
 
@@ -1521,6 +1555,7 @@ void BaseNode::DestroyChildNode(BaseNodeWeak vNode) {
             if (m_ChildNodes.find(nid) != m_ChildNodes.end())  // trouvé
             {
                 m_ChildNodes.erase(nid);
+                SetChanged();
             }
         }
     }
@@ -1535,8 +1570,10 @@ bool BaseNode::DestroyChildNodeByIdIfAllowed(int vNodeID, bool vDestroy) {
         if (nodePtr && !nodePtr->deletionDisabled) {
             if (vDestroy) {
                 m_ChildNodes.erase(vNodeID);
+                SetChanged();
             } else {
                 m_NodeIdToDelete.emplace(vNodeID);
+                SetChanged();
             }
 
             res = true;
@@ -1581,6 +1618,9 @@ void BaseNode::SetChanged(bool vFlag) {
     auto ptr = m_ParentNode.lock();
     if (ptr) {
         ptr->SetChanged(vFlag);
+    }
+    if (!vFlag) {
+        ax::NodeEditor::ClearDirty();
     }
 }
 
@@ -1788,6 +1828,8 @@ bool BaseNode::AddLink(NodeSlotWeak vStart, NodeSlotWeak vEnd) {
             m_LinksDico[outID].emplace(m_Links[link.linkId]->linkId);
 
             CallSlotsOnConnectEvent(startPtr, endPtr);
+
+            SetChanged();
 
             return true;
         } else {
@@ -1998,15 +2040,19 @@ bool BaseNode::ConnectSlots(NodeSlotWeak vFrom, NodeSlotWeak vTo) {
                 if (!fromParentNodePtr->m_ParentNode.expired()) {
                     auto parentParentNodePtr = fromParentNodePtr->m_ParentNode.lock();
                     if (parentParentNodePtr) {
-                        LogVarDebugError("graph(%s) => Cant connect slots :\n\t- slot(stamp:%s,type:%s) from node(%s)\n\t- to\n\t- slot(stamp:%s,type:%s) from node(%s)\n",
+                        LogVarDebugError(
+                            "graph(%s) => Cant connect slots :\n\t- slot(stamp:%s,type:%s) from node(%s)\n\t- to\n\t- slot(stamp:%s,type:%s) from "
+                            "node(%s)\n",
                             parentParentNodePtr->name.c_str(), fromPtr->stamp.typeStamp.c_str(), fromTypeStr.c_str(), fromParentNodePtr->name.c_str(),
                             toPtr->stamp.typeStamp.c_str(), toTypeStr.c_str(), toParentNodePtr->name.c_str());
                     }
                 } else {
                     // LogVarDebugError("Was Swapped : %s", swapped ? "true" : "false");
-                    LogVarDebugError("graph(NULL) => Cant connect slots :\n\t- slot(stamp:%s,type:%s) from node(%s)\n\t- to\n\t- slot(stamp:%s,type:%s) from node(%s)\n",
-                        fromPtr->stamp.typeStamp.c_str(), fromTypeStr.c_str(), fromParentNodePtr->name.c_str(), toPtr->stamp.typeStamp.c_str(), toTypeStr.c_str(),
-                        toParentNodePtr->name.c_str());
+                    LogVarDebugError(
+                        "graph(NULL) => Cant connect slots :\n\t- slot(stamp:%s,type:%s) from node(%s)\n\t- to\n\t- slot(stamp:%s,type:%s) from "
+                        "node(%s)\n",
+                        fromPtr->stamp.typeStamp.c_str(), fromTypeStr.c_str(), fromParentNodePtr->name.c_str(), toPtr->stamp.typeStamp.c_str(),
+                        toTypeStr.c_str(), toParentNodePtr->name.c_str());
                 }
             }
         } else {
@@ -2040,7 +2086,8 @@ void BaseNode::NotifyConnectionChangeOfThisSlot(NodeSlotWeak vSlot, bool vConnec
                     if (ptr->connected) {
                         // on va remplacer le code venant du node connecté au node de ce slot
                         // pour ce faire, on a besoin :
-                        // - du nom de la fonction originale, pour localiser la section dont le code doit etre remplacé dans le node du slot (de destination)
+                        // - du nom de la fonction originale, pour localiser la section dont le code doit etre remplacé dans le node du slot (de
+                        // destination)
                         // - du code de la fonction connecté au slot
 
                         // 1, on recupere le code de la fonction connecté au slot
@@ -2276,8 +2323,8 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
 
         res += vOffset + "</graph>\n";
     } else {
-        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(), ct::fvec2(pos.x, pos.y).string().c_str(),
-                             (uint32_t)GetNodeID());
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
         for (auto slot : m_Inputs) {
             res += slot.second->getXml(vOffset + "\t", vUserDatas);

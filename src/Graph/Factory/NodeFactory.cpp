@@ -16,22 +16,63 @@ limitations under the License.
 
 #include "NodeFactory.h"
 
-//#include <LumoBackend/Graph/Nodes/Output/Output3DNode.h>
-//#include <LumoBackend/Graph/Nodes/Output/Output2DNode.h>
+#include <Nodes/Assets/MeshNode.h>
+#include <Nodes/Assets/Texture2DNode.h>
+#include <Nodes/Assets/CubeMapNode.h>
 
-BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType)
-{
-	auto graphPtr = vNodeGraph.lock();
-	if (graphPtr)
-	{
-		auto corePtr = graphPtr->m_VulkanCorePtr;
-		if (corePtr)
-		{
-			// graph output
-			//if (vNodeType == "OUTPUT_3D")						return Output3DNode::Create(corePtr);
-			//else if (vNodeType == "OUTPUT_2D")					return Output2DNode::Create(corePtr);
-		}
-	}
+#include <Nodes/Misc/GridNode.h>
+#include <Nodes/Misc/SceneMergerNode.h>
 
-	return nullptr;
+#include <Nodes/Renderers/MatcapRendererNode.h>
+#include <Nodes/Renderers/ChannelRendererNode.h>
+#include <Nodes/Renderers/HeatmapRendererNode.h>
+#include <Nodes/Renderers/ModelRendererNode.h>
+
+#include <Nodes/Widgets/VariableNode.h>
+#include <Nodes/Widgets/WidgetColorNode.h>
+
+BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType) {
+    auto graphPtr = vNodeGraph.lock();
+    if (graphPtr) {
+        auto corePtr = graphPtr->m_VulkanCorePtr;
+        if (corePtr) {
+            // Assets
+            if (vNodeType == "MESH")
+                return MeshNode::Create(corePtr);
+            else if (vNodeType == "TEXTURE_2D")
+                return Texture2DNode::Create(corePtr);
+            else if (vNodeType == "CUBE_MAP")
+                return CubeMapNode::Create(corePtr);
+
+            // Misc
+            if (vNodeType == "GRID_AXIS")
+                return GridNode::Create(corePtr);
+            else if (vNodeType == "SCENE_MERGER")
+                return SceneMergerNode::Create(corePtr);
+
+            // renderers
+            else if (vNodeType == "CHANNEL_RENDERER")
+                return ChannelRendererNode::Create(corePtr);
+            else if (vNodeType == "HEATMAP_RENDERER")
+                return HeatmapRendererNode::Create(corePtr);
+            else if (vNodeType == "MATCAP_RENDERER")
+                return MatcapRendererNode::Create(corePtr);
+            else if (vNodeType == "MODEL_RENDERER")
+                return ModelRendererNode::Create(corePtr);
+
+            // Variables
+            else if (vNodeType == "WIDGET_BOOLEAN")
+                return VariableNode::Create(corePtr, vNodeType);
+            else if (vNodeType == "WIDGET_FLOAT")
+                return VariableNode::Create(corePtr, vNodeType);
+            else if (vNodeType == "WIDGET_INT")
+                return VariableNode::Create(corePtr, vNodeType);
+            else if (vNodeType == "WIDGET_UINT")
+                return VariableNode::Create(corePtr, vNodeType);
+            else if (vNodeType == "WIDGET_COLOR")
+                return WidgetColorNode::Create(corePtr);
+        }
+    }
+
+    return nullptr;
 }

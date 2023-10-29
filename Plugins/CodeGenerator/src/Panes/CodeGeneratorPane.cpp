@@ -28,6 +28,8 @@ limitations under the License.
 
 #define ICON_SDFM_SHARE u8"\uf496"
 
+using namespace std::placeholders;
+
 #ifdef PROFILER_INCLUDE
 #include PROFILER_INCLUDE
 #endif
@@ -43,29 +45,23 @@ limitations under the License.
 CodeGeneratorPane::CodeGeneratorPane() = default;
 CodeGeneratorPane::~CodeGeneratorPane() = default;
 
-bool CodeGeneratorPane::Init() { 
-    
-    return true; }
+bool CodeGeneratorPane::Init() {
+    return true;
+}
 
-void CodeGeneratorPane::Unit() { m_RootNodePtr.reset(); }
+void CodeGeneratorPane::Unit() {
+}
 
 void CodeGeneratorPane::setVulkanCore(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
     m_VulkanCore = vVulkanCoreWeak;
-    m_RootNodePtr = GeneratorNode::Create(m_VulkanCore.lock());
-
-    using namespace std::placeholders;
-    m_RootNodePtr->SetSelectNodeCallback(std::bind(&CodeGeneratorPane::SelectNode, this, _1));
-    m_RootNodePtr->SetSelectSlotCallback(std::bind(&CodeGeneratorPane::SelectSlot, this, _1, _2));
-    m_RootNodePtr->SetLoadNodeFromXMLCallback(std::bind(&CodeGeneratorPane::LoadNodeFromXML, this, _1, _2, _3, _4, _5, _6, _7));
-    NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
-    NodeSlot::sSlotGraphOutputMouseRightColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool CodeGeneratorPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool CodeGeneratorPane::DrawPanes(
+    const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
 
     bool change = false;
@@ -84,7 +80,7 @@ bool CodeGeneratorPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInO
             {
                 const auto aw = ImGui::GetContentRegionAvail();
 
-                if (ImGui::BeginChild("Parameters", ImVec2(aw.x * 0.5f, aw.y), true,   //
+                if (ImGui::BeginChild("Parameters", ImVec2(aw.x * 0.5f, aw.y), true,    //
                         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |           //
                             ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse |  //
                             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_MenuBar)) {
@@ -114,13 +110,15 @@ bool CodeGeneratorPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInO
 //// DIALOGS //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool CodeGeneratorPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool CodeGeneratorPane::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     if (ImGuiFileDialog::Instance()->Display("GenerateToPath")) {
         if (ImGuiFileDialog::Instance()->IsOk()) {
             FilesSaver::Instance()->GenerateGraphFiles(  //
-                m_RootNodePtr,                           //
+                m_NodeGraph.lock(),                      //
                 ImGuiFileDialog::Instance()->GetCurrentPath());
+            SetProjectChange(true);
         }
         ImGuiFileDialog::Instance()->Close();
     }
@@ -150,10 +148,30 @@ bool CodeGeneratorPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
+//// GRAPH ////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////
+
+void CodeGeneratorPane::SetNodeGraph(GeneratorNodeWeak vNodeGraph) {
+    m_NodeGraph = vNodeGraph;
+    auto ptr = m_NodeGraph.lock();
+    if (ptr != nullptr) {
+        ptr->name = "GeneratorGraph";
+        ptr->m_NodeTypeString = "Graph";
+        ptr->SetSelectNodeCallback(std::bind(&CodeGeneratorPane::SelectNode, this, _1));
+        ptr->SetSelectSlotCallback(std::bind(&CodeGeneratorPane::SelectSlot, this, _1, _2));
+        ptr->SetLoadNodeFromXMLCallback(std::bind(&CodeGeneratorPane::LoadNodeFromXML, this, _1, _2, _3, _4, _5, _6, _7));
+        NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
+        NodeSlot::sSlotGraphOutputMouseRightColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
 //// SELECTOR /////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-void CodeGeneratorPane::Select(BaseNodeWeak vObjet) { SetParentNode(vObjet); }
+void CodeGeneratorPane::Select(BaseNodeWeak vObjet) {
+    SetParentNode(vObjet);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE : DISPLAY's //////////////////////////////////////////////////////////
@@ -173,223 +191,293 @@ void CodeGeneratorPane::DrawContent() {
 }
 
 void CodeGeneratorPane::DrawGraph() {
-    if (m_RootNodePtr) {
+    auto ptr = m_NodeGraph.lock();
+    if (ptr) {
+        bool change = false;
         if (ImGui::BeginMenuBar()) {
             if (ImGui::MenuItem("Layout", "apply Layout")) {
-                GraphLayout::Instance()->ApplyLayout(m_RootNodePtr);
+                GraphLayout::Instance()->ApplyLayout(ptr);
+                change = true;
             }
-            m_RootNodePtr->DrawToolMenu();
-            if (m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext) {
-                nd::SetCurrentEditor(m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext);
+            ptr->DrawToolMenu();
+            if (ptr->m_BaseNodeState.m_NodeGraphContext) {
+                nd::SetCurrentEditor(ptr->m_BaseNodeState.m_NodeGraphContext);
                 if (nd::GetSelectedObjectCount()) {
                     if (ImGui::BeginMenu("Selection")) {
                         if (ImGui::MenuItem("Zoom on Selection")) {
-                            m_RootNodePtr->ZoomToSelection();
+                            ptr->ZoomToSelection();
+                            change = true;
                         }
                         if (ImGui::MenuItem("Center on Selection")) {
-                            m_RootNodePtr->NavigateToSelection();
+                            ptr->NavigateToSelection();
+                            change = true;
                         }
                         ImGui::EndMenu();
                     }
                 }
                 if (ImGui::BeginMenu("Content")) {
                     if (ImGui::MenuItem("Zoom on Content")) {
-                        m_RootNodePtr->ZoomToContent();
+                        ptr->ZoomToContent();
+                        change = true;
                     }
                     if (ImGui::MenuItem("Center on Content")) {
-                        m_RootNodePtr->NavigateToContent();
+                        ptr->NavigateToContent();
+                        change = true;
                     }
                     ImGui::EndMenu();
                 }
             }
             if (ImGui::BeginMenu("Style")) {
-                m_RootNodePtr->DrawStyleMenu();
+                ptr->DrawStyleMenu();
                 GraphLayout::Instance()->DrawSettings();
+                change = true;
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();
         }
-        m_RootNodePtr->DrawGraph();
+        change |= ptr->DrawGraph();
+        if (change) {
+            SetProjectChange(change);
+        }
+        if (WasJustSaved()) {
+            ptr->SetChanged(false);
+        }
     }
 }
 
-void CodeGeneratorPane::DrawPluginCreationPane() {}
+void CodeGeneratorPane::DrawPluginCreationPane() {
+}
 
 void CodeGeneratorPane::DrawNodeCreationPane() {
-    const float aw = ImGui::GetContentRegionAvail().x;
+    auto ptr = m_NodeGraph.lock();
+    if (ptr) {
+        const float aw = ImGui::GetContentRegionAvail().x;
 
-    if (ImGui::ContrastedButton("Clear Graph (WARNING, cannot be canceled !)")) {
-        m_RootNodePtr->ClearGraph();
-    }
+        bool change = false;
 
-    if (ImGui::ContrastedButton("New Node")) {
-        SelectNode(std::dynamic_pointer_cast<GeneratorNode>(  //
-            m_RootNodePtr->AddChildNode(GeneratorNode::Create(m_VulkanCore.lock()))
-                .lock()));
+        if (ImGui::ContrastedButton("Clear Graph (WARNING, cannot be canceled !)")) {
+            ptr->ClearGraph();
+            change = true;
+        }
+
+        if (ImGui::ContrastedButton("New Node")) {
+            SelectNode(std::dynamic_pointer_cast<GeneratorNode>(  //
+                ptr->AddChildNode(GeneratorNode::Create(m_VulkanCore.lock())).lock()));
+            auto nodePtr = m_SelectedNode.lock();
+            if (nodePtr) {
+                nodePtr->name = "New Node";
+            }
+            m_NeedToApplyLayout = true;
+            change = true;
+        }
+
         auto nodePtr = m_SelectedNode.lock();
         if (nodePtr) {
-            nodePtr->name = "New Node";
-        }
-        m_NeedToApplyLayout = true;
-    }
-
-    auto nodePtr = m_SelectedNode.lock();
-    if (nodePtr) {
-        ImGui::SameLine();
-
-        if (ImGui::ContrastedButton("Delete the Node")) {
-            m_RootNodePtr->DestroyChildNode(m_SelectedNode);
-        }
-
-        if (m_NodeDisplayNameInputText.DisplayInputText(aw * 0.5f, "Node Display Name :", "New Node")) {
-            nodePtr->m_NodeDisplayName = m_NodeDisplayNameInputText.GetText();
-            nodePtr->name = nodePtr->m_NodeDisplayName;
-
-            nodePtr->m_NodeCreationName = ct::toUpper(nodePtr->m_NodeDisplayName);
-            ct::replaceString(nodePtr->m_NodeCreationName, " ", "_");
-            m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
-
-            nodePtr->m_ClassName = nodePtr->m_NodeDisplayName;
-            ct::replaceString(nodePtr->m_ClassName, " ", "");
-            m_ClassNameInputText.SetText(nodePtr->m_ClassName);
-
-            nodePtr->m_ModuleDisplayName = nodePtr->m_NodeDisplayName;
-            m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleDisplayName);
-
-            nodePtr->m_ModuleXmlName = ct::toLower(nodePtr->m_NodeCreationName) + "_module";
-            m_ModuleXmlNameInputText.SetText(nodePtr->m_ModuleXmlName);
-        }
-
-        if (m_NodeCreationNameInputText.DisplayInputText(aw * 0.5f, "Node Creation Name :", "NEW_NODE")) {
-            nodePtr->m_NodeCreationName = m_NodeCreationNameInputText.GetText();
-            ct::replaceString(nodePtr->m_NodeCreationName, " ", "_");
-            m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
-        }
-
-        ImGui::Separator();
-
-        ImGui::CheckBoxBoolDefault("Is a Task ?", &nodePtr->m_IsATask, true);
-
-        ImGui::Separator();
-
-        if (ImGui::ContrastedButton("New Custom type")) {
-            m_CustomTypeInputTexts.emplace_back();
-        }
-
-        auto it_to_erase = m_CustomTypeInputTexts.end();
-        for (auto it = m_CustomTypeInputTexts.begin(); it != m_CustomTypeInputTexts.end(); ++it) {
-            if (ImGui::ContrastedButton(ICON_SDFM_SHARE)) {
-                it_to_erase = it;
-            }
-
             ImGui::SameLine();
 
-            it->DisplayInputText(aw * 0.5f, "Custom Type :", "SceneCustom");
-        }
+            if (ImGui::ContrastedButton("Delete the Node")) {
+                ptr->DestroyChildNode(m_SelectedNode);
+                change = true;
+            }
 
-        if (it_to_erase != m_CustomTypeInputTexts.end()) {
-            m_CustomTypeInputTexts.erase(it_to_erase);
-        }
+            if (m_NodeDisplayNameInputText.DisplayInputText(aw * 0.5f, "Node Display Name :", "New Node")) {
+                nodePtr->m_NodeDisplayName = m_NodeDisplayNameInputText.GetText();
+                nodePtr->name = nodePtr->m_NodeDisplayName;
 
-        ImGui::Separator();
+                nodePtr->m_NodeCreationName = ct::toUpper(nodePtr->m_NodeDisplayName);
+                ct::replaceString(nodePtr->m_NodeCreationName, " ", "_");
+                m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
 
-        m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(m_InputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 10.0f), m_SelectedNode, m_SelectedNodeSlotInput, NodeSlot::PlaceEnum::INPUT).lock());
+                nodePtr->m_ClassName = nodePtr->m_NodeDisplayName;
+                ct::replaceString(nodePtr->m_ClassName, " ", "");
+                m_ClassNameInputText.SetText(nodePtr->m_ClassName);
 
-        ImGui::SameLine();
-
-        m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(m_OutputSlotEditor.DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 10.0f), m_SelectedNode, m_SelectedNodeSlotOutput, NodeSlot::PlaceEnum::OUTPUT).lock());
-
-        ImGui::Separator();
-
-        ImGui::Text("Classes");
-
-        if (m_ClassNameInputText.DisplayInputText(aw * 0.5f, "Name :", "NewClass")) {
-            nodePtr->m_ClassName = m_ClassNameInputText.GetText();
-            ct::replaceString(nodePtr->m_ClassName, " ", "");
-            m_ClassNameInputText.SetText(nodePtr->m_ClassName);
-        }
-
-        if (m_NodeCategoryNameInputText.DisplayInputText(aw * 0.5f, "Category name :", "TestNodes")) {
-            nodePtr->m_CategoryName = m_NodeCategoryNameInputText.GetText();
-            ct::replaceString(nodePtr->m_CategoryName, " ", "");
-            m_NodeCategoryNameInputText.SetText(nodePtr->m_CategoryName);
-        }
-
-        ImGui::Separator();
-
-        ImGui::CheckBoxBoolDefault("Generate a Module ?", &nodePtr->m_GenerateAModule, true);
-
-        if (nodePtr->m_GenerateAModule) {
-            if (m_ModuleDisplayNameInputText.DisplayInputText(aw * 0.5f, "Module Display Name :", "New Node")) {
-                nodePtr->m_ModuleDisplayName = m_ModuleDisplayNameInputText.GetText();
+                nodePtr->m_ModuleDisplayName = nodePtr->m_NodeDisplayName;
                 m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleDisplayName);
-            }
 
-            if (m_ModuleXmlNameInputText.DisplayInputText(aw * 0.5f, "Module Xml Name :", "toto_module")) {
-                nodePtr->m_ModuleXmlName = m_ModuleXmlNameInputText.GetText();
-                ct::replaceString(nodePtr->m_ModuleXmlName, " ", "");
+                nodePtr->m_ModuleXmlName = ct::toLower(nodePtr->m_NodeCreationName) + "_module";
                 m_ModuleXmlNameInputText.SetText(nodePtr->m_ModuleXmlName);
+
+                change = true;
             }
 
-            ImGui::Text("Renderer Type");
+            if (m_NodeCreationNameInputText.DisplayInputText(aw * 0.5f, "Node Creation Name :", "NEW_NODE")) {
+                nodePtr->m_NodeCreationName = m_NodeCreationNameInputText.GetText();
+                ct::replaceString(nodePtr->m_NodeCreationName, " ", "_");
+                m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
+                change = true;
+            }
+
+            ImGui::Separator();
+
+            change |= ImGui::CheckBoxBoolDefault("Is a Task ?", &nodePtr->m_IsATask, true);
+
+            ImGui::Separator();
+
+            if (ImGui::ContrastedButton("New Custom type")) {
+                m_CustomTypeInputTexts.emplace_back();
+                change = true;
+            }
+
+            auto it_to_erase = m_CustomTypeInputTexts.end();
+            for (auto it = m_CustomTypeInputTexts.begin(); it != m_CustomTypeInputTexts.end(); ++it) {
+                if (ImGui::ContrastedButton(ICON_SDFM_SHARE)) {
+                    it_to_erase = it;
+                    change = true;
+                }
+
+                ImGui::SameLine();
+
+                it->DisplayInputText(aw * 0.5f, "Custom Type :", "SceneCustom");
+            }
+
+            if (it_to_erase != m_CustomTypeInputTexts.end()) {
+                m_CustomTypeInputTexts.erase(it_to_erase);
+                change = true;
+            }
+
+            ImGui::Separator();
+
+            m_SelectedNodeSlotInput =
+                std::dynamic_pointer_cast<NodeSlotInput>(m_InputSlotEditor
+                                                             .DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 10.0f), m_SelectedNode,
+                                                                 m_SelectedNodeSlotInput, NodeSlot::PlaceEnum::INPUT, change)
+                                                             .lock());
 
             ImGui::SameLine();
 
-            if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_NONE, nodePtr->m_RendererType == RENDERER_TYPE_NONE, false))
-                nodePtr->m_RendererType = RENDERER_TYPE_NONE;
-            ImGui::SameLine();
-            if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D, nodePtr->m_RendererType == RENDERER_TYPE_PIXEL_2D, false))
-                nodePtr->m_RendererType = RENDERER_TYPE_PIXEL_2D;
-            ImGui::SameLine();
-            if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_COMPUTE_1D, nodePtr->m_RendererType == RENDERER_TYPE_COMPUTE_1D, false))
-                nodePtr->m_RendererType = RENDERER_TYPE_COMPUTE_1D;
-            ImGui::SameLine();
-            if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_COMPUTE_2D, nodePtr->m_RendererType == RENDERER_TYPE_COMPUTE_2D, false))
-                nodePtr->m_RendererType = RENDERER_TYPE_COMPUTE_2D;
-            ImGui::SameLine();
-            if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_COMPUTE_3D, nodePtr->m_RendererType == RENDERER_TYPE_COMPUTE_3D, false))
-                nodePtr->m_RendererType = RENDERER_TYPE_COMPUTE_3D;
-            ImGui::SameLine();
-            if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_RTX, nodePtr->m_RendererType == RENDERER_TYPE_RTX, false))
-                nodePtr->m_RendererType = RENDERER_TYPE_RTX;
+            m_SelectedNodeSlotOutput =
+                std::dynamic_pointer_cast<NodeSlotOutput>(m_OutputSlotEditor
+                                                              .DrawSlotCreationPane(ImVec2(aw * 0.5f, ImGui::GetFrameHeight() * 10.0f),
+                                                                  m_SelectedNode, m_SelectedNodeSlotOutput, NodeSlot::PlaceEnum::OUTPUT, change)
+                                                              .lock());
+
+            ImGui::Separator();
+
+            ImGui::Text("Classes");
+
+            if (m_ClassNameInputText.DisplayInputText(aw * 0.5f, "Name :", "NewClass")) {
+                nodePtr->m_ClassName = m_ClassNameInputText.GetText();
+                ct::replaceString(nodePtr->m_ClassName, " ", "");
+                m_ClassNameInputText.SetText(nodePtr->m_ClassName);
+                change = true;
+            }
+
+            if (m_NodeCategoryNameInputText.DisplayInputText(aw * 0.5f, "Category name :", "TestNodes")) {
+                nodePtr->m_CategoryName = m_NodeCategoryNameInputText.GetText();
+                ct::replaceString(nodePtr->m_CategoryName, " ", "");
+                m_NodeCategoryNameInputText.SetText(nodePtr->m_CategoryName);
+                change = true;
+            }
+
+            ImGui::Separator();
+
+            ImGui::CheckBoxBoolDefault("Generate a Module ?", &nodePtr->m_GenerateAModule, true);
+
+            if (nodePtr->m_GenerateAModule) {
+                if (m_ModuleDisplayNameInputText.DisplayInputText(aw * 0.5f, "Module Display Name :", "New Node")) {
+                    nodePtr->m_ModuleDisplayName = m_ModuleDisplayNameInputText.GetText();
+                    m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleDisplayName);
+                    change = true;
+                }
+
+                if (m_ModuleXmlNameInputText.DisplayInputText(aw * 0.5f, "Module Xml Name :", "toto_module")) {
+                    nodePtr->m_ModuleXmlName = m_ModuleXmlNameInputText.GetText();
+                    ct::replaceString(nodePtr->m_ModuleXmlName, " ", "");
+                    m_ModuleXmlNameInputText.SetText(nodePtr->m_ModuleXmlName);
+                    change = true;
+                }
+
+                ImGui::Text("Renderer Type");
+
+                ImGui::SameLine();
+
+                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_NONE, nodePtr->m_RendererType == RENDERER_TYPE_NONE, false)) {
+                    nodePtr->m_RendererType = RENDERER_TYPE_NONE;
+                    change = true;
+                }
+                ImGui::SameLine();
+                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D, nodePtr->m_RendererType == RENDERER_TYPE_PIXEL_2D, false)) {
+                    nodePtr->m_RendererType = RENDERER_TYPE_PIXEL_2D;
+                    change = true;
+                }
+                ImGui::SameLine();
+                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_COMPUTE_1D, nodePtr->m_RendererType == RENDERER_TYPE_COMPUTE_1D, false)) {
+                    nodePtr->m_RendererType = RENDERER_TYPE_COMPUTE_1D;
+                    change = true;
+                }
+                ImGui::SameLine();
+                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_COMPUTE_2D, nodePtr->m_RendererType == RENDERER_TYPE_COMPUTE_2D, false)) {
+                    nodePtr->m_RendererType = RENDERER_TYPE_COMPUTE_2D;
+                    change = true;
+                }
+                ImGui::SameLine();
+                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_COMPUTE_3D, nodePtr->m_RendererType == RENDERER_TYPE_COMPUTE_3D, false)) {
+                    nodePtr->m_RendererType = RENDERER_TYPE_COMPUTE_3D;
+                    change = true;
+                }
+                ImGui::SameLine();
+                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_RTX, nodePtr->m_RendererType == RENDERER_TYPE_RTX, false)) {
+                    nodePtr->m_RendererType = RENDERER_TYPE_RTX;
+                    change = true;
+                }
+            }
+
+            ImGui::CheckBoxBoolDefault("Generate a Pass ?", &nodePtr->m_GenerateAPass, true);
+
+            if (nodePtr->m_GenerateAPass) {
+                if (nodePtr->m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+                    ImGui::Text("Renderer Specialization Type");
+
+                    ImGui::SameLine();
+
+                    if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD,
+                            nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD, false)) {
+                        nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD;
+                        change = true;
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH,
+                            nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH, false)) {
+                        nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH;
+                        change = true;
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION,
+                            nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION, false)) {
+                        nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION;
+                        change = true;
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX,
+                            nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX, false)) {
+                        nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX;
+                        change = true;
+                    }
+                }
+
+                if (nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+                    nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+                    change |= ImGui::ContrastedComboVectorDefault(
+                        0.0f, "VertexStruct type", &nodePtr->m_VertexStructTypesIndex, nodePtr->m_BaseTypes.m_VertexStructTypes, 0);
+                }
+
+                change |= nodePtr->m_UBOEditors.DrawPane(nodePtr->m_RendererType);
+
+                /*change |= ImGui::CheckBoxBoolDefault("Use A SBO", &nodePtr->m_UseASbo, false);
+                if (nodePtr->m_UseASbo)
+                {
+
+                }*/
+            }
+
+            if (ImGui::ContrastedButton("Generate")) {
+                ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", nullptr, FilesSaver::Instance()->m_GenerationRootPath,
+                    "", 1, nullptr, ImGuiFileDialogFlags_Modal);
+            }
         }
-
-        ImGui::CheckBoxBoolDefault("Generate a Pass ?", &nodePtr->m_GenerateAPass, true);
-
-        if (nodePtr->m_GenerateAPass) {
-            if (nodePtr->m_RendererType == RENDERER_TYPE_PIXEL_2D) {
-                ImGui::Text("Renderer Specialization Type");
-
-                ImGui::SameLine();
-
-                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD, nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD, false))
-                    nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD;
-                ImGui::SameLine();
-                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH, nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH, false))
-                    nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH;
-                ImGui::SameLine();
-                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION, nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION, false))
-                    nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION;
-                ImGui::SameLine();
-                if (ImGui::RadioButtonLabeled(0.0f, RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX, nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX, false))
-                    nodePtr->m_RendererTypePixel2DSpecializationType = RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX;
-            }
-
-            if (nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH || nodePtr->m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
-                ImGui::ContrastedComboVectorDefault(0.0f, "VertexStruct type", &nodePtr->m_VertexStructTypesIndex, nodePtr->m_BaseTypes.m_VertexStructTypes, 0);
-            }
-
-            nodePtr->m_UBOEditors.DrawPane(nodePtr->m_RendererType);
-
-            /*ImGui::CheckBoxBoolDefault("Use A SBO", &nodePtr->m_UseASbo, false);
-            if (nodePtr->m_UseASbo)
-            {
-
-            }*/
-        }
-
-        if (ImGui::ContrastedButton("Generate")) {
-            ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", nullptr, m_GenerationRootPath, 1, nullptr, ImGuiFileDialogFlags_Modal);
+        if (change) {
+            SetProjectChange(change);
         }
     }
 }
@@ -428,23 +516,21 @@ void CodeGeneratorPane::SelectNode(const BaseNodeWeak& vNode) {
 }
 
 void CodeGeneratorPane::SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton) {
-    if (m_RootNodePtr) {
-        if (vButton == ImGuiMouseButton_Left) {
-            auto slotPtr = vSlot.lock();
-            if (slotPtr) {
-                if (slotPtr->IsAnInput()) {
-                    m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(vSlot.lock());
-                    NodeSlot::sSlotGraphOutputMouseLeft = m_SelectedNodeSlotInput;
-                    m_InputSlotEditor.SelectSlot(m_SelectedNodeSlotInput);
-                } else if (slotPtr->IsAnOutput()) {
-                    m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(vSlot.lock());
-                    NodeSlot::sSlotGraphOutputMouseRight = m_SelectedNodeSlotOutput;
-                    m_OutputSlotEditor.SelectSlot(m_SelectedNodeSlotOutput);
-                }
+    if (vButton == ImGuiMouseButton_Left) {
+        auto slotPtr = vSlot.lock();
+        if (slotPtr) {
+            if (slotPtr->IsAnInput()) {
+                m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(vSlot.lock());
+                NodeSlot::sSlotGraphOutputMouseLeft = m_SelectedNodeSlotInput;
+                m_InputSlotEditor.SelectSlot(m_SelectedNodeSlotInput);
+            } else if (slotPtr->IsAnOutput()) {
+                m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(vSlot.lock());
+                NodeSlot::sSlotGraphOutputMouseRight = m_SelectedNodeSlotOutput;
+                m_OutputSlotEditor.SelectSlot(m_SelectedNodeSlotOutput);
             }
-        } else if (vButton == ImGuiMouseButton_Middle) {
-        } else if (vButton == ImGuiMouseButton_Right) {
         }
+    } else if (vButton == ImGuiMouseButton_Middle) {
+    } else if (vButton == ImGuiMouseButton_Right) {
     }
 }
 
@@ -457,14 +543,13 @@ std::string CodeGeneratorPane::getXml(const std::string& vOffset, const std::str
 
     std::string str;
 
-    str += vOffset + "<custom_types>\n";
-    for (const auto& it : m_CustomTypeInputTexts) {
-        str += vOffset + "\t<custom_type_name>" + it.GetText() + "</custom_type_name>\n";
-    }
-    str += vOffset + "</custom_types>\n";
-
-    if (m_RootNodePtr) {
-        str += m_RootNodePtr->getXml(vOffset, vUserDatas);
+    if (vUserDatas == "project") {
+        str += vOffset + "<custom_types>\n";
+        for (const auto& it : m_CustomTypeInputTexts) {
+            str += vOffset + "\t<custom_type_name>" + it.GetText() + "</custom_type_name>\n";
+        }
+        str += vOffset + "</custom_types>\n";
+        str += vOffset + "<root_path>" + FilesSaver::Instance()->m_GenerationRootPath + "</root_path>\n";
     }
 
     return str;
@@ -484,30 +569,36 @@ bool CodeGeneratorPane::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
     if (vParent != 0)
         strParentName = vParent->Value();
 
-    if (strParentName == "custom_types" && strName == "custom_type_name") {
-        m_CustomTypeInputTexts.emplace_back(strValue);
-    }
-
-    if (m_RootNodePtr) {
-        return m_RootNodePtr->setFromXml(vElem, vParent, vUserDatas);
+    if (vUserDatas == "project") {
+        if (strParentName == "custom_types" && strName == "custom_type_name") {
+            m_CustomTypeInputTexts.emplace_back(strValue);
+        } else if (strParentName == "CodeGenerator" && strName == "root_path") {
+            FilesSaver::Instance()->m_GenerationRootPath = strValue;
+        }
     }
 
     return true;
 }
 
-bool CodeGeneratorPane::LoadNodeFromXML(BaseNodeWeak vBaseNodeWeak, tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vNodeName, const std::string& vNodeType, const ct::fvec2& vPos, const size_t& vNodeId) {
+bool CodeGeneratorPane::LoadNodeFromXML(BaseNodeWeak vBaseNodeWeak,
+    tinyxml2::XMLElement* vElem,
+    tinyxml2::XMLElement* vParent,
+    const std::string& vNodeName,
+    const std::string& vNodeType,
+    const ct::fvec2& vPos,
+    const size_t& vNodeId) {
     ZoneScoped;
-
     bool continueXMLParsing = true;
-
-    if (m_RootNodePtr) {
+    auto ptr = m_NodeGraph.lock();
+    if (ptr) {
         GeneratorNodePtr nodePtr = GeneratorNode::Create(m_VulkanCore.lock());
         if (nodePtr) {
-            if (!vNodeName.empty())
+            if (!vNodeName.empty()) {
                 nodePtr->name = vNodeName;
+            }
             nodePtr->pos = ImVec2(vPos.x, vPos.y);
             nodePtr->nodeID = vNodeId;
-            m_RootNodePtr->AddChildNode(nodePtr);
+            ptr->AddChildNode(nodePtr);
             nd::SetNodePosition(vNodeId, nodePtr->pos);
             nodePtr->RecursParsingConfigChilds(vElem);
             // pour eviter que des slots aient le meme id qu'un nodePtr

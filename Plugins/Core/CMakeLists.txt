@@ -29,9 +29,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
 
-include(cmake/zlib.cmake)
-include(cmake/assimp.cmake)
-
 if (uninstall)
 	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 endif()
@@ -124,7 +121,7 @@ if(USE_DEBUG_SANITIZER)
 	message("Address Sanitizer enabled for projet ${PROJECT}")
 endif()
 
-set(FINAL_BIN_DIR ${CMAKE_SOURCE_DIR}/bin/plugins/${PROJECT})
+set(FINAL_BIN_DIR ${CMAKE_SOURCE_DIR}/bin/plugins)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")
@@ -133,21 +130,17 @@ set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FI
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
 			
-install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins/${PROJECT} COMPONENT PLUGIN_BINARY_${PROJECT})
-install(TARGETS ${ASSIMP_LIBRARIES} RUNTIME DESTINATION plugins/${PROJECT} COMPONENT APP_LIBS_${ASSIMP_LIBRARIES})
-install(TARGETS ${ZLIB_LIBRARIES} RUNTIME DESTINATION plugins/${PROJECT} COMPONENT APP_LIBS_${ZLIB_LIBRARIES})
+install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/src
 	${CMAKE_CURRENT_SOURCE_DIR}/3rdparty
 	${LUMO_BACKEND_INCLUDE_DIRS}
-	${ASSIMP_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT}
 	${LUMO_BACKEND_LIBRARIES}
-	${ASSIMP_LIBRARIES}
 )
 
 # add plugin name in parent LOADED_LUMO_PLUGINS list

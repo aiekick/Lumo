@@ -88,7 +88,11 @@ void MainBackend::run() {
 }
 
 bool MainBackend::init() {
+#ifdef _DEBUG
+    SetConsoleVisibility(true);
+#else
     SetConsoleVisibility(false);
+#endif
     if (m_CreateVulkanWindow()) {
         if (glfwVulkanSupported()) {
             m_InitFilesTracker();
@@ -118,10 +122,10 @@ void MainBackend::unit() {
     m_FileDialogAssets.clear();
     vkDeviceWaitIdle((VkDevice)m_VulkanCorePtr->getDevice());
     m_UnitSystems();
-    m_UnitNodes();
-    m_UnitPlugins();
     m_DestroyRenderers();
     m_DestroyImGuiOverlay();
+    m_UnitNodes();
+    m_UnitPlugins();
     m_DestroyVulkanCore();
     m_DestroyVulkanWindow();
 }
@@ -288,6 +292,8 @@ void MainBackend::m_MainLoop() {
     auto main_window_ptr = m_VulkanWindowPtr->getWindowPtr();
     while (!glfwWindowShouldClose(main_window_ptr)) {
         ZoneScoped;
+
+        ProjectFile::Instance()->NewFrame();
 
         RenderDocController::Instance()->StartCaptureIfResquested();
 
@@ -609,16 +615,10 @@ std::string MainBackend::getXml(const std::string& vOffset, const std::string& v
     std::string str;
 
     str += m_ImGuiOverlayPtr->getFrontend()->getXml(vOffset, vUserDatas);
-    str += CommonSystem::Instance()->getXml(vOffset, vUserDatas);
     str += vOffset + "<project>" + ProjectFile::Instance()->GetProjectFilepathName() + "</project>\n";
-    str += vOffset +
-           ct::toStr("<can_we_tune_mouse>%s</can_we_tune_mouse>", (m_BackendDatas.canWeTuneMouse ? "true" : "false"));
-    str += vOffset + ct::toStr("<can_we_tune_camera>%s</can_we_tune_camera>",
-                         (m_BackendDatas.canWeTuneCamera ? "true" : "false"));
-    str += vOffset +
-           ct::toStr("<can_we_tune_gizmo>%s</can_we_tune_gizmo>", (m_BackendDatas.canWeTuneGizmo ? "true" : "false"));
-    str += vOffset +
-           ct::toStr("<can_we_show_grid>%s</can_we_show_grid>", (m_BackendDatas.canWeShowGrid ? "true" : "false"));
+    str += vOffset + "<can_we_tune_mouse>" + (m_BackendDatas.canWeTuneMouse ? "true" : "false") + "</can_we_tune_mouse>\n";
+    str += vOffset + "<can_we_tune_gizmo>" + (m_BackendDatas.canWeTuneGizmo ? "true" : "false") + "</can_we_tune_gizmo>\n";
+    str += vOffset + "<can_we_show_grid>" + (m_BackendDatas.canWeShowGrid ? "true" : "false") + "</can_we_show_grid>\n";
 
     return str;
 }
@@ -639,7 +639,6 @@ bool MainBackend::setFromXml(
         strParentName = vParent->Value();
 
     m_ImGuiOverlayPtr->getFrontend()->setFromXml(vElem, vParent, vUserDatas);
-    CommonSystem::Instance()->setFromXml(vElem, vParent, vUserDatas);
 
     if (strName == "project") {
         NeedToLoadProject(strValue);
@@ -703,6 +702,10 @@ void MainBackend::m_InitPlugins() {
         if (!pluginPane.paneWeak.expired()) {
             LayoutManager::Instance()->AddPane(pluginPane.paneWeak, pluginPane.paneName, pluginPane.paneCategory,
                 pluginPane.paneDisposal, pluginPane.isPaneOpenedDefault, pluginPane.isPaneFocusedDefault);
+            auto plugin_ptr = std::dynamic_pointer_cast<PluginPane>(pluginPane.paneWeak.lock());
+            if (plugin_ptr != nullptr) {
+                plugin_ptr->SetProjectInstancePtr(ProjectFile::Instance());
+            }
         }
     }
 }

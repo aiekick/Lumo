@@ -18,9 +18,11 @@ private:
 
 public:
 	void SelectSlot(NodeSlotWeak vNodeSlot);
-	NodeSlotWeak DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak vNode, NodeSlotWeak vNodeSlot, const NodeSlot::PlaceEnum& vPlace);
+	NodeSlotWeak DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak vNode, NodeSlotWeak vNodeSlot, const NodeSlot::PlaceEnum& vPlace, bool& vChange);
 
 private:
-	NodeSlotWeak ChangeInputSlotType(BaseNodeWeak vRootNode, const std::string& vType, const std::string& vSubType, const NodeSlotWeak& vSlot);
-	NodeSlotWeak ChangeOutputSlotType(BaseNodeWeak vRootNode, const std::string& vType, const std::string& vSubType, const NodeSlotWeak& vSlot);
+    NodeSlotWeak ChangeInputSlotType(
+        BaseNodeWeak vRootNode, const std::string& vType, const std::string& vSubType, const NodeSlotWeak& vSlot, bool& vChange);
+    NodeSlotWeak ChangeOutputSlotType(
+        BaseNodeWeak vRootNode, const std::string& vType, const std::string& vSubType, const NodeSlotWeak& vSlot, bool& vChange);
 };

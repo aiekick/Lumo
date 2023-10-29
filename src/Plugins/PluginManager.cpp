@@ -26,6 +26,12 @@ limitations under the License.
 
 #include <LumoBackend/Systems/CommonSystem.h>
 
+#ifdef _DEBUG
+#define RuntimeType "_Debug_"
+#else
+#define RuntimeType "_Release_"
+#endif
+
 namespace fs = std::filesystem;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -85,13 +91,13 @@ void PluginManager::Clear() { m_Plugins.clear(); }
 void PluginManager::LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCore) {
     printf("-----------\n");
     LogVarLightInfo("Availables Plugins :\n");
-
     auto plugin_directory = std::filesystem::path(FileHelper::Instance()->GetAppPath()).append("plugins");
     if (std::filesystem::exists(plugin_directory)) {
         const auto dir_iter = std::filesystem::directory_iterator(plugin_directory);
         for (const auto& file : dir_iter) {
             m_LoadPlugin(file, vVulkanCore);
         }
+        m_DisplayLoadedPlugins();
     } else {
         LogVarLightInfo("Plugin directory %s not found !", plugin_directory.string().c_str());
     }
@@ -133,9 +139,8 @@ BaseNodePtr PluginManager::CreatePluginNode(const std::string& vPluginNodeName) 
     return nullptr;
 }
 
-std::vector<PluginPane> PluginManager::GetPluginsPanes() {
-    std::vector<PluginPane> pluginsPanes;
-
+std::vector<PluginPaneConfig> PluginManager::GetPluginsPanes() {
+    std::vector<PluginPaneConfig> pluginsPanes;
     for (auto plugin : m_Plugins) {
         if (plugin.second) {
             auto pluginInstancePtr = plugin.second->Get().lock();
@@ -147,7 +152,6 @@ std::vector<PluginPane> PluginManager::GetPluginsPanes() {
             }
         }
     }
-
     return pluginsPanes;
 }
 
@@ -164,6 +168,35 @@ void PluginManager::ResetImGuiID(int vWidgetId) {
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// LOAD / SAVE /////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string PluginManager::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
+    for (auto plugin : m_Plugins) {
+        if (plugin.second) {
+            auto pluginInstancePtr = plugin.second->Get().lock();
+            if (pluginInstancePtr) {
+                str += pluginInstancePtr->getXml(vOffset, vUserDatas);
+            }
+        }
+    }
+    return str;
+}
+
+bool PluginManager::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    for (auto plugin : m_Plugins) {
+        if (plugin.second) {
+            auto pluginInstancePtr = plugin.second->Get().lock();
+            if (pluginInstancePtr) {
+                pluginInstancePtr->RecursParsingConfig(vElem, vParent, vUserDatas);
+            }
+        }
+    }
+    return false;
+}
+
 //////////////////////////////////////////////////////////////
 //// PRIVATE /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -178,50 +211,83 @@ void PluginManager::m_LoadPlugin(const fs::directory_entry& vEntry, GaiApi::Vulk
     else if (vEntry.is_regular_file()) {
         auto file_name = vEntry.path().filename().string();
         if (file_name.find(PLUGIN_PREFIX) == 0U) {
-            auto file_path_name = vEntry.path().string();
-            if (file_path_name.find(GetDLLExtention()) != std::string::npos) {
-                auto ps = FileHelper::Instance()->ParsePathFileName(file_path_name);
-                if (ps.isOk) {
-                    auto resPtr = std::make_shared<PluginInstance>();
-                    auto ret = resPtr->Init(vVulkanCore, ps.name, ps.GetFPNE());
-                    if (ret != PluginReturnMsg::LOADING_SUCCEED) {
-                        resPtr.reset();
-                        if (ret == PluginReturnMsg::LOADING_FAILED) {
-                            LogVarDebugError("Plugin %s fail to load", ps.name.c_str());
-                        }
-                    } else {
-                        auto pluginInstancePtr = resPtr->Get().lock();
-                        if (pluginInstancePtr) {
-                            char spaceBuffer[40 + 1] = "";
-                            spaceBuffer[0] = '\0';
+            if (file_name.find(RuntimeType) != std::string::npos) {
+                auto file_path_name = vEntry.path().string();
+                if (file_path_name.find(GetDLLExtention()) != std::string::npos) {
+                    auto ps = FileHelper::Instance()->ParsePathFileName(file_path_name);
+                    if (ps.isOk) {
+                        auto resPtr = std::make_shared<PluginInstance>();
+                        auto ret = resPtr->Init(vVulkanCore, ps.name, ps.GetFPNE());
+                        if (ret != PluginReturnMsg::LOADING_SUCCEED) {
+                            resPtr.reset();
+                            if (ret == PluginReturnMsg::LOADING_FAILED) {
+                                LogVarDebugError("Plugin %s fail to load", ps.name.c_str());
+                            }
+                        } else {
+                            auto pluginInstancePtr = resPtr->Get().lock();
+                            if (pluginInstancePtr) {
+                                char spaceBuffer[40 + 1] = "";
+                                spaceBuffer[0] = '\0';
 
-                            std::string name = pluginInstancePtr->GetName();
-                            if (name.size() < 15U) {
-                                size_t of = 15U - name.size();
-                                memset(spaceBuffer, 32, of);  // 32 is space code in ASCII table
-                                spaceBuffer[of] = '\0';
-                                name += spaceBuffer;
-                            } else {
-                                name = name.substr(0, 15U);
+                                std::string name = pluginInstancePtr->GetName();
+                                if (name.size() < 15U) {
+                                    size_t of = 15U - name.size();
+                                    memset(spaceBuffer, 32, of);  // 32 is space code in ASCII table
+                                    spaceBuffer[of] = '\0';
+                                    name += spaceBuffer;
+                                } else {
+                                    name = name.substr(0, 15U);
+                                }
+
+                                std::string version = pluginInstancePtr->GetVersion();
+                                if (version.size() < 10U) {
+                                    size_t of = 10U - version.size();
+                                    memset(spaceBuffer, 32, of);  // 32 is space code in ASCII table
+                                    spaceBuffer[of] = '\0';
+                                    version += spaceBuffer;
+                                } else {
+                                    version = version.substr(0, 10U);
+                                }
+
+                                std::string desc = pluginInstancePtr->GetDescription();
                             }
 
-                            std::string version = pluginInstancePtr->GetVersion();
-                            if (version.size() < 10U) {
-                                size_t of = 10U - version.size();
-                                memset(spaceBuffer, 32, of);  // 32 is space code in ASCII table
-                                spaceBuffer[of] = '\0';
-                                version += spaceBuffer;
-                            } else {
-                                version = version.substr(0, 10U);
-                            }
-
-                            std::string desc = pluginInstancePtr->GetDescription();
-
-                            LogVarLightInfo("Plugin loaded : %s v%s (%s)", name.c_str(), version.c_str(), desc.c_str());
+                            m_Plugins[ps.name] = resPtr;
                         }
-
-                        m_Plugins[ps.name] = resPtr;
                     }
+                }
+            }
+        }
+    }
+}
+
+void PluginManager::m_DisplayLoadedPlugins() {
+    if (!m_Plugins.empty()) {
+        size_t max_name_size = 0U;
+        size_t max_vers_size = 0U;
+        const size_t& minimal_space = 2U;
+        for (auto plugin : m_Plugins) {
+            if (plugin.second != nullptr) {
+                auto plugin_instance_ptr = plugin.second->Get().lock();
+                if (plugin_instance_ptr != nullptr) {
+                    max_name_size = ct::maxi(max_name_size, plugin_instance_ptr->GetName().size() + minimal_space);
+                    max_vers_size = ct::maxi(max_vers_size, plugin_instance_ptr->GetVersion().size() + minimal_space);
+                }
+            }
+        }
+        for (auto plugin : m_Plugins) {
+            if (plugin.second != nullptr) {
+                auto plugin_instance_ptr = plugin.second->Get().lock();
+                if (plugin_instance_ptr != nullptr) {
+                    const auto& name = plugin_instance_ptr->GetName();
+                    const auto& name_space = std::string(max_name_size - name.size(), ' ');  // 32 is a space in ASCII
+                    const auto& vers = plugin_instance_ptr->GetVersion();
+                    const auto& vers_space = std::string(max_vers_size - vers.size(), ' ');  // 32 is a space in ASCII
+                    const auto& desc = plugin_instance_ptr->GetDescription();
+                    LogVarLightInfo("Plugin loaded : %s%sv%s%s(%s)",  //
+                        name.c_str(), name_space.c_str(),             //
+                        vers.c_str(), vers_space.c_str(),             //
+                        desc.c_str());
                 }
             }
         }

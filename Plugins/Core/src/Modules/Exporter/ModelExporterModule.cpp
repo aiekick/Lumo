@@ -256,7 +256,7 @@ void ModelExporterModule::SaveModel(const std::string& vFilePathName)
 					{
 						// quand le mesh a été modifié dans le gpu, il faut l'extraire pour
 						// pouvoir le sauver vers un fichier
-						// normalement on a pas besoin de trasnform feedback pour faire ca
+						// normalement on a pas besoin de transform feedback pour faire ca
 						// avec vulkan.. a voir !?
 						auto gpu_vertices = meshPtr->GetVerticesFromGPU();
 						auto gpu_indices = meshPtr->GetIndicesFromGPU();

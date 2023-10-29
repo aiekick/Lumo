@@ -90,7 +90,7 @@ BaseNodePtr Particles::CreatePluginNode(const std::string& vPluginNodeName) {
     return nullptr;
 }
 
-std::vector<PluginPane> Particles::GetPanes() const { return {}; }
+std::vector<PluginPaneConfig> Particles::GetPanes() const { return {}; }
 
 int Particles::ResetImGuiID(const int& vWidgetId) {
     auto ids = ImGui::CustomStyle::pushId;

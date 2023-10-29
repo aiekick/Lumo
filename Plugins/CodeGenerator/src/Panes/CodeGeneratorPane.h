@@ -18,7 +18,9 @@ limitations under the License.
 
 #include <ImGuiPack.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
+#include <LumoBackend/Interfaces/PluginInterface.h>
 #include <LumoBackend/Graph/Graph.h>
+#include <LumoBackend/Interfaces/ProjectInterface.h>
 #include <Editor/UBOEditor.h>
 #include <Editor/SlotEditor.h>
 #include <stdint.h>
@@ -28,15 +30,13 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 class ProjectFile;
-class CodeGeneratorPane : public AbstractPane, public NodeInterface, public conf::ConfigAbstract
-{
-private: // to save
-    std::string m_GenerationRootPath;
-
+class CodeGeneratorPane : public PluginPane,      //
+                          public NodeInterface,     //
+                          public conf::ConfigAbstract {
 private:
     GaiApi::VulkanCoreWeak m_VulkanCore;
+    GeneratorNodeWeak m_NodeGraph;
     GeneratorNodeWeak m_SelectedNode;
-    GeneratorNodePtr m_RootNodePtr = nullptr;
     bool m_NeedToApplyLayout = false;
     SlotEditor m_InputSlotEditor;
     SlotEditor m_OutputSlotEditor;
@@ -68,10 +68,11 @@ public:
         const ImVec2& vMaxSize,
         ImGuiContext* vContextPtr = nullptr,
         const std::string& vUserDatas = {}) override;
+    void SetNodeGraph(GeneratorNodeWeak vNodeGraph);
     void Select(BaseNodeWeak vObjet);
     std::vector<ImWidgets::InputText> GetCustomTypeInputTexts() { return m_CustomTypeInputTexts; }
     void setVulkanCore(GaiApi::VulkanCoreWeak vVulkanCoreWeak);
-
+    
 private:
     void DrawContent();
     void DrawGraph();

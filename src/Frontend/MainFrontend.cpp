@@ -99,14 +99,6 @@ bool MainFrontend::init() {
     LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D Pane", "", PaneDisposal::LEFT, false, false);
     LayoutManager::Instance()->AddPane(ConsolePane::Instance(), "Console Pane", "", PaneDisposal::BOTTOM, false, false);
 
-    /*auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
-    for (auto& pluginPane : pluginPanes) {
-        if (!pluginPane.paneWeak.expired()) {
-            LayoutManager::Instance()->AddPane(pluginPane.paneWeak, pluginPane.paneName, pluginPane.paneCategory,
-                pluginPane.paneDisposal, pluginPane.isPaneOpenedDefault, pluginPane.isPaneFocusedDefault);
-        }
-    }*/
-
     return m_build();
 }
 
@@ -213,7 +205,7 @@ void MainFrontend::m_drawMainMenuBar() {
                 Action_Menu_OpenProject();
             }
 
-            if (ProjectFile::Instance()->IsLoaded()) {
+            if (ProjectFile::Instance()->IsProjectLoaded()) {
                 ImGui::Separator();
 
                 if (ImGui::MenuItem(" Re Open")) {
@@ -268,7 +260,7 @@ void MainFrontend::m_drawMainMenuBar() {
             ImGui::EndMenu();
         }
 
-        if (ProjectFile::Instance()->IsThereAnyNotSavedChanged()) {
+        if (ProjectFile::Instance()->IsThereAnyProjectChanges()) {
             ImGui::Spacing(200.0f);
 
             if (ImGui::MenuItem(" Save")) {
@@ -290,7 +282,7 @@ void MainFrontend::m_drawMainMenuBar() {
 
 void MainFrontend::m_drawMainStatusBar() {
     if (ImGui::BeginMainStatusBar()) {
-        Messaging::Instance()->DrawStatusBar(LayoutManager::Instance());
+        Messaging::Instance()->DrawStatusBar();
 
         //  ImGui Infos
         const auto& io = ImGui::GetIO();
@@ -425,8 +417,8 @@ bool MainFrontend::ShowUnSavedDialog() {
     bool res = false;
 
     if (m_SaveDialogIfRequired) {
-        if (ProjectFile::Instance()->IsLoaded()) {
-            if (ProjectFile::Instance()->IsThereAnyNotSavedChanged()) {
+        if (ProjectFile::Instance()->IsProjectLoaded()) {
+            if (ProjectFile::Instance()->IsThereAnyProjectChanges()) {
                 /*
                 Unsaved dialog behavior :
                 -	save :
@@ -604,7 +596,7 @@ void MainFrontend::Action_Window_CloseApp() {
 }
 
 void MainFrontend::Action_OpenUnSavedDialog_IfNeeded() {
-    if (ProjectFile::Instance()->IsLoaded() && ProjectFile::Instance()->IsThereAnyNotSavedChanged()) {
+    if (ProjectFile::Instance()->IsProjectLoaded() && ProjectFile::Instance()->IsThereAnyProjectChanges()) {
         OpenUnSavedDialog();
         m_ActionSystem.Add([this]() { return ShowUnSavedDialog(); });
     }
@@ -802,7 +794,6 @@ std::string MainFrontend::getXml(const std::string& vOffset, const std::string& 
     str += vOffset + "<showaboutdialog>" + (m_ShowAboutDialog ? "true" : "false") + "</showaboutdialog>\n";
     str += vOffset + "<showimgui>" + (m_ShowImGui ? "true" : "false") + "</showimgui>\n";
     str += vOffset + "<showmetric>" + (m_ShowMetric ? "true" : "false") + "</showmetric>\n";
-    str += vOffset + "<project>" + ProjectFile::Instance()->GetProjectFilepathName() + "</project>\n";
 
     return str;
 }
@@ -827,8 +818,6 @@ bool MainFrontend::setFromXml(
 
     if (strName == "bookmarks") {
         ImGuiFileDialog::Instance()->DeserializeBookmarks(strValue);
-    } else if (strName == "project") {
-        MainBackend::Instance()->NeedToLoadProject(strValue);
     } else if (strName == "showaboutdialog") {
         m_ShowAboutDialog = ct::ivariant(strValue).GetB();
     } else if (strName == "showimgui") {

@@ -44,7 +44,7 @@ void ProjectFile::Clear() {
     m_ProjectFileName.clear();
     m_ProjectFilePath.clear();
     m_IsLoaded = false;
-    m_IsThereAnyNotSavedChanged = false;
+    m_IsThereAnyChanges = false;
     Messaging::Instance()->Clear();
 }
 
@@ -68,7 +68,7 @@ void ProjectFile::New(const std::string& vFilePathName) {
     // then load
     NodeManager::Instance()->FinalizeGraphLoading();
 
-    Save();  // save tp fome
+    //Save();  // save tp fome
 }
 
 bool ProjectFile::Load() {
@@ -137,20 +137,34 @@ bool ProjectFile::SaveAs(const std::string& vFilePathName) {
     return false;
 }
 
-bool ProjectFile::IsLoaded() const {
+bool ProjectFile::IsProjectLoaded() const {
     return m_IsLoaded;
 }
 
-bool ProjectFile::IsNeverSaved() const {
+bool ProjectFile::IsProjectNeverSaved() const {
     return m_NeverSaved;
 }
 
-bool ProjectFile::IsThereAnyNotSavedChanged() const {
-    return m_IsThereAnyNotSavedChanged;
+bool ProjectFile::IsThereAnyProjectChanges() const {
+    return m_IsThereAnyChanges;
 }
 
 void ProjectFile::SetProjectChange(bool vChange) {
-    m_IsThereAnyNotSavedChanged = vChange;
+    m_IsThereAnyChanges = vChange;
+    m_WasJustSaved = true;
+    m_WasJustSavedFrameCounter = 2U;
+}
+
+void ProjectFile::NewFrame() {
+    if (m_WasJustSavedFrameCounter) {
+        --m_WasJustSavedFrameCounter;
+    } else {
+        m_WasJustSaved = false;
+    }
+}
+
+bool ProjectFile::WasJustSaved() {
+    return m_WasJustSaved;
 }
 
 std::string ProjectFile::GetAbsolutePath(const std::string& vFilePathName) const {
@@ -182,37 +196,16 @@ std::string ProjectFile::GetProjectFilepathName() const {
 
 std::string ProjectFile::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/) {
     std::string str;
-
     str += vOffset + "<project>\n";
-
-    str += vOffset + "\t<scene>\n";
-
-    str += CommonSystem::Instance()->getXml(vOffset + "\t\t", "project");
-    str += NodeManager::Instance()->getXml(vOffset + "\t\t", "project");
-
-    str += vOffset + "\t</scene>\n";
-
+    str += CommonSystem::Instance()->getXml(vOffset + "\t", "project");
     str += LayoutManager::Instance()->getXml(vOffset + "\t", "project");
-
+    str += vOffset + "\t<scene>\n";
+    str += NodeManager::Instance()->getXml(vOffset + "\t\t", "project");
+    str += vOffset + "\t</scene>\n";
     str += vOffset + "\t<plugins>\n";
-
-    auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
-    for (auto& pluginPane : pluginPanes) {
-        if (!pluginPane.paneWeak.expired()) {
-            auto plugin_ptr = pluginPane.paneWeak.lock();
-            if (plugin_ptr != nullptr) {
-                auto xml_ptr = std::dynamic_pointer_cast<conf::ConfigAbstract>(plugin_ptr);
-                if (xml_ptr != nullptr) {
-                    str += xml_ptr->getXml(vOffset + "\t\t", "project");
-                }
-            }
-        }
-    }
-
+    str += PluginManager::Instance()->getXml(vOffset + "\t\t", "project");
     str += vOffset + "\t</plugins>\n";
-
     str += vOffset + "</project>\n";
-
     return str;
 }
 
@@ -228,32 +221,16 @@ bool ProjectFile::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
     if (vParent != nullptr)
         strParentName = vParent->Value();
 
-    LayoutManager::Instance()->setFromXml(vElem, vParent, "project");
-
     if (strName == "config") {
         return true;
     } else if (strName == "project") {
-        return true;
+        CommonSystem::Instance()->RecursParsingConfig(vElem, vParent, "project");
+        LayoutManager::Instance()->RecursParsingConfig(vElem, vParent, "project");
     } else if (strName == "plugins") {
-        auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
-        for (auto& pluginPane : pluginPanes) {
-            if (!pluginPane.paneWeak.expired()) {
-                auto plugin_ptr = pluginPane.paneWeak.lock();
-                if (plugin_ptr != nullptr) {
-                    auto xml_ptr = std::dynamic_pointer_cast<conf::ConfigAbstract>(plugin_ptr);
-                    if (xml_ptr != nullptr) {
-                        xml_ptr->RecursParsingConfigChilds(vElem, "project");
-                    }
-                }
-            }
-        }
-    } else if (strName == "scene") {
-        return true;
-    } else if (strName == "CommonSystem") {
-        CommonSystem::Instance()->RecursParsingConfigChilds(vElem, "project");
-    } else if (strName == "graph") {
-        NodeManager::Instance()->RecursParsingConfigChilds(vElem, "project");
-    }
+        PluginManager::Instance()->setFromXml(vElem, vParent, "project");
+    } else if (strParentName == "scene" && strName == "graph") {
+        NodeManager::Instance()->setFromXml(vElem, vParent, "project");
+    } 
 
-    return false;
+    return true;
 }

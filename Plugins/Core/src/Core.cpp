@@ -55,9 +55,6 @@
 #include <Nodes/Renderers/MatcapRendererNode.h>
 #include <Nodes/Renderers/ChannelRendererNode.h>
 #include <Nodes/Renderers/HeatmapRendererNode.h>
-#include <Nodes/Renderers/DeferredRendererNode.h>
-#include <Nodes/Renderers/PBRRendererNode.h>
-#include <Nodes/Renderers/BillBoardRendererNode.h>
 #include <Nodes/Renderers/ModelRendererNode.h>
 
 #include <Nodes/Simulation/GrayScottNode.h>
@@ -162,10 +159,6 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	res.push_back(AddLibraryEntry("Core/3D/Assets", "3D Model", "MESH"));
-	res.push_back(AddLibraryEntry("Core/2D/Assets", "2D Texture", "TEXTURE_2D"));
-	res.push_back(AddLibraryEntry("Core/3D/Assets", "CubeMap", "CUBE_MAP"));
-
 	res.push_back(AddLibraryEntry("Core/2D/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
 
 	res.push_back(AddLibraryEntry("Core/3D/Misc", "Grid / Axis", "GRID_AXIS"));
@@ -202,13 +195,9 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Tone Map", "TONE_MAP"));
 	res.push_back(AddLibraryEntry("Core/2D/PostPro", "Vignette", "VIGNETTE"));
 		
-	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Channels", "CHANNEL_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Deferred", "DEFERRED_RENDERER"));
-	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Heatmap", "HEATMAP_RENDERER"));
-	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Matcap", "MATCAP_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "PBR", "PBR_RENDERER"));
 	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Billboard", "BILLBOARD_RENDERER"));
-	res.push_back(AddLibraryEntry("Core/3D/Renderers", "Model", "MODEL_RENDERER"));
 
 	res.push_back(AddLibraryEntry("Core/2D/Simulation", "GrayScott", "2D_SIMULATION_GRAY_SCOTT"));
 	res.push_back(AddLibraryEntry("Core/2D/Simulation", "Conway", "2D_SIMULATION_CONWAY"));
@@ -228,11 +217,6 @@ std::vector<LibraryEntry> Core::GetLibrary() const
 BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 {
 	auto vkCorePtr = m_VulkanCoreWeak.lock();
-
-	// assets
-	if (vPluginNodeName == "MESH")								return MeshNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "TEXTURE_2D")					return Texture2DNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "CUBE_MAP")						return CubeMapNode::Create(vkCorePtr);
 
 	// Divers
 	else if (vPluginNodeName == "BREAK_TEXTURE_2D_GROUP")		return BreakTexturesGroupNode::Create(vkCorePtr);
@@ -280,11 +264,8 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 
 	// renderers
 	else if (vPluginNodeName == "CHANNEL_RENDERER")				return ChannelRendererNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "DEFERRED_RENDERER")			return DeferredRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "HEATMAP_RENDERER")				return HeatmapRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "MATCAP_RENDERER")				return MatcapRendererNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "PBR_RENDERER")					return PBRRendererNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "BILLBOARD_RENDERER")			return BillBoardRendererNode::Create(vkCorePtr);
 	else if (vPluginNodeName == "MODEL_RENDERER")				return ModelRendererNode::Create(vkCorePtr);
 
 	// Simulations
@@ -308,7 +289,7 @@ BaseNodePtr Core::CreatePluginNode(const std::string& vPluginNodeName)
 	return nullptr;
 }
 
-std::vector<PluginPane> Core::GetPanes() const
+std::vector<PluginPaneConfig> Core::GetPanes() const
 {
 	return {};
 }

@@ -36,6 +36,6 @@ public:
 	std::vector<std::string> GetNodes() const override;
 	std::vector<LibraryEntry> GetLibrary() const override;
 	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName) override;
-	std::vector<PluginPane> GetPanes() const override;
+	std::vector<PluginPaneConfig> GetPanes() const override;
 	int ResetImGuiID(const int& vWidgetId) override;
 };

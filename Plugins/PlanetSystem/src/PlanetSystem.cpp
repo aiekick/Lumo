@@ -106,9 +106,9 @@ BaseNodePtr PlanetSystem::CreatePluginNode(const std::string& vPluginNodeName)
 	return nullptr;
 }
 
-std::vector<PluginPane> PlanetSystem::GetPanes() const
+std::vector<PluginPaneConfig> PlanetSystem::GetPanes() const
 {
-	std::vector<PluginPane> res;
+	std::vector<PluginPaneConfig> res;
 
 	return res;
 }

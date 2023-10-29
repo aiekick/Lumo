@@ -14,7 +14,8 @@ enum BaseTypeEnum : uint32_t
 	BASE_TYPE_TexelBuffer,
 	BASE_TYPE_Texture,
 	BASE_TYPE_TextureCube,
-	BASE_TYPE_TextureGroup,
+    BASE_TYPE_TextureGroup,
+    BASE_TYPE_ShaderPass,
 	BASE_TYPE_Variable,
 	BASE_TYPE_Custom
 };
@@ -32,7 +33,8 @@ public:
 		"TexelBuffer",
 		"Texture",
 		"TextureCube",
-		"TextureGroup",
+        "TextureGroup", 
+		"ShaderPass",
 		"Variable",
 		"Custom"
 	};
@@ -107,7 +109,9 @@ struct SlotStringStruct
 	std::string include_slot;
 	std::string include_interface;
 	std::string cpp_node_func;
-	std::string cpp_module_func;
+    std::string cpp_module_private_var;
+    std::string cpp_module_func;
+    std::string cpp_pass_private_var;
 	std::string cpp_pass_func;
 	std::string h_func;
 };
@@ -194,7 +198,9 @@ private:
 	SlotStringStruct GetSlotTextureCubeInput(NodeSlotInputPtr vSlot);
 	SlotStringStruct GetSlotTextureCubeOutput(NodeSlotOutputPtr vSlot);
 	SlotStringStruct GetSlotTextureGroupInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotTextureGroupOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotTextureGroupOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotShaderPassInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotShaderPassOutput(NodeSlotOutputPtr vSlot);
 	SlotStringStruct GetSlotVariableInput(NodeSlotInputPtr vSlot);
 	SlotStringStruct GetSlotVariableOutput(NodeSlotOutputPtr vSlot);
 	SlotStringStruct GetSlotCustomInput(NodeSlotInputPtr vSlot);
@@ -214,10 +220,15 @@ private:
 	std::string GetNodeSlotsInputHFuncs(const SlotDico& vDico);
 	std::string GetNodeSlotsOutputHFuncs(const SlotDico& vDico);
 
+    std::string GetModuleInputPrivateVars(const SlotDico& vDico);
+    std::string GetModuleOutputPrivateVars(const SlotDico& vDico);
 	std::string GetModuleInputCppFuncs(const SlotDico& vDico);
 	std::string GetModuleOutputCppFuncs(const SlotDico& vDico);
 
-	std::string GetPassInputPublicInterfaces(const SlotDico& vDico);
+    std::string GetPassInputPrivateVars(const SlotDico& vDico);
+    std::string GetPassOutputPrivateVars(const SlotDico& vDico);
+    std::string GetPassInputPublicInterfaces(const SlotDico& vDico);
+    std::string GetPassOutputPublicInterfaces(const SlotDico& vDico);
 	std::string GetPassInputCppFuncs(const SlotDico& vDico);
 	std::string GetPassOutputCppFuncs(const SlotDico& vDico);
 

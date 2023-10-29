@@ -101,8 +101,8 @@ BaseNodePtr AudiArt::CreatePluginNode(const std::string& vPluginNodeName) {
     return nullptr;
 }
 
-std::vector<PluginPane> AudiArt::GetPanes() const {
-    std::vector<PluginPane> res;
+std::vector<PluginPaneConfig> AudiArt::GetPanes() const {
+    std::vector<PluginPaneConfig> res;
 
     return res;
 }

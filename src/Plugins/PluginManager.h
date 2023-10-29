@@ -21,6 +21,7 @@ limitations under the License.
 #include <filesystem>
 
 #include <ctools/cTools.h>
+#include <ctools/ConfigAbstract.h>
 #include <ImGuiPack.h>
 
 #ifdef WIN32
@@ -55,7 +56,7 @@ public:
 	PluginInterfaceWeak Get();
 };
 
-class PluginManager
+class PluginManager : public conf::ConfigAbstract
 {
 private:
 	std::map<std::string, PluginInstancePtr> m_Plugins;
@@ -64,12 +65,16 @@ public:
 	void LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCore);
 	std::vector<LibraryEntry> GetLibraryEntrys();
 	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName);
-	std::vector<PluginPane> GetPluginsPanes();
+	std::vector<PluginPaneConfig> GetPluginsPanes();
 	void ResetImGuiID(int vWidgetId);
-	void Clear();
+    void Clear();
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    
 
 private:
     void m_LoadPlugin(const std::filesystem::directory_entry& vEntry, GaiApi::VulkanCoreWeak vVulkanCore);
+    void m_DisplayLoadedPlugins();
 
 public:
 	static PluginManager* Instance()

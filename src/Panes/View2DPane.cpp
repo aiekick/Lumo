@@ -94,7 +94,7 @@ bool View2DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
 				ImGuiWindowFlags_NoBringToFrontOnFocus |
 				ImGuiWindowFlags_MenuBar;
 #endif
-			if (ProjectFile::Instance()->IsLoaded())
+			if (ProjectFile::Instance()->IsProjectLoaded())
 			{
 				auto outputSize = SetOrUpdateOutput(m_TextureOutputSlot);
 

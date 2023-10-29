@@ -441,7 +441,7 @@ bool CommonSystem::DrawImGui()
 		}
 
 #ifdef USE_VR
-		if (VRBackend::Instance()->IsLoaded())
+		if (VRBackend::Instance()->IsProjectLoaded())
 		{
 			ImGui::FramedGroupSeparator();
 

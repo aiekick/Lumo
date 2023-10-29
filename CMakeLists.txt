@@ -221,11 +221,13 @@ target_include_directories(${PROJECT} PRIVATE
 	${LUMO_BACKEND_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
 	${TINYXML2_INCLUDE_DIR}
+	${ASSIMP_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT}
 	${LUMO_BACKEND_LIBRARIES}
 	${TINYXML2_LIBRARIES}
+	${ASSIMP_LIBRARIES}
 )
 
 set(${PROJECT}_OUTPUT_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")

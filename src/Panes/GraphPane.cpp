@@ -29,7 +29,7 @@ limitations under the License.
 #include <Graph/Library/UserNodeLibrary.h>
 #include <Graph/Manager/NodeManager.h>
 #include <Plugins/PluginManager.h>
-#include <cinttypes> // printf zu
+#include <cinttypes>  // printf zu
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -42,448 +42,371 @@ limitations under the License.
 GraphPane::GraphPane() = default;
 GraphPane::~GraphPane() = default;
 
-bool GraphPane::Init()
-{
-	// add graph pane
+bool GraphPane::Init() {
+    // add graph pane
     if (NodeManager::Instance()->m_RootNodePtr != nullptr) {
         NodeManager::Instance()->m_RootNodePtr->SetOpenGraphCallback(std::bind(&GraphPane::AddGraphPane, this, std::placeholders::_1));
-	}
+    }
 
-	return true;
+    return true;
 }
 
-void GraphPane::Unit()
-{
-	
+void GraphPane::Unit() {
 }
 
-void GraphPane::Clear()
-{
-	/*
-	if (!vNode.expired())	{
-		auto ptr = vNode.lock();
-		if (ptr) {
-		}
-	}
-	*/
+void GraphPane::Clear() {
+    /*
+    if (!vNode.expired())	{
+        auto ptr = vNode.lock();
+        if (ptr) {
+        }
+    }
+    */
 
-	ClearGraphPanes();
-	NodeManager::Instance()->m_RootNodePtr->ClearGraph();
+    ClearGraphPanes();
+    NodeManager::Instance()->m_RootNodePtr->ClearGraph();
 }
 
-void GraphPane::DrawDebugInfos()
-{
-	if (!m_LastFocusedGraph.expired())
-	{
-		auto graphPtr = m_LastFocusedGraph.lock();
-		if (graphPtr)
-		{
-			if (!graphPtr->m_BaseNodeState.current_selected_node.expired())
-			{
-				auto nodePtr = graphPtr->m_BaseNodeState.current_selected_node.lock();
-				if (nodePtr)
-				{
-					nodePtr->DrawDebugInfos(&graphPtr->m_BaseNodeState);
-				}
-			}
-			else
-			{
-				graphPtr->DrawDebugInfos(&graphPtr->m_BaseNodeState);
-			}
-		}
-	}
+void GraphPane::DrawDebugInfos() {
+    if (!m_LastFocusedGraph.expired()) {
+        auto graphPtr = m_LastFocusedGraph.lock();
+        if (graphPtr) {
+            if (!graphPtr->m_BaseNodeState.current_selected_node.expired()) {
+                auto nodePtr = graphPtr->m_BaseNodeState.current_selected_node.lock();
+                if (nodePtr) {
+                    nodePtr->DrawDebugInfos(&graphPtr->m_BaseNodeState);
+                }
+            } else {
+                graphPtr->DrawDebugInfos(&graphPtr->m_BaseNodeState);
+            }
+        }
+    }
 }
 
-void GraphPane::DrawProperties()
-{
-	if (!m_LastFocusedGraph.expired())
-	{
-		auto graphPtr = m_LastFocusedGraph.lock();
-		if (graphPtr)
-		{
-			if (!graphPtr->m_BaseNodeState.current_selected_node.expired())
-			{
-				auto nodePtr = graphPtr->m_BaseNodeState.current_selected_node.lock();
-				if (nodePtr)
-				{
-					nodePtr->DrawProperties(&graphPtr->m_BaseNodeState);
-				}
-			}
-			else
-			{
-				graphPtr->DrawProperties(&graphPtr->m_BaseNodeState);
-			}
-		}
-	}
+void GraphPane::DrawProperties() {
+    if (!m_LastFocusedGraph.expired()) {
+        auto graphPtr = m_LastFocusedGraph.lock();
+        if (graphPtr) {
+            if (!graphPtr->m_BaseNodeState.current_selected_node.expired()) {
+                auto nodePtr = graphPtr->m_BaseNodeState.current_selected_node.lock();
+                if (nodePtr) {
+                    nodePtr->DrawProperties(&graphPtr->m_BaseNodeState);
+                }
+            } else {
+                graphPtr->DrawProperties(&graphPtr->m_BaseNodeState);
+            }
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool GraphPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	bool change = false;
+bool GraphPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    bool change = false;
 
-	if (vInOutPaneShown & paneFlag)
-	{
-		// main graph
-		bool opened = true;
-		change = DrawGraph(NodeManager::Instance()->m_RootNodePtr, opened, true, 0, vInOutPaneShown);
-		
-		// childs graph
-		size_t countPanes = m_GraphPanes.size();
-		for (auto nodeEntry : m_GraphPanes)
-		{
-			change |= DrawGraph(nodeEntry.first, nodeEntry.second, false, countPanes, vInOutPaneShown);
-		}
-	}
+    if (vInOutPaneShown & paneFlag) {
+        // main graph
+        bool opened = true;
+        change = DrawGraph(NodeManager::Instance()->m_RootNodePtr, opened, true, 0, vInOutPaneShown);
 
-	if (change)
-	{
-		ProjectFile::Instance()->SetProjectChange();
-	}
+        // childs graph
+        size_t countPanes = m_GraphPanes.size();
+        for (auto nodeEntry : m_GraphPanes) {
+            change |= DrawGraph(nodeEntry.first, nodeEntry.second, false, countPanes, vInOutPaneShown);
+        }
+    }
 
-	return change;
+    if (change) {
+        ProjectFile::Instance()->SetProjectChange();
+    }
+
+    return change;
 }
 
-bool GraphPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	return false;
+bool GraphPane::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    return false;
 }
 
 bool GraphPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
-	UNUSED(vCurrentFrame);
-	UNUSED(vRect);
-	ImGui::SetCurrentContext(vContextPtr);
-	UNUSED(vUserDatas);
-	return false;
+    ZoneScoped;
+    UNUSED(vCurrentFrame);
+    UNUSED(vRect);
+    ImGui::SetCurrentContext(vContextPtr);
+    UNUSED(vUserDatas);
+    return false;
 }
 
-bool GraphPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	return false;
+bool GraphPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    return false;
 }
 
-void GraphPane::AddGraphPane(BaseNodeWeak vNodeGraphToShow)
-{
-	if (!vNodeGraphToShow.expired())
-	{
-		auto nodePtr = vNodeGraphToShow.lock();
-		if (nodePtr && !nodePtr->name.empty())
-		{
-			bool found = false;
-			for (auto paneIt = m_GraphPanes.begin(); paneIt != m_GraphPanes.end(); paneIt++)
-			{
-				if (!paneIt->first.expired())
-				{
-					auto panePtr = paneIt->first.lock();
-					if (panePtr)
-					{
-						if (panePtr == nodePtr)
-							found = true;
-					}
-				}
-			}
+void GraphPane::AddGraphPane(BaseNodeWeak vNodeGraphToShow) {
+    if (!vNodeGraphToShow.expired()) {
+        auto nodePtr = vNodeGraphToShow.lock();
+        if (nodePtr && !nodePtr->name.empty()) {
+            bool found = false;
+            for (auto paneIt = m_GraphPanes.begin(); paneIt != m_GraphPanes.end(); paneIt++) {
+                if (!paneIt->first.expired()) {
+                    auto panePtr = paneIt->first.lock();
+                    if (panePtr) {
+                        if (panePtr == nodePtr)
+                            found = true;
+                    }
+                }
+            }
 
-			if (!found)
-			{
-				m_GraphPanes.emplace_back(vNodeGraphToShow, true);
-				nodePtr->InitGraph();
-				nodePtr->uniquePaneId = nodePtr->name + "##" + ct::toStr((int)nodePtr->GetNodeID());
-				LayoutManager::Instance()->AddSpecificPaneToExisting(nodePtr->uniquePaneId.c_str(), paneName);
-			}
+            if (!found) {
+                m_GraphPanes.emplace_back(vNodeGraphToShow, true);
+                nodePtr->InitGraph();
+                nodePtr->uniquePaneId = nodePtr->name + "##" + ct::toStr((int)nodePtr->GetNodeID());
+                LayoutManager::Instance()->AddSpecificPaneToExisting(nodePtr->uniquePaneId.c_str(), paneName);
+            }
 
-			LayoutManager::Instance()->FocusSpecificPane(nodePtr->uniquePaneId.c_str());
-		}
-	}
+            LayoutManager::Instance()->FocusSpecificPane(nodePtr->uniquePaneId.c_str());
+        }
+    }
 }
 
-void GraphPane::RemoveGraphPane(BaseNodeWeak vNodeGraphToShow)
-{
-	if (!vNodeGraphToShow.expired())
-	{
-		auto nodePtr = vNodeGraphToShow.lock();
-		if (nodePtr && !nodePtr->name.empty())
-		{
-			for (auto paneIt = m_GraphPanes.begin(); paneIt != m_GraphPanes.end(); paneIt++)
-			{
-				if (!paneIt->first.expired())
-				{
-					auto panePtr = paneIt->first.lock();
-					if (panePtr)
-					{
-						if (panePtr == nodePtr)
-						{
-							m_GraphPanes.erase(paneIt);
-							return;
-						}
-					}
-				}
-			}
-		}
-	}
+void GraphPane::RemoveGraphPane(BaseNodeWeak vNodeGraphToShow) {
+    if (!vNodeGraphToShow.expired()) {
+        auto nodePtr = vNodeGraphToShow.lock();
+        if (nodePtr && !nodePtr->name.empty()) {
+            for (auto paneIt = m_GraphPanes.begin(); paneIt != m_GraphPanes.end(); paneIt++) {
+                if (!paneIt->first.expired()) {
+                    auto panePtr = paneIt->first.lock();
+                    if (panePtr) {
+                        if (panePtr == nodePtr) {
+                            m_GraphPanes.erase(paneIt);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-void GraphPane::ClearGraphPanes()
-{
-	m_GraphPanes.clear();
+void GraphPane::ClearGraphPanes() {
+    m_GraphPanes.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LOAD / SAVE GRAPH ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GraphPane::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string res;
+std::string GraphPane::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string res;
 
-	return res;
+    return res;
 }
 
-bool GraphPane::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool GraphPane::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	return true;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool &vCanShow, bool vRootNode, size_t vInitialPanesCount, PaneFlags& vInOutPaneShown)
-{
-	if (vCanShow)
-	{
-		if (!vNode.expired())
-		{
-			auto nodeEntryPtr = vNode.lock();
-			if (nodeEntryPtr)
-			{
-				if (!nodeEntryPtr->uniquePaneId.empty() || vRootNode)
-				{
-					if (vInOutPaneShown & paneFlag)
-					{
-						if (vRootNode)
-						{
-							static ImGuiWindowFlags flags =
-								ImGuiWindowFlags_NoCollapse |
-								ImGuiWindowFlags_NoBringToFrontOnFocus |
-								ImGuiWindowFlags_MenuBar |
-								ImGuiWindowFlags_NoScrollbar;
-							if (ImGui::Begin<PaneFlags>(paneName.c_str(),
-								&vInOutPaneShown, paneFlag, flags)) {
+bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool& vCanShow, bool vRootNode, size_t vInitialPanesCount, PaneFlags& vInOutPaneShown) {
+    if (vCanShow) {
+        if (!vNode.expired()) {
+            auto nodeEntryPtr = vNode.lock();
+            if (nodeEntryPtr) {
+                if (!nodeEntryPtr->uniquePaneId.empty() || vRootNode) {
+                    if (vInOutPaneShown & paneFlag) {
+                        if (vRootNode) {
+                            static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus |
+                                                            ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
+                            if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
-								auto win = ImGui::GetCurrentWindowRead();
-								if (win->Viewport->Idx != 0)
-									flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
-								else
-									flags = ImGuiWindowFlags_NoCollapse |
-									ImGuiWindowFlags_NoBringToFrontOnFocus |
-									ImGuiWindowFlags_MenuBar |
-									ImGuiWindowFlags_NoScrollbar;
+                                auto win = ImGui::GetCurrentWindowRead();
+                                if (win->Viewport->Idx != 0)
+                                    flags |= ImGuiWindowFlags_NoResize;  // | ImGuiWindowFlags_NoTitleBar;
+                                else
+                                    flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar |
+                                            ImGuiWindowFlags_NoScrollbar;
 #endif
-								if (ProjectFile::Instance()->IsLoaded())
-								{
-									m_LastFocusedGraph = NodeManager::Instance()->m_RootNodePtr;
+                                if (ProjectFile::Instance()->IsProjectLoaded()) {
+                                    m_LastFocusedGraph = NodeManager::Instance()->m_RootNodePtr;
 
-									if (ImGui::BeginMenuBar())
-									{
-										if (ImGui::MenuItem("Layout", "apply Layout"))
-										{
-											GraphLayout::Instance()->ApplyLayout(NodeManager::Instance()->m_RootNodePtr);
-											ProjectFile::Instance()->SetProjectChange();
-										}
+                                    if (ImGui::BeginMenuBar()) {
+                                        if (ImGui::MenuItem("Layout", "apply Layout")) {
+                                            GraphLayout::Instance()->ApplyLayout(NodeManager::Instance()->m_RootNodePtr);
+                                            ProjectFile::Instance()->SetProjectChange();
+                                        }
 
-										NodeManager::Instance()->m_RootNodePtr->DrawToolMenu();
+                                        NodeManager::Instance()->m_RootNodePtr->DrawToolMenu();
 
-										if (NodeManager::Instance()->m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext)
-										{
-											nd::SetCurrentEditor(NodeManager::Instance()->m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext);
-											if (nd::GetSelectedObjectCount())
-											{
-												if (ImGui::BeginMenu("Selection"))
-												{
-													if (ImGui::MenuItem("Zoom on Selection"))
-													{
-														NodeManager::Instance()->m_RootNodePtr->ZoomToSelection();
-														ProjectFile::Instance()->SetProjectChange();
-													}
+                                        if (NodeManager::Instance()->m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext) {
+                                            nd::SetCurrentEditor(NodeManager::Instance()->m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext);
+                                            if (nd::GetSelectedObjectCount()) {
+                                                if (ImGui::BeginMenu("Selection")) {
+                                                    if (ImGui::MenuItem("Zoom on Selection")) {
+                                                        NodeManager::Instance()->m_RootNodePtr->ZoomToSelection();
+                                                        ProjectFile::Instance()->SetProjectChange();
+                                                    }
 
-													if (ImGui::MenuItem("Center on Selection"))
-													{
-														NodeManager::Instance()->m_RootNodePtr->NavigateToSelection();
-														ProjectFile::Instance()->SetProjectChange();
-													}
+                                                    if (ImGui::MenuItem("Center on Selection")) {
+                                                        NodeManager::Instance()->m_RootNodePtr->NavigateToSelection();
+                                                        ProjectFile::Instance()->SetProjectChange();
+                                                    }
 
-													ImGui::EndMenu();
-												}
-											}
+                                                    ImGui::EndMenu();
+                                                }
+                                            }
 
-											if (ImGui::BeginMenu("Content"))
-											{
-												if (ImGui::MenuItem("Zoom on Content"))
-												{
-													NodeManager::Instance()->m_RootNodePtr->ZoomToContent();
-													ProjectFile::Instance()->SetProjectChange();
-												}
+                                            if (ImGui::BeginMenu("Content")) {
+                                                if (ImGui::MenuItem("Zoom on Content")) {
+                                                    NodeManager::Instance()->m_RootNodePtr->ZoomToContent();
+                                                    ProjectFile::Instance()->SetProjectChange();
+                                                }
 
-												if (ImGui::MenuItem("Center on Content"))
-												{
-													NodeManager::Instance()->m_RootNodePtr->NavigateToContent();
-													ProjectFile::Instance()->SetProjectChange();
-												}
+                                                if (ImGui::MenuItem("Center on Content")) {
+                                                    NodeManager::Instance()->m_RootNodePtr->NavigateToContent();
+                                                    ProjectFile::Instance()->SetProjectChange();
+                                                }
 
-												ImGui::EndMenu();
-											}
-										}
+                                                ImGui::EndMenu();
+                                            }
+                                        }
 
-										if (ImGui::BeginMenu("Style"))
-										{
-											NodeManager::Instance()->m_RootNodePtr->DrawStyleMenu();
-											GraphLayout::Instance()->DrawSettings();
-											ProjectFile::Instance()->SetProjectChange();
+                                        if (ImGui::BeginMenu("Style")) {
+                                            NodeManager::Instance()->m_RootNodePtr->DrawStyleMenu();
+                                            GraphLayout::Instance()->DrawSettings();
+                                            ProjectFile::Instance()->SetProjectChange();
 
-											ImGui::EndMenu();
-										}
+                                            ImGui::EndMenu();
+                                        }
 
-										ImGui::EndMenuBar();
-									}
+                                        ImGui::EndMenuBar();
+                                    }
 
-									NodeManager::Instance()->m_RootNodePtr->DrawGraph();
-								}
-							}
-						}
-						else
-						{
-							static ImGuiWindowFlags flags = 
-								ImGuiWindowFlags_NoCollapse | 
-								ImGuiWindowFlags_NoBringToFrontOnFocus | 
-								ImGuiWindowFlags_MenuBar | 
-								ImGuiWindowFlags_NoScrollbar;
-							if (ImGui::Begin<PaneFlags>(paneName.c_str(),
-								&vInOutPaneShown, paneFlag, flags)) {
-								if (ImGui::Begin(nodeEntryPtr->uniquePaneId.c_str(), &vCanShow, flags))
-								{
+                                    NodeManager::Instance()->m_RootNodePtr->DrawGraph();
+                                    if (NodeManager::Instance()->m_RootNodePtr->changed) {
+                                        ProjectFile::Instance()->SetProjectChange(NodeManager::Instance()->m_RootNodePtr->changed);
+                                    }
+                                    if (ProjectFile::Instance()->WasJustSaved()) {
+                                        NodeManager::Instance()->m_RootNodePtr->SetChanged(false);
+                                    }
+                                }
+                            }
+                        } else {
+                            static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus |
+                                                            ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
+                            if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
+                                if (ImGui::Begin(nodeEntryPtr->uniquePaneId.c_str(), &vCanShow, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
-									auto win = ImGui::GetCurrentWindowRead();
-									if (win->Viewport->Idx != 0)
-										flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
-									else
-										flags = ImGuiWindowFlags_NoCollapse |
-										ImGuiWindowFlags_NoBringToFrontOnFocus |
-										ImGuiWindowFlags_MenuBar |
-										ImGuiWindowFlags_NoScrollbar;
+                                    auto win = ImGui::GetCurrentWindowRead();
+                                    if (win->Viewport->Idx != 0)
+                                        flags |= ImGuiWindowFlags_NoResize;  // | ImGuiWindowFlags_NoTitleBar;
+                                    else
+                                        flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar |
+                                                ImGuiWindowFlags_NoScrollbar;
 #endif
-									if (ProjectFile::Instance()->IsLoaded())
-									{
-										if (win)
-										{
-											if (win->DockTabIsVisible)
-											{
-												m_LastFocusedGraph = nodeEntryPtr;
+                                    if (ProjectFile::Instance()->IsProjectLoaded()) {
+                                        if (win) {
+                                            if (win->DockTabIsVisible) {
+                                                m_LastFocusedGraph = nodeEntryPtr;
 
-												if (ImGui::BeginMenuBar())
-												{
-													if (ImGui::MenuItem("Layout", "apply Layout"))
-													{
-														GraphLayout::Instance()->ApplyLayout(nodeEntryPtr);
-														ProjectFile::Instance()->SetProjectChange();
-													}
+                                                if (ImGui::BeginMenuBar()) {
+                                                    if (ImGui::MenuItem("Layout", "apply Layout")) {
+                                                        GraphLayout::Instance()->ApplyLayout(nodeEntryPtr);
+                                                        ProjectFile::Instance()->SetProjectChange();
+                                                    }
 
-													nodeEntryPtr->DrawToolMenu();
+                                                    nodeEntryPtr->DrawToolMenu();
 
-													if (nodeEntryPtr->m_BaseNodeState.m_NodeGraphContext)
-													{
-														nd::SetCurrentEditor(nodeEntryPtr->m_BaseNodeState.m_NodeGraphContext);
-														if (nd::GetSelectedObjectCount())
-														{
-															if (ImGui::BeginMenu("Selection"))
-															{
-																if (ImGui::MenuItem("Zoom on Selection"))
-																{
-																	nodeEntryPtr->ZoomToSelection();
-																	ProjectFile::Instance()->SetProjectChange();
-																}
+                                                    if (nodeEntryPtr->m_BaseNodeState.m_NodeGraphContext) {
+                                                        nd::SetCurrentEditor(nodeEntryPtr->m_BaseNodeState.m_NodeGraphContext);
+                                                        if (nd::GetSelectedObjectCount()) {
+                                                            if (ImGui::BeginMenu("Selection")) {
+                                                                if (ImGui::MenuItem("Zoom on Selection")) {
+                                                                    nodeEntryPtr->ZoomToSelection();
+                                                                    ProjectFile::Instance()->SetProjectChange();
+                                                                }
 
-																if (ImGui::MenuItem("Center on Selection"))
-																{
-																	nodeEntryPtr->NavigateToSelection();
-																	ProjectFile::Instance()->SetProjectChange();
-																}
+                                                                if (ImGui::MenuItem("Center on Selection")) {
+                                                                    nodeEntryPtr->NavigateToSelection();
+                                                                    ProjectFile::Instance()->SetProjectChange();
+                                                                }
 
-																ImGui::EndMenu();
-															}
-														}
+                                                                ImGui::EndMenu();
+                                                            }
+                                                        }
 
-														if (ImGui::BeginMenu("Content"))
-														{
-															if (ImGui::MenuItem("Zoom on Content"))
-															{
-																nodeEntryPtr->ZoomToContent();
-																ProjectFile::Instance()->SetProjectChange();
-															}
+                                                        if (ImGui::BeginMenu("Content")) {
+                                                            if (ImGui::MenuItem("Zoom on Content")) {
+                                                                nodeEntryPtr->ZoomToContent();
+                                                                ProjectFile::Instance()->SetProjectChange();
+                                                            }
 
-															if (ImGui::MenuItem("Center on Content"))
-															{
-																nodeEntryPtr->NavigateToContent();
-																ProjectFile::Instance()->SetProjectChange();
-															}
+                                                            if (ImGui::MenuItem("Center on Content")) {
+                                                                nodeEntryPtr->NavigateToContent();
+                                                                ProjectFile::Instance()->SetProjectChange();
+                                                            }
 
-															ImGui::EndMenu();
-														}
-													}
+                                                            ImGui::EndMenu();
+                                                        }
+                                                    }
 
-													if (ImGui::BeginMenu("Style"))
-													{
-														nodeEntryPtr->DrawStyleMenu();
-														GraphLayout::Instance()->DrawSettings();
-														ProjectFile::Instance()->SetProjectChange();
-														ImGui::EndMenu();
-													}
+                                                    if (ImGui::BeginMenu("Style")) {
+                                                        nodeEntryPtr->DrawStyleMenu();
+                                                        GraphLayout::Instance()->DrawSettings();
+                                                        ProjectFile::Instance()->SetProjectChange();
+                                                        ImGui::EndMenu();
+                                                    }
 
-													ImGui::EndMenuBar();
-												}
+                                                    ImGui::EndMenuBar();
+                                                }
 
-												nodeEntryPtr->DrawGraph();
+                                                nodeEntryPtr->DrawGraph();
+                                                if (nodeEntryPtr->changed) {
+                                                    ProjectFile::Instance()->SetProjectChange(nodeEntryPtr->changed);
+                                                }
+                                                if (ProjectFile::Instance()->WasJustSaved()) {
+                                                    nodeEntryPtr->SetChanged(false);
+                                                }
 
-												// si on a cree un autre pane, pour eviter de blocker
-												// l'iterateur on quitte pour cette frame
-												if (vInitialPanesCount != m_GraphPanes.size())
-												{
-													ImGui::End();
-													return true;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
+                                                // si on a cree un autre pane, pour eviter de blocker
+                                                // l'iterateur on quitte pour cette frame
+                                                if (vInitialPanesCount != m_GraphPanes.size()) {
+                                                    ImGui::End();
+                                                    return true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
-						ImGui::End();
+                        ImGui::End();
 
-						if (!vCanShow) // visibility state changed => we remove the graph
-						{
-							RemoveGraphPane(nodeEntryPtr);
-							return true;
-						}
-					}
-				}
-			}
-		}
-	}
+                        if (!vCanShow)  // visibility state changed => we remove the graph
+                        {
+                            RemoveGraphPane(nodeEntryPtr);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-	return false;
+    return false;
 }

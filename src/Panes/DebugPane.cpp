@@ -80,7 +80,7 @@ bool DebugPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneSh
 				ImGuiWindowFlags_NoBringToFrontOnFocus |
 				ImGuiWindowFlags_MenuBar;
 #endif
-			if (ProjectFile::Instance()->IsLoaded())
+			if (ProjectFile::Instance()->IsProjectLoaded())
 			{
 				auto nodePtr = m_NodeToDebug.lock();
 				if (nodePtr)
@@ -98,7 +98,7 @@ bool DebugPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneSh
 
 bool DebugPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
-	if (ProjectFile::Instance()->IsLoaded())
+	if (ProjectFile::Instance()->IsProjectLoaded())
 	{
 		/*ImVec2 maxSize = MainFrame::Instance()->m_DisplaySize;
 		ImVec2 minSize = maxSize * 0.5f;

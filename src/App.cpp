@@ -83,6 +83,7 @@ void App::m_InitMessaging() {
     Messaging::Instance()->AddCategory(
         MESSAGING_TYPE_DEBUG, "Debug(s)", MESSAGING_LABEL_DEBUG, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
 
+    Messaging::Instance()->SetLayoutManager(LayoutManager::Instance());
     Logger::sStandardLogFunction = [this](const int& vType, const std::string& vMessage) {
         MessageData msg_datas;
         const auto& type = vType;
