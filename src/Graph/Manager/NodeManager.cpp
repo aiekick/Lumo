@@ -1,5 +1,5 @@
 /*
-Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
+Copyright 2022-2023 Stephane Cuillerdier (aka aiekick)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -98,14 +98,15 @@ bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 
 	m_RootNodePtr->m_BaseNodeState.m_CurrentFrame = vCurrentFrame;
 	m_RootNodePtr->m_BaseNodeState.m_Context = ImGui::GetCurrentContext();
-
-	// double click on a node
+    
+	// double left click on a ouput slot texture or pass
 	auto rootNode3DPtr = m_RootNodePtr->m_GraphRoot3DNode.lock();
 	if (rootNode3DPtr)
 	{
 		res |= rootNode3DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
 	}
 
+    // double middle click on a ouput slot texture or pass
 	auto rootNode2DPtr = m_RootNodePtr->m_GraphRoot2DNode.lock();
 	if (rootNode2DPtr)
 	{

@@ -1,5 +1,5 @@
 /*
-Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
+Copyright 2022-2023 Stephane Cuillerdier (aka aiekick)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -127,7 +127,6 @@ bool HeatmapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 	ImGui::SameLine();
 	if (ImGui::RadioButtonLabeled(0.0f, "A", m_UBOFrag.channel_idx == 3, false)) { change = true; m_UBOFrag.channel_idx = 3; }
 
-	uint32_t idx = 0;
 	for (uint32_t i = 0; i < m_UBOFrag.count_colors; ++i)
 	{
 		ImGui::PushID(ImGui::IncPUSHID());

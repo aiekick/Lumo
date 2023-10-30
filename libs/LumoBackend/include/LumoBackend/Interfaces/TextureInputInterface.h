@@ -1,5 +1,5 @@
 /*
-Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
+Copyright 2022-2023 Stephane Cuillerdier (aka aiekick)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ void TextureInputInterface<size_of_array>::DrawInputTexture(GaiApi::VulkanCorePt
 					&m_ImageInfos[(size_t)vIdx], vRatio);
 				if (m_ImGuiTextures[(size_t)vIdx].canDisplayPreview) {
 					int w = (int)ImGui::GetContentRegionAvail().x;
-					auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTextures[(size_t)vIdx].ratio, ct::ivec2(w, w), false);
+                    auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTextures[(size_t)vIdx].ratio, ct::ivec2(w, w), false);
 					ImGui::ImageRect((ImTextureID)&m_ImGuiTextures[(size_t)vIdx].descriptor,
 						ImVec2((float)rect.x, (float)rect.y),
 						ImVec2((float)rect.w, (float)rect.h));

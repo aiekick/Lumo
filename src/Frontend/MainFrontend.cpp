@@ -1,5 +1,5 @@
 ﻿/*
-Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
+Copyright 2022-2023 Stephane Cuillerdier (aka aiekick)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ limitations under the License.
 #include <Panes/TuningPane.h>
 #include <Panes/GraphPane.h>
 #include <Panes/ConsolePane.h>
+#include <Panes/AnimatePane.h>
 
 #include <ImWidgets.h>
 
@@ -98,6 +99,9 @@ bool MainFrontend::init() {
     LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D Pane", "", PaneDisposal::LEFT, true, true);
     LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D Pane", "", PaneDisposal::LEFT, false, false);
     LayoutManager::Instance()->AddPane(ConsolePane::Instance(), "Console Pane", "", PaneDisposal::BOTTOM, false, false);
+    LayoutManager::Instance()->AddPane(AnimatePane::Instance(), "Animate Pane", "", PaneDisposal::BOTTOM, false, false);
+
+    // InitPänes is done in m_InitPanes, because a specific order is needed
 
     return m_build();
 }
@@ -435,19 +439,19 @@ bool MainFrontend::ShowUnSavedDialog() {
                 ImGui::OpenPopup("Do you want to save before ?");
                 if (ImGui::BeginPopupModal("Do you want to save before ?", (bool*)0,
                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking)) {
-                    if (ImGui::Button("Save")) {
+                    if (ImGui::ContrastedButton("Save")) {
                         res = Action_UnSavedDialog_SaveProject();
                     }
                     ImGui::SameLine();
-                    if (ImGui::Button("Save As")) {
+                    if (ImGui::ContrastedButton("Save As")) {
                         Action_UnSavedDialog_SaveAsProject();
                     }
 
-                    if (ImGui::Button("Continue without saving")) {
+                    if (ImGui::ContrastedButton("Continue without saving")) {
                         res = true;  // quit the action
                     }
                     ImGui::SameLine();
-                    if (ImGui::Button("Cancel")) {
+                    if (ImGui::ContrastedButton("Cancel")) {
                         Action_Cancel();
                     }
 

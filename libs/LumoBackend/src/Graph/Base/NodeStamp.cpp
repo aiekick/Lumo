@@ -1,5 +1,5 @@
 ﻿/*
-Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
+Copyright 2022-2023 Stephane Cuillerdier (aka aiekick)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -24,9 +24,8 @@ NodeStamp::NodeStamp() = default;
 
 NodeStamp::~NodeStamp() = default;
 
-void NodeStamp::DrawImGui()
-{
-	ImGui::Text("type stamp : %s", typeStamp.c_str()); // float(vec3)
-	ImGui::Text("name stamp : %s", nameStamp.c_str()); // float map(vec3)
-	ImGui::Text("full stamp : %s", fullStamp.c_str()); // float map(vec3 a)
+void NodeStamp::DrawImGui() {
+    ImGui::Text("type stamp : %s", typeStamp.c_str());  // float(vec3)
+    ImGui::Text("name stamp : %s", nameStamp.c_str());  // float map(vec3)
+    ImGui::Text("full stamp : %s", fullStamp.c_str());  // float map(vec3 a)
 }

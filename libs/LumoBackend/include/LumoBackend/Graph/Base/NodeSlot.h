@@ -1,5 +1,5 @@
 /*
-Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
+Copyright 2022-2023 Stephane Cuillerdier (aka aiekick)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,8 +36,10 @@ limitations under the License.
 
 namespace nd = ax::NodeEditor;
 
-class LUMO_BACKEND_API SlotColor
-{
+class LUMO_BACKEND_API SlotColor {
+public:
+    static constexpr float slotIconSize = 15.0f;
+
 private:
 	std::map<std::string, ImVec4> m_ColorSlots;
 
@@ -172,8 +174,10 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
-	void DrawContent(BaseNodeState *vBaseNodeState);
-	void DrawSlot(BaseNodeState *vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset = ImVec2());
+	void DrawContent(BaseNodeState* vBaseNodeState);
+    void DrawSlot(BaseNodeState* vBaseNodeState,                                      //
+        ImVec2 vSlotSize = ImVec2(SlotColor::slotIconSize, SlotColor::slotIconSize),  //
+        ImVec2 vSlotOffset = ImVec2());
 	
 	bool IsAnInput();
 	bool IsAnOutput();
@@ -235,6 +239,7 @@ private:
     void m_DrawOutputWidget(BaseNodeState* vBaseNodeState);
     void m_DrawSlotText(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
     void m_DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
+    void m_DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, ImU32 vColor, float vRadius, float vThickness = 1.0f);
 
 protected:
     BaseNodePtr m_GetRootNode();

@@ -1,5 +1,5 @@
 /*
-Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
+Copyright 2022-2023 Stephane Cuillerdier (aka aiekick)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -127,8 +127,6 @@ bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	{
 		if (ImGui::CollapsingHeader_CheckBox("HeatMap", -1.0f, true, true, &m_CanWeRender))
 		{
-			bool change = false;
-
 			if (m_HeatmapRenderer_Mesh_Pass_Ptr)
 			{
 				return m_HeatmapRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);

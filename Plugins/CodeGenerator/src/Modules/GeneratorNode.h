@@ -6,18 +6,19 @@
 
 enum BaseTypeEnum : uint32_t
 {
-	BASE_TYPE_None = 0,
-	BASE_TYPE_AccelStructure,
-	BASE_TYPE_LightGroup,
-	BASE_TYPE_Model,
-	BASE_TYPE_StorageBuffer,
-	BASE_TYPE_TexelBuffer,
-	BASE_TYPE_Texture,
-	BASE_TYPE_TextureCube,
-    BASE_TYPE_TextureGroup,
+    BASE_TYPE_None = 0,
+    BASE_TYPE_Task,
+    BASE_TYPE_Model,
+    BASE_TYPE_Custom,
+    BASE_TYPE_Texture,
+    BASE_TYPE_Variable,
+    BASE_TYPE_LightGroup,
     BASE_TYPE_ShaderPass,
-	BASE_TYPE_Variable,
-	BASE_TYPE_Custom
+    BASE_TYPE_TexelBuffer,
+    BASE_TYPE_TextureCube,
+    BASE_TYPE_TextureGroup,
+    BASE_TYPE_StorageBuffer,
+    BASE_TYPE_AccelStructure,
 };
 
 class BaseTypes
@@ -26,17 +27,18 @@ public:
 	std::vector<std::string> m_TypeArray =
 	{
 		"None",
-		"AccelStructure",
-		"LightGroup",
-		"Model",
-		"StorageBuffer",
-		"TexelBuffer",
-		"Texture",
-		"TextureCube",
-        "TextureGroup", 
-		"ShaderPass",
-		"Variable",
+        "Task",
+        "Model",
 		"Custom"
+        "Texture",
+        "Variable",
+        "LightGroup",
+        "ShaderPass",
+        "TexelBuffer",
+        "TextureCube",
+        "TextureGroup",
+		"StorageBuffer",
+		"AccelStructure",
 	};
 	std::vector<std::string> m_VariableTypeArray =
 	{
@@ -180,58 +182,61 @@ private: // Pass Shader Code
 	std::string GetPixel2DSpecializationVertex();
 
 private:
-	SlotDico GetSlotDico();
-	SlotStringStruct GetSlotNoneInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotNoneOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotAccelStructureInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotAccelStructureOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotLightGroupInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotLightGroupOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotModelInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotModelOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotStorageBufferInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotStorageBufferOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotTexelBufferInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotTexelBufferOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotTextureInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotTextureOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotTextureCubeInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotTextureCubeOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotTextureGroupInput(NodeSlotInputPtr vSlot);
-    SlotStringStruct GetSlotTextureGroupOutput(NodeSlotOutputPtr vSlot);
+    SlotDico GetSlotDico();
+    
+	SlotStringStruct GetSlotTaskInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotNoneInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotModelInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotCustomInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotTextureInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotVariableInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotShaderPassInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotLightGroupInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotTextureCubeInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotTexelBufferInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotTextureGroupInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotStorageBufferInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotAccelStructureInput(NodeSlotInputPtr vSlot);
+
+    SlotStringStruct GetSlotTaskOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotNoneOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotModelOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotCustomOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotTextureOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotVariableOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotShaderPassOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotVariableInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotVariableOutput(NodeSlotOutputPtr vSlot);
-	SlotStringStruct GetSlotCustomInput(NodeSlotInputPtr vSlot);
-	SlotStringStruct GetSlotCustomOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotLightGroupOutput(NodeSlotOutputPtr vSlot);
+	SlotStringStruct GetSlotTextureCubeOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotTexelBufferOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotTextureGroupOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotStorageBufferOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotAccelStructureOutput(NodeSlotOutputPtr vSlot);
 
 private:
-	std::string GetNodeSlotsInputFuncs(const SlotDico& vDico);
-	std::string GetNodeSlotsOutputFuncs(const SlotDico& vDico);
-	std::string GetNodeSlotsInputPublicInterfaces(const SlotDico& vDico);
-	std::string GetNodeSlotsOutputPublicInterfaces(const SlotDico& vDico);
-	std::string GetNodeSlotsInputIncludesSlots(const SlotDico& vDico);
-	std::string GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico);
-	std::string GetNodeSlotsInputIncludesInterfaces(const SlotDico& vDico);
-	std::string GetNodeSlotsOutputIncludesInterfaces(const SlotDico& vDico);
-	std::string GetNodeSlotsInputCppFuncs(const SlotDico& vDico);
-	std::string GetNodeSlotsOutputCppFuncs(const SlotDico& vDico);
-	std::string GetNodeSlotsInputHFuncs(const SlotDico& vDico);
-	std::string GetNodeSlotsOutputHFuncs(const SlotDico& vDico);
-
-    std::string GetModuleInputPrivateVars(const SlotDico& vDico);
-    std::string GetModuleOutputPrivateVars(const SlotDico& vDico);
-	std::string GetModuleInputCppFuncs(const SlotDico& vDico);
-	std::string GetModuleOutputCppFuncs(const SlotDico& vDico);
-
+    std::string GetPassInputCppFuncs(const SlotDico& vDico);
+    std::string GetModuleInputCppFuncs(const SlotDico& vDico);
+    std::string GetNodeSlotsInputFuncs(const SlotDico& vDico);
     std::string GetPassInputPrivateVars(const SlotDico& vDico);
-    std::string GetPassOutputPrivateVars(const SlotDico& vDico);
+    std::string GetNodeSlotsInputHFuncs(const SlotDico& vDico);
+    std::string GetNodeSlotsInputCppFuncs(const SlotDico& vDico);
+    std::string GetModuleInputPrivateVars(const SlotDico& vDico);
     std::string GetPassInputPublicInterfaces(const SlotDico& vDico);
-    std::string GetPassOutputPublicInterfaces(const SlotDico& vDico);
-	std::string GetPassInputCppFuncs(const SlotDico& vDico);
+    std::string GetNodeSlotsInputIncludesSlots(const SlotDico& vDico);
+    std::string GetNodeSlotsInputPublicInterfaces(const SlotDico& vDico);
+    std::string GetNodeSlotsInputIncludesInterfaces(const SlotDico& vDico);
+    
 	std::string GetPassOutputCppFuncs(const SlotDico& vDico);
-
+	std::string GetModuleOutputCppFuncs(const SlotDico& vDico);
+    std::string GetNodeSlotsOutputFuncs(const SlotDico& vDico);
+    std::string GetPassOutputPrivateVars(const SlotDico& vDico);
+    std::string GetNodeSlotsOutputHFuncs(const SlotDico& vDico);
+    std::string GetModuleOutputPrivateVars(const SlotDico& vDico);
+    std::string GetNodeSlotsOutputCppFuncs(const SlotDico& vDico);
+    std::string GetPassOutputPublicInterfaces(const SlotDico& vDico);
+    std::string GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico);
+    std::string GetNodeSlotsOutputPublicInterfaces(const SlotDico& vDico);
+	std::string GetNodeSlotsOutputIncludesInterfaces(const SlotDico& vDico);
+	
 public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;

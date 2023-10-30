@@ -1,14 +1,16 @@
 #include "GeneratorNode.h"
 
 #include <filesystem>
+#include <ImGuiPack.h>
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
-#include <ImGuiPack.h>
-#include <LumoBackend/Graph/Base/NodeSlot.h>
-#include <LumoBackend/Graph/Base/BaseNode.h>
 #include <Headers/GeneratorCommon.h>
 #include <Slots/GeneratorNodeSlotInput.h>
 #include <Slots/GeneratorNodeSlotOutput.h>
+#include <LumoBackend/Graph/Base/NodeSlot.h>
+#include <LumoBackend/Graph/Base/BaseNode.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTaskInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
@@ -3111,7 +3113,10 @@ SlotDico GeneratorNode::GetSlotDico()
 					break;
 				case BaseTypeEnum::BASE_TYPE_Model: // Model
 					res[BASE_TYPE_Model][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotModelInput(inputSlot.second));
-					break;
+                    break;
+                case BaseTypeEnum::BASE_TYPE_Task:  // Task
+                    res[BASE_TYPE_Task][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTaskInput(inputSlot.second));
+                    break;
 				case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
 					res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotStorageBufferInput(inputSlot.second));
 					break;
@@ -3177,7 +3182,10 @@ SlotDico GeneratorNode::GetSlotDico()
 					break;
 				case BaseTypeEnum::BASE_TYPE_Model: // Model
 					res[BASE_TYPE_Model][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotModelOutput(outputSlot.second));
-					break;
+                    break;
+                case BaseTypeEnum::BASE_TYPE_Task:  // Model
+                    res[BASE_TYPE_Task][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTaskOutput(outputSlot.second));
+                    break;
 				case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
 					res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotStorageBufferOutput(outputSlot.second));
 					break;
@@ -5442,6 +5450,18 @@ SceneShaderPassWeak MODULE_CLASS_NAME::GetShaderPasses(const uint32_t& vSlotID)
 	AddOutput(NodeSlotShaderPassOutput::Create("%s"), false, %s);)",
         vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
+    return res;
+}
+
+SlotStringStruct GeneratorNode::GetSlotTaskInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
+    CTOOL_DEBUG_BREAK;
+    return res;
+}
+
+SlotStringStruct GeneratorNode::GetSlotTaskOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
+    CTOOL_DEBUG_BREAK;
     return res;
 }
 

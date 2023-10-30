@@ -286,7 +286,7 @@ void ModelExporterModule::SaveModel(const std::string& vFilePathName) {
                                 _has_texture_coords = false;
                             }
 
-                            bool _has_normals = meshPtr->HasTextureCoords();
+                            //bool _has_normals = meshPtr->HasTextureCoords();
                             
                             pMesh->mNormals = new aiVector3D[vertice_count];
                             pMesh->mFaces = new aiFace[pMesh->mNumFaces];

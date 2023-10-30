@@ -32,6 +32,9 @@
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
+#include <LumoBackend/Graph/Slots/NodeSlotTaskInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
+
 #include <Headers/GeneratorCommon.h>
 #include <Slots/GeneratorNodeSlotInput.h>
 #include <Slots/GeneratorNodeSlotOutput.h>
@@ -199,6 +202,8 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(
                     resPtr = NodeSlotTextureGroupInput::Create(slotPtr->name);
                 } else if (vType == "ShaderPass") {
                     resPtr = NodeSlotShaderPassInput::Create(slotPtr->name);
+                } else if (vType == "Task") {
+                    resPtr = NodeSlotTaskInput::Create(slotPtr->name);
                 } else if (vType == "Variable") {
                     if (slotPtr->slotType.empty())
                         slotPtr->slotType = "NONE";
@@ -254,6 +259,8 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(
                     resPtr = NodeSlotTextureGroupOutput::Create(slotPtr->name);
                 } else if (vType == "ShaderPass") {
                     resPtr = NodeSlotShaderPassOutput::Create(slotPtr->name);
+                } else if (vType == "Task") {
+                    resPtr = NodeSlotTaskOutput::Create(slotPtr->name);
                 } else if (vType == "Variable") {
                     if (slotPtr->slotType.empty())
                         slotPtr->slotType = "NONE";

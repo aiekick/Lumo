@@ -1,5 +1,5 @@
 /*
-Copyright 2022-2022 Stephane Cuillerdier (aka aiekick)
+Copyright 2022-2023 Stephane Cuillerdier (aka aiekick)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -44,7 +44,10 @@ limitations under the License.
 #include <LumoBackend/Graph/Base/NodeSlotOutput.h>
 #include <LumoBackend/Interfaces/NotifyInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTaskInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
 #include <LumoBackend/Interfaces/OutputSizeInterface.h>
+
 
 #define MAGIC_NUMBER 4577
 
@@ -299,6 +302,9 @@ public:                                                      // glslang and link
     std::map<uint32_t, NodeSlotInputPtr> m_Inputs;    // for display, need order
     std::map<uint32_t, NodeSlotOutputPtr> m_Outputs;  // for display, need order
 
+    NodeSlotTaskInputPtr m_InputTaskPtr = nullptr;    // input task flow
+    NodeSlotTaskOutputPtr m_OutputTaskPtr = nullptr;  // output task flow
+
     std::set<uint32_t> m_NodeIdToDelete;  // node selected to delete
 
     ImVec2 m_BaseCopyOffset = ImVec2(0, 0);
@@ -519,6 +525,9 @@ private:  // graph states / action / drawings
     void DoCheckSlotPopup(BaseNodeState* vBaseNodeState);
     void DoCheckLinkPopup(BaseNodeState* vBaseNodeState);
     void DoNewNodePopup(BaseNodeState* vBaseNodeState);
+
+private: // task flow
+    void m_CreateTaskFlowSlots();
 
 private:  // node manipulation
     void DuplicateNode(uint32_t vNodeId, ImVec2 vOffsetPos);
