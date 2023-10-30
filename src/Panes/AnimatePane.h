@@ -1,13 +1,13 @@
 #pragma once
 
-#include <ImGuiPack.h>
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <ImGuiPack.h>
 
 class Animator : public ImSequencer::SequenceInterface {
 public:
-    struct MySequenceItem {
+    struct AnimatorItem {
         int mType;
         int mFrameStart, mFrameEnd;
         bool mExpanded;
@@ -17,7 +17,7 @@ public:
     int32_t m_StartFrame = 0;
     int32_t m_EndFrame = 180;
     int32_t m_CurrentFrame = 0;
-    std::vector<MySequenceItem> myItems;
+    std::vector<AnimatorItem> myItems;
 
 public:
     int GetFrameMin() const override {
@@ -45,7 +45,7 @@ public:
     }
 
      void Get(int index, int** start, int** end, int* type, unsigned int* color) override {
-        MySequenceItem& item = myItems[index];
+        AnimatorItem& item = myItems[index];
         if (color)
             *color = 0xFFAA8080;  // same color for everyone, return color based on type
         if (start)
@@ -57,7 +57,7 @@ public:
     }
 
      void Add(int type) override {
-        myItems.push_back(MySequenceItem{type, 0, 10, false});
+        myItems.push_back(AnimatorItem{type, 0, 10, false});
     };
 
      void Del(int index) override {

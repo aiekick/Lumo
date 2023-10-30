@@ -25,6 +25,7 @@ limitations under the License.
 
 #include <Nodes/Misc/GridNode.h>
 #include <Nodes/Misc/SceneMergerNode.h>
+#include <Nodes/Misc/AnimatorNode.h>
 
 #include <Nodes/Renderers/MatcapRendererNode.h>
 #include <Nodes/Renderers/ChannelRendererNode.h>
@@ -54,6 +55,8 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
                 return TextureExporterNode::Create(corePtr);
             
             // Misc
+            else if (vNodeType == "ANIMATOR")
+                return AnimatorNode::Create(corePtr);
             else if (vNodeType == "GRID_AXIS")
                 return GridNode::Create(corePtr);
             else if (vNodeType == "SCENE_MERGER")

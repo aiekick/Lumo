@@ -63,8 +63,9 @@ void UserNodeLibrary::AnalyseRootDirectory()
     m_RootLibraryCategory.AddCustom("Base/2D/Assets/Save", "2D Texture", "TEXTURE_2D_EXPORTER");
 	
 	// Misc
+    m_RootLibraryCategory.AddCustom("Base", "Animator", "ANIMATOR");
+    m_RootLibraryCategory.AddCustom("Base", "Scene Merger", "SCENE_MERGER");
     m_RootLibraryCategory.AddCustom("Base/3D/Scene", "Grid / Axis", "GRID_AXIS");
-    m_RootLibraryCategory.AddCustom("Base/3D/Scene", "Scene Merger", "SCENE_MERGER");
 
     // Renderers
     m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Channels", "CHANNEL_RENDERER");

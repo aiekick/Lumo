@@ -20,7 +20,7 @@ limitations under the License.
 #include <string>
 #include <ctools/cTools.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
-#include <ImGuizmo.h>
+#include <ImGuiPack.h>
 
 class LUMO_BACKEND_API GizmoInterface {
 public:

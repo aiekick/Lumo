@@ -1,7 +1,7 @@
 #pragma once
 
 #define CodeGenerator_Prefix "CodeGenerator"
-#define CodeGenerator_BuildNumber 532
+#define CodeGenerator_BuildNumber 535
 #define CodeGenerator_MinorNumber 0
 #define CodeGenerator_MajorNumber 0
-#define CodeGenerator_BuildId "0.0.532"
+#define CodeGenerator_BuildId "0.0.535"

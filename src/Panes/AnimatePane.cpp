@@ -51,11 +51,9 @@ bool AnimatePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPane
 #endif
             if (ImGui::BeginMenuBar()) {
                 ImGui::PushItemWidth(130);
-                ImGui::InputInt("Frame Min", &m_Animator.m_StartFrame);
-                ImGui::SameLine();
+                ImGui::InputInt("Start", &m_Animator.m_StartFrame);
                 ImGui::InputInt("Frame ", &m_Animator.m_CurrentFrame);
-                ImGui::SameLine();
-                ImGui::InputInt("Frame Max", &m_Animator.m_EndFrame);
+                ImGui::InputInt("End", &m_Animator.m_EndFrame);
                 ImGui::PopItemWidth();
                 ImGui::EndMenuBar();
             }

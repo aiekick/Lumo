@@ -19,6 +19,7 @@ limitations under the License.
 
 #include "AnimatorNode.h"
 #include <Modules/Misc/AnimatorModule.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTaskInput.h>
 
 #ifdef PROFILER_INCLUDE
 #include PROFILER_INCLUDE
@@ -71,7 +72,7 @@ bool AnimatorNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "Animator";
 
-
+	AddInput(NodeSlotTaskInput::Create("Input"), true, true);
 
 	m_AnimatorModulePtr = AnimatorModule::Create(vVulkanCorePtr, m_This);
 	if (m_AnimatorModulePtr)

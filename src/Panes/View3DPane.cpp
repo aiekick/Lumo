@@ -27,7 +27,6 @@ limitations under the License.
 #include <ctools/FileHelper.h>
 #include <ctools/cTools.h>
 #include <ImWidgets.h>
-#include <ImGuizmo.h>
 
 #include <cinttypes> // printf zu
 
@@ -194,15 +193,18 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
 //// DIALOGS //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool View3DPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
+bool View3DPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    UNUSED(vCurrentFrame);
+    UNUSED(vMaxSize);
+    ImGui::SetCurrentContext(vContextPtr);
+    UNUSED(vUserDatas);
 	return false;
 }
 
-bool View3DPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool View3DPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    UNUSED(vCurrentFrame);
+    ImGui::SetCurrentContext(vContextPtr);
+    UNUSED(vUserDatas);
 	return false;
 }
 

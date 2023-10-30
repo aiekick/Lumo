@@ -18,7 +18,7 @@ limitations under the License.
 #pragma warning(disable : 4251)
 
 #include <ctools/cTools.h>
-#include <ImGuizmo.h>
+#include <ImGuiPack.h>
 #include <LumoBackend/Interfaces/GizmoInterface.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
