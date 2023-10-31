@@ -2,10 +2,10 @@
 
 #include <LumoBackend/Interfaces/PluginInterface.h>
 
-class Core : public PluginInterface
+class Simulation : public PluginInterface
 {
 public:
-	Core();
+	Simulation();
 	void ActionAfterInit() override;
 	uint32_t GetVersionMajor() const override;
 	uint32_t GetVersionMinor() const override;

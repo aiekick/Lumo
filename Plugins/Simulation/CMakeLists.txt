@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(PROJECT CodeGenerator)
+set(PROJECT Simulation)
 
 enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(PLUGIN_ENABLE_CODE_GENERATOR "Enable the plugin Code Generator" OFF)
+option(PLUGIN_ENABLE_SIMULATION "Enable the plugin Simulationb" OFF)
 
-if (PLUGIN_ENABLE_CODE_GENERATOR)
+if (PLUGIN_ENABLE_SIMULATION)
 
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MD CACHE STRING "" FORCE)
@@ -28,8 +28,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
-
-## include(cmake/3rdparty.cmake)
 
 if (uninstall)
 	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
@@ -96,6 +94,8 @@ file(GLOB_RECURSE CMAKE_RECURSE
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/*.cmake)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${CMAKE_RECURSE})
 
+set(ENABLE_EXPORTS ON CACHE STRING "" FORCE)
+
 add_library(${PROJECT} MODULE
 	${CMAKE_RECURSE}
 	${SHADER_SOURCES}
@@ -130,7 +130,7 @@ set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BI
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Plugins)
-
+			
 install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
 include_directories(
@@ -154,8 +154,12 @@ set(LOADED_LUMO_PLUGINS ${LOADED_LUMO_PLUGINS} ${PROJECT} PARENT_SCOPE)
 ## only for Debug
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=${PROJECT} 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
+	COMMAND BuildInc -prefix=${PROJECT} 1000000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
 	DEPENDS ${PROJECT}
 )
 
-endif() #PLUGIN_ENABLE_CODE_GENERATOR
+########################################################
+########################################################
+########################################################
+
+endif() #PLUGIN_ENABLE_SIMULATION

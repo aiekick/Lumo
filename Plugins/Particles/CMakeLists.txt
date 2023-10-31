@@ -6,9 +6,9 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(USE_PLUGIN_PARTICLES_SIM "Enable the plugin ${PROJECT}" OFF)
+option(PLUGIN_ENABLE_PARTICLES_SIM "Enable the plugin ${PROJECT}" OFF)
 
-if (USE_PLUGIN_PARTICLES_SIM)
+if (PLUGIN_ENABLE_PARTICLES_SIM)
 
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MD CACHE STRING "" FORCE)
@@ -61,6 +61,7 @@ elseif(WIN32)
 endif()
 
 if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /FR")
     add_definitions(-D_USE_MATH_DEFINES)
     add_definitions(-DMSVC)
 	add_definitions(-DNOMINMAX) ## for avoid issue regarding std::max and std::min
@@ -129,7 +130,7 @@ set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJ
 set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
-set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
+set_target_properties(${PROJECT} PROPERTIES FOLDER Plugins)
 
 install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
@@ -162,4 +163,4 @@ add_custom_command(
 ########################################################
 ########################################################
 
-endif() #USE_PLUGIN_MESH_SIM
+endif() #PLUGIN_ENABLE_MESH_SIM

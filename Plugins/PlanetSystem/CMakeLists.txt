@@ -6,9 +6,9 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(USE_PLUGIN_PLANET_SYSTEM "Enable the plugin PlanetSystem" OFF)
+option(PLUGIN_ENABLE_PLANET_SYSTEM "Enable the plugin PlanetSystem" OFF)
 
-if (USE_PLUGIN_PLANET_SYSTEM)
+if (PLUGIN_ENABLE_PLANET_SYSTEM)
 
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MD CACHE STRING "" FORCE)
@@ -60,6 +60,7 @@ elseif(WIN32)
 endif()
 
 if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /FR")
     add_definitions(-D_USE_MATH_DEFINES)
     add_definitions(-DMSVC)
 	add_definitions(-DNOMINMAX) ## for avoid issue regarding std::max and std::min
@@ -81,9 +82,9 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${CMAKE_R
 set(ENABLE_EXPORTS ON CACHE STRING "" FORCE)
 
 set(LINKING_TYPE MODULE)
-if (USE_PLUGIN_STATIC_LINKING)
+if (PLUGIN_ENABLE_STATIC_LINKING)
 	set(LINKING_TYPE STATIC)
-	add_definitions(-DUSE_PLUGIN_STATIC_LINKING)
+	add_definitions(-DPLUGIN_ENABLE_STATIC_LINKING)
 endif()
 
 add_library(${PROJECT} ${LINKING_TYPE}
@@ -117,7 +118,7 @@ set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJ
 set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
-set_target_properties(${PROJECT} PROPERTIES FOLDER Lumo_Plugins)
+set_target_properties(${PROJECT} PROPERTIES FOLDER Plugins)
 
 install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
@@ -150,4 +151,4 @@ add_custom_command(
 ########################################################
 ########################################################
 
-endif() #USE_PLUGIN_PLANET_SYSTEM
+endif() #PLUGIN_ENABLE_PLANET_SYSTEM
