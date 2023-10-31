@@ -298,6 +298,7 @@ public:
 
     // Renderer Type
     bool IsPixelRenderer();
+    bool IsCompute1DRenderer();
     bool IsCompute2DRenderer();
     bool IsCompute3DRenderer();
     bool IsRtxRenderer();

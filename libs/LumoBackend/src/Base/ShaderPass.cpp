@@ -721,7 +721,12 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
                 DrawModel(vCmdBuffer, vIterationNumber);
                 ActionAfterDrawInCommandBuffer(vCmdBuffer);
             }
-        } else if (IsCompute2DRenderer()) {
+        } else if (IsCompute1DRenderer()) {
+            ActionBeforeDrawInCommandBuffer(vCmdBuffer);
+            Compute(vCmdBuffer, vIterationNumber);
+            ActionAfterDrawInCommandBuffer(vCmdBuffer);
+        }
+            else if (IsCompute2DRenderer()) {
             if (m_ComputeBufferPtr && m_ComputeBufferPtr->Begin(vCmdBuffer)) {
                 ActionBeforeDrawInCommandBuffer(vCmdBuffer);
                 Compute(vCmdBuffer, vIterationNumber);
@@ -1136,6 +1141,11 @@ std::string ShaderPass::GetRayClosestHitShaderCode(std::string& vOutShaderName) 
 bool ShaderPass::IsPixelRenderer() {
     ZoneScoped;
     return (m_RendererType == GenericType::PIXEL);
+}
+
+bool ShaderPass::IsCompute1DRenderer() {
+    ZoneScoped;
+    return (m_RendererType == GenericType::COMPUTE_1D);
 }
 
 bool ShaderPass::IsCompute2DRenderer() {

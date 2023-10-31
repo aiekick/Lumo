@@ -171,12 +171,18 @@ bool BaseRenderer::InitCompute1D(const uint32_t& vSize) {
     m_Loaded = false;
 
     m_Device = m_VulkanCorePtr->getDevice();
+    uint32_t size = ct::clamp(vSize, 1u, 8192u);
     if (vSize) {
         m_UniformSectionToShow = {"COMPUTE"};  // pour afficher les uniforms
 
         m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
         m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
         m_CommandPool = m_Queue.cmdPools;
+
+        m_OutputSize = size;
+        m_RenderArea = vk::Rect2D(vk::Offset2D(), vk::Extent2D(m_OutputSize.x, m_OutputSize.y));
+        m_Viewport = vk::Viewport(0.0f, 0.0f, static_cast<float>(m_OutputSize.x), static_cast<float>(m_OutputSize.y), 0, 1.0f);
+        m_OutputRatio = ct::fvec2((float)m_OutputSize.x, (float)m_OutputSize.y).ratioXY<float>();
 
         if (CreateCommanBuffer()) {
             if (CreateSyncObjects()) {
