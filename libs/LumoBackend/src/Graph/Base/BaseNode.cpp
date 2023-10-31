@@ -197,6 +197,7 @@ BaseNode::~BaseNode() {
 bool BaseNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
     m_VulkanCorePtr = vVulkanCorePtr;
     InitGraph(m_Style);
+    m_CreateTaskFlowSlots();
     return true;
 }
 

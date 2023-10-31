@@ -141,7 +141,7 @@ elseif(WIN32)
 endif()
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /std:c++17")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /FR /std:c++17")
     add_definitions(-D_USE_MATH_DEFINES)
     add_definitions(-DMSVC)
     add_definitions(-DGLFW_EXPOSE_NATIVE_WIN32)
@@ -268,7 +268,7 @@ ENDFOREACH()
 
 ## only for Debug
 add_subdirectory(3rdparty/BuildInc)
-set_target_properties(BuildInc PROPERTIES FOLDER Tools)
+## set_target_properties(BuildInc PROPERTIES FOLDER Tools)
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD

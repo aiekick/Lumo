@@ -54,28 +54,31 @@ void UserNodeLibrary::AnalyseRootDirectory()
 	// internals
 	
     // Assets
-    m_RootLibraryCategory.AddCustom("Base/3D/Assets/Load", "3D Model", "MESH");
-    m_RootLibraryCategory.AddCustom("Base/2D/Assets/Load", "2D Texture", "TEXTURE_2D");
-    m_RootLibraryCategory.AddCustom("Base/2D/Assets/Load", "2D CubeMap", "CUBE_MAP");
+    m_RootLibraryCategory.AddCustom("3D/Assets/Load", "3D Model", "MESH");
+    m_RootLibraryCategory.AddCustom("2D/Assets/Load", "2D Texture", "TEXTURE_2D");
+    m_RootLibraryCategory.AddCustom("2D/Assets/Load", "2D CubeMap", "CUBE_MAP");
 
     // Exporters
-    m_RootLibraryCategory.AddCustom("Base/3D/Assets/Save", "3D Model", "MODEL_EXPORTER");
-    m_RootLibraryCategory.AddCustom("Base/2D/Assets/Save", "2D Texture", "TEXTURE_2D_EXPORTER");
+    m_RootLibraryCategory.AddCustom("3D/Assets/Save", "3D Model", "MODEL_EXPORTER");
+    m_RootLibraryCategory.AddCustom("2D/Assets/Save", "2D Texture", "TEXTURE_2D_EXPORTER");
 	
 	// Misc
-    m_RootLibraryCategory.AddCustom("Base", "Animator", "ANIMATOR");
-    m_RootLibraryCategory.AddCustom("Base", "Scene Merger", "SCENE_MERGER");
-    m_RootLibraryCategory.AddCustom("Base/3D/Scene", "Grid / Axis", "GRID_AXIS");
+    m_RootLibraryCategory.AddCustom("", "Animator", "ANIMATOR");
+    m_RootLibraryCategory.AddCustom("", "Scene Merger", "SCENE_MERGER");
+    m_RootLibraryCategory.AddCustom("3D/Scene", "Grid / Axis", "GRID_AXIS");
 
     // Renderers
-    m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Channels", "CHANNEL_RENDERER");
-    m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Heatmap", "HEATMAP_RENDERER");
-    m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Matcap", "MATCAP_RENDERER");
-    m_RootLibraryCategory.AddCustom("Base/3D/Renderers", "Model", "MODEL_RENDERER");
+    m_RootLibraryCategory.AddCustom("3D/Renderers", "Channels", "CHANNEL_RENDERER");
+    m_RootLibraryCategory.AddCustom("3D/Renderers", "Heatmap", "HEATMAP_RENDERER");
+    m_RootLibraryCategory.AddCustom("3D/Renderers", "Matcap", "MATCAP_RENDERER");
+    m_RootLibraryCategory.AddCustom("3D/Renderers", "Model", "MODEL_RENDERER");
 
 	// Variables
-    m_RootLibraryCategory.AddCustom("Base/Widgets", "Boolean", "WIDGET_BOOLEAN");
-    m_RootLibraryCategory.AddCustom("Base/Widgets", "Color", "WIDGET_COLOR");
+    m_RootLibraryCategory.AddCustom("Widgets", "Boolean", "WIDGET_BOOLEAN");
+    m_RootLibraryCategory.AddCustom("Widgets", "Color", "WIDGET_COLOR");
+
+    // Utils
+    m_RootLibraryCategory.AddCustom("2D/Utils", "Math", "MATH");
 
 	// shader nodes
     AnalyseRootDirectoryRecurs(LIBRARY_EFECT_ROOT_PATH, 0, &m_RootLibraryCategory);

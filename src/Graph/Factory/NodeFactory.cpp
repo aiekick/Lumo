@@ -35,6 +35,8 @@ limitations under the License.
 #include <Nodes/Widgets/VariableNode.h>
 #include <Nodes/Widgets/WidgetColorNode.h>
 
+#include <Nodes/Utils/MathNode.h>
+
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType) {
     auto graphPtr = vNodeGraph.lock();
     if (graphPtr) {
@@ -83,6 +85,10 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
                 return VariableNode::Create(corePtr, vNodeType);
             else if (vNodeType == "WIDGET_COLOR")
                 return WidgetColorNode::Create(corePtr);
+
+            // Utils
+            else if (vNodeType == "MATH")
+                return MathNode::Create(corePtr);
         }
     }
 
