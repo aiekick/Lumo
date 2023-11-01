@@ -19,6 +19,8 @@ limitations under the License.
 
 #include "ModelExporterModule.h"
 
+#include <ctools/FileHelper.h>
+
 #include <cinttypes>
 #include <functional>
 #include <ctools/Logger.h>
@@ -78,11 +80,13 @@ std::shared_ptr<ModelExporterModule> ModelExporterModule::Create(GaiApi::VulkanC
 ModelExporterModule::ModelExporterModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : m_VulkanCorePtr(vVulkanCorePtr) {
     ZoneScoped;
     unique_SaveMeshFileDialog_id = ct::toStr("OpenMeshFileDialog%u", (uintptr_t)this);
+    unique_SavePathFileDialog_id = ct::toStr("SavePathFileDialog%u", (uintptr_t)this);
+    m_InputTextPrefix.SetText("frame");
+    m_InputTextSaveFilePathName.SetText("export.dae");
 }
 
 ModelExporterModule::~ModelExporterModule() {
     ZoneScoped;
-
     Unit();
 }
 
@@ -92,7 +96,7 @@ ModelExporterModule::~ModelExporterModule() {
 
 bool ModelExporterModule::Init() {
     ZoneScoped;
-
+    SetExecutionWhenNeededOnly(true);
     return true;
 }
 
@@ -101,27 +105,76 @@ void ModelExporterModule::Unit() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+//// TASK ////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+bool ModelExporterModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    UNUSED(vCurrentFrame);
+    UNUSED(vCmd);
+    UNUSED(vBaseNodeState);
+
+    m_AutoSaveModelIfNeeded(vCurrentFrame);
+
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 bool ModelExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
+    bool change = false;
 
+    ImGui::Header("Auto exporter");
+    if (m_ExportFrames) {
+        if (ImGui::ContrastedButton("Stop Auto Save")) {
+            m_StopAutoSave();
+            change = true;
+        }
+        if (m_FramesCountToExport) {
+            float ratio = (float)m_CurrentFrameToExport / (float)m_FramesCountToExport;
+            ImGui::ProgressBar(ratio, ImVec2(100.0f, 0.0f));
+        }
+    } else {
+        change |= ImGui::Checkbox("Enabel atuo save", &m_AutoSaverEnabled);
+        if (m_AutoSaverEnabled) {
+            change |= ImGui::InputUIntDefault(200.0f, "frames to export", &m_FramesCountToExport, 1, 10, 1);
+            change |= ImGui::InputUIntDefault(200.0f, "frames to jump", &m_FramesCountToJump, 1, 10, 1);
+            if (ImGui::InputUIntDefault(200.0f, "frames per sec", &m_FramesCountPerSec, 1, 10, 1)) {
+                m_FramesCountPerSec = ct::maxi(m_FramesCountPerSec, 1U);
+                change = true;
+            }
+            change |= m_InputTextPrefix.DisplayInputText(0.0f, "Postfix", "_frame_");
+            change |= ImGui::Checkbox("Generate SketchFab TimeFrame", &m_GenerateSketchFabTimeFrame);
+            change |= m_InputTextSaveFilePathName.DisplayInputText(0.0f, "File path name", "test.ply");
+            change |= ImGui::CheckBoxBoolDefault("Export Normals", &m_ExportNormals, true);
+            change |= ImGui::CheckBoxBoolDefault("Export Vertexs Color", &m_ExportVertexColors, true);
+            if (ImGui::ContrastedButton("Set 3D file path name")) {
+                ImGuiFileDialog::Instance()->OpenDialog(
+                    unique_SavePathFileDialog_id, "Save 3D File", ".ply,.dae", m_FilePath, m_FilePathName, 1, nullptr, ImGuiFileDialogFlags_Modal);
+            }
+            if (ImGui::ContrastedButton("Start Auto Saver")) {
+                m_StartAutoSave();
+                change = true;
+            }
+        }
+    }
+
+    ImGui::Header("Manual export");
     if (ImGui::ContrastedButton("Save Model")) {
         // tofix : gltf export crash ...
         ImGuiFileDialog::Instance()->OpenDialog(
-            unique_SaveMeshFileDialog_id, "Save 3D File", ".ply", m_FilePath, m_FilePathName, 1, nullptr, ImGuiFileDialogFlags_Modal);
+            unique_SaveMeshFileDialog_id, "Save 3D File", ".ply,.dae", m_FilePath, m_FilePathName, 1, nullptr, ImGuiFileDialogFlags_Modal);
     }
 
-    return false;
+    return change;
 }
 
 bool ModelExporterModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
@@ -130,15 +183,21 @@ bool ModelExporterModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRe
 bool ModelExporterModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
-
     ImVec2 max = ImVec2((float)vMaxSize.x, (float)vMaxSize.y);
     ImVec2 min = max * 0.5f;
+    // manual save file
     if (ImGuiFileDialog::Instance()->Display(unique_SaveMeshFileDialog_id, ImGuiWindowFlags_NoCollapse, min, max)) {
         if (ImGuiFileDialog::Instance()->IsOk()) {
-            SaveModel(ImGuiFileDialog::Instance()->GetFilePathName());
+            m_SaveModel(ImGuiFileDialog::Instance()->GetFilePathName());
+        }
+        ImGuiFileDialog::Instance()->Close();
+    }
+    // path where to auto save
+    if (ImGuiFileDialog::Instance()->Display(unique_SavePathFileDialog_id, ImGuiWindowFlags_NoCollapse, min, max)) {
+        if (ImGuiFileDialog::Instance()->IsOk()) {
+            m_InputTextSaveFilePathName.SetText(ImGuiFileDialog::Instance()->GetFilePathName());
         }
         ImGuiFileDialog::Instance()->Close();
     }
@@ -151,8 +210,38 @@ bool ModelExporterModule::DrawDialogsAndPopups(
 
 void ModelExporterModule::SetModel(SceneModelWeak vSceneModel) {
     ZoneScoped;
-
     m_InputModel = vSceneModel;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// VARIABLE INPUT //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void ModelExporterModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+    ZoneScoped;
+    if (vVarIndex < m_SceneVariables.size()) {
+        m_SceneVariables[vVarIndex] = vSceneVariable;
+        auto varPtr = m_SceneVariables[vVarIndex].lock();
+        if (varPtr) {
+            if (varPtr->GetType() == "WIDGET_BOOLEAN") {
+                if (vVarIndex == 0U) {
+                    if (varPtr->GetDatas().m_Boolean) {
+                        m_StartAutoSave(); // start if true at least
+                        // the stop must be done by the user or if count frames are reached
+                    }
+                }
+            }
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneModelWeak ModelExporterModule::GetModel() {
+    ZoneScoped;
+    return m_InputModel;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -161,11 +250,17 @@ void ModelExporterModule::SetModel(SceneModelWeak vSceneModel) {
 
 std::string ModelExporterModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     ZoneScoped;
-
     std::string str;
-
     str += vOffset + "<model_exporter_module>\n";
-
+    str += vOffset + "<frames_to_export>" + ct::toStr(m_FramesCountToExport) + "</frames_to_export>\n";
+    str += vOffset + "<frames_to_jump>" + ct::toStr(m_FramesCountToJump) + "</frames_to_jump>\n";
+    str += vOffset + "<frames_per_secs>" + ct::toStr(m_FramesCountPerSec) + "</frames_per_secs>\n";
+    str += vOffset + "<generate_sketchfab_timeframe>" + (m_GenerateSketchFabTimeFrame ? "true" : "false") + "</generate_sketchfab_timeframe>\n";
+    str += vOffset + "<export_vertexs_color>" + (m_ExportVertexColors ? "true" : "false") + "</export_vertexs_color>\n";
+    str += vOffset + "<export_normals>" + (m_ExportNormals ? "true" : "false") + "</export_normals>\n";
+    str += vOffset + "<auto_saver_enabled>" + (m_AutoSaverEnabled ? "true" : "false") + "</auto_saver_enabled>\n";
+    str += vOffset + "<postfix>" + m_InputTextPrefix.GetText() + "</postfix>\n";
+    str += vOffset + "<file_save>" + m_InputTextSaveFilePathName.GetText() + "</file_save>\n";
     str += vOffset + "</model_exporter_module>\n";
 
     return str;
@@ -186,6 +281,25 @@ bool ModelExporterModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
         strParentName = vParent->Value();
 
     if (strParentName == "model_exporter_module") {
+        if (strName == "frames_to_export") {
+            m_FramesCountToExport = ct::uvariant(strValue).GetU();
+        } else if (strName == "frames_to_jump") {
+            m_FramesCountToJump = ct::uvariant(strValue).GetU();
+        } else if (strName == "frames_per_secs") {
+            m_FramesCountPerSec = ct::uvariant(strValue).GetU();
+        } else if (strName == "generate_sketchfab_timeframe") {
+            m_GenerateSketchFabTimeFrame = ct::ivariant(strValue).GetB();
+        } else if (strName == "export_vertexs_color") {
+            m_ExportVertexColors = ct::ivariant(strValue).GetB();
+        } else if (strName == "export_normals") {
+            m_ExportNormals = ct::ivariant(strValue).GetB();
+        } else if (strName == "auto_saver_enabled") {
+            m_AutoSaverEnabled = ct::ivariant(strValue).GetB();
+        } else if (strName == "postfix") {
+            m_InputTextPrefix.SetText(strValue);
+        } else if (strName == "file_save") {
+            m_InputTextSaveFilePathName.SetText(strValue);
+        }
     }
 
     return true;
@@ -199,7 +313,7 @@ void ModelExporterModule::AfterNodeXmlLoading() {
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelExporterModule::SaveModel(const std::string& vFilePathName) {
+void ModelExporterModule::m_SaveModel(const std::string& vFilePathName) {
     if (!vFilePathName.empty()) {
         m_FilePathName = vFilePathName;
 
@@ -274,7 +388,7 @@ void ModelExporterModule::SaveModel(const std::string& vFilePathName) {
                                 _has_texture_coords = false;
                             }
 
-                            bool _has_vertex_colors = meshPtr->HasVertexColors();
+                            bool _has_vertex_colors = m_ExportVertexColors && meshPtr->HasVertexColors();
                             const uint32_t color_map_index = ct::mini((uint32_t)mesh_idx, (uint32_t)AI_MAX_NUMBER_OF_COLOR_SETS);
                             if (mesh_idx < AI_MAX_NUMBER_OF_COLOR_SETS) {
                                 if (_has_vertex_colors) {
@@ -286,15 +400,17 @@ void ModelExporterModule::SaveModel(const std::string& vFilePathName) {
                                 _has_texture_coords = false;
                             }
 
-                            //bool _has_normals = meshPtr->HasTextureCoords();
-                            
-                            pMesh->mNormals = new aiVector3D[vertice_count];
+                            // bool _has_normals = meshPtr->HasTextureCoords();
+
+                            if (m_ExportNormals) {
+                                pMesh->mNormals = new aiVector3D[vertice_count];
+                            }
                             pMesh->mFaces = new aiFace[pMesh->mNumFaces];
 
                             for (size_t vert_idx = 0U; vert_idx < vertice_count; ++vert_idx) {
                                 auto& v = gpu_vertices.at(vert_idx);
                                 pMesh->mVertices[vert_idx] = aiVector3D(v.p.x, v.p.y, v.p.z);
-                                if (pMesh->mNumFaces) {
+                                if (m_ExportNormals && pMesh->mNumFaces) {
                                     pMesh->mNormals[vert_idx] = aiVector3D(v.n.x, v.n.y, v.n.z);
                                 }
                                 if (_has_vertex_colors) {
@@ -351,6 +467,8 @@ void ModelExporterModule::SaveModel(const std::string& vFilePathName) {
                 if (ps.isOk) {
                     if (ps.ext == "ply") {
                         aiExporter.Export(scene_ptr, "ply", m_FilePathName);
+                    } else if (ps.ext == "dae") {
+                        aiExporter.Export(scene_ptr, "collada", m_FilePathName);
                     }
                 }
 
@@ -360,6 +478,50 @@ void ModelExporterModule::SaveModel(const std::string& vFilePathName) {
             }
         } catch (const std::exception& ex) {
             LogVarError("unknown error : %s", ex.what());
+        }
+    }
+}
+
+void ModelExporterModule::m_StartAutoSave() {
+    if (m_AutoSaverEnabled && !m_ExportFrames && m_FramesCountToExport) {
+        m_ExportFrames = true;
+        m_TimeStep = (float)m_FramesCountToJump / (float)m_FramesCountPerSec;
+        m_CurrentFrameToExport = 0U;
+        m_SketchFabTimeFrameFileContent.clear();
+        NeedNewExecution();
+    }
+}
+
+void ModelExporterModule::m_StopAutoSave() {
+    m_ExportFrames = false;
+    if (m_GenerateSketchFabTimeFrame) {
+        auto ps = FileHelper::Instance()->ParsePathFileName(m_InputTextSaveFilePathName.GetText());
+        if (ps.isOk) {
+            const auto& file_path_name = ps.GetFPNE_WithNameExt("sketchfab", "timeframe");
+            FileHelper::Instance()->SaveStringToFile(m_SketchFabTimeFrameFileContent, file_path_name);
+        }
+    }
+}
+
+void ModelExporterModule::m_AutoSaveModelIfNeeded(const uint32_t& vCurrentFrame) {
+    if (m_ExportFrames) {
+        if (m_CurrentFrameToExport < m_FramesCountToExport) {
+            if ((m_LastSavedFrame + m_FramesCountToJump) <= vCurrentFrame) {
+                auto ps = FileHelper::Instance()->ParsePathFileName(m_InputTextSaveFilePathName.GetText());
+                if (ps.isOk) {
+                    const auto& file_name = ps.name + "_" + m_InputTextPrefix.GetText() + "_" + ct::toStr("%u", m_CurrentFrameToExport);
+                    const auto& file_path_name = ps.GetFPNE_WithName(file_name);                                         
+                    m_SaveModel(file_path_name);
+                    m_LastSavedFrame = vCurrentFrame;
+                    ++m_CurrentFrameToExport;
+                    if (m_GenerateSketchFabTimeFrame) {
+                        m_SketchFabTimeFrameFileContent += ct::toStr("%.5f %s.%s\n", m_TimeStep, file_name.c_str(), ps.ext.c_str());
+                    }
+                }
+            }
+            NeedNewExecution();
+        } else {
+            m_StopAutoSave();
         }
     }
 }

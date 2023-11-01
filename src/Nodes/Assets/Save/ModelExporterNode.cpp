@@ -20,7 +20,8 @@ limitations under the License.
 #include "ModelExporterNode.h"
 #include <Modules/Assets/Save/ModelExporterModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -34,81 +35,91 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ModelExporterNode> ModelExporterNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
-{
-	ZoneScoped;
+std::shared_ptr<ModelExporterNode> ModelExporterNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    ZoneScoped;
 
-	auto res = std::make_shared<ModelExporterNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<ModelExporterNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCorePtr)) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
-ModelExporterNode::ModelExporterNode() : BaseNode()
-{
-	ZoneScoped;
+ModelExporterNode::ModelExporterNode() : BaseNode() {
+    ZoneScoped;
 
-	m_NodeTypeString = "MODEL_EXPORTER";
+    m_NodeTypeString = "MODEL_EXPORTER";
 }
 
-ModelExporterNode::~ModelExporterNode()
-{
-	ZoneScoped;
+ModelExporterNode::~ModelExporterNode() {
+    ZoneScoped;
 
-	Unit();
-}		
+    Unit();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelExporterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
-{
-	ZoneScoped;
+bool ModelExporterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	name = "Model Exporter";
+    name = "Model Exporter";
 
-	AddInput(NodeSlotModelInput::Create("Model"), false, false);
-    AddOutput(NodeSlotTaskOutput::Create("Task", false), false, false);
+    AddInput(NodeSlotModelInput::Create("Model"), false, false);
+    AddInput(NodeSlotVariableInput::Create("Start saver", "WIDGET_BOOLEAN", 0U), false, false);
+    AddOutput(NodeSlotModelOutput::Create("Model"), false, false);
 
-	m_ModelExporterModulePtr = ModelExporterModule::Create(vVulkanCorePtr, m_This);
-	if (m_ModelExporterModulePtr)
-	{
-		res = true;
-	}
+    m_ModelExporterModulePtr = ModelExporterModule::Create(vVulkanCorePtr, m_This);
+    if (m_ModelExporterModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+bool ModelExporterNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
+
+    bool res = false;
+
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+
+    if (m_ModelExporterModulePtr) {
+        res = m_ModelExporterModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    }
+
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ModelExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_ModelExporterModulePtr)
-	{
-		res = m_ModelExporterModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+    if (m_ModelExporterModulePtr) {
+        res = m_ModelExporterModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return res;
+    return res;
 }
 
-bool ModelExporterNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ModelExporterNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -117,13 +128,12 @@ bool ModelExporterNode::DrawOverlays(
 
 bool ModelExporterNode::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_ModelExporterModulePtr)
-	{
+    if (m_ModelExporterModulePtr) {
         return m_ModelExporterModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
     return false;
@@ -133,113 +143,117 @@ bool ModelExporterNode::DrawDialogsAndPopups(
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelExporterNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+void ModelExporterNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used[%s]\nCell[%i, %i]",
-				(used ? "true" : "false"), cell.x, cell.y);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used[%s]\nCell[%i, %i]", (used ? "true" : "false"), cell.x, cell.y);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelExporterNode::SetModel(SceneModelWeak vSceneModel)
-{	
-	ZoneScoped;
+void ModelExporterNode::SetModel(SceneModelWeak vSceneModel) {
+    ZoneScoped;
+    if (m_ModelExporterModulePtr) {
+        m_ModelExporterModulePtr->SetModel(vSceneModel);
+    }
+}
 
-	if (m_ModelExporterModulePtr)
-	{
-		m_ModelExporterModulePtr->SetModel(vSceneModel);
-	}
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// VARIABLE INPUT //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void ModelExporterNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+    ZoneScoped;
+    if (m_ModelExporterModulePtr) {
+        m_ModelExporterModulePtr->SetVariable(vVarIndex, vSceneVariable);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+SceneModelWeak ModelExporterNode::GetModel() {
+    ZoneScoped;
+
+    if (m_ModelExporterModulePtr) {
+        return m_ModelExporterModulePtr->GetModel();
+    }
+
+    return {};
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ModelExporterNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+std::string ModelExporterNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string res;
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_ModelExporterModulePtr)
-		{
-			res += m_ModelExporterModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_ModelExporterModulePtr) {
+            res += m_ModelExporterModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool ModelExporterNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+bool ModelExporterNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_ModelExporterModulePtr)
-	{
-		m_ModelExporterModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_ModelExporterModulePtr) {
+        m_ModelExporterModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	// continue recurse child exploring
-	return true;
+    // continue recurse child exploring
+    return true;
 }
 
-void ModelExporterNode::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void ModelExporterNode::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_ModelExporterModulePtr)
-	{
-		m_ModelExporterModulePtr->AfterNodeXmlLoading();
-	}
+    if (m_ModelExporterModulePtr) {
+        m_ModelExporterModulePtr->AfterNodeXmlLoading();
+    }
 }

@@ -20,9 +20,8 @@ limitations under the License.
 #include <LumoBackend/SceneGraph/SceneVariable.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-class LUMO_BACKEND_API VariableOutputInterface
-{
+class LUMO_BACKEND_API VariableOutputInterface {
 public:
-	// return a Variable
-	virtual SceneVariableWeak GetVariable(const uint32_t& vVariableIndex) = 0;
+    // return a Variable
+    virtual SceneVariableWeak GetVariable(const uint32_t& vVariableIndex) = 0;
 };

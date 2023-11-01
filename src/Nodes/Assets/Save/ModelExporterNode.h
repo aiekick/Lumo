@@ -17,11 +17,15 @@ limitations under the License.
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Interfaces/ModelOutputInterface.h>
+#include <LumoBackend/Interfaces/VariableInputInterface.h>
+
 class ModelExporterModule;
-class ModelExporterNode :
-	public ModelInputInterface,
-	public BaseNode
-{
+class ModelExporterNode : 
+	public ModelInputInterface, 
+	public ModelOutputInterface, 
+	public VariableInputInterface<0U>,
+	public BaseNode {
 public:
 	static std::shared_ptr<ModelExporterNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
@@ -34,6 +38,9 @@ public:
 
 	// Init / Unit
 	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+
+	//  Task
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 
 	// Draw Widgets
     bool DrawWidgets(const uint32_t& vCurrentFrame,
@@ -48,10 +55,13 @@ public:
         ImGuiContext* vContextPtr = nullptr,
         const std::string& vUserDatas = {}) override;
     void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+	
 	// Interfaces Setters
-	void SetModel(SceneModelWeak vSceneModel) override;
-
-
+    void SetModel(SceneModelWeak vSceneModel) override;
+    void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;
+	
+	// Interfaces Getters
+    SceneModelWeak GetModel() override;
 
 	// Configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

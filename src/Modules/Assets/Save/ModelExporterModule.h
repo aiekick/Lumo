@@ -22,13 +22,13 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
 #include <LumoBackend/Base/BaseRenderer.h>
 #include <LumoBackend/Base/QuadShaderPass.h>
+
+#include <ImGuiPack.h>
 
 #include <Gaia/gaia.h>
 #include <Gaia/Resources/Texture2D.h>
@@ -47,11 +47,16 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
+#include <LumoBackend/Interfaces/ModelOutputInterface.h>
+#include <LumoBackend/Interfaces/VariableInputInterface.h>
 
 class ModelExporterModule :
 	public NodeInterface,
+	public TaskInterface,
 	public conf::ConfigAbstract,
 	public ModelInputInterface,
+	public ModelOutputInterface, 
+	public VariableInputInterface<1U>, 
 	public GuiInterface
 {
 public:
@@ -60,11 +65,28 @@ public:
 private:
 	std::weak_ptr<ModelExporterModule> m_This;
 	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
-	std::string unique_SaveMeshFileDialog_id;
+    std::string unique_SaveMeshFileDialog_id;
+    std::string unique_SavePathFileDialog_id;
+    SceneModelWeak m_InputModel;
 	std::string m_FilePathName;
 	std::string m_FilePath;
-	std::string m_FileName;
-	SceneModelWeak m_InputModel;
+    std::string m_FileName;
+    bool m_ExportFrames = false;
+    float m_TimeStep = 0.1f;
+    std::string m_SketchFabTimeFrameFileContent;
+    uint32_t m_CurrentFrameToExport = 0U;
+    uint32_t m_LastSavedFrame = 0U;
+
+private: // to save
+    uint32_t m_FramesCountToExport = 10U;
+    ImWidgets::InputText m_InputTextPrefix;
+    ImWidgets::InputText m_InputTextSaveFilePathName;
+    uint32_t m_FramesCountToJump = 10U;
+    uint32_t m_FramesCountPerSec = 60U;
+    bool m_GenerateSketchFabTimeFrame = true;
+    bool m_ExportVertexColors = true;
+    bool m_ExportNormals = true;
+    bool m_AutoSaverEnabled = false;
 
 public:
 	ModelExporterModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
@@ -73,17 +95,26 @@ public:
 	bool Init();
 	void Unit();
 
+    bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
 	// Interfaces Setters
-	void SetModel(SceneModelWeak vSceneModel) override;
+    void SetModel(SceneModelWeak vSceneModel) override;
+    void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) override;
+
+    // Interfaces Getters
+    SceneModelWeak GetModel() override;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	void AfterNodeXmlLoading() override;
 
 private:
-	void SaveModel(const std::string& vFilePathName);
+	void m_SaveModel(const std::string& vFilePathName);
+    void m_StartAutoSave();
+    void m_StopAutoSave();
+    void m_AutoSaveModelIfNeeded(const uint32_t& vCurrentFrame);
 };

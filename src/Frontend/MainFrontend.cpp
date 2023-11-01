@@ -99,7 +99,7 @@ bool MainFrontend::init() {
     LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D Pane", "", PaneDisposal::LEFT, true, true);
     LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D Pane", "", PaneDisposal::LEFT, false, false);
     LayoutManager::Instance()->AddPane(ConsolePane::Instance(), "Console Pane", "", PaneDisposal::BOTTOM, false, false);
-    LayoutManager::Instance()->AddPane(AnimatePane::Instance(), "Animate Pane", "", PaneDisposal::BOTTOM, false, false);
+    // LayoutManager::Instance()->AddPane(AnimatePane::Instance(), "Animate Pane", "", PaneDisposal::BOTTOM, false, false);
 
     // InitPänes is done in m_InitPanes, because a specific order is needed
 
@@ -145,7 +145,9 @@ void MainFrontend::Display(const uint32_t& vCurrentFrame) {
             LayoutManager::Instance()->EndDockSpace();
         }
 
-        ImGui::SetPUSHID(LayoutManager::Instance()->DrawPanes(vCurrentFrame, context_ptr, {}));
+        if (LayoutManager::Instance()->DrawPanes(vCurrentFrame, context_ptr, {})) {
+            ProjectFile::Instance()->SetProjectChange();
+        }
 
         DrawDialogsAndPopups(vCurrentFrame, MainBackend::Instance()->GetDisplaySize(), context_ptr, {});
 
