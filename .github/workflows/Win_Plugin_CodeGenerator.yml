@@ -1,14 +1,11 @@
 name: Win Plugin CodeGenerator
 
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows:
-      - scheduled
+  push:
     branches:
     - master
-    types:
-      - requested
+    paths:
+    - 'Plugins/CodeGenerator/**'    
 
 jobs:
   build_Win_Plugin_CodeGenerator:
@@ -26,7 +23,7 @@ jobs:
         vulkan-components: Vulkan-Headers, Vulkan-Loader
         vulkan-use-cache: true
     - name: configure
-      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_CODE_GENERATOR=ON
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DPLUGIN_ENABLE_CODE_GENERATOR=ON
     - name: build
       run: cmake --build build --config Release -t CodeGenerator
     - name: upload artifact

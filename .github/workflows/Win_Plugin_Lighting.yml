@@ -1,17 +1,14 @@
-name: Win Plugin Core
+name: Win Plugin Lighting
 
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows:
-      - scheduled
+  push:
     branches:
     - master
-    types:
-      - requested
+    paths:
+    - 'Plugins/Lighting/**'    
 
 jobs:
-  build_Win_Plugin_Core:
+  build_Win_Plugin_Lighting:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -26,11 +23,11 @@ jobs:
         vulkan-components: Vulkan-Headers, Vulkan-Loader
         vulkan-use-cache: true
     - name: configure
-      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DUSE_PLUGIN_CORE=ON
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DPLUGIN_ENABLE_LIGHTING=ON
     - name: build
-      run: cmake --build build --config Release -t Core
+      run: cmake --build build --config Release -t Lighting
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Lumo Core
-        path: "bin/plugins/*Core*"
+        name: Lumo Lighting
+        path: "bin/plugins/*Lighting*"

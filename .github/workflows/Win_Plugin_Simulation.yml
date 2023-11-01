@@ -1,14 +1,14 @@
-name: Win Plugin PlanetSystem
+name: Win Plugin Simulation
 
 on:
   push:
     branches:
     - master
     paths:
-    - 'Plugins/PlanetSystem/**'    
+    - 'Plugins/Simulation/**'    
 
 jobs:
-  build_Win_Plugin_PlanetSystem:
+  build_Win_Plugin_Simulation:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -23,11 +23,11 @@ jobs:
         vulkan-components: Vulkan-Headers, Vulkan-Loader
         vulkan-use-cache: true
     - name: configure
-      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DPLUGIN_ENABLE_PLANET_SYSTEM=ON
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DPLUGIN_ENABLE_SIMULATION=ON
     - name: build
-      run: cmake --build build --config Release -t PlanetSystem
+      run: cmake --build build --config Release -t Simulation
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Lumo PlanetSystem
-        path: "bin/plugins/*PlanetSystem*"
+        name: Lumo Simulation
+        path: "bin/plugins/*Simulation*"

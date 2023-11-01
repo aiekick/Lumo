@@ -1,15 +1,16 @@
 name: Linux Lumo Debug Package
 
 on: 
-  workflow_dispatch:
-  workflow_run:
-    workflows:
-    - scheduled
+  push:
     branches:
     - master
-    types:
-    - requested
-
+    paths-ignore:
+    - 'bin/**'
+    - 'Plugins/**'
+    - '.github/**'
+    - 'doc/**'
+    - 'res/**'
+    
 jobs:
   build_Linux_Lumo:
     runs-on: ubuntu-latest
