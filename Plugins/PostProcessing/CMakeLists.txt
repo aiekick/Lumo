@@ -6,9 +6,9 @@ enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(PLUGIN_ENABLE_POST_PRECESSING "Enable the plugin Post Processing" OFF)
+option(PLUGIN_ENABLE_POST_PROCESSING "Enable the plugin Post Processing" OFF)
 
-if (PLUGIN_ENABLE_POST_PRECESSING)
+if (PLUGIN_ENABLE_POST_PROCESSING)
 
 set(LLVM_USE_CRT_DEBUG MDd CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_MINSIZEREL MD CACHE STRING "" FORCE)
@@ -162,4 +162,4 @@ add_custom_command(
 ########################################################
 ########################################################
 
-endif() #PLUGIN_ENABLE_POST_PRECESSING
+endif() #PLUGIN_ENABLE_POST_PROCESSING
