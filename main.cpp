@@ -65,10 +65,10 @@ void operator delete[](void* ptr) noexcept {
 
 int main(int argc, char** argv) {
 #ifdef _MSC_VER
-#ifdef _DEBUG
-    // active memory leak detector
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-#endif
+	#ifdef _DEBUG
+		// active memory leak detector
+		_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	#endif
 #endif
 
     ZoneScoped;
