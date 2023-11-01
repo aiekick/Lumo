@@ -3,12 +3,15 @@ name: Linux Lumo
 on: 
   workflow_dispatch:
   workflow_run:
-    workflows:
-    - scheduled
+  push:
     branches:
     - master
-    types:
-    - requested
+    paths-ignore:
+    - 'bin/**'
+    paths:
+    - src
+    - libs
+    - 3rdparty
 
 jobs:
   build_Linux_Lumo:
