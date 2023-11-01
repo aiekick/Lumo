@@ -23,3 +23,6 @@
 /bin/shaders/*.frag
 /bin/shaders/*.vert
 /bin/shaders/*.comp
+
+#plugins
+/Plugins/FunparadigmPlugins
