@@ -1,18 +1,16 @@
 name: Linux Lumo
 
-on: 
-  workflow_dispatch:
-  workflow_run:
+on:
   push:
     branches:
     - master
     paths-ignore:
     - 'bin/**'
     paths:
-    - src
-    - libs
-    - 3rdparty
-
+    - 'src/**'
+    - 'libs/**'
+    - '3rdparty/**'
+    
 jobs:
   build_Linux_Lumo:
     runs-on: ubuntu-latest

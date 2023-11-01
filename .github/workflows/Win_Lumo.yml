@@ -1,17 +1,15 @@
-name: Win Lumo
+name: Lumo
 
 on:
-  workflow_dispatch:
-  workflow_run:
   push:
     branches:
     - master
     paths-ignore:
     - 'bin/**'
     paths:
-    - src
-    - libs
-    - 3rdparty
+    - 'src/**'
+    - 'libs/**'
+    - '3rdparty/**'
   
 jobs:
   build_Win_Lumo:
