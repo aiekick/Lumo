@@ -3,15 +3,15 @@ name: Linux Lumo
 on: 
   workflow_dispatch:
   workflow_run:
-  push:
-    branches:
-    - master
-    paths-ignore:
-    - 'bin/**'
-    paths:
-    - src
-    - libs
-    - 3rdparty
+    push:
+      branches:
+      - master
+      paths-ignore:
+      - 'bin/**'
+      paths:
+      - src
+      - libs
+      - 3rdparty
 
 jobs:
   build_Linux_Lumo:
