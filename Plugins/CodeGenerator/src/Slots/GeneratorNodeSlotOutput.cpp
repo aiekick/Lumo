@@ -82,7 +82,7 @@ bool GeneratorNodeSlotOutput::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 		auto _place = NodeSlot::PlaceEnum::NONE;
 		uint32_t _pinId = 0U;
 		bool _hideName = false;
-		uint32_t _typeIndex = 0U;
+		//uint32_t _typeIndex = 0U;
 
 		for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next())
 		{

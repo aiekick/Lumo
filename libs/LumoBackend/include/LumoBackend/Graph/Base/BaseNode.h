@@ -526,9 +526,6 @@ private:  // graph states / action / drawings
     void DoCheckLinkPopup(BaseNodeState* vBaseNodeState);
     void DoNewNodePopup(BaseNodeState* vBaseNodeState);
 
-private: // task flow
-    void m_CreateTaskFlowSlots();
-
 private:  // node manipulation
     void DuplicateNode(uint32_t vNodeId, ImVec2 vOffsetPos);
 

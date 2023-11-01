@@ -175,10 +175,8 @@ public:
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 	void DrawContent(BaseNodeState* vBaseNodeState);
-    void DrawSlot(BaseNodeState* vBaseNodeState,                                      //
-        ImVec2 vSlotSize = ImVec2(SlotColor::slotIconSize, SlotColor::slotIconSize),  //
-        ImVec2 vSlotOffset = ImVec2());
-	
+    void DrawSlotAlone(BaseNodeState* vBaseNodeState);
+    	
 	bool IsAnInput();
 	bool IsAnOutput();
 
@@ -235,6 +233,9 @@ public:
 	void DrawDebugInfos();
 
 private:
+    void m_DrawSlot(BaseNodeState* vBaseNodeState,                                      //
+        ImVec2 vSlotSize = ImVec2(SlotColor::slotIconSize, SlotColor::slotIconSize),  //
+        ImVec2 vSlotOffset = ImVec2());
     void m_DrawInputWidget(BaseNodeState* vBaseNodeState);
     void m_DrawOutputWidget(BaseNodeState* vBaseNodeState);
     void m_DrawSlotText(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);

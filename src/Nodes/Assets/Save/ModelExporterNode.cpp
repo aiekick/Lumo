@@ -20,6 +20,7 @@ limitations under the License.
 #include "ModelExporterNode.h"
 #include <Modules/Assets/Save/ModelExporterModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -72,8 +73,9 @@ bool ModelExporterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	bool res = false;
 
 	name = "Model Exporter";
-	AddInput(NodeSlotModelInput::Create("Model"), false, false);
 
+	AddInput(NodeSlotModelInput::Create("Model"), false, false);
+    AddOutput(NodeSlotTaskOutput::Create("Task", false), false, false);
 
 	m_ModelExporterModulePtr = ModelExporterModule::Create(vVulkanCorePtr, m_This);
 	if (m_ModelExporterModulePtr)

@@ -1208,7 +1208,7 @@ ShaderPass::ShaderCode ShaderPass::CompilShaderCode(const vk::ShaderStageFlagBit
     shaderCode.m_Used = !shaderCode.m_Code.empty();
     if (shaderCode.m_Used) {
         if (!m_DontUseShaderFilesOnDisk) {
-            shaderCode.m_FilePathName = "shaders/" + shader_name + "." + ext;
+            shaderCode.m_FilePathName = "debug/shaders/" + shader_name + "." + ext;
             auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + shaderCode.m_FilePathName;
             if (FileHelper::Instance()->IsFileExist(shader_path, true)) {
                 shaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path, true);
@@ -1285,7 +1285,7 @@ ShaderPass::ShaderCode ShaderPass::CompilShaderCode(const vk::ShaderStageFlagBit
 
     if (shaderCode.m_Used) {
         if (!m_DontUseShaderFilesOnDisk) {
-            shaderCode.m_FilePathName = "shaders/" + shader_name + "." + ext;
+            shaderCode.m_FilePathName = "debug/shaders/" + shader_name + "." + ext;
             auto shader_path = FileHelper::Instance()->GetAppPath() + "/" + shaderCode.m_FilePathName;
             if (FileHelper::Instance()->IsFileExist(shader_path, true)) {
                 shaderCode.m_Code = FileHelper::Instance()->LoadFileToString(shader_path, true);

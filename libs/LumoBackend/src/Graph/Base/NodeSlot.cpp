@@ -260,7 +260,7 @@ void NodeSlot::DrawContent(BaseNodeState* vBaseNodeState) {
                 nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
                 nd::PinPivotSize(ImVec2(0, 0));
 
-                DrawSlot(vBaseNodeState, ImVec2(SlotColor::slotIconSize, SlotColor::slotIconSize));
+                m_DrawSlot(vBaseNodeState);
 
                 if (showWidget) {
                     m_DrawInputWidget(vBaseNodeState);
@@ -291,7 +291,7 @@ void NodeSlot::DrawContent(BaseNodeState* vBaseNodeState) {
                 nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
                 nd::PinPivotSize(ImVec2(0, 0));
 
-                DrawSlot(vBaseNodeState, ImVec2(SlotColor::slotIconSize, SlotColor::slotIconSize));
+                m_DrawSlot(vBaseNodeState);
 
                 ImGui::EndHorizontal();
             }
@@ -300,7 +300,39 @@ void NodeSlot::DrawContent(BaseNodeState* vBaseNodeState) {
     }
 }
 
-void NodeSlot::DrawSlot(BaseNodeState* vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset) {
+void NodeSlot::DrawSlotAlone(BaseNodeState* vBaseNodeState) {
+    if (vBaseNodeState && !hidden) {
+        if (slotPlace == NodeSlot::PlaceEnum::INPUT) {
+            nd::BeginPin(pinID, nd::PinKind::Input);
+            {
+                ImGui::BeginHorizontal(pinID.AsPointer());
+
+                nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
+                nd::PinPivotSize(ImVec2(0, 0));
+
+                m_DrawSlot(vBaseNodeState);
+
+                ImGui::EndHorizontal();
+            }
+            nd::EndPin();
+        } else if (slotPlace == NodeSlot::PlaceEnum::OUTPUT) {
+            nd::BeginPin(pinID, nd::PinKind::Output);
+            {
+                ImGui::BeginHorizontal(pinID.AsPointer());
+
+                nd::PinPivotAlignment(ImVec2(0.0f, 0.5f));
+                nd::PinPivotSize(ImVec2(0, 0));
+
+                m_DrawSlot(vBaseNodeState);
+
+                ImGui::EndHorizontal();
+            }
+            nd::EndPin();
+        }
+    }
+}
+
+void NodeSlot::m_DrawSlot(BaseNodeState* vBaseNodeState, ImVec2 vSlotSize, ImVec2 vSlotOffset) {
     if (vBaseNodeState) {
         ImGui::Dummy(vSlotSize);
 

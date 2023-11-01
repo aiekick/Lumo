@@ -60,6 +60,7 @@ int App::run(int /*argc*/, char** argv) {
 
 #ifdef _DEBUG
     FileHelper::Instance()->CreateDirectoryIfNotExist("debug");
+    FileHelper::Instance()->CreateDirectoryIfNotExist("debug/shaders");
 #endif
 
     FileHelper::Instance()->CreateDirectoryIfNotExist("shaders");

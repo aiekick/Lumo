@@ -197,13 +197,11 @@ BaseNode::~BaseNode() {
 bool BaseNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
     m_VulkanCorePtr = vVulkanCorePtr;
     InitGraph(m_Style);
-    m_CreateTaskFlowSlots();
     return true;
 }
 
 bool BaseNode::Init(const BaseNodeWeak& vThis) {
     m_This = vThis;
-    m_CreateTaskFlowSlots();
     return true;
 }
 
@@ -211,7 +209,6 @@ bool BaseNode::Init(const std::string& vCode, const BaseNodeWeak& vThis) {
     UNUSED(vCode);
     m_This = vThis;
     InitGraph(m_Style);
-    m_CreateTaskFlowSlots();
     return true;
 }
 
@@ -667,15 +664,9 @@ bool BaseNode::DrawHeader(BaseNodeState* vBaseNodeState) {
     UNUSED(vBaseNodeState);
 
     ImGui::BeginHorizontal("header");
-    if (m_InputTaskPtr != nullptr) {
-        m_InputTaskPtr->DrawSlot(vBaseNodeState);
-    }
     ImGui::Spring(1, 5.0f);
     ImGui::TextUnformatted(name.c_str());
     ImGui::Spring(1, 5.0f);
-    if (m_InputTaskPtr != nullptr) {
-        m_OutputTaskPtr->DrawSlot(vBaseNodeState);
-    }
     // ImGui::Dummy(ImVec2(0, 24));
     ImGui::EndHorizontal();
 
@@ -1458,21 +1449,6 @@ void BaseNode::DoNewNodePopup(BaseNodeState* vBaseNodeState) {
     } else {
         // NodeLibrary::Instance()->ShowNewNodeMenu(NodeLibrary::NodeLibraryTypeEnum::LIBRARY_TYPE_BLUEPRINT, m_This);
     }
-}
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-void BaseNode::m_CreateTaskFlowSlots() {
-    assert(!m_This.expired());
-
-    m_InputTaskPtr = NodeSlotTaskInput::Create("InputTaskFlow", true);
-    m_InputTaskPtr->parentNode = m_This;
-    m_InputTaskPtr->index = 0U;
-
-    m_OutputTaskPtr = NodeSlotTaskOutput::Create("OuputTaskFlow", true);
-    m_OutputTaskPtr->parentNode = m_This;
-    m_OutputTaskPtr->index = 0U;
 }
 
 //////////////////////////////////////////////////////////////////////////////
