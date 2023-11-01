@@ -1,4 +1,4 @@
-name: Lumo
+name: Win Lumo
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
     - master
     paths-ignore:
     - 'bin/**'
-    paths:
-    - 'src/**'
-    - 'libs/**'
-    - '3rdparty/**'
+    - 'Plugins/**'
+    - '.github/**'
+    - 'doc/**'
+    - 'res/**'
   
 jobs:
   build_Win_Lumo:
