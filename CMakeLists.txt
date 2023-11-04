@@ -333,11 +333,6 @@ install(FILES ${CMAKE_SOURCE_DIR}/LICENSE DESTINATION .	COMPONENT APP_FILES)
 install(FILES ${CMAKE_SOURCE_DIR}/VERSION DESTINATION .	COMPONENT APP_FILES OPTIONAL)
 install(FILES ${CMAKE_SOURCE_DIR}/CHANGELOG DESTINATION . COMPONENT APP_FILES OPTIONAL)
 
-### install is done in each plugins now
-### FOREACH(PLUGIN ${LOADED_LUMO_PLUGINS})
-### 	install(IMPORTED_RUNTIME_ARTIFACTS ${PLUGIN} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PLUGIN})	
-### ENDFOREACH()
-
 #############################################################
 ### PACKAGE #################################################
 ## https://gitlab.kitware.com/cmake/community/-/wikis/doc/cpack/Component-Install-With-CPack
