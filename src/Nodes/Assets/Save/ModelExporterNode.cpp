@@ -91,9 +91,12 @@ bool ModelExporterNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 
     bool res = false;
 
-    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
-
     if (m_ModelExporterModulePtr) {
+        if (!m_ModelExporterModulePtr->isPreviewModeEnabled() ||  //
+            !m_ModelExporterModulePtr->isPreviewModeStarted() ||  //
+            m_ModelExporterModulePtr->isExportModeRunning()) {
+            BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+        }
         res = m_ModelExporterModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }
 

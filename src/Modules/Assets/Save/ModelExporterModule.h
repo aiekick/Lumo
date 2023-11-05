@@ -72,6 +72,7 @@ private:
 	std::string m_FilePath;
     std::string m_FileName;
     bool m_ExportFrames = false;
+    bool m_PreviewStarted = false;
     float m_TimeStep = 0.1f;
     std::string m_SketchFabTimeFrameFileContent;
     uint32_t m_CurrentFrameToExport = 0U;
@@ -87,6 +88,7 @@ private: // to save
     bool m_ExportVertexColors = true;
     bool m_ExportNormals = true;
     bool m_AutoSaverEnabled = false;
+    bool m_AutoSaverPreviewEnabled = false;
 
 public:
 	ModelExporterModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
@@ -111,6 +113,16 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	void AfterNodeXmlLoading() override;
+
+    bool isPreviewModeEnabled() {
+        return m_AutoSaverPreviewEnabled;
+    }
+    bool isPreviewModeStarted() {
+        return m_PreviewStarted;
+    }
+    bool isExportModeRunning() {
+        return m_ExportFrames;
+    }
 
 private:
 	void m_SaveModel(const std::string& vFilePathName);

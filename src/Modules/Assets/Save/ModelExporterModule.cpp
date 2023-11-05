@@ -136,25 +136,31 @@ bool ModelExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
         }
         if (m_FramesCountToExport) {
             float ratio = (float)m_CurrentFrameToExport / (float)m_FramesCountToExport;
-            ImGui::ProgressBar(ratio, ImVec2(100.0f, 0.0f));
+            const auto& str = ct::toStr("%u/%u frames", m_CurrentFrameToExport, m_FramesCountToExport);
+            ImGui::ProgressBar(ratio, ImVec2(-1.0f, 0.0f), str.c_str());
         }
     } else {
-        change |= ImGui::Checkbox("Enabel atuo save", &m_AutoSaverEnabled);
-        if (m_AutoSaverEnabled) {
+        change |= ImGui::Checkbox("auto save preview enabled", &m_AutoSaverPreviewEnabled);
+        if (!m_AutoSaverPreviewEnabled) {
+            change |= ImGui::Checkbox("auto save enabled", &m_AutoSaverEnabled);
+        }
+        if (m_AutoSaverEnabled || m_AutoSaverPreviewEnabled) {
             change |= ImGui::InputUIntDefault(200.0f, "frames to export", &m_FramesCountToExport, 1, 10, 1);
             change |= ImGui::InputUIntDefault(200.0f, "frames to jump", &m_FramesCountToJump, 1, 10, 1);
             if (ImGui::InputUIntDefault(200.0f, "frames per sec", &m_FramesCountPerSec, 1, 10, 1)) {
                 m_FramesCountPerSec = ct::maxi(m_FramesCountPerSec, 1U);
                 change = true;
             }
-            change |= m_InputTextPrefix.DisplayInputText(0.0f, "Postfix", "_frame_");
-            change |= ImGui::Checkbox("Generate SketchFab TimeFrame", &m_GenerateSketchFabTimeFrame);
-            change |= m_InputTextSaveFilePathName.DisplayInputText(0.0f, "File path name", "test.ply");
-            change |= ImGui::CheckBoxBoolDefault("Export Normals", &m_ExportNormals, true);
-            change |= ImGui::CheckBoxBoolDefault("Export Vertexs Color", &m_ExportVertexColors, true);
-            if (ImGui::ContrastedButton("Set 3D file path name")) {
-                ImGuiFileDialog::Instance()->OpenDialog(
-                    unique_SavePathFileDialog_id, "Save 3D File", ".ply,.dae", m_FilePath, m_FilePathName, 1, nullptr, ImGuiFileDialogFlags_Modal);
+            if (m_AutoSaverEnabled) {
+                change |= m_InputTextPrefix.DisplayInputText(0.0f, "Postfix", "_frame_");
+                change |= ImGui::Checkbox("Generate SketchFab TimeFrame", &m_GenerateSketchFabTimeFrame);
+                change |= m_InputTextSaveFilePathName.DisplayInputText(0.0f, "File path name", "test.ply");
+                change |= ImGui::CheckBoxBoolDefault("Export Normals", &m_ExportNormals, true);
+                change |= ImGui::CheckBoxBoolDefault("Export Vertexs Color", &m_ExportVertexColors, true);
+                if (ImGui::ContrastedButton("Set 3D file path name")) {
+                    ImGuiFileDialog::Instance()->OpenDialog(unique_SavePathFileDialog_id, "Save 3D File", ".ply,.dae", m_FilePath, m_FilePathName, 1,
+                        nullptr, ImGuiFileDialogFlags_Modal);
+                }
             }
             if (ImGui::ContrastedButton("Start Auto Saver")) {
                 m_StartAutoSave();
@@ -168,6 +174,10 @@ bool ModelExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
         // tofix : gltf export crash ...
         ImGuiFileDialog::Instance()->OpenDialog(
             unique_SaveMeshFileDialog_id, "Save 3D File", ".ply,.dae", m_FilePath, m_FilePathName, 1, nullptr, ImGuiFileDialogFlags_Modal);
+    }
+
+    if (change) {
+        m_PreviewStarted = false;
     }
 
     return change;
@@ -259,6 +269,7 @@ std::string ModelExporterModule::getXml(const std::string& vOffset, const std::s
     str += vOffset + "<export_vertexs_color>" + (m_ExportVertexColors ? "true" : "false") + "</export_vertexs_color>\n";
     str += vOffset + "<export_normals>" + (m_ExportNormals ? "true" : "false") + "</export_normals>\n";
     str += vOffset + "<auto_saver_enabled>" + (m_AutoSaverEnabled ? "true" : "false") + "</auto_saver_enabled>\n";
+    str += vOffset + "<auto_saver_preview_enabled>" + (m_AutoSaverPreviewEnabled ? "true" : "false") + "</auto_saver_preview_enabled>\n";
     str += vOffset + "<postfix>" + m_InputTextPrefix.GetText() + "</postfix>\n";
     str += vOffset + "<file_save>" + m_InputTextSaveFilePathName.GetText() + "</file_save>\n";
     str += vOffset + "</model_exporter_module>\n";
@@ -295,6 +306,8 @@ bool ModelExporterModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLE
             m_ExportNormals = ct::ivariant(strValue).GetB();
         } else if (strName == "auto_saver_enabled") {
             m_AutoSaverEnabled = ct::ivariant(strValue).GetB();
+        } else if (strName == "auto_saver_preview_enabled") {
+            m_AutoSaverPreviewEnabled = ct::ivariant(strValue).GetB();
         } else if (strName == "postfix") {
             m_InputTextPrefix.SetText(strValue);
         } else if (strName == "file_save") {
@@ -483,8 +496,9 @@ void ModelExporterModule::m_SaveModel(const std::string& vFilePathName) {
 }
 
 void ModelExporterModule::m_StartAutoSave() {
-    if (m_AutoSaverEnabled && !m_ExportFrames && m_FramesCountToExport) {
+    if ((m_AutoSaverEnabled || m_AutoSaverPreviewEnabled) && !m_ExportFrames && m_FramesCountToExport) {
         m_ExportFrames = true;
+        m_PreviewStarted = true;
         m_TimeStep = (float)m_FramesCountToJump / (float)m_FramesCountPerSec;
         m_CurrentFrameToExport = 0U;
         m_SketchFabTimeFrameFileContent.clear();
@@ -494,6 +508,9 @@ void ModelExporterModule::m_StartAutoSave() {
 
 void ModelExporterModule::m_StopAutoSave() {
     m_ExportFrames = false;
+    if (!m_AutoSaverPreviewEnabled) {
+        m_PreviewStarted = false;
+    }
     if (m_GenerateSketchFabTimeFrame) {
         auto ps = FileHelper::Instance()->ParsePathFileName(m_InputTextSaveFilePathName.GetText());
         if (ps.isOk) {
@@ -507,17 +524,19 @@ void ModelExporterModule::m_AutoSaveModelIfNeeded(const uint32_t& vCurrentFrame)
     if (m_ExportFrames) {
         if (m_CurrentFrameToExport < m_FramesCountToExport) {
             if ((m_LastSavedFrame + m_FramesCountToJump) <= vCurrentFrame) {
-                auto ps = FileHelper::Instance()->ParsePathFileName(m_InputTextSaveFilePathName.GetText());
-                if (ps.isOk) {
-                    const auto& file_name = ps.name + "_" + m_InputTextPrefix.GetText() + "_" + ct::toStr("%u", m_CurrentFrameToExport);
-                    const auto& file_path_name = ps.GetFPNE_WithName(file_name);                                         
-                    m_SaveModel(file_path_name);
-                    m_LastSavedFrame = vCurrentFrame;
-                    ++m_CurrentFrameToExport;
-                    if (m_GenerateSketchFabTimeFrame) {
-                        m_SketchFabTimeFrameFileContent += ct::toStr("%.5f %s.%s\n", m_TimeStep, file_name.c_str(), ps.ext.c_str());
+                if (!m_AutoSaverPreviewEnabled) {
+                    auto ps = FileHelper::Instance()->ParsePathFileName(m_InputTextSaveFilePathName.GetText());
+                    if (ps.isOk) {
+                        const auto& file_name = ps.name + "_" + m_InputTextPrefix.GetText() + "_" + ct::toStr("%u", m_CurrentFrameToExport);
+                        const auto& file_path_name = ps.GetFPNE_WithName(file_name);
+                        m_SaveModel(file_path_name);
+                        if (m_GenerateSketchFabTimeFrame) {
+                            m_SketchFabTimeFrameFileContent += ct::toStr("%.5f %s.%s\n", m_TimeStep, file_name.c_str(), ps.ext.c_str());
+                        }
                     }
                 }
+                m_LastSavedFrame = vCurrentFrame;
+                ++m_CurrentFrameToExport;
             }
             NeedNewExecution();
         } else {
