@@ -1,0 +1,179 @@
+<config>
+	<project>
+		<CommonSystem>
+			<TargetXYZ>0;0;0</TargetXYZ>
+			<TargetXYZLock>1;1;0</TargetXYZLock>
+			<TransXY>0;0</TransXY>
+			<TransXYLock>1;1</TransXYLock>
+			<TransFactor>5</TransFactor>
+			<RotXYZ>-0.336609;-0.010849;0</RotXYZ>
+			<RotXYZLock>0;0;1</RotXYZLock>
+			<RotXYZFactor>1</RotXYZFactor>
+			<Zoom>23.9442</Zoom>
+			<ZoomLock>0</ZoomLock>
+			<ZoomFactor>5</ZoomFactor>
+			<PerspectiveAngle>45</PerspectiveAngle>
+			<CamFar>1000</CamFar>
+			<CameraType>0</CameraType>
+			<CameraType>0</CameraType>
+			<CameraMode>0</CameraMode>
+		</CommonSystem>
+		<scene>
+			<graph>
+				<canvas>
+					<offset>0;0</offset>
+					<scale>1</scale>
+				</canvas>
+				<nodes>
+					<node name="Mesh Sim" type="COMPUTE_MESH_SIM" pos="-651;-149" id="40238">
+						<slot index="0" name="Model" type="MESH" place="INPUT" id="40242"/>
+						<slot index="0" name="Model" type="MESH" place="OUTPUT" id="40246"/>
+						<slot index="1" name="Just Painted" type="WIDGET_BOOLEAN" place="OUTPUT" id="40250"/>
+						<compute_mesh_sim>
+							<can_we_render>true</can_we_render>
+							<mouse_radius>0.05</mouse_radius>
+							<mouse_inversion>0</mouse_inversion>
+							<grayscott_diffusion_u>0.21</grayscott_diffusion_u>
+							<grayscott_diffusion_v>0.105</grayscott_diffusion_v>
+							<grayscott_feed>0.026</grayscott_feed>
+							<grayscott_kill>0.051</grayscott_kill>
+							<displacement>0.9</displacement>
+							<iterations_count>20</iterations_count>
+							<simulation_config>1</simulation_config>
+						</compute_mesh_sim>
+					</node>
+					<node name="Model" type="MESH" pos="-783;-25" id="21986">
+						<slot index="0" name="Output" type="MESH" place="OUTPUT" id="21990"/>
+						<mesh_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Model Renderer" type="MODEL_RENDERER" pos="16;-37" id="52603">
+						<slot index="0" name="Mesh" type="MESH" place="INPUT" id="52606"/>
+						<slot index="0" name="" type="TEXTURE_2D" place="OUTPUT" id="52609"/>
+						<slot index="1" name="Output" type="SHADER_PASS" place="OUTPUT" id="52613"/>
+						<model_renderer_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<display_mode>3</display_mode>
+							<line_thickness>1</line_thickness>
+							<point_size>1</point_size>
+							<show_layer>5</show_layer>
+							<use_indices_restriction>false</use_indices_restriction>
+							<restricted_indices_count_to_draw>362016</restricted_indices_count_to_draw>
+						</model_renderer_module>
+					</node>
+					<node name="Texture 2D" type="TEXTURE_2D" pos="-570;-50" id="60990">
+						<slot index="0" name="Output" type="TEXTURE_2D" place="OUTPUT" id="60994"/>
+						<texture_2d_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\thuglee-chrome-02b.jpg</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
+						</texture_2d_module>
+					</node>
+					<node name="ReColorize" type="RECOLORIZE" pos="-407;-44" id="57542">
+						<slot index="0" name="Model" type="MESH" place="INPUT" id="57545"/>
+						<slot index="1" name="Color 0" type="TEXTURE_2D" place="INPUT" id="57548"/>
+						<slot index="2" name="Color 1" type="TEXTURE_2D" place="INPUT" id="57551"/>
+						<slot index="0" name="" type="MESH" place="OUTPUT" id="57554"/>
+						<recolorize_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<strength>2</strength>
+							<smoothness>0.5</smoothness>
+							<inversion>0</inversion>
+						</recolorize_module>
+					</node>
+					<node name="Model Exporter" type="MODEL_EXPORTER" pos="-234;-34" id="68080">
+						<slot index="0" name="Model" type="MESH" place="INPUT" id="68083"/>
+						<slot index="1" name="Start saver" type="WIDGET_BOOLEAN" place="INPUT" id="68086"/>
+						<slot index="0" name="Model" type="MESH" place="OUTPUT" id="68089"/>
+						<model_exporter_module>
+						<frames_to_export>100</frames_to_export>
+						<frames_to_jump>3</frames_to_jump>
+						<frames_per_secs>30</frames_per_secs>
+						<generate_sketchfab_timeframe>true</generate_sketchfab_timeframe>
+						<export_vertexs_color>true</export_vertexs_color>
+						<export_normals>false</export_normals>
+						<auto_saver_enabled>false</auto_saver_enabled>
+						<auto_saver_preview_enabled>true</auto_saver_preview_enabled>
+						<postfix>frame</postfix>
+						<file_save>C:\Gamedev\gitlab\Lumo\bin\exports\beethoven.dae</file_save>
+						</model_exporter_module>
+					</node>
+					<node name="Mesh Sim" type="MESH_SIM_RENDERER" pos="-250;65" id="71703">
+						<slot index="0" name="Model" type="MESH" place="INPUT" id="71707"/>
+						<slot index="1" name="Substance R" type="TEXTURE_2D" place="INPUT" id="71711"/>
+						<slot index="2" name="Substance G" type="TEXTURE_2D" place="INPUT" id="71715"/>
+						<slot index="3" name="Discard" type="WIDGET_BOOLEAN" place="INPUT" id="71719"/>
+						<slot index="4" name="Inversion" type="WIDGET_BOOLEAN" place="INPUT" id="71723"/>
+						<slot index="0" name="Position" type="TEXTURE_2D" place="OUTPUT" id="71727"/>
+						<slot index="1" name="Normal" type="TEXTURE_2D" place="OUTPUT" id="71731"/>
+						<slot index="2" name="Color" type="TEXTURE_2D" place="OUTPUT" id="71735"/>
+						<slot index="3" name="Depth" type="TEXTURE_2D" place="OUTPUT" id="71739"/>
+						<slot index="4" name="Mask" type="TEXTURE_2D" place="OUTPUT" id="71743"/>
+						<mesh_sim_renderer>
+							<can_we_render>true</can_we_render>
+							<displace>0</displace>
+							<show_wire_frame>false</show_wire_frame>
+							<show_layer>0</show_layer>
+							<substance_strength>1.5</substance_strength>
+							<show_face_normal>false</show_face_normal>
+							<discard_values>false</discard_values>
+							<inversion>false</inversion>
+						</mesh_sim_renderer>
+					</node>
+					<node name="Texture 2D" type="TEXTURE_2D" pos="-570;64" id="59656">
+						<slot index="0" name="Output" type="TEXTURE_2D" place="OUTPUT" id="59660"/>
+						<texture_2d_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\JG_Gold.png</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
+						</texture_2d_module>
+					</node>
+				</nodes>
+				<links>
+					<link in="21986:21990" out="40238:40242"/>
+					<link in="57542:57545" out="40238:40246"/>
+					<link in="59656:59660" out="57542:57551"/>
+					<link in="60990:60994" out="57542:57548"/>
+					<link in="68080:68086" out="40238:40250"/>
+					<link in="60990:60994" out="71703:71711"/>
+					<link in="59656:59660" out="71703:71715"/>
+					<link in="40238:40246" out="71703:71707"/>
+					<link in="57542:57554" out="68080:68083"/>
+					<link in="68080:68089" out="52603:52606"/>
+				</links>
+				<outputs>
+					<output type="left" ids="52603:52609"/>
+				</outputs>
+			</graph>
+		</scene>
+		<plugins>
+			<BluePrints>
+			</BluePrints>
+			<CodeGenerator>
+				<custom_types>
+				</custom_types>
+				<root_path></root_path>
+				<scene>
+				</scene>
+			</CodeGenerator>
+			<Lighting>
+			</Lighting>
+			<MeshGen>
+			</MeshGen>
+			<MeshSim>
+			</MeshSim>
+			<Misc>
+			</Misc>
+			<PostProcessing>
+			</PostProcessing>
+			<Simulation>
+			</Simulation>
+		</plugins>
+	</project>
+</config>
