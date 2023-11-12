@@ -29,7 +29,7 @@ public:
 		"None",
         "Task",
         "Model",
-		"Custom"
+		"Custom",
         "Texture",
         "Variable",
         "LightGroup",

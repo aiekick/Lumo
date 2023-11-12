@@ -32,9 +32,8 @@
 #include <Nodes/Renderers/DeferredRendererNode.h>
 #include <Nodes/Renderers/PBRRendererNode.h>
 
-#include <Nodes/Utils/DepthToPosNode.h>
+#include <Nodes/Utils/DepthConvNode.h>
 #include <Nodes/Utils/PosToDepthNode.h>
-#include <Nodes/Utils/MeshAttributesNode.h>
 #include <Nodes/Utils/FlatGradientNode.h>
 
 // needed for plugin creating / destroying
@@ -112,87 +111,83 @@ std::vector<std::string> Lighting::GetNodes() const {
 std::vector<LibraryEntry> Lighting::GetLibrary() const {
     std::vector<LibraryEntry> res;
 
-    res.push_back(AddLibraryEntry("2D/Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
+    res.push_back(AddLibraryEntry("Breaks", "Break Textures 2D Group", "BREAK_TEXTURE_2D_GROUP"));
 
-    res.push_back(AddLibraryEntry("3D/Lighting", "Lights", "LIGHT_GROUP"));
-    res.push_back(AddLibraryEntry("3D/Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING"));
-    res.push_back(AddLibraryEntry("3D/Lighting/Shadow", "Model Shadow", "MODEL_SHADOW"));
-    res.push_back(AddLibraryEntry("3D/Lighting", "Diffuse", "DIFFUSE"));
-    res.push_back(AddLibraryEntry("3D/Lighting", "Reflection", "REFLECTION"));
-    res.push_back(AddLibraryEntry("3D/Lighting", "Refraction", "REFRACTION"));
-    res.push_back(AddLibraryEntry("3D/Lighting", "Specular", "SPECULAR"));
-    res.push_back(AddLibraryEntry("3D/Lighting", "SSAO", "SSAO"));
-    res.push_back(AddLibraryEntry("3D/Lighting", "Cell Shading", "CELL_SHADING"));
+    res.push_back(AddLibraryEntry("Lighting", "Lights", "LIGHT_GROUP"));
+    res.push_back(AddLibraryEntry("Lighting/Shadow", "Shadow Mapping", "SHADOW_MAPPING"));
+    res.push_back(AddLibraryEntry("Lighting/Shadow", "Model Shadow", "MODEL_SHADOW"));
+    res.push_back(AddLibraryEntry("Lighting/Effects", "Diffuse", "DIFFUSE"));
+    res.push_back(AddLibraryEntry("Lighting/Effects", "Reflection", "REFLECTION"));
+    res.push_back(AddLibraryEntry("Lighting/Effects", "Refraction", "REFRACTION"));
+    res.push_back(AddLibraryEntry("Lighting/Effects", "Specular", "SPECULAR"));
+    res.push_back(AddLibraryEntry("Lighting/Effects", "Cell Shading", "CELL_SHADING"));
 
-    res.push_back(AddLibraryEntry("3D/Preview", "CubeMap Preview", "CUBE_MAP_PREVIEW"));
-    res.push_back(AddLibraryEntry("3D/Preview", "LongLat Preview", "LONG_LAT_PREVIEW"));
+    res.push_back(AddLibraryEntry("Preview", "CubeMap Preview", "CUBE_MAP_PREVIEW"));
+    res.push_back(AddLibraryEntry("Preview", "LongLat Preview", "LONG_LAT_PREVIEW"));
 
-    res.push_back(AddLibraryEntry("2D/Exporter", "Texture Group 2D Exporter", "TEXTURE_2D_GROUP_EXPORTER"));
+    res.push_back(AddLibraryEntry("Exporter", "Texture Group 2D Exporter", "TEXTURE_2D_GROUP_EXPORTER"));
 
-    res.push_back(AddLibraryEntry("3D/Renderers", "Deferred", "DEFERRED_RENDERER"));
-    res.push_back(AddLibraryEntry("3D/Renderers", "PBR", "PBR_RENDERER"));
-    res.push_back(AddLibraryEntry("3D/Renderers", "Billboard", "BILLBOARD_RENDERER"));
+    res.push_back(AddLibraryEntry("Renderers", "Deferred", "DEFERRED_RENDERER"));
+    res.push_back(AddLibraryEntry("Renderers", "PBR", "PBR_RENDERER"));
+    res.push_back(AddLibraryEntry("Renderers", "Billboard", "BILLBOARD_RENDERER"));
 
-    res.push_back(AddLibraryEntry("3D/Utils", "3D Model Attributes", "MESH_ATTRIBUTES"));
-    res.push_back(AddLibraryEntry("3D/Utils", "Depth to Pos", "DEPTH_TO_POS"));
-    res.push_back(AddLibraryEntry("3D/Utils", "Pos to Depth", "POS_TO_DEPTH"));
-    res.push_back(AddLibraryEntry("2D/Utils", "Flat gradients", "FLAT_GRADIENT"));
+    res.push_back(AddLibraryEntry("Utils", "Depth Conversion", "DEPTH_CONVERSION"));
+    res.push_back(AddLibraryEntry("Utils", "Pos to Depth", "POS_TO_DEPTH"));
+    res.push_back(AddLibraryEntry("Utils", "Flat gradients", "FLAT_GRADIENT"));
 
     return res;
 }
 
 BaseNodePtr Lighting::CreatePluginNode(const std::string& vPluginNodeName) {
-    auto vkLightingPtr = m_VulkanCoreWeak.lock();
+    auto vkCorePtr = m_VulkanCoreWeak.lock();
 
     // Divers
     if (vPluginNodeName == "BREAK_TEXTURE_2D_GROUP")
-        return BreakTexturesGroupNode::Create(vkLightingPtr);
+        return BreakTexturesGroupNode::Create(vkCorePtr);
 
     // Exporters
     else if (vPluginNodeName == "TEXTURE_2D_GROUP_EXPORTER")
-        return TextureGroupExporterNode::Create(vkLightingPtr);
+        return TextureGroupExporterNode::Create(vkCorePtr);
 
     // Lighting
     else if (vPluginNodeName == "LIGHT_GROUP")
-        return LightGroupNode::Create(vkLightingPtr);
+        return LightGroupNode::Create(vkCorePtr);
     else if (vPluginNodeName == "SHADOW_MAPPING")
-        return ShadowMapNode::Create(vkLightingPtr);
+        return ShadowMapNode::Create(vkCorePtr);
     else if (vPluginNodeName == "MODEL_SHADOW")
-        return ModelShadowNode::Create(vkLightingPtr);
+        return ModelShadowNode::Create(vkCorePtr);
     else if (vPluginNodeName == "DIFFUSE")
-        return DiffuseNode::Create(vkLightingPtr);
+        return DiffuseNode::Create(vkCorePtr);
     else if (vPluginNodeName == "REFLECTION")
-        return ReflectionNode::Create(vkLightingPtr);
+        return ReflectionNode::Create(vkCorePtr);
     else if (vPluginNodeName == "REFRACTION")
-        return RefractionNode::Create(vkLightingPtr);
+        return RefractionNode::Create(vkCorePtr);
     else if (vPluginNodeName == "SPECULAR")
-        return SpecularNode::Create(vkLightingPtr);
+        return SpecularNode::Create(vkCorePtr);
     else if (vPluginNodeName == "CELL_SHADING")
-        return CellShadingNode::Create(vkLightingPtr);
+        return CellShadingNode::Create(vkCorePtr);
 
     // Preview
     else if (vPluginNodeName == "DEFERRED_RENDERER")
-        return DeferredRendererNode::Create(vkLightingPtr);
+        return DeferredRendererNode::Create(vkCorePtr);
     else if (vPluginNodeName == "PBR_RENDERER")
-        return PBRRendererNode::Create(vkLightingPtr);
+        return PBRRendererNode::Create(vkCorePtr);
     else if (vPluginNodeName == "BILLBOARD_RENDERER")
-        return BillBoardRendererNode::Create(vkLightingPtr);
+        return BillBoardRendererNode::Create(vkCorePtr);
 
     // Renderers
     else if (vPluginNodeName == "CUBE_MAP_PREVIEW")
-        return CubeMapPreviewNode::Create(vkLightingPtr);
+        return CubeMapPreviewNode::Create(vkCorePtr);
     else if (vPluginNodeName == "LONG_LAT_PREVIEW")
-        return LongLatPeviewNode::Create(vkLightingPtr);
+        return LongLatPeviewNode::Create(vkCorePtr);
 
     // Utils
-    else if (vPluginNodeName == "DEPTH_TO_POS")
-        return DepthToPosNode::Create(vkLightingPtr);
-    else if (vPluginNodeName == "MESH_ATTRIBUTES")
-        return MeshAttributesNode::Create(vkLightingPtr);
+    else if (vPluginNodeName == "DEPTH_CONVERSION")
+        return DepthConvNode::Create(vkCorePtr);
     else if (vPluginNodeName == "POS_TO_DEPTH")
-        return PosToDepthNode::Create(vkLightingPtr);
+        return PosToDepthNode::Create(vkCorePtr);
     else if (vPluginNodeName == "FLAT_GRADIENT")
-        return FlatGradientNode::Create(vkLightingPtr);
+        return FlatGradientNode::Create(vkCorePtr);
 
     return nullptr;
 }

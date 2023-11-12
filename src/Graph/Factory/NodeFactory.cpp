@@ -16,26 +16,27 @@ limitations under the License.
 
 #include "NodeFactory.h"
 
-#include <Nodes/Assets/Load/MeshNode.h>
-#include <Nodes/Assets/Load/Texture2DNode.h>
-#include <Nodes/Assets/Load/CubeMapNode.h>
+#include <Graph/Nodes/Assets/Load/MeshNode.h>
+#include <Graph/Nodes/Assets/Load/Texture2DNode.h>
+#include <Graph/Nodes/Assets/Load/CubeMapNode.h>
 
-#include <Nodes/Assets/Save/ModelExporterNode.h>
-#include <Nodes/Assets/Save/TextureExporterNode.h>
+#include <Graph/Nodes/Assets/Save/ModelExporterNode.h>
+#include <Graph/Nodes/Assets/Save/TextureExporterNode.h>
 
-#include <Nodes/Misc/GridNode.h>
-#include <Nodes/Misc/SceneMergerNode.h>
-#include <Nodes/Misc/AnimatorNode.h>
+#include <Graph/Nodes/Misc/GridNode.h>
+#include <Graph/Nodes/Misc/SceneMergerNode.h>
+#include <Graph/Nodes/Misc/AnimatorNode.h>
 
-#include <Nodes/Renderers/MatcapRendererNode.h>
-#include <Nodes/Renderers/ChannelRendererNode.h>
-#include <Nodes/Renderers/HeatmapRendererNode.h>
-#include <Nodes/Renderers/ModelRendererNode.h>
+#include <Graph/Nodes/Renderers/MatcapRendererNode.h>
+#include <Graph/Nodes/Renderers/ChannelRendererNode.h>
+#include <Graph/Nodes/Renderers/HeatmapRendererNode.h>
+#include <Graph/Nodes/Renderers/ModelRendererNode.h>
 
-#include <Nodes/Widgets/VariableNode.h>
-#include <Nodes/Widgets/WidgetColorNode.h>
+#include <Graph/Nodes/Widgets/VariableNode.h>
+#include <Graph/Nodes/Widgets/WidgetColorNode.h>
 
-#include <Nodes/Utils/MathNode.h>
+#include <Graph/Nodes/Utils/MathNode.h>
+#include <Graph/Nodes/Utils/MeshAttributesNode.h>
 
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType) {
     auto graphPtr = vNodeGraph.lock();
@@ -89,6 +90,8 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
             // Utils
             else if (vNodeType == "MATH")
                 return MathNode::Create(corePtr);
+            else if (vNodeType == "MESH_ATTRIBUTES")
+                return MeshAttributesNode::Create(corePtr);
         }
     }
 

@@ -274,7 +274,7 @@ void main()
 		{
 			vec3 ro = getRayOrigin();
 			float dep = length(ro - pos) / cam_far;
-			fragColor = vec4(dep, dep, dep, 1.0);
+			fragColor = vec4(vec3(dep), 1.0);
 		}
 		else
 		{

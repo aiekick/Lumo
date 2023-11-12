@@ -1,0 +1,173 @@
+<config>
+	<project>
+		<CommonSystem>
+			<TargetXYZ>2.38419e-07;0.251934;0.013261</TargetXYZ>
+			<TargetXYZLock>1;1;0</TargetXYZLock>
+			<TransXY>0;0</TransXY>
+			<TransXYLock>1;1</TransXYLock>
+			<TransFactor>5</TransFactor>
+			<RotXYZ>-0.226829;0.08232;0</RotXYZ>
+			<RotXYZLock>0;0;1</RotXYZLock>
+			<RotXYZFactor>1</RotXYZFactor>
+			<Zoom>17.3087</Zoom>
+			<ZoomLock>0</ZoomLock>
+			<ZoomFactor>5</ZoomFactor>
+			<PerspectiveAngle>45</PerspectiveAngle>
+			<CamFar>1000</CamFar>
+			<CameraType>0</CameraType>
+			<CameraType>0</CameraType>
+			<CameraMode>0</CameraMode>
+		</CommonSystem>
+		<scene>
+			<graph>
+				<canvas>
+					<offset>0;0</offset>
+					<scale>1</scale>
+				</canvas>
+				<nodes>
+					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-417;-82" id="105150">
+						<slot index="0" name="Model" type="MESH" place="INPUT" id="105154"/>
+						<slot index="1" name="Mask" type="TEXTURE_2D" place="INPUT" id="105158"/>
+						<slot index="0" name="Position" type="TEXTURE_2D" place="OUTPUT" id="105162"/>
+						<slot index="1" name="Normal" type="TEXTURE_2D" place="OUTPUT" id="105166"/>
+						<slot index="2" name="Tangeant" type="TEXTURE_2D" place="OUTPUT" id="105170"/>
+						<slot index="3" name="BiTangeant" type="TEXTURE_2D" place="OUTPUT" id="105174"/>
+						<slot index="4" name="UV" type="TEXTURE_2D" place="OUTPUT" id="105178"/>
+						<slot index="5" name="Color" type="TEXTURE_2D" place="OUTPUT" id="105182"/>
+						<slot index="6" name="Depth" type="TEXTURE_2D" place="OUTPUT" id="105186"/>
+					</node>
+					<node name="SSAO" type="SSAO" pos="-179;-44" id="116713">
+						<slot index="0" name="Position" type="TEXTURE_2D" place="INPUT" id="116717"/>
+						<slot index="1" name="Normal" type="TEXTURE_2D" place="INPUT" id="116721"/>
+						<slot index="2" name="Noise" type="TEXTURE_2D" place="INPUT" id="116725"/>
+						<slot index="0" name="Output" type="TEXTURE_2D" place="OUTPUT" id="116729"/>
+						<ssao_module>
+							<can_we_render>true</can_we_render>
+							<noise_scale>1</noise_scale>
+							<ao_radius>0.01</ao_radius>
+							<ao_scale>1</ao_scale>
+							<ao_bias>0.01</ao_bias>
+							<ao_intensity>2</ao_intensity>
+						</ssao_module>
+					</node>
+					<node name="Model" type="MESH" pos="-549;-25" id="156328">
+						<slot index="0" name="Output" type="MESH" place="OUTPUT" id="156332"/>
+						<mesh_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Tone Map" type="TONE_MAP" pos="0;-25" id="197693">
+						<slot index="0" name="Input" type="TEXTURE_2D" place="INPUT" id="197698"/>
+						<slot index="0" name="Output" type="TEXTURE_2D" place="OUTPUT" id="197702"/>
+						<tone_map_module>
+							<can_we_render>true</can_we_render>
+							<algo>0</algo>
+							<aces>2.510;0.030;2.430;0.590;0.140</aces>
+							<filmic>0.004;6.200;0.500;1.700;0.060;2.200</filmic>
+							<lotted>1.600;0.977;8.000;0.180;0.267</lotted>
+							<reinhard2>1.600</reinhard2>
+							<uchimura>1.000;1.000;0.220;0.400;1.330;0.000</uchimura>
+							<uncharted2>0.150;0.500;0.100;0.200;0.020;0.300;11.200;2.000</uncharted2>
+							<unreal>0.154;1.019</unreal>
+						</tone_map_module>
+					</node>
+					<node name="Post Processing" type="POST_PROCESSING" pos="-168;77" id="205597">
+						<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="205600"/>
+						<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="205603"/>
+						<slot index="2" name="Normal" type="TEXTURE_2D" place="INPUT" id="205606"/>
+						<slot index="0" name="" type="TEXTURE_2D" place="OUTPUT" id="205609"/>
+						<post_processing_module>
+							<can_we_render>true</can_we_render>
+						</post_processing_module>
+					</node>
+				</nodes>
+				<links>
+					<link in="105150:105162" out="116713:116717"/>
+					<link in="105150:105166" out="116713:116721"/>
+					<link in="156328:156332" out="105150:105154"/>
+					<link in="197693:197698" out="116713:116729"/>
+					<link in="205597:205603" out="105150:105162"/>
+					<link in="205597:205606" out="105150:105166"/>
+				</links>
+				<outputs>
+					<output type="left" ids="197693:197702"/>
+				</outputs>
+			</graph>
+		</scene>
+		<plugins>
+			<BluePrints>
+			</BluePrints>
+			<CodeGenerator>
+				<custom_types>
+				</custom_types>
+				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\PostProcessing\src</root_path>
+				<scene>
+					<graph>
+						<canvas>
+							<offset>0;0</offset>
+							<scale>1</scale>
+						</canvas>
+						<nodes>
+							<node name="Post Processing" type="NONE" pos="0;0" id="201492">
+								<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="201495" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="201501" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="1" showWidget="false"/>
+								<slot index="2" name="Normal" type="TEXTURE_2D" place="INPUT" id="201507" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="2" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="201513" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>PostProcessing</class_name>
+									<category_name>PostPro</category_name>
+									<node_creation_name>POST_PROCESSING</node_creation_name>
+									<node_display_name>Post Processing</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 2D</renderer_type>
+									<module_display_name>Post Processing</module_display_name>
+									<module_xml_name>post_processing_module</module_xml_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<vertex_struct_type>0</vertex_struct_type>
+								</generation>
+								<UBOS renderer="Compute 2D">
+									<UBO stage="0">
+										<UBOItem name="ColorRatio" typeIndex="0" vx="0.5" vy="" vz="" vw=""/>
+										<UBOItem name="BloomEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="BlurEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="ToneMapEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="VignetteEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="SSReflectEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="ChromAberEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="ColorBalanceEnabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="SharpnessEnabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="DofEnabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+									</UBO>
+								</UBOS>
+							</node>
+						</nodes>
+						<links>
+						</links>
+						<outputs>
+							<output type="left" ids="197693:197702"/>
+						</outputs>
+					</graph>
+				</scene>
+			</CodeGenerator>
+			<Lighting>
+			</Lighting>
+			<MeshGen>
+			</MeshGen>
+			<MeshSim>
+			</MeshSim>
+			<Misc>
+			</Misc>
+			<PostProcessing>
+			</PostProcessing>
+			<SdfMesher>
+			</SdfMesher>
+			<Simulation>
+			</Simulation>
+		</plugins>
+	</project>
+</config>

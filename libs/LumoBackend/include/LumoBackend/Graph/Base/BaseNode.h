@@ -28,7 +28,10 @@ limitations under the License.
 #include <unordered_set>
 
 #include <Gaia/gaia.h>
+#include <Gaia/Interfaces/OutputSizeInterface.h>
+
 #include <ImGuiPack.h>
+
 #include <ctools/cTools.h>
 #include <ctools/Logger.h>
 #include <ctools/ConfigAbstract.h>
@@ -46,7 +49,6 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTaskInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
-#include <LumoBackend/Interfaces/OutputSizeInterface.h>
 
 
 #define MAGIC_NUMBER 4577

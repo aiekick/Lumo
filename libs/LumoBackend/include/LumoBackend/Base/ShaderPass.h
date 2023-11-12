@@ -35,13 +35,13 @@ limitations under the License.
 #include <Gaia/Buffer/ComputeBuffer.h>
 #include <Gaia/Resources/VulkanRessource.h>
 #include <Gaia/Resources/VulkanFrameBuffer.h>
+#include <Gaia/Interfaces/OutputSizeInterface.h>
 #include <Gaia/Resources/VulkanComputeImageTarget.h>
 
 #include <LumoBackend/Utils/Mesh/VertexStruct.h>
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
-#include <LumoBackend/Interfaces/OutputSizeInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 enum class GenericType : uint8_t {
@@ -216,7 +216,7 @@ public:
         const bool& vUseDepth,                                                       // use depth merging
         const bool& vNeedToClear,                                                    // need to clear
         const ct::fvec4& vClearColor,                                                // color used to clear
-        const bool& vMultiPassMode,                                                  // will create pingpong fbos
+        const bool& vPingPongBufferMode,                                                  // will create pingpong fbos
         const bool& vTesselated,                                                     // use tesselation pipeline
         const vk::Format& vFormat = vk::Format::eR32G32B32A32Sfloat,                 // image format
         const vk::SampleCountFlagBits& vSampleCount = vk::SampleCountFlagBits::e1);  // image sampling
@@ -225,14 +225,14 @@ public:
     virtual bool InitCompute2D(                                                      // compute 2D
         const ct::uvec2& vDispatchSize,                                              // compute size
         const uint32_t& vCountColorBuffers,                                          // count color attachments
-        const bool& vMultiPassMode,                                                  // will create pingpong fbos
+        const bool& vPingPongBufferMode,                                                  // will create pingpong fbos
         const vk::Format& vFormat);                                                  // image format, (no sampling possible with compute images)
     virtual bool InitCompute3D(                                                      // compute 3D
         const ct::uvec3& vDispatchSize);                                             // compute size
     virtual bool InitRtx(                                                            // RTX pipeline
         const ct::uvec2& vDispatchSize,                                              // compute size
         const uint32_t& vCountColorBuffers,                                          // count color attachments
-        const bool& vMultiPassMode,                                                  // will create pingpong fbos
+        const bool& vPingPongBufferMode,                                                  // will create pingpong fbos
         const vk::Format& vFormat);                                                  // image format, (no sampling possible with compute images)
     virtual void Unit();
 

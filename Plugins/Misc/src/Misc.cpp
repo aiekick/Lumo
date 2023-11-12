@@ -18,125 +18,110 @@
 #include <Nodes/Misc/SdfTextureNode.h>
 
 // needed for plugin creating / destroying
-extern "C" // needed for avoid renaming of funcs by the compiler
+extern "C"  // needed for avoid renaming of funcs by the compiler
 {
 #ifdef WIN32
-#define PLUGIN_PREFIX __declspec (dllexport)
+#define PLUGIN_PREFIX __declspec(dllexport)
 #else
 #define PLUGIN_PREFIX
 #endif
 
-	PLUGIN_PREFIX Misc* allocator()
-	{
-		return new Misc();
-	}
-
-	PLUGIN_PREFIX void deleter(Misc* ptr)
-	{
-		delete ptr;
-	}
+PLUGIN_PREFIX Misc* allocator() {
+    return new Misc();
 }
 
-Misc::Misc()
-{
+PLUGIN_PREFIX void deleter(Misc* ptr) {
+    delete ptr;
+}
+}
+
+Misc::Misc() {
 #ifdef _MSC_VER
-	// active memory leak detector
-	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    // active memory leak detector
+    //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 }
 
-void Misc::ActionAfterInit()
-{
-	NodeSlot::sGetSlotColors()->AddSlotColor("NONE",				ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("MESH",				ImVec4(0.5f, 0.5f, 0.9f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("MESH_GROUP",			ImVec4(0.1f, 0.1f, 0.8f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("LIGHT_GROUP",			ImVec4(0.9f, 0.9f, 0.1f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("ENVIRONMENT",			ImVec4(0.1f, 0.9f, 0.1f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("MERGED",				ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D",			ImVec4(0.9f, 0.5f, 0.1f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D_GROUP",	ImVec4(0.2f, 0.9f, 0.2f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_3D",			ImVec4(0.9f, 0.8f, 0.3f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_CUBE",		ImVec4(0.9f, 0.7f, 0.2f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("MIXED",				ImVec4(0.3f, 0.5f, 0.1f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_BOOLEAN",		ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_UINT",			ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_INT",			ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_FLOAT",		ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
-	NodeSlot::sGetSlotColors()->AddSlotColor("DEPTH",				ImVec4(0.2f, 0.7f, 0.6f, 1.0f));
+void Misc::ActionAfterInit() {
+    NodeSlot::sGetSlotColors()->AddSlotColor("NONE", ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("MESH", ImVec4(0.5f, 0.5f, 0.9f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("MESH_GROUP", ImVec4(0.1f, 0.1f, 0.8f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("LIGHT_GROUP", ImVec4(0.9f, 0.9f, 0.1f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("ENVIRONMENT", ImVec4(0.1f, 0.9f, 0.1f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("MERGED", ImVec4(0.1f, 0.5f, 0.9f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D", ImVec4(0.9f, 0.5f, 0.1f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_2D_GROUP", ImVec4(0.2f, 0.9f, 0.2f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_3D", ImVec4(0.9f, 0.8f, 0.3f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("TEXTURE_CUBE", ImVec4(0.9f, 0.7f, 0.2f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("MIXED", ImVec4(0.3f, 0.5f, 0.1f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_BOOLEAN", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_UINT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_INT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("WIDGET_FLOAT", ImVec4(0.8f, 0.7f, 0.6f, 1.0f));
+    NodeSlot::sGetSlotColors()->AddSlotColor("DEPTH", ImVec4(0.2f, 0.7f, 0.6f, 1.0f));
 }
 
-uint32_t Misc::GetVersionMajor() const
-{
-	return Misc_MinorNumber;
+uint32_t Misc::GetVersionMajor() const {
+    return Misc_MinorNumber;
 }
 
-uint32_t Misc::GetVersionMinor() const
-{
-	return Misc_MajorNumber;
+uint32_t Misc::GetVersionMinor() const {
+    return Misc_MajorNumber;
 }
 
-uint32_t Misc::GetVersionBuild() const
-{
-	return Misc_BuildNumber;
+uint32_t Misc::GetVersionBuild() const {
+    return Misc_BuildNumber;
 }
 
-std::string Misc::GetName() const
-{
-	return "Misc";
+std::string Misc::GetName() const {
+    return "Misc";
 }
 
-std::string Misc::GetVersion() const
-{
-	return Misc_BuildId;
+std::string Misc::GetVersion() const {
+    return Misc_BuildId;
 }
 
-std::string Misc::GetDescription() const
-{
-	return "Misc Nodes";
+std::string Misc::GetDescription() const {
+    return "Misc Nodes";
 }
 
-std::vector<std::string> Misc::GetNodes() const
-{
-	return
-	{
-		""
-	};
+std::vector<std::string> Misc::GetNodes() const {
+    return {""};
 }
 
-std::vector<LibraryEntry> Misc::GetLibrary() const
-{
-	std::vector<LibraryEntry> res;
+std::vector<LibraryEntry> Misc::GetLibrary() const {
+    std::vector<LibraryEntry> res;
 
-	res.push_back(AddLibraryEntry("2D/Misc", "2D Layering", "2D_LAYERING"));
-	res.push_back(AddLibraryEntry("2D/Misc", "Sdf Texture", "SDF_TEXTURE"));
+    res.push_back(AddLibraryEntry("Misc", "2D Layering", "2D_LAYERING"));
+    res.push_back(AddLibraryEntry("Misc", "Sdf Texture", "SDF_TEXTURE"));
 
-	res.push_back(AddLibraryEntry("3D/Modifiers", "Smooth Normals", "SMOOTH_NORMAL"));
+    res.push_back(AddLibraryEntry("Modifiers", "Smooth Normals", "SMOOTH_NORMAL"));
 
-	return res;
+    return res;
 }
 
-BaseNodePtr Misc::CreatePluginNode(const std::string& vPluginNodeName)
-{
-	auto vkMiscPtr = m_VulkanCoreWeak.lock();
+BaseNodePtr Misc::CreatePluginNode(const std::string& vPluginNodeName) {
+    auto vkCorePtr = m_VulkanCoreWeak.lock();
 
-	// Misc
-	if (vPluginNodeName == "2D_LAYERING")			return Layering2DNode::Create(vkMiscPtr);
-	else if (vPluginNodeName == "SDF_TEXTURE")		return SdfTextureNode::Create(vkMiscPtr);
-	
-	// Modifiers
-	else if (vPluginNodeName == "SMOOTH_NORMAL")	return SmoothNormalNode::Create(vkMiscPtr);
+    // Misc
+    if (vPluginNodeName == "2D_LAYERING")
+        return Layering2DNode::Create(vkCorePtr);
+    else if (vPluginNodeName == "SDF_TEXTURE")
+        return SdfTextureNode::Create(vkCorePtr);
 
-	return nullptr;
+    // Modifiers
+    else if (vPluginNodeName == "SMOOTH_NORMAL")
+        return SmoothNormalNode::Create(vkCorePtr);
+
+    return nullptr;
 }
 
-std::vector<PluginPaneConfig> Misc::GetPanes() const
-{
-	return {};
+std::vector<PluginPaneConfig> Misc::GetPanes() const {
+    return {};
 }
 
-int Misc::ResetImGuiID(const int& vWidgetId)
-{
+int Misc::ResetImGuiID(const int& vWidgetId) {
     auto ids = ImGui::GetPUSHID();
     ImGui::SetPUSHID(vWidgetId);
-	return ids;
+    return ids;
 }

@@ -893,12 +893,14 @@ layout(std140, binding = %u) uniform UBO_Camera
 
 float LinearizeDepth(float vDepth)
 {
-	return (cam_near * cam_far) / (cam_far + cam_near - vDepth * (cam_far - cam_near));
+	return vDepth;
+	//return (cam_near * cam_far) / (cam_far + cam_near - vDepth * (cam_far - cam_near));
 }
 
 float DeLinearizeDepth(float vDepth)
 {
-	return (cam_near + cam_far) * vDepth - cam_far * cam_near / (cam_near - cam_far) * vDepth;
+	return vDepth;
+	//return (cam_near + cam_far) * vDepth - cam_far * cam_near / (cam_near - cam_far) * vDepth;
 }
 )", vBindingPoint);
 }

@@ -280,7 +280,7 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
                 change = true;
             }
 
-            if (m_NodeDisplayNameInputText.DisplayInputText(aw * 0.5f, "Node Display Name :", "New Node")) {
+            if (m_NodeDisplayNameInputText.DisplayInputText(aw, "Node Display Name :", "New Node")) {
                 nodePtr->m_NodeDisplayName = m_NodeDisplayNameInputText.GetText();
                 nodePtr->name = nodePtr->m_NodeDisplayName;
 
@@ -301,7 +301,7 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
                 change = true;
             }
 
-            if (m_NodeCreationNameInputText.DisplayInputText(aw * 0.5f, "Node Creation Name :", "NEW_NODE")) {
+            if (m_NodeCreationNameInputText.DisplayInputText(aw, "Node Creation Name :", "NEW_NODE")) {
                 nodePtr->m_NodeCreationName = m_NodeCreationNameInputText.GetText();
                 ct::replaceString(nodePtr->m_NodeCreationName, " ", "_");
                 m_NodeCreationNameInputText.SetText(nodePtr->m_NodeCreationName);
@@ -328,7 +328,7 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
 
                 ImGui::SameLine();
 
-                it->DisplayInputText(aw * 0.5f, "Custom Type :", "SceneCustom");
+                it->DisplayInputText(aw, "Custom Type :", "SceneCustom");
             }
 
             if (it_to_erase != m_CustomTypeInputTexts.end()) {
@@ -356,14 +356,14 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
 
             ImGui::Text("Classes");
 
-            if (m_ClassNameInputText.DisplayInputText(aw * 0.5f, "Name :", "NewClass")) {
+            if (m_ClassNameInputText.DisplayInputText(aw, "Name :", "NewClass")) {
                 nodePtr->m_ClassName = m_ClassNameInputText.GetText();
                 ct::replaceString(nodePtr->m_ClassName, " ", "");
                 m_ClassNameInputText.SetText(nodePtr->m_ClassName);
                 change = true;
             }
 
-            if (m_NodeCategoryNameInputText.DisplayInputText(aw * 0.5f, "Category name :", "TestNodes")) {
+            if (m_NodeCategoryNameInputText.DisplayInputText(aw, "Category name :", "TestNodes")) {
                 nodePtr->m_CategoryName = m_NodeCategoryNameInputText.GetText();
                 ct::replaceString(nodePtr->m_CategoryName, " ", "");
                 m_NodeCategoryNameInputText.SetText(nodePtr->m_CategoryName);
@@ -375,13 +375,13 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
             ImGui::CheckBoxBoolDefault("Generate a Module ?", &nodePtr->m_GenerateAModule, true);
 
             if (nodePtr->m_GenerateAModule) {
-                if (m_ModuleDisplayNameInputText.DisplayInputText(aw * 0.5f, "Module Display Name :", "New Node")) {
+                if (m_ModuleDisplayNameInputText.DisplayInputText(aw, "Module Display Name :", "New Node")) {
                     nodePtr->m_ModuleDisplayName = m_ModuleDisplayNameInputText.GetText();
                     m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleDisplayName);
                     change = true;
                 }
 
-                if (m_ModuleXmlNameInputText.DisplayInputText(aw * 0.5f, "Module Xml Name :", "toto_module")) {
+                if (m_ModuleXmlNameInputText.DisplayInputText(aw, "Module Xml Name :", "toto_module")) {
                     nodePtr->m_ModuleXmlName = m_ModuleXmlNameInputText.GetText();
                     ct::replaceString(nodePtr->m_ModuleXmlName, " ", "");
                     m_ModuleXmlNameInputText.SetText(nodePtr->m_ModuleXmlName);

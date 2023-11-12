@@ -767,7 +767,7 @@ bool UBOEditors::DrawPane(const std::string& vRendererType)
 			}
 			else
 			{
-				uboEditor.DrawPane(vRendererType);
+                change |= uboEditor.DrawPane(vRendererType);
 			}
 
 			++idx;

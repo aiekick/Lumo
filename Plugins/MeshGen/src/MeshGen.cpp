@@ -105,10 +105,10 @@ std::vector<LibraryEntry> MeshGen::GetLibrary() const
 {
 	std::vector<LibraryEntry> res;
 
-	res.push_back(AddLibraryEntry("MeshGen/Parametric/Curve", "Parametric Curve", "PARAMETRIC_CURVE"));
-	res.push_back(AddLibraryEntry("MeshGen/Parametric/Curve", "Parametric Curve Differential", "PARAMETRIC_CURVE_DIFF"));
-	res.push_back(AddLibraryEntry("MeshGen/Parametric/Surface", "Parametric Surface UV", "PARAMETRIC_SURFACE_UV"));
-	res.push_back(AddLibraryEntry("MeshGen/Mesh/Primitive", "Primitive", "PRIMITIVE"));
+	res.push_back(AddLibraryEntry("Mesh/Curve", "Parametric Curve", "PARAMETRIC_CURVE"));
+	res.push_back(AddLibraryEntry("Mesh/Curve", "Parametric Curve Differential", "PARAMETRIC_CURVE_DIFF"));
+	res.push_back(AddLibraryEntry("Mesh/Surface", "Parametric Surface UV", "PARAMETRIC_SURFACE_UV"));
+	res.push_back(AddLibraryEntry("Mesh/Primitive", "Primitive", "PRIMITIVE"));
 	
 	return res;
 }
