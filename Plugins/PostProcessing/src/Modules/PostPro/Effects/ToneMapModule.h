@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -40,18 +38,17 @@ limitations under the License.
 #include <Gaia/Resources/VulkanFrameBuffer.h>
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-
-
 class ToneMapModule_Comp_2D_Pass;
 class BlurModule_Comp_Pass;
 class ToneMapModule :
 	public BaseRenderer,
-	
+	public NodeInterface,
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface
@@ -61,7 +58,6 @@ public:
 
 private:
 	std::weak_ptr<ToneMapModule> m_This;
-
 	std::shared_ptr<ToneMapModule_Comp_2D_Pass> m_ToneMapModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
@@ -78,5 +74,6 @@ public:
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 };

@@ -72,38 +72,38 @@ void HeatmapRenderer_Mesh_Pass::ActionBeforeInit()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void HeatmapRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void HeatmapRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
 	ZoneScoped;
 
 	if (!m_Loaded) return;
 
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
 		auto modelPtr = m_SceneModel.lock();
 		if (!modelPtr || modelPtr->empty()) return;
 
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBuffer, "HeatmapRenderer", "DrawModel");
+			//VKFPScoped(*vCmdBufferPtr, "HeatmapRenderer", "DrawModel");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 			for (auto meshPtr : *modelPtr)
 			{
 				if (meshPtr)
 				{
 					vk::DeviceSize offsets = 0;
-					vCmdBuffer->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
+					vCmdBufferPtr->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
 
 					if (meshPtr->GetIndicesCount())
 					{
-						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
-						vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
+						vCmdBufferPtr->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
+						vCmdBufferPtr->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
 					}
 					else
 					{
-						vCmdBuffer->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
+						vCmdBufferPtr->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
 					}
 				}
 			}

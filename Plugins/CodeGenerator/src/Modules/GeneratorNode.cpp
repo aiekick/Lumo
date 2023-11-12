@@ -1926,7 +1926,7 @@ public:
 			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			h_pass_file_code += u8R"(
-	void DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber) override;)";
+	void DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vIterationNumber) override;)";
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
 		{
@@ -1938,7 +1938,7 @@ public:
 		m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
 		h_pass_file_code += u8R"(
-	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;)";
+	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;)";
 	}
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{
@@ -2117,38 +2117,38 @@ std::string GeneratorNode::GetPassRendererFunctionHeader()
 			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			res += u8R"(
-void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber)
+void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vIterationNumber)
 {
 	ZoneScoped;
 
 	if (!m_Loaded) return;
 
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
 		auto modelPtr = m_SceneModel.lock();
 		if (!modelPtr || modelPtr->empty()) return;
 
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBuffer, "MODULE_DISPLAY_NAME", "DrawModel");
+			//VKFPScoped(*vCmdBufferPtr, "MODULE_DISPLAY_NAME", "DrawModel");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 			for (auto meshPtr : *modelPtr)
 			{
 				if (meshPtr)
 				{
 					vk::DeviceSize offsets = 0;
-					vCmdBuffer->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
+					vCmdBufferPtr->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
 
 					if (meshPtr->GetIndicesCount())
 					{
-						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
-						vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
+						vCmdBufferPtr->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
+						vCmdBufferPtr->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
 					}
 					else
 					{
-						vCmdBuffer->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
+						vCmdBufferPtr->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
 					}
 				}
 			}
@@ -2167,19 +2167,19 @@ void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIter
 		m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
 		res += u8R"(
-void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBuffer, "MODULE_DISPLAY_NAME", "Compute");
+			//VKFPScoped(*vCmdBufferPtr, "MODULE_DISPLAY_NAME", "Compute");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
 			{
-				Dispatch(vCmdBuffer);
+				Dispatch(vCmdBufferPtr);
 			}
 		}
 	}

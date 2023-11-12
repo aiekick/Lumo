@@ -40,18 +40,18 @@ VertexShaderPass::VertexShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr,
 
 }
 
-void VertexShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& /*vIterationNumber*/) {
+void VertexShaderPass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& /*vIterationNumber*/) {
     ZoneScoped;
 	if (!m_Loaded) return;
 
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
-		vCmdBuffer->setLineWidth(m_LineWidth.w);
-		//vCmdBuffer->setPrimitiveTopologyEXT(m_BasePrimitiveTopology);
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
-		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, 
+		vCmdBufferPtr->setLineWidth(m_LineWidth.w);
+		//vCmdBufferPtr->setPrimitiveTopologyEXT(m_BasePrimitiveTopology);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, 
 			m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-		vCmdBuffer->draw(m_CountVertexs.w, m_CountInstances.w, 0, 0);
+		vCmdBufferPtr->draw(m_CountVertexs.w, m_CountInstances.w, 0, 0);
 	}
 }
 

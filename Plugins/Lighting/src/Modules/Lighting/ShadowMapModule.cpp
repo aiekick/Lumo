@@ -152,7 +152,7 @@ void ShadowMapModule::Unit()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void ShadowMapModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
+void ShadowMapModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr)
 {
 	/*
 	here we must run the model for each lights
@@ -173,7 +173,7 @@ void ShadowMapModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
 				{
 					m_ShadowMapModule_Mesh_Pass_Ptr->SetFrameBuffer(m_FrameBuffers[idx]);
 					m_ShadowMapModule_Mesh_Pass_Ptr->SetLightIdToUse(idx);
-					m_ShadowMapModule_Mesh_Pass_Ptr->DrawPass(vCmdBuffer);
+					m_ShadowMapModule_Mesh_Pass_Ptr->DrawPass(vCmdBufferPtr);
 				}
 
 				++idx;

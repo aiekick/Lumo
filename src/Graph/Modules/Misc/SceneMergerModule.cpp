@@ -133,25 +133,25 @@ bool SceneMergerModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Com
 	return true;
 }
 
-void SceneMergerModule::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer)
+void SceneMergerModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr)
 {
 	if (m_FrameBufferPtr &&
-		m_FrameBufferPtr->Begin(vCmdBuffer))
+		m_FrameBufferPtr->Begin(vCmdBufferPtr))
 	{
-		m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBuffer);
+		m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBufferPtr);
 
 		for (auto pass : m_ShaderPasses)
 		{
 			auto pass_ptr = pass.lock();
-			if (pass_ptr && pass_ptr->StartDrawPass(vCmdBuffer))
+			if (pass_ptr && pass_ptr->StartDrawPass(vCmdBufferPtr))
 			{
 				pass_ptr->SetLastExecutedFrame(m_LastExecutedFrame); // for have widgets use
-				pass_ptr->DrawModel(vCmdBuffer, 1U);
-				pass_ptr->EndDrawPass(vCmdBuffer);
+				pass_ptr->DrawModel(vCmdBufferPtr, 1U);
+				pass_ptr->EndDrawPass(vCmdBufferPtr);
 			}
 		}
 
-		m_FrameBufferPtr->End(vCmdBuffer);
+		m_FrameBufferPtr->End(vCmdBufferPtr);
 	}
 }
 

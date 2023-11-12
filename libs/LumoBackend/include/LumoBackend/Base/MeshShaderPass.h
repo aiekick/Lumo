@@ -41,7 +41,7 @@ public:
 	MeshShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
-	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
 	void SetInputStateBeforePipelineCreation() override;
 
 	bool Build(bool vUseSBO = false);
@@ -84,27 +84,27 @@ MeshShaderPass<T_VertexType>::MeshShaderPass(
 }
 
 template<typename T_VertexType>
-void MeshShaderPass<T_VertexType>::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& /*vIterationNumber*/) {
+void MeshShaderPass<T_VertexType>::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& /*vIterationNumber*/) {
     ZoneScoped;
 	if (!m_Loaded) return;
 
-	if (vCmdBuffer && m_Vertices.m_Count)
+	if (vCmdBufferPtr && m_Vertices.m_Count)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 
-		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 		vk::DeviceSize offsets = 0;
-		vCmdBuffer->bindVertexBuffers(0, m_Vertices.m_Buffer->buffer, offsets);
+		vCmdBufferPtr->bindVertexBuffers(0, m_Vertices.m_Buffer->buffer, offsets);
 
 		if (m_Indices.m_Count)
 		{
-			vCmdBuffer->bindIndexBuffer(m_Indices.m_Buffer->buffer, 0, vk::IndexType::eUint32);
-			vCmdBuffer->drawIndexed(m_Indices.m_Count, m_CountInstances.w, 0, 0, 0);
+			vCmdBufferPtr->bindIndexBuffer(m_Indices.m_Buffer->buffer, 0, vk::IndexType::eUint32);
+			vCmdBufferPtr->drawIndexed(m_Indices.m_Count, m_CountInstances.w, 0, 0, 0);
 		}
 		else
 		{
-			vCmdBuffer->draw(m_Vertices.m_Count, m_CountInstances.w, 0, 0);
+			vCmdBufferPtr->draw(m_Vertices.m_Count, m_CountInstances.w, 0, 0);
 		}
 	}
 }

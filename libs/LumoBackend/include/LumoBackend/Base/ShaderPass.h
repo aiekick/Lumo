@@ -105,6 +105,8 @@ private:  // Tesselation
 protected:
     bool m_Loaded = false;
     bool m_DontUseShaderFilesOnDisk = false;
+    bool m_EffectEnabled = true;
+    bool m_LastEffectEnabled = true;
 
     GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;  // vulkan core
     GaiApi::VulkanQueue m_Queue;                      // queue
@@ -329,9 +331,9 @@ public:
     const ct::uvec3& GetDispatchSize();
 
     /// <summary>
-    /// will execute vCmdBuffer->disaptch according to the defined dispatchsize
+    /// will execute vCmdBufferPtr->disaptch according to the defined dispatchsize
     /// </summary>
-    void Dispatch(vk::CommandBuffer* vCmdBuffer);
+    void Dispatch(vk::CommandBuffer* vCmdBufferPtr);
 
     // Set Wigdet limits
     // vertex / count point to draw / count instances / etc..
@@ -348,9 +350,9 @@ public:
     // xecuted jsut before compute()
     virtual void SwapMultiPassFrontBackDescriptors();
 
-    bool StartDrawPass(vk::CommandBuffer* vCmdBuffer);
-    void DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber = 1U);
-    void EndDrawPass(vk::CommandBuffer* vCmdBuffer);
+    bool StartDrawPass(vk::CommandBuffer* vCmdBufferPtr);
+    void DrawPass(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber = 1U);
+    void EndDrawPass(vk::CommandBuffer* vCmdBufferPtr);
 
     // used to set another rnederpass from another fbo, like in scene merger
     // will rebuild the pipeline
@@ -358,6 +360,12 @@ public:
 
     // reset renderpass to nativz renderpass
     void ReSetRenderPassToNative();
+
+    // effect is enabled
+    // if disabled the rendering must be done, but the output is not transformed
+    bool* IsEffectEnabled() {
+        return &m_EffectEnabled;
+    }
 
     /// <summary>
     /// chnage the primitive topology if enebled with m_CanDynamicallyChangePrimitiveTopology
@@ -386,11 +394,11 @@ public:
     // draw primitives
     bool AreWeValidForRender();  // pre condition check, like pipeline validity
     virtual bool CanRender();    // user defined
-    virtual void ActionBeforeDrawInCommandBuffer(vk::CommandBuffer* vCmdBuffer);
-    virtual void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
-    virtual void ActionAfterDrawInCommandBuffer(vk::CommandBuffer* vCmdBuffer);
-    virtual void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
-    virtual void TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber);
+    virtual void ActionBeforeDrawInCommandBuffer(vk::CommandBuffer* vCmdBufferPtr);
+    virtual void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber);
+    virtual void ActionAfterDrawInCommandBuffer(vk::CommandBuffer* vCmdBufferPtr);
+    virtual void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber);
+    virtual void TraceRays(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber);
 
     virtual bool CanUpdateDescriptors();
     virtual void UpdateRessourceDescriptor();

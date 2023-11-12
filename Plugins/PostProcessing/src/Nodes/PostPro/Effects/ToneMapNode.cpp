@@ -223,6 +223,12 @@ bool ToneMapNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
 	return true;
 }
 
+void ToneMapNode::AfterNodeXmlLoading() {
+    if (m_ToneMapModulePtr) {
+        m_ToneMapModulePtr->AfterNodeXmlLoading();
+    }
+}
+
 void ToneMapNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	if (m_ToneMapModulePtr)

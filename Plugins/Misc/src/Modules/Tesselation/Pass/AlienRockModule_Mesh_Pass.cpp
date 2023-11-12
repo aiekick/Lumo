@@ -249,39 +249,39 @@ void AlienRockModule_Mesh_Pass::WasJustResized()
 	ZoneScoped;
 }
 
-void AlienRockModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void AlienRockModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
 	ZoneScoped;
 
 	if (!m_Loaded) return;
 
-	if (vCmdBuffer && m_Vertices.m_Count)
+	if (vCmdBufferPtr && m_Vertices.m_Count)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBuffer, "Model Renderer", "DrawModel");
+			//VKFPScoped(*vCmdBufferPtr, "Model Renderer", "DrawModel");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
+			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
 				m_Pipelines[0].m_PipelineLayout, 0,
 				m_DescriptorSets[0].m_DescriptorSet, nullptr);
 			vk::DeviceSize offsets = 0;
-			vCmdBuffer->bindVertexBuffers(0, m_Vertices.m_Buffer->buffer, offsets);
+			vCmdBufferPtr->bindVertexBuffers(0, m_Vertices.m_Buffer->buffer, offsets);
 
 			if (m_Indices.m_Count)
 			{
-				vCmdBuffer->bindIndexBuffer(m_Indices.m_Buffer->buffer, 0, vk::IndexType::eUint32);
+				vCmdBufferPtr->bindIndexBuffer(m_Indices.m_Buffer->buffer, 0, vk::IndexType::eUint32);
 				if (m_UseIndiceRestriction)
 				{
-					vCmdBuffer->drawIndexed(m_RestrictedIndicesCountToDraw, 1, 0, 0, 0);
+					vCmdBufferPtr->drawIndexed(m_RestrictedIndicesCountToDraw, 1, 0, 0, 0);
 				}
 				else
 				{
-					vCmdBuffer->drawIndexed(m_Indices.m_Count, m_CountInstances.w, 0, 0, 0);
+					vCmdBufferPtr->drawIndexed(m_Indices.m_Count, m_CountInstances.w, 0, 0, 0);
 				}
 			}
 			else
 			{
-				vCmdBuffer->draw(m_Vertices.m_Count, m_CountInstances.w, 0, 0);
+				vCmdBufferPtr->draw(m_Vertices.m_Count, m_CountInstances.w, 0, 0);
 			}
 		}
 	}

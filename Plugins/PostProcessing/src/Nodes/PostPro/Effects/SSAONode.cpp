@@ -223,6 +223,12 @@ bool SSAONode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
 	return true;
 }
 
+void SSAONode::AfterNodeXmlLoading() {
+    if (m_SSAOModulePtr) {
+        m_SSAOModulePtr->AfterNodeXmlLoading();
+    }
+}
+
 void SSAONode::UpdateShaders(const std::set<std::string>& vFiles)
 {
 	if (m_SSAOModulePtr)

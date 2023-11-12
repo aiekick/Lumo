@@ -77,16 +77,11 @@ bool ToneMapModule::Init() {
     ZoneScoped;
 
     ct::uvec2 map_size = 512;
-
-    m_Loaded = true;
-
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_ToneMapModule_Comp_2D_Pass_Ptr = std::make_shared<ToneMapModule_Comp_2D_Pass>(m_VulkanCorePtr);
+        m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
         if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
-            if (m_ToneMapModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
-                AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);
-                m_Loaded = true;
-            }
+            AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);
+            m_Loaded = true;
         }
     }
 
@@ -109,19 +104,8 @@ bool ToneMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
-    if (m_LastExecutedFrame == vCurrentFrame) {
-        if (ImGui::CollapsingHeader_CheckBox("ToneMap", -1.0f, true, true, &m_CanWeRender)) {
-            bool change = false;
-
-            for (auto pass : m_ShaderPasses) {
-                auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
-                if (passGuiPtr) {
-                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-                }
-            }
-
-            return change;
-        }
+    if (m_LastExecutedFrame == vCurrentFrame && m_ToneMapModule_Comp_2D_Pass_Ptr) {
+        return m_ToneMapModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
     }
 
     return false;
@@ -179,12 +163,7 @@ std::string ToneMapModule::getXml(const std::string& vOffset, const std::string&
 
     str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-    for (auto pass : m_ShaderPasses) {
-        auto pass_ptr = pass.lock();
-        if (pass_ptr) {
-            str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
-        }
-    }
+    str += m_ToneMapModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 
     str += vOffset + "</tone_map_module>\n";
 
@@ -204,16 +183,16 @@ bool ToneMapModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
         strParentName = vParent->Value();
 
     if (strParentName == "tone_map_module") {
-        if (strName == "can_we_render")
+        if (strName == "can_we_render") {
             m_CanWeRender = ct::ivariant(strValue).GetB();
-    }
-
-    for (auto pass : m_ShaderPasses) {
-        auto pass_ptr = pass.lock();
-        if (pass_ptr) {
-            pass_ptr->setFromXml(vElem, vParent, vUserDatas);
+        } else if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
+            m_ToneMapModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
         }
     }
 
     return true;
+}
+
+void ToneMapModule::AfterNodeXmlLoading() {
+    m_ToneMapModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
 }

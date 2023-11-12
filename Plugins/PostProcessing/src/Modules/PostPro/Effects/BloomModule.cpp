@@ -49,248 +49,196 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<BloomModule> BloomModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<BloomModule> BloomModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<BloomModule>(vVulkanCorePtr);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+    if (!vVulkanCorePtr)
+        return nullptr;
+    auto res = std::make_shared<BloomModule>(vVulkanCorePtr);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BloomModule::BloomModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
-{
-	ZoneScoped;
+BloomModule::BloomModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+    ZoneScoped;
 }
 
-BloomModule::~BloomModule()
-{
-	ZoneScoped;
+BloomModule::~BloomModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool BloomModule::Init()
-{
-	ZoneScoped;
+bool BloomModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    ct::uvec2 map_size = 512;
+    if (BaseRenderer::InitCompute2D(map_size)) {
+        m_BloomModule_Comp_2D_Pass_Ptr = BloomModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        if (m_BloomModule_Comp_2D_Pass_Ptr) {
+            AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);
+            m_Loaded = true;
+        }
+    }
 
-
-	ct::uvec2 map_size = 512;
-
-	if (BaseRenderer::InitCompute2D(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
-
-		m_BloomModule_Comp_2D_Pass_Ptr = std::make_shared<BloomModule_Comp_2D_Pass>(m_VulkanCorePtr);
-		if (m_BloomModule_Comp_2D_Pass_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(true);
-
-			if (m_BloomModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 2U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
-
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool BloomModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool BloomModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Bloom", vCmd);
+    BaseRenderer::Render("Bloom", vCmd);
 
-	return true;
+    return true;
 }
 
-bool BloomModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool BloomModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Bloom", vCmd);
+    BaseRenderer::Render("Bloom", vCmd);
 
-	return true;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BloomModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool BloomModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Bloom##BloomModule", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame && m_BloomModule_Comp_2D_Pass_Ptr) {
+        return m_BloomModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-			if (m_BloomModule_Comp_2D_Pass_Ptr)
-			{
-				change |= m_BloomModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
-
-			return change;
-		}
-
-	}
-
-	return false;
+    return false;
 }
 
-bool BloomModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+bool BloomModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame) {
+    if (m_LastExecutedFrame == vCurrentFrame) {
     }
     return false;
-
 }
 
 bool BloomModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
-
 }
 
-void BloomModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void BloomModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BloomModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
-	if (m_BloomModule_Comp_2D_Pass_Ptr)
-	{
-		m_BloomModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+void BloomModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
+    if (m_BloomModule_Comp_2D_Pass_Ptr) {
+        m_BloomModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* BloomModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
-	if (m_BloomModule_Comp_2D_Pass_Ptr)
-	{
-		return m_BloomModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+vk::DescriptorImageInfo* BloomModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+    if (m_BloomModule_Comp_2D_Pass_Ptr) {
+        return m_BloomModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string BloomModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string BloomModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<bloom_module>\n";
+    str += vOffset + "<bloom_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_BloomModule_Comp_2D_Pass_Ptr)
-	{
-		str += m_BloomModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_BloomModule_Comp_2D_Pass_Ptr) {
+        str += m_BloomModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</bloom_module>\n";
+    str += vOffset + "</bloom_module>\n";
 
-	return str;
+    return str;
 }
 
-bool BloomModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool BloomModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "bloom_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+    if (strParentName == "bloom_module") {
+        if (strName == "can_we_render") {
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+        } else {
+            if (m_BloomModule_Comp_2D_Pass_Ptr) {
+                m_BloomModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+            }
+        }      
+    }
 
-	if (m_BloomModule_Comp_2D_Pass_Ptr)
-	{
-		m_BloomModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
-
-	}
-
-	return true;
+    return true;
 }
 
-void BloomModule::AfterNodeXmlLoading()
-{
-	if (m_BloomModule_Comp_2D_Pass_Ptr)
-	{
-		m_BloomModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
-	}
+void BloomModule::AfterNodeXmlLoading() {
+    if (m_BloomModule_Comp_2D_Pass_Ptr) {
+        m_BloomModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    }
 }

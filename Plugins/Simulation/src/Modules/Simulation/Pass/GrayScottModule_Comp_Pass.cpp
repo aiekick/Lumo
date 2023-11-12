@@ -240,17 +240,17 @@ void GrayScottModule_Comp_Pass::WasJustResized()
 	}
 }
 
-void GrayScottModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void GrayScottModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 
-		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 		for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
 		{
-			Dispatch(vCmdBuffer);
+			Dispatch(vCmdBufferPtr);
 		}
 
 		// ca c'est les bouton et ca doit etre un one shot 

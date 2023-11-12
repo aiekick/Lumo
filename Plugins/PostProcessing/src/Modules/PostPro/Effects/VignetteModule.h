@@ -22,8 +22,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -51,8 +49,8 @@ limitations under the License.
 
 class VignetteModule_Comp_2D_Pass;
 class VignetteModule :
-	public NodeInterface,
-	public BaseRenderer,	
+	public BaseRenderer,
+	public NodeInterface,	
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface
@@ -87,6 +85,6 @@ public:
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 };

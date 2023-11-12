@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -40,6 +38,7 @@ limitations under the License.
 #include <Gaia/Resources/VulkanFrameBuffer.h>
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
@@ -50,7 +49,6 @@ class BlurModule_Comp_Pass;
 class BlurModule :
 	public BaseRenderer,
 	public NodeInterface,
-	
 	public TaskInterface,
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface

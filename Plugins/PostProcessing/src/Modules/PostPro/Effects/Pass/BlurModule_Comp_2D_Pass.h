@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -46,16 +44,18 @@ limitations under the License.
 
 class BlurModule_Comp_Pass :
 	public ShaderPass,
-	public NodeInterface,
-	
+	public NodeInterface,	
 	public TextureInputInterface<1U>,
-	public TextureOutputInterface
-{
+	public TextureOutputInterface {
+public:
+    static std::shared_ptr<BlurModule_Comp_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+
 private:
 	bool m_UseDistinctiveBlurRadiusVH = false;						// to save
 	struct UBOComp {
 		alignas(4) uint32_t u_blur_radius_H = 4; // default is 4	// to save
 		alignas(4) uint32_t u_blur_radius_V = 4; // default is 4	// to save
+        alignas(4) float u_enabled = 1.0f;
 	} m_UBOComp;
 
 	bool m_UseBlurV = true;											// to save
@@ -78,18 +78,25 @@ private:
 
 public:
 	BlurModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	~BlurModule_Comp_Pass() override;
+	virtual ~BlurModule_Comp_Pass();
+
 	void ActionBeforeInit();
 	void ActionBeforeCompilation();
+
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+	
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+	
 	bool CanUpdateDescriptors() override;
-	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+	
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    
 	void AfterNodeXmlLoading() override;
 
 private:
@@ -99,8 +106,8 @@ private:
 	void DestroySBO(GaussianKernel& vOutGaussian);
 
 protected:
-	void Compute_Blur_H(vk::CommandBuffer* vCmdBuffer);
-	void Compute_Blur_V(vk::CommandBuffer* vCmdBuffer);
+	void Compute_Blur_H(vk::CommandBuffer* vCmdBufferPtr);
+	void Compute_Blur_V(vk::CommandBuffer* vCmdBufferPtr);
 
 	bool CreateUBO() override;
 	void UploadUBO() override;

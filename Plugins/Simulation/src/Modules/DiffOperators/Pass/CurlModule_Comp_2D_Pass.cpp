@@ -180,19 +180,19 @@ void CurlModule_Comp_2D_Pass::WasJustResized()
 	ZoneScoped;
 }
 
-void CurlModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void CurlModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBuffer, "Curl", "Compute");
+			//VKFPScoped(*vCmdBufferPtr, "Curl", "Compute");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
 			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
 			{
-				Dispatch(vCmdBuffer);
+				Dispatch(vCmdBufferPtr);
 			}
 		}
 	}

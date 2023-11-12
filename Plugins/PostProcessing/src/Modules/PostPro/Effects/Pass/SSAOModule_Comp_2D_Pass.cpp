@@ -41,30 +41,42 @@ using namespace GaiApi;
 #endif
 
 //////////////////////////////////////////////////////////////
-//// SSAO FIRST PASS : AO ////////////////////////////////////
+//// STATIC //////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+
+std::shared_ptr<SSAOModule_Comp_2D_Pass> SSAOModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    auto res_ptr = std::make_shared<SSAOModule_Comp_2D_Pass>(vVulkanCorePtr);
+    if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
+        res_ptr.reset();
+    }
+    return res_ptr;
+}
+
+//////////////////////////////////////////////////////////////
+//// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
 SSAOModule_Comp_2D_Pass::SSAOModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
     SetRenderDocDebugName("Comp Pass : SSAO", COMPUTE_SHADER_PASS_DEBUG_COLOR);
-
     m_DontUseShaderFilesOnDisk = true;
+    *IsEffectEnabled() = false;
 }
 
 SSAOModule_Comp_2D_Pass::~SSAOModule_Comp_2D_Pass() {
     Unit();
 }
 
-void SSAOModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) {
-    if (vCmdBuffer) {
-        vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+void SSAOModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    if (vCmdBufferPtr) {
+        vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
         {
-            // VKFPScoped(*vCmdBuffer, "SSAO", "Compute");
+            // VKFPScoped(*vCmdBufferPtr, "SSAO", "Compute");
 
-            vCmdBuffer->bindDescriptorSets(
+            vCmdBufferPtr->bindDescriptorSets(
                 vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
             for (uint32_t iter = 0; iter < m_CountIterations.w; iter++) {
-                Dispatch(vCmdBuffer);
+                Dispatch(vCmdBufferPtr);
             }
         }
     }
@@ -74,24 +86,22 @@ bool SSAOModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
-    if (ImGui::CollapsingHeader("SSAO", ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (ImGui::CollapsingHeader_CheckBox("SSAO##SSAOModule_Comp_2D_Pass", -1.0f, false, true, IsEffectEnabled())) {
         bool change = false;
 
-        if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
-            change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOComp.u_noise_scale, 0.0f, 2.0f, 1.0f);
-            change |= ImGui::SliderFloatDefaultCompact(0.0f, "Radius", &m_UBOComp.u_ao_radius, 0.0f, 0.25f, 0.01f);
-            change |= ImGui::SliderFloatDefaultCompact(0.0f, "Scale", &m_UBOComp.u_ao_scale, 0.0f, 1.0f, 1.0f);
-            change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOComp.u_ao_bias, 0.0f, 0.1f, 0.001f);
-            change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &m_UBOComp.u_ao_intensity, 0.0f, 5.0f, 2.0f);
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOComp.u_noise_scale, 0.0f, 2.0f, 1.0f);
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "Radius", &m_UBOComp.u_ao_radius, 0.0f, 0.25f, 0.01f);
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "Scale", &m_UBOComp.u_ao_scale, 0.0f, 1.0f, 1.0f);
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOComp.u_ao_bias, 0.0f, 0.1f, 0.001f);
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &m_UBOComp.u_ao_intensity, 0.0f, 5.0f, 2.0f);
 
-            if (change) {
-                NeedNewUBOUpload();
-            }
+        if (change) {
+            NeedNewUBOUpload();
         }
 
-        DrawInputTexture(m_VulkanCorePtr, "Input Position", 0U, m_OutputRatio);
-        DrawInputTexture(m_VulkanCorePtr, "Input Normal", 1U, m_OutputRatio);
-        DrawInputTexture(m_VulkanCorePtr, "Input Blue Noise", 2U, m_OutputRatio);
+        // DrawInputTexture(m_VulkanCorePtr, "Input Position", 0U, m_OutputRatio);
+        // DrawInputTexture(m_VulkanCorePtr, "Input Normal", 1U, m_OutputRatio);
+        // DrawInputTexture(m_VulkanCorePtr, "Input Blue Noise", 2U, m_OutputRatio);
 
         return change;
     }
@@ -174,7 +184,8 @@ bool SSAOModule_Comp_2D_Pass::CreateUBO() {
 
 void SSAOModule_Comp_2D_Pass::UploadUBO() {
     ZoneScoped;
-
+    assert(IsEffectEnabled() != nullptr);
+    m_UBOComp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
     VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
@@ -193,6 +204,7 @@ bool SSAOModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor() {
         res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
         res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
         res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+        res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
         return res;
     }
     return false;
@@ -207,6 +219,7 @@ bool SSAOModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor() {
         res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // depth
         res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);  // normal
         res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]);  // RGB noise
+        res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[3]);  // source color
         return res;
     }
     return false;
@@ -228,15 +241,18 @@ layout (std140, binding = 1) uniform UBO_Comp {
 	float use_sampler_pos;
 	float use_sampler_nor;
 	float use_sampler_noise;
+	float use_sampler_color;
 	float u_noise_scale;
 	float u_ao_radius;
 	float u_ao_scale;
 	float u_ao_bias;
 	float u_ao_intensity;
+	uint u_enabled; // default is 1
 };
 layout(binding = 2) uniform sampler2D pos_map_sampler;
 layout(binding = 3) uniform sampler2D nor_map_sampler;
 layout(binding = 4) uniform sampler2D noise_map_sampler;
+layout(binding = 5) uniform sampler2D color_map_sampler;
 
 // https://www.gamedev.net/tutorials/programming/graphics/a-simple-and-practical-approach-to-ssao-r2753/
 
@@ -251,6 +267,10 @@ vec3 getNor(vec2 uv) {
 vec2 getNoi(vec2 uv) {
 	return normalize(texture(noise_map_sampler, uv * u_noise_scale).xy * 2.0 - 1.0); 
 }
+
+vec4 getColor(vec2 uv) { // only within pass, not with the node vertsion of the SSAO
+	return texture(color_map_sampler, uv);
+}
 	
 float getAO(vec2 uv, vec2 off, vec3 p, vec3 n) {
 	vec3 diff = getPos(uv + off) - p; 
@@ -262,33 +282,40 @@ float getAO(vec2 uv, vec2 off, vec3 p, vec3 n) {
 void main() {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 	const vec2 outputSize = vec2(imageSize(outColor));
+    const vec2 uv = vec2(coords) / outputSize;
 	vec4 res = vec4(0.0);
-	if (use_sampler_pos > 0.5 && use_sampler_nor > 0.5)	{
-		const vec2 uv = vec2(coords) / outputSize;
-		const vec3 pos = getPos(uv);
-		if (dot(pos, pos) > 0.0) {	
-			const vec2 vec[4] = { vec2(1, 0), vec2(-1, 0), vec2(0, 1), vec2(0, -1) };
-			const vec3 p = getPos(uv); 
-			const vec3 n = getNor(uv); 
-			const vec2 rand = getNoi(uv); 
-			float occ = 0.0; 
-			const int iterations = 4; 
-			for (int j = 0; j < iterations; ++j) {	
-				vec2 c1 = reflect(vec[j], rand) * u_ao_radius; 
-				vec2 c2 = vec2(c1.x - c1.y, c1.x + c1.y) * 0.707; 
-				occ += getAO(uv, c1 * 0.25, p, n); 
-				occ += getAO(uv, c2 * 0.50, p, n); 
-				occ += getAO(uv, c1 * 0.75, p, n); 
-				occ += getAO(uv, c2 * 1.00, p, n); 
-			}
-			occ /= float(iterations) * 4.0; 	
-			res = vec4(1.0 - occ);
-		} else {
-			//discard;
-		}
-	} else {
-		//discard;
-	}
+    if (u_enabled > 0.5) {
+	    if (use_sampler_pos > 0.5 && use_sampler_nor > 0.5)	{
+		    const vec3 pos = getPos(uv);
+		    if (dot(pos, pos) > 0.0) {	
+			    const vec2 vec[4] = { vec2(1, 0), vec2(-1, 0), vec2(0, 1), vec2(0, -1) };
+			    const vec3 p = getPos(uv); 
+			    const vec3 n = getNor(uv); 
+			    const vec2 rand = getNoi(uv); 
+			    float occ = 0.0; 
+			    const int iterations = 4; 
+			    for (int j = 0; j < iterations; ++j) {	
+				    vec2 c1 = reflect(vec[j], rand) * u_ao_radius; 
+				    vec2 c2 = vec2(c1.x - c1.y, c1.x + c1.y) * 0.707; 
+				    occ += getAO(uv, c1 * 0.25, p, n); 
+				    occ += getAO(uv, c2 * 0.50, p, n); 
+				    occ += getAO(uv, c1 * 0.75, p, n); 
+				    occ += getAO(uv, c2 * 1.00, p, n); 
+			    }
+			    occ /= float(iterations) * 4.0; 	
+			    res = vec4(1.0 - occ);
+                if (use_sampler_color > 0.5) {
+                    res *= getColor(uv);
+                }
+		    } else {
+			    //discard;
+		    }
+	    } else {
+		    //discard;
+	    }
+    } else if (use_sampler_color > 0.5) {
+        res = getColor(uv);
+    }
 	imageStore(outColor, coords, res);
 }
 )";
@@ -298,19 +325,23 @@ void main() {
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSAOModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/) {
+std::string SSAOModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     std::string str;
 
-    str += vOffset + "<noise_scale>" + ct::toStr(m_UBOComp.u_noise_scale) + "</noise_scale>\n";
-    str += vOffset + "<ao_radius>" + ct::toStr(m_UBOComp.u_ao_radius) + "</ao_radius>\n";
-    str += vOffset + "<ao_scale>" + ct::toStr(m_UBOComp.u_ao_scale) + "</ao_scale>\n";
-    str += vOffset + "<ao_bias>" + ct::toStr(m_UBOComp.u_ao_bias) + "</ao_bias>\n";
-    str += vOffset + "<ao_intensity>" + ct::toStr(m_UBOComp.u_ao_intensity) + "</ao_intensity>\n";
+    str += vOffset + "<ssao>\n";
+    str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
+    str += vOffset + "\t<ssao_noise_scale>" + ct::toStr(m_UBOComp.u_noise_scale) + "</ssao_noise_scale>\n";
+    str += vOffset + "\t<ssao_ao_radius>" + ct::toStr(m_UBOComp.u_ao_radius) + "</ssao_ao_radius>\n";
+    str += vOffset + "\t<ssao_ao_scale>" + ct::toStr(m_UBOComp.u_ao_scale) + "</ssao_ao_scale>\n";
+    str += vOffset + "\t<ssao_ao_bias>" + ct::toStr(m_UBOComp.u_ao_bias) + "</ssao_ao_bias>\n";
+    str += vOffset + "\t<ssao_ao_intensity>" + ct::toStr(m_UBOComp.u_ao_intensity) + "</ssao_ao_intensity>\n";
+    str += vOffset + "\t<ssao_enabled>" + (m_UBOComp.u_enabled > 0.5f ? "true" : "false") + "</ssao_enabled>\n";
+    str += vOffset + "</ssao>\n";
 
     return str;
 }
 
-bool SSAOModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/) {
+bool SSAOModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
     // The value of this child identifies the name of this element
     std::string strName;
     std::string strValue;
@@ -322,20 +353,28 @@ bool SSAOModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
     if (vParent != nullptr)
         strParentName = vParent->Value();
 
-    if (strParentName == "ssao_module") {
-        if (strName == "noise_scale")
+    if (strParentName == "ssao") {
+        ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+        if (strName == "ssao_noise_scale") {
             m_UBOComp.u_noise_scale = ct::fvariant(strValue).GetF();
-        else if (strName == "ao_radius")
+        } else if (strName == "ssao_ao_radius") {
             m_UBOComp.u_ao_radius = ct::fvariant(strValue).GetF();
-        else if (strName == "ao_scale")
+        } else if (strName == "ssao_ao_scale") {
             m_UBOComp.u_ao_scale = ct::fvariant(strValue).GetF();
-        else if (strName == "ao_bias")
+        } else if (strName == "ssao_ao_bias") {
             m_UBOComp.u_ao_bias = ct::fvariant(strValue).GetF();
-        else if (strName == "ao_intensity")
+        } else if (strName == "ssao_ao_intensity") {
             m_UBOComp.u_ao_intensity = ct::fvariant(strValue).GetF();
-
-        NeedNewUBOUpload();
+        } else if (strName == "ssao_enabled") {
+            m_UBOComp.u_enabled = ct::ivariant(strValue).GetB();
+            *IsEffectEnabled() = m_UBOComp.u_enabled;
+        }
     }
 
     return true;
+}
+
+void SSAOModule_Comp_2D_Pass::AfterNodeXmlLoading() {
+    ZoneScoped;
+    NeedNewUBOUpload();
 }

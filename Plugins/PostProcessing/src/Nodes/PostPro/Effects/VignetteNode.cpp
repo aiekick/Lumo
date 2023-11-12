@@ -285,12 +285,10 @@ bool VignetteNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 	return true;
 }
 
-void VignetteNode::AfterNodeXmlLoading()
-{
-	if (m_VignetteModulePtr)
-	{
-		m_VignetteModulePtr->AfterNodeXmlLoading();
-	}
+void VignetteNode::AfterNodeXmlLoading() {
+    if (m_VignetteModulePtr) {
+        m_VignetteModulePtr->AfterNodeXmlLoading();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

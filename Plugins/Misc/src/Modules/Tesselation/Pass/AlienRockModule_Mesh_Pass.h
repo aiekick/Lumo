@@ -129,7 +129,7 @@ public:
 
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
-	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;

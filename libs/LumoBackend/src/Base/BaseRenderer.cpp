@@ -415,20 +415,20 @@ void BaseRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* 
 //// PUBLIC / RENDER ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void BaseRenderer::RenderShaderPasses(vk::CommandBuffer* vCmdBuffer) {
+void BaseRenderer::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) {
     if (m_MergedRendering) {
-        vCmdBuffer->setViewport(0, 1, &m_Viewport);
-        vCmdBuffer->setScissor(0, 1, &m_RenderArea);
+        vCmdBufferPtr->setViewport(0, 1, &m_Viewport);
+        vCmdBufferPtr->setScissor(0, 1, &m_RenderArea);
     }
     for (auto pass : m_ShaderPasses) {
         auto pass_ptr = pass.lock();
         if (pass_ptr) {
-            pass_ptr->DrawPass(vCmdBuffer);
+            pass_ptr->DrawPass(vCmdBufferPtr);
         }
     }
 }
 
-void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* /*vCmdBuffer*/) {
+void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* /*vCmdBufferPtr*/) {
     ZoneScoped;
 
     if (m_CanWeRender || m_JustReseted) {
@@ -461,7 +461,7 @@ bool BaseRenderer::ResizeIfNeeded() {
                 // only the last pass can be an output and must
                 // be take into account for get
                 // the renderarea and viewport
-                resized = pass_ptr->ResizeIfNeeded();
+                resized |= pass_ptr->ResizeIfNeeded();
             }
         }
 
@@ -752,7 +752,7 @@ bool BaseRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
 //// PRIVATE / COMMANDBUFFER ///////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void BaseRenderer::DoBeforeEndCommandBuffer(vk::CommandBuffer* /*vCmdBuffer*/) {
+void BaseRenderer::DoBeforeEndCommandBuffer(vk::CommandBuffer* /*vCmdBufferPtr*/) {
 }
 
 bool BaseRenderer::CreateCommanBuffer() {

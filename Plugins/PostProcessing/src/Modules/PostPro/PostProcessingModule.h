@@ -49,7 +49,10 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class PostProcessingModule_Comp_2D_Pass;
+class BloomModule_Comp_2D_Pass;
+class SSAOModule_Comp_2D_Pass;
+class ToneMapModule_Comp_2D_Pass;
+class VignetteModule_Comp_2D_Pass;
 class PostProcessingModule :
 	public NodeInterface,
 	public BaseRenderer,	
@@ -63,7 +66,10 @@ public:
 private:
 	std::weak_ptr<PostProcessingModule> m_This;
 
-	std::shared_ptr<PostProcessingModule_Comp_2D_Pass> m_PostProcessingModule_Comp_2D_Pass_Ptr = nullptr;
+	std::shared_ptr<BloomModule_Comp_2D_Pass> m_BloomModule_Comp_2D_Pass_Ptr = nullptr;
+    std::shared_ptr<SSAOModule_Comp_2D_Pass> m_SSAOModule_Comp_2D_Pass_Ptr = nullptr;
+    std::shared_ptr<ToneMapModule_Comp_2D_Pass> m_ToneMapModule_Comp_2D_Pass_Ptr = nullptr;
+    std::shared_ptr<VignetteModule_Comp_2D_Pass> m_VignetteModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
 	PostProcessingModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
@@ -89,4 +95,8 @@ public:
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 	void AfterNodeXmlLoading() override;
+
+protected:
+    void UpdateDescriptorsBeforeCommandBuffer() override;
+    void RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) override;
 };

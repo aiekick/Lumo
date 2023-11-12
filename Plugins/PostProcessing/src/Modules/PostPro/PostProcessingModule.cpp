@@ -32,6 +32,12 @@ limitations under the License.
 #include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <Gaia/Buffer/FrameBuffer.h>
 
+#include <Modules/PostPro/Effects/Pass/BloomModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/SSAOModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/ToneMapModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/VignetteModule_Comp_2D_Pass.h>
+
+
 using namespace GaiApi;
 
 #ifdef PROFILER_INCLUDE
@@ -45,249 +51,293 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PostProcessingModule> PostProcessingModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<PostProcessingModule> PostProcessingModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<PostProcessingModule>(vVulkanCorePtr);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+    if (!vVulkanCorePtr)
+        return nullptr;
+    auto res = std::make_shared<PostProcessingModule>(vVulkanCorePtr);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PostProcessingModule::PostProcessingModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
-{
-	ZoneScoped;
+PostProcessingModule::PostProcessingModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+    ZoneScoped;
 }
 
-PostProcessingModule::~PostProcessingModule()
-{
-	ZoneScoped;
+PostProcessingModule::~PostProcessingModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool PostProcessingModule::Init()
-{
-	ZoneScoped;
+bool PostProcessingModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    ct::uvec2 map_size = 512;
+    if (BaseRenderer::InitCompute2D(map_size)) {
+        m_SSAOModule_Comp_2D_Pass_Ptr = SSAOModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        if (m_SSAOModule_Comp_2D_Pass_Ptr) {
+            m_BloomModule_Comp_2D_Pass_Ptr = BloomModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+            if (m_BloomModule_Comp_2D_Pass_Ptr) {
+                m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
+                    m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                    if (m_VignetteModule_Comp_2D_Pass_Ptr) {
+                        AddGenericPass(m_SSAOModule_Comp_2D_Pass_Ptr);      // 1) SSAO
+                        AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);     // 2) BLOOM
+                        AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);   // 3) TONE MAPPING
+                        AddGenericPass(m_VignetteModule_Comp_2D_Pass_Ptr);  // 4) VIGNETTE
+                        m_Loaded = true;
+                    }
+                }
+            }
+        }
+    }
 
-	ct::uvec2 map_size = 512;
-
-	if (BaseRenderer::InitCompute2D(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
-
-		/*m_PostProcessingModule_Comp_2D_Pass_Ptr = std::make_shared<PostProcessingModule_Comp_2D_Pass>(m_VulkanCorePtr);
-		if (m_PostProcessingModule_Comp_2D_Pass_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_PostProcessingModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PostProcessingModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(true);
-
-			if (m_PostProcessingModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_PostProcessingModule_Comp_2D_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}*/
-	}
-
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool PostProcessingModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
-		BaseRenderer::Render("Post Processing", vCmd);
-	return true;
+bool PostProcessingModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
+    BaseRenderer::Render("Post Processing", vCmd);
+    return true;
 }
 
-bool PostProcessingModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
-	BaseRenderer::Render("Post Processing", vCmd);
-	return true;
+bool PostProcessingModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
+    BaseRenderer::Render("Post Processing", vCmd);
+    return true;
+}
+
+void PostProcessingModule::UpdateDescriptorsBeforeCommandBuffer() {
+    // 1) SSAO
+    // the setTexture was already done
+
+    // 2) BLOOM
+    {
+        ct::fvec2 outSize;
+        auto outputTexture = m_SSAOModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
+        m_BloomModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
+    }
+
+    // 3) TONE MAPPING
+    {
+        ct::fvec2 outSize;
+        auto outputTexture = m_BloomModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
+        m_ToneMapModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
+    }
+
+    // 4) VIGNETTE
+    {
+        ct::fvec2 outSize;
+        auto outputTexture = m_ToneMapModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
+        m_VignetteModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
+    }
+
+    BaseRenderer::UpdateDescriptorsBeforeCommandBuffer();
+}
+
+void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) {
+    // 1) SSAO
+    m_SSAOModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
+    vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+        vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+
+    // 2) BLOOM
+    m_BloomModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
+    vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+        vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+
+    // 3) TONE MAPPING
+    m_ToneMapModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
+    vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+        vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+
+    // 4) VIGNETTE
+    m_VignetteModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
+    vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+        vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PostProcessingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool PostProcessingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Post Processing##PostProcessingModule", -1.0f, true, true, &m_CanWeRender))
-		{
-            /*if (m_PostProcessingModule_Comp_2D_Pass_Ptr)
-			{
-				return m_PostProcessingModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}*/
-		}
-		
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Post Processing##PostProcessingModule", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
+            for (auto pass : m_ShaderPasses) {
+                auto ptr = pass.lock();
+                if (ptr) {
+                    change |= ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+                }
+            }
+            return change;
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool PostProcessingModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool PostProcessingModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-        /*if (m_PostProcessingModule_Comp_2D_Pass_Ptr)
-		{
-			return m_PostProcessingModule_Comp_2D_Pass_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
-		}*/
-	}
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        bool change = false;
+        for (auto pass : m_ShaderPasses) {
+            auto ptr = pass.lock();
+            if (ptr) {
+                change |= ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+            }
+        }
+        return change;
+    }
 
-	return false;
+    return false;
 }
 
-bool PostProcessingModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool PostProcessingModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-        /*if (m_PostProcessingModule_Comp_2D_Pass_Ptr)
-		{
-			return m_PostProcessingModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-		}*/
-	}
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        bool change = false;
+        for (auto pass : m_ShaderPasses) {
+            auto ptr = pass.lock();
+            if (ptr) {
+                change |= ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+            }
+        }
+        return change;
+    }
 
-	return false;
+    return false;
 }
 
-void PostProcessingModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void PostProcessingModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PostProcessingModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
-
-	/*if (m_PostProcessingModule_Comp_2D_Pass_Ptr)
-	{
-		m_PostProcessingModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}*/
+void PostProcessingModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
+    if (vBindingPoint == 0U) {  // color
+        assert(m_SSAOModule_Comp_2D_Pass_Ptr != nullptr);
+        m_SSAOModule_Comp_2D_Pass_Ptr->SetTexture(3U, vImageInfo, vTextureSize);
+    } else if (vBindingPoint == 1U) {  // position
+        assert(m_SSAOModule_Comp_2D_Pass_Ptr != nullptr);
+        m_SSAOModule_Comp_2D_Pass_Ptr->SetTexture(0U, vImageInfo, vTextureSize);
+    } else if (vBindingPoint == 2U) {  // normal
+        assert(m_SSAOModule_Comp_2D_Pass_Ptr != nullptr);
+        m_SSAOModule_Comp_2D_Pass_Ptr->SetTexture(1U, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* PostProcessingModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
-
-	/*if (m_PostProcessingModule_Comp_2D_Pass_Ptr)
-	{
-		return m_PostProcessingModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}*/
-
-	return nullptr;
+vk::DescriptorImageInfo* PostProcessingModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+    assert(m_VignetteModule_Comp_2D_Pass_Ptr != nullptr);
+    return m_VignetteModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string PostProcessingModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string PostProcessingModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<post_processing_module>\n";
+    str += vOffset + "<post_processing_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
-    
-	/*if (m_PostProcessingModule_Comp_2D_Pass_Ptr)
-	{
-		str += m_PostProcessingModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}*/
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	str += vOffset + "</post_processing_module>\n";
+    for (auto pass : m_ShaderPasses) {
+        auto ptr = pass.lock();
+        if (ptr) {
+            str += ptr->getXml(vOffset + "\t", vUserDatas);
+        }
+    }
 
-	return str;
+    str += vOffset + "</post_processing_module>\n";
+
+    return str;
 }
 
-bool PostProcessingModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool PostProcessingModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "post_processing_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+    if (strParentName == "post_processing_module") {
+        if (strName == "can_we_render") {
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+        }
+    }
 
-		/*if (m_PostProcessingModule_Comp_2D_Pass_Ptr)
-		{
-			m_PostProcessingModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}*/
-	}
+    for (auto pass : m_ShaderPasses) {
+        auto ptr = pass.lock();
+        if (ptr) {
+            ptr->setFromXml(vElem, vParent, vUserDatas);
+        }
+    }
 
-	return true;
+    return true;
 }
 
-void PostProcessingModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
-
-	/*if (m_PostProcessingModule_Comp_2D_Pass_Ptr)
-	{
-		m_PostProcessingModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
-	}*/
+void PostProcessingModule::AfterNodeXmlLoading() {
+    ZoneScoped;
+    m_SSAOModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    m_BloomModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    m_ToneMapModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    m_VignetteModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
 }

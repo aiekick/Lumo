@@ -672,26 +672,26 @@ bool ShaderPass::AreWeValidForRender() {
             m_Pipelines[0].m_PipelineLayout && m_DescriptorWasUpdated);
 }
 
-bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBuffer) {
+bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
     if (AreWeValidForRender() && CanRender()) {
         auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
         if (devicePtr) {
-            devicePtr->BeginDebugLabel(vCmdBuffer, m_RenderDocDebugName, m_RenderDocDebugColor);
+            devicePtr->BeginDebugLabel(vCmdBufferPtr, m_RenderDocDebugName, m_RenderDocDebugColor);
         }
 
         if (!m_Tesselated)  // tesselated so no other topology than patch_list can be used
         {
             if (m_CanDynamicallyChangePrimitiveTopology) {
 #ifdef VK_VERSION_1_3
-                vCmdBuffer->setPrimitiveTopology(m_DynamicPrimitiveTopology);
+                vCmdBufferPtr->setPrimitiveTopology(m_DynamicPrimitiveTopology);
 #else
-                vCmdBuffer->setPrimitiveTopologyEXT(m_DynamicPrimitiveTopology);
+                vCmdBufferPtr->setPrimitiveTopologyEXT(m_DynamicPrimitiveTopology);
 #endif
             }
 
             if (GetPrimitiveTopologyFamily(m_BasePrimitiveTopology) == vk::PrimitiveTopology::eLineList) {
-                vCmdBuffer->setLineWidth(m_LineWidth.w);
+                vCmdBufferPtr->setLineWidth(m_LineWidth.w);
             }
         }
 
@@ -701,64 +701,64 @@ bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBuffer) {
     return false;
 }
 
-void ShaderPass::EndDrawPass(vk::CommandBuffer* vCmdBuffer) {
+void ShaderPass::EndDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
     auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
     if (devicePtr) {
-        devicePtr->EndDebugLabel(vCmdBuffer);
+        devicePtr->EndDebugLabel(vCmdBufferPtr);
     }
 }
 
-void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) {
+void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
     ZoneScoped;
-    if (StartDrawPass(vCmdBuffer)) {
+    if (StartDrawPass(vCmdBufferPtr)) {
         if (IsPixelRenderer()) {
-            if (m_FrameBufferPtr && m_FrameBufferPtr->Begin(vCmdBuffer)) {
-                m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBuffer, m_ForceFBOClearing);
+            if (m_FrameBufferPtr && m_FrameBufferPtr->Begin(vCmdBufferPtr)) {
+                m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBufferPtr, m_ForceFBOClearing);
                 m_ForceFBOClearing = false;
-                ActionBeforeDrawInCommandBuffer(vCmdBuffer);
-                DrawModel(vCmdBuffer, vIterationNumber);
-                ActionAfterDrawInCommandBuffer(vCmdBuffer);
-                m_FrameBufferPtr->End(vCmdBuffer);
+                ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
+                DrawModel(vCmdBufferPtr, vIterationNumber);
+                ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
+                m_FrameBufferPtr->End(vCmdBufferPtr);
             } else if (!m_LoanedFrameBufferWeak.expired()) {
                 auto fboPtr = m_LoanedFrameBufferWeak.lock();
                 if (fboPtr) {
-                    if (fboPtr->Begin(vCmdBuffer)) {
-                        fboPtr->ClearAttachmentsIfNeeded(vCmdBuffer, m_ForceFBOClearing);
+                    if (fboPtr->Begin(vCmdBufferPtr)) {
+                        fboPtr->ClearAttachmentsIfNeeded(vCmdBufferPtr, m_ForceFBOClearing);
                         m_ForceFBOClearing = false;
-                        ActionBeforeDrawInCommandBuffer(vCmdBuffer);
-                        DrawModel(vCmdBuffer, vIterationNumber);
-                        ActionAfterDrawInCommandBuffer(vCmdBuffer);
-                        fboPtr->End(vCmdBuffer);
+                        ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
+                        DrawModel(vCmdBufferPtr, vIterationNumber);
+                        ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
+                        fboPtr->End(vCmdBufferPtr);
                     }
                 }
             } else if (m_MergedRendering) {
-                ActionBeforeDrawInCommandBuffer(vCmdBuffer);
-                DrawModel(vCmdBuffer, vIterationNumber);
-                ActionAfterDrawInCommandBuffer(vCmdBuffer);
+                ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
+                DrawModel(vCmdBufferPtr, vIterationNumber);
+                ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
             }
         } else if (IsCompute1DRenderer()) {
-            ActionBeforeDrawInCommandBuffer(vCmdBuffer);
-            Compute(vCmdBuffer, vIterationNumber);
-            ActionAfterDrawInCommandBuffer(vCmdBuffer);
+            ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
+            Compute(vCmdBufferPtr, vIterationNumber);
+            ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
         } else if (IsCompute2DRenderer()) {
-            if (m_ComputeBufferPtr && m_ComputeBufferPtr->Begin(vCmdBuffer)) {
-                ActionBeforeDrawInCommandBuffer(vCmdBuffer);
-                Compute(vCmdBuffer, vIterationNumber);
-                ActionAfterDrawInCommandBuffer(vCmdBuffer);
-                m_ComputeBufferPtr->End(vCmdBuffer);
+            if (m_ComputeBufferPtr && m_ComputeBufferPtr->Begin(vCmdBufferPtr)) {
+                ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
+                Compute(vCmdBufferPtr, vIterationNumber);
+                ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
+                m_ComputeBufferPtr->End(vCmdBufferPtr);
             }
         } else if (IsCompute3DRenderer()) {
-            ActionBeforeDrawInCommandBuffer(vCmdBuffer);
-            Compute(vCmdBuffer, vIterationNumber);
-            ActionAfterDrawInCommandBuffer(vCmdBuffer);
+            ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
+            Compute(vCmdBufferPtr, vIterationNumber);
+            ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
         } else if (IsRtxRenderer()) {
-            ActionBeforeDrawInCommandBuffer(vCmdBuffer);
-            TraceRays(vCmdBuffer, vIterationNumber);
-            ActionAfterDrawInCommandBuffer(vCmdBuffer);
+            ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
+            TraceRays(vCmdBufferPtr, vIterationNumber);
+            ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
         }
 
-        EndDrawPass(vCmdBuffer);
+        EndDrawPass(vCmdBufferPtr);
     }
 }
 
@@ -839,35 +839,35 @@ bool ShaderPass::CanRender() {
     return m_CanWeRenderPass;
 }
 
-void ShaderPass::ActionBeforeDrawInCommandBuffer(vk::CommandBuffer* vCmdBuffer) {
+void ShaderPass::ActionBeforeDrawInCommandBuffer(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
-    UNUSED(vCmdBuffer);
+    UNUSED(vCmdBufferPtr);
 }
 
-void ShaderPass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) {
+void ShaderPass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
     ZoneScoped;
-    UNUSED(vCmdBuffer);
+    UNUSED(vCmdBufferPtr);
     UNUSED(vIterationNumber);
 
     CTOOL_DEBUG_BREAK;
 }
 
-void ShaderPass::ActionAfterDrawInCommandBuffer(vk::CommandBuffer* vCmdBuffer) {
+void ShaderPass::ActionAfterDrawInCommandBuffer(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
-    UNUSED(vCmdBuffer);
+    UNUSED(vCmdBufferPtr);
 }
 
-void ShaderPass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) {
+void ShaderPass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
     ZoneScoped;
-    UNUSED(vCmdBuffer);
+    UNUSED(vCmdBufferPtr);
     UNUSED(vIterationNumber);
 
     CTOOL_DEBUG_BREAK;
 }
 
-void ShaderPass::TraceRays(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) {
+void ShaderPass::TraceRays(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
     ZoneScoped;
-    UNUSED(vCmdBuffer);
+    UNUSED(vCmdBufferPtr);
     UNUSED(vIterationNumber);
 
     CTOOL_DEBUG_BREAK;
@@ -1015,10 +1015,10 @@ const ct::uvec3& ShaderPass::GetDispatchSize() {
     return m_DispatchSize;
 }
 
-void ShaderPass::Dispatch(vk::CommandBuffer* vCmdBuffer) {
+void ShaderPass::Dispatch(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
-    if (vCmdBuffer) {
-        vCmdBuffer->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
+    if (vCmdBufferPtr) {
+        vCmdBufferPtr->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
     }
 }
 
@@ -1953,6 +1953,11 @@ void ShaderPass::UpdateRessourceDescriptor() {
     EachFramesDescriptorUpdate();
 
     UpdateModel(m_Loaded);
+
+    if (IsEffectEnabled() && *IsEffectEnabled() != m_LastEffectEnabled) {
+        m_NeedNewUBOUpload = true;
+        m_LastEffectEnabled = *IsEffectEnabled();
+    }
 
     if (m_NeedNewUBOUpload) {
         UploadUBO();

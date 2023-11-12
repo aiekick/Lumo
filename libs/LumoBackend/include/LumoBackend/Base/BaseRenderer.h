@@ -148,8 +148,8 @@ public: // contructor
     void SetMergedRendering(const bool& vMergedRendering);
 
 	// render
-	virtual void RenderShaderPasses(vk::CommandBuffer* vCmdBuffer);
-	void Render(const char* vSectionLabel = nullptr, vk::CommandBuffer* vCmdBuffer = nullptr);
+	virtual void RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr);
+    void Render(const char* vSectionLabel = nullptr, vk::CommandBuffer* vCmdBufferPtr = nullptr);
 
 	virtual void UpdateDescriptorsBeforeCommandBuffer();
 
@@ -184,7 +184,7 @@ public: // contructor
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas);
 
 protected:
-	virtual void DoBeforeEndCommandBuffer(vk::CommandBuffer* vCmdBuffer);
+	virtual void DoBeforeEndCommandBuffer(vk::CommandBuffer* vCmdBufferPtr);
 
 	// CommandBuffer
 	bool CreateCommanBuffer();

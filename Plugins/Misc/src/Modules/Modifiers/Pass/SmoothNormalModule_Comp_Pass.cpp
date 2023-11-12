@@ -104,12 +104,12 @@ bool SmoothNormalModule_Comp_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
 	if (!m_Loaded) return;
 	if (!m_IsShaderCompiled) return;
 
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
 		auto modelPtr = m_SceneModel.lock();
 		if (modelPtr)
@@ -121,9 +121,9 @@ void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const 
 				UpdateModel(true);
 				UpdateRessourceDescriptor();
 
-				vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+				vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 
-				vCmdBuffer->pipelineBarrier(
+				vCmdBufferPtr->pipelineBarrier(
 					vk::PipelineStageFlagBits::eVertexInput,
 					vk::PipelineStageFlagBits::eComputeShader,
 					vk::DependencyFlags(),
@@ -133,13 +133,13 @@ void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const 
 
 				// le dispatch c'est les indices sur 3
 				SetDispatchSize1D(meshPtr->GetIndicesCount() / 3U);
-				ComputePass(vCmdBuffer, 0U); // add vertex normals
+				ComputePass(vCmdBufferPtr, 0U); // add vertex normals
 
 				// le dispatch c'est le nombre de vertexs
 				SetDispatchSize1D(meshPtr->GetVerticesCount());
-				ComputePass(vCmdBuffer, 1U); // normalize vertex normals
+				ComputePass(vCmdBufferPtr, 1U); // normalize vertex normals
 
-				vCmdBuffer->pipelineBarrier(
+				vCmdBufferPtr->pipelineBarrier(
 					vk::PipelineStageFlagBits::eComputeShader,
 					vk::PipelineStageFlagBits::eVertexInput,
 					vk::DependencyFlags(),

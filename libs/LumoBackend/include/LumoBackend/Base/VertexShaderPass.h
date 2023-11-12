@@ -27,6 +27,6 @@ public:
 	VertexShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
-	void DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
 	void SetInputStateBeforePipelineCreation() override;
 };

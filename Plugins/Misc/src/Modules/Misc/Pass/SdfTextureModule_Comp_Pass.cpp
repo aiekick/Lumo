@@ -171,23 +171,23 @@ bool SdfTextureModule_Comp_Pass::CanUpdateDescriptors()
 	return (m_ComputeBufferPtr != nullptr);
 }
 
-void SdfTextureModule_Comp_Pass::Compute_SdfTexture(vk::CommandBuffer* vCmdBuffer, const uint32_t& vIdx)
+void SdfTextureModule_Comp_Pass::Compute_SdfTexture(vk::CommandBuffer* vCmdBufferPtr, const uint32_t& vIdx)
 {
 	ZoneScoped;
 
-	if (vCmdBuffer && !GetDispatchSize().emptyOR())
+	if (vCmdBufferPtr && !GetDispatchSize().emptyOR())
 	{
 #ifdef _MSC_VER
 #undef MemoryBarrier
 #endif 
 		if (vIdx == 0U || vIdx == 3U)
 		{
-			vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_Pipeline);
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_PipelineLayout, 0, m_DescriptorSets[vIdx].m_DescriptorSet, nullptr);
-			vCmdBuffer->pushConstants(m_Pipelines[vIdx].m_PipelineLayout,
+			vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_Pipeline);
+			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_PipelineLayout, 0, m_DescriptorSets[vIdx].m_DescriptorSet, nullptr);
+			vCmdBufferPtr->pushConstants(m_Pipelines[vIdx].m_PipelineLayout,
 				vk::ShaderStageFlagBits::eCompute,
 				0, sizeof(PushConstants), &m_PushConstants);
-			Dispatch(vCmdBuffer);
+			Dispatch(vCmdBufferPtr);
 		}
 		else
 		{
@@ -195,26 +195,26 @@ void SdfTextureModule_Comp_Pass::Compute_SdfTexture(vk::CommandBuffer* vCmdBuffe
 			{
 				m_PushConstants.iteration_count = idx;
 
-				vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_Pipeline);
-				vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_PipelineLayout, 0, m_DescriptorSets[vIdx].m_DescriptorSet, nullptr);
-				vCmdBuffer->pushConstants(m_Pipelines[vIdx].m_PipelineLayout,
+				vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_Pipeline);
+				vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_PipelineLayout, 0, m_DescriptorSets[vIdx].m_DescriptorSet, nullptr);
+				vCmdBufferPtr->pushConstants(m_Pipelines[vIdx].m_PipelineLayout,
 					vk::ShaderStageFlagBits::eCompute,
 					0, sizeof(PushConstants), &m_PushConstants);
-				Dispatch(vCmdBuffer);
+				Dispatch(vCmdBufferPtr);
 			}
 		}
 	}
 }
 
-void SdfTextureModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void SdfTextureModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
 	ZoneScoped;
 
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
 		// Init
-		Compute_SdfTexture(vCmdBuffer, 0U);
-		vCmdBuffer->pipelineBarrier(
+		Compute_SdfTexture(vCmdBufferPtr, 0U);
+		vCmdBufferPtr->pipelineBarrier(
 			vk::PipelineStageFlagBits::eComputeShader,
 			vk::PipelineStageFlagBits::eComputeShader,
 			vk::DependencyFlags(),
@@ -223,8 +223,8 @@ void SdfTextureModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const in
 
 		// DistancePassH
 		m_MaxIterations = (uint32_t)m_ImageInfosSize[0].x;
-		Compute_SdfTexture(vCmdBuffer, 1U);
-		vCmdBuffer->pipelineBarrier(
+		Compute_SdfTexture(vCmdBufferPtr, 1U);
+		vCmdBufferPtr->pipelineBarrier(
 			vk::PipelineStageFlagBits::eComputeShader,
 			vk::PipelineStageFlagBits::eComputeShader,
 			vk::DependencyFlags(),
@@ -233,8 +233,8 @@ void SdfTextureModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const in
 		
 		// DistancePassV
 		m_MaxIterations = (uint32_t)m_ImageInfosSize[0].y;
-		Compute_SdfTexture(vCmdBuffer, 2U);
-		vCmdBuffer->pipelineBarrier(
+		Compute_SdfTexture(vCmdBufferPtr, 2U);
+		vCmdBufferPtr->pipelineBarrier(
 			vk::PipelineStageFlagBits::eComputeShader,
 			vk::PipelineStageFlagBits::eComputeShader,
 			vk::DependencyFlags(),
@@ -242,8 +242,8 @@ void SdfTextureModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const in
 			nullptr, nullptr);
 		
 		// DisplaySDF
-		Compute_SdfTexture(vCmdBuffer, 3U);
-		vCmdBuffer->pipelineBarrier(
+		Compute_SdfTexture(vCmdBufferPtr, 3U);
+		vCmdBufferPtr->pipelineBarrier(
 			vk::PipelineStageFlagBits::eComputeShader,
 			vk::PipelineStageFlagBits::eComputeShader,
 			vk::DependencyFlags(),

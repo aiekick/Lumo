@@ -194,16 +194,16 @@ void FlatGradientModule_Comp_2D_Pass::WasJustResized()
 	ZoneScoped;
 }
 
-void FlatGradientModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
+void FlatGradientModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBuffer, "Flat Gradient", "Compute");
+			//VKFPScoped(*vCmdBufferPtr, "Flat Gradient", "Compute");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-			Dispatch(vCmdBuffer);
+			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+			Dispatch(vCmdBufferPtr);
 		}
 	}
 }

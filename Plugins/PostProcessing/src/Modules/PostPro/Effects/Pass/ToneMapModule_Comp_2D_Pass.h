@@ -38,14 +38,18 @@ limitations under the License.
 #include <Gaia/Resources/VulkanFrameBuffer.h>
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
+#include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class ToneMapModule_Comp_2D_Pass : 
 	public ShaderPass,	
+	public NodeInterface,
 	public TextureInputInterface<1U>,
-	public TextureOutputInterface
-{
+	public TextureOutputInterface {
+public:
+    static std::shared_ptr<ToneMapModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+
 private:
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
@@ -92,6 +96,8 @@ private:
 
 		alignas(4) float u_unreal_a = 0.154f;	// default is 0.154
 		alignas(4) float u_unreal_b = 1.019f;	// default is 1.019
+
+        alignas(4) float u_enabled = 1.0f;
 	}; 
 	
 	UBOComp m_UBOComp;
@@ -105,7 +111,7 @@ public:
 
 	void ActionBeforeInit() override;
     
-	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
     
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
@@ -116,7 +122,8 @@ public:
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 
 private:
 	std::string GetStructToXMLString(const char* vBalise, float* vStartItem, size_t vCountItem);

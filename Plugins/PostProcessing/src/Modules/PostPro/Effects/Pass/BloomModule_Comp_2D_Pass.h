@@ -44,17 +44,20 @@ limitations under the License.
 
 class BloomModule_Comp_2D_Pass :
 	public ShaderPass,
-	public NodeInterface,
-	
+	public NodeInterface,	
 	public TextureInputInterface<1U>,
 	public TextureOutputInterface
 {
+public:
+    static std::shared_ptr<BloomModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+
 private:
 	struct UBOComp {
 		alignas(16) ct::fvec3 u_high_freq_threshold = 0.8f;
 		alignas(4) uint32_t u_blur_radius = 4; // default is 4
 		alignas(4) float u_exposure = 1.0f;
 		alignas(4) float u_gamma_correction = 2.2f;// linear to srgb correction 
+        alignas(4) float u_enabled = 1.0f;
 	} m_UBOComp;
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
@@ -77,18 +80,18 @@ public:
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 	void SwapMultiPassFrontBackDescriptors() override;
 	bool CanUpdateDescriptors() override;
-	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
+    void AfterNodeXmlLoading() override;
 
 protected:
 	void ReComputeGaussianBlurWeights();
 
-	void Compute_High_Freq_Thresholding(vk::CommandBuffer* vCmdBuffer);
-	void Compute_Horizontal_Blur(vk::CommandBuffer* vCmdBuffer);
-	void Compute_Vertical_Blur(vk::CommandBuffer* vCmdBuffer);
-	void Compute_Gamma_Correction(vk::CommandBuffer* vCmdBuffer);
+	void Compute_High_Freq_Thresholding(vk::CommandBuffer* vCmdBufferPtr);
+	void Compute_Horizontal_Blur(vk::CommandBuffer* vCmdBufferPtr);
+	void Compute_Vertical_Blur(vk::CommandBuffer* vCmdBufferPtr);
+	void Compute_Gamma_Correction(vk::CommandBuffer* vCmdBufferPtr);
 
 	bool CreateUBO() override;
 	void UploadUBO() override;

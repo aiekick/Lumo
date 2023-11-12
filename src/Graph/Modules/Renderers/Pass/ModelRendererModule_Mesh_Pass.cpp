@@ -207,22 +207,22 @@ void ModelRendererModule_Mesh_Pass::WasJustResized()
 	ZoneScoped;
 }
 
-void ModelRendererModule_Mesh_Pass::DrawModel(vk::CommandBuffer * vCmdBuffer, const int& vIterationNumber)
+void ModelRendererModule_Mesh_Pass::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vIterationNumber)
 {
 	ZoneScoped;
 
 	if (!m_Loaded) return;
 
-	if (vCmdBuffer)
+	if (vCmdBufferPtr)
 	{
 		auto modelPtr = m_SceneModel.lock();
 		if (!modelPtr || modelPtr->empty()) return;
 
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
+		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBuffer, "Model Renderer", "DrawModel");
+			//VKFPScoped(*vCmdBufferPtr, "Model Renderer", "DrawModel");
 
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, 
+			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, 
 				m_Pipelines[0].m_PipelineLayout, 0, 
 				m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
@@ -231,23 +231,23 @@ void ModelRendererModule_Mesh_Pass::DrawModel(vk::CommandBuffer * vCmdBuffer, co
 				if (meshPtr)
 				{
 					vk::DeviceSize offsets = 0;
-					vCmdBuffer->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
+					vCmdBufferPtr->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
 
 					if (meshPtr->GetIndicesCount())
 					{
-						vCmdBuffer->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
+						vCmdBufferPtr->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
 						if (m_UseIndiceRestriction)
 						{
-							vCmdBuffer->drawIndexed(m_RestrictedIndicesCountToDraw, 1, 0, 0, 0);
+							vCmdBufferPtr->drawIndexed(m_RestrictedIndicesCountToDraw, 1, 0, 0, 0);
 						}
 						else
 						{
-							vCmdBuffer->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
+							vCmdBufferPtr->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
 						}
 					}
 					else
 					{
-						vCmdBuffer->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
+						vCmdBufferPtr->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
 					}
 				}
 			}

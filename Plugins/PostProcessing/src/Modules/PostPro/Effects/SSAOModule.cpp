@@ -76,16 +76,11 @@ bool SSAOModule::Init() {
     ZoneScoped;
 
     ct::uvec2 map_size = 512;
-
-    m_Loaded = true;
-
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_SSAOModule_Comp_2D_Pass_Ptr = std::make_shared<SSAOModule_Comp_2D_Pass>(m_VulkanCorePtr);
+        m_SSAOModule_Comp_2D_Pass_Ptr = SSAOModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
         if (m_SSAOModule_Comp_2D_Pass_Ptr) {
-            if (m_SSAOModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
-                AddGenericPass(m_SSAOModule_Comp_2D_Pass_Ptr);
-                m_Loaded = true;
-            }
+            AddGenericPass(m_SSAOModule_Comp_2D_Pass_Ptr);
+            m_Loaded = true;
         }
     }
 
@@ -108,19 +103,8 @@ bool SSAOModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
-    if (m_LastExecutedFrame == vCurrentFrame) {
-        if (ImGui::CollapsingHeader_CheckBox("SSAO", -1.0f, true, true, &m_CanWeRender)) {
-            bool change = false;
-
-            for (auto pass : m_ShaderPasses) {
-                auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
-                if (passGuiPtr) {
-                    change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-                }
-            }
-
-            return change;
-        }
+    if (m_LastExecutedFrame == vCurrentFrame && m_SSAOModule_Comp_2D_Pass_Ptr) {
+        return m_SSAOModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
     }
 
     return false;
@@ -202,13 +186,18 @@ bool SSAOModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
         strParentName = vParent->Value();
 
     if (strParentName == "ssao_module") {
-        if (strName == "can_we_render")
+        if (strName == "can_we_render") {
             m_CanWeRender = ct::ivariant(strValue).GetB();
-    }
-
-    if (m_SSAOModule_Comp_2D_Pass_Ptr) {
-        m_SSAOModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+        } else if (m_SSAOModule_Comp_2D_Pass_Ptr) {
+            m_SSAOModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+        }
     }
 
     return true;
+}
+
+void SSAOModule::AfterNodeXmlLoading() {
+    if (m_SSAOModule_Comp_2D_Pass_Ptr) {
+        m_SSAOModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    }
 }

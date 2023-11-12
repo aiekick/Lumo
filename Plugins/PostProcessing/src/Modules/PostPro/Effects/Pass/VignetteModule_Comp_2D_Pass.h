@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -45,19 +43,20 @@ limitations under the License.
 
 class VignetteModule_Comp_2D_Pass :
 	public ShaderPass,
+	public NodeInterface,
 	public TextureInputInterface<1>,
-	public TextureOutputInterface,
-	
-	public NodeInterface
-{
+	public TextureOutputInterface {
+public:
+    static std::shared_ptr<VignetteModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+
 private:
 	struct UBO_1_Comp {
 		alignas(4) float u_Width = 0.25f;
-		alignas(4) float u_Intensity = 15.0f;
-	} m_UBO_1_Comp;
-	VulkanBufferObjectPtr m_UBO_1_Comp_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_1_Comp_BufferInfos;
-
+        alignas(4) float u_Intensity = 15.0f;
+        alignas(4) float u_enabled = 1.0f;
+	} m_UBOComp;
+	VulkanBufferObjectPtr m_UBOComp_Ptr = nullptr;
+	vk::DescriptorBufferInfo m_UBOComp_BufferInfos;
 
 public:
 	VignetteModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
@@ -66,7 +65,7 @@ public:
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
 
-	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
+	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
@@ -77,10 +76,9 @@ public:
 	// Interfaces Getters
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 
 protected:
 	bool CreateUBO() override;

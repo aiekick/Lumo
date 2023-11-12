@@ -35,7 +35,7 @@ public:
 	std::weak_ptr<RendererInterface> m_This;
 
 public:
-	virtual void Render(vk::CommandBuffer* vCmdBuffer) = 0;
+	virtual void Render(vk::CommandBuffer* vCmdBufferPtr) = 0;
 	virtual std::vector<GaiApi::VulkanFrameBufferAttachment>* GetBufferAttachments(uint32_t* vMaxBuffers) { return nullptr; }
 	virtual void UpdateShaders(const std::set<std::string>& vFiles, vk::RenderPass* vRenderPass) {}
 };
