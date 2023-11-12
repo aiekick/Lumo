@@ -28,44 +28,40 @@ limitations under the License.
 #include <Gaia/gaia.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-class LUMO_BACKEND_API TextureInputFunctions
-{
+class LUMO_BACKEND_API TextureInputFunctions {
 protected:
-	void UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs);
+    void UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs);
 
 public:
-	virtual void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) = 0;
+    virtual void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) = 0;
 };
 
-template<size_t size_of_array>
-class TextureInputInterface : public TextureInputFunctions
-{
+template <size_t size_of_array>
+class TextureInputInterface : public TextureInputFunctions {
 protected:
-	std::array<vk::DescriptorImageInfo, size_of_array> m_ImageInfos;
-	std::array<ct::fvec2, size_of_array> m_ImageInfosSize;
-	std::array<ImGuiTexture, size_of_array> m_ImGuiTextures;
+    std::array<vk::DescriptorImageInfo, size_of_array> m_ImageInfos;
+    std::array<ct::fvec2, size_of_array> m_ImageInfosSize;
+    std::array<ImGuiTexture, size_of_array> m_ImGuiTextures;
 
-protected: // internal use
-	void DrawInputTexture(GaiApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio);
+protected:  // internal use
+    void DrawInputTexture(GaiApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio);
 };
 
-template<size_t size_of_array>
-void TextureInputInterface<size_of_array>::DrawInputTexture(GaiApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio)
-{
-	if (vVKCore && vLabel && vIdx <= (uint32_t)size_of_array) {
-		auto imguiRendererPtr = vVKCore->GetVulkanImGuiRenderer().lock();
-		if (imguiRendererPtr) {
-			if (ImGui::CollapsingHeader(vLabel)) {
-				m_ImGuiTextures[(size_t)vIdx].SetDescriptor(imguiRendererPtr,
-					&m_ImageInfos[(size_t)vIdx], vRatio);
-				if (m_ImGuiTextures[(size_t)vIdx].canDisplayPreview) {
-					int w = (int)ImGui::GetContentRegionAvail().x;
+template <size_t size_of_array>
+void TextureInputInterface<size_of_array>::DrawInputTexture(
+    GaiApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio) {
+    if (vVKCore && vLabel && vIdx <= (uint32_t)size_of_array) {
+        auto imguiRendererPtr = vVKCore->GetVulkanImGuiRenderer().lock();
+        if (imguiRendererPtr) {
+            if (ImGui::CollapsingHeader(vLabel)) {
+                m_ImGuiTextures[(size_t)vIdx].SetDescriptor(imguiRendererPtr, &m_ImageInfos[(size_t)vIdx], vRatio);
+                if (m_ImGuiTextures[(size_t)vIdx].canDisplayPreview) {
+                    int w = (int)ImGui::GetContentRegionAvail().x;
                     auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTextures[(size_t)vIdx].ratio, ct::ivec2(w, w), false);
-					ImGui::ImageRect((ImTextureID)&m_ImGuiTextures[(size_t)vIdx].descriptor,
-						ImVec2((float)rect.x, (float)rect.y),
-						ImVec2((float)rect.w, (float)rect.h));
-				}
-			}
-		}
-	}
+                    ImGui::ImageRect((ImTextureID)&m_ImGuiTextures[(size_t)vIdx].descriptor, ImVec2((float)rect.x, (float)rect.y),
+                        ImVec2((float)rect.w, (float)rect.h));
+                }
+            }
+        }
+    }
 }

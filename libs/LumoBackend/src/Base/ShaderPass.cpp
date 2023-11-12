@@ -75,7 +75,8 @@ ShaderPass::ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vC
     m_DescriptorPool = *vDescriptorPool;
 }
 
-ShaderPass::ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool) {
+ShaderPass::ShaderPass(
+    GaiApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool) {
     ZoneScoped;
 
     m_RendererType = vRendererTypeEnum;
@@ -114,7 +115,11 @@ void ShaderPass::ActionAfterInitFail() {
 //// PUBLIC / INIT/UNIT ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ShaderPass::InitPixelWithoutFBO(const ct::uvec2& vSize, const uint32_t& vCountColorBuffers, const bool& vTesselated, vk::RenderPass* vRenderPassPtr, const vk::SampleCountFlagBits& vSampleCount) {
+bool ShaderPass::InitPixelWithoutFBO(const ct::uvec2& vSize,
+    const uint32_t& vCountColorBuffers,
+    const bool& vTesselated,
+    vk::RenderPass* vRenderPassPtr,
+    const vk::SampleCountFlagBits& vSampleCount) {
     ZoneScoped;
     m_RendererType = GenericType::PIXEL;
 
@@ -172,8 +177,15 @@ bool ShaderPass::InitPixelWithoutFBO(const ct::uvec2& vSize, const uint32_t& vCo
     return m_Loaded;
 }
 
-bool ShaderPass::InitPixel(const ct::uvec2& vSize, const uint32_t& vCountColorBuffers, const bool& vUseDepth, const bool& vNeedToClear, const ct::fvec4& vClearColor, const bool& vMultiPassMode, const bool& vTesselated, const vk::Format& vFormat,
-                           const vk::SampleCountFlagBits& vSampleCount) {
+bool ShaderPass::InitPixel(const ct::uvec2& vSize,
+    const uint32_t& vCountColorBuffers,
+    const bool& vUseDepth,
+    const bool& vNeedToClear,
+    const ct::fvec4& vClearColor,
+    const bool& vPingPongBufferMode,
+    const bool& vTesselated,
+    const vk::Format& vFormat,
+    const vk::SampleCountFlagBits& vSampleCount) {
     ZoneScoped;
     m_RendererType = GenericType::PIXEL;
 
@@ -205,7 +217,8 @@ bool ShaderPass::InitPixel(const ct::uvec2& vSize, const uint32_t& vCountColorBu
     CompilPixel();
 
     m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
-    if (m_FrameBufferPtr && m_FrameBufferPtr->Init(vSize, vCountColorBuffers, vUseDepth, vNeedToClear, vClearColor, vMultiPassMode, vFormat, vSampleCount)) {
+    if (m_FrameBufferPtr &&
+        m_FrameBufferPtr->Init(vSize, vCountColorBuffers, vUseDepth, vNeedToClear, vClearColor, vPingPongBufferMode, vFormat, vSampleCount)) {
         // must be set one time only by the direct parent of this pass
         m_NativeRenderPassPtr = m_FrameBufferPtr->GetRenderPass();
         // used for the rendering
@@ -286,7 +299,8 @@ bool ShaderPass::InitCompute1D(const uint32_t& vDispatchSize) {
     return m_Loaded;
 }
 
-bool ShaderPass::InitCompute2D(const ct::uvec2& vDispatchSize, const uint32_t& vCountColorBuffers, const bool& vMultiPassMode, const vk::Format& vFormat) {
+bool ShaderPass::InitCompute2D(
+    const ct::uvec2& vDispatchSize, const uint32_t& vCountColorBuffers, const bool& vPingPongBufferMode, const vk::Format& vFormat) {
     ZoneScoped;
     m_RendererType = GenericType::COMPUTE_2D;
 
@@ -311,7 +325,7 @@ bool ShaderPass::InitCompute2D(const ct::uvec2& vDispatchSize, const uint32_t& v
     SetDispatchSize2D(vDispatchSize);
 
     m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
-    if (m_ComputeBufferPtr && m_ComputeBufferPtr->Init(vDispatchSize, vCountColorBuffers, vMultiPassMode, vFormat)) {
+    if (m_ComputeBufferPtr && m_ComputeBufferPtr->Init(vDispatchSize, vCountColorBuffers, vPingPongBufferMode, vFormat)) {
         if (BuildModel()) {
             if (CreateSBO()) {
                 if (CreateUBO()) {
@@ -383,7 +397,8 @@ bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize) {
     return m_Loaded;
 }
 
-bool ShaderPass::InitRtx(const ct::uvec2& vDispatchSize, const uint32_t& vCountColorBuffers, const bool& vMultiPassMode, const vk::Format& vFormat) {
+bool ShaderPass::InitRtx(
+    const ct::uvec2& vDispatchSize, const uint32_t& vCountColorBuffers, const bool& vPingPongBufferMode, const vk::Format& vFormat) {
     ZoneScoped;
     m_RendererType = GenericType::RTX;
 
@@ -408,7 +423,7 @@ bool ShaderPass::InitRtx(const ct::uvec2& vDispatchSize, const uint32_t& vCountC
     SetDispatchSize2D(vDispatchSize);
 
     m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
-    if (m_ComputeBufferPtr && m_ComputeBufferPtr->Init(vDispatchSize, vCountColorBuffers, vMultiPassMode, vFormat)) {
+    if (m_ComputeBufferPtr && m_ComputeBufferPtr->Init(vDispatchSize, vCountColorBuffers, vPingPongBufferMode, vFormat)) {
         if (BuildModel()) {
             if (CreateSBO()) {
                 if (CreateUBO()) {
@@ -472,7 +487,8 @@ bool ShaderPass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
     return false;
 }
 
-bool ShaderPass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ShaderPass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vMaxSize);
@@ -616,11 +632,11 @@ void ShaderPass::AutoResizeBuffer(OutputSizeInterface* vBufferOutSizePtr, ct::fv
     ZoneScoped;
     if (vBufferOutSizePtr && vParentOutSizePtr) {
         auto buffer_size = vBufferOutSizePtr->GetOutputSize();
-        if (!vParentOutSizePtr->emptyAND() && IS_FLOAT_DIFFERENT(buffer_size.x, (float)vParentOutSizePtr->x) || IS_FLOAT_DIFFERENT(buffer_size.y, (float)vParentOutSizePtr->y)) {
+        if (!vParentOutSizePtr->emptyOR() &&
+            (IS_FLOAT_DIFFERENT(buffer_size.x, (float)vParentOutSizePtr->x) || IS_FLOAT_DIFFERENT(buffer_size.y, (float)vParentOutSizePtr->y))) {
             ct::ivec2 new_size = ct::ivec2((int32_t)vParentOutSizePtr->x, (int32_t)vParentOutSizePtr->y);
             NeedResizeByResizeEvent(&new_size, nullptr);
         }
-
         *vParentOutSizePtr = vBufferOutSizePtr->GetOutputSize();
     }
 }
@@ -672,7 +688,7 @@ bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBuffer) {
 #else
                 vCmdBuffer->setPrimitiveTopologyEXT(m_DynamicPrimitiveTopology);
 #endif
-            } 
+            }
 
             if (GetPrimitiveTopologyFamily(m_BasePrimitiveTopology) == vk::PrimitiveTopology::eLineList) {
                 vCmdBuffer->setLineWidth(m_LineWidth.w);
@@ -725,8 +741,7 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBuffer, const int& vIterationNu
             ActionBeforeDrawInCommandBuffer(vCmdBuffer);
             Compute(vCmdBuffer, vIterationNumber);
             ActionAfterDrawInCommandBuffer(vCmdBuffer);
-        }
-            else if (IsCompute2DRenderer()) {
+        } else if (IsCompute2DRenderer()) {
             if (m_ComputeBufferPtr && m_ComputeBufferPtr->Begin(vCmdBuffer)) {
                 ActionBeforeDrawInCommandBuffer(vCmdBuffer);
                 Compute(vCmdBuffer, vIterationNumber);
@@ -1175,14 +1190,17 @@ void ShaderPass::UpdateFBOColorBuffersCount(const uint32_t& vNewColorBufferCount
 //// PRIVATE / SPECIFIC UPDATE CODE ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const std::vector<unsigned int> ShaderPass::CompilGLSLToSpirv(const std::string& vCode, const std::string& vShaderSuffix, const std::string& vOriginalFileName, const ShaderEntryPoint& vEntryPoint) {
+const std::vector<unsigned int> ShaderPass::CompilGLSLToSpirv(
+    const std::string& vCode, const std::string& vShaderSuffix, const std::string& vOriginalFileName, const ShaderEntryPoint& vEntryPoint) {
     if (GaiApi::VulkanCore::sVulkanShader) {
-        return GaiApi::VulkanCore::sVulkanShader->CompileGLSLString(vCode, vShaderSuffix, vOriginalFileName, vEntryPoint, nullptr, nullptr, &m_UsedUniforms);
+        return GaiApi::VulkanCore::sVulkanShader->CompileGLSLString(
+            vCode, vShaderSuffix, vOriginalFileName, vEntryPoint, nullptr, nullptr, &m_UsedUniforms);
     }
     return {};
 }
 
-ShaderPass::ShaderCode ShaderPass::CompilShaderCode(const vk::ShaderStageFlagBits& vShaderType, const std::string& vCode, const std::string& vShaderName, const std::string& vEntryPoint) {
+ShaderPass::ShaderCode ShaderPass::CompilShaderCode(
+    const vk::ShaderStageFlagBits& vShaderType, const std::string& vCode, const std::string& vShaderName, const std::string& vEntryPoint) {
     ZoneScoped;
     ShaderCode shaderCode;
     shaderCode.m_ShaderId = vShaderType;
@@ -1484,7 +1502,7 @@ std::string ShaderPass::getXml(const std::string& vOffset, const std::string& /*
 
 // return true for continue xml parsing of childs in this node or false for interupt the child exploration
 bool ShaderPass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/) {
-    ZoneScoped;  
+    ZoneScoped;
     // The value of this child identifies the name of this element
     std::string strName;
     std::string strValue;
@@ -1606,7 +1624,11 @@ void ShaderPass::ClearWriteDescriptors(const uint32_t& vDescriptorSetIndex) {
     }
 }
 
-bool ShaderPass::AddOrSetWriteDescriptorImage(const uint32_t& vBindingPoint, const vk::DescriptorType& vType, const vk::DescriptorImageInfo* vImageInfo, const uint32_t& vCount, const uint32_t& vDescriptorSetIndex) {
+bool ShaderPass::AddOrSetWriteDescriptorImage(const uint32_t& vBindingPoint,
+    const vk::DescriptorType& vType,
+    const vk::DescriptorImageInfo* vImageInfo,
+    const uint32_t& vCount,
+    const uint32_t& vDescriptorSetIndex) {
     ZoneScoped;
     if (vDescriptorSetIndex < (uint32_t)m_DescriptorSets.size()) {
         if (vImageInfo && vImageInfo->imageView) {
@@ -1622,20 +1644,17 @@ bool ShaderPass::AddOrSetWriteDescriptorImage(const uint32_t& vBindingPoint, con
 
 #if _DEBUG
             const char* descriptorType = LoggingUtils::DescriptorTypeToString(vType);
-            LogVarDebugInfo(
-                "Write Image Descriptor : %u, %s, imageInfo:%u, count:%u, descriptorIndex:%u",
-                vBindingPoint,
-                descriptorType,
-                (uintptr_t)vImageInfo,
-                vCount,
-                vDescriptorSetIndex);
+            LogVarDebugInfo("Write Image Descriptor : %u, %s, imageInfo:%u, count:%u, descriptorIndex:%u", vBindingPoint, descriptorType,
+                (uintptr_t)vImageInfo, vCount, vDescriptorSetIndex);
 #endif
 
             // update
             if (_needUpdate) {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, vImageInfo);
-            } else { // add
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, vImageInfo);
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] =
+                    vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, vImageInfo);
+            } else {  // add
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+                    m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, vImageInfo);
             }
         }
 
@@ -1647,7 +1666,11 @@ bool ShaderPass::AddOrSetWriteDescriptorImage(const uint32_t& vBindingPoint, con
     return false;
 }
 
-bool ShaderPass::AddOrSetWriteDescriptorBuffer(const uint32_t& vBindingPoint, const vk::DescriptorType& vType, const vk::DescriptorBufferInfo* vBufferInfo, const uint32_t& vCount, const uint32_t& vDescriptorSetIndex) {
+bool ShaderPass::AddOrSetWriteDescriptorBuffer(const uint32_t& vBindingPoint,
+    const vk::DescriptorType& vType,
+    const vk::DescriptorBufferInfo* vBufferInfo,
+    const uint32_t& vCount,
+    const uint32_t& vDescriptorSetIndex) {
     ZoneScoped;
     if (vDescriptorSetIndex < (uint32_t)m_DescriptorSets.size()) {
         bool _needUpdate = false;
@@ -1662,28 +1685,27 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(const uint32_t& vBindingPoint, co
 
 #if _DEBUG
         const char* descriptorType = LoggingUtils::DescriptorTypeToString(vType);
-        LogVarDebugInfo(
-            "Write Buffer Descriptor : %u, %s, bufferInfo:%u, count:%u, descriptorIndex:%u",
-            vBindingPoint,
-            descriptorType,
-            (uintptr_t)vBufferInfo,
-            vCount,
-            vDescriptorSetIndex);
+        LogVarDebugInfo("Write Buffer Descriptor : %u, %s, bufferInfo:%u, count:%u, descriptorIndex:%u", vBindingPoint, descriptorType,
+            (uintptr_t)vBufferInfo, vCount, vDescriptorSetIndex);
 #endif
 
         // update
         if (_needUpdate) {
             if (vBufferInfo && vBufferInfo->buffer) {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, vBufferInfo);
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+                    m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, vBufferInfo);
             } else {
                 m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] =
-                    vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+                    vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr,
+                        m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
             }
-        } else { // add
+        } else {  // add
             if (vBufferInfo && vBufferInfo->buffer) {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, vBufferInfo);
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+                    m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, vBufferInfo);
             } else {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet,
+                    vBindingPoint, 0, vCount, vType, nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
             }
         }
 
@@ -1695,7 +1717,11 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(const uint32_t& vBindingPoint, co
     return false;
 }
 
-bool ShaderPass::AddOrSetWriteDescriptorBufferView(const uint32_t& vBindingPoint, const vk::DescriptorType& vType, const vk::BufferView* vBufferView, const uint32_t& vCount, const uint32_t& vDescriptorSetIndex) {
+bool ShaderPass::AddOrSetWriteDescriptorBufferView(const uint32_t& vBindingPoint,
+    const vk::DescriptorType& vType,
+    const vk::BufferView* vBufferView,
+    const uint32_t& vCount,
+    const uint32_t& vDescriptorSetIndex) {
     ZoneScoped;
     if (vDescriptorSetIndex < (uint32_t)m_DescriptorSets.size()) {
         bool _needUpdate = false;
@@ -1710,28 +1736,27 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(const uint32_t& vBindingPoint
 
 #if _DEBUG
         const char* descriptorType = LoggingUtils::DescriptorTypeToString(vType);
-        LogVarDebugInfo(
-            "Write Buffer View Descriptor : %u, %s, bufferView:%u, count:%u, descriptorIndex:%u",
-            vBindingPoint,
-            descriptorType,
-            (uintptr_t)vBufferView,
-            vCount,
-            vDescriptorSetIndex);
+        LogVarDebugInfo("Write Buffer View Descriptor : %u, %s, bufferView:%u, count:%u, descriptorIndex:%u", vBindingPoint, descriptorType,
+            (uintptr_t)vBufferView, vCount, vDescriptorSetIndex);
 #endif
 
         // update
         if (_needUpdate) {
             if (vBufferView) {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, vBufferView);
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+                    m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, vBufferView);
             } else {
                 m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] =
-                    vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
+                    vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr,
+                        m_VulkanCorePtr->getEmptyBufferView());
             }
-        } else { // Add
+        } else {  // Add
             if (vBufferView) {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, vBufferView);
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+                    m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, vBufferView);
             } else {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet,
+                    vBindingPoint, 0, vCount, vType, nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
             }
         }
 
@@ -1743,7 +1768,8 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(const uint32_t& vBindingPoint
     return false;
 }
 
-bool ShaderPass::AddOrSetWriteDescriptorNext(const uint32_t& vBindingPoint, const vk::DescriptorType& vType, const void* vNext, const uint32_t& vCount, const uint32_t& vDescriptorSetIndex) {
+bool ShaderPass::AddOrSetWriteDescriptorNext(
+    const uint32_t& vBindingPoint, const vk::DescriptorType& vType, const void* vNext, const uint32_t& vCount, const uint32_t& vDescriptorSetIndex) {
     ZoneScoped;
     if (vDescriptorSetIndex < (uint32_t)m_DescriptorSets.size()) {
         bool _needUpdate = false;
@@ -1758,24 +1784,28 @@ bool ShaderPass::AddOrSetWriteDescriptorNext(const uint32_t& vBindingPoint, cons
 
 #if _DEBUG
         const char* descriptorType = LoggingUtils::DescriptorTypeToString(vType);
-        LogVarDebugInfo(
-            "Write Next Descriptor : %u, %s, next:%u, count:%u, descriptorIndex:%u", vBindingPoint, descriptorType, (uintptr_t)vNext, vCount, vDescriptorSetIndex);
+        LogVarDebugInfo("Write Next Descriptor : %u, %s, next:%u, count:%u, descriptorIndex:%u", vBindingPoint, descriptorType, (uintptr_t)vNext,
+            vCount, vDescriptorSetIndex);
 #endif
 
         // update
         if (_needUpdate) {
             if (vNext) {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, nullptr, vNext);
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+                    m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, nullptr, vNext);
             } else {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, nullptr, nullptr);
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] = vk::WriteDescriptorSet(
+                    m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, nullptr, nullptr);
 
                 return false;
             }
-        } else { // Add
+        } else {  // Add
             if (vNext) {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, nullptr, vNext);
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+                    m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, nullptr, vNext);
             } else {
-                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, nullptr, nullptr);
+                m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(
+                    m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, nullptr, nullptr);
 
                 return false;
             }
@@ -1826,7 +1856,10 @@ void ShaderPass::ClearLayoutDescriptors(const uint32_t& vDescriptorSetIndex) {
     }
 }
 
-bool ShaderPass::AddOrSetLayoutDescriptor(const uint32_t& vBindingPoint, const vk::DescriptorType& vType, const vk::ShaderStageFlags& vStage, const uint32_t& vCount,
+bool ShaderPass::AddOrSetLayoutDescriptor(const uint32_t& vBindingPoint,
+    const vk::DescriptorType& vType,
+    const vk::ShaderStageFlags& vStage,
+    const uint32_t& vCount,
     const uint32_t& vDescriptorSetIndex) {
     ZoneScoped;
     if (vDescriptorSetIndex < (uint32_t)m_DescriptorSets.size()) {
@@ -1843,12 +1876,14 @@ bool ShaderPass::AddOrSetLayoutDescriptor(const uint32_t& vBindingPoint, const v
 #if _DEBUG
         const char* descriptorType = LoggingUtils::DescriptorTypeToString(vType);
         const std::string shaderStageFlags = LoggingUtils::ShaderStageFlagsToString(vStage);
-        LogVarDebugInfo("Layout Descriptor : %u, %s, %s, count:%u, descriptorIndex:%u", vBindingPoint, descriptorType, shaderStageFlags.c_str(), vCount, vDescriptorSetIndex);
+        LogVarDebugInfo("Layout Descriptor : %u, %s, %s, count:%u, descriptorIndex:%u", vBindingPoint, descriptorType, shaderStageFlags.c_str(),
+            vCount, vDescriptorSetIndex);
 #endif
 
         // update
         if (_needUpdate) {
-            m_DescriptorSets[vDescriptorSetIndex].m_LayoutBindings[indexToUpdate] = vk::DescriptorSetLayoutBinding(vBindingPoint, vType, vCount, vStage);
+            m_DescriptorSets[vDescriptorSetIndex].m_LayoutBindings[indexToUpdate] =
+                vk::DescriptorSetLayoutBinding(vBindingPoint, vType, vCount, vStage);
         } else  // Add
         {
             m_DescriptorSets[vDescriptorSetIndex].m_LayoutBindings.emplace_back(vBindingPoint, vType, vCount, vStage);
@@ -1890,8 +1925,10 @@ bool ShaderPass::CreateRessourceDescriptor() {
 
     if (UpdateLayoutBindingInRessourceDescriptor()) {
         for (auto& descriptor : m_DescriptorSets) {
-            descriptor.m_DescriptorSetLayout = m_Device.createDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo(vk::DescriptorSetLayoutCreateFlags(), static_cast<uint32_t>(descriptor.m_LayoutBindings.size()), descriptor.m_LayoutBindings.data()));
-            descriptor.m_DescriptorSet = m_Device.allocateDescriptorSets(vk::DescriptorSetAllocateInfo(m_DescriptorPool, 1, &descriptor.m_DescriptorSetLayout))[0];
+            descriptor.m_DescriptorSetLayout = m_Device.createDescriptorSetLayout(vk::DescriptorSetLayoutCreateInfo(
+                vk::DescriptorSetLayoutCreateFlags(), static_cast<uint32_t>(descriptor.m_LayoutBindings.size()), descriptor.m_LayoutBindings.data()));
+            descriptor.m_DescriptorSet =
+                m_Device.allocateDescriptorSets(vk::DescriptorSetAllocateInfo(m_DescriptorPool, 1, &descriptor.m_DescriptorSetLayout))[0];
         }
 
         if (UpdateBufferInfoInRessourceDescriptor()) {
@@ -1927,7 +1964,7 @@ void ShaderPass::UpdateRessourceDescriptor() {
         m_NeedNewSBOUpload = false;
     }
 
-    if (m_ComputeBufferPtr && m_ComputeBufferPtr->IsMultiPassMode()) {
+    if (m_ComputeBufferPtr && m_ComputeBufferPtr->IsPingPongBufferMode()) {
         SwapMultiPassFrontBackDescriptors();
     }
 
@@ -2132,13 +2169,16 @@ bool ShaderPass::CreateComputePipeline() {
         push_constants.push_back(m_Internal_PushConstants);
     }
 
-    m_Pipelines[0].m_PipelineLayout = m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[0].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
+    m_Pipelines[0].m_PipelineLayout = m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
+        vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[0].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
 
-    auto cs = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["main"][0].m_SPIRV);
+    auto cs = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
+        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["main"][0].m_SPIRV);
 
     m_ShaderCreateInfos = {vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs, "main")};
 
-    vk::ComputePipelineCreateInfo computePipeInfo = vk::ComputePipelineCreateInfo().setStage(m_ShaderCreateInfos[0]).setLayout(m_Pipelines[0].m_PipelineLayout);
+    vk::ComputePipelineCreateInfo computePipeInfo =
+        vk::ComputePipelineCreateInfo().setStage(m_ShaderCreateInfos[0]).setLayout(m_Pipelines[0].m_PipelineLayout);
     m_Pipelines[0].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo).value;
 
     GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs);
@@ -2189,19 +2229,26 @@ bool ShaderPass::CreatePixelPipeline() {
         push_constants.push_back(m_Internal_PushConstants);
     }
 
-    m_Pipelines[0].m_PipelineLayout = m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[0].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
+    m_Pipelines[0].m_PipelineLayout = m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
+        vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[0].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
 
-    auto vs = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eVertex]["main"][0].m_SPIRV);
-    auto fs = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eFragment]["main"][0].m_SPIRV);
+    auto vs =
+        GaiApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eVertex]["main"][0].m_SPIRV);
+    auto fs = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
+        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eFragment]["main"][0].m_SPIRV);
     m_ShaderCreateInfos = {vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eVertex, vs, "main"),
-                           vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fs, "main")};
+        vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eFragment, fs, "main")};
 
     vk::ShaderModule tc, te;
     if (m_Tesselated) {
-        tc = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationControl]["main"][0].m_SPIRV);
-        te = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationEvaluation]["main"][0].m_SPIRV);
-        m_ShaderCreateInfos.push_back(vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eTessellationControl, tc, "main"));
-        m_ShaderCreateInfos.push_back(vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eTessellationEvaluation, te, "main"));
+        tc = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
+            (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationControl]["main"][0].m_SPIRV);
+        te = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
+            (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eTessellationEvaluation]["main"][0].m_SPIRV);
+        m_ShaderCreateInfos.push_back(
+            vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eTessellationControl, tc, "main"));
+        m_ShaderCreateInfos.push_back(
+            vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eTessellationEvaluation, te, "main"));
     }
 
     // setup fix functions
@@ -2219,7 +2266,8 @@ bool ShaderPass::CreatePixelPipeline() {
 
     auto viewportState = vk::PipelineViewportStateCreateInfo(vk::PipelineViewportStateCreateFlags(), 1, &m_Viewport, 1, &m_RenderArea);
 
-    auto rasterState = vk::PipelineRasterizationStateCreateInfo(vk::PipelineRasterizationStateCreateFlags(), VK_FALSE, VK_FALSE, m_PolygonMode, m_CullMode, m_FrontFaceMode, VK_FALSE, 0, 0, 0, m_LineWidth.w);
+    auto rasterState = vk::PipelineRasterizationStateCreateInfo(vk::PipelineRasterizationStateCreateFlags(), VK_FALSE, VK_FALSE, m_PolygonMode,
+        m_CullMode, m_FrontFaceMode, VK_FALSE, 0, 0, 0, m_LineWidth.w);
 
     auto multisampleState = vk::PipelineMultisampleStateCreateInfo(vk::PipelineMultisampleStateCreateFlags());
     multisampleState.rasterizationSamples = m_SampleCount;
@@ -2231,24 +2279,32 @@ bool ShaderPass::CreatePixelPipeline() {
     vk::PipelineColorBlendStateCreateInfo colorBlendState;
     if (m_BlendingEnabled) {
         for (uint32_t i = 0; i < m_CountColorBuffers; ++i) {
-            m_BlendAttachmentStates.emplace_back(VK_TRUE, vk::BlendFactor::eOne, vk::BlendFactor::eOne, vk::BlendOp::eAdd, vk::BlendFactor::eSrcAlpha, vk::BlendFactor::eDstAlpha, vk::BlendOp::eAdd,
-                                                 vk::ColorComponentFlags(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA));
+            m_BlendAttachmentStates.emplace_back(VK_TRUE, vk::BlendFactor::eOne, vk::BlendFactor::eOne, vk::BlendOp::eAdd, vk::BlendFactor::eSrcAlpha,
+                vk::BlendFactor::eDstAlpha, vk::BlendOp::eAdd,
+                vk::ColorComponentFlags(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB |
+                                        vk::ColorComponentFlagBits::eA));
         }
 
-        colorBlendState = vk::PipelineColorBlendStateCreateInfo(vk::PipelineColorBlendStateCreateFlags(), VK_FALSE, vk::LogicOp::eCopy, static_cast<uint32_t>(m_BlendAttachmentStates.size()), m_BlendAttachmentStates.data());
+        colorBlendState = vk::PipelineColorBlendStateCreateInfo(vk::PipelineColorBlendStateCreateFlags(), VK_FALSE, vk::LogicOp::eCopy,
+            static_cast<uint32_t>(m_BlendAttachmentStates.size()), m_BlendAttachmentStates.data());
 
-        depthStencilState = vk::PipelineDepthStencilStateCreateInfo(vk::PipelineDepthStencilStateCreateFlags(), VK_FALSE, VK_FALSE, vk::CompareOp::eAlways);
+        depthStencilState =
+            vk::PipelineDepthStencilStateCreateInfo(vk::PipelineDepthStencilStateCreateFlags(), VK_FALSE, VK_FALSE, vk::CompareOp::eAlways);
     }
 
     else {
         for (uint32_t i = 0; i < m_CountColorBuffers; ++i) {
-            m_BlendAttachmentStates.emplace_back(VK_FALSE, vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd, vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd,
-                                                 vk::ColorComponentFlags(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA));
+            m_BlendAttachmentStates.emplace_back(VK_FALSE, vk::BlendFactor::eOne, vk::BlendFactor::eZero, vk::BlendOp::eAdd, vk::BlendFactor::eOne,
+                vk::BlendFactor::eZero, vk::BlendOp::eAdd,
+                vk::ColorComponentFlags(vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB |
+                                        vk::ColorComponentFlagBits::eA));
         }
 
-        colorBlendState = vk::PipelineColorBlendStateCreateInfo(vk::PipelineColorBlendStateCreateFlags(), VK_FALSE, vk::LogicOp::eClear, static_cast<uint32_t>(m_BlendAttachmentStates.size()), m_BlendAttachmentStates.data());
+        colorBlendState = vk::PipelineColorBlendStateCreateInfo(vk::PipelineColorBlendStateCreateFlags(), VK_FALSE, vk::LogicOp::eClear,
+            static_cast<uint32_t>(m_BlendAttachmentStates.size()), m_BlendAttachmentStates.data());
 
-        depthStencilState = vk::PipelineDepthStencilStateCreateInfo(vk::PipelineDepthStencilStateCreateFlags(), VK_TRUE, VK_TRUE, vk::CompareOp::eLessOrEqual, VK_FALSE, VK_FALSE, vk::StencilOpState(), vk::StencilOpState(), 0.0f, 0.0f);
+        depthStencilState = vk::PipelineDepthStencilStateCreateInfo(vk::PipelineDepthStencilStateCreateFlags(), VK_TRUE, VK_TRUE,
+            vk::CompareOp::eLessOrEqual, VK_FALSE, VK_FALSE, vk::StencilOpState(), vk::StencilOpState(), 0.0f, 0.0f);
     }
 
     auto dynamicStateList = std::vector<vk::DynamicState>{
@@ -2262,7 +2318,8 @@ bool ShaderPass::CreatePixelPipeline() {
         dynamicStateList.push_back(vk::DynamicState::ePrimitiveTopologyEXT);
     }
 
-    auto dynamicState = vk::PipelineDynamicStateCreateInfo(vk::PipelineDynamicStateCreateFlags(), static_cast<uint32_t>(dynamicStateList.size()), dynamicStateList.data());
+    auto dynamicState = vk::PipelineDynamicStateCreateInfo(
+        vk::PipelineDynamicStateCreateFlags(), static_cast<uint32_t>(dynamicStateList.size()), dynamicStateList.data());
 
     SetInputStateBeforePipelineCreation();
 
