@@ -269,8 +269,7 @@ bool NODE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	if (m_GenerateAModule)
 	{
 		cpp_node_file_code += u8R"(
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
+	if (m_MODULE_CLASS_NAMEPtr)	{
 		res = m_MODULE_CLASS_NAMEPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	})";
 	}
@@ -302,8 +301,7 @@ bool NODE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 	if (m_GenerateAModule)
 	{
 		cpp_node_file_code += u8R"(
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
+	if (m_MODULE_CLASS_NAMEPtr)	{
 		return m_MODULE_CLASS_NAMEPtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 	})";
 	}
@@ -329,10 +327,8 @@ void NODE_CLASS_NAME::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWea
 	ZoneScoped;
 
 	auto slotPtr = vSlot.lock();
-	if (slotPtr && slotPtr->showWidget)
-	{
-		if (m_MODULE_CLASS_NAMEPtr)
-		{
+	if (slotPtr && slotPtr->showWidget)	{
+		if (m_MODULE_CLASS_NAMEPtr)	{
 			//m_MODULE_CLASS_NAMEPtr->DrawTexture(50);
 		}
 	}
@@ -348,10 +344,8 @@ void NODE_CLASS_NAME::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWe
 	ZoneScoped;
 
 	auto slotPtr = vSlot.lock();
-	if (slotPtr && slotPtr->showWidget)
-	{
-		if (m_MODULE_CLASS_NAMEPtr)
-		{
+	if (slotPtr && slotPtr->showWidget)	{
+		if (m_MODULE_CLASS_NAMEPtr)	{
 			//m_MODULE_CLASS_NAMEPtr->DrawTexture(50);
 		}
 	}
@@ -368,11 +362,9 @@ void NODE_CLASS_NAME::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
+	if (vBaseNodeState && vBaseNodeState->debug_mode) {
 		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
+		if (drawList) {
 			char debugBuffer[255] = "\0";
 			snprintf(debugBuffer, 254,
 				"Used[%s]\nCell[%i, %i]",
@@ -399,8 +391,7 @@ void NODE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 		if (m_GenerateAModule)
 		{
 			cpp_node_file_code += u8R"(
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
+	if (m_MODULE_CLASS_NAMEPtr)	{
 		m_MODULE_CLASS_NAMEPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 )";
@@ -426,25 +417,20 @@ std::string NODE_CLASS_NAME::getXml(const std::string& vOffset, const std::strin
 
 	std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
+	if (!m_ChildNodes.empty()) {
 		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
+	} else {
 		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
 			name.c_str(),
 			m_NodeTypeString.c_str(),
 			ct::fvec2(pos.x, pos.y).string().c_str(),
 			(uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
+		for (auto slot : m_Inputs) {
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		for (auto slot : m_Outputs)
-		{
+		for (auto slot : m_Outputs) {
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 )";
@@ -452,8 +438,7 @@ std::string NODE_CLASS_NAME::getXml(const std::string& vOffset, const std::strin
 	if (m_GenerateAModule)
 	{
 		cpp_node_file_code += u8R"(
-		if (m_MODULE_CLASS_NAMEPtr)
-		{
+		if (m_MODULE_CLASS_NAMEPtr)	{
 			res += m_MODULE_CLASS_NAMEPtr->getXml(vOffset + "\t", vUserDatas);
 		}
 )";
@@ -487,8 +472,7 @@ bool NODE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	if (m_GenerateAModule)
 	{
 		cpp_node_file_code += u8R"(
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
+	if (m_MODULE_CLASS_NAMEPtr)	{
 		m_MODULE_CLASS_NAMEPtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 )";
@@ -506,8 +490,7 @@ void NODE_CLASS_NAME::AfterNodeXmlLoading()
 	if (m_GenerateAModule)
 	{
 		cpp_node_file_code += u8R"(
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
+	if (m_MODULE_CLASS_NAMEPtr)	{
 		m_MODULE_CLASS_NAMEPtr->AfterNodeXmlLoading();
 	})";
 	}
@@ -531,8 +514,7 @@ void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
 		if (m_GenerateAModule)
 		{
 			cpp_node_file_code += u8R"(
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
+	if (m_MODULE_CLASS_NAMEPtr)	{
 		m_MODULE_CLASS_NAMEPtr->UpdateShaders(vFiles);
 	})";
 		}
@@ -737,8 +719,7 @@ std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(GaiApi::VulkanCoreP
 	auto res = std::make_shared<MODULE_CLASS_NAME>(vVulkanCorePtr);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
-	if (!res->Init())
-	{
+	if (!res->Init()) {
 		res.reset();
 	}
 
@@ -798,25 +779,15 @@ bool MODULE_CLASS_NAME::Init()
 		{
 			cpp_module_file_code += u8R"(
 	ct::uvec2 map_size = 512;
-
-	if (BaseRenderer::InitPixel(map_size))
-	{
+	if (BaseRenderer::InitPixel(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
 			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
 			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
-
-
-			if (m_PASS_CLASS_NAME_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
+			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+			m_Loaded = true;
 		}
 	}
 )";
@@ -825,23 +796,15 @@ bool MODULE_CLASS_NAME::Init()
 		{
 			cpp_module_file_code += u8R"(
 	uint32_t map_size = 512;
-
-	if (BaseRenderer::InitCompute1D(map_size))
-	{
+	if (BaseRenderer::InitCompute1D(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(true);
-
-			if (m_PASS_CLASS_NAME_Ptr->InitCompute1D(map_size))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
+			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
+			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
+			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+			m_Loaded = true;
 		}
 	}
 )";
@@ -850,23 +813,15 @@ bool MODULE_CLASS_NAME::Init()
 		{
 			cpp_module_file_code += u8R"(
 	ct::uvec2 map_size = 512;
-
-	if (BaseRenderer::InitCompute2D(map_size))
-	{
+	if (BaseRenderer::InitCompute2D(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(true);
-
-			if (m_PASS_CLASS_NAME_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
+			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
+			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
+			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+			m_Loaded = true;
 		}
 	}
 )";
@@ -875,23 +830,15 @@ bool MODULE_CLASS_NAME::Init()
 		{
 			cpp_module_file_code += u8R"(
 	ct::uvec3 map_size = 512;
-
-	if (BaseRenderer::InitCompute3D(map_size))
-	{
+	if (BaseRenderer::InitCompute3D(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(true);
-
-			if (m_PASS_CLASS_NAME_Ptr->InitCompute3D(map_size))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
+			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
+			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
+			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+			m_Loaded = true;
 		}
 	}
 )";
@@ -900,23 +847,15 @@ bool MODULE_CLASS_NAME::Init()
 		{
 			cpp_module_file_code += u8R"(
 	ct::uvec2 map_size = 512;
-
-	if (BaseRenderer::InitRtx(map_size))
-	{
+	if (BaseRenderer::InitRtx(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-
-		m_PASS_CLASS_NAME_Ptr = std::make_shared<PASS_CLASS_NAME>(m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(false);
-			//m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(true);
-
-			if (m_PASS_CLASS_NAME_Ptr->InitRtx(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-				m_Loaded = true;
-			}
+			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
+			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
+			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
+			m_Loaded = true;
 		}
 	}
 )";
@@ -1008,10 +947,8 @@ bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		cpp_module_file_code += u8R"(
-		if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##MODULE_CLASS_NAME", -1.0f, true, true, &m_CanWeRender))
-		{
-			if (m_PASS_CLASS_NAME_Ptr)
-			{
+		if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##MODULE_CLASS_NAME", -1.0f, true, true, &m_CanWeRender)) {
+			if (m_PASS_CLASS_NAME_Ptr) {
 				return m_PASS_CLASS_NAME_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 		}
@@ -1045,8 +982,7 @@ bool MODULE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
         cpp_module_file_code +=
             u8R"(
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
+		if (m_PASS_CLASS_NAME_Ptr) {
 			return m_PASS_CLASS_NAME_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
 		})";
     }
@@ -1077,8 +1013,7 @@ bool MODULE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, cons
         if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
         cpp_module_file_code +=
             u8R"(
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
+		if (m_PASS_CLASS_NAME_Ptr) {
 			return m_PASS_CLASS_NAME_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 		})";
         }
@@ -1135,8 +1070,7 @@ std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::str
 	if (m_GenerateAPass)
 	{
 		cpp_module_file_code += u8R"(
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
+	if (m_PASS_CLASS_NAME_Ptr) {
 		str += m_PASS_CLASS_NAME_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 )";
@@ -1258,8 +1192,7 @@ class PASS_CLASS_NAME;)";
 	}
 
 	h_module_file_code += u8R"(
-class MODULE_CLASS_NAME :
-	public NodeInterface,)";
+class MODULE_CLASS_NAME :)";
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		h_module_file_code += u8R"(
@@ -1282,7 +1215,7 @@ class MODULE_CLASS_NAME :
 	h_module_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
 
 	h_module_file_code += u8R"(
-	public GuiInterface
+	public NodeInterface
 {
 public:
 	static std::shared_ptr<MODULE_CLASS_NAME> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
@@ -1418,7 +1351,8 @@ void GeneratorNode::GeneratePasses(const std::string& vPath, const SlotDico& vDi
 	// MODULE_RENDERER_INIT_FUNC				InitCompute2D
 	// RENDERER_DISPLAY_TYPE (ex (Comp)			Comp
 
-	cpp_pass_file_code += u8R"(
+	cpp_pass_file_code +=
+        u8R"(
 #include "PASS_CLASS_NAME.h"
 
 #include <cinttypes>
@@ -1443,7 +1377,49 @@ using namespace GaiApi;
 #endif
 
 //////////////////////////////////////////////////////////////
+///// STATIC /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
+)";
+
+	if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+            cpp_pass_file_code +=
+                u8R"(
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+	if (!res_ptr->InitPixel(vSize, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1)))";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        cpp_pass_file_code +=
+            u8R"(
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const uint32_t& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+	if (!res_ptr->InitCompute1D(vSize)) {)";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        cpp_pass_file_code +=
+            u8R"(
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+	if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {)";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        cpp_pass_file_code +=
+            u8R"(
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec3& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+	if (!res_ptr->InitCompute3D(vSize)) {)";
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        cpp_pass_file_code +=
+            u8R"(
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+	if (!res_ptr->InitRtx(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {)";
+    }
+cpp_pass_file_code += u8R"(
+		res_ptr.reset();
+	}
+	return res_ptr;
+}
+
+//////////////////////////////////////////////////////////////
+///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
 PASS_CLASS_NAME::PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
@@ -1888,10 +1864,35 @@ class PASS_CLASS_NAME :)";
 	h_pass_file_code += GetPassInputPublicInterfaces(vDico);
 	h_pass_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
 
-	h_pass_file_code += u8R"(
-	public GuiInterface,
+	h_pass_file_code +=
+        u8R"(
 	public NodeInterface
 {
+public:)";
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        h_pass_file_code +=
+            u8R"(
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        h_pass_file_code +=
+            u8R"(
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const uint32_t& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        h_pass_file_code +=
+            u8R"(
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        h_pass_file_code +=
+            u8R"(
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec3& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        h_pass_file_code +=
+            u8R"(
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+    }
+
+    h_pass_file_code += u8R"(
+
 private:)";
 
     h_pass_file_code += GetPassInputPrivateVars(vDico);

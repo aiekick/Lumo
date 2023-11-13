@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-1.0294;-0.0855845;0</RotXYZ>
+			<RotXYZ>-0.275843;-0.000466087;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>21.313</Zoom>
+			<Zoom>30.4428</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -36,13 +36,6 @@
 						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="105182"/>
 						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="105186"/>
 					</node>
-					<node name="Model" type="MESH" pos="-370;-82" id="156328">
-						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
-						<mesh_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
-						</mesh_module>
-					</node>
 					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
 						<texture_2d_module>
@@ -50,7 +43,14 @@
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
 						</texture_2d_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="0;-44" id="229189">
+					<node name="Model" type="MESH" pos="-370;-82" id="156328">
+						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
+						<mesh_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Post Processing" type="POST_PROCESSING" pos="0;-53" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
 						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="229195"/>
 						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="229198"/>
@@ -113,7 +113,7 @@
 								<buffer_quality>1</buffer_quality>
 								<vignette_width>0.267</vignette_width>
 								<vignette_intensity>15</vignette_intensity>
-								<vignette_enabled>true</vignette_enabled>
+								<vignette_enabled>false</vignette_enabled>
 							</vignette>
 						</post_processing_module>
 					</node>
@@ -155,21 +155,19 @@
 							<scale>1</scale>
 						</canvas>
 						<nodes>
-							<node name="Post Processing" type="NONE" pos="0;0" id="201492">
-								<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="201495" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="201501" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="1" showWidget="false"/>
-								<slot index="2" name="Normal" type="TEXTURE_2D" place="INPUT" id="201507" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="2" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="201513" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+							<node name="Sharpness" type="NONE" pos="62;-185" id="269951">
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="269954" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="269957" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
-									<class_name>PostProcessing</class_name>
+									<class_name>Sharpness</class_name>
 									<category_name>PostPro</category_name>
-									<node_creation_name>POST_PROCESSING</node_creation_name>
-									<node_display_name>Post Processing</node_display_name>
+									<node_creation_name>SHARPNESS</node_creation_name>
+									<node_display_name>Sharpness</node_display_name>
 									<generate_module>true</generate_module>
 									<generate_pass>true</generate_pass>
 									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Post Processing</module_display_name>
-									<module_xml_name>post_processing_module</module_xml_name>
+									<module_display_name>Sharpness</module_display_name>
+									<module_xml_name>sharpness_module</module_xml_name>
 									<pass_specialization_type>Quad</pass_specialization_type>
 									<pass_use_ubo>true</pass_use_ubo>
 									<pass_use_sbo>false</pass_use_sbo>
@@ -178,16 +176,114 @@
 								</generation>
 								<UBOS renderer="Compute 2D">
 									<UBO stage="0">
-										<UBOItem name="ColorRatio" typeIndex="0" vx="0.5" vy="" vz="" vw=""/>
-										<UBOItem name="BloomEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="BlurEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="ToneMapEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="VignetteEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="SSReflectEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="ChromAberEnabled" typeIndex="12" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="ColorBalanceEnabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="SharpnessEnabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="DofEnabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="amount" typeIndex="0" vx="1.0" vy="" vz="" vw=""/>
+										<UBOItem name="enabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+									</UBO>
+								</UBOS>
+							</node>
+							<node name="Color Balance" type="NONE" pos="43;-105" id="269972">
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="269975" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="269978" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>ColorBalance</class_name>
+									<category_name>PostPro</category_name>
+									<node_creation_name>COLOR_BALANCE</node_creation_name>
+									<node_display_name>Color Balance</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 2D</renderer_type>
+									<module_display_name>Color Balance</module_display_name>
+									<module_xml_name>color_balance_module</module_xml_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<vertex_struct_type>0</vertex_struct_type>
+								</generation>
+								<UBOS renderer="Compute 2D">
+									<UBO stage="0">
+										<UBOItem name="red" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="green" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="blue" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="enabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+									</UBO>
+								</UBOS>
+							</node>
+							<node name="Chromatic Aberrations" type="NONE" pos="0;-25" id="269985">
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="269988" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="269991" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>ChromaticAberrations</class_name>
+									<category_name>PostPro</category_name>
+									<node_creation_name>CHROMATIC_ABERRATIONS</node_creation_name>
+									<node_display_name>Chromatic Aberrations</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 2D</renderer_type>
+									<module_display_name>Chromatic Aberrations</module_display_name>
+									<module_xml_name>chromatic_aberrations_module</module_xml_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<vertex_struct_type>0</vertex_struct_type>
+								</generation>
+								<UBOS renderer="Compute 2D">
+									<UBO stage="0">
+										<UBOItem name="amount" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="enabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+									</UBO>
+								</UBOS>
+							</node>
+							<node name="SS Reflection" type="NONE" pos="46;55" id="269998">
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="270001" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="270004" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>SSReflection</class_name>
+									<category_name>PostPro</category_name>
+									<node_creation_name>SS_REFLECTION</node_creation_name>
+									<node_display_name>SS Reflection</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 2D</renderer_type>
+									<module_display_name>SS Reflection</module_display_name>
+									<module_xml_name>ss_reflection_module</module_xml_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<vertex_struct_type>0</vertex_struct_type>
+								</generation>
+								<UBOS renderer="Compute 2D">
+									<UBO stage="0">
+										<UBOItem name="amount" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="enabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+									</UBO>
+								</UBOS>
+							</node>
+							<node name="SS Refraction" type="NONE" pos="45;135" id="270011">
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="270014" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="270017" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>SSRefraction</class_name>
+									<category_name>PostPro</category_name>
+									<node_creation_name>SS_REFRACTION</node_creation_name>
+									<node_display_name>SS Refraction</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 2D</renderer_type>
+									<module_display_name>SS Refraction</module_display_name>
+									<module_xml_name>ss_refraction_module</module_xml_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<vertex_struct_type>0</vertex_struct_type>
+								</generation>
+								<UBOS renderer="Compute 2D">
+									<UBO stage="0">
+										<UBOItem name="amount" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="enabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
 									</UBO>
 								</UBOS>
 							</node>
