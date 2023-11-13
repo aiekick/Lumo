@@ -576,7 +576,7 @@ bool ToneMapModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml
         } else if (strName == "tone_map_unreal") {
             LoadStructFromToXMLString(strValue, &m_UBOComp.u_unreal_a, 2U);
         } else if (strName == "tone_map_enabled") {
-            m_UBOComp.u_enabled = ct::ivariant(strValue).GetB();
+            m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         } else if (strName == "tone_map_algo") {
             m_UBOComp.u_tone_map_algo_idx = ct::ivariant(strValue).GetI();

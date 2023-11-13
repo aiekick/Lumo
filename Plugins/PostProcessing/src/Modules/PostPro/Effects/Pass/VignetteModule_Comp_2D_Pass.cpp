@@ -298,7 +298,7 @@ bool VignetteModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxm
         } else if (strName == "vignette_intensity") {
             m_UBOComp.u_Intensity = ct::fvariant(strValue).GetF();
         } else if (strName == "vignette_enabled") {
-            m_UBOComp.u_enabled = ct::ivariant(strValue).GetB();
+            m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         }
     }

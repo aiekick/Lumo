@@ -634,7 +634,7 @@ bool BlurModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
         } else if (strName == "blur_gaussian_sigma_auto") {
             m_GaussianSigmAuto = ct::ivariant(strValue).GetB();
         } else if (strName == "blur_enabled") {
-            m_UBOComp.u_enabled = ct::ivariant(strValue).GetB();
+            m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         }
     }    

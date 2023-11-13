@@ -138,10 +138,8 @@ void BloomModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Des
             if (vImageInfo) {
                 if (vTextureSize) {
                     m_ImageInfosSize[vBindingPoint] = *vTextureSize;
-
                     NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
                 }
-
                 m_ImageInfos[vBindingPoint] = *vImageInfo;
             } else {
                 m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
@@ -629,7 +627,7 @@ bool BloomModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
         } else if (strName == "bloom_high_freq_threshold") {
             m_UBOComp.u_high_freq_threshold = ct::fvariant(strValue).GetV3();
         } else if (strName == "bloom_enabled") {
-            m_UBOComp.u_enabled = ct::ivariant(strValue).GetB();
+            m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         }
     }

@@ -1475,7 +1475,7 @@ PASS_CLASS_NAME::PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
 )";
 
 	cpp_pass_file_code += u8R"(
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 PASS_CLASS_NAME::~PASS_CLASS_NAME()

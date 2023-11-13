@@ -185,9 +185,11 @@ bool ToneMapModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
     if (strParentName == "tone_map_module") {
         if (strName == "can_we_render") {
             m_CanWeRender = ct::ivariant(strValue).GetB();
-        } else if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
-            m_ToneMapModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-        }
+        } 
+    }
+
+    if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
+        m_ToneMapModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
     }
 
     return true;

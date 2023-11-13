@@ -26,7 +26,7 @@ limitations under the License.
 #include PROFILER_INCLUDE
 #endif
 #ifndef ZoneScoped
-#define ZoneScoped
+#define ZoneScopedeqqq
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////

@@ -47,235 +47,211 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ChromaticAberrationsModule> ChromaticAberrationsModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<ChromaticAberrationsModule> ChromaticAberrationsModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ChromaticAberrationsModule>(vVulkanCorePtr);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init()) {
-		res.reset();
-	}
+    if (!vVulkanCorePtr)
+        return nullptr;
+    auto res = std::make_shared<ChromaticAberrationsModule>(vVulkanCorePtr);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ChromaticAberrationsModule::ChromaticAberrationsModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
-{
-	ZoneScoped;
+ChromaticAberrationsModule::ChromaticAberrationsModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+    ZoneScoped;
 }
 
-ChromaticAberrationsModule::~ChromaticAberrationsModule()
-{
-	ZoneScoped;
+ChromaticAberrationsModule::~ChromaticAberrationsModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ChromaticAberrationsModule::Init()
-{
-	ZoneScoped;
+bool ChromaticAberrationsModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	ct::uvec2 map_size = 512;
-	if (BaseRenderer::InitCompute2D(map_size)) {
-		//SetExecutionWhenNeededOnly(true);
-		m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = ChromaticAberrationsModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
-		if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
-			// by default but can be changed via widget
-			m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
-			m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
-			AddGenericPass(m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr);
-			m_Loaded = true;
-		}
-	}
+    ct::uvec2 map_size = 512;
+    if (BaseRenderer::InitCompute2D(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
+        m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = ChromaticAberrationsModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+            // by default but can be changed via widget
+            m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
+            m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+            AddGenericPass(m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr);
+            m_Loaded = true;
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ChromaticAberrationsModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
-		BaseRenderer::Render("Chromatic Aberrations", vCmd);
-	return true;
+bool ChromaticAberrationsModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
+    BaseRenderer::Render("Chromatic Aberrations", vCmd);
+    return true;
 }
 
-bool ChromaticAberrationsModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
-	BaseRenderer::Render("Chromatic Aberrations", vCmd);
-	return true;
+bool ChromaticAberrationsModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
+    BaseRenderer::Render("Chromatic Aberrations", vCmd);
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ChromaticAberrationsModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ChromaticAberrationsModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Chromatic Aberrations##ChromaticAberrationsModule", -1.0f, true, true, &m_CanWeRender)) {
-			if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
-				return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
-		}
-		
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+            return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool ChromaticAberrationsModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ChromaticAberrationsModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
-			return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
-		}
-	}
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+            return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool ChromaticAberrationsModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ChromaticAberrationsModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
-			return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-		}
-	}
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+            return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+        }
+    }
 
-	return false;
+    return false;
 }
 
-void ChromaticAberrationsModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void ChromaticAberrationsModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ChromaticAberrationsModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void ChromaticAberrationsModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr)
-	{
-		m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+        m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ChromaticAberrationsModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* ChromaticAberrationsModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr)
-	{
-		return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+        return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ChromaticAberrationsModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string ChromaticAberrationsModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<chromatic_aberrations_module>\n";
+    str += vOffset + "<chromatic_aberrations_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
-		str += m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+        str += m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</chromatic_aberrations_module>\n";
+    str += vOffset + "</chromatic_aberrations_module>\n";
 
-	return str;
+    return str;
 }
 
-bool ChromaticAberrationsModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ChromaticAberrationsModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "chromatic_aberrations_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+    if (strParentName == "chromatic_aberrations_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+    }
 
-		if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr)
-		{
-			m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
-	}
+    if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+        m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }
 
-void ChromaticAberrationsModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void ChromaticAberrationsModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr)
-	{
-		m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
-	}
+    if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+        m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    }
 }

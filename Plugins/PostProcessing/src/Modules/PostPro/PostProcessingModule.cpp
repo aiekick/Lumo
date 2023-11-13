@@ -32,11 +32,13 @@ limitations under the License.
 #include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <Gaia/Buffer/FrameBuffer.h>
 
-#include <Modules/PostPro/Effects/Pass/BloomModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/BlurModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/SSAOModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/BloomModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/ToneMapModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/VignetteModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/SharpnessModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/ChromaticAberrationsModule_Comp_2D_Pass.h>
 
 using namespace GaiApi;
 
@@ -76,7 +78,6 @@ PostProcessingModule::PostProcessingModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 PostProcessingModule::~PostProcessingModule() {
     ZoneScoped;
-
     Unit();
 }
 
@@ -95,16 +96,24 @@ bool PostProcessingModule::Init() {
             if (m_BloomModule_Comp_2D_Pass_Ptr) {
                 m_BlurModule_Comp_2D_Pass_Ptr = BlurModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
                 if (m_BlurModule_Comp_2D_Pass_Ptr) {
-                    m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
-                    if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
-                        m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
-                        if (m_VignetteModule_Comp_2D_Pass_Ptr) {
-                            AddGenericPass(m_SSAOModule_Comp_2D_Pass_Ptr);      // 1) SSAO
-                            AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);     // 2) BLOOM
-                            AddGenericPass(m_BlurModule_Comp_2D_Pass_Ptr);      // 3) BLUR
-                            AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);   // 4) TONE MAPPING
-                            AddGenericPass(m_VignetteModule_Comp_2D_Pass_Ptr);  // 5) VIGNETTE
-                            m_Loaded = true;
+                    m_SharpnessModule_Comp_2D_Pass_Ptr = SharpnessModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                    if (m_SharpnessModule_Comp_2D_Pass_Ptr) {
+                        m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = ChromaticAberrationsModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                        if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
+                            m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                            if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
+                                m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                                if (m_VignetteModule_Comp_2D_Pass_Ptr) {
+                                    AddGenericPass(m_SSAOModule_Comp_2D_Pass_Ptr);                  // 1) SSAO
+                                    AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);                 // 2) BLOOM
+                                    AddGenericPass(m_BlurModule_Comp_2D_Pass_Ptr);                  // 3) BLUR
+                                    AddGenericPass(m_SharpnessModule_Comp_2D_Pass_Ptr);             // 4) SHARPNESS
+                                    AddGenericPass(m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr);  // 5) CHROMATIC ABERRATION
+                                    AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);               // 6) TONE MAPPING
+                                    AddGenericPass(m_VignetteModule_Comp_2D_Pass_Ptr);              // 7) VIGNETTE
+                                    m_Loaded = true;
+                                }
+                            }
                         }
                     }
                 }
@@ -137,28 +146,42 @@ void PostProcessingModule::UpdateDescriptorsBeforeCommandBuffer() {
 
     // 2) BLOOM
     {
-        ct::fvec2 outSize;
+        ct::fvec2 outSize; // must be empty if not will create a resize on the ouput of the next pass
         auto outputTexture = m_SSAOModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
         m_BloomModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
     }
 
     // 3) BLUR
     {
-        ct::fvec2 outSize;
+        ct::fvec2 outSize;  // must be empty if not will create a resize on the ouput of the next pass
         auto outputTexture = m_BloomModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
         m_BlurModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
     }
 
-    // 4) TONE MAPPING
+    // 4) SHARPNESS
     {
-        ct::fvec2 outSize;
+        ct::fvec2 outSize;  // must be empty if not will create a resize on the ouput of the next pass
         auto outputTexture = m_BlurModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
+        m_SharpnessModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
+    }
+    
+    // 5) CHROMATIC ABERRATION
+    {
+        ct::fvec2 outSize;  // must be empty if not will create a resize on the ouput of the next pass
+        auto outputTexture = m_SharpnessModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
+        m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
+    }
+
+    // 6) TONE MAPPING
+    {
+        ct::fvec2 outSize;  // must be empty if not will create a resize on the ouput of the next pass
+        auto outputTexture = m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
         m_ToneMapModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
     }
 
-    // 5) VIGNETTE
+    // 7) VIGNETTE
     {
-        ct::fvec2 outSize;
+        ct::fvec2 outSize;  // must be empty if not will create a resize on the ouput of the next pass
         auto outputTexture = m_ToneMapModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
         m_VignetteModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
     }
@@ -182,12 +205,22 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
     vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
         vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
 
-    // 4) TONE MAPPING
+    // 4) SHARPNESS
+    m_SharpnessModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
+    vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+        vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+
+    // 5) CHROMATIC ABERRATION
+    m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
+    vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+        vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+
+    // 6) TONE MAPPING
     m_ToneMapModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
     vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
         vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
 
-    // 5) VIGNETTE
+    // 7) VIGNETTE
     m_VignetteModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
     vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
         vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
@@ -350,8 +383,10 @@ bool PostProcessingModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 void PostProcessingModule::AfterNodeXmlLoading() {
     ZoneScoped;
     m_SSAOModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
-    m_BloomModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_BlurModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    m_BloomModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_ToneMapModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_VignetteModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    m_SharpnessModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
 }

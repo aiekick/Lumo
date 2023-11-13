@@ -366,7 +366,7 @@ bool SSAOModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
         } else if (strName == "ssao_ao_intensity") {
             m_UBOComp.u_ao_intensity = ct::fvariant(strValue).GetF();
         } else if (strName == "ssao_enabled") {
-            m_UBOComp.u_enabled = ct::ivariant(strValue).GetB();
+            m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         }
     }

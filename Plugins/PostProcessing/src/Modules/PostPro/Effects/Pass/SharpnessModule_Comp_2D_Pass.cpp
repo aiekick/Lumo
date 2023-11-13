@@ -45,297 +45,273 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 
 std::shared_ptr<SharpnessModule_Comp_2D_Pass> SharpnessModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<SharpnessModule_Comp_2D_Pass>(vVulkanCorePtr);
-	if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
-		res_ptr.reset();
-	}
-	return res_ptr;
+    auto res_ptr = std::make_shared<SharpnessModule_Comp_2D_Pass>(vVulkanCorePtr);
+    if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
+        res_ptr.reset();
+    }
+    return res_ptr;
 }
 
 //////////////////////////////////////////////////////////////
 ///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SharpnessModule_Comp_2D_Pass::SharpnessModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
-{
-	ZoneScoped;
-
-	SetRenderDocDebugName("Comp Pass : Sharpness", COMPUTE_SHADER_PASS_DEBUG_COLOR);
-
-	//m_DontUseShaderFilesOnDisk = true;
+SharpnessModule_Comp_2D_Pass::SharpnessModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
+    ZoneScoped;
+    SetRenderDocDebugName("Comp Pass : Sharpness", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+    m_DontUseShaderFilesOnDisk = true;
+    *IsEffectEnabled() = false;
 }
 
-SharpnessModule_Comp_2D_Pass::~SharpnessModule_Comp_2D_Pass()
-{
-	ZoneScoped;
+SharpnessModule_Comp_2D_Pass::~SharpnessModule_Comp_2D_Pass() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
-void SharpnessModule_Comp_2D_Pass::ActionBeforeInit()
-{
-	ZoneScoped;
+void SharpnessModule_Comp_2D_Pass::ActionBeforeInit() {
+    ZoneScoped;
 
-	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+    // m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 }
 
-bool SharpnessModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	bool change = false;
-	change |= DrawResizeWidget();
+bool SharpnessModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    bool change = false;
+    // change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "amount", &m_UBO_Comp.u_amount, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "enabled", &m_UBO_Comp.u_enabled, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+    if (ImGui::CollapsingHeader_CheckBox("Sharpness##SharpnessModule", -1.0f, false, true, IsEffectEnabled())) {
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "amount", &m_UBO_Comp.u_amount, 0.000f, 5.000f, 1.000f, 0.0f, "%.3f");
+    }
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
-	return change;
+    if (change) {
+        NeedNewUBOUpload();
+    }
+    return change;
 }
 
-bool SharpnessModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	return false;
+bool SharpnessModule_Comp_2D_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    return false;
 }
 
-bool SharpnessModule_Comp_2D_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	return false;
+bool SharpnessModule_Comp_2D_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SharpnessModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void SharpnessModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
-
-					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
-				}
-
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
-			}
-			else
-			{
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+                    NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
+                }
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
+            } else {
+                m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SharpnessModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+vk::DescriptorImageInfo* SharpnessModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+    if (m_ComputeBufferPtr) {
+        AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
+        return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
-
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SharpnessModule_Comp_2D_Pass::WasJustResized()
-{
-	ZoneScoped;
+void SharpnessModule_Comp_2D_Pass::WasJustResized() {
+    ZoneScoped;
 }
 
-void SharpnessModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	if (vCmdBufferPtr)
-	{
-		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
-		{
-			//VKFPScoped(*vCmdBufferPtr, "Sharpness", "Compute");
+void SharpnessModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    if (vCmdBufferPtr) {
+        vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+        {
+            // VKFPScoped(*vCmdBufferPtr, "Sharpness", "Compute");
 
-			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+            vCmdBufferPtr->bindDescriptorSets(
+                vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
-			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
-			{
-				Dispatch(vCmdBufferPtr);
-			}
-		}
-	}
+            for (uint32_t iter = 0; iter < m_CountIterations.w; iter++) {
+                Dispatch(vCmdBufferPtr);
+            }
+        }
+    }
 }
 
+bool SharpnessModule_Comp_2D_Pass::CreateUBO() {
+    ZoneScoped;
 
-bool SharpnessModule_Comp_2D_Pass::CreateUBO()
-{
-	ZoneScoped;
+    m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
+    m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBO_Comp_Ptr) {
+        m_UBO_Comp_BufferInfos.buffer = m_UBO_Comp_Ptr->buffer;
+        m_UBO_Comp_BufferInfos.range = sizeof(UBO_Comp);
+        m_UBO_Comp_BufferInfos.offset = 0;
+    }
 
-	m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Comp_Ptr)
-	{
-		m_UBO_Comp_BufferInfos.buffer = m_UBO_Comp_Ptr->buffer;
-		m_UBO_Comp_BufferInfos.range = sizeof(UBO_Comp);
-		m_UBO_Comp_BufferInfos.offset = 0;
-	}
+    NeedNewUBOUpload();
 
-	NeedNewUBOUpload();
-
-	return true;
+    return true;
 }
 
-void SharpnessModule_Comp_2D_Pass::UploadUBO()
-{
-	ZoneScoped;
-
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
+void SharpnessModule_Comp_2D_Pass::UploadUBO() {
+    ZoneScoped;
+    assert(IsEffectEnabled() != nullptr);
+    m_UBO_Comp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
+    VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
 }
 
-void SharpnessModule_Comp_2D_Pass::DestroyUBO()
-{
-	ZoneScoped;
-
-	m_UBO_Comp_Ptr.reset();
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+void SharpnessModule_Comp_2D_Pass::DestroyUBO() {
+    ZoneScoped;
+    m_UBO_Comp_Ptr.reset();
+    m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool SharpnessModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool SharpnessModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
-
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+    return res;
 }
 
-bool SharpnessModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool SharpnessModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfos);
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));  // output
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfos);
+    res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0U]);  // input
+    return res;
 }
 
-std::string SharpnessModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "SharpnessModule_Comp_2D_Pass_Compute";
+std::string SharpnessModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "SharpnessModule_Comp_2D_Pass_Compute";
 
-	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
+    SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+layout(binding = 0, rgba32f) uniform image2D outColor;
 
-layout(std140, binding = 0) uniform UBO_Comp
-{
+layout(std140, binding = 1) uniform UBO_Comp {
 	float u_amount;
 	float u_enabled;
 };
 
-void main()
-{
+layout(binding = 2) uniform sampler2D input_map_sampler;
+
+void main() {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+	vec4 res = texelFetch(input_map_sampler, coords, 0);
+    if (u_enabled > 0.5) {
+        vec2 texSize   = textureSize(input_map_sampler, 0);
+        vec2 texCoord  = vec2(coords);
 
-	vec4 color = vec4(coords, 0, 1);
+        float neighbor = u_amount * -1.0;
+        float center   = u_amount *  4.0 + 1.0;
+        float alpha    = res.a;
 
-	imageStore(colorBuffer, coords, color); 
+        res.rgb *= center;
+        res.rgb += texture(input_map_sampler, (texCoord + vec2( 0,   1)) / texSize).rgb * neighbor;
+        res.rgb += texture(input_map_sampler, (texCoord + vec2(-1,   0)) / texSize).rgb * neighbor;
+        res.rgb += texture(input_map_sampler, (texCoord + vec2( 1,   0)) / texSize).rgb * neighbor;
+        res.rgb += texture(input_map_sampler, (texCoord + vec2( 0,  -1)) / texSize).rgb * neighbor;
+
+        res.a = alpha;
+    }
+	imageStore(outColor, coords, res); 
 }
 )";
-		}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SharpnessModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string SharpnessModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
+    str += vOffset + "<sharpness>\n";
+    str += ShaderPass::getXml(vOffset, vUserDatas);
+    str += vOffset + "<amount>" + ct::toStr(m_UBO_Comp.u_amount) + "</amount>\n";
+    str += vOffset + "<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
+    str += vOffset + "</sharpness>\n";
 
-	str += vOffset + "<amount>" + ct::toStr(m_UBO_Comp.u_amount) + "</amount>\n";
-	str += vOffset + "<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
-
-	return str;
+    return str;
 }
 
-bool SharpnessModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SharpnessModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "sharpness_module")
-	{
+    if (strParentName == "sharpness") {
+        if (strName == "amount") {
+            m_UBO_Comp.u_amount = ct::fvariant(strValue).GetF();
+        } else if (strName == "enabled") {
+            m_UBO_Comp.u_enabled = ct::fvariant(strValue).GetF();
+            *IsEffectEnabled() = m_UBO_Comp.u_enabled;
+        }
+    }
 
-		if (strName == "amount")
-			m_UBO_Comp.u_amount = ct::fvariant(strValue).GetF();
-		else if (strName == "enabled")
-			m_UBO_Comp.u_enabled = ct::fvariant(strValue).GetF();
-	}
-
-	return true;
+    return true;
 }
 
-void SharpnessModule_Comp_2D_Pass::AfterNodeXmlLoading()
-{
-	ZoneScoped;
-
-	// code to do after end of the xml loading of this node
-	// by ex :
-	NeedNewUBOUpload();
+void SharpnessModule_Comp_2D_Pass::AfterNodeXmlLoading() {
+    ZoneScoped;
+    NeedNewUBOUpload();
 }

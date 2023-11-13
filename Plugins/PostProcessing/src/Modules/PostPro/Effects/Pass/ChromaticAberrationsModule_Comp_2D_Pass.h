@@ -54,7 +54,7 @@ public:
 
 private:
 	struct UBO_Comp {
-		alignas(4) float u_amount = 0.0f;
+		alignas(4) float u_amount = 1.0f;
 		alignas(4) float u_enabled = 0.0f;
 	} m_UBO_Comp;
 	VulkanBufferObjectPtr m_UBO_Comp_Ptr = nullptr;

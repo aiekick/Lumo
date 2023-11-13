@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-0.275843;-0.000466087;0</RotXYZ>
+			<RotXYZ>-0.0204207;0.00807047;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>30.4428</Zoom>
+			<Zoom>28.3061</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -39,7 +39,7 @@
 					<node name="Texture 2D" type="TEXTURE_2D" pos="-591;-2" id="269834">
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
 						<texture_2d_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\JG_Drink01.png</file_path_name>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\BazC_SkinMat.jpg</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
 						</texture_2d_module>
 					</node>
@@ -49,18 +49,6 @@
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
-					</node>
-					<node name="Chromatic Aberrations" type="CHROMATIC_ABERRATIONS" pos="0;-185" id="274923">
-						<slot place="INPUT" index="0" name="" type="TEXTURE_2D" id="274926"/>
-						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="274929"/>
-						<chromatic_aberrations_module>
-							<can_we_render>true</can_we_render>
-							<resize_by_event>true</resize_by_event>
-							<resize_by_hand>true</resize_by_hand>
-							<buffer_quality>1</buffer_quality>
-							<amount>0</amount>
-							<enabled>0</enabled>
-						</chromatic_aberrations_module>
 					</node>
 					<node name="Post Processing" type="POST_PROCESSING" pos="-190;-44" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
@@ -74,10 +62,10 @@
 								<resize_by_hand>true</resize_by_hand>
 								<buffer_quality>1</buffer_quality>
 								<ssao_noise_scale>1</ssao_noise_scale>
-								<ssao_ao_radius>0.25</ssao_ao_radius>
+								<ssao_ao_radius>0.01</ssao_ao_radius>
 								<ssao_ao_scale>1</ssao_ao_scale>
 								<ssao_ao_bias>0.001</ssao_ao_bias>
-								<ssao_ao_intensity>2</ssao_ao_intensity>
+								<ssao_ao_intensity>3.896</ssao_ao_intensity>
 								<ssao_enabled>true</ssao_enabled>
 							</ssao>
 							<bloom>
@@ -105,11 +93,25 @@
 								<blur_use_v>true</blur_use_v>
 								<blur_enabled>false</blur_enabled>
 							</blur>
+							<sharpness>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<amount>1</amount>
+							<enabled>1</enabled>
+							</sharpness>
+							<chromatic_aberrations>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<amount>4</amount>
+							<enabled>0</enabled>
+							</chromatic_aberrations>
 							<tone_mapping>
 								<resize_by_event>true</resize_by_event>
 								<resize_by_hand>true</resize_by_hand>
 								<buffer_quality>1</buffer_quality>
-								<tone_map_algo>0</tone_map_algo>
+								<tone_map_algo>1</tone_map_algo>
 								<tone_map_aces>4.520;0.030;2.430;0.590;0.140</tone_map_aces>
 								<tone_map_filmic>0.000;6.200;0.500;1.700;0.060;2.200</tone_map_filmic>
 								<tone_map_lotted>1.600;0.977;8.000;0.180;0.267</tone_map_lotted>
@@ -177,18 +179,6 @@
 							<enabled>0</enabled>
 						</ss_refraction_module>
 					</node>
-					<node name="Sharpness" type="SHARPNESS" pos="69;135" id="300318">
-						<slot place="INPUT" index="0" name="" type="TEXTURE_2D" id="300321"/>
-						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="300324"/>
-						<sharpness_module>
-							<can_we_render>true</can_we_render>
-							<resize_by_event>true</resize_by_event>
-							<resize_by_hand>true</resize_by_hand>
-							<buffer_quality>1</buffer_quality>
-							<amount>1</amount>
-							<enabled>0</enabled>
-						</sharpness_module>
-					</node>
 				</nodes>
 				<links>
 					<link in="156328:156332" out="105150:105154"/>
@@ -197,14 +187,12 @@
 					<link in="156328:156332" out="263812:263816"/>
 					<link in="269834:269838" out="263812:263820"/>
 					<link in="263812:263824" out="229189:229192"/>
-					<link in="300318:300321" out="229189:229201"/>
 					<link in="292300:292303" out="229189:229201"/>
 					<link in="296497:296500" out="229189:229201"/>
 					<link in="285031:285034" out="229189:229201"/>
-					<link in="274923:274926" out="229189:229201"/>
 				</links>
 				<outputs>
-					<output type="left" ids="300318:300324"/>
+					<output type="left" ids="229189:229201"/>
 				</outputs>
 			</graph>
 		</scene>
@@ -222,32 +210,6 @@
 							<scale>1</scale>
 						</canvas>
 						<nodes>
-							<node name="Sharpness" type="NONE" pos="69;-185" id="269951">
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="269954" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="269957" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<generation>
-									<class_name>Sharpness</class_name>
-									<category_name>PostPro</category_name>
-									<node_creation_name>SHARPNESS</node_creation_name>
-									<node_display_name>Sharpness</node_display_name>
-									<generate_module>true</generate_module>
-									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Sharpness</module_display_name>
-									<module_xml_name>sharpness_module</module_xml_name>
-									<pass_specialization_type>Quad</pass_specialization_type>
-									<pass_use_ubo>true</pass_use_ubo>
-									<pass_use_sbo>false</pass_use_sbo>
-									<node_is_a_task>true</node_is_a_task>
-									<vertex_struct_type>0</vertex_struct_type>
-								</generation>
-								<UBOS renderer="Compute 2D">
-									<UBO stage="0">
-										<UBOItem name="amount" typeIndex="0" vx="1.0" vy="" vz="" vw=""/>
-										<UBOItem name="enabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-									</UBO>
-								</UBOS>
-							</node>
 							<node name="Color Balance" type="NONE" pos="50;-105" id="269972">
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="269975" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="269978" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
@@ -272,32 +234,6 @@
 										<UBOItem name="red" typeIndex="0" vx="0" vy="" vz="" vw=""/>
 										<UBOItem name="green" typeIndex="0" vx="0" vy="" vz="" vw=""/>
 										<UBOItem name="blue" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="enabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-									</UBO>
-								</UBOS>
-							</node>
-							<node name="Chromatic Aberrations" type="NONE" pos="0;-25" id="269985">
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="269988" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="269991" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<generation>
-									<class_name>ChromaticAberrations</class_name>
-									<category_name>PostPro</category_name>
-									<node_creation_name>CHROMATIC_ABERRATIONS</node_creation_name>
-									<node_display_name>Chromatic Aberrations</node_display_name>
-									<generate_module>true</generate_module>
-									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Chromatic Aberrations</module_display_name>
-									<module_xml_name>chromatic_aberrations_module</module_xml_name>
-									<pass_specialization_type>Quad</pass_specialization_type>
-									<pass_use_ubo>true</pass_use_ubo>
-									<pass_use_sbo>false</pass_use_sbo>
-									<node_is_a_task>true</node_is_a_task>
-									<vertex_struct_type>0</vertex_struct_type>
-								</generation>
-								<UBOS renderer="Compute 2D">
-									<UBO stage="0">
-										<UBOItem name="amount" typeIndex="0" vx="0" vy="" vz="" vw=""/>
 										<UBOItem name="enabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
 									</UBO>
 								</UBOS>
@@ -328,19 +264,19 @@
 									</UBO>
 								</UBOS>
 							</node>
-							<node name="SS Refraction" type="NONE" pos="52;135" id="270011">
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="270014" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="270017" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+							<node name="Depth of Field" type="NONE" pos="0;0" id="300465">
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="300468" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="300471" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
-									<class_name>SSRefraction</class_name>
+									<class_name>DepthofField</class_name>
 									<category_name>PostPro</category_name>
-									<node_creation_name>SS_REFRACTION</node_creation_name>
-									<node_display_name>SS Refraction</node_display_name>
+									<node_creation_name>DEPTH_OF_FIELD</node_creation_name>
+									<node_display_name>Depth of Field</node_display_name>
 									<generate_module>true</generate_module>
 									<generate_pass>true</generate_pass>
 									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>SS Refraction</module_display_name>
-									<module_xml_name>ss_refraction_module</module_xml_name>
+									<module_display_name>Depth of Field</module_display_name>
+									<module_xml_name>depth_of_field_module</module_xml_name>
 									<pass_specialization_type>Quad</pass_specialization_type>
 									<pass_use_ubo>true</pass_use_ubo>
 									<pass_use_sbo>false</pass_use_sbo>
@@ -349,7 +285,8 @@
 								</generation>
 								<UBOS renderer="Compute 2D">
 									<UBO stage="0">
-										<UBOItem name="amount" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="backgroud_blur_amount" typeIndex="0" vx="1" vy="" vz="" vw=""/>
+										<UBOItem name="foreground_blur_amount" typeIndex="0" vx="1" vy="" vz="" vw=""/>
 										<UBOItem name="enabled" typeIndex="0" vx="0" vy="" vz="" vw=""/>
 									</UBO>
 								</UBOS>
@@ -358,7 +295,7 @@
 						<links>
 						</links>
 						<outputs>
-							<output type="left" ids="300318:300324"/>
+							<output type="left" ids="229189:229201"/>
 						</outputs>
 					</graph>
 				</scene>
