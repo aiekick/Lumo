@@ -45,7 +45,7 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 class ToneMapModule_Comp_2D_Pass;
-class BlurModule_Comp_Pass;
+class BlurModule_Comp_2D_Pass;
 class ToneMapModule :
 	public BaseRenderer,
 	public NodeInterface,

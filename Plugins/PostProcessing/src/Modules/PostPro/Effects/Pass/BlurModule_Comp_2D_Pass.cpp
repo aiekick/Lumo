@@ -44,8 +44,8 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<BlurModule_Comp_Pass> BlurModule_Comp_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    auto res_ptr = std::make_shared<BlurModule_Comp_Pass>(vVulkanCorePtr);
+std::shared_ptr<BlurModule_Comp_2D_Pass> BlurModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    auto res_ptr = std::make_shared<BlurModule_Comp_2D_Pass>(vVulkanCorePtr);
     if (!res_ptr->InitCompute2D(vSize, 2U, false, vk::Format::eR32G32B32A32Sfloat)) {
         res_ptr.reset();
     }
@@ -56,17 +56,17 @@ std::shared_ptr<BlurModule_Comp_Pass> BlurModule_Comp_Pass::Create(const ct::uve
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BlurModule_Comp_Pass::BlurModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
+BlurModule_Comp_2D_Pass::BlurModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
     SetRenderDocDebugName("Comp Pass : Blur", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
     *IsEffectEnabled() = false;
 }
 
-BlurModule_Comp_Pass::~BlurModule_Comp_Pass() {
+BlurModule_Comp_2D_Pass::~BlurModule_Comp_2D_Pass() {
     Unit();
 }
 
-void BlurModule_Comp_Pass::ActionBeforeInit() {
+void BlurModule_Comp_2D_Pass::ActionBeforeInit() {
     ZoneScoped;
 
     m_Pipelines.resize(2U);
@@ -76,7 +76,7 @@ void BlurModule_Comp_Pass::ActionBeforeInit() {
     ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_blur_radius_V);
 }
 
-void BlurModule_Comp_Pass::ActionBeforeCompilation() {
+void BlurModule_Comp_2D_Pass::ActionBeforeCompilation() {
     ZoneScoped;
 
     ClearShaderEntryPoints();
@@ -84,13 +84,13 @@ void BlurModule_Comp_Pass::ActionBeforeCompilation() {
     AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "blur_V");
 }
 
-bool BlurModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool BlurModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
-    if (ImGui::CollapsingHeader_CheckBox("Blur##BlurModule_Comp_Pass", -1.0f, false, true, IsEffectEnabled())) {
+    if (ImGui::CollapsingHeader_CheckBox("Blur##BlurModule_Comp_2D_Pass", -1.0f, false, true, IsEffectEnabled())) {
         bool change_radius = false;
         bool change_gaussian = false;
         bool change_operations = false;
@@ -153,7 +153,7 @@ bool BlurModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
     return false;
 }
 
-bool BlurModule_Comp_Pass::DrawOverlays(
+bool BlurModule_Comp_2D_Pass::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
 
@@ -162,7 +162,7 @@ bool BlurModule_Comp_Pass::DrawOverlays(
     return false;
 }
 
-bool BlurModule_Comp_Pass::DrawDialogsAndPopups(
+bool BlurModule_Comp_2D_Pass::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
 
@@ -171,7 +171,7 @@ bool BlurModule_Comp_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void BlurModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void BlurModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -189,7 +189,7 @@ void BlurModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
     }
 }
 
-vk::DescriptorImageInfo* BlurModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* BlurModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
     ZoneScoped;
 
     if (m_ComputeBufferPtr) {
@@ -200,13 +200,13 @@ vk::DescriptorImageInfo* BlurModule_Comp_Pass::GetDescriptorImageInfo(const uint
     return nullptr;
 }
 
-bool BlurModule_Comp_Pass::CanUpdateDescriptors() {
+bool BlurModule_Comp_2D_Pass::CanUpdateDescriptors() {
     ZoneScoped;
 
     return (m_ComputeBufferPtr != nullptr);
 }
 
-void BlurModule_Comp_Pass::Compute_Blur_H(vk::CommandBuffer* vCmdBufferPtr) {
+void BlurModule_Comp_2D_Pass::Compute_Blur_H(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
 
     if (vCmdBufferPtr) {
@@ -217,7 +217,7 @@ void BlurModule_Comp_Pass::Compute_Blur_H(vk::CommandBuffer* vCmdBufferPtr) {
     }
 }
 
-void BlurModule_Comp_Pass::Compute_Blur_V(vk::CommandBuffer* vCmdBufferPtr) {
+void BlurModule_Comp_2D_Pass::Compute_Blur_V(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
 
     if (vCmdBufferPtr) {
@@ -228,7 +228,7 @@ void BlurModule_Comp_Pass::Compute_Blur_V(vk::CommandBuffer* vCmdBufferPtr) {
     }
 }
 
-void BlurModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+void BlurModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
     ZoneScoped;
 
     if (vCmdBufferPtr) {
@@ -251,7 +251,7 @@ void BlurModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& 
     }
 }
 
-bool BlurModule_Comp_Pass::CreateUBO() {
+bool BlurModule_Comp_2D_Pass::CreateUBO() {
     ZoneScoped;
 
     auto size_in_bytes = sizeof(UBOComp);
@@ -269,20 +269,20 @@ bool BlurModule_Comp_Pass::CreateUBO() {
     return true;
 }
 
-void BlurModule_Comp_Pass::UploadUBO() {
+void BlurModule_Comp_2D_Pass::UploadUBO() {
     ZoneScoped;
     assert(IsEffectEnabled() != nullptr);
     m_UBOComp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
     VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
-void BlurModule_Comp_Pass::DestroyUBO() {
+void BlurModule_Comp_2D_Pass::DestroyUBO() {
     ZoneScoped;
 
     m_UBOCompPtr.reset();
 }
 
-void BlurModule_Comp_Pass::ReComputeGaussianBlurWeights(GaussianKernel& vOutGaussian, const uint32_t& vRadius) {
+void BlurModule_Comp_2D_Pass::ReComputeGaussianBlurWeights(GaussianKernel& vOutGaussian, const uint32_t& vRadius) {
     // gauss curve : exp(-x�)
     // integration of curve give sqrt(pi)
     // exp(-x�/(2*sigma�)
@@ -317,7 +317,7 @@ void BlurModule_Comp_Pass::ReComputeGaussianBlurWeights(GaussianKernel& vOutGaus
     }
 }
 
-bool BlurModule_Comp_Pass::CreateSBO(GaussianKernel& vOutGaussian) {
+bool BlurModule_Comp_2D_Pass::CreateSBO(GaussianKernel& vOutGaussian) {
     ZoneScoped;
 
     vOutGaussian.m_SBO_GaussianWeights.reset();
@@ -335,7 +335,7 @@ bool BlurModule_Comp_Pass::CreateSBO(GaussianKernel& vOutGaussian) {
     return true;
 }
 
-void BlurModule_Comp_Pass::UploadSBO(GaussianKernel& vOutGaussian) {
+void BlurModule_Comp_2D_Pass::UploadSBO(GaussianKernel& vOutGaussian) {
     ZoneScoped;
 
     if (vOutGaussian.m_SBO_GaussianWeights) {
@@ -344,13 +344,13 @@ void BlurModule_Comp_Pass::UploadSBO(GaussianKernel& vOutGaussian) {
     }
 }
 
-void BlurModule_Comp_Pass::DestroySBO(GaussianKernel& vOutGaussian) {
+void BlurModule_Comp_2D_Pass::DestroySBO(GaussianKernel& vOutGaussian) {
     ZoneScoped;
 
     vOutGaussian.m_SBO_GaussianWeights.reset();
 }
 
-bool BlurModule_Comp_Pass::CreateSBO() {
+bool BlurModule_Comp_2D_Pass::CreateSBO() {
     ZoneScoped;
 
     CreateSBO(m_Gaussian_H);
@@ -361,21 +361,21 @@ bool BlurModule_Comp_Pass::CreateSBO() {
     return true;
 }
 
-void BlurModule_Comp_Pass::UploadSBO() {
+void BlurModule_Comp_2D_Pass::UploadSBO() {
     ZoneScoped;
 
     UploadSBO(m_Gaussian_H);
     UploadSBO(m_Gaussian_V);
 }
 
-void BlurModule_Comp_Pass::DestroySBO() {
+void BlurModule_Comp_2D_Pass::DestroySBO() {
     ZoneScoped;
 
     DestroySBO(m_Gaussian_H);
     DestroySBO(m_Gaussian_V);
 }
 
-bool BlurModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+bool BlurModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor() {
     ZoneScoped;
 
     if (m_ComputeBufferPtr) {
@@ -399,7 +399,7 @@ bool BlurModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor() {
     return false;
 }
 
-bool BlurModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor() {
+bool BlurModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor() {
     ZoneScoped;
 
     if (m_ComputeBufferPtr) {
@@ -453,7 +453,7 @@ bool BlurModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor() {
     return false;
 }
 
-std::string BlurModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+std::string BlurModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
     ZoneScoped;
 
     vOutShaderName = "BlurModule_Compute_Pass";
@@ -530,7 +530,7 @@ void blur_V() {
 //// PRIVATE / PIPELINE ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BlurModule_Comp_Pass::CreateComputePipeline() {
+bool BlurModule_Comp_2D_Pass::CreateComputePipeline() {
     ZoneScoped;
 
     if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute].empty())
@@ -578,7 +578,7 @@ bool BlurModule_Comp_Pass::CreateComputePipeline() {
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string BlurModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+std::string BlurModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     ZoneScoped;
 
     std::string str;
@@ -598,7 +598,7 @@ std::string BlurModule_Comp_Pass::getXml(const std::string& vOffset, const std::
     return str;
 }
 
-bool BlurModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+bool BlurModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
     ZoneScoped;
 
     // The value of this child identifies the name of this element
@@ -620,6 +620,11 @@ bool BlurModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
             m_UBOComp.u_blur_radius_V = ct::uvariant(strValue).GetU();
         } else if (strName == "blur_disctinct_v_and_h") {
             m_UseDistinctiveBlurRadiusVH = ct::ivariant(strValue).GetB();
+            if (m_UseDistinctiveBlurRadiusVH == false) {
+                m_BlurRadius = (uint32_t)(((float)m_UBOComp.u_blur_radius_V + (float)m_UBOComp.u_blur_radius_H) * 0.5f);
+                m_UBOComp.u_blur_radius_H = m_BlurRadius;
+                m_UBOComp.u_blur_radius_V = m_BlurRadius;
+            }
         } else if (strName == "blur_use_h") {
             m_UseBlurH = ct::ivariant(strValue).GetB();
         } else if (strName == "blur_use_v") {
@@ -637,7 +642,7 @@ bool BlurModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
     return true;
 }
 
-void BlurModule_Comp_Pass::AfterNodeXmlLoading() {
+void BlurModule_Comp_2D_Pass::AfterNodeXmlLoading() {
     ZoneScoped;
     ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_blur_radius_H);
     ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_blur_radius_V);

@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-0.313762;0.0722694;0</RotXYZ>
+			<RotXYZ>-0.186523;0.0512905;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>22.3804</Zoom>
+			<Zoom>18.2068</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -26,28 +26,28 @@
 				</canvas>
 				<nodes>
 					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-238;-82" id="105150">
-						<slot index="0" name="Model" type="MESH" place="INPUT" id="105154"/>
-						<slot index="1" name="Mask" type="TEXTURE_2D" place="INPUT" id="105158"/>
-						<slot index="0" name="Position" type="TEXTURE_2D" place="OUTPUT" id="105162"/>
-						<slot index="1" name="Normal" type="TEXTURE_2D" place="OUTPUT" id="105166"/>
-						<slot index="2" name="Tangeant" type="TEXTURE_2D" place="OUTPUT" id="105170"/>
-						<slot index="3" name="BiTangeant" type="TEXTURE_2D" place="OUTPUT" id="105174"/>
-						<slot index="4" name="UV" type="TEXTURE_2D" place="OUTPUT" id="105178"/>
-						<slot index="5" name="Color" type="TEXTURE_2D" place="OUTPUT" id="105182"/>
-						<slot index="6" name="Depth" type="TEXTURE_2D" place="OUTPUT" id="105186"/>
+						<slot place="INPUT" index="0" name="Model" type="MESH" id="105154"/>
+						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="105158"/>
+						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="105162"/>
+						<slot place="OUTPUT" index="1" name="Normal" type="TEXTURE_2D" id="105166"/>
+						<slot place="OUTPUT" index="2" name="Tangeant" type="TEXTURE_2D" id="105170"/>
+						<slot place="OUTPUT" index="3" name="BiTangeant" type="TEXTURE_2D" id="105174"/>
+						<slot place="OUTPUT" index="4" name="UV" type="TEXTURE_2D" id="105178"/>
+						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="105182"/>
+						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="105186"/>
 					</node>
 					<node name="Model" type="MESH" pos="-370;-25" id="156328">
-						<slot index="0" name="Output" type="MESH" place="OUTPUT" id="156332"/>
+						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
 						<mesh_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="23;-66" id="229189">
-						<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="229192"/>
-						<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="229195"/>
-						<slot index="2" name="Normal" type="TEXTURE_2D" place="INPUT" id="229198"/>
-						<slot index="0" name="" type="TEXTURE_2D" place="OUTPUT" id="229201"/>
+					<node name="Post Processing" type="POST_PROCESSING" pos="16;-66" id="229189">
+						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
+						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="229195"/>
+						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="229198"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="229201"/>
 						<post_processing_module>
 							<can_we_render>true</can_we_render>
 							<ssao>
@@ -59,7 +59,7 @@
 								<ssao_ao_scale>1</ssao_ao_scale>
 								<ssao_ao_bias>0.005</ssao_ao_bias>
 								<ssao_ao_intensity>2</ssao_ao_intensity>
-								<ssao_enabled>true</ssao_enabled>
+								<ssao_enabled>false</ssao_enabled>
 							</ssao>
 							<bloom>
 								<resize_by_event>true</resize_by_event>
@@ -73,6 +73,19 @@
 								<bloom_high_freq_threshold>0.8;0.8;0.8</bloom_high_freq_threshold>
 								<bloom_enabled>false</bloom_enabled>
 							</bloom>
+							<blur>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<blur_radius_h>4</blur_radius_h>
+								<blur_radius_v>4</blur_radius_v>
+								<blur_disctinct_v_and_h>false</blur_disctinct_v_and_h>
+								<blur_gaussian_sigma>1.806</blur_gaussian_sigma>
+								<blur_gaussian_sigma_auto>true</blur_gaussian_sigma_auto>
+								<blur_use_h>true</blur_use_h>
+								<blur_use_v>true</blur_use_v>
+								<blur_enabled>false</blur_enabled>
+							</blur>
 							<tone_mapping>
 								<resize_by_event>true</resize_by_event>
 								<resize_by_hand>true</resize_by_hand>

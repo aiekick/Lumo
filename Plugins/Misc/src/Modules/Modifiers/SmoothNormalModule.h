@@ -46,7 +46,7 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>
 
 class SmoothNormalModule_Comp_Pass;
-class BlurModule_Comp_Pass;
+class BlurModule_Comp_2D_Pass;
 class SmoothNormalModule :
 	public BaseRenderer,
 	

@@ -33,10 +33,10 @@ limitations under the License.
 #include <Gaia/Buffer/FrameBuffer.h>
 
 #include <Modules/PostPro/Effects/Pass/BloomModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/BlurModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/SSAOModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/ToneMapModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/VignetteModule_Comp_2D_Pass.h>
-
 
 using namespace GaiApi;
 
@@ -93,15 +93,19 @@ bool PostProcessingModule::Init() {
         if (m_SSAOModule_Comp_2D_Pass_Ptr) {
             m_BloomModule_Comp_2D_Pass_Ptr = BloomModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
             if (m_BloomModule_Comp_2D_Pass_Ptr) {
-                m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
-                if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
-                    m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
-                    if (m_VignetteModule_Comp_2D_Pass_Ptr) {
-                        AddGenericPass(m_SSAOModule_Comp_2D_Pass_Ptr);      // 1) SSAO
-                        AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);     // 2) BLOOM
-                        AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);   // 3) TONE MAPPING
-                        AddGenericPass(m_VignetteModule_Comp_2D_Pass_Ptr);  // 4) VIGNETTE
-                        m_Loaded = true;
+                m_BlurModule_Comp_2D_Pass_Ptr = BlurModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                if (m_BlurModule_Comp_2D_Pass_Ptr) {
+                    m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                    if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
+                        m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                        if (m_VignetteModule_Comp_2D_Pass_Ptr) {
+                            AddGenericPass(m_SSAOModule_Comp_2D_Pass_Ptr);      // 1) SSAO
+                            AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);     // 2) BLOOM
+                            AddGenericPass(m_BlurModule_Comp_2D_Pass_Ptr);      // 3) BLUR
+                            AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);   // 4) TONE MAPPING
+                            AddGenericPass(m_VignetteModule_Comp_2D_Pass_Ptr);  // 5) VIGNETTE
+                            m_Loaded = true;
+                        }
                     }
                 }
             }
@@ -138,14 +142,21 @@ void PostProcessingModule::UpdateDescriptorsBeforeCommandBuffer() {
         m_BloomModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
     }
 
-    // 3) TONE MAPPING
+    // 3) BLUR
     {
         ct::fvec2 outSize;
         auto outputTexture = m_BloomModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
+        m_BlurModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
+    }
+
+    // 4) TONE MAPPING
+    {
+        ct::fvec2 outSize;
+        auto outputTexture = m_BlurModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
         m_ToneMapModule_Comp_2D_Pass_Ptr->SetTexture(0U, outputTexture, &outSize);
     }
 
-    // 4) VIGNETTE
+    // 5) VIGNETTE
     {
         ct::fvec2 outSize;
         auto outputTexture = m_ToneMapModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(0U, &outSize);
@@ -166,12 +177,17 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
     vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
         vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
 
-    // 3) TONE MAPPING
+    // 3) BLUR
+    m_BlurModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
+    vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+        vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+
+    // 4) TONE MAPPING
     m_ToneMapModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
     vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
         vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
 
-    // 4) VIGNETTE
+    // 5) VIGNETTE
     m_VignetteModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
     vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
         vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
@@ -257,14 +273,13 @@ void PostProcessingModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const ui
 
 void PostProcessingModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
     ZoneScoped;
+    // m_SSAOModule_Comp_2D_Pass_Ptr is the first pass
+    assert(m_SSAOModule_Comp_2D_Pass_Ptr != nullptr);
     if (vBindingPoint == 0U) {  // color
-        assert(m_SSAOModule_Comp_2D_Pass_Ptr != nullptr);
         m_SSAOModule_Comp_2D_Pass_Ptr->SetTexture(3U, vImageInfo, vTextureSize);
     } else if (vBindingPoint == 1U) {  // position
-        assert(m_SSAOModule_Comp_2D_Pass_Ptr != nullptr);
         m_SSAOModule_Comp_2D_Pass_Ptr->SetTexture(0U, vImageInfo, vTextureSize);
     } else if (vBindingPoint == 2U) {  // normal
-        assert(m_SSAOModule_Comp_2D_Pass_Ptr != nullptr);
         m_SSAOModule_Comp_2D_Pass_Ptr->SetTexture(1U, vImageInfo, vTextureSize);
     }
 }
@@ -275,6 +290,7 @@ void PostProcessingModule::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 
 vk::DescriptorImageInfo* PostProcessingModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
     ZoneScoped;
+    // m_VignetteModule_Comp_2D_Pass_Ptr is the last pass
     assert(m_VignetteModule_Comp_2D_Pass_Ptr != nullptr);
     return m_VignetteModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 }
@@ -289,16 +305,13 @@ std::string PostProcessingModule::getXml(const std::string& vOffset, const std::
     std::string str;
 
     str += vOffset + "<post_processing_module>\n";
-
     str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
-
     for (auto pass : m_ShaderPasses) {
         auto ptr = pass.lock();
         if (ptr) {
             str += ptr->getXml(vOffset + "\t", vUserDatas);
         }
     }
-
     str += vOffset + "</post_processing_module>\n";
 
     return str;
@@ -338,6 +351,7 @@ void PostProcessingModule::AfterNodeXmlLoading() {
     ZoneScoped;
     m_SSAOModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_BloomModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    m_BlurModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_ToneMapModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_VignetteModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
 }

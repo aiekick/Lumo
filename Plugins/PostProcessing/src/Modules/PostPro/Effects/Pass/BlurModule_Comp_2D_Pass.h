@@ -42,13 +42,13 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class BlurModule_Comp_Pass :
+class BlurModule_Comp_2D_Pass :
 	public ShaderPass,
 	public NodeInterface,	
 	public TextureInputInterface<1U>,
 	public TextureOutputInterface {
 public:
-    static std::shared_ptr<BlurModule_Comp_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<BlurModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	bool m_UseDistinctiveBlurRadiusVH = false;						// to save
@@ -77,8 +77,8 @@ private:
 	} m_Gaussian_V, m_Gaussian_H;
 
 public:
-	BlurModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	virtual ~BlurModule_Comp_Pass();
+	BlurModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	virtual ~BlurModule_Comp_2D_Pass();
 
 	void ActionBeforeInit();
 	void ActionBeforeCompilation();

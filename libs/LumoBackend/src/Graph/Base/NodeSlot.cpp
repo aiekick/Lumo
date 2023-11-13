@@ -715,8 +715,8 @@ BaseNodePtr NodeSlot::m_GetRootNode() {
 std::string NodeSlot::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/) {
     std::string res;
 
-    res += vOffset + ct::toStr("<slot index=\"%u\" name=\"%s\" type=\"%s\" place=\"%s\" id=\"%u\"/>\n", index, name.c_str(), slotType.c_str(),
-                         sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(), (uint32_t)GetSlotID());
+    res += vOffset + ct::toStr("<slot place=\"%s\" index=\"%u\" name=\"%s\" type=\"%s\" id=\"%u\"/>\n",
+                         sGetStringFromNodeSlotPlaceEnum(slotPlace).c_str(), index, name.c_str(), slotType.c_str(), (uint32_t)GetSlotID());
 
     return res;
 }

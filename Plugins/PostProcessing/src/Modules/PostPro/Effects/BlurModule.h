@@ -45,7 +45,7 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-class BlurModule_Comp_Pass;
+class BlurModule_Comp_2D_Pass;
 class BlurModule :
 	public BaseRenderer,
 	public NodeInterface,
@@ -59,7 +59,7 @@ public:
 private:
 	std::weak_ptr<BlurModule> m_This;
 
-	std::shared_ptr<BlurModule_Comp_Pass> m_BlurModule_Comp_Pass_Ptr = nullptr;
+	std::shared_ptr<BlurModule_Comp_2D_Pass> m_BlurModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
 	BlurModule(GaiApi::VulkanCorePtr vVulkanCorePtr);

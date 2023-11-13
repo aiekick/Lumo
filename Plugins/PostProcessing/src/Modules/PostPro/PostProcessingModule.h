@@ -50,6 +50,7 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class BloomModule_Comp_2D_Pass;
+class BlurModule_Comp_2D_Pass;
 class SSAOModule_Comp_2D_Pass;
 class ToneMapModule_Comp_2D_Pass;
 class VignetteModule_Comp_2D_Pass;
@@ -67,6 +68,7 @@ private:
 	std::weak_ptr<PostProcessingModule> m_This;
 
 	std::shared_ptr<BloomModule_Comp_2D_Pass> m_BloomModule_Comp_2D_Pass_Ptr = nullptr;
+    std::shared_ptr<BlurModule_Comp_2D_Pass> m_BlurModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<SSAOModule_Comp_2D_Pass> m_SSAOModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<ToneMapModule_Comp_2D_Pass> m_ToneMapModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<VignetteModule_Comp_2D_Pass> m_VignetteModule_Comp_2D_Pass_Ptr = nullptr;

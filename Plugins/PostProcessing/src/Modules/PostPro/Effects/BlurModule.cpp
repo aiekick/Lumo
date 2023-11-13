@@ -77,9 +77,9 @@ bool BlurModule::Init() {
 
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_BlurModule_Comp_Pass_Ptr = BlurModule_Comp_Pass::Create(map_size, m_VulkanCorePtr);
-        if (m_BlurModule_Comp_Pass_Ptr) {
-            AddGenericPass(m_BlurModule_Comp_Pass_Ptr);
+        m_BlurModule_Comp_2D_Pass_Ptr = BlurModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        if (m_BlurModule_Comp_2D_Pass_Ptr) {
+            AddGenericPass(m_BlurModule_Comp_2D_Pass_Ptr);
             m_Loaded = true;
         }
     }
@@ -103,8 +103,8 @@ bool BlurModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
-    if (m_LastExecutedFrame == vCurrentFrame && m_BlurModule_Comp_Pass_Ptr) {
-        return m_BlurModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    if (m_LastExecutedFrame == vCurrentFrame && m_BlurModule_Comp_2D_Pass_Ptr) {
+        return m_BlurModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
     }
 
     return false;
@@ -136,16 +136,16 @@ void BlurModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vC
 void BlurModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
     ZoneScoped;
 
-    if (m_BlurModule_Comp_Pass_Ptr) {
-        m_BlurModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    if (m_BlurModule_Comp_2D_Pass_Ptr) {
+        m_BlurModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
     }
 }
 
 vk::DescriptorImageInfo* BlurModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
     ZoneScoped;
 
-    if (m_BlurModule_Comp_Pass_Ptr) {
-        return m_BlurModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    if (m_BlurModule_Comp_2D_Pass_Ptr) {
+        return m_BlurModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
     }
 
     return nullptr;
@@ -162,8 +162,8 @@ std::string BlurModule::getXml(const std::string& vOffset, const std::string& vU
 
     str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-    if (m_BlurModule_Comp_Pass_Ptr) {
-        str += m_BlurModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    if (m_BlurModule_Comp_2D_Pass_Ptr) {
+        str += m_BlurModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
     }
 
     str += vOffset + "</blur_module>\n";
@@ -186,8 +186,8 @@ bool BlurModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
     if (strParentName == "blur_module") {
         if (strName == "can_we_render") {
             m_CanWeRender = ct::ivariant(strValue).GetB();
-        } else if (m_BlurModule_Comp_Pass_Ptr) {
-            m_BlurModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+        } else if (m_BlurModule_Comp_2D_Pass_Ptr) {
+            m_BlurModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
         }
     }
 
@@ -195,7 +195,7 @@ bool BlurModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
 }
 
 void BlurModule::AfterNodeXmlLoading() {
-    if (m_BlurModule_Comp_Pass_Ptr) {
-        m_BlurModule_Comp_Pass_Ptr->AfterNodeXmlLoading();
+    if (m_BlurModule_Comp_2D_Pass_Ptr) {
+        m_BlurModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     }
 }
