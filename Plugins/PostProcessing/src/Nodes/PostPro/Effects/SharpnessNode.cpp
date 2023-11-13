@@ -18,7 +18,7 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include "SharpnessNode.h"
-#include <Modules/PostPro/SharpnessModule.h>
+#include <Modules/PostPro/Effects/SharpnessModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 

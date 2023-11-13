@@ -17,6 +17,11 @@
 #include <Nodes/PostPro/Effects/BloomNode.h>
 #include <Nodes/PostPro/Effects/ToneMapNode.h>
 #include <Nodes/PostPro/Effects/VignetteNode.h>
+#include <Nodes/PostPro/Effects/ChromaticAberrationsNode.h>
+#include <Nodes/PostPro/Effects/ColorBalanceNode.h>
+#include <Nodes/PostPro/Effects/SSReflectionNode.h>
+#include <Nodes/PostPro/Effects/SSRefractionNode.h>
+#include <Nodes/PostPro/Effects/SharpnessNode.h>
 #include <Nodes/PostPro/PostProcessingNode.h>
 
 // needed for plugin creating / destroying
@@ -94,11 +99,17 @@ std::vector<std::string> PostProcessing::GetNodes() const {
 std::vector<LibraryEntry> PostProcessing::GetLibrary() const {
     std::vector<LibraryEntry> res;
 
-    res.push_back(AddLibraryEntry("PostPro/Effects", "SSAO", "SSAO"));
-    res.push_back(AddLibraryEntry("PostPro/Effects", "Blur", "BLUR"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Bloom", "BLOOM"));
+    res.push_back(AddLibraryEntry("PostPro/Effects", "Blur", "BLUR"));
+    res.push_back(AddLibraryEntry("PostPro/Effects", "ColorBalance", "COLOR_BALANCE"));
+    res.push_back(AddLibraryEntry("PostPro/Effects", "ChromaticAberrations", "CHROMATIC_ABERRATIONS"));
+    res.push_back(AddLibraryEntry("PostPro/Effects", "Sharpness", "SHARPNESS"));
+    res.push_back(AddLibraryEntry("PostPro/Effects", "SS AO", "SS_AO"));
+    res.push_back(AddLibraryEntry("PostPro/Effects", "SS Reflection", "SS_REFLECTION"));
+    res.push_back(AddLibraryEntry("PostPro/Effects", "SS Refraction", "SS_REFRACTION"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Tone Map", "TONE_MAP"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Vignette", "VIGNETTE"));
+
     res.push_back(AddLibraryEntry("PostPro", "PostProcessing", "POST_PROCESSING"));
 
     return res;
@@ -108,18 +119,29 @@ BaseNodePtr PostProcessing::CreatePluginNode(const std::string& vPluginNodeName)
     auto vkPostProcessingPtr = m_VulkanCoreWeak.lock();
 
     // Post Processing
-    if (vPluginNodeName == "SSAO")
+    if (vPluginNodeName == "SS_AO") {
         return SSAONode::Create(vkPostProcessingPtr);
-    else if (vPluginNodeName == "BLUR")
+    } else if (vPluginNodeName == "BLUR") {
         return BlurNode::Create(vkPostProcessingPtr);
-    else if (vPluginNodeName == "BLOOM")
+    } else if (vPluginNodeName == "BLOOM") {
         return BloomNode::Create(vkPostProcessingPtr);
-    else if (vPluginNodeName == "TONE_MAP")
+    } else if (vPluginNodeName == "TONE_MAP") {
         return ToneMapNode::Create(vkPostProcessingPtr);
-    else if (vPluginNodeName == "VIGNETTE")
+    } else if (vPluginNodeName == "VIGNETTE") {
         return VignetteNode::Create(vkPostProcessingPtr);
-    else if (vPluginNodeName == "POST_PROCESSING")
+    } else if (vPluginNodeName == "CHROMATIC_ABERRATIONS") {
+        return ChromaticAberrationsNode::Create(vkPostProcessingPtr);
+    } else if (vPluginNodeName == "COLOR_BALANCE") {
+        return ColorBalanceNode::Create(vkPostProcessingPtr);
+    } else if (vPluginNodeName == "SS_REFLECTION") {
+        return SSReflectionNode::Create(vkPostProcessingPtr);
+    } else if (vPluginNodeName == "SS_REFRACTION") {
+        return SSRefractionNode::Create(vkPostProcessingPtr);
+    } else if (vPluginNodeName == "SHARPNESS") {
+        return SharpnessNode::Create(vkPostProcessingPtr);
+    } else if (vPluginNodeName == "POST_PROCESSING") {
         return PostProcessingNode::Create(vkPostProcessingPtr);
+    }
 
     return nullptr;
 }

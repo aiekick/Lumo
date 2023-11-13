@@ -17,8 +17,8 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "SSRefractionNode.h"
-#include <Modules/PostPro/SSRefractionModule.h>
+#include "ChromaticAberrationsNode.h"
+#include <Modules/PostPro/Effects/ChromaticAberrationsModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
@@ -33,11 +33,11 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSRefractionNode> SSRefractionNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ChromaticAberrationsNode> ChromaticAberrationsNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<SSRefractionNode>();
+	auto res = std::make_shared<ChromaticAberrationsNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -47,14 +47,14 @@ std::shared_ptr<SSRefractionNode> SSRefractionNode::Create(GaiApi::VulkanCorePtr
 	return res;
 }
 
-SSRefractionNode::SSRefractionNode() : BaseNode()
+ChromaticAberrationsNode::ChromaticAberrationsNode() : BaseNode()
 {
 	ZoneScoped;
 
-	m_NodeTypeString = "SS_REFRACTION";
+	m_NodeTypeString = "CHROMATIC_ABERRATIONS";
 }
 
-SSRefractionNode::~SSRefractionNode()
+ChromaticAberrationsNode::~ChromaticAberrationsNode()
 {
 	ZoneScoped;
 
@@ -65,20 +65,20 @@ SSRefractionNode::~SSRefractionNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSRefractionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ChromaticAberrationsNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	name = "SS Refraction";
+	name = "Chromatic Aberrations";
 
 	AddInput(NodeSlotTextureInput::Create("", 0), false, true);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_SSRefractionModulePtr = SSRefractionModule::Create(vVulkanCorePtr, m_This);
-	if (m_SSRefractionModulePtr)
+	m_ChromaticAberrationsModulePtr = ChromaticAberrationsModule::Create(vVulkanCorePtr, m_This);
+	if (m_ChromaticAberrationsModulePtr)
 	{
 		res = true;
 	}
@@ -90,7 +90,7 @@ bool SSRefractionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSRefractionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ChromaticAberrationsNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -100,9 +100,9 @@ bool SSRefractionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
-	if (m_SSRefractionModulePtr)
+	if (m_ChromaticAberrationsModulePtr)
 	{
-		res = m_SSRefractionModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_ChromaticAberrationsModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return res;
@@ -111,37 +111,37 @@ bool SSRefractionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSRefractionNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool ChromaticAberrationsNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	bool res = false;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
-	if (m_SSRefractionModulePtr)	{
-		res = m_SSRefractionModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+	if (m_ChromaticAberrationsModulePtr)	{
+		res = m_ChromaticAberrationsModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 	return res;
 }
 
-bool SSRefractionNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool ChromaticAberrationsNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
 	if (m_LastExecutedFrame == vCurrentFrame) {
-		return m_SSRefractionModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+		return m_ChromaticAberrationsModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
 	}
 	return false;
 }
 
-bool SSRefractionNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool ChromaticAberrationsNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
-	if (m_SSRefractionModulePtr)	{
-		return m_SSRefractionModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+	if (m_ChromaticAberrationsModulePtr)	{
+		return m_ChromaticAberrationsModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 	}
 	return false;
 }
@@ -150,7 +150,7 @@ bool SSRefractionNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void ChromaticAberrationsNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -171,12 +171,12 @@ void SSRefractionNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ChromaticAberrationsNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)	{
-		m_SSRefractionModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	if (m_ChromaticAberrationsModulePtr)	{
+		m_ChromaticAberrationsModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
@@ -187,13 +187,13 @@ void SSRefractionNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void ChromaticAberrationsNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)
+	if (m_ChromaticAberrationsModulePtr)
 	{
-		m_SSRefractionModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_ChromaticAberrationsModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -201,13 +201,13 @@ void SSRefractionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorI
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SSRefractionNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* ChromaticAberrationsNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)
+	if (m_ChromaticAberrationsModulePtr)
 	{
-		return m_SSRefractionModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ChromaticAberrationsModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -217,7 +217,7 @@ vk::DescriptorImageInfo* SSRefractionNode::GetDescriptorImageInfo(const uint32_t
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSRefractionNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string ChromaticAberrationsNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -240,8 +240,8 @@ std::string SSRefractionNode::getXml(const std::string& vOffset, const std::stri
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_SSRefractionModulePtr)	{
-			res += m_SSRefractionModulePtr->getXml(vOffset + "\t", vUserDatas);
+		if (m_ChromaticAberrationsModulePtr)	{
+			res += m_ChromaticAberrationsModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -250,7 +250,7 @@ std::string SSRefractionNode::getXml(const std::string& vOffset, const std::stri
 	return res;
 }
 
-bool SSRefractionNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool ChromaticAberrationsNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -267,20 +267,20 @@ bool SSRefractionNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_SSRefractionModulePtr)	{
-		m_SSRefractionModulePtr->setFromXml(vElem, vParent, vUserDatas);
+	if (m_ChromaticAberrationsModulePtr)	{
+		m_ChromaticAberrationsModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	// continue recurse child exploring
 	return true;
 }
 
-void SSRefractionNode::AfterNodeXmlLoading()
+void ChromaticAberrationsNode::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)	{
-		m_SSRefractionModulePtr->AfterNodeXmlLoading();
+	if (m_ChromaticAberrationsModulePtr)	{
+		m_ChromaticAberrationsModulePtr->AfterNodeXmlLoading();
 	}
 }
 
@@ -288,11 +288,11 @@ void SSRefractionNode::AfterNodeXmlLoading()
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionNode::UpdateShaders(const std::set<std::string>& vFiles)
+void ChromaticAberrationsNode::UpdateShaders(const std::set<std::string>& vFiles)
 {	
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)	{
-		m_SSRefractionModulePtr->UpdateShaders(vFiles);
+	if (m_ChromaticAberrationsModulePtr)	{
+		m_ChromaticAberrationsModulePtr->UpdateShaders(vFiles);
 	}
 }

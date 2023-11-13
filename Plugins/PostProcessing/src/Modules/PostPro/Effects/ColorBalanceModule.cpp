@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "SSReflectionModule.h"
+#include "ColorBalanceModule.h"
 
 #include <cinttypes>
 #include <functional>
@@ -32,7 +32,7 @@ limitations under the License.
 #include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <Gaia/Buffer/FrameBuffer.h>
 
-#include <Modules/PostPro/Pass/SSReflectionModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/ColorBalanceModule_Comp_2D_Pass.h>
 
 using namespace GaiApi;
 
@@ -47,12 +47,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSReflectionModule> SSReflectionModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<ColorBalanceModule> ColorBalanceModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SSReflectionModule>(vVulkanCorePtr);
+	auto res = std::make_shared<ColorBalanceModule>(vVulkanCorePtr);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init()) {
@@ -66,13 +66,13 @@ std::shared_ptr<SSReflectionModule> SSReflectionModule::Create(GaiApi::VulkanCor
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSReflectionModule::SSReflectionModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
+ColorBalanceModule::ColorBalanceModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
 }
 
-SSReflectionModule::~SSReflectionModule()
+ColorBalanceModule::~ColorBalanceModule()
 {
 	ZoneScoped;
 
@@ -83,7 +83,7 @@ SSReflectionModule::~SSReflectionModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SSReflectionModule::Init()
+bool ColorBalanceModule::Init()
 {
 	ZoneScoped;
 
@@ -92,12 +92,12 @@ bool SSReflectionModule::Init()
 	ct::uvec2 map_size = 512;
 	if (BaseRenderer::InitCompute2D(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-		m_SSReflectionModule_Comp_2D_Pass_Ptr = SSReflectionModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
-		if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+		m_ColorBalanceModule_Comp_2D_Pass_Ptr = ColorBalanceModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+		if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
 			// by default but can be changed via widget
-			m_SSReflectionModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
-			m_SSReflectionModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
-			AddGenericPass(m_SSReflectionModule_Comp_2D_Pass_Ptr);
+			m_ColorBalanceModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
+			m_ColorBalanceModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+			AddGenericPass(m_ColorBalanceModule_Comp_2D_Pass_Ptr);
 			m_Loaded = true;
 		}
 	}
@@ -109,17 +109,17 @@ bool SSReflectionModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SSReflectionModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ColorBalanceModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
-		BaseRenderer::Render("SS Reflection", vCmd);
+		BaseRenderer::Render("Color Balance", vCmd);
 	return true;
 }
 
-bool SSReflectionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool ColorBalanceModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
-	BaseRenderer::Render("SS Reflection", vCmd);
+	BaseRenderer::Render("Color Balance", vCmd);
 	return true;
 }
 
@@ -127,7 +127,7 @@ bool SSReflectionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Co
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool ColorBalanceModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -136,9 +136,9 @@ bool SSReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("SS Reflection##SSReflectionModule", -1.0f, true, true, &m_CanWeRender)) {
-			if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-				return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+		if (ImGui::CollapsingHeader_CheckBox("Color Balance##ColorBalanceModule", -1.0f, true, true, &m_CanWeRender)) {
+			if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
+				return m_ColorBalanceModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 		}
 		
@@ -147,7 +147,7 @@ bool SSReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 	return false;
 }
 
-bool SSReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool ColorBalanceModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -155,15 +155,15 @@ bool SSReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRec
 	ImGui::SetCurrentContext(vContextPtr);
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-			return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+		if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
+			return m_ColorBalanceModule_Comp_2D_Pass_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
 		}
 	}
 
 	return false;
 }
 
-bool SSReflectionModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool ColorBalanceModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -171,15 +171,15 @@ bool SSReflectionModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	ImGui::SetCurrentContext(vContextPtr);
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-			return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+		if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
+			return m_ColorBalanceModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 		}
 	}
 
 	return false;
 }
 
-void SSReflectionModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void ColorBalanceModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
 
@@ -192,13 +192,13 @@ void SSReflectionModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSReflectionModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void ColorBalanceModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
-	if (m_SSReflectionModule_Comp_2D_Pass_Ptr)
+	if (m_ColorBalanceModule_Comp_2D_Pass_Ptr)
 	{
-		m_SSReflectionModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_ColorBalanceModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -206,13 +206,13 @@ void SSReflectionModule::SetTexture(const uint32_t& vBindingPoint, vk::Descripto
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SSReflectionModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* ColorBalanceModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 
-	if (m_SSReflectionModule_Comp_2D_Pass_Ptr)
+	if (m_ColorBalanceModule_Comp_2D_Pass_Ptr)
 	{
-		return m_SSReflectionModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ColorBalanceModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -222,26 +222,26 @@ vk::DescriptorImageInfo* SSReflectionModule::GetDescriptorImageInfo(const uint32
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSReflectionModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string ColorBalanceModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	std::string str;
 
-	str += vOffset + "<ss_reflection_module>\n";
+	str += vOffset + "<color_balance_module>\n";
 
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-		str += m_SSReflectionModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+	if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
+		str += m_ColorBalanceModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
 
-	str += vOffset + "</ss_reflection_module>\n";
+	str += vOffset + "</color_balance_module>\n";
 
 	return str;
 }
 
-bool SSReflectionModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool ColorBalanceModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -256,26 +256,26 @@ bool SSReflectionModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "ss_reflection_module")
+	if (strParentName == "color_balance_module")
 	{
 		if (strName == "can_we_render")
 			m_CanWeRender = ct::ivariant(strValue).GetB();
 
-		if (m_SSReflectionModule_Comp_2D_Pass_Ptr)
+		if (m_ColorBalanceModule_Comp_2D_Pass_Ptr)
 		{
-			m_SSReflectionModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+			m_ColorBalanceModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 		}
 	}
 
 	return true;
 }
 
-void SSReflectionModule::AfterNodeXmlLoading()
+void ColorBalanceModule::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 
-	if (m_SSReflectionModule_Comp_2D_Pass_Ptr)
+	if (m_ColorBalanceModule_Comp_2D_Pass_Ptr)
 	{
-		m_SSReflectionModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+		m_ColorBalanceModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
 	}
 }

@@ -25,7 +25,7 @@
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-238;-32" id="105150">
+					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-428;-32" id="105150">
 						<slot place="INPUT" index="0" name="Model" type="MESH" id="105154"/>
 						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="105158"/>
 						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="105162"/>
@@ -36,21 +36,33 @@
 						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="105182"/>
 						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="105186"/>
 					</node>
-					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
+					<node name="Texture 2D" type="TEXTURE_2D" pos="-591;-2" id="269834">
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
 						<texture_2d_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\JG_Drink01.png</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
 						</texture_2d_module>
 					</node>
-					<node name="Model" type="MESH" pos="-370;-82" id="156328">
+					<node name="Model" type="MESH" pos="-560;-82" id="156328">
 						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
 						<mesh_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="0;-53" id="229189">
+					<node name="Chromatic Aberrations" type="CHROMATIC_ABERRATIONS" pos="0;-185" id="274923">
+						<slot place="INPUT" index="0" name="" type="TEXTURE_2D" id="274926"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="274929"/>
+						<chromatic_aberrations_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<amount>0</amount>
+							<enabled>0</enabled>
+						</chromatic_aberrations_module>
+					</node>
+					<node name="Post Processing" type="POST_PROCESSING" pos="-190;-44" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
 						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="229195"/>
 						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="229198"/>
@@ -117,7 +129,19 @@
 							</vignette>
 						</post_processing_module>
 					</node>
-					<node name="Matcap" type="MATCAP_RENDERER" pos="-176;-131" id="263812">
+					<node name="SS Reflection" type="SS_REFLECTION" pos="53;-105" id="292300">
+						<slot place="INPUT" index="0" name="" type="TEXTURE_2D" id="292303"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="292306"/>
+						<ss_reflection_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<amount>0</amount>
+							<enabled>0</enabled>
+						</ss_reflection_module>
+					</node>
+					<node name="Matcap" type="MATCAP_RENDERER" pos="-366;-131" id="263812">
 						<slot place="INPUT" index="0" name="Model" type="MESH" id="263816"/>
 						<slot place="INPUT" index="1" name="Matcap" type="TEXTURE_2D" id="263820"/>
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="263824"/>
@@ -127,6 +151,44 @@
 							<show_face_normal>false</show_face_normal>
 						</matcap_renderer>
 					</node>
+					<node name="Color Balance" type="COLOR_BALANCE" pos="50;-25" id="285031">
+						<slot place="INPUT" index="0" name="" type="TEXTURE_2D" id="285034"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="285037"/>
+						<color_balance_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<red>0</red>
+							<green>0</green>
+							<blue>0</blue>
+							<enabled>0</enabled>
+						</color_balance_module>
+					</node>
+					<node name="SS Refraction" type="SS_REFRACTION" pos="52;55" id="296497">
+						<slot place="INPUT" index="0" name="" type="TEXTURE_2D" id="296500"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="296503"/>
+						<ss_refraction_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<amount>0</amount>
+							<enabled>0</enabled>
+						</ss_refraction_module>
+					</node>
+					<node name="Sharpness" type="SHARPNESS" pos="69;135" id="300318">
+						<slot place="INPUT" index="0" name="" type="TEXTURE_2D" id="300321"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="300324"/>
+						<sharpness_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<amount>1</amount>
+							<enabled>0</enabled>
+						</sharpness_module>
+					</node>
 				</nodes>
 				<links>
 					<link in="156328:156332" out="105150:105154"/>
@@ -135,9 +197,14 @@
 					<link in="156328:156332" out="263812:263816"/>
 					<link in="269834:269838" out="263812:263820"/>
 					<link in="263812:263824" out="229189:229192"/>
+					<link in="300318:300321" out="229189:229201"/>
+					<link in="292300:292303" out="229189:229201"/>
+					<link in="296497:296500" out="229189:229201"/>
+					<link in="285031:285034" out="229189:229201"/>
+					<link in="274923:274926" out="229189:229201"/>
 				</links>
 				<outputs>
-					<output type="left" ids="229189:229201"/>
+					<output type="left" ids="300318:300324"/>
 				</outputs>
 			</graph>
 		</scene>
@@ -155,7 +222,7 @@
 							<scale>1</scale>
 						</canvas>
 						<nodes>
-							<node name="Sharpness" type="NONE" pos="62;-185" id="269951">
+							<node name="Sharpness" type="NONE" pos="69;-185" id="269951">
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="269954" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="269957" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
@@ -181,7 +248,7 @@
 									</UBO>
 								</UBOS>
 							</node>
-							<node name="Color Balance" type="NONE" pos="43;-105" id="269972">
+							<node name="Color Balance" type="NONE" pos="50;-105" id="269972">
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="269975" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="269978" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
@@ -235,7 +302,7 @@
 									</UBO>
 								</UBOS>
 							</node>
-							<node name="SS Reflection" type="NONE" pos="46;55" id="269998">
+							<node name="SS Reflection" type="NONE" pos="53;55" id="269998">
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="270001" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="270004" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
@@ -261,7 +328,7 @@
 									</UBO>
 								</UBOS>
 							</node>
-							<node name="SS Refraction" type="NONE" pos="45;135" id="270011">
+							<node name="SS Refraction" type="NONE" pos="52;135" id="270011">
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="270014" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="270017" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
@@ -291,7 +358,7 @@
 						<links>
 						</links>
 						<outputs>
-							<output type="left" ids="229189:229201"/>
+							<output type="left" ids="300318:300324"/>
 						</outputs>
 					</graph>
 				</scene>

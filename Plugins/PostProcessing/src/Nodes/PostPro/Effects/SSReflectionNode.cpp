@@ -17,8 +17,8 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "ColorBalanceNode.h"
-#include <Modules/PostPro/ColorBalanceModule.h>
+#include "SSReflectionNode.h"
+#include <Modules/PostPro/Effects/SSReflectionModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
@@ -33,11 +33,11 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ColorBalanceNode> ColorBalanceNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SSReflectionNode> SSReflectionNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<ColorBalanceNode>();
+	auto res = std::make_shared<SSReflectionNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -47,14 +47,14 @@ std::shared_ptr<ColorBalanceNode> ColorBalanceNode::Create(GaiApi::VulkanCorePtr
 	return res;
 }
 
-ColorBalanceNode::ColorBalanceNode() : BaseNode()
+SSReflectionNode::SSReflectionNode() : BaseNode()
 {
 	ZoneScoped;
 
-	m_NodeTypeString = "COLOR_BALANCE";
+	m_NodeTypeString = "SS_REFLECTION";
 }
 
-ColorBalanceNode::~ColorBalanceNode()
+SSReflectionNode::~SSReflectionNode()
 {
 	ZoneScoped;
 
@@ -65,20 +65,20 @@ ColorBalanceNode::~ColorBalanceNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ColorBalanceNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SSReflectionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	name = "Color Balance";
+	name = "SS Reflection";
 
 	AddInput(NodeSlotTextureInput::Create("", 0), false, true);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_ColorBalanceModulePtr = ColorBalanceModule::Create(vVulkanCorePtr, m_This);
-	if (m_ColorBalanceModulePtr)
+	m_SSReflectionModulePtr = SSReflectionModule::Create(vVulkanCorePtr, m_This);
+	if (m_SSReflectionModulePtr)
 	{
 		res = true;
 	}
@@ -90,7 +90,7 @@ bool ColorBalanceNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ColorBalanceNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool SSReflectionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -100,9 +100,9 @@ bool ColorBalanceNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
-	if (m_ColorBalanceModulePtr)
+	if (m_SSReflectionModulePtr)
 	{
-		res = m_ColorBalanceModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_SSReflectionModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return res;
@@ -111,37 +111,37 @@ bool ColorBalanceNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ColorBalanceNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool SSReflectionNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	bool res = false;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
-	if (m_ColorBalanceModulePtr)	{
-		res = m_ColorBalanceModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+	if (m_SSReflectionModulePtr)	{
+		res = m_SSReflectionModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 	return res;
 }
 
-bool ColorBalanceNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool SSReflectionNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
 	if (m_LastExecutedFrame == vCurrentFrame) {
-		return m_ColorBalanceModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+		return m_SSReflectionModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
 	}
 	return false;
 }
 
-bool ColorBalanceNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool SSReflectionNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
-	if (m_ColorBalanceModulePtr)	{
-		return m_ColorBalanceModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+	if (m_SSReflectionModulePtr)	{
+		return m_SSReflectionModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 	}
 	return false;
 }
@@ -150,7 +150,7 @@ bool ColorBalanceNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ColorBalanceNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void SSReflectionNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -171,12 +171,12 @@ void ColorBalanceNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ColorBalanceNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void SSReflectionNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
 
-	if (m_ColorBalanceModulePtr)	{
-		m_ColorBalanceModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	if (m_SSReflectionModulePtr)	{
+		m_SSReflectionModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
@@ -187,13 +187,13 @@ void ColorBalanceNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ColorBalanceNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void SSReflectionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
-	if (m_ColorBalanceModulePtr)
+	if (m_SSReflectionModulePtr)
 	{
-		m_ColorBalanceModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_SSReflectionModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -201,13 +201,13 @@ void ColorBalanceNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorI
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ColorBalanceNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* SSReflectionNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 
-	if (m_ColorBalanceModulePtr)
+	if (m_SSReflectionModulePtr)
 	{
-		return m_ColorBalanceModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_SSReflectionModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -217,7 +217,7 @@ vk::DescriptorImageInfo* ColorBalanceNode::GetDescriptorImageInfo(const uint32_t
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ColorBalanceNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string SSReflectionNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -240,8 +240,8 @@ std::string ColorBalanceNode::getXml(const std::string& vOffset, const std::stri
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_ColorBalanceModulePtr)	{
-			res += m_ColorBalanceModulePtr->getXml(vOffset + "\t", vUserDatas);
+		if (m_SSReflectionModulePtr)	{
+			res += m_SSReflectionModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -250,7 +250,7 @@ std::string ColorBalanceNode::getXml(const std::string& vOffset, const std::stri
 	return res;
 }
 
-bool ColorBalanceNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool SSReflectionNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -267,20 +267,20 @@ bool ColorBalanceNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_ColorBalanceModulePtr)	{
-		m_ColorBalanceModulePtr->setFromXml(vElem, vParent, vUserDatas);
+	if (m_SSReflectionModulePtr)	{
+		m_SSReflectionModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	// continue recurse child exploring
 	return true;
 }
 
-void ColorBalanceNode::AfterNodeXmlLoading()
+void SSReflectionNode::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 
-	if (m_ColorBalanceModulePtr)	{
-		m_ColorBalanceModulePtr->AfterNodeXmlLoading();
+	if (m_SSReflectionModulePtr)	{
+		m_SSReflectionModulePtr->AfterNodeXmlLoading();
 	}
 }
 
@@ -288,11 +288,11 @@ void ColorBalanceNode::AfterNodeXmlLoading()
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ColorBalanceNode::UpdateShaders(const std::set<std::string>& vFiles)
+void SSReflectionNode::UpdateShaders(const std::set<std::string>& vFiles)
 {	
 	ZoneScoped;
 
-	if (m_ColorBalanceModulePtr)	{
-		m_ColorBalanceModulePtr->UpdateShaders(vFiles);
+	if (m_SSReflectionModulePtr)	{
+		m_SSReflectionModulePtr->UpdateShaders(vFiles);
 	}
 }

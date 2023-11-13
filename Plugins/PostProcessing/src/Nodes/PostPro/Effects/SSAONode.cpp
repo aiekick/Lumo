@@ -40,7 +40,7 @@ std::shared_ptr<SSAONode> SSAONode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 SSAONode::SSAONode() : BaseNode()
 {
-	m_NodeTypeString = "SSAO";
+	m_NodeTypeString = "SS_AO";
 }
 
 SSAONode::~SSAONode()
@@ -50,7 +50,7 @@ SSAONode::~SSAONode()
 
 bool SSAONode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "SSAO";
+	name = "SS_AO";
 
 	AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
 	AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
