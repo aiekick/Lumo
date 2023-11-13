@@ -107,14 +107,14 @@ bool BlurModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 
         if (m_UseDistinctiveBlurRadiusVH) {
             if (m_UseBlurH) {
-                change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius H", &m_UBOComp.u_blur_radius_H, 1U, 32U, 4U);
+                change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius H", &m_UBOComp.u_blur_radius_H, 1U, 200U, 4U);
             }
 
             if (m_UseBlurV) {
-                change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius V", &m_UBOComp.u_blur_radius_V, 1U, 32U, 4U);
+                change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius V", &m_UBOComp.u_blur_radius_V, 1U, 200U, 4U);
             }
         } else {
-            if (ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_BlurRadius, 1U, 32U, 4U)) {
+            if (ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_BlurRadius, 1U, 200U, 4U)) {
                 m_UBOComp.u_blur_radius_H = m_BlurRadius;
                 m_UBOComp.u_blur_radius_V = m_BlurRadius;
                 change_radius = true;
@@ -493,11 +493,11 @@ void blur_H() {
 	    for(uint idx = 1; idx < u_blur_radius_H; ++idx)	{
 		    // <---
 		    --iv_neg.x;
-		    res += texelFetch(input_map_sampler, iv_neg, 0) * gaussian_weights[idx];
+		    res += texelFetch(input_map_sampler, iv_neg, 0) * gaussian_weights[idx] * 0.5;
 
 		    // --->
 		    ++iv_pos.x;
-		    res += texelFetch(input_map_sampler, iv_pos, 0) * gaussian_weights[idx];
+		    res += texelFetch(input_map_sampler, iv_pos, 0) * gaussian_weights[idx] * 0.5;
 	    }
     }
 	imageStore(outColor, coords, res); 
@@ -514,11 +514,11 @@ void blur_V() {
 	    for(uint idx = 1; idx < u_blur_radius_V; ++idx) {
 		    // <---
 		    --iv_neg.y;
-		    res += texelFetch(input_map_sampler, iv_neg, 0) * gaussian_weights[idx];
+		    res += texelFetch(input_map_sampler, iv_neg, 0) * gaussian_weights[idx] * 0.5;
 
 		    // --->
 		    ++iv_pos.y;
-		    res += texelFetch(input_map_sampler, iv_pos, 0) * gaussian_weights[idx];
+		    res += texelFetch(input_map_sampler, iv_pos, 0) * gaussian_weights[idx] * 0.5;
 	    }
     }
 	imageStore(outColor, coords, res); 

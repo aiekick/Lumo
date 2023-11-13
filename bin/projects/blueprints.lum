@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-0.186523;0.0512905;0</RotXYZ>
+			<RotXYZ>-1.0294;-0.0855845;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>18.2068</Zoom>
+			<Zoom>21.313</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -25,7 +25,7 @@
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-238;-82" id="105150">
+					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-238;-32" id="105150">
 						<slot place="INPUT" index="0" name="Model" type="MESH" id="105154"/>
 						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="105158"/>
 						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="105162"/>
@@ -36,14 +36,21 @@
 						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="105182"/>
 						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="105186"/>
 					</node>
-					<node name="Model" type="MESH" pos="-370;-25" id="156328">
+					<node name="Model" type="MESH" pos="-370;-82" id="156328">
 						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
 						<mesh_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="16;-66" id="229189">
+					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
+						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
+						<texture_2d_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\JG_Drink01.png</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
+						</texture_2d_module>
+					</node>
+					<node name="Post Processing" type="POST_PROCESSING" pos="0;-44" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
 						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="229195"/>
 						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="229198"/>
@@ -55,11 +62,11 @@
 								<resize_by_hand>true</resize_by_hand>
 								<buffer_quality>1</buffer_quality>
 								<ssao_noise_scale>1</ssao_noise_scale>
-								<ssao_ao_radius>0.01</ssao_ao_radius>
+								<ssao_ao_radius>0.25</ssao_ao_radius>
 								<ssao_ao_scale>1</ssao_ao_scale>
-								<ssao_ao_bias>0.005</ssao_ao_bias>
+								<ssao_ao_bias>0.001</ssao_ao_bias>
 								<ssao_ao_intensity>2</ssao_ao_intensity>
-								<ssao_enabled>false</ssao_enabled>
+								<ssao_enabled>true</ssao_enabled>
 							</ssao>
 							<bloom>
 								<resize_by_event>true</resize_by_event>
@@ -91,8 +98,8 @@
 								<resize_by_hand>true</resize_by_hand>
 								<buffer_quality>1</buffer_quality>
 								<tone_map_algo>0</tone_map_algo>
-								<tone_map_aces>2.510;0.030;2.430;0.590;0.140</tone_map_aces>
-								<tone_map_filmic>0.004;6.200;0.500;1.700;0.060;2.200</tone_map_filmic>
+								<tone_map_aces>4.520;0.030;2.430;0.590;0.140</tone_map_aces>
+								<tone_map_filmic>0.000;6.200;0.500;1.700;0.060;2.200</tone_map_filmic>
 								<tone_map_lotted>1.600;0.977;8.000;0.180;0.267</tone_map_lotted>
 								<tone_map_reinhard2>1.600</tone_map_reinhard2>
 								<tone_map_uchimura>1.000;1.000;0.220;0.400;1.330;0.000</tone_map_uchimura>
@@ -104,18 +111,30 @@
 								<resize_by_event>true</resize_by_event>
 								<resize_by_hand>true</resize_by_hand>
 								<buffer_quality>1</buffer_quality>
-								<vignette_width>0.25</vignette_width>
+								<vignette_width>0.267</vignette_width>
 								<vignette_intensity>15</vignette_intensity>
-								<vignette_enabled>false</vignette_enabled>
+								<vignette_enabled>true</vignette_enabled>
 							</vignette>
 						</post_processing_module>
 					</node>
+					<node name="Matcap" type="MATCAP_RENDERER" pos="-176;-131" id="263812">
+						<slot place="INPUT" index="0" name="Model" type="MESH" id="263816"/>
+						<slot place="INPUT" index="1" name="Matcap" type="TEXTURE_2D" id="263820"/>
+						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="263824"/>
+						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="263828"/>
+						<matcap_renderer>
+							<can_we_render>true</can_we_render>
+							<show_face_normal>false</show_face_normal>
+						</matcap_renderer>
+					</node>
 				</nodes>
 				<links>
-					<link in="105150:105166" out="229189:229192"/>
 					<link in="156328:156332" out="105150:105154"/>
 					<link in="105150:105162" out="229189:229195"/>
 					<link in="105150:105166" out="229189:229198"/>
+					<link in="156328:156332" out="263812:263816"/>
+					<link in="269834:269838" out="263812:263820"/>
+					<link in="263812:263824" out="229189:229192"/>
 				</links>
 				<outputs>
 					<output type="left" ids="229189:229201"/>

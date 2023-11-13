@@ -86,7 +86,7 @@ bool BloomModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
         bool change = false;
 
         static UBOComp s_DefaultUBOComp;
-        change |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_UBOComp.u_blur_radius, 1U, 32U, 4U);
+        change |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_UBOComp.u_blur_radius, 1U, 200U, 4U);
         change |= ImGui::CheckBoxBoolDefault("Gaussian Sigma Auto", &m_GaussianSigmAuto, true);
         if (!m_GaussianSigmAuto) {
             change |= ImGui::SliderFloatDefaultCompact(0.0f, "Gaussian Sigma", &m_GaussianSigma, 0.01f, 2.0f, 1.0f);
@@ -454,10 +454,10 @@ void horizontal_blur() {
 		for(uint idx = 1; idx < u_blur_radius; ++idx) {
 			// <---
 			--iv_neg.x;
-			res += texelFetch(input_pass_map_sampler, iv_neg, 0) * gaussian_weights[idx];
+			res += texelFetch(input_pass_map_sampler, iv_neg, 0) * gaussian_weights[idx] * 0.5;
 			// --->
 			++iv_pos.x;
-			res += texelFetch(input_pass_map_sampler, iv_pos, 0) * gaussian_weights[idx];
+			res += texelFetch(input_pass_map_sampler, iv_pos, 0) * gaussian_weights[idx] * 0.5;
 		}
 	}
 	imageStore(outColor, coords, res); 
@@ -474,10 +474,10 @@ void vertical_blur() {
 		for(uint idx = 1; idx < u_blur_radius; ++idx) {
 			// <---
 			--iv_neg.y;
-			res += texelFetch(input_pass_map_sampler, iv_neg, 0) * gaussian_weights[idx];
+			res += texelFetch(input_pass_map_sampler, iv_neg, 0) * gaussian_weights[idx] * 0.5;
 			// --->
 			++iv_pos.y;
-			res += texelFetch(input_pass_map_sampler, iv_pos, 0) * gaussian_weights[idx];
+			res += texelFetch(input_pass_map_sampler, iv_pos, 0) * gaussian_weights[idx] * 0.5;
 		}
 	}
 	imageStore(outColor, coords, res); 
