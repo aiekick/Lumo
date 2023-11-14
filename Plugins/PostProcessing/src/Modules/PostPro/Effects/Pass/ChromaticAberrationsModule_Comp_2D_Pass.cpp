@@ -278,11 +278,11 @@ std::string ChromaticAberrationsModule_Comp_2D_Pass::getXml(const std::string& v
 
     std::string str;
 
-    str += vOffset + "<chromatic_aberrations>\n";
-    str += ShaderPass::getXml(vOffset, vUserDatas);
-    str += vOffset + "<amount>" + ct::toStr(m_UBO_Comp.u_amount) + "</amount>\n";
-    str += vOffset + "<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
-    str += vOffset + "</chromatic_aberrations>\n";
+    str += vOffset + "<chromatic_aberrations_pass>\n";
+    str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
+    str += vOffset + "\t<amount>" + ct::toStr(m_UBO_Comp.u_amount) + "</amount>\n";
+    str += vOffset + "\t<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
+    str += vOffset + "</chromatic_aberrations_pass>\n";
 
     return str;
 }
@@ -301,7 +301,7 @@ bool ChromaticAberrationsModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* v
     if (vParent != nullptr)
         strParentName = vParent->Value();
 
-    if (strParentName == "chromatic_aberrations") {
+    if (strParentName == "chromatic_aberrations_pass") {
         ShaderPass::setFromXml(vElem, vParent, vUserDatas);
         if (strName == "amount") {
             m_UBO_Comp.u_amount = ct::fvariant(strValue).GetF();

@@ -43,14 +43,14 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class SSRefractionModule_Comp_2D_Pass :
+class OutliningModule_Comp_2D_Pass :
 	public ShaderPass,
 	public TextureInputInterface<1>,
 	public TextureOutputInterface,
 	public NodeInterface
 {
 public:
-	static std::shared_ptr<SSRefractionModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<OutliningModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
 	struct UBO_Comp {
@@ -62,8 +62,8 @@ private:
 
 
 public:
-	SSRefractionModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	~SSRefractionModule_Comp_2D_Pass() override;
+	OutliningModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	~OutliningModule_Comp_2D_Pass() override;
 
 	void ActionBeforeInit() override;
 	void WasJustResized() override;

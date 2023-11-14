@@ -70,7 +70,13 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath)
 
 	nodes_path = vPath + "/Nodes/" + m_CategoryName;
 	if (!std::filesystem::exists(nodes_path))
-		fs::create_directory(nodes_path);
+        fs::create_directory(nodes_path);
+
+	if (m_IsAnEffect) {
+        nodes_path = vPath + "/Nodes/" + m_CategoryName + "/Effects/";
+        if (!std::filesystem::exists(nodes_path))
+            fs::create_directory(nodes_path);
+	}
 
 	fs::path module_path = vPath + "/Modules/";
 	if (!std::filesystem::exists(module_path))
@@ -78,7 +84,13 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath)
 	
 	module_path = vPath + "/Modules/" + m_CategoryName;
 	if (!std::filesystem::exists(module_path))
-		fs::create_directory(module_path);
+        fs::create_directory(module_path);
+
+    if (m_IsAnEffect) {
+        module_path = vPath + "/Modules/" + m_CategoryName + "/Effects/";
+        if (!std::filesystem::exists(module_path))
+            fs::create_directory(module_path);
+    }
 
 	std::string node_class_name = m_ClassName + "Node";
 	std::string cpp_node_file_name = nodes_path.string() + "/" + node_class_name + ".cpp";
@@ -105,10 +117,18 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath)
 	cpp_node_file_code += ct::toStr(u8R"(
 #include "%s.h")", node_class_name.c_str());
 
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += ct::toStr(u8R"(
-#include <Modules/%s/%s.h>)", m_CategoryName.c_str(), module_class_name.c_str());
+	if (m_GenerateAModule) {
+        if (m_IsAnEffect) {
+            cpp_node_file_code += ct::toStr(
+                u8R"(
+#include <Modules/%s/%s/%s.h>)",
+                m_CategoryName.c_str(), "Effects", module_class_name.c_str());
+        } else {
+            cpp_node_file_code += ct::toStr(
+                u8R"(
+#include <Modules/%s/%s.h>)",
+                m_CategoryName.c_str(), module_class_name.c_str());
+        }
 	}
 
 	cpp_node_file_code += GetNodeSlotsInputIncludesSlots(slotDico);
@@ -648,7 +668,13 @@ void GeneratorNode::GenerateModules(const std::string& vPath, const SlotDico& vD
 {
 	fs::path module_path = vPath + "/Modules/" + m_CategoryName;
 	if (!std::filesystem::exists(module_path))
-		fs::create_directory(module_path);
+        fs::create_directory(module_path);
+
+    if (m_IsAnEffect) {
+        module_path = vPath + "/Modules/" + m_CategoryName + "/Effects/";
+        if (!std::filesystem::exists(module_path))
+            fs::create_directory(module_path);
+    }
 
 	std::string module_class_name = m_ClassName + "Module";
 	std::string cpp_module_file_name = module_path.string() + "/" + module_class_name + ".cpp";
@@ -692,9 +718,17 @@ void GeneratorNode::GenerateModules(const std::string& vPath, const SlotDico& vD
 )";
 	if (m_GenerateAPass)
 	{
-		cpp_module_file_code += u8R"(
+        if (m_IsAnEffect) {
+            cpp_module_file_code +=
+                u8R"(
+#include <Modules/MODULE_CATEGORY_NAME/Effects/Pass/PASS_CLASS_NAME.h>
+)";
+        } else {
+            cpp_module_file_code +=
+                u8R"(
 #include <Modules/MODULE_CATEGORY_NAME/Pass/PASS_CLASS_NAME.h>
 )";
+		}
 	}
 
 	cpp_module_file_code += u8R"(
@@ -947,10 +981,8 @@ bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		cpp_module_file_code += u8R"(
-		if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##MODULE_CLASS_NAME", -1.0f, true, true, &m_CanWeRender)) {
-			if (m_PASS_CLASS_NAME_Ptr) {
-				return m_PASS_CLASS_NAME_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+		if (m_PASS_CLASS_NAME_Ptr) {
+			return m_PASS_CLASS_NAME_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 		}
 		)";
 	}
@@ -1055,16 +1087,12 @@ void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint3
 std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	std::string str;
-
-	str += vOffset + "<MODULE_XML_NAME>\n";
-)";
+	str += vOffset + "<MODULE_XML_NAME>\n";)";
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		cpp_module_file_code += u8R"(
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
-)";
+	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";)";
 	}
 
 	if (m_GenerateAPass)
@@ -1072,13 +1100,11 @@ std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::str
 		cpp_module_file_code += u8R"(
 	if (m_PASS_CLASS_NAME_Ptr) {
 		str += m_PASS_CLASS_NAME_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
-)";
+	})";
 	}
 
 	cpp_module_file_code += u8R"(
 	str += vOffset + "</MODULE_XML_NAME>\n";
-
 	return str;
 }
 
@@ -1097,44 +1123,39 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "MODULE_XML_NAME")
-	{)";
+	if (strParentName == "MODULE_XML_NAME")	{)";
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		cpp_module_file_code += u8R"(
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();)";
-	}
+		if (strName == "can_we_render") {
+			m_CanWeRender = ct::ivariant(strValue).GetB();
+		} )";
+    }
+
+    cpp_module_file_code +=
+        u8R"(
+	})";
+
 	if (m_GenerateAPass)
 	{
-		if (m_RendererType != RENDERER_TYPE_NONE)
-		{
-			cpp_module_file_code += u8R"(
-)";
-		}
-
 		cpp_module_file_code += u8R"(
-		if (m_PASS_CLASS_NAME_Ptr)
-		{
+		if (m_PASS_CLASS_NAME_Ptr) {
 			m_PASS_CLASS_NAME_Ptr->setFromXml(vElem, vParent, vUserDatas);
 		})";
 	}
 
 	cpp_module_file_code += u8R"(
-	}
 
 	return true;
 }
 
 void MODULE_CLASS_NAME::AfterNodeXmlLoading()
 {
-	ZoneScoped;
-)";
+	ZoneScoped;)";
 	if (m_GenerateAPass)
 	{
 		cpp_module_file_code += u8R"(
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
+	if (m_PASS_CLASS_NAME_Ptr) {
 		m_PASS_CLASS_NAME_Ptr->AfterNodeXmlLoading();
 	})";
 	}
@@ -1290,6 +1311,9 @@ public:
 	void AfterNodeXmlLoading() override;
 };
 )";
+    
+    ct::replaceString(cpp_module_file_code, "PASS_XML_NAME", m_PassXmlName);
+    ct::replaceString(h_module_file_code, "PASS_XML_NAME", m_PassXmlName);
 
 	ct::replaceString(cpp_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
 	ct::replaceString(h_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
@@ -1327,9 +1351,14 @@ public:
 
 void GeneratorNode::GeneratePasses(const std::string& vPath, const SlotDico& vDico)
 {
-	fs::path path_path = vPath + "/Modules/" + m_CategoryName + "/Pass/";
-	if (!std::filesystem::exists(path_path))
-		fs::create_directory(path_path);
+    fs::path path_path = vPath + "/Modules/" + m_CategoryName + "/Pass/";
+
+    if (m_IsAnEffect) {
+        path_path = vPath + "/Modules/" + m_CategoryName + "/Effects/Pass/";
+    } 
+
+    if (!std::filesystem::exists(path_path))
+        fs::create_directory(path_path);
 
 	std::string pass_renderer_display_type = GetRendererDisplayName();
 	std::string pass_class_name = m_ClassName + "Module_" + pass_renderer_display_type + "Pass";
@@ -1566,7 +1595,8 @@ void PASS_CLASS_NAME::ActionBeforeInit()
 	})";
 	}
 
-	cpp_pass_file_code += u8R"(
+	cpp_pass_file_code +=
+        u8R"(
 }
 
 bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
@@ -1574,11 +1604,35 @@ bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
-	bool change = false;
+	bool change = false;)";
+    if (m_IsAnEffect) {
+        cpp_pass_file_code +=
+            u8R"(
+	//change |= DrawResizeWidget();
+)";
+    } else {
+        cpp_pass_file_code +=
+            u8R"(
 	change |= DrawResizeWidget();
 )";
+	}
+
+	if (m_IsAnEffect) {
+        cpp_pass_file_code +=
+            u8R"(
+	if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##PASS_CLASS_NAME", -1.0f, false, true, IsEffectEnabled())) {)";
+	} else {
+        cpp_pass_file_code +=
+            u8R"(
+	if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##PASS_CLASS_NAME", -1.0f, true, true, &m_CanWeRender)) {)";
+	}
+        
 	cpp_pass_file_code += m_UBOEditors.Get_Widgets_Header();
-	cpp_pass_file_code += u8R"(
+
+	cpp_pass_file_code +=
+            u8R"(
+	}
+
 	return change;
 }
 
@@ -1613,7 +1667,7 @@ void PASS_CLASS_NAME::WasJustResized()
 }
 )";
 	cpp_pass_file_code += GetPassRendererFunctionHeader();
-	cpp_pass_file_code += m_UBOEditors.Get_Cpp_Functions_Imp();
+	cpp_pass_file_code += m_UBOEditors.Get_Cpp_Functions_Imp(m_IsAnEffect);
 
 	if (m_UseASbo)
 	{
@@ -1702,15 +1756,12 @@ bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
 std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	std::string str;
-
-	str += ShaderPass::getXml(vOffset, vUserDatas);
-)";
-	cpp_pass_file_code += m_UBOEditors.Get_Cpp_GetXML();
-	
+    str += vOffset + "<PASS_XML_NAME>\n";
+	str += ShaderPass::getXml(vOffset + "\t", vUserDatas);)";
+	cpp_pass_file_code += m_UBOEditors.Get_Cpp_GetXML(m_IsAnEffect);	
 	cpp_pass_file_code += u8R"(
-
+    str += vOffset + "</PASS_XML_NAME>\n";
 	return str;
 }
 
@@ -1724,18 +1775,16 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	std::string strParentName;
 
 	strName = vElem->Value();
-	if (vElem->GetText())
+	if (vElem->GetText()) {
 		strValue = vElem->GetText();
-	if (vParent != nullptr)
+	}
+	if (vParent != nullptr) {
 		strParentName = vParent->Value();
+	}
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
-
-	if (strParentName == "MODULE_XML_NAME")
-	{
-)";
-	cpp_pass_file_code += m_UBOEditors.Get_Cpp_SetXML();
-
+	if (strParentName == "PASS_XML_NAME") {
+		ShaderPass::setFromXml(vElem, vParent, vUserDatas);)";
+    cpp_pass_file_code += m_UBOEditors.Get_Cpp_SetXML(m_IsAnEffect);
 	cpp_pass_file_code += u8R"(
 	}
 
@@ -1745,9 +1794,6 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 void PASS_CLASS_NAME::AfterNodeXmlLoading()
 {
 	ZoneScoped;
-
-	// code to do after end of the xml loading of this node
-	// by ex :
 	NeedNewUBOUpload();
 }
 )";
@@ -1898,7 +1944,7 @@ private:)";
     h_pass_file_code += GetPassInputPrivateVars(vDico);
     h_pass_file_code += GetPassOutputPrivateVars(vDico);
 
-	h_pass_file_code += m_UBOEditors.Get_Cpp_Header();
+	h_pass_file_code += m_UBOEditors.Get_Cpp_Header(m_IsAnEffect);
 
 	h_pass_file_code += u8R"(
 
@@ -1990,8 +2036,11 @@ protected:)";
 	h_pass_file_code += u8R"(
 };)";
 
+    ct::replaceString(cpp_pass_file_code, "PASS_XML_NAME", m_PassXmlName);
+    ct::replaceString(h_pass_file_code, "PASS_XML_NAME", m_PassXmlName);
+
 	ct::replaceString(cpp_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
-	ct::replaceString(h_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
+    ct::replaceString(h_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
 
 	ct::replaceString(cpp_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
 	ct::replaceString(h_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
@@ -2315,7 +2364,7 @@ layout(location = 0) in vec2 vertPosition;
 layout(location = 1) in vec2 vertUv;
 layout(location = 0) out vec2 v_uv;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Vert");
+    res += m_UBOEditors.Get_Glsl_Header("Vert", m_IsAnEffect);
 	res += u8R"(
 
 void main() 
@@ -2336,7 +2385,7 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec2 v_uv;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Frag");
+    res += m_UBOEditors.Get_Glsl_Header("Frag", m_IsAnEffect);
 	res += u8R"(
 
 void main() 
@@ -2368,7 +2417,7 @@ layout(location = 4) in vec2 aUv;
 layout(location = 5) in vec4 aColor;
 layout(location = 0) out vec4 vertColor;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Vert");
+    res += m_UBOEditors.Get_Glsl_Header("Vert", m_IsAnEffect);
 	res += u8R"(
 
 ))"; res += u8R"("
@@ -2392,7 +2441,7 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec4 vertColor;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Frag");
+    res += m_UBOEditors.Get_Glsl_Header("Frag", m_IsAnEffect);
 	res += u8R"(
 
 void main() 
@@ -2425,7 +2474,7 @@ layout(location = 0) out vec3 v_position;
 layout(location = 1) out vec3 v_normal;
 layout(location = 2) out vec4 v_color;
 )";	
-	res += m_UBOEditors.Get_Glsl_Header("Vert");
+	res += m_UBOEditors.Get_Glsl_Header("Vert", m_IsAnEffect);
 	res += u8R"(
 
 ))"; res += u8R"("
@@ -2459,7 +2508,7 @@ layout(location = 2) in vec4 v_color[];
 
 layout(location = 0) out vec3 v_position_tess_control[];
 )";	
-	res += m_UBOEditors.Get_Glsl_Header("TessCtrl");
+	res += m_UBOEditors.Get_Glsl_Header("TessCtrl", m_IsAnEffect);
 	res += u8R"(
 
 )"; res += u8R"(
@@ -2499,7 +2548,7 @@ layout(location = 0) out vec3 v_position;
 layout(location = 1) out vec3 v_normal;
 layout(location = 2) out vec4 v_color;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("TessEval");
+    res += m_UBOEditors.Get_Glsl_Header("TessEval", m_IsAnEffect);
 	res += u8R"(
 
 ))"; res += u8R"("
@@ -2542,7 +2591,7 @@ layout(location = 0) in vec3 v_position;
 layout(location = 1) in vec3 v_normal;
 layout(location = 2) in vec4 v_color;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Frag");
+    res += m_UBOEditors.Get_Glsl_Header("Frag", m_IsAnEffect);
 	res += u8R"(
 
 ))"; res += u8R"("
@@ -2588,7 +2637,7 @@ std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 
 layout(location = 0) out vec4 vertColor;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Vert");
+    res += m_UBOEditors.Get_Glsl_Header("Vert", m_IsAnEffect);
 	res += u8R"(
 
 ))"; res += u8R"("
@@ -2624,7 +2673,7 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec4 vertColor;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Frag");
+    res += m_UBOEditors.Get_Glsl_Header("Frag", m_IsAnEffect);
 	res += u8R"(
 
 void main() 
@@ -2676,7 +2725,7 @@ std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Comp");
+        res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect);
 	res += u8R"(
 
 void main()
@@ -2704,7 +2753,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 layout(binding = 0, rgba32f) uniform image2D colorBuffer;
 )";
-		res += m_UBOEditors.Get_Glsl_Header("Comp");
+    res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect);
 		res += u8R"(
 
 void main()
@@ -2734,7 +2783,7 @@ std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Comp");
+        res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect);
 	res += u8R"(
 
 void main()
@@ -2764,7 +2813,7 @@ layout(binding = 1) uniform accelerationStructureEXT tlas;
 u8R"(
 
 )";
-	res += m_UBOEditors.Get_Glsl_Header("RGen");
+    res += m_UBOEditors.Get_Glsl_Header("RGen", m_IsAnEffect);
 	res += u8R"(
 
 struct hitPayload
@@ -2830,7 +2879,7 @@ std::string PASS_CLASS_NAME::GetRayIntersectionShaderCode(std::string& vOutShade
 	vOutShaderName = "PASS_CLASS_NAME_Inter";
 	return u8R"(
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Inter");
+    res += m_UBOEditors.Get_Glsl_Header("Inter", m_IsAnEffect);
 	res += u8R"(
 ))"; res += u8R"(";
 }
@@ -2859,7 +2908,7 @@ layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Miss");
+    res += m_UBOEditors.Get_Glsl_Header("Miss", m_IsAnEffect);
 	res += u8R"(
 
 void main()
@@ -2878,7 +2927,7 @@ std::string PASS_CLASS_NAME::GetRayAnyHitShaderCode(std::string& vOutShaderName)
 	vOutShaderName = "PASS_CLASS_NAME_Ahit";
 	return u8R"(
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Ahit");
+    res += m_UBOEditors.Get_Glsl_Header("Ahit", m_IsAnEffect);
 	res += u8R"(
 ))"; res += u8R"(";
 }
@@ -2913,7 +2962,7 @@ layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
 )";
-	res += m_UBOEditors.Get_Glsl_Header("Chit");
+    res += m_UBOEditors.Get_Glsl_Header("Chit", m_IsAnEffect);
 	res += u8R"(
 
 hitAttributeEXT vec3 attribs;
@@ -4759,18 +4808,11 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;)";
-
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
 		res.cpp_pass_func += u8R"(
-
-	if (m_FrameBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
-		}
-
+	if (m_FrameBufferPtr) {
+        AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	})";
 	}
@@ -4780,19 +4822,12 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 		m_RendererType == RENDERER_TYPE_RTX)
 	{
 		res.cpp_pass_func += u8R"(
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
-
+	if (m_ComputeBufferPtr) {
+        AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	})";
 	}
-
 	res.cpp_pass_func += u8R"(
-
 	return nullptr;
 }
 )";
@@ -7020,10 +7055,12 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
         res += vOffset + ct::toStr("\t\t<renderer_type>%s</renderer_type>\n", m_RendererType.c_str());
         res += vOffset + ct::toStr("\t\t<module_display_name>%s</module_display_name>\n", m_ModuleDisplayName.c_str());
         res += vOffset + ct::toStr("\t\t<module_xml_name>%s</module_xml_name>\n", m_ModuleXmlName.c_str());
+        res += vOffset + ct::toStr("\t\t<module_xml_simple_name>%s</module_xml_simple_name>\n", m_PassXmlName.c_str());        
         res += vOffset + ct::toStr("\t\t<pass_specialization_type>%s</pass_specialization_type>\n", m_RendererTypePixel2DSpecializationType.c_str());
         res += vOffset + ct::toStr("\t\t<pass_use_ubo>%s</pass_use_ubo>\n", m_UBOEditors.m_UseUbos ? "true" : "false");
         res += vOffset + ct::toStr("\t\t<pass_use_sbo>%s</pass_use_sbo>\n", m_UseASbo ? "true" : "false");
         res += vOffset + ct::toStr("\t\t<node_is_a_task>%s</node_is_a_task>\n", m_IsATask ? "true" : "false");
+        res += vOffset + ct::toStr("\t\t<node_is_an_effect>%s</node_is_an_effect>\n", m_IsAnEffect ? "true" : "false");
         res += vOffset + ct::toStr("\t\t<vertex_struct_type>%i</vertex_struct_type>\n", m_VertexStructTypesIndex);
 
         res += vOffset + "\t</generation>\n";
@@ -7263,6 +7300,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
             m_ModuleDisplayName = strValue;
         else if (strName == "module_xml_name")
             m_ModuleXmlName = strValue;
+        else if (strName == "module_xml_simple_name")
+            m_PassXmlName = strValue;
         else if (strName == "pass_specialization_type")
             m_RendererTypePixel2DSpecializationType = strValue;
         else if (strName == "pass_use_ubo")
@@ -7271,6 +7310,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
             m_UseASbo = ct::ivariant(strValue).GetB();
         else if (strName == "node_is_a_task")
             m_IsATask = ct::ivariant(strValue).GetB();
+        else if (strName == "node_is_an_effect")
+            m_IsAnEffect = ct::ivariant(strValue).GetB();
         else if (strName == "vertex_struct_type")
             m_VertexStructTypesIndex = ct::ivariant(strValue).GetI();
 

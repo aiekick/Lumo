@@ -511,7 +511,7 @@ std::string ToneMapModule_Comp_2D_Pass::GetStructToXMLString(const char* vBalise
         for (size_t idx = 0u; idx < vCountItem; ++idx) {
             arr[idx] = vStartItem[idx];
         }
-        return ct::toStr("\t<tone_map_%s>%s</tone_map_%s>\n", vBalise, ct::fvariant(arr).GetS(';', "%.3f").c_str(), vBalise);
+        return ct::toStr("\t<%s>%s</%s>\n", vBalise, ct::fvariant(arr).GetS(';', "%.3f").c_str(), vBalise);
     }
 
     return "";
@@ -520,9 +520,9 @@ std::string ToneMapModule_Comp_2D_Pass::GetStructToXMLString(const char* vBalise
 std::string ToneMapModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     std::string str;
 
-    str += vOffset + "<tone_mapping>\n";
+    str += vOffset + "<tone_mapping_pass>\n";
     str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
-    str += vOffset + "\t<tone_map_algo>" + ct::toStr(m_UBOComp.u_tone_map_algo_idx) + "</tone_map_algo>\n";
+    str += vOffset + "\t<algo>" + ct::toStr(m_UBOComp.u_tone_map_algo_idx) + "</algo>\n";
     str += vOffset + GetStructToXMLString("aces", &m_UBOComp.u_aces_a, 5U);
     str += vOffset + GetStructToXMLString("filmic", &m_UBOComp.u_filmic_a, 6U);
     str += vOffset + GetStructToXMLString("lotted", &m_UBOComp.u_lottes_a, 5U);
@@ -530,8 +530,8 @@ std::string ToneMapModule_Comp_2D_Pass::getXml(const std::string& vOffset, const
     str += vOffset + GetStructToXMLString("uchimura", &m_UBOComp.u_uchimura_max_brightness, 6U);
     str += vOffset + GetStructToXMLString("uncharted2", &m_UBOComp.u_uncharted2_a, 8U);
     str += vOffset + GetStructToXMLString("unreal", &m_UBOComp.u_unreal_a, 2U);
-    str += vOffset + "\t<tone_map_enabled>" + (m_UBOComp.u_enabled > 0.5f ? "true" : "false") + "</tone_map_enabled>\n";
-    str += vOffset + "</tone_mapping>\n";
+    str += vOffset + "\t<enabled>" + ct::toStr(m_UBOComp.u_enabled) + "</enabled>\n";
+    str += vOffset + "</tone_mapping_pass>\n";
     return str;
 }
 
@@ -559,26 +559,26 @@ bool ToneMapModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml
     if (vParent != nullptr)
         strParentName = vParent->Value();
 
-    if (strParentName == "tone_mapping") {
+    if (strParentName == "tone_mapping_pass") {
         ShaderPass::setFromXml(vElem, vParent, vUserDatas);
-        if (strName == "tone_map_aces") {
+        if (strName == "aces") {
             LoadStructFromToXMLString(strValue, &m_UBOComp.u_aces_a, 5U);
-        } else if (strName == "tone_map_filmic") {
+        } else if (strName == "filmic") {
             LoadStructFromToXMLString(strValue, &m_UBOComp.u_filmic_a, 6U);
-        } else if (strName == "tone_map_lotted") {
+        } else if (strName == "lotted") {
             LoadStructFromToXMLString(strValue, &m_UBOComp.u_lottes_a, 5U);
-        } else if (strName == "tone_map_reinhard2") {
+        } else if (strName == "reinhard2") {
             LoadStructFromToXMLString(strValue, &m_UBOComp.u_reinhard2_L_white, 1U);
-        } else if (strName == "tone_map_uchimura") {
+        } else if (strName == "uchimura") {
             LoadStructFromToXMLString(strValue, &m_UBOComp.u_uchimura_max_brightness, 6U);
-        } else if (strName == "tone_map_uncharted2") {
+        } else if (strName == "uncharted2") {
             LoadStructFromToXMLString(strValue, &m_UBOComp.u_uncharted2_a, 8U);
-        } else if (strName == "tone_map_unreal") {
+        } else if (strName == "unreal") {
             LoadStructFromToXMLString(strValue, &m_UBOComp.u_unreal_a, 2U);
-        } else if (strName == "tone_map_enabled") {
+        } else if (strName == "enabled") {
             m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
-        } else if (strName == "tone_map_algo") {
+        } else if (strName == "algo") {
             m_UBOComp.u_tone_map_algo_idx = ct::ivariant(strValue).GetI();
         }
     }    

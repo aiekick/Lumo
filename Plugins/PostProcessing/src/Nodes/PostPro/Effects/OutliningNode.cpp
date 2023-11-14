@@ -17,8 +17,8 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "SSRefractionNode.h"
-#include <Modules/PostPro/Effects/SSRefractionModule.h>
+#include "OutliningNode.h"
+#include <Modules/PostPro/Effects/OutliningModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 
@@ -26,18 +26,18 @@ limitations under the License.
 #include PROFILER_INCLUDE
 #endif
 #ifndef ZoneScoped
-#define ZoneScopedeqqq
+#define ZoneScoped
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSRefractionNode> SSRefractionNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<OutliningNode> OutliningNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	auto res = std::make_shared<SSRefractionNode>();
+	auto res = std::make_shared<OutliningNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -47,14 +47,14 @@ std::shared_ptr<SSRefractionNode> SSRefractionNode::Create(GaiApi::VulkanCorePtr
 	return res;
 }
 
-SSRefractionNode::SSRefractionNode() : BaseNode()
+OutliningNode::OutliningNode() : BaseNode()
 {
 	ZoneScoped;
 
-	m_NodeTypeString = "SS_REFRACTION";
+	m_NodeTypeString = "OUTLINING";
 }
 
-SSRefractionNode::~SSRefractionNode()
+OutliningNode::~OutliningNode()
 {
 	ZoneScoped;
 
@@ -65,20 +65,20 @@ SSRefractionNode::~SSRefractionNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSRefractionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool OutliningNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	ZoneScoped;
 
 	bool res = false;
 
-	name = "SS Refraction";
+	name = "Outlining";
 
 	AddInput(NodeSlotTextureInput::Create("", 0), false, true);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_SSRefractionModulePtr = SSRefractionModule::Create(vVulkanCorePtr, m_This);
-	if (m_SSRefractionModulePtr)
+	m_OutliningModulePtr = OutliningModule::Create(vVulkanCorePtr, m_This);
+	if (m_OutliningModulePtr)
 	{
 		res = true;
 	}
@@ -90,7 +90,7 @@ bool SSRefractionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSRefractionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool OutliningNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -100,9 +100,9 @@ bool SSRefractionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
-	if (m_SSRefractionModulePtr)
+	if (m_OutliningModulePtr)
 	{
-		res = m_SSRefractionModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		res = m_OutliningModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 
 	return res;
@@ -111,37 +111,37 @@ bool SSRefractionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSRefractionNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool OutliningNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	bool res = false;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
-	if (m_SSRefractionModulePtr)	{
-		res = m_SSRefractionModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+	if (m_OutliningModulePtr)	{
+		res = m_OutliningModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 	return res;
 }
 
-bool SSRefractionNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool OutliningNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
 	if (m_LastExecutedFrame == vCurrentFrame) {
-		return m_SSRefractionModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+		return m_OutliningModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
 	}
 	return false;
 }
 
-bool SSRefractionNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool OutliningNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
-	if (m_SSRefractionModulePtr)	{
-		return m_SSRefractionModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+	if (m_OutliningModulePtr)	{
+		return m_OutliningModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 	}
 	return false;
 }
@@ -150,7 +150,7 @@ bool SSRefractionNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void OutliningNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -171,12 +171,12 @@ void SSRefractionNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void OutliningNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)	{
-		m_SSRefractionModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	if (m_OutliningModulePtr)	{
+		m_OutliningModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
@@ -187,13 +187,13 @@ void SSRefractionNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void OutliningNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)
+	if (m_OutliningModulePtr)
 	{
-		m_SSRefractionModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_OutliningModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -201,13 +201,13 @@ void SSRefractionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorI
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SSRefractionNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* OutliningNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)
+	if (m_OutliningModulePtr)
 	{
-		return m_SSRefractionModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_OutliningModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -217,7 +217,7 @@ vk::DescriptorImageInfo* SSRefractionNode::GetDescriptorImageInfo(const uint32_t
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSRefractionNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string OutliningNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -240,8 +240,8 @@ std::string SSRefractionNode::getXml(const std::string& vOffset, const std::stri
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_SSRefractionModulePtr)	{
-			res += m_SSRefractionModulePtr->getXml(vOffset + "\t", vUserDatas);
+		if (m_OutliningModulePtr)	{
+			res += m_OutliningModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -250,7 +250,7 @@ std::string SSRefractionNode::getXml(const std::string& vOffset, const std::stri
 	return res;
 }
 
-bool SSRefractionNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool OutliningNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {	
 	ZoneScoped;
 
@@ -267,20 +267,20 @@ bool SSRefractionNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElem
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_SSRefractionModulePtr)	{
-		m_SSRefractionModulePtr->setFromXml(vElem, vParent, vUserDatas);
+	if (m_OutliningModulePtr)	{
+		m_OutliningModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	// continue recurse child exploring
 	return true;
 }
 
-void SSRefractionNode::AfterNodeXmlLoading()
+void OutliningNode::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)	{
-		m_SSRefractionModulePtr->AfterNodeXmlLoading();
+	if (m_OutliningModulePtr)	{
+		m_OutliningModulePtr->AfterNodeXmlLoading();
 	}
 }
 
@@ -288,11 +288,11 @@ void SSRefractionNode::AfterNodeXmlLoading()
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionNode::UpdateShaders(const std::set<std::string>& vFiles)
+void OutliningNode::UpdateShaders(const std::set<std::string>& vFiles)
 {	
 	ZoneScoped;
 
-	if (m_SSRefractionModulePtr)	{
-		m_SSRefractionModulePtr->UpdateShaders(vFiles);
+	if (m_OutliningModulePtr)	{
+		m_OutliningModulePtr->UpdateShaders(vFiles);
 	}
 }

@@ -65,12 +65,12 @@ public:
 	bool DrawPane(const std::string& vRendererType);
 	
 	std::string Get_Widgets_Header(const std::string& vRendererType, const int32_t& vUboIndex);
-	std::string Get_Glsl_Header(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex);
-	std::string Get_Cpp_Header(const std::string& vRendererType, const int32_t& vUboIndex);
+    std::string Get_Glsl_Header(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex, const bool& vIsAnEffect);
+    std::string Get_Cpp_Header(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsAnEffect);
 	std::string Get_Cpp_WriteDescriptors(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex);
 	std::string Get_Cpp_LayoutBindings(const std::string& vRendererType, const int32_t& vUboBindingIndex);
-	std::string Get_Cpp_GetXML(const std::string& vRendererType, const int32_t& vUboIndex);
-	std::string Get_Cpp_SetXML(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsFirst);
+    std::string Get_Cpp_GetXML(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsAnEffect);
+	std::string Get_Cpp_SetXML(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsFirst, const bool& vIsAnEffect);
 	std::string Get_Create_Header(const std::string& vRendererType, const int32_t& vUboIndex);
 	std::string Get_Upload_Header(const std::string& vRendererType, const int32_t& vUboIndex);
 	std::string Get_Destroy_Header(const std::string& vRendererType, const int32_t& vUboIndex);
@@ -97,15 +97,15 @@ public:
 	UBOEditors();
     bool DrawPane(const std::string& vRendererType);
 
-	std::string Get_Cpp_Functions_Imp();
+	std::string Get_Cpp_Functions_Imp(const bool& vIsAnEffect);
 	std::string Get_Cpp_Functions_Header();
 	std::string Get_Cpp_WriteDescriptors();
 	std::string Get_Cpp_LayoutBindings();
-	std::string Get_Cpp_GetXML();
-	std::string Get_Cpp_SetXML();
-	std::string Get_Cpp_Header();
+    std::string Get_Cpp_GetXML(const bool& vIsAnEffect);
+    std::string Get_Cpp_SetXML(const bool& vIsAnEffect);
+    std::string Get_Cpp_Header(const bool& vIsAnEffect);
 	std::string Get_Widgets_Header();
-	std::string Get_Glsl_Header(const std::string& vStage);
+    std::string Get_Glsl_Header(const std::string& vStage, const bool& vIsAnEffect);
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

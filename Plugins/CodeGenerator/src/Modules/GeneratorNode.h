@@ -137,13 +137,15 @@ public: // to save
 	std::string m_CategoryName = "None";
 	std::string m_NodeCreationName = "NEW_NODE"; // node name maj ex : 2D_SIMULATION_GRAY_SCOTT
 	std::string m_NodeDisplayName = "New Node"; // node name maj ex : Gray Scott
-	bool m_IsATask = true;
+    bool m_IsATask = true;
+    bool m_IsAnEffect = false;
 
 	// Module
 	bool m_GenerateAModule = true;
 	std::string m_ModuleDisplayName = "New Node"; // node name maj ex : Gray Scott
 	std::string m_RendererType = "Comp";
-	std::string m_ModuleXmlName = "toto_module";
+    std::string m_ModuleXmlName = "toto_module";
+    std::string m_PassXmlName = "toto";
 	std::string m_ModuleRendererInitFunc = "InitCompute2D"; // from m_RendererType // dont save
 	std::string m_ModuleRendererDisplayType = "Comp"; // from m_RendererType // dont save
 

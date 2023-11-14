@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "SSReflectionModule_Comp_2D_Pass.h"
+#include "DepthofFieldModule_Comp_2D_Pass.h"
 
 #include <cinttypes>
 #include <functional>
@@ -44,8 +44,8 @@ using namespace GaiApi;
 ///// STATIC /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSReflectionModule_Comp_2D_Pass> SSReflectionModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<SSReflectionModule_Comp_2D_Pass>(vVulkanCorePtr);
+std::shared_ptr<DepthofFieldModule_Comp_2D_Pass> DepthofFieldModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
+	auto res_ptr = std::make_shared<DepthofFieldModule_Comp_2D_Pass>(vVulkanCorePtr);
 	if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
 		res_ptr.reset();
 	}
@@ -56,24 +56,24 @@ std::shared_ptr<SSReflectionModule_Comp_2D_Pass> SSReflectionModule_Comp_2D_Pass
 ///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSReflectionModule_Comp_2D_Pass::SSReflectionModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
+DepthofFieldModule_Comp_2D_Pass::DepthofFieldModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	SetRenderDocDebugName("Comp Pass : SS Reflection", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Comp Pass : Depth of Field", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
 	m_DontUseShaderFilesOnDisk = true;
 }
 
-SSReflectionModule_Comp_2D_Pass::~SSReflectionModule_Comp_2D_Pass()
+DepthofFieldModule_Comp_2D_Pass::~DepthofFieldModule_Comp_2D_Pass()
 {
 	ZoneScoped;
 
 	Unit();
 }
 
-void SSReflectionModule_Comp_2D_Pass::ActionBeforeInit()
+void DepthofFieldModule_Comp_2D_Pass::ActionBeforeInit()
 {
 	ZoneScoped;
 
@@ -85,7 +85,7 @@ void SSReflectionModule_Comp_2D_Pass::ActionBeforeInit()
 	}
 }
 
-bool SSReflectionModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool DepthofFieldModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
@@ -93,8 +93,9 @@ bool SSReflectionModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame,
 	bool change = false;
 	//change |= DrawResizeWidget();
 
-	if (ImGui::CollapsingHeader_CheckBox("SS Reflection##SSReflectionModule_Comp_2D_Pass", -1.0f, false, true, IsEffectEnabled())) {
-		change |= ImGui::SliderFloatDefaultCompact(0.0f, "amount", &m_UBO_Comp.u_amount, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+	if (ImGui::CollapsingHeader_CheckBox("Depth of Field##DepthofFieldModule_Comp_2D_Pass", -1.0f, false, true, IsEffectEnabled())) {
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "backgroud_blur_amount", &m_UBO_Comp.u_backgroud_blur_amount, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "foreground_blur_amount", &m_UBO_Comp.u_foreground_blur_amount, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
 
 		if (change)
 		{
@@ -105,7 +106,7 @@ bool SSReflectionModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame,
 	return change;
 }
 
-bool SSReflectionModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool DepthofFieldModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
@@ -113,7 +114,7 @@ bool SSReflectionModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame
 	return false;
 }
 
-bool SSReflectionModule_Comp_2D_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool DepthofFieldModule_Comp_2D_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
@@ -125,7 +126,7 @@ bool SSReflectionModule_Comp_2D_Pass::DrawDialogsAndPopups(const uint32_t& vCurr
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSReflectionModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void DepthofFieldModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
@@ -156,7 +157,7 @@ void SSReflectionModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, 
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SSReflectionModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* DepthofFieldModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 	if (m_ComputeBufferPtr) {
@@ -170,18 +171,18 @@ vk::DescriptorImageInfo* SSReflectionModule_Comp_2D_Pass::GetDescriptorImageInfo
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSReflectionModule_Comp_2D_Pass::WasJustResized()
+void DepthofFieldModule_Comp_2D_Pass::WasJustResized()
 {
 	ZoneScoped;
 }
 
-void SSReflectionModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
+void DepthofFieldModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
 	if (vCmdBufferPtr)
 	{
 		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBufferPtr, "SS Reflection", "Compute");
+			//VKFPScoped(*vCmdBufferPtr, "Depth of Field", "Compute");
 
 			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
@@ -194,7 +195,7 @@ void SSReflectionModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, 
 }
 
 
-bool SSReflectionModule_Comp_2D_Pass::CreateUBO() {
+bool DepthofFieldModule_Comp_2D_Pass::CreateUBO() {
 	ZoneScoped;
 
 	m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
@@ -210,21 +211,21 @@ bool SSReflectionModule_Comp_2D_Pass::CreateUBO() {
 	return true;
 }
 
-void SSReflectionModule_Comp_2D_Pass::UploadUBO() {
+void DepthofFieldModule_Comp_2D_Pass::UploadUBO() {
 	ZoneScoped;
     assert(IsEffectEnabled() != nullptr);
     m_UBO_Comp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
 }
 
-void SSReflectionModule_Comp_2D_Pass::DestroyUBO() {
+void DepthofFieldModule_Comp_2D_Pass::DestroyUBO() {
 	ZoneScoped;
 
 	m_UBO_Comp_Ptr.reset();
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
-bool SSReflectionModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool DepthofFieldModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -235,7 +236,7 @@ bool SSReflectionModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	return res;
 }
 
-bool SSReflectionModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool DepthofFieldModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -246,9 +247,9 @@ bool SSReflectionModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 	return res;
 }
 
-std::string SSReflectionModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
+std::string DepthofFieldModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "SSReflectionModule_Comp_2D_Pass_Compute";
+	vOutShaderName = "DepthofFieldModule_Comp_2D_Pass_Compute";
 
 	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
 
@@ -262,7 +263,8 @@ layout(binding = 0, rgba32f) uniform image2D colorBuffer;
 
 layout(std140, binding = 0) uniform UBO_Comp
 {
-	float u_amount;
+	float u_backgroud_blur_amount;
+	float u_foreground_blur_amount;
 	float u_enabled;
 };
 
@@ -281,19 +283,20 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSReflectionModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string DepthofFieldModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	std::string str;
-    str += vOffset + "<ss_reflection_pass>\n";
+    str += vOffset + "<depth_of_field_pass>\n";
 	str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
-	str += vOffset + "\t<amount>" + ct::toStr(m_UBO_Comp.u_amount) + "</amount>\n";
+	str += vOffset + "\t<backgroud_blur_amount>" + ct::toStr(m_UBO_Comp.u_backgroud_blur_amount) + "</backgroud_blur_amount>\n";
+	str += vOffset + "\t<foreground_blur_amount>" + ct::toStr(m_UBO_Comp.u_foreground_blur_amount) + "</foreground_blur_amount>\n";
 	str += vOffset + "\t<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
-    str += vOffset + "</ss_reflection_pass>\n";
+    str += vOffset + "</depth_of_field_pass>\n";
 	return str;
 }
 
-bool SSReflectionModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool DepthofFieldModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -310,10 +313,12 @@ bool SSReflectionModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, ti
 		strParentName = vParent->Value();
 	}
 
-	if (strParentName == "ss_reflection_pass") {
+	if (strParentName == "depth_of_field_pass") {
 		ShaderPass::setFromXml(vElem, vParent, vUserDatas);
-		if (strName == "amount") {
-			m_UBO_Comp.u_amount = ct::fvariant(strValue).GetF();
+		if (strName == "backgroud_blur_amount") {
+			m_UBO_Comp.u_backgroud_blur_amount = ct::fvariant(strValue).GetF();
+		} else if (strName == "foreground_blur_amount") {
+			m_UBO_Comp.u_foreground_blur_amount = ct::fvariant(strValue).GetF();
 		} else if (strName == "enabled") {
 			m_UBO_Comp.u_enabled = ct::fvariant(strValue).GetF();
 			*IsEffectEnabled() = m_UBO_Comp.u_enabled;
@@ -323,7 +328,7 @@ bool SSReflectionModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, ti
 	return true;
 }
 
-void SSReflectionModule_Comp_2D_Pass::AfterNodeXmlLoading()
+void DepthofFieldModule_Comp_2D_Pass::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 	NeedNewUBOUpload();

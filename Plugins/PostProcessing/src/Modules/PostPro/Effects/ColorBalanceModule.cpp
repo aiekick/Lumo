@@ -136,10 +136,8 @@ bool ColorBalanceModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("Color Balance##ColorBalanceModule", -1.0f, true, true, &m_CanWeRender)) {
-			if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
-				return m_ColorBalanceModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+		if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
+			return m_ColorBalanceModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 		}
 		
 	}
@@ -225,19 +223,13 @@ vk::DescriptorImageInfo* ColorBalanceModule::GetDescriptorImageInfo(const uint32
 std::string ColorBalanceModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	std::string str;
-
 	str += vOffset + "<color_balance_module>\n";
-
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
-
 	if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
 		str += m_ColorBalanceModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
-
 	str += vOffset + "</color_balance_module>\n";
-
 	return str;
 }
 
@@ -256,16 +248,14 @@ bool ColorBalanceModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "color_balance_module")
-	{
-		if (strName == "can_we_render")
+	if (strParentName == "color_balance_module")	{
+		if (strName == "can_we_render") {
 			m_CanWeRender = ct::ivariant(strValue).GetB();
-
-		if (m_ColorBalanceModule_Comp_2D_Pass_Ptr)
-		{
+		} 
+	}
+		if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
 			m_ColorBalanceModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
 		}
-	}
 
 	return true;
 }
@@ -273,9 +263,7 @@ bool ColorBalanceModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 void ColorBalanceModule::AfterNodeXmlLoading()
 {
 	ZoneScoped;
-
-	if (m_ColorBalanceModule_Comp_2D_Pass_Ptr)
-	{
+	if (m_ColorBalanceModule_Comp_2D_Pass_Ptr) {
 		m_ColorBalanceModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
 	}
 }

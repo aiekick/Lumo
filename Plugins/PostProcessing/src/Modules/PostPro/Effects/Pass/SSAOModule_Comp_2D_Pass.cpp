@@ -328,15 +328,15 @@ void main() {
 std::string SSAOModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     std::string str;
 
-    str += vOffset + "<ssao>\n";
+    str += vOffset + "<ssao_pass>\n";
     str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
-    str += vOffset + "\t<ssao_noise_scale>" + ct::toStr(m_UBOComp.u_noise_scale) + "</ssao_noise_scale>\n";
-    str += vOffset + "\t<ssao_ao_radius>" + ct::toStr(m_UBOComp.u_ao_radius) + "</ssao_ao_radius>\n";
-    str += vOffset + "\t<ssao_ao_scale>" + ct::toStr(m_UBOComp.u_ao_scale) + "</ssao_ao_scale>\n";
-    str += vOffset + "\t<ssao_ao_bias>" + ct::toStr(m_UBOComp.u_ao_bias) + "</ssao_ao_bias>\n";
-    str += vOffset + "\t<ssao_ao_intensity>" + ct::toStr(m_UBOComp.u_ao_intensity) + "</ssao_ao_intensity>\n";
-    str += vOffset + "\t<ssao_enabled>" + (m_UBOComp.u_enabled > 0.5f ? "true" : "false") + "</ssao_enabled>\n";
-    str += vOffset + "</ssao>\n";
+    str += vOffset + "\t<noise_scale>" + ct::toStr(m_UBOComp.u_noise_scale) + "</noise_scale>\n";
+    str += vOffset + "\t<ao_radius>" + ct::toStr(m_UBOComp.u_ao_radius) + "</ao_radius>\n";
+    str += vOffset + "\t<ao_scale>" + ct::toStr(m_UBOComp.u_ao_scale) + "</ao_scale>\n";
+    str += vOffset + "\t<ao_bias>" + ct::toStr(m_UBOComp.u_ao_bias) + "</ao_bias>\n";
+    str += vOffset + "\t<ao_intensity>" + ct::toStr(m_UBOComp.u_ao_intensity) + "</ao_intensity>\n";
+    str += vOffset + "\t<enabled>" + ct::toStr(m_UBOComp.u_enabled) + "</enabled>\n";
+    str += vOffset + "</ssao_pass>\n";
 
     return str;
 }
@@ -353,19 +353,19 @@ bool SSAOModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
     if (vParent != nullptr)
         strParentName = vParent->Value();
 
-    if (strParentName == "ssao") {
+    if (strParentName == "ssao_pass") {
         ShaderPass::setFromXml(vElem, vParent, vUserDatas);
-        if (strName == "ssao_noise_scale") {
+        if (strName == "noise_scale") {
             m_UBOComp.u_noise_scale = ct::fvariant(strValue).GetF();
-        } else if (strName == "ssao_ao_radius") {
+        } else if (strName == "ao_radius") {
             m_UBOComp.u_ao_radius = ct::fvariant(strValue).GetF();
-        } else if (strName == "ssao_ao_scale") {
+        } else if (strName == "ao_scale") {
             m_UBOComp.u_ao_scale = ct::fvariant(strValue).GetF();
-        } else if (strName == "ssao_ao_bias") {
+        } else if (strName == "ao_bias") {
             m_UBOComp.u_ao_bias = ct::fvariant(strValue).GetF();
-        } else if (strName == "ssao_ao_intensity") {
+        } else if (strName == "ao_intensity") {
             m_UBOComp.u_ao_intensity = ct::fvariant(strValue).GetF();
-        } else if (strName == "ssao_enabled") {
+        } else if (strName == "enabled") {
             m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         }

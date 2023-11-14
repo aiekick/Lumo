@@ -63,7 +63,7 @@ ColorBalanceModule_Comp_2D_Pass::ColorBalanceModule_Comp_2D_Pass(GaiApi::VulkanC
 
 	SetRenderDocDebugName("Comp Pass : Color Balance", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ColorBalanceModule_Comp_2D_Pass::~ColorBalanceModule_Comp_2D_Pass()
@@ -91,17 +91,19 @@ bool ColorBalanceModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame,
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
 	bool change = false;
-	change |= DrawResizeWidget();
+	//change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "red", &m_UBO_Comp.u_red, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "green", &m_UBO_Comp.u_green, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "blue", &m_UBO_Comp.u_blue, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "enabled", &m_UBO_Comp.u_enabled, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+	if (ImGui::CollapsingHeader_CheckBox("Color Balance##ColorBalanceModule_Comp_2D_Pass", -1.0f, false, true, IsEffectEnabled())) {
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "red", &m_UBO_Comp.u_red, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "green", &m_UBO_Comp.u_green, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "blue", &m_UBO_Comp.u_blue, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
 
-	if (change)
-	{
-		NeedNewUBOUpload();
+		if (change)
+		{
+			NeedNewUBOUpload();
+		}
 	}
+
 	return change;
 }
 
@@ -159,16 +161,10 @@ void ColorBalanceModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, 
 vk::DescriptorImageInfo* ColorBalanceModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
-
+	if (m_ComputeBufferPtr) {
+        AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
-
 	return nullptr;
 }
 
@@ -200,14 +196,12 @@ void ColorBalanceModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, 
 }
 
 
-bool ColorBalanceModule_Comp_2D_Pass::CreateUBO()
-{
+bool ColorBalanceModule_Comp_2D_Pass::CreateUBO() {
 	ZoneScoped;
 
 	m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Comp_Ptr)
-	{
+	if (m_UBO_Comp_Ptr) {
 		m_UBO_Comp_BufferInfos.buffer = m_UBO_Comp_Ptr->buffer;
 		m_UBO_Comp_BufferInfos.range = sizeof(UBO_Comp);
 		m_UBO_Comp_BufferInfos.offset = 0;
@@ -218,15 +212,14 @@ bool ColorBalanceModule_Comp_2D_Pass::CreateUBO()
 	return true;
 }
 
-void ColorBalanceModule_Comp_2D_Pass::UploadUBO()
-{
+void ColorBalanceModule_Comp_2D_Pass::UploadUBO() {
 	ZoneScoped;
-
+    assert(IsEffectEnabled() != nullptr);
+    m_UBO_Comp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
 }
 
-void ColorBalanceModule_Comp_2D_Pass::DestroyUBO()
-{
+void ColorBalanceModule_Comp_2D_Pass::DestroyUBO() {
 	ZoneScoped;
 
 	m_UBO_Comp_Ptr.reset();
@@ -295,16 +288,14 @@ void main()
 std::string ColorBalanceModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	std::string str;
-
-	str += ShaderPass::getXml(vOffset, vUserDatas);
-
-	str += vOffset + "<red>" + ct::toStr(m_UBO_Comp.u_red) + "</red>\n";
-	str += vOffset + "<green>" + ct::toStr(m_UBO_Comp.u_green) + "</green>\n";
-	str += vOffset + "<blue>" + ct::toStr(m_UBO_Comp.u_blue) + "</blue>\n";
-	str += vOffset + "<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
-
+    str += vOffset + "<color_balance_pass>\n";
+	str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
+	str += vOffset + "\t<red>" + ct::toStr(m_UBO_Comp.u_red) + "</red>\n";
+	str += vOffset + "\t<green>" + ct::toStr(m_UBO_Comp.u_green) + "</green>\n";
+	str += vOffset + "\t<blue>" + ct::toStr(m_UBO_Comp.u_blue) + "</blue>\n";
+	str += vOffset + "\t<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
+    str += vOffset + "</color_balance_pass>\n";
 	return str;
 }
 
@@ -318,24 +309,25 @@ bool ColorBalanceModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, ti
 	std::string strParentName;
 
 	strName = vElem->Value();
-	if (vElem->GetText())
+	if (vElem->GetText()) {
 		strValue = vElem->GetText();
-	if (vParent != nullptr)
+	}
+	if (vParent != nullptr) {
 		strParentName = vParent->Value();
+	}
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
-
-	if (strParentName == "color_balance_module")
-	{
-
-		if (strName == "red")
+	if (strParentName == "color_balance_pass") {
+		ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+		if (strName == "red") {
 			m_UBO_Comp.u_red = ct::fvariant(strValue).GetF();
-		else if (strName == "green")
+		} else if (strName == "green") {
 			m_UBO_Comp.u_green = ct::fvariant(strValue).GetF();
-		else if (strName == "blue")
+		} else if (strName == "blue") {
 			m_UBO_Comp.u_blue = ct::fvariant(strValue).GetF();
-		else if (strName == "enabled")
+		} else if (strName == "enabled") {
 			m_UBO_Comp.u_enabled = ct::fvariant(strValue).GetF();
+			*IsEffectEnabled() = m_UBO_Comp.u_enabled;
+		}
 	}
 
 	return true;
@@ -344,8 +336,5 @@ bool ColorBalanceModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, ti
 void ColorBalanceModule_Comp_2D_Pass::AfterNodeXmlLoading()
 {
 	ZoneScoped;
-
-	// code to do after end of the xml loading of this node
-	// by ex :
 	NeedNewUBOUpload();
 }

@@ -274,11 +274,11 @@ std::string SharpnessModule_Comp_2D_Pass::getXml(const std::string& vOffset, con
 
     std::string str;
 
-    str += vOffset + "<sharpness>\n";
-    str += ShaderPass::getXml(vOffset, vUserDatas);
-    str += vOffset + "<amount>" + ct::toStr(m_UBO_Comp.u_amount) + "</amount>\n";
-    str += vOffset + "<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
-    str += vOffset + "</sharpness>\n";
+    str += vOffset + "<sharpness_pass>\n";
+    str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
+    str += vOffset + "\t<amount>" + ct::toStr(m_UBO_Comp.u_amount) + "</amount>\n";
+    str += vOffset + "\t<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
+    str += vOffset + "</sharpness_pass>\n";
 
     return str;
 }
@@ -299,7 +299,7 @@ bool SharpnessModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyx
 
     ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-    if (strParentName == "sharpness") {
+    if (strParentName == "sharpness_pass") {
         if (strName == "amount") {
             m_UBO_Comp.u_amount = ct::fvariant(strValue).GetF();
         } else if (strName == "enabled") {

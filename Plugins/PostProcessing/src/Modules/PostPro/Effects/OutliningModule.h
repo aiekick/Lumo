@@ -49,8 +49,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class SSRefractionModule_Comp_2D_Pass;
-class SSRefractionModule :
+class OutliningModule_Comp_2D_Pass;
+class OutliningModule :
 	public BaseRenderer,
 	
 	public TaskInterface,
@@ -59,16 +59,16 @@ class SSRefractionModule :
 	public NodeInterface
 {
 public:
-	static std::shared_ptr<SSRefractionModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<OutliningModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<SSRefractionModule> m_This;
+	std::weak_ptr<OutliningModule> m_This;
 
-	std::shared_ptr<SSRefractionModule_Comp_2D_Pass> m_SSRefractionModule_Comp_2D_Pass_Ptr = nullptr;
+	std::shared_ptr<OutliningModule_Comp_2D_Pass> m_OutliningModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	SSRefractionModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	~SSRefractionModule() override;
+	OutliningModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	~OutliningModule() override;
 
 	bool Init();
 

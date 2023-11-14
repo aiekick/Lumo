@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "SSRefractionModule_Comp_2D_Pass.h"
+#include "FogModule_Comp_2D_Pass.h"
 
 #include <cinttypes>
 #include <functional>
@@ -44,8 +44,8 @@ using namespace GaiApi;
 ///// STATIC /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSRefractionModule_Comp_2D_Pass> SSRefractionModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<SSRefractionModule_Comp_2D_Pass>(vVulkanCorePtr);
+std::shared_ptr<FogModule_Comp_2D_Pass> FogModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
+	auto res_ptr = std::make_shared<FogModule_Comp_2D_Pass>(vVulkanCorePtr);
 	if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
 		res_ptr.reset();
 	}
@@ -56,24 +56,24 @@ std::shared_ptr<SSRefractionModule_Comp_2D_Pass> SSRefractionModule_Comp_2D_Pass
 ///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSRefractionModule_Comp_2D_Pass::SSRefractionModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
+FogModule_Comp_2D_Pass::FogModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	ZoneScoped;
 
-	SetRenderDocDebugName("Comp Pass : SS Refraction", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	SetRenderDocDebugName("Comp Pass : Fog", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+	m_DontUseShaderFilesOnDisk = true;
 }
 
-SSRefractionModule_Comp_2D_Pass::~SSRefractionModule_Comp_2D_Pass()
+FogModule_Comp_2D_Pass::~FogModule_Comp_2D_Pass()
 {
 	ZoneScoped;
 
 	Unit();
 }
 
-void SSRefractionModule_Comp_2D_Pass::ActionBeforeInit()
+void FogModule_Comp_2D_Pass::ActionBeforeInit()
 {
 	ZoneScoped;
 
@@ -85,25 +85,27 @@ void SSRefractionModule_Comp_2D_Pass::ActionBeforeInit()
 	}
 }
 
-bool SSRefractionModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool FogModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
 	bool change = false;
-	change |= DrawResizeWidget();
+	//change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "amount", &m_UBO_Comp.u_amount, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "enabled", &m_UBO_Comp.u_enabled, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+	if (ImGui::CollapsingHeader_CheckBox("Fog##FogModule_Comp_2D_Pass", -1.0f, false, true, IsEffectEnabled())) {
+		change |= ImGui::SliderFloatDefaultCompact(0.0f, "amount", &m_UBO_Comp.u_amount, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
 
-	if (change)
-	{
-		NeedNewUBOUpload();
+		if (change)
+		{
+			NeedNewUBOUpload();
+		}
 	}
+
 	return change;
 }
 
-bool SSRefractionModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool FogModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
@@ -111,7 +113,7 @@ bool SSRefractionModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame
 	return false;
 }
 
-bool SSRefractionModule_Comp_2D_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool FogModule_Comp_2D_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
@@ -123,7 +125,7 @@ bool SSRefractionModule_Comp_2D_Pass::DrawDialogsAndPopups(const uint32_t& vCurr
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void FogModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
@@ -154,19 +156,13 @@ void SSRefractionModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, 
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SSRefractionModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* FogModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
-
+	if (m_ComputeBufferPtr) {
+        AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	}
-
 	return nullptr;
 }
 
@@ -174,18 +170,18 @@ vk::DescriptorImageInfo* SSRefractionModule_Comp_2D_Pass::GetDescriptorImageInfo
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionModule_Comp_2D_Pass::WasJustResized()
+void FogModule_Comp_2D_Pass::WasJustResized()
 {
 	ZoneScoped;
 }
 
-void SSRefractionModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
+void FogModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
 	if (vCmdBufferPtr)
 	{
 		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBufferPtr, "SS Refraction", "Compute");
+			//VKFPScoped(*vCmdBufferPtr, "Fog", "Compute");
 
 			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
@@ -198,14 +194,12 @@ void SSRefractionModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, 
 }
 
 
-bool SSRefractionModule_Comp_2D_Pass::CreateUBO()
-{
+bool FogModule_Comp_2D_Pass::CreateUBO() {
 	ZoneScoped;
 
 	m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Comp_Ptr)
-	{
+	if (m_UBO_Comp_Ptr) {
 		m_UBO_Comp_BufferInfos.buffer = m_UBO_Comp_Ptr->buffer;
 		m_UBO_Comp_BufferInfos.range = sizeof(UBO_Comp);
 		m_UBO_Comp_BufferInfos.offset = 0;
@@ -216,22 +210,21 @@ bool SSRefractionModule_Comp_2D_Pass::CreateUBO()
 	return true;
 }
 
-void SSRefractionModule_Comp_2D_Pass::UploadUBO()
-{
+void FogModule_Comp_2D_Pass::UploadUBO() {
 	ZoneScoped;
-
+    assert(IsEffectEnabled() != nullptr);
+    m_UBO_Comp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
 }
 
-void SSRefractionModule_Comp_2D_Pass::DestroyUBO()
-{
+void FogModule_Comp_2D_Pass::DestroyUBO() {
 	ZoneScoped;
 
 	m_UBO_Comp_Ptr.reset();
 	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 
-bool SSRefractionModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool FogModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -242,7 +235,7 @@ bool SSRefractionModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	return res;
 }
 
-bool SSRefractionModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool FogModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -253,9 +246,9 @@ bool SSRefractionModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 	return res;
 }
 
-std::string SSRefractionModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
+std::string FogModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "SSRefractionModule_Comp_2D_Pass_Compute";
+	vOutShaderName = "FogModule_Comp_2D_Pass_Compute";
 
 	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
 
@@ -288,21 +281,19 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSRefractionModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string FogModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	std::string str;
-
-	str += ShaderPass::getXml(vOffset, vUserDatas);
-
-	str += vOffset + "<amount>" + ct::toStr(m_UBO_Comp.u_amount) + "</amount>\n";
-	str += vOffset + "<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
-
+    str += vOffset + "<fog_pass>\n";
+	str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
+	str += vOffset + "\t<amount>" + ct::toStr(m_UBO_Comp.u_amount) + "</amount>\n";
+	str += vOffset + "\t<enabled>" + ct::toStr(m_UBO_Comp.u_enabled) + "</enabled>\n";
+    str += vOffset + "</fog_pass>\n";
 	return str;
 }
 
-bool SSRefractionModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool FogModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -312,30 +303,28 @@ bool SSRefractionModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, ti
 	std::string strParentName;
 
 	strName = vElem->Value();
-	if (vElem->GetText())
+	if (vElem->GetText()) {
 		strValue = vElem->GetText();
-	if (vParent != nullptr)
+	}
+	if (vParent != nullptr) {
 		strParentName = vParent->Value();
+	}
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
-
-	if (strParentName == "ss_refraction_module")
-	{
-
-		if (strName == "amount")
+	if (strParentName == "fog_pass") {
+		ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+		if (strName == "amount") {
 			m_UBO_Comp.u_amount = ct::fvariant(strValue).GetF();
-		else if (strName == "enabled")
+		} else if (strName == "enabled") {
 			m_UBO_Comp.u_enabled = ct::fvariant(strValue).GetF();
+			*IsEffectEnabled() = m_UBO_Comp.u_enabled;
+		}
 	}
 
 	return true;
 }
 
-void SSRefractionModule_Comp_2D_Pass::AfterNodeXmlLoading()
+void FogModule_Comp_2D_Pass::AfterNodeXmlLoading()
 {
 	ZoneScoped;
-
-	// code to do after end of the xml loading of this node
-	// by ex :
 	NeedNewUBOUpload();
 }

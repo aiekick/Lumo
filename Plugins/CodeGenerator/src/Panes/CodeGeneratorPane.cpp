@@ -296,6 +296,7 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
                 m_ModuleDisplayNameInputText.SetText(nodePtr->m_ModuleDisplayName);
 
                 nodePtr->m_ModuleXmlName = ct::toLower(nodePtr->m_NodeCreationName) + "_module";
+                nodePtr->m_PassXmlName = ct::toLower(nodePtr->m_NodeCreationName) + "_pass";
                 m_ModuleXmlNameInputText.SetText(nodePtr->m_ModuleXmlName);
 
                 change = true;
@@ -311,6 +312,7 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
             ImGui::Separator();
 
             change |= ImGui::CheckBoxBoolDefault("Is a Task ?", &nodePtr->m_IsATask, true);
+            change |= ImGui::CheckBoxBoolDefault("Is an Effect ?", &nodePtr->m_IsAnEffect, false);
 
             ImGui::Separator();
 

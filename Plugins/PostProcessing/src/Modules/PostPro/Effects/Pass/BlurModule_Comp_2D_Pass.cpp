@@ -72,16 +72,16 @@ void BlurModule_Comp_2D_Pass::ActionBeforeInit() {
     m_Pipelines.resize(2U);
     m_DescriptorSets.resize(2U);
 
-    ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_blur_radius_H);
-    ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_blur_radius_V);
+    ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_radius_H);
+    ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_radius_V);
 }
 
 void BlurModule_Comp_2D_Pass::ActionBeforeCompilation() {
     ZoneScoped;
 
     ClearShaderEntryPoints();
-    AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "blur_H");
-    AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "blur_V");
+    AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "H");
+    AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "V");
 }
 
 bool BlurModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
@@ -97,9 +97,9 @@ bool BlurModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 
         if (ImGui::CheckBoxBoolDefault("Use Distinct Radius for H and V", &m_UseDistinctiveBlurRadiusVH, false)) {
             if (m_UseDistinctiveBlurRadiusVH == false) {
-                m_BlurRadius = (uint32_t)(((float)m_UBOComp.u_blur_radius_V + (float)m_UBOComp.u_blur_radius_H) * 0.5f);
-                m_UBOComp.u_blur_radius_H = m_BlurRadius;
-                m_UBOComp.u_blur_radius_V = m_BlurRadius;
+                m_BlurRadius = (uint32_t)(((float)m_UBOComp.u_radius_V + (float)m_UBOComp.u_radius_H) * 0.5f);
+                m_UBOComp.u_radius_H = m_BlurRadius;
+                m_UBOComp.u_radius_V = m_BlurRadius;
             }
 
             change_radius = true;
@@ -107,16 +107,16 @@ bool BlurModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 
         if (m_UseDistinctiveBlurRadiusVH) {
             if (m_UseBlurH) {
-                change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius H", &m_UBOComp.u_blur_radius_H, 1U, 200U, 4U);
+                change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius H", &m_UBOComp.u_radius_H, 1U, 200U, 4U);
             }
 
             if (m_UseBlurV) {
-                change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius V", &m_UBOComp.u_blur_radius_V, 1U, 200U, 4U);
+                change_radius |= ImGui::SliderUIntDefaultCompact(0.0f, "Radius V", &m_UBOComp.u_radius_V, 1U, 200U, 4U);
             }
         } else {
             if (ImGui::SliderUIntDefaultCompact(0.0f, "Radius", &m_BlurRadius, 1U, 200U, 4U)) {
-                m_UBOComp.u_blur_radius_H = m_BlurRadius;
-                m_UBOComp.u_blur_radius_V = m_BlurRadius;
+                m_UBOComp.u_radius_H = m_BlurRadius;
+                m_UBOComp.u_radius_V = m_BlurRadius;
                 change_radius = true;
             }
         }
@@ -132,15 +132,15 @@ bool BlurModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
         // DrawInputTexture(m_VulkanCorePtr, "Input", 0U, m_OutputRatio);
 
         if (change_radius) {
-            m_UBOComp.u_blur_radius_H = ct::maxi(m_UBOComp.u_blur_radius_H, 1U);
-            m_UBOComp.u_blur_radius_V = ct::maxi(m_UBOComp.u_blur_radius_V, 1U);
+            m_UBOComp.u_radius_H = ct::maxi(m_UBOComp.u_radius_H, 1U);
+            m_UBOComp.u_radius_V = ct::maxi(m_UBOComp.u_radius_V, 1U);
             NeedNewUBOUpload();
         }
 
         if (change_gaussian || change_radius) {
             m_GaussianSigma = ct::maxi(m_GaussianSigma, 0.01f);
-            ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_blur_radius_H);
-            ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_blur_radius_V);
+            ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_radius_H);
+            ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_radius_V);
         }
 
         if (change_operations) {
@@ -298,7 +298,7 @@ void BlurModule_Comp_2D_Pass::ReComputeGaussianBlurWeights(GaussianKernel& vOutG
     } else {
         sig_inv = -1.0f / (2.0f * m_GaussianSigma * m_GaussianSigma);
         x_step = 4.0f / vRadius;
-        // float x_step_auto = 4.0f * m_GaussianSigma  / m_UBOComp.u_blur_radius;
+        // float x_step_auto = 4.0f * m_GaussianSigma  / m_UBOComp.u_radius;
     }
 
     for (uint32_t idx = 0U; idx < vRadius; ++idx) {
@@ -470,8 +470,8 @@ layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
 
 layout(std140, binding = 1) uniform UBO_Comp
 {
-	uint u_blur_radius_H; // default is 4
-	uint u_blur_radius_V; // default is 4
+	uint u_radius_H; // default is 4
+	uint u_radius_V; // default is 4
 	uint u_enabled; // default is 1
 };
 
@@ -482,7 +482,7 @@ layout(std430, binding = 3) readonly buffer SBO_Comp
 	float gaussian_weights[];
 };
 
-void blur_H() {
+void H() {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 	vec4 res = texelFetch(input_map_sampler, coords, 0);
     if (u_enabled > 0.5) {
@@ -490,7 +490,7 @@ void blur_H() {
 	    ivec2 iv_pos = coords;
 	    // for avoid double sum at gaussian_weights[0]
 	    res *= gaussian_weights[0];
-	    for(uint idx = 1; idx < u_blur_radius_H; ++idx)	{
+	    for(uint idx = 1; idx < u_radius_H; ++idx)	{
 		    // <---
 		    --iv_neg.x;
 		    res += texelFetch(input_map_sampler, iv_neg, 0) * gaussian_weights[idx] * 0.5;
@@ -503,7 +503,7 @@ void blur_H() {
 	imageStore(outColor, coords, res); 
 }
 
-void blur_V() {
+void V() {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
     vec4 res = texelFetch(input_map_sampler, coords, 0);
     if (u_enabled > 0.5) {
@@ -511,7 +511,7 @@ void blur_V() {
 	    ivec2 iv_pos = coords;
 	    // for avoid double sum at gaussian_weights[0]
 	    res *= gaussian_weights[0];
-	    for(uint idx = 1; idx < u_blur_radius_V; ++idx) {
+	    for(uint idx = 1; idx < u_radius_V; ++idx) {
 		    // <---
 		    --iv_neg.y;
 		    res += texelFetch(input_map_sampler, iv_neg, 0) * gaussian_weights[idx] * 0.5;
@@ -535,9 +535,9 @@ bool BlurModule_Comp_2D_Pass::CreateComputePipeline() {
 
     if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute].empty())
         return false;
-    if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_H"][0].m_SPIRV.empty())
+    if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["H"][0].m_SPIRV.empty())
         return false;
-    if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_V"][0].m_SPIRV.empty())
+    if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["V"][0].m_SPIRV.empty())
         return false;
 
     std::vector<vk::PushConstantRange> push_constants;
@@ -552,13 +552,13 @@ bool BlurModule_Comp_2D_Pass::CreateComputePipeline() {
         vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[1].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
 
     auto cs_H = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
-        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_H"][0].m_SPIRV);
+        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["H"][0].m_SPIRV);
 
     auto cs_V = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
-        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["blur_V"][0].m_SPIRV);
+        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["V"][0].m_SPIRV);
 
-    m_ShaderCreateInfos = {vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_H, "blur_H"),
-        vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_V, "blur_V")};
+    m_ShaderCreateInfos = {vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_H, "H"),
+        vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_V, "V")};
 
     vk::ComputePipelineCreateInfo computePipeInfo_H =
         vk::ComputePipelineCreateInfo().setStage(m_ShaderCreateInfos[0]).setLayout(m_Pipelines[0].m_PipelineLayout);
@@ -583,17 +583,17 @@ std::string BlurModule_Comp_2D_Pass::getXml(const std::string& vOffset, const st
 
     std::string str;
 
-    str += vOffset + "<blur>\n";
+    str += vOffset + "<blur_pass>\n";
     str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
-    str += vOffset + "\t<blur_radius_h>" + ct::toStr(m_UBOComp.u_blur_radius_H) + "</blur_radius_h>\n";
-    str += vOffset + "\t<blur_radius_v>" + ct::toStr(m_UBOComp.u_blur_radius_V) + "</blur_radius_v>\n";
-    str += vOffset + "\t<blur_disctinct_v_and_h>" + (m_UseDistinctiveBlurRadiusVH ? "true" : "false") + "</blur_disctinct_v_and_h>\n";
-    str += vOffset + "\t<blur_gaussian_sigma>" + ct::toStr(m_GaussianSigma) + "</blur_gaussian_sigma>\n";
-    str += vOffset + "\t<blur_gaussian_sigma_auto>" + (m_GaussianSigmAuto ? "true" : "false") + "</blur_gaussian_sigma_auto>\n";
-    str += vOffset + "\t<blur_use_h>" + (m_UseBlurH ? "true" : "false") + "</blur_use_h>\n";
-    str += vOffset + "\t<blur_use_v>" + (m_UseBlurV ? "true" : "false") + "</blur_use_v>\n";
-    str += vOffset + "\t<blur_enabled>" + (m_UBOComp.u_enabled > 0.5f ? "true" : "false") + "</blur_enabled>\n";
-    str += vOffset + "</blur>\n";
+    str += vOffset + "\t<radius_h>" + ct::toStr(m_UBOComp.u_radius_H) + "</radius_h>\n";
+    str += vOffset + "\t<radius_v>" + ct::toStr(m_UBOComp.u_radius_V) + "</radius_v>\n";
+    str += vOffset + "\t<disctinct_v_and_h>" + (m_UseDistinctiveBlurRadiusVH ? "true" : "false") + "</disctinct_v_and_h>\n";
+    str += vOffset + "\t<gaussian_sigma>" + ct::toStr(m_GaussianSigma) + "</gaussian_sigma>\n";
+    str += vOffset + "\t<gaussian_sigma_auto>" + (m_GaussianSigmAuto ? "true" : "false") + "</gaussian_sigma_auto>\n";
+    str += vOffset + "\t<use_h>" + (m_UseBlurH ? "true" : "false") + "</use_h>\n";
+    str += vOffset + "\t<use_v>" + (m_UseBlurV ? "true" : "false") + "</use_v>\n";
+    str += vOffset + "\t<enabled>" + ct::toStr(m_UBOComp.u_enabled) + "</enabled>\n";
+    str += vOffset + "</blur_pass>\n";
 
     return str;
 }
@@ -612,28 +612,28 @@ bool BlurModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
     if (vParent != nullptr)
         strParentName = vParent->Value();
 
-    if (strParentName == "blur") {
+    if (strParentName == "blur_pass") {
         ShaderPass::setFromXml(vElem, vParent, vUserDatas);
-        if (strName == "blur_radius_h") {
-            m_UBOComp.u_blur_radius_H = ct::uvariant(strValue).GetU();
-        } else if (strName == "blur_radius_v") {
-            m_UBOComp.u_blur_radius_V = ct::uvariant(strValue).GetU();
-        } else if (strName == "blur_disctinct_v_and_h") {
+        if (strName == "radius_h") {
+            m_UBOComp.u_radius_H = ct::uvariant(strValue).GetU();
+        } else if (strName == "radius_v") {
+            m_UBOComp.u_radius_V = ct::uvariant(strValue).GetU();
+        } else if (strName == "disctinct_v_and_h") {
             m_UseDistinctiveBlurRadiusVH = ct::ivariant(strValue).GetB();
             if (m_UseDistinctiveBlurRadiusVH == false) {
-                m_BlurRadius = (uint32_t)(((float)m_UBOComp.u_blur_radius_V + (float)m_UBOComp.u_blur_radius_H) * 0.5f);
-                m_UBOComp.u_blur_radius_H = m_BlurRadius;
-                m_UBOComp.u_blur_radius_V = m_BlurRadius;
+                m_BlurRadius = (uint32_t)(((float)m_UBOComp.u_radius_V + (float)m_UBOComp.u_radius_H) * 0.5f);
+                m_UBOComp.u_radius_H = m_BlurRadius;
+                m_UBOComp.u_radius_V = m_BlurRadius;
             }
-        } else if (strName == "blur_use_h") {
+        } else if (strName == "use_h") {
             m_UseBlurH = ct::ivariant(strValue).GetB();
-        } else if (strName == "blur_use_v") {
+        } else if (strName == "use_v") {
             m_UseBlurV = ct::ivariant(strValue).GetB();
-        } else if (strName == "blur_gaussian_sigma") {
+        } else if (strName == "gaussian_sigma") {
             m_GaussianSigma = ct::fvariant(strValue).GetF();
-        } else if (strName == "blur_gaussian_sigma_auto") {
+        } else if (strName == "gaussian_sigma_auto") {
             m_GaussianSigmAuto = ct::ivariant(strValue).GetB();
-        } else if (strName == "blur_enabled") {
+        } else if (strName == "enabled") {
             m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         }
@@ -644,7 +644,7 @@ bool BlurModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
 
 void BlurModule_Comp_2D_Pass::AfterNodeXmlLoading() {
     ZoneScoped;
-    ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_blur_radius_H);
-    ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_blur_radius_V);
+    ReComputeGaussianBlurWeights(m_Gaussian_H, m_UBOComp.u_radius_H);
+    ReComputeGaussianBlurWeights(m_Gaussian_V, m_UBOComp.u_radius_V);
     NeedNewUBOUpload();
 }

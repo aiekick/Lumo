@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "SSRefractionModule.h"
+#include "DepthofFieldModule.h"
 
 #include <cinttypes>
 #include <functional>
@@ -32,7 +32,7 @@ limitations under the License.
 #include <LumoBackend/Utils/Mesh/VertexStruct.h>
 #include <Gaia/Buffer/FrameBuffer.h>
 
-#include <Modules/PostPro/Effects/Pass/SSRefractionModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/DepthofFieldModule_Comp_2D_Pass.h>
 
 using namespace GaiApi;
 
@@ -47,12 +47,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSRefractionModule> SSRefractionModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<DepthofFieldModule> DepthofFieldModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SSRefractionModule>(vVulkanCorePtr);
+	auto res = std::make_shared<DepthofFieldModule>(vVulkanCorePtr);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init()) {
@@ -66,13 +66,13 @@ std::shared_ptr<SSRefractionModule> SSRefractionModule::Create(GaiApi::VulkanCor
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSRefractionModule::SSRefractionModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
+DepthofFieldModule::DepthofFieldModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 	ZoneScoped;
 }
 
-SSRefractionModule::~SSRefractionModule()
+DepthofFieldModule::~DepthofFieldModule()
 {
 	ZoneScoped;
 
@@ -83,7 +83,7 @@ SSRefractionModule::~SSRefractionModule()
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SSRefractionModule::Init()
+bool DepthofFieldModule::Init()
 {
 	ZoneScoped;
 
@@ -92,12 +92,12 @@ bool SSRefractionModule::Init()
 	ct::uvec2 map_size = 512;
 	if (BaseRenderer::InitCompute2D(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-		m_SSRefractionModule_Comp_2D_Pass_Ptr = SSRefractionModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
-		if (m_SSRefractionModule_Comp_2D_Pass_Ptr) {
+		m_DepthofFieldModule_Comp_2D_Pass_Ptr = DepthofFieldModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+		if (m_DepthofFieldModule_Comp_2D_Pass_Ptr) {
 			// by default but can be changed via widget
-			m_SSRefractionModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
-			m_SSRefractionModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
-			AddGenericPass(m_SSRefractionModule_Comp_2D_Pass_Ptr);
+			m_DepthofFieldModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
+			m_DepthofFieldModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+			AddGenericPass(m_DepthofFieldModule_Comp_2D_Pass_Ptr);
 			m_Loaded = true;
 		}
 	}
@@ -109,17 +109,17 @@ bool SSRefractionModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SSRefractionModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool DepthofFieldModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
-		BaseRenderer::Render("SS Refraction", vCmd);
+		BaseRenderer::Render("Depth of Field", vCmd);
 	return true;
 }
 
-bool SSRefractionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool DepthofFieldModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
-	BaseRenderer::Render("SS Refraction", vCmd);
+	BaseRenderer::Render("Depth of Field", vCmd);
 	return true;
 }
 
@@ -127,7 +127,7 @@ bool SSRefractionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Co
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSRefractionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool DepthofFieldModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -136,10 +136,8 @@ bool SSRefractionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (ImGui::CollapsingHeader_CheckBox("SS Refraction##SSRefractionModule", -1.0f, true, true, &m_CanWeRender)) {
-			if (m_SSRefractionModule_Comp_2D_Pass_Ptr) {
-				return m_SSRefractionModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+		if (m_DepthofFieldModule_Comp_2D_Pass_Ptr) {
+			return m_DepthofFieldModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 		}
 		
 	}
@@ -147,7 +145,7 @@ bool SSRefractionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
 	return false;
 }
 
-bool SSRefractionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool DepthofFieldModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -155,15 +153,15 @@ bool SSRefractionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRec
 	ImGui::SetCurrentContext(vContextPtr);
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (m_SSRefractionModule_Comp_2D_Pass_Ptr) {
-			return m_SSRefractionModule_Comp_2D_Pass_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+		if (m_DepthofFieldModule_Comp_2D_Pass_Ptr) {
+			return m_DepthofFieldModule_Comp_2D_Pass_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
 		}
 	}
 
 	return false;
 }
 
-bool SSRefractionModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool DepthofFieldModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -171,15 +169,15 @@ bool SSRefractionModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, con
 	ImGui::SetCurrentContext(vContextPtr);
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
-		if (m_SSRefractionModule_Comp_2D_Pass_Ptr) {
-			return m_SSRefractionModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+		if (m_DepthofFieldModule_Comp_2D_Pass_Ptr) {
+			return m_DepthofFieldModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 		}
 	}
 
 	return false;
 }
 
-void SSRefractionModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void DepthofFieldModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	ZoneScoped;
 
@@ -192,13 +190,13 @@ void SSRefractionModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSRefractionModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void DepthofFieldModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {	
 	ZoneScoped;
 
-	if (m_SSRefractionModule_Comp_2D_Pass_Ptr)
+	if (m_DepthofFieldModule_Comp_2D_Pass_Ptr)
 	{
-		m_SSRefractionModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_DepthofFieldModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
@@ -206,13 +204,13 @@ void SSRefractionModule::SetTexture(const uint32_t& vBindingPoint, vk::Descripto
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SSRefractionModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* DepthofFieldModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;
 
-	if (m_SSRefractionModule_Comp_2D_Pass_Ptr)
+	if (m_DepthofFieldModule_Comp_2D_Pass_Ptr)
 	{
-		return m_SSRefractionModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_DepthofFieldModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -222,26 +220,20 @@ vk::DescriptorImageInfo* SSRefractionModule::GetDescriptorImageInfo(const uint32
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSRefractionModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string DepthofFieldModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	ZoneScoped;
-
 	std::string str;
-
-	str += vOffset + "<ss_refraction_module>\n";
-
+	str += vOffset + "<depth_of_field_module>\n";
 	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
-
-	if (m_SSRefractionModule_Comp_2D_Pass_Ptr) {
-		str += m_SSRefractionModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+	if (m_DepthofFieldModule_Comp_2D_Pass_Ptr) {
+		str += m_DepthofFieldModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
 	}
-
-	str += vOffset + "</ss_refraction_module>\n";
-
+	str += vOffset + "</depth_of_field_module>\n";
 	return str;
 }
 
-bool SSRefractionModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool DepthofFieldModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	ZoneScoped;
 
@@ -256,26 +248,22 @@ bool SSRefractionModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 	if (vParent != nullptr)
 		strParentName = vParent->Value();
 
-	if (strParentName == "ss_refraction_module")
-	{
-		if (strName == "can_we_render")
+	if (strParentName == "depth_of_field_module")	{
+		if (strName == "can_we_render") {
 			m_CanWeRender = ct::ivariant(strValue).GetB();
-
-		if (m_SSRefractionModule_Comp_2D_Pass_Ptr)
-		{
-			m_SSRefractionModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
+		} 
 	}
+		if (m_DepthofFieldModule_Comp_2D_Pass_Ptr) {
+			m_DepthofFieldModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+		}
 
 	return true;
 }
 
-void SSRefractionModule::AfterNodeXmlLoading()
+void DepthofFieldModule::AfterNodeXmlLoading()
 {
 	ZoneScoped;
-
-	if (m_SSRefractionModule_Comp_2D_Pass_Ptr)
-	{
-		m_SSRefractionModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+	if (m_DepthofFieldModule_Comp_2D_Pass_Ptr) {
+		m_DepthofFieldModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
 	}
 }

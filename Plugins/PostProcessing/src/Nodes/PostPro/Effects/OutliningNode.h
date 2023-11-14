@@ -20,22 +20,22 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
-class SSRefractionModule;
-class SSRefractionNode :
+class OutliningModule;
+class OutliningNode :
 	public TextureInputInterface<0U>,
 	public TextureOutputInterface,
 	public ShaderUpdateInterface,
 	public BaseNode
 {
 public:
-	static std::shared_ptr<SSRefractionNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<OutliningNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<SSRefractionModule> m_SSRefractionModulePtr = nullptr;
+	std::shared_ptr<OutliningModule> m_OutliningModulePtr = nullptr;
 
 public:
-	SSRefractionNode();
-	~SSRefractionNode() override;
+	OutliningNode();
+	~OutliningNode() override;
 
 	// Init / Unit
 	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;

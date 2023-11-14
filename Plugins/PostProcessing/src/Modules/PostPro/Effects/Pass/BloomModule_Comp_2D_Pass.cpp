@@ -586,16 +586,16 @@ bool BloomModule_Comp_2D_Pass::CreateComputePipeline() {
 std::string BloomModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     std::string str;
 
-    str += vOffset + "<bloom>\n";
+    str += vOffset + "<bloom_pass>\n";
     str += ShaderPass::getXml(vOffset + "\t", vUserDatas);
-    str += vOffset + "\t<bloom_radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</bloom_radius>\n";
-    str += vOffset + "\t<bloom_gaussian_sigma_auto>" + (m_GaussianSigmAuto ? "true" : "false") + "</bloom_gaussian_sigma_auto>\n";
-    str += vOffset + "\t<bloom_gaussian_sigma>" + ct::toStr(m_GaussianSigma) + "</bloom_gaussian_sigma>\n";
-    str += vOffset + "\t<bloom_gamma_correction>" + ct::toStr(m_UBOComp.u_gamma_correction) + "</bloom_gamma_correction>\n";
-    str += vOffset + "\t<bloom_exposure_correction>" + ct::toStr(m_UBOComp.u_exposure) + "</bloom_exposure_correction>\n";
-    str += vOffset + "\t<bloom_high_freq_threshold>" + m_UBOComp.u_high_freq_threshold.string() + "</bloom_high_freq_threshold>\n";
-    str += vOffset + "\t<bloom_enabled>" + (m_UBOComp.u_enabled > 0.5f ? "true" : "false") + "</bloom_enabled>\n";
-    str += vOffset + "</bloom>\n";
+    str += vOffset + "\t<radius>" + ct::toStr(m_UBOComp.u_blur_radius) + "</radius>\n";
+    str += vOffset + "\t<gaussian_sigma_auto>" + (m_GaussianSigmAuto ? "true" : "false") + "</gaussian_sigma_auto>\n";
+    str += vOffset + "\t<gaussian_sigma>" + ct::toStr(m_GaussianSigma) + "</gaussian_sigma>\n";
+    str += vOffset + "\t<gamma_correction>" + ct::toStr(m_UBOComp.u_gamma_correction) + "</gamma_correction>\n";
+    str += vOffset + "\t<exposure_correction>" + ct::toStr(m_UBOComp.u_exposure) + "</exposure_correction>\n";
+    str += vOffset + "\t<high_freq_threshold>" + m_UBOComp.u_high_freq_threshold.string() + "</high_freq_threshold>\n";
+    str += vOffset + "\t<enabled>" + ct::toStr(m_UBOComp.u_enabled) + "</enabled>\n";
+    str += vOffset + "</bloom_pass>\n";
 
     return str;
 }
@@ -612,21 +612,21 @@ bool BloomModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
     if (vParent != nullptr)
         strParentName = vParent->Value();
 
-    if (strParentName == "bloom") {
+    if (strParentName == "bloom_pass") {
         ShaderPass::setFromXml(vElem, vParent, vUserDatas);
-        if (strName == "bloom_radius") {
+        if (strName == "radius") {
             m_UBOComp.u_blur_radius = ct::uvariant(strValue).GetU();
-        } else if (strName == "bloom_gaussian_sigma") {
+        } else if (strName == "gaussian_sigma") {
             m_GaussianSigma = ct::fvariant(strValue).GetF();
-        } else if (strName == "bloom_gaussian_sigma_auto") {
+        } else if (strName == "gaussian_sigma_auto") {
             m_GaussianSigmAuto = ct::ivariant(strValue).GetB();
-        } else if (strName == "bloom_gamma_correction") {
+        } else if (strName == "gamma_correction") {
             m_UBOComp.u_gamma_correction = ct::fvariant(strValue).GetF();
-        } else if (strName == "bloom_exposure_correction") {
+        } else if (strName == "exposure_correction") {
             m_UBOComp.u_exposure = ct::fvariant(strValue).GetF();
-        } else if (strName == "bloom_high_freq_threshold") {
+        } else if (strName == "high_freq_threshold") {
             m_UBOComp.u_high_freq_threshold = ct::fvariant(strValue).GetV3();
-        } else if (strName == "bloom_enabled") {
+        } else if (strName == "enabled") {
             m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         }

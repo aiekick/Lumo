@@ -20,7 +20,6 @@
 #include <Nodes/PostPro/Effects/ChromaticAberrationsNode.h>
 #include <Nodes/PostPro/Effects/ColorBalanceNode.h>
 #include <Nodes/PostPro/Effects/SSReflectionNode.h>
-#include <Nodes/PostPro/Effects/SSRefractionNode.h>
 #include <Nodes/PostPro/Effects/SharpnessNode.h>
 #include <Nodes/PostPro/PostProcessingNode.h>
 
@@ -106,7 +105,6 @@ std::vector<LibraryEntry> PostProcessing::GetLibrary() const {
     res.push_back(AddLibraryEntry("PostPro/Effects", "Sharpness", "SHARPNESS"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "SS AO", "SS_AO"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "SS Reflection", "SS_REFLECTION"));
-    res.push_back(AddLibraryEntry("PostPro/Effects", "SS Refraction", "SS_REFRACTION"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Tone Map", "TONE_MAP"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Vignette", "VIGNETTE"));
 
@@ -136,8 +134,6 @@ BaseNodePtr PostProcessing::CreatePluginNode(const std::string& vPluginNodeName)
     } else if (vPluginNodeName == "SS_REFLECTION") {
         return SSReflectionNode::Create(vkPostProcessingPtr);
     } else if (vPluginNodeName == "SS_REFRACTION") {
-        return SSRefractionNode::Create(vkPostProcessingPtr);
-    } else if (vPluginNodeName == "SHARPNESS") {
         return SharpnessNode::Create(vkPostProcessingPtr);
     } else if (vPluginNodeName == "POST_PROCESSING") {
         return PostProcessingNode::Create(vkPostProcessingPtr);
