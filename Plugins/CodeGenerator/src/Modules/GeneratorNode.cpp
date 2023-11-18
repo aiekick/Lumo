@@ -32,58 +32,52 @@ namespace fs = std::filesystem;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-GeneratorNodePtr GeneratorNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
-{
-	GeneratorNodePtr res = std::make_shared<GeneratorNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
-	{
-		res.reset();
-		res = nullptr;
-	}
-	return res;
+GeneratorNodePtr GeneratorNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+    GeneratorNodePtr res = std::make_shared<GeneratorNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCorePtr)) {
+        res.reset();
+        res = nullptr;
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-GeneratorNode::GeneratorNode()
-	: BaseNode()
-{
-
+GeneratorNode::GeneratorNode() : BaseNode() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// GENERATOR NODE //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void GeneratorNode::GenerateNodeClasses(const std::string& vPath)
-{
-	fs::path root_path = vPath;
-	if (!std::filesystem::exists(vPath))
-		return;
+void GeneratorNode::GenerateNodeClasses(const std::string& vPath) {
+    fs::path root_path = vPath;
+    if (!std::filesystem::exists(vPath))
+        return;
 
-	fs::path nodes_path = vPath + "/Nodes/";
-	if (!std::filesystem::exists(nodes_path))
-		fs::create_directory(nodes_path);
-
-	nodes_path = vPath + "/Nodes/" + m_CategoryName;
-	if (!std::filesystem::exists(nodes_path))
+    fs::path nodes_path = vPath + "/Nodes/";
+    if (!std::filesystem::exists(nodes_path))
         fs::create_directory(nodes_path);
 
-	if (m_IsAnEffect) {
+    nodes_path = vPath + "/Nodes/" + m_CategoryName;
+    if (!std::filesystem::exists(nodes_path))
+        fs::create_directory(nodes_path);
+
+    if (m_IsAnEffect) {
         nodes_path = vPath + "/Nodes/" + m_CategoryName + "/Effects/";
         if (!std::filesystem::exists(nodes_path))
             fs::create_directory(nodes_path);
-	}
+    }
 
-	fs::path module_path = vPath + "/Modules/";
-	if (!std::filesystem::exists(module_path))
-		fs::create_directory(module_path);
-	
-	module_path = vPath + "/Modules/" + m_CategoryName;
-	if (!std::filesystem::exists(module_path))
+    fs::path module_path = vPath + "/Modules/";
+    if (!std::filesystem::exists(module_path))
+        fs::create_directory(module_path);
+
+    module_path = vPath + "/Modules/" + m_CategoryName;
+    if (!std::filesystem::exists(module_path))
         fs::create_directory(module_path);
 
     if (m_IsAnEffect) {
@@ -92,32 +86,35 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath)
             fs::create_directory(module_path);
     }
 
-	std::string node_class_name = m_ClassName + "Node";
-	std::string cpp_node_file_name = nodes_path.string() + "/" + node_class_name + ".cpp";
-	std::string h_node_file_name = nodes_path.string() + "/" + node_class_name + ".h";
+    std::string node_class_name = m_ClassName + "Node";
+    std::string cpp_node_file_name = nodes_path.string() + "/" + node_class_name + ".cpp";
+    std::string h_node_file_name = nodes_path.string() + "/" + node_class_name + ".h";
 
-	std::string module_class_name = m_ClassName + "Module";
-	std::string cpp_module_file_name = module_path.string() + "/" + module_class_name + ".cpp";
-	std::string h_module_file_name = module_path.string() + "/" + module_class_name + ".h";
+    std::string module_class_name = m_ClassName + "Module";
+    std::string cpp_module_file_name = module_path.string() + "/" + module_class_name + ".cpp";
+    std::string h_module_file_name = module_path.string() + "/" + module_class_name + ".h";
 
-	std::string cpp_node_file_code;
-	std::string h_node_file_code;
-	std::string h_node_interfaces_code;
+    std::string cpp_node_file_code;
+    std::string h_node_file_code;
+    std::string h_node_interfaces_code;
 
-	auto slotDico = GetSlotDico();
+    auto slotDico = GetSlotDico();
 
-	cpp_node_file_code += GetLicenceHeader();
-	h_node_file_code += GetLicenceHeader();
-	cpp_node_file_code += GetPVSStudioHeader();
+    cpp_node_file_code += GetLicenceHeader();
+    h_node_file_code += GetLicenceHeader();
+    cpp_node_file_code += GetPVSStudioHeader();
 
-	h_node_file_code += u8R"(
+    h_node_file_code +=
+        u8R"(
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>)";
 
-	cpp_node_file_code += ct::toStr(u8R"(
-#include "%s.h")", node_class_name.c_str());
+    cpp_node_file_code += ct::toStr(
+        u8R"(
+#include "%s.h")",
+        node_class_name.c_str());
 
-	if (m_GenerateAModule) {
+    if (m_GenerateAModule) {
         if (m_IsAnEffect) {
             cpp_node_file_code += ct::toStr(
                 u8R"(
@@ -129,32 +126,35 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath)
 #include <Modules/%s/%s.h>)",
                 m_CategoryName.c_str(), module_class_name.c_str());
         }
-	}
+    }
 
-	cpp_node_file_code += GetNodeSlotsInputIncludesSlots(slotDico);
-	cpp_node_file_code += GetNodeSlotsOutputIncludesSlots(slotDico);
-	h_node_file_code += GetNodeSlotsInputIncludesInterfaces(slotDico);
-	h_node_file_code += GetNodeSlotsOutputIncludesInterfaces(slotDico);
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		h_node_file_code += u8R"(
+    cpp_node_file_code += GetNodeSlotsInputIncludesSlots(slotDico);
+    cpp_node_file_code += GetNodeSlotsOutputIncludesSlots(slotDico);
+    h_node_file_code += GetNodeSlotsInputIncludesInterfaces(slotDico);
+    h_node_file_code += GetNodeSlotsOutputIncludesInterfaces(slotDico);
+    if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
+        h_node_file_code +=
+            u8R"(
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 )";
-	}
-	h_node_file_code += u8R"(
+    }
+    h_node_file_code +=
+        u8R"(
 class MODULE_CLASS_NAME;
 class NODE_CLASS_NAME :)";
-	h_node_file_code += GetNodeSlotsInputPublicInterfaces(slotDico);
-	h_node_file_code += GetNodeSlotsOutputPublicInterfaces(slotDico);
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		h_node_file_code += u8R"(
+    h_node_file_code += GetNodeSlotsInputPublicInterfaces(slotDico);
+    h_node_file_code += GetNodeSlotsOutputPublicInterfaces(slotDico);
+    if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
+        h_node_file_code +=
+            u8R"(
 	public ShaderUpdateInterface,)";
-	}
-	h_node_file_code += u8R"(
+    }
+    h_node_file_code +=
+        u8R"(
 	public BaseNode)";
 
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code +=
+        u8R"(
 
 #ifdef PROFILER_INCLUDE
 #include PROFILER_INCLUDE
@@ -208,32 +208,35 @@ bool NODE_CLASS_NAME::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	name = "NODE_DISPLAY_NAME";
 )";
 
-	cpp_node_file_code += GetNodeSlotsInputFuncs(slotDico);
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code += GetNodeSlotsInputFuncs(slotDico);
+    cpp_node_file_code +=
+        u8R"(
 )";
-	cpp_node_file_code += GetNodeSlotsOutputFuncs(slotDico);
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code += GetNodeSlotsOutputFuncs(slotDico);
+    cpp_node_file_code +=
+        u8R"(
 )";
 
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_GenerateAModule) {
+        cpp_node_file_code +=
+            u8R"(
 	m_MODULE_CLASS_NAMEPtr = MODULE_CLASS_NAME::Create(vVulkanCorePtr, m_This);
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		res = true;
 	})";
-	}
+    }
 
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code +=
+        u8R"(
 
 	return res;
 }
 )";
 
-	if (m_IsATask)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_IsATask) {
+        cpp_node_file_code +=
+            u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -247,35 +250,37 @@ bool NODE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 )";
 
-		if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture])
-		{
-			cpp_node_file_code += u8R"(
+        if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]) {
+            cpp_node_file_code +=
+                u8R"(
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);)";
-		}
-		/*else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
-		{
-			cpp_node_file_code += u8R"(
-		// for update input texture buffer infos => avoid vk crash
-		UpdateTextureCubeInputDescriptorImageInfos(m_Inputs);)";
-		}*/
+        }
+        /*else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
+        {
+            cpp_node_file_code += u8R"(
+        // for update input texture buffer infos => avoid vk crash
+        UpdateTextureCubeInputDescriptorImageInfos(m_Inputs);)";
+        }*/
 
-		if (m_GenerateAModule)
-		{
-			cpp_node_file_code += u8R"(
+        if (m_GenerateAModule) {
+            cpp_node_file_code +=
+                u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		res = m_MODULE_CLASS_NAMEPtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 )";
-		}
+        }
 
-		cpp_node_file_code += u8R"(
+        cpp_node_file_code +=
+            u8R"(
 	return res;
 })";
-	}
+    }
 
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code +=
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -286,14 +291,15 @@ bool NODE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	bool res = false;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);)";
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_GenerateAModule) {
+        cpp_node_file_code +=
+            u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)	{
 		res = m_MODULE_CLASS_NAMEPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	})";
-	}
-	cpp_node_file_code += u8R"(
+    }
+    cpp_node_file_code +=
+        u8R"(
 	return res;
 }
 
@@ -304,12 +310,14 @@ bool NODE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& 
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);)";
     if (m_IsATask) {
-        cpp_node_file_code += u8R"(
+        cpp_node_file_code +=
+            u8R"(
 	if (m_LastExecutedFrame == vCurrentFrame) {
 		return m_MODULE_CLASS_NAMEPtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
 	})";
     }
-    cpp_node_file_code += u8R"(
+    cpp_node_file_code +=
+        u8R"(
 	return false;
 }
 
@@ -318,30 +326,31 @@ bool NODE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);)";
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_GenerateAModule) {
+        cpp_node_file_code +=
+            u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)	{
 		return m_MODULE_CLASS_NAMEPtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 	})";
-	}
+    }
 
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code +=
+        u8R"(
 	return false;
 }
 )";
-	if (m_ShowInputWidgets || m_ShowOutputWidgets)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_ShowInputWidgets || m_ShowOutputWidgets) {
+        cpp_node_file_code +=
+            u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW SLOTS WIDGET ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 )";
-	}
+    }
 
-	if (m_ShowInputWidgets)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_ShowInputWidgets) {
+        cpp_node_file_code +=
+            u8R"(
 void NODE_CLASS_NAME::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
 	ZoneScoped;
@@ -354,11 +363,11 @@ void NODE_CLASS_NAME::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWea
 	}
 }
 )";
-	}
+    }
 
-	if (m_ShowOutputWidgets)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_ShowOutputWidgets) {
+        cpp_node_file_code +=
+            u8R"(
 void NODE_CLASS_NAME::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
 {
 	ZoneScoped;
@@ -371,9 +380,10 @@ void NODE_CLASS_NAME::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWe
 	}
 }
 )";
-	}
+    }
 
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code +=
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -395,9 +405,9 @@ void NODE_CLASS_NAME::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 	}
 })";
 
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
+        cpp_node_file_code +=
+            u8R"(
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
@@ -408,25 +418,27 @@ void NODE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 	ZoneScoped;
 )";
 
-		if (m_GenerateAModule)
-		{
-			cpp_node_file_code += u8R"(
+        if (m_GenerateAModule) {
+            cpp_node_file_code +=
+                u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)	{
 		m_MODULE_CLASS_NAMEPtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 )";
-		}
+        }
 
-		cpp_node_file_code += u8R"(
+        cpp_node_file_code +=
+            u8R"(
 	// on fait ca apres
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 )";
-	}
+    }
 
-	cpp_node_file_code += GetNodeSlotsInputCppFuncs(slotDico);
-	cpp_node_file_code += GetNodeSlotsOutputCppFuncs(slotDico);
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code += GetNodeSlotsInputCppFuncs(slotDico);
+    cpp_node_file_code += GetNodeSlotsOutputCppFuncs(slotDico);
+    cpp_node_file_code +=
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -455,16 +467,17 @@ std::string NODE_CLASS_NAME::getXml(const std::string& vOffset, const std::strin
 		}
 )";
 
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_GenerateAModule) {
+        cpp_node_file_code +=
+            u8R"(
 		if (m_MODULE_CLASS_NAMEPtr)	{
 			res += m_MODULE_CLASS_NAMEPtr->getXml(vOffset + "\t", vUserDatas);
 		}
 )";
-	}
+    }
 
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code +=
+        u8R"(
 		res += vOffset + "</node>\n";
 	}
 
@@ -489,16 +502,17 @@ bool NODE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 )";
 
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_GenerateAModule) {
+        cpp_node_file_code +=
+            u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)	{
 		m_MODULE_CLASS_NAMEPtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 )";
-	}
+    }
 
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code +=
+        u8R"(
 	// continue recurse child exploring
 	return true;
 }
@@ -507,21 +521,22 @@ void NODE_CLASS_NAME::AfterNodeXmlLoading()
 {
 	ZoneScoped;
 )";
-	if (m_GenerateAModule)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_GenerateAModule) {
+        cpp_node_file_code +=
+            u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)	{
 		m_MODULE_CLASS_NAMEPtr->AfterNodeXmlLoading();
 	})";
-	}
+    }
 
-	cpp_node_file_code += u8R"(
+    cpp_node_file_code +=
+        u8R"(
 }
 )";
 
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		cpp_node_file_code += u8R"(
+    if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
+        cpp_node_file_code +=
+            u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -531,37 +546,38 @@ void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
 	ZoneScoped;
 )";
 
-		if (m_GenerateAModule)
-		{
-			cpp_node_file_code += u8R"(
+        if (m_GenerateAModule) {
+            cpp_node_file_code +=
+                u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)	{
 		m_MODULE_CLASS_NAMEPtr->UpdateShaders(vFiles);
 	})";
-		}
-		else
-		{
-		}
+        } else {
+        }
 
-		cpp_node_file_code += u8R"(
+        cpp_node_file_code +=
+            u8R"(
 }
 )";
-	}
+    }
 
-	h_node_file_code += u8R"(
+    h_node_file_code +=
+        u8R"(
 {
 public:
 	static std::shared_ptr<NODE_CLASS_NAME> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 )";
 
-	if (m_GenerateAModule)
-	{
-		h_node_file_code += u8R"(
+    if (m_GenerateAModule) {
+        h_node_file_code +=
+            u8R"(
 private:
 	std::shared_ptr<MODULE_CLASS_NAME> m_MODULE_CLASS_NAMEPtr = nullptr;
 )";
-	}
+    }
 
-	h_node_file_code += u8R"(
+    h_node_file_code +=
+        u8R"(
 public:
 	NODE_CLASS_NAME();
 	~NODE_CLASS_NAME() override;
@@ -569,1509 +585,107 @@ public:
 	// Init / Unit
 	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 )";
-	if (m_IsATask)
-	{
-		h_node_file_code += u8R"(
+    if (m_IsATask) {
+        h_node_file_code +=
+            u8R"(
 	// Execute Task
 	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;
 )";
-	}
-	
-	h_node_file_code += u8R"(
+    }
+
+    h_node_file_code +=
+        u8R"(
 	// Draw Widgets
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;)";
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		h_node_file_code += u8R"(
+    if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
+        h_node_file_code +=
+            u8R"(
 
 	// Resize
 	void NeedResizeByResizeEvent(ct::ivec2 * vNewSize, const uint32_t * vCountColorBuffers) override;
 )";
-	}
+    }
 
-	h_node_file_code += GetNodeSlotsInputHFuncs(slotDico);
-	h_node_file_code += u8R"(
+    h_node_file_code += GetNodeSlotsInputHFuncs(slotDico);
+    h_node_file_code +=
+        u8R"(
 )";
-	h_node_file_code += GetNodeSlotsOutputHFuncs(slotDico);
-	h_node_file_code += u8R"(
+    h_node_file_code += GetNodeSlotsOutputHFuncs(slotDico);
+    h_node_file_code +=
+        u8R"(
 )";
-	if (m_ShowInputWidgets || m_ShowOutputWidgets)
-	{
-		h_node_file_code += u8R"(
+    if (m_ShowInputWidgets || m_ShowOutputWidgets) {
+        h_node_file_code +=
+            u8R"(
 	// Input / Ouput slot widgets)";
-	}
+    }
 
-	if (m_ShowInputWidgets)
-	{
-		h_node_file_code += u8R"(
+    if (m_ShowInputWidgets) {
+        h_node_file_code +=
+            u8R"(
 	void DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;)";
-	}
+    }
 
-	if (m_ShowOutputWidgets)
-	{
-		h_node_file_code += u8R"(
+    if (m_ShowOutputWidgets) {
+        h_node_file_code +=
+            u8R"(
 	void DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;)";
-	}
+    }
 
-	if (m_ShowInputWidgets || m_ShowOutputWidgets)
-	{
-		h_node_file_code += u8R"(
+    if (m_ShowInputWidgets || m_ShowOutputWidgets) {
+        h_node_file_code +=
+            u8R"(
 )";
-	}
+    }
 
-	h_node_file_code += u8R"(
+    h_node_file_code +=
+        u8R"(
 	// Configuration
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 	void AfterNodeXmlLoading() override;
 )";
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		h_node_file_code += u8R"(
+    if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
+        h_node_file_code +=
+            u8R"(
 	// Shader Update
 	void UpdateShaders(const std::set<std::string>& vFiles) override;
 )";
-	}
-	h_node_file_code += u8R"(
+    }
+    h_node_file_code +=
+        u8R"(
 };
 )";
 
-	ct::replaceString(cpp_node_file_code, "NODE_CLASS_NAME", node_class_name);
-	ct::replaceString(h_node_file_code, "NODE_CLASS_NAME", node_class_name);
+    ct::replaceString(cpp_node_file_code, "NODE_CLASS_NAME", node_class_name);
+    ct::replaceString(h_node_file_code, "NODE_CLASS_NAME", node_class_name);
 
-	ct::replaceString(cpp_node_file_code, "NODE_CREATION_NAME", m_NodeCreationName);
-	ct::replaceString(h_node_file_code, "NODE_CREATION_NAME", m_NodeCreationName);
+    ct::replaceString(cpp_node_file_code, "NODE_CREATION_NAME", m_NodeCreationName);
+    ct::replaceString(h_node_file_code, "NODE_CREATION_NAME", m_NodeCreationName);
 
-	ct::replaceString(cpp_node_file_code, "NODE_DISPLAY_NAME", m_NodeDisplayName);
-	ct::replaceString(h_node_file_code, "NODE_DISPLAY_NAME", m_NodeDisplayName);
+    ct::replaceString(cpp_node_file_code, "NODE_DISPLAY_NAME", m_NodeDisplayName);
+    ct::replaceString(h_node_file_code, "NODE_DISPLAY_NAME", m_NodeDisplayName);
 
-	ct::replaceString(cpp_node_file_code, "MODULE_CLASS_NAME", module_class_name);
-	ct::replaceString(h_node_file_code, "MODULE_CLASS_NAME", module_class_name);
+    ct::replaceString(cpp_node_file_code, "MODULE_CLASS_NAME", module_class_name);
+    ct::replaceString(h_node_file_code, "MODULE_CLASS_NAME", module_class_name);
 
-	FileHelper::Instance()->SaveStringToFile(cpp_node_file_code, cpp_node_file_name);
-	FileHelper::Instance()->SaveStringToFile(h_node_file_code, h_node_file_name);
+    FileHelper::Instance()->SaveStringToFile(cpp_node_file_code, cpp_node_file_name);
+    FileHelper::Instance()->SaveStringToFile(h_node_file_code, h_node_file_name);
 
-	if (m_GenerateAModule)
-	{
-		GenerateModules(vPath, slotDico);
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-//// GENERATOR MODULLE ///////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-void GeneratorNode::GenerateModules(const std::string& vPath, const SlotDico& vDico)
-{
-	fs::path module_path = vPath + "/Modules/" + m_CategoryName;
-	if (!std::filesystem::exists(module_path))
-        fs::create_directory(module_path);
-
-    if (m_IsAnEffect) {
-        module_path = vPath + "/Modules/" + m_CategoryName + "/Effects/";
-        if (!std::filesystem::exists(module_path))
-            fs::create_directory(module_path);
+    if (m_GenerateAModule) {
+        GenerateModuleClasses(vPath, slotDico);
     }
-
-	std::string module_class_name = m_ClassName + "Module";
-	std::string cpp_module_file_name = module_path.string() + "/" + module_class_name + ".cpp";
-	std::string h_module_file_name = module_path.string() + "/" + module_class_name + ".h";
-
-	std::string pass_renderer_display_type = GetRendererDisplayName();
-	std::string pass_class_name = m_ClassName + "Module_" + pass_renderer_display_type + "Pass";
-	std::string cpp_pass_file_name = pass_class_name + ".cpp";
-	std::string h_pass_file_name = pass_class_name + ".h";
-
-	std::string cpp_module_file_code;
-	std::string h_module_file_code;
-
-	cpp_module_file_code += GetLicenceHeader();
-	h_module_file_code += GetLicenceHeader();
-	cpp_module_file_code += GetPVSStudioHeader();
-
-	// MODULE_XML_NAME							grayscott_module_sim
-	// MODULE_DISPLAY_NAME						Gray Scott
-	// MODULE_CATEGORY_NAME						Simulation
-	// MODULE_CLASS_NAME		
-	// PASS_CLASS_NAME
-	// MODULE_RENDERER_INIT_FUNC				InitCompute2D
-	// RENDERER_DISPLAY_TYPE (ex (Comp)			Comp
-
-	cpp_module_file_code += u8R"(
-#include "MODULE_CLASS_NAME.h"
-
-#include <cinttypes>
-#include <functional>
-#include <ctools/Logger.h>
-#include <ctools/FileHelper.h>
-#include <LumoBackend/Graph/Base/BaseNode.h>
-#include <ImGuiPack.h>
-#include <LumoBackend/Systems/CommonSystem.h>
-#include <Gaia/Core/VulkanCore.h>
-#include <Gaia/Shader/VulkanShader.h>
-#include <Gaia/Core/VulkanSubmitter.h>
-#include <LumoBackend/Utils/Mesh/VertexStruct.h>
-#include <Gaia/Buffer/FrameBuffer.h>
-)";
-	if (m_GenerateAPass)
-	{
-        if (m_IsAnEffect) {
-            cpp_module_file_code +=
-                u8R"(
-#include <Modules/MODULE_CATEGORY_NAME/Effects/Pass/PASS_CLASS_NAME.h>
-)";
-        } else {
-            cpp_module_file_code +=
-                u8R"(
-#include <Modules/MODULE_CATEGORY_NAME/Pass/PASS_CLASS_NAME.h>
-)";
-		}
-	}
-
-	cpp_module_file_code += u8R"(
-using namespace GaiApi;
-
-#ifdef PROFILER_INCLUDE
-#include PROFILER_INCLUDE
-#endif
-#ifndef ZoneScoped
-#define ZoneScoped
-#endif
-
-//////////////////////////////////////////////////////////////
-//// STATIC //////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
-
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MODULE_CLASS_NAME>(vVulkanCorePtr);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init()) {
-		res.reset();
-	}
-
-	return res;
-}
-
-//////////////////////////////////////////////////////////////
-//// CTOR / DTOR /////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-MODULE_CLASS_NAME::MODULE_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		cpp_module_file_code += u8R"(
-	: BaseRenderer(vVulkanCorePtr))";
-	}
-	if (!m_GenerateAPass)
-	{
-		if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-		{
-			cpp_module_file_code += u8R"(,)";
-		}
-		cpp_module_file_code += u8R"(
-	: m_VulkanCorePtr(vVulkanCorePtr))";
-	}
-		cpp_module_file_code += u8R"(
-{
-	ZoneScoped;)";
-	cpp_module_file_code += u8R"(
-}
-
-MODULE_CLASS_NAME::~MODULE_CLASS_NAME()
-{
-	ZoneScoped;
-
-	Unit();
-}
-
-//////////////////////////////////////////////////////////////
-//// INIT / UNIT /////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-bool MODULE_CLASS_NAME::Init()
-{
-	ZoneScoped;
-)";
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-	m_Loaded = false;
-)";
-	}
-
-	if (m_GenerateAPass)
-	{
-		if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-		{
-			cpp_module_file_code += u8R"(
-	ct::uvec2 map_size = 512;
-	if (BaseRenderer::InitPixel(map_size)) {
-		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr) {
-			// by default but can be changed via widget
-			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
-			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
-			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-			m_Loaded = true;
-		}
-	}
-)";
-		}
-		else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-		{
-			cpp_module_file_code += u8R"(
-	uint32_t map_size = 512;
-	if (BaseRenderer::InitCompute1D(map_size)) {
-		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr) {
-			// by default but can be changed via widget
-			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
-			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
-			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-			m_Loaded = true;
-		}
-	}
-)";
-		}
-		else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-		{
-			cpp_module_file_code += u8R"(
-	ct::uvec2 map_size = 512;
-	if (BaseRenderer::InitCompute2D(map_size)) {
-		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr) {
-			// by default but can be changed via widget
-			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
-			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
-			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-			m_Loaded = true;
-		}
-	}
-)";
-		}
-		else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-		{
-			cpp_module_file_code += u8R"(
-	ct::uvec3 map_size = 512;
-	if (BaseRenderer::InitCompute3D(map_size)) {
-		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr) {
-			// by default but can be changed via widget
-			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
-			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
-			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-			m_Loaded = true;
-		}
-	}
-)";
-		}
-		else if (m_RendererType == RENDERER_TYPE_RTX)
-		{
-			cpp_module_file_code += u8R"(
-	ct::uvec2 map_size = 512;
-	if (BaseRenderer::InitRtx(map_size)) {
-		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
-		if (m_PASS_CLASS_NAME_Ptr) {
-			// by default but can be changed via widget
-			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
-			m_PASS_CLASS_NAME_Ptr->AllowResizeByHandOrByInputs(false);
-			AddGenericPass(m_PASS_CLASS_NAME_Ptr);
-			m_Loaded = true;
-		}
-	}
-)";
-		}
-	}
-
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-	return m_Loaded;
-}
-)";
-	}
-	else
-	{
-		cpp_module_file_code += u8R"(
-	return true;
-}
-)";
-	}
-
-	if (!m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-void MODULE_CLASS_NAME::Unit()
-{
-	ZoneScoped;
-}
-)";
-	}
-
-	if (m_IsATask)
-	{
-		cpp_module_file_code += u8R"(
-//////////////////////////////////////////////////////////////
-//// OVERRIDES ///////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-bool MODULE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;)";
-        if (m_RendererType != RENDERER_TYPE_NONE) {
-            cpp_module_file_code +=
-                u8R"(
-		BaseRenderer::Render("MODULE_DISPLAY_NAME", vCmd);)";
-        }
-
-        cpp_module_file_code +=
-            u8R"(
-	return true;
-}
-
-bool MODULE_CLASS_NAME::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;)";
-        if (m_RendererType != RENDERER_TYPE_NONE) {
-            cpp_module_file_code +=
-                u8R"(
-	BaseRenderer::Render("MODULE_DISPLAY_NAME", vCmd);)";
-        }
-
-        cpp_module_file_code +=
-            u8R"(
-	return true;
-}
-)";
-		
-	}
-
-	cpp_module_file_code += u8R"(
-//////////////////////////////////////////////////////////////////////////////////////////////
-//// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-)";
-	if (m_IsATask)
-	{
-		cpp_module_file_code += u8R"(
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{)";
-	}
-	
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		cpp_module_file_code += u8R"(
-		if (m_PASS_CLASS_NAME_Ptr) {
-			return m_PASS_CLASS_NAME_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-		}
-		)";
-	}
-
-	if (m_IsATask)
-	{
-		cpp_module_file_code += u8R"(
-	}
-)";
-	}
-	cpp_module_file_code += u8R"(
-	return false;
-}
-
-bool MODULE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);)";
-	if (m_IsATask)
-	{
-        cpp_module_file_code +=
-            u8R"(
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{)";
-    }
-
-    if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
-        cpp_module_file_code +=
-            u8R"(
-		if (m_PASS_CLASS_NAME_Ptr) {
-			return m_PASS_CLASS_NAME_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
-		})";
-    }
-
-    if (m_IsATask) {
-        cpp_module_file_code +=
-            u8R"(
-	}
-)";
-    }
-	cpp_module_file_code += u8R"(
-	return false;
-}
-
-bool MODULE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);)";
-        if (m_IsATask) {
-            cpp_module_file_code +=
-                u8R"(
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{)";
-        }
-
-        if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
-        cpp_module_file_code +=
-            u8R"(
-		if (m_PASS_CLASS_NAME_Ptr) {
-			return m_PASS_CLASS_NAME_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-		})";
-        }
-
-        if (m_IsATask) {
-        cpp_module_file_code +=
-            u8R"(
-	}
-)";
-        }
-        cpp_module_file_code +=
-            u8R"(
-	return false;
-}
-)";
-
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-
-		cpp_module_file_code += u8R"(
-void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
-
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-}
-)";
-	}
-
-	cpp_module_file_code += GetModuleInputCppFuncs(vDico);
-	cpp_module_file_code += GetModuleOutputCppFuncs(vDico);
-	cpp_module_file_code += u8R"(
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	std::string str;
-	str += vOffset + "<MODULE_XML_NAME>\n";)";
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		cpp_module_file_code += u8R"(
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";)";
-	}
-
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-	if (m_PASS_CLASS_NAME_Ptr) {
-		str += m_PASS_CLASS_NAME_Ptr->getXml(vOffset + "\t", vUserDatas);
-	})";
-	}
-
-	cpp_module_file_code += u8R"(
-	str += vOffset + "</MODULE_XML_NAME>\n";
-	return str;
-}
-
-bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
-
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
-
-	if (strParentName == "MODULE_XML_NAME")	{)";
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		cpp_module_file_code += u8R"(
-		if (strName == "can_we_render") {
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-		} )";
-    }
-
-    cpp_module_file_code +=
-        u8R"(
-	})";
-
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-		if (m_PASS_CLASS_NAME_Ptr) {
-			m_PASS_CLASS_NAME_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		})";
-	}
-
-	cpp_module_file_code += u8R"(
-
-	return true;
-}
-
-void MODULE_CLASS_NAME::AfterNodeXmlLoading()
-{
-	ZoneScoped;)";
-	if (m_GenerateAPass)
-	{
-		cpp_module_file_code += u8R"(
-	if (m_PASS_CLASS_NAME_Ptr) {
-		m_PASS_CLASS_NAME_Ptr->AfterNodeXmlLoading();
-	})";
-	}
-
-	cpp_module_file_code += u8R"(
-}
-)";
-
-	/////////////////////////////////////////////////////////////////
-	////// HEADER ///////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////
-	h_module_file_code += u8R"(
-
-#pragma once
-
-#include <set>
-#include <array>
-#include <string>
-#include <memory>
-
-#include <LumoBackend/Headers/LumoBackendDefs.h>
-
-#include <ctools/cTools.h>
-#include <ctools/ConfigAbstract.h>
-
-#include <LumoBackend/Base/BaseRenderer.h>
-#include <LumoBackend/Base/QuadShaderPass.h>
-
-#include <Gaia/gaia.h>
-#include <Gaia/Resources/Texture2D.h>
-#include <Gaia/Core/VulkanCore.h>
-#include <Gaia/Core/VulkanDevice.h>
-#include <Gaia/Core/vk_mem_alloc.h>
-#include <Gaia/Shader/VulkanShader.h>
-#include <Gaia/Gui/ImGuiTexture.h>
-#include <Gaia/Resources/VulkanRessource.h>
-#include <Gaia/Resources/VulkanFrameBuffer.h>
-)";
-
-	h_module_file_code += u8R"(
-#include <LumoBackend/Interfaces/GuiInterface.h>
-#include <LumoBackend/Interfaces/NodeInterface.h>
-#include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/NodeInterface.h>
-#include <LumoBackend/Interfaces/ResizerInterface.h>
-)";
-	h_module_file_code += GetNodeSlotsInputIncludesInterfaces(vDico);
-	h_module_file_code += GetNodeSlotsOutputIncludesInterfaces(vDico);
-	h_module_file_code += u8R"(
-)";
-	if (m_GenerateAPass)
-	{
-		h_module_file_code += u8R"(
-class PASS_CLASS_NAME;)";
-	}
-
-	h_module_file_code += u8R"(
-class MODULE_CLASS_NAME :)";
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		h_module_file_code += u8R"(
-	public BaseRenderer,
-	)";
-	}
-	else
-	{
-		h_module_file_code += u8R"(
-	public conf::ConfigAbstract,)";
-	}
-
-	if (m_IsATask)
-	{
-		h_module_file_code += u8R"(
-	public TaskInterface,)";
-	}
-
-	h_module_file_code += GetNodeSlotsInputPublicInterfaces(vDico);
-	h_module_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
-
-	h_module_file_code += u8R"(
-	public NodeInterface
-{
-public:
-	static std::shared_ptr<MODULE_CLASS_NAME> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
-
-private:
-	std::weak_ptr<MODULE_CLASS_NAME> m_This;
-)";
-    h_module_file_code += GetModuleInputPrivateVars(vDico);
-    h_module_file_code += GetModuleOutputPrivateVars(vDico);
-	if (!m_GenerateAPass)
-	{
-		h_module_file_code += u8R"(	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
-)";
-	}
-
-	if (m_GenerateAPass)
-	{
-		h_module_file_code += u8R"(
-	std::shared_ptr<PASS_CLASS_NAME> m_PASS_CLASS_NAME_Ptr = nullptr;
-)";
-	}
-
-	h_module_file_code += u8R"(
-public:
-	MODULE_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	~MODULE_CLASS_NAME())";
-	if (m_GenerateAPass)
-	{
-		h_module_file_code += u8R"( override;
-)";
-	}
-	else
-	{
-		h_module_file_code += u8R"(;
-)";
-	}
-	h_module_file_code += u8R"(
-	bool Init();)";
-
-	if (!m_GenerateAPass)
-	{
-		h_module_file_code += u8R"(
-	void Unit();)";
-	}
-	h_module_file_code += u8R"(
-)";
-
-	if (m_IsATask)
-	{
-		h_module_file_code += u8R"(
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-)";
-	}
-		h_module_file_code += u8R"(
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-)";
-	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
-	{
-		h_module_file_code += u8R"(
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-)";
-	}
-
-	h_module_file_code += GetNodeSlotsInputHFuncs(vDico);
-	h_module_file_code += GetNodeSlotsOutputHFuncs(vDico);
-	h_module_file_code += u8R"(
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
-};
-)";
-    
-    ct::replaceString(cpp_module_file_code, "PASS_XML_NAME", m_PassXmlName);
-    ct::replaceString(h_module_file_code, "PASS_XML_NAME", m_PassXmlName);
-
-	ct::replaceString(cpp_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
-	ct::replaceString(h_module_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
-
-	ct::replaceString(cpp_module_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
-	ct::replaceString(h_module_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
-
-	ct::replaceString(cpp_module_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
-	ct::replaceString(h_module_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
-
-	ct::replaceString(cpp_module_file_code, "MODULE_CLASS_NAME", module_class_name);
-	ct::replaceString(h_module_file_code, "MODULE_CLASS_NAME", module_class_name);
-
-	ct::replaceString(cpp_module_file_code, "PASS_CLASS_NAME", pass_class_name);
-	ct::replaceString(h_module_file_code, "PASS_CLASS_NAME", pass_class_name);
-
-	ct::replaceString(cpp_module_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
-	ct::replaceString(h_module_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
-
-	ct::replaceString(cpp_module_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
-	ct::replaceString(h_module_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
-
-	FileHelper::Instance()->SaveStringToFile(cpp_module_file_code, cpp_module_file_name);
-	FileHelper::Instance()->SaveStringToFile(h_module_file_code, h_module_file_name);
-
-	if (m_GenerateAPass)
-	{
-		GeneratePasses(vPath, vDico);
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
-//// GENERATOR PASS //////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-void GeneratorNode::GeneratePasses(const std::string& vPath, const SlotDico& vDico)
-{
-    fs::path path_path = vPath + "/Modules/" + m_CategoryName + "/Pass/";
-
-    if (m_IsAnEffect) {
-        path_path = vPath + "/Modules/" + m_CategoryName + "/Effects/Pass/";
-    } 
-
-    if (!std::filesystem::exists(path_path))
-        fs::create_directory(path_path);
-
-	std::string pass_renderer_display_type = GetRendererDisplayName();
-	std::string pass_class_name = m_ClassName + "Module_" + pass_renderer_display_type + "Pass";
-	std::string cpp_pass_file_name = path_path.string() + "/" + pass_class_name + ".cpp";
-	std::string h_pass_file_name = path_path.string() + "/" + pass_class_name + ".h";
-
-	std::string cpp_pass_file_code;
-	std::string h_pass_file_code;
-
-	cpp_pass_file_code += GetLicenceHeader();
-	h_pass_file_code += GetLicenceHeader();
-	cpp_pass_file_code += GetPVSStudioHeader();
-
-	// MODULE_XML_NAME							grayscott_module_sim
-	// MODULE_DISPLAY_NAME						Gray Scott
-	// MODULE_CATEGORY_NAME						Simulation
-	// MODULE_CLASS_NAME		
-	// PASS_CLASS_NAME
-	// MODULE_RENDERER_INIT_FUNC				InitCompute2D
-	// RENDERER_DISPLAY_TYPE (ex (Comp)			Comp
-
-	cpp_pass_file_code +=
-        u8R"(
-#include "PASS_CLASS_NAME.h"
-
-#include <cinttypes>
-#include <functional>
-#include <ctools/Logger.h>
-#include <ctools/FileHelper.h>
-#include <ImGuiPack.h>
-#include <LumoBackend/Systems/CommonSystem.h>
-#include <Gaia/Core/VulkanCore.h>
-#include <Gaia/Shader/VulkanShader.h>
-#include <Gaia/Core/VulkanSubmitter.h>
-#include <LumoBackend/Utils/Mesh/VertexStruct.h>
-#include <Gaia/Buffer/FrameBuffer.h>
-
-using namespace GaiApi;
-
-#ifdef PROFILER_INCLUDE
-#include PROFILER_INCLUDE
-#endif
-#ifndef ZoneScoped
-#define ZoneScoped
-#endif
-
-//////////////////////////////////////////////////////////////
-///// STATIC /////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-)";
-
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
-            cpp_pass_file_code +=
-                u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
-	if (!res_ptr->InitPixel(vSize, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1)))";
-    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
-        cpp_pass_file_code +=
-            u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const uint32_t& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
-	if (!res_ptr->InitCompute1D(vSize)) {)";
-    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
-        cpp_pass_file_code +=
-            u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
-	if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {)";
-    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
-        cpp_pass_file_code +=
-            u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec3& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
-	if (!res_ptr->InitCompute3D(vSize)) {)";
-    } else if (m_RendererType == RENDERER_TYPE_RTX) {
-        cpp_pass_file_code +=
-            u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
-	if (!res_ptr->InitRtx(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {)";
-    }
-cpp_pass_file_code += u8R"(
-		res_ptr.reset();
-	}
-	return res_ptr;
-}
-
-//////////////////////////////////////////////////////////////
-///// CTOR / DTOR ////////////////////////////////////////////
-//////////////////////////////////////////////////////////////
-
-PASS_CLASS_NAME::PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
-
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			cpp_pass_file_code += u8R"(
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL))";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			cpp_pass_file_code += ct::toStr(u8R"(
-	: MeshShaderPass<VertexStruct::%s>(vVulkanCorePtr, MeshShaderPassType::PIXEL))", 
-				m_BaseTypes.m_VertexStructTypes[m_VertexStructTypesIndex].c_str());
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			cpp_pass_file_code += u8R"(
-	: VertexShaderPass(vVulkanCorePtr))";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		cpp_pass_file_code += u8R"(
-	: ShaderPass(vVulkanCorePtr))";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		cpp_pass_file_code += u8R"(
-	: ShaderPass(vVulkanCorePtr))";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		cpp_pass_file_code += u8R"(
-	: ShaderPass(vVulkanCorePtr))";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		cpp_pass_file_code += u8R"(
-	: RtxShaderPass(vVulkanCorePtr))";
-	}
-
-	cpp_pass_file_code += u8R"(
-{)";
-
-	cpp_pass_file_code += u8R"(
-	ZoneScoped;
-
-	SetRenderDocDebugName("RENDERER_DISPLAY_TYPE Pass : MODULE_DISPLAY_NAME", COMPUTE_SHADER_PASS_DEBUG_COLOR);
-)";
-
-	cpp_pass_file_code += u8R"(
-	m_DontUseShaderFilesOnDisk = true;
-}
-
-PASS_CLASS_NAME::~PASS_CLASS_NAME()
-{
-	ZoneScoped;
-
-	Unit();
-}
-)";
-	if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		cpp_pass_file_code += u8R"(
-void PASS_CLASS_NAME::ActionBeforeCompilation()
-{
-	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR, "main"), "main");
-	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR, "main"), "main");
-	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR, "main"), "main");
-}
-)";
-	}
-
-		cpp_pass_file_code += u8R"(
-void PASS_CLASS_NAME::ActionBeforeInit()
-{
-	ZoneScoped;
-
-	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
-)";
-
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		//if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			cpp_pass_file_code += u8R"(
-	//SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList); // display Triangles
-	//m_LineWidth.x = 0.5f;	// min value
-	//m_LineWidth.y = 10.0f;	// max value
-	//m_LineWidth.z = 2.0f;	// default value
-	//m_LineWidth.w;			// value to change)";
-		}
-	}
-
-	if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer])
-	{
-		cpp_pass_file_code += u8R"(
-	for (auto& info : m_StorageBuffers)
-	{
-		info = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
-	})";
-	}
-	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer])
-	{
-		cpp_pass_file_code += u8R"(
-	for (auto& info : m_TexelBuffers)
-	{
-		info = nullptr;
-	}
-	for (auto& info : m_TexelBufferViews)
-	{
-		info = m_VulkanCorePtr->getEmptyBufferView();
-	})";
-	}
-	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture])
-	{
-		cpp_pass_file_code += u8R"(
-	for (auto& info : m_ImageInfos)
-	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
-	})";
-	}
-	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
-	{
-		cpp_pass_file_code += u8R"(
-	for (auto& info : m_ImageCubeInfos)
-	{
-		info = m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
-	})";
-	}
-	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup])
-	{
-		cpp_pass_file_code += u8R"(
-	for (auto& infos : m_ImageGroups)
-	{
-		for(auto& info : infos)
-		{
-			info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
-		}
-	})";
-	}
-
-	cpp_pass_file_code +=
-        u8R"(
-}
-
-bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	bool change = false;)";
-    if (m_IsAnEffect) {
-        cpp_pass_file_code +=
-            u8R"(
-	//change |= DrawResizeWidget();
-)";
-    } else {
-        cpp_pass_file_code +=
-            u8R"(
-	change |= DrawResizeWidget();
-)";
-	}
-
-	if (m_IsAnEffect) {
-        cpp_pass_file_code +=
-            u8R"(
-	if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##PASS_CLASS_NAME", -1.0f, false, true, IsEffectEnabled())) {)";
-	} else {
-        cpp_pass_file_code +=
-            u8R"(
-	if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##PASS_CLASS_NAME", -1.0f, true, true, &m_CanWeRender)) {)";
-	}
-        
-	cpp_pass_file_code += m_UBOEditors.Get_Widgets_Header();
-
-	cpp_pass_file_code +=
-            u8R"(
-	}
-
-	return change;
-}
-
-bool PASS_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	return false;
-}
-
-bool PASS_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	return false;
-}
-)";
-
-	cpp_pass_file_code += GetPassInputCppFuncs(vDico);
-	cpp_pass_file_code += GetPassOutputCppFuncs(vDico);
-
-	cpp_pass_file_code += u8R"(
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void PASS_CLASS_NAME::WasJustResized()
-{
-	ZoneScoped;
-}
-)";
-	cpp_pass_file_code += GetPassRendererFunctionHeader();
-	cpp_pass_file_code += m_UBOEditors.Get_Cpp_Functions_Imp(m_IsAnEffect);
-
-	if (m_UseASbo)
-	{
-		cpp_pass_file_code += u8R"(
-bool PASS_CLASS_NAME::CreateSBO()
-{
-	ZoneScoped;
-
-	NeedNewSBOUpload();
-
-	return true;
-}
-
-void PASS_CLASS_NAME::UploadSBO()
-{
-	ZoneScoped;
-
-	//VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
-}
-
-void PASS_CLASS_NAME::DestroySBO()
-{
-	ZoneScoped;
-
-	//m_SBOCompPtr.reset();
-	//m_SBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-}
-)";
-	}
-
-	if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		cpp_pass_file_code += u8R"(
-bool PASS_CLASS_NAME::CanUpdateDescriptors()
-{
-	ZoneScoped;
-
-	if (!m_SceneAccelStructure.expired())
-	{
-		auto accelStructurePtr = m_SceneAccelStructure.lock();
-		if (accelStructurePtr)
-		{
-			return accelStructurePtr->IsOk();
-		}
-	}
-
-	return false;
-}
-)";
-	}
-
-	cpp_pass_file_code += u8R"(
-bool PASS_CLASS_NAME::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
-
-	bool res = true;)";
-
-	cpp_pass_file_code += GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
-	cpp_pass_file_code += u8R"(
-
-	return res;
-}
-
-bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
-
-	bool res = true;)";
-
-	cpp_pass_file_code += GetPassUpdateBufferInfoInRessourceDescriptorHeader();
-	cpp_pass_file_code += u8R"(
-	
-	return res;
-}
-)";
-
-	cpp_pass_file_code += GetPassShaderCode();
-
-	cpp_pass_file_code += u8R"(
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	std::string str;
-    str += vOffset + "<PASS_XML_NAME>\n";
-	str += ShaderPass::getXml(vOffset + "\t", vUserDatas);)";
-	cpp_pass_file_code += m_UBOEditors.Get_Cpp_GetXML(m_IsAnEffect);	
-	cpp_pass_file_code += u8R"(
-    str += vOffset + "</PASS_XML_NAME>\n";
-	return str;
-}
-
-bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
-
-	strName = vElem->Value();
-	if (vElem->GetText()) {
-		strValue = vElem->GetText();
-	}
-	if (vParent != nullptr) {
-		strParentName = vParent->Value();
-	}
-
-	if (strParentName == "PASS_XML_NAME") {
-		ShaderPass::setFromXml(vElem, vParent, vUserDatas);)";
-    cpp_pass_file_code += m_UBOEditors.Get_Cpp_SetXML(m_IsAnEffect);
-	cpp_pass_file_code += u8R"(
-	}
-
-	return true;
-}
-
-void PASS_CLASS_NAME::AfterNodeXmlLoading()
-{
-	ZoneScoped;
-	NeedNewUBOUpload();
-}
-)";
-
-	h_pass_file_code += u8R"(
-#pragma once
-
-#include <set>
-#include <array>
-#include <string>
-#include <memory>
-
-#include <LumoBackend/Headers/LumoBackendDefs.h>
-
-#include <ctools/cTools.h>
-#include <ctools/ConfigAbstract.h>
-
-#include <LumoBackend/Base/BaseRenderer.h>
-)";
-
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			h_pass_file_code += u8R"(#include <LumoBackend/Base/QuadShaderPass.h>)";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			h_pass_file_code += u8R"(#include <LumoBackend/Base/MeshShaderPass.h>)";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			h_pass_file_code += u8R"(#include <LumoBackend/Base/VertexShaderPass.h>)";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		h_pass_file_code += u8R"(#include <LumoBackend/Base/ShaderPass.h>)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		h_pass_file_code += u8R"(#include <LumoBackend/Base/ShaderPass.h>)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		h_pass_file_code += u8R"(#include <LumoBackend/Base/ShaderPass.h>)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		h_pass_file_code += u8R"(#include <LumoBackend/Base/RtxShaderPass.h>)";
-	}
-
-	h_pass_file_code += u8R"(
-#include <Gaia/gaia.h>
-#include <Gaia/Resources/Texture2D.h>
-#include <Gaia/Core/VulkanCore.h>
-#include <Gaia/Core/VulkanDevice.h>
-#include <Gaia/Core/vk_mem_alloc.h>
-#include <Gaia/Shader/VulkanShader.h>
-#include <Gaia/Gui/ImGuiTexture.h>
-#include <Gaia/Resources/VulkanRessource.h>
-#include <Gaia/Resources/VulkanFrameBuffer.h>
-
-#include <LumoBackend/Interfaces/GuiInterface.h>
-#include <LumoBackend/Interfaces/NodeInterface.h>)";
-	h_pass_file_code += GetNodeSlotsInputIncludesInterfaces(vDico);
-	h_pass_file_code += GetNodeSlotsOutputIncludesInterfaces(vDico);
-	h_pass_file_code += u8R"(
-
-class PASS_CLASS_NAME :)";
-
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			h_pass_file_code += u8R"(
-	public QuadShaderPass,)";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			h_pass_file_code += ct::toStr(u8R"(
-	public MeshShaderPass<VertexStruct::%s>,)",
-				m_BaseTypes.m_VertexStructTypes[m_VertexStructTypesIndex].c_str());
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			h_pass_file_code += u8R"(
-	public VertexShaderPass,)";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		h_pass_file_code += u8R"(
-	public ShaderPass,)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		h_pass_file_code += u8R"(
-	public ShaderPass,)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		h_pass_file_code += u8R"(
-	public ShaderPass,)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		h_pass_file_code += u8R"(
-	public RtxShaderPass,)";
-	}
-
-	h_pass_file_code += GetPassInputPublicInterfaces(vDico);
-	h_pass_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
-
-	h_pass_file_code +=
-        u8R"(
-	public NodeInterface
-{
-public:)";
-    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
-        h_pass_file_code +=
-            u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
-    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
-        h_pass_file_code +=
-            u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const uint32_t& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
-    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
-        h_pass_file_code +=
-            u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
-    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
-        h_pass_file_code +=
-            u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec3& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
-    } else if (m_RendererType == RENDERER_TYPE_RTX) {
-        h_pass_file_code +=
-            u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
-    }
-
-    h_pass_file_code += u8R"(
-
-private:)";
-
-    h_pass_file_code += GetPassInputPrivateVars(vDico);
-    h_pass_file_code += GetPassOutputPrivateVars(vDico);
-
-	h_pass_file_code += m_UBOEditors.Get_Cpp_Header(m_IsAnEffect);
-
-	h_pass_file_code += u8R"(
-
-public:
-	PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	~PASS_CLASS_NAME() override;
-)";
-
-	if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		h_pass_file_code += u8R"(
-	void ActionBeforeCompilation() override;)";
-	}
-	h_pass_file_code += u8R"(
-	void ActionBeforeInit() override;
-	void WasJustResized() override;
-)";
-	
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			// nothing because derived
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH || 
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			h_pass_file_code += u8R"(
-	void DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vIterationNumber) override;)";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			// nothing because derived
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D ||
-		m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
-		m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		h_pass_file_code += u8R"(
-	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		// nothing because derived
-	}
-	
-	h_pass_file_code += u8R"(
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-)";
-
-	h_pass_file_code += GetNodeSlotsInputHFuncs(vDico);
-	h_pass_file_code += GetNodeSlotsOutputHFuncs(vDico);
-
-	h_pass_file_code += u8R"(
-
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
-
-protected:)";
-
-	h_pass_file_code += m_UBOEditors.Get_Cpp_Functions_Header();
-
-	if (m_UseASbo)
-	{
-		h_pass_file_code += u8R"(
-	bool CreateSBO() override;
-	void UploadSBO() override;
-	void DestroySBO() override;
-)";
-	}
-
-	if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		h_pass_file_code += u8R"(
-	bool CanUpdateDescriptors() override;)";
-	}
-	h_pass_file_code += u8R"(
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
-)";
-
-
-	h_pass_file_code += GetPassShaderHeader();
-
-	h_pass_file_code += u8R"(
-};)";
-
-    ct::replaceString(cpp_pass_file_code, "PASS_XML_NAME", m_PassXmlName);
-    ct::replaceString(h_pass_file_code, "PASS_XML_NAME", m_PassXmlName);
-
-	ct::replaceString(cpp_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
-    ct::replaceString(h_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
-
-	ct::replaceString(cpp_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
-	ct::replaceString(h_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
-
-	ct::replaceString(cpp_pass_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
-	ct::replaceString(h_pass_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
-
-	ct::replaceString(cpp_pass_file_code, "NODE_CLASS_NAME", pass_class_name);
-	ct::replaceString(h_pass_file_code, "NODE_CLASS_NAME", pass_class_name);
-
-	ct::replaceString(cpp_pass_file_code, "PASS_CLASS_NAME", pass_class_name);
-	ct::replaceString(h_pass_file_code, "PASS_CLASS_NAME", pass_class_name);
-
-	ct::replaceString(cpp_pass_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
-	ct::replaceString(h_pass_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
-
-	ct::replaceString(cpp_pass_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
-	ct::replaceString(h_pass_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
-
-	FileHelper::Instance()->SaveStringToFile(cpp_pass_file_code, cpp_pass_file_name);
-	FileHelper::Instance()->SaveStringToFile(h_pass_file_code, h_pass_file_name);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// GENERATOR LICENSE HEADER ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GeneratorNode::GetLicenceHeader()
-{
-	return
-		u8R"(/*
+std::string GeneratorNode::GetLicenceHeader() {
+    return u8R"(/*
 Copyright 2022 - 2022 Stephane Cuillerdier(aka aiekick)
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -2093,10 +707,8 @@ limitations under the License.
 //// GENERATOR PVS STUDIO HEADER /////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GeneratorNode::GetPVSStudioHeader()
-{
-	return
-		u8R"(
+std::string GeneratorNode::GetPVSStudioHeader() {
+    return u8R"(
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 )";
@@ -2106,67 +718,48 @@ std::string GeneratorNode::GetPVSStudioHeader()
 //// GENERATOR RENDERER DISPLAY NAME /////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GeneratorNode::GetRendererDisplayName()
-{
-	std::string res;
+std::string GeneratorNode::GetRendererDisplayName() {
+    std::string res;
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			res = "Quad_";
-			m_ModuleRendererDisplayType = "Quad";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			res = "Mesh_";
-			m_ModuleRendererDisplayType = "Mesh";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			res = "Vertex_";
-			m_ModuleRendererDisplayType = "Vertex";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		res = "Comp_1D_";
-		m_ModuleRendererDisplayType = "Comp";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		res = "Comp_2D_";
-		m_ModuleRendererDisplayType = "Comp";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		res = "Comp_3D_";
-		m_ModuleRendererDisplayType = "Comp";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		res = "Rtx_";
-		m_ModuleRendererDisplayType = "Rtx";
-	}
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
+            res = "Quad_";
+            m_ModuleRendererDisplayType = "Quad";
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+                   m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            res = "Mesh_";
+            m_ModuleRendererDisplayType = "Mesh";
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX) {
+            res = "Vertex_";
+            m_ModuleRendererDisplayType = "Vertex";
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        res = "Comp_1D_";
+        m_ModuleRendererDisplayType = "Comp";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        res = "Comp_2D_";
+        m_ModuleRendererDisplayType = "Comp";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        res = "Comp_3D_";
+        m_ModuleRendererDisplayType = "Comp";
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        res = "Rtx_";
+        m_ModuleRendererDisplayType = "Rtx";
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetPassRendererFunctionHeader()
-{
-	std::string res;
+std::string GeneratorNode::GetPassRendererFunctionHeader() {
+    std::string res;
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			// nothing because derived
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			res += u8R"(
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
+            // nothing because derived
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+                   m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            res +=
+                u8R"(
 void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vIterationNumber)
 {
 	ZoneScoped;
@@ -2206,17 +799,13 @@ void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vI
 	}
 }
 )";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			// nothing because derived
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D ||
-		m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
-		m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		res += u8R"(
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX) {
+            // nothing because derived
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D || m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
+               m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        res +=
+            u8R"(
 void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
 	if (vCmdBufferPtr)
@@ -2235,124 +824,165 @@ void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIter
 	}
 }
 )";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		// nothing because derived
-	}
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        // nothing because derived
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader()
-{
-	std::string res;
+std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader() {
+    std::string res;
 
-	res += m_UBOEditors.Get_Cpp_LayoutBindings();
+    uint32_t bindingStartIndex = 0U;
+    res += m_UBOEditors.Get_Cpp_LayoutBindings(bindingStartIndex);
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			res += u8R"()";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			res += u8R"()";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			res += u8R"()";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		res += u8R"()";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		res += u8R"(
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		res += u8R"()";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		res += u8R"(
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR); // output
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR); // accel struct
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR); // camera
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // model device address
-	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);)";
-	}
+    std::string stageFlagString;
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        stageFlagString = "vk::ShaderStageFlagBits::eFragment";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D ||  //
+               m_RendererType == RENDERER_TYPE_COMPUTE_2D ||  //
+               m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        stageFlagString = "vk::ShaderStageFlagBits::eCompute";
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        stageFlagString = "vk::ShaderStageFlagBits::eClosestHitKHR";
+    }
 
-	return res;
+    for (const auto& input : m_Inputs) {
+        if (input.second != nullptr) {
+            if (input.second->slotType == "TEXTURE_2D") {
+                res += ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eCombinedImageSampler, %s); // sampler input \n",
+                    bindingStartIndex++, stageFlagString.c_str());
+            }
+        }
+    }
+
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
+            res += u8R"()";
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+                   m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            res += u8R"()";
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX) {
+            res += u8R"()";
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        res += u8R"()";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        res +=
+            ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute); // color output \n",
+                bindingStartIndex++);
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        res += u8R"()";
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        res += ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR);  // output \n",
+            bindingStartIndex++);
+        res += ct::toStr(
+            "\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eRaygenKHR | "
+            "vk::ShaderStageFlagBits::eClosestHitKHR);  // accel struct \n",
+            bindingStartIndex++);
+        res +=
+            ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR); // camera \n",
+                bindingStartIndex++);
+        res += ct::toStr(
+            "\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // model device "
+            "address \n",
+            bindingStartIndex++);
+        res += ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);\n ",
+            bindingStartIndex++);
+    }
+
+    return res;
 }
 
-std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader()
-{
-	std::string res;
+std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader() {
+    std::string res;
 
-	res += m_UBOEditors.Get_Cpp_WriteDescriptors();
+    uint32_t bindingStartIndex = 0U;
+    res += m_UBOEditors.Get_Cpp_WriteDescriptors(bindingStartIndex);
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			res += u8R"()";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			res += u8R"()";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			res += u8R"()";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		res += u8R"()";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		res += u8R"(
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		res += u8R"()";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		res += u8R"(
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
-	res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights
-		
-	auto accelStructurePtr = m_SceneAccelStructure.lock();
-	if (accelStructurePtr && 
-		accelStructurePtr->GetTLASInfo() && 
-		accelStructurePtr->GetBufferAddressInfo())
-	{
-		res &= AddOrSetWriteDescriptorNext(1U, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo()); // accel struct
-		res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model device address
-	}
-)";
-	}
+    uint32_t imageInfosBinding = 0U;
+    for (const auto& input : m_Inputs) {
+        if (input.second != nullptr) {
+            if (input.second->slotType == "TEXTURE_2D") {
+                res += ct::toStr(
+                    "\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[%uU]);  // sampler input\n",
+                    bindingStartIndex++, imageInfosBinding++);
+            }
+        }
+    }
 
-	return res;
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
+            res += u8R"()";
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+                   m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            res += u8R"()";
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX) {
+            res += u8R"()";
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        res += u8R"()";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        res += ct::toStr(
+            "\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // "
+            "output\n",
+            bindingStartIndex++);
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        res += u8R"()";
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        res += ct::toStr(
+            "\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // "
+            "output\n",
+            bindingStartIndex++);
+        res += ct::toStr(
+            "\tres &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera\n",
+            bindingStartIndex++);
+        res +=
+            ct::toStr("res &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights\n",
+                bindingStartIndex++);
+        res += "\tauto accelStructurePtr = m_SceneAccelStructure.lock();\n";
+        res += "\tif (accelStructurePtr && accelStructurePtr->GetTLASInfo() && accelStructurePtr->GetBufferAddressInfo()) {\n";
+            res += ct::toStr(
+                "\t\tres &= AddOrSetWriteDescriptorNext(%uU, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo()); // accel "
+            "struct\n",
+                bindingStartIndex++);
+            res += ct::toStr(
+                "\t\tres &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model "
+                "device address\n",
+                bindingStartIndex++);
+            res += "\t}\n";
+    }
+
+    return res;
 }
 
-std::string GeneratorNode::GetPixel2DSpecializationQuad()
-{
-	std::string res;
+std::string GeneratorNode::GetGlslHeader(const std::string& vStage, const bool& vIsAnEffect) {
+    std::string res;
+    uint32_t bindingStartIndex = 0U;
+    res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect, bindingStartIndex);
+    res += "\n"; 
+    for (const auto& input : m_Inputs) {
+        if (input.second != nullptr) {
+            if (input.second->slotType == "TEXTURE_2D") {
+                res += ct::toStr("layout(binding = %u) uniform sampler2D input_%s_map;\n", bindingStartIndex++, input.second->name. c_str());
+            }
+        }
+    }
+    res += "\n"; 
+    if (vStage == "Comp" && m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+            res += ct::toStr("layout(binding = %u, rgba32f) uniform image2D colorBuffer; // output\n", bindingStartIndex++);
+    }
+    return res;
+}
 
-	res += u8R"(
+std::string GeneratorNode::GetPixel2DSpecializationQuad() {
+    std::string res;
+
+    
+
+    res +=
+        u8R"(
 std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
@@ -2364,15 +994,18 @@ layout(location = 0) in vec2 vertPosition;
 layout(location = 1) in vec2 vertUv;
 layout(location = 0) out vec2 v_uv;
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Vert", m_IsAnEffect);
-	res += u8R"(
+    res += GetGlslHeader("Vert", m_IsAnEffect);
+    res +=
+        u8R"(
 
 void main() 
 {
 	v_uv = vertUv;
 	gl_Position = vec4(vertPosition, 0.0, 1.0);
 }
-))"; res += u8R"(";
+))";
+    res +=
+        u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
@@ -2385,23 +1018,27 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec2 v_uv;
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Frag", m_IsAnEffect);
-	res += u8R"(
+    
+    res += GetGlslHeader("Frag", m_IsAnEffect);
+    res +=
+        u8R"(
 
 void main() 
 {
 	fragColor = vec4(0);
 }
-))"; res += u8R"(";
+))";
+    res +=
+        u8R"(";
 })";
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetPixel2DSpecializationMesh()
-{
-	std::string res;
+std::string GeneratorNode::GetPixel2DSpecializationMesh() {
+    std::string res;
 
-	res += u8R"(
+    res +=
+        u8R"(
 std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
@@ -2417,10 +1054,14 @@ layout(location = 4) in vec2 aUv;
 layout(location = 5) in vec4 aColor;
 layout(location = 0) out vec4 vertColor;
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Vert", m_IsAnEffect);
-	res += u8R"(
+    
+    res += GetGlslHeader("Vert", m_IsAnEffect);
+    res +=
+        u8R"(
 
-))"; res += u8R"("
+))";
+    res +=
+        u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 void main() 
@@ -2428,7 +1069,9 @@ void main()
 	vertColor = aColor;
 	gl_Position = cam * vec4(aPosition, 1.0);
 }
-))"; res += u8R"(";
+))";
+    res +=
+        u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
@@ -2441,24 +1084,28 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec4 vertColor;
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Frag", m_IsAnEffect);
-	res += u8R"(
+    
+    res += GetGlslHeader("Frag", m_IsAnEffect);
+    res +=
+        u8R"(
 
 void main() 
 {
 	fragColor = vec4(0);
 }
-))"; res += u8R"(";
+))";
+    res +=
+        u8R"(";
 })";
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetPixel2DSpecializationTesselation()
-{
-	std::string res;
+std::string GeneratorNode::GetPixel2DSpecializationTesselation() {
+    std::string res;
 
-	res += u8R"(
+    res +=
+        u8R"(
 std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
@@ -2473,11 +1120,15 @@ layout(location = 2) in vec4 aColor;
 layout(location = 0) out vec3 v_position;
 layout(location = 1) out vec3 v_normal;
 layout(location = 2) out vec4 v_color;
-)";	
-	res += m_UBOEditors.Get_Glsl_Header("Vert", m_IsAnEffect);
-	res += u8R"(
+)";
+    
+    res += GetGlslHeader("Vert", m_IsAnEffect);
+    res +=
+        u8R"(
 
-))"; res += u8R"("
+))";
+    res +=
+        u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 void main() 
@@ -2488,7 +1139,9 @@ void main()
 
 	gl_Position = cam * vec4(aPosition, 1.0);
 }
-))"; res += u8R"(";
+))";
+    res +=
+        u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetTesselationControlShaderCode(std::string& vOutShaderName)
@@ -2507,11 +1160,15 @@ layout(location = 1) in vec3 v_normal[];
 layout(location = 2) in vec4 v_color[];
 
 layout(location = 0) out vec3 v_position_tess_control[];
-)";	
-	res += m_UBOEditors.Get_Glsl_Header("TessCtrl", m_IsAnEffect);
-	res += u8R"(
+)";
+    
+    res += GetGlslHeader("TessCtrl", m_IsAnEffect);
+    res +=
+        u8R"(
 
-)"; res += u8R"(
+)";
+    res +=
+        u8R"(
 void main()
 {
     // Set the control points of the output patch
@@ -2530,7 +1187,9 @@ void main()
 		gl_TessLevelInner[1] = u_tesselation_level;
 	}
 } 
-))"; res += u8R"(";
+))";
+    res +=
+        u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetTesselationEvaluationShaderCode(std::string& vOutShaderName)
@@ -2548,10 +1207,14 @@ layout(location = 0) out vec3 v_position;
 layout(location = 1) out vec3 v_normal;
 layout(location = 2) out vec4 v_color;
 )";
-    res += m_UBOEditors.Get_Glsl_Header("TessEval", m_IsAnEffect);
-	res += u8R"(
+    
+    res += GetGlslHeader("TessEval", m_IsAnEffect);
+    res +=
+        u8R"(
 
-))"; res += u8R"("
+))";
+    res +=
+        u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 vec2 interpolateV2(vec2 v0, vec2 v1, vec2 v2) {
@@ -2575,7 +1238,9 @@ void main()
 	
 	gl_Position = cam * vec4(v_position, 1.0);
 } 
-))"; res += u8R"(";
+))";
+    res +=
+        u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
@@ -2591,10 +1256,14 @@ layout(location = 0) in vec3 v_position;
 layout(location = 1) in vec3 v_normal;
 layout(location = 2) in vec4 v_color;
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Frag", m_IsAnEffect);
-	res += u8R"(
+    
+    res += GetGlslHeader("Frag", m_IsAnEffect);
+    res +=
+        u8R"(
 
-))"; res += u8R"("
+))";
+    res +=
+        u8R"("
 void main() 
 {	
 	fragColor = v_color;
@@ -2616,17 +1285,19 @@ void main()
 	//	discard;
 	}
 }
-))"; res += u8R"("
+))";
+    res +=
+        u8R"("
 }
 )";
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetPixel2DSpecializationVertex()
-{
-	std::string res;
+std::string GeneratorNode::GetPixel2DSpecializationVertex() {
+    std::string res;
 
-	res += u8R"(
+    res +=
+        u8R"(
 std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
@@ -2637,10 +1308,14 @@ std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
 
 layout(location = 0) out vec4 vertColor;
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Vert", m_IsAnEffect);
-	res += u8R"(
+    
+    res += GetGlslHeader("Vert", m_IsAnEffect);
+    res +=
+        u8R"(
 
-))"; res += u8R"("
+))";
+    res +=
+        u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 layout(std140, binding = 1) uniform UBOStruct {
@@ -2659,7 +1334,9 @@ void main()
 	if (vertexId<150.) gl_Position = cam * vec4(d,0,1);
 	else gl_Position = cam * vec4(0,0,0,1);
 	vertColor = vec4(1,1,1,1);
-))"; res += u8R"(";
+))";
+    res +=
+        u8R"(";
 		}
 
 std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
@@ -2673,46 +1350,39 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec4 vertColor;
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Frag", m_IsAnEffect);
-	res += u8R"(
+    
+    res += GetGlslHeader("Frag", m_IsAnEffect);
+    res +=
+        u8R"(
 
 void main() 
 {
 	fragColor = vertColor; 
 }
 ))";
-	res += u8R"(";
+    res +=
+        u8R"(";
 		})";
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetPassShaderCode()
-{
-	std::string res;
+std::string GeneratorNode::GetPassShaderCode() {
+    std::string res;
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			res = GetPixel2DSpecializationQuad();
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH)
-		{
-			res = GetPixel2DSpecializationMesh();
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			res = GetPixel2DSpecializationTesselation();
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			res = GetPixel2DSpecializationVertex();
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-	res += u8R"(
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
+            res = GetPixel2DSpecializationQuad();
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH) {
+            res = GetPixel2DSpecializationMesh();
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            res = GetPixel2DSpecializationTesselation();
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX) {
+            res = GetPixel2DSpecializationVertex();
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        res +=
+            u8R"(
 std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Compute";
@@ -2725,20 +1395,22 @@ std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 )";
-        res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect);
-	res += u8R"(
+        
+        res += GetGlslHeader("Comp", m_IsAnEffect);
+        res +=
+            u8R"(
 
 void main()
 {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 }
 ))";
-	res += u8R"(";
+        res +=
+            u8R"(";
 		})";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		res += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        res +=
+            u8R"(
 std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Compute";
@@ -2751,10 +1423,10 @@ std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect);
-		res += u8R"(
+        res += GetGlslHeader("Comp", m_IsAnEffect);
+        res +=
+            u8R"(
 
 void main()
 {
@@ -2765,12 +1437,12 @@ void main()
 	imageStore(colorBuffer, coords, color); 
 }
 ))";
-		res += u8R"(";
+        res +=
+            u8R"(";
 		})";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-	res += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        res +=
+            u8R"(
 std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 {
 	vOutShaderName = "PASS_CLASS_NAME_Compute";
@@ -2783,20 +1455,22 @@ std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 )";
-        res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect);
-	res += u8R"(
+        
+        res += GetGlslHeader("Comp", m_IsAnEffect);
+        res +=
+            u8R"(
 
 void main()
 {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 }
 ))";
-	res += u8R"(";
+        res +=
+            u8R"(";
 		})";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-	res += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        res +=
+            u8R"(
 std::string PASS_CLASS_NAME::GetRayGenerationShaderCode(std::string& vOutShaderName)
 {
 	ZoneScoped;
@@ -2808,13 +1482,17 @@ std::string PASS_CLASS_NAME::GetRayGenerationShaderCode(std::string& vOutShaderN
 
 layout(binding = 0, rgba32f) uniform writeonly image2D out_color;
 layout(binding = 1) uniform accelerationStructureEXT tlas;
-))"; res += u8R"("
+))";
+        res +=
+            u8R"("
 + CommonSystem::GetBufferObjectStructureHeader(2U) +
 u8R"(
 
 )";
-    res += m_UBOEditors.Get_Glsl_Header("RGen", m_IsAnEffect);
-	res += u8R"(
+        
+        res += GetGlslHeader("RGen", m_IsAnEffect);
+        res +=
+            u8R"(
 
 struct hitPayload
 {
@@ -2869,7 +1547,9 @@ void main()
 	
 	imageStore(out_color, ivec2(gl_LaunchIDEXT.xy), prd.color);
 }
-))"; res += u8R"(";
+))";
+        res +=
+            u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetRayIntersectionShaderCode(std::string& vOutShaderName)
@@ -2879,9 +1559,12 @@ std::string PASS_CLASS_NAME::GetRayIntersectionShaderCode(std::string& vOutShade
 	vOutShaderName = "PASS_CLASS_NAME_Inter";
 	return u8R"(
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Inter", m_IsAnEffect);
-	res += u8R"(
-))"; res += u8R"(";
+        res += GetGlslHeader("Inter", m_IsAnEffect);
+        res +=
+            u8R"(
+))";
+        res +=
+            u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetRayMissShaderCode(std::string& vOutShaderName)
@@ -2908,8 +1591,9 @@ layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Miss", m_IsAnEffect);
-	res += u8R"(
+        res += GetGlslHeader("Miss", m_IsAnEffect);
+        res +=
+            u8R"(
 
 void main()
 {
@@ -2919,7 +1603,9 @@ void main()
 	prd.sha = 0.0;
 	isShadowed = false;
 }
-))"; res += u8R"(";
+))";
+        res +=
+            u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetRayAnyHitShaderCode(std::string& vOutShaderName)
@@ -2927,9 +1613,12 @@ std::string PASS_CLASS_NAME::GetRayAnyHitShaderCode(std::string& vOutShaderName)
 	vOutShaderName = "PASS_CLASS_NAME_Ahit";
 	return u8R"(
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Ahit", m_IsAnEffect);
-	res += u8R"(
-))"; res += u8R"(";
+        res += GetGlslHeader("Ahit", m_IsAnEffect);
+        res +=
+            u8R"(
+))";
+        res +=
+            u8R"(";
 }
 
 std::string PASS_CLASS_NAME::GetRayClosestHitShaderCode(std::string& vOutShaderName)
@@ -2962,8 +1651,9 @@ layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
 )";
-    res += m_UBOEditors.Get_Glsl_Header("Chit", m_IsAnEffect);
-	res += u8R"(
+        res += GetGlslHeader("Chit", m_IsAnEffect);
+        res +=
+            u8R"(
 
 hitAttributeEXT vec3 attribs;
 
@@ -2999,7 +1689,9 @@ layout(binding = 3) buffer ModelAddresses
 { 
 	SceneMeshBuffers datas[]; 
 } sceneMeshBuffers;
-)"; res += u8R"(";
+)";
+        res +=
+            u8R"(";
 +
 SceneLightGroup::GetBufferObjectStructureHeader(4U)
 +
@@ -3064,258 +1756,234 @@ void main()
 	
 	prd.color = vec4(normal * 0.5 + 0.5, 1.0); // return normal
 }
-))"; res += u8R"(";
+))";
+        res +=
+            u8R"(";
 })";
-	}
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetPassShaderHeader()
-{
-	std::string res;
+std::string GeneratorNode::GetPassShaderHeader() {
+    std::string res;
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			res += u8R"(
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            res +=
+                u8R"(
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetTesselationControlShaderCode(std::string& vOutShaderName) override;
 	std::string GetTesselationEvaluationShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;)";
-		}
-		else
-		{
-			res += u8R"(
+        } else {
+            res +=
+                u8R"(
 	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
 	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;)";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		res += u8R"(
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        res +=
+            u8R"(
 	std::string GetComputeShaderCode(std::string& vOutShaderName) override;)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		res += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        res +=
+            u8R"(
 	std::string GetComputeShaderCode(std::string& vOutShaderName) override;)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		res += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        res +=
+            u8R"(
 	std::string GetComputeShaderCode(std::string& vOutShaderName) override;)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		res += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        res +=
+            u8R"(
 	std::string GetRayGenerationShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayIntersectionShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayMissShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayAnyHitShaderCode(std::string& vOutShaderName) override;
 	std::string GetRayClosestHitShaderCode(std::string& vOutShaderName) override;)";
-	}
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// GENERATOR SLOTS DICO ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SlotDico GeneratorNode::GetSlotDico()
-{
-	SlotDico res;
+SlotDico GeneratorNode::GetSlotDico() {
+    SlotDico res;
 
-	m_ShowInputWidgets = false;
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				m_InputSlotCounter[(BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex]++;
-			}
+    m_ShowInputWidgets = false;
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                m_InputSlotCounter[(BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex]++;
+            }
 
-			m_ShowInputWidgets |= inputSlot.second->showWidget;
-		}
-	}
+            m_ShowInputWidgets |= inputSlot.second->showWidget;
+        }
+    }
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				switch(slotDatasPtr->editorSlotTypeIndex)
-				{
-				case BaseTypeEnum::BASE_TYPE_None: // None
-					res[BASE_TYPE_None][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotNoneInput(inputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_AccelStructure: // AccelStructure
-					res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotAccelStructureInput(inputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
-					res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotLightGroupInput(inputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_Model: // Model
-					res[BASE_TYPE_Model][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotModelInput(inputSlot.second));
-                    break;
-                case BaseTypeEnum::BASE_TYPE_Task:  // Task
-                    res[BASE_TYPE_Task][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTaskInput(inputSlot.second));
-                    break;
-				case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
-					res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotStorageBufferInput(inputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
-					res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTexelBufferInput(inputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_Texture: // Texture
-					res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureInput(inputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_TextureCube: // TextureCube
-					res[BASE_TYPE_TextureCube][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureCubeInput(inputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
-					res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureGroupInput(inputSlot.second));
-                    break;
-                case BaseTypeEnum::BASE_TYPE_ShaderPass:  // TextureGroup
-                    res[BASE_TYPE_ShaderPass][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotShaderPassInput(inputSlot.second));
-                    break;
-				case BaseTypeEnum::BASE_TYPE_Variable: // Variable
-					res[BASE_TYPE_Variable][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotVariableInput(inputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_Custom: // Custom
-					res[BASE_TYPE_Custom][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotCustomInput(inputSlot.second));
-					break;
-				}
-				
-			}
-		}
-	}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                switch (slotDatasPtr->editorSlotTypeIndex) {
+                    case BaseTypeEnum::BASE_TYPE_None:  // None
+                        res[BASE_TYPE_None][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotNoneInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_AccelStructure:  // AccelStructure
+                        res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotAccelStructureInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_LightGroup:  // LightGroup
+                        res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotLightGroupInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Model:  // Model
+                        res[BASE_TYPE_Model][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotModelInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Task:  // Task
+                        res[BASE_TYPE_Task][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTaskInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_StorageBuffer:  // StorageBuffer
+                        res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotStorageBufferInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_TexelBuffer:  // TexelBuffer
+                        res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTexelBufferInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Texture:  // Texture
+                        res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_TextureCube:  // TextureCube
+                        res[BASE_TYPE_TextureCube][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureCubeInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_TextureGroup:  // TextureGroup
+                        res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureGroupInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_ShaderPass:  // TextureGroup
+                        res[BASE_TYPE_ShaderPass][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotShaderPassInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Variable:  // Variable
+                        res[BASE_TYPE_Variable][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotVariableInput(inputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Custom:  // Custom
+                        res[BASE_TYPE_Custom][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotCustomInput(inputSlot.second));
+                        break;
+                }
+            }
+        }
+    }
 
-	m_ShowOutputWidgets = false;
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				m_OutputSlotCounter[(BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex]++;
-			}
+    m_ShowOutputWidgets = false;
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                m_OutputSlotCounter[(BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex]++;
+            }
 
-			m_ShowOutputWidgets |= outputSlot.second->showWidget;
-		}
-	}
+            m_ShowOutputWidgets |= outputSlot.second->showWidget;
+        }
+    }
 
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				switch (slotDatasPtr->editorSlotTypeIndex)
-				{
-				case BaseTypeEnum::BASE_TYPE_None: // None
-					res[BASE_TYPE_None][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotNoneOutput(outputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_AccelStructure: // AccelStructure
-					res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotAccelStructureOutput(outputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_LightGroup: // LightGroup
-					res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotLightGroupOutput(outputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_Model: // Model
-					res[BASE_TYPE_Model][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotModelOutput(outputSlot.second));
-                    break;
-                case BaseTypeEnum::BASE_TYPE_Task:  // Model
-                    res[BASE_TYPE_Task][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTaskOutput(outputSlot.second));
-                    break;
-				case BaseTypeEnum::BASE_TYPE_StorageBuffer: // StorageBuffer
-					res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotStorageBufferOutput(outputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_TexelBuffer: // TexelBuffer
-					res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTexelBufferOutput(outputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_Texture: // Texture
-					res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureOutput(outputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_TextureCube: // TextureCube
-					res[BASE_TYPE_TextureCube][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureCubeOutput(outputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_TextureGroup: // TextureGroup
-					res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureGroupOutput(outputSlot.second));
-                    break;
-                case BaseTypeEnum::BASE_TYPE_ShaderPass:  // TextureGroup
-                    res[BASE_TYPE_ShaderPass][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotShaderPassOutput(outputSlot.second));
-                    break;
-				case BaseTypeEnum::BASE_TYPE_Variable: // Variable
-					res[BASE_TYPE_Variable][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotVariableOutput(outputSlot.second));
-					break;
-				case BaseTypeEnum::BASE_TYPE_Custom: // Custom
-					res[BASE_TYPE_Custom][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotCustomOutput(outputSlot.second));
-					break;
-				}
-			}
-		}
-	}
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                switch (slotDatasPtr->editorSlotTypeIndex) {
+                    case BaseTypeEnum::BASE_TYPE_None:  // None
+                        res[BASE_TYPE_None][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotNoneOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_AccelStructure:  // AccelStructure
+                        res[BASE_TYPE_AccelStructure][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotAccelStructureOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_LightGroup:  // LightGroup
+                        res[BASE_TYPE_LightGroup][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotLightGroupOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Model:  // Model
+                        res[BASE_TYPE_Model][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotModelOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Task:  // Model
+                        res[BASE_TYPE_Task][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTaskOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_StorageBuffer:  // StorageBuffer
+                        res[BASE_TYPE_StorageBuffer][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotStorageBufferOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_TexelBuffer:  // TexelBuffer
+                        res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTexelBufferOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Texture:  // Texture
+                        res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_TextureCube:  // TextureCube
+                        res[BASE_TYPE_TextureCube][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureCubeOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_TextureGroup:  // TextureGroup
+                        res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureGroupOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_ShaderPass:  // TextureGroup
+                        res[BASE_TYPE_ShaderPass][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotShaderPassOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Variable:  // Variable
+                        res[BASE_TYPE_Variable][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotVariableOutput(outputSlot.second));
+                        break;
+                    case BaseTypeEnum::BASE_TYPE_Custom:  // Custom
+                        res[BASE_TYPE_Custom][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotCustomOutput(outputSlot.second));
+                        break;
+                }
+            }
+        }
+    }
 
-	
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot)
-{
-	//CTOOL_DEBUG_BREAK;
+SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot) {
+    // CTOOL_DEBUG_BREAK;
 
-	SlotStringStruct res;
+    SlotStringStruct res;
 
-	res.cpp_node_func = u8R"()";
-	res.cpp_module_func = u8R"()";
-	res.cpp_pass_func = u8R"()";
-	res.h_func = u8R"()";
-	res.include_interface = u8R"()";
-	res.include_slot = u8R"()";
-	res.node_module_public_interface = u8R"()";
-	res.pass_public_interface = u8R"()";
-	res.node_slot_func += u8R"()";
+    res.cpp_node_func = u8R"()";
+    res.cpp_module_func = u8R"()";
+    res.cpp_pass_func = u8R"()";
+    res.h_func = u8R"()";
+    res.include_interface = u8R"()";
+    res.include_slot = u8R"()";
+    res.node_module_public_interface = u8R"()";
+    res.pass_public_interface = u8R"()";
+    res.node_slot_func += u8R"()";
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot)
-{
-	//CTOOL_DEBUG_BREAK;
+SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot) {
+    // CTOOL_DEBUG_BREAK;
 
-	SlotStringStruct res;
+    SlotStringStruct res;
 
-	res.cpp_node_func = u8R"()";
-	res.cpp_module_func = u8R"()";
-	res.cpp_pass_func = u8R"()";
-	res.h_func = u8R"()";
-	res.include_interface = u8R"()";
-	res.include_slot = u8R"()";
-	res.node_module_public_interface = u8R"()";
-	res.pass_public_interface = u8R"()";
-	res.node_slot_func += u8R"()";
+    res.cpp_node_func = u8R"()";
+    res.cpp_module_func = u8R"()";
+    res.cpp_pass_func = u8R"()";
+    res.h_func = u8R"()";
+    res.include_interface = u8R"()";
+    res.include_slot = u8R"()";
+    res.node_module_public_interface = u8R"()";
+    res.pass_public_interface = u8R"()";
+    res.node_slot_func += u8R"()";
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotAccelStructureInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotAccelStructureInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// ACCEL STRUCTURE INPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3324,30 +1992,31 @@ void NODE_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStruc
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetAccelStructure(vSceneAccelStructure);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// ACCEL STRUCTURE INPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3356,30 +2025,31 @@ void MODULE_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStr
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetAccelStructure(vSceneAccelStructure);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// ACCEL STRUCTURE INPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3392,37 +2062,43 @@ void PASS_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStruc
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/AccelStructureInputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Slots/NodeSlotAccelStructureInput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public AccelStructureInputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public AccelStructureInputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddInput(NodeSlotAccelStructureInput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotAccelStructureOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotAccelStructureOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// ACCEL STRUCTURE OUTPUT //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3431,18 +2107,19 @@ SceneAccelStructureWeak NODE_CLASS_NAME::GetAccelStruct()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetAccelStruct();
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return SceneAccelStructureWeak();
 }
 
@@ -3450,18 +2127,19 @@ vk::WriteDescriptorSetAccelerationStructureKHR* NODE_CLASS_NAME::GetTLASInfo()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTLASInfo();
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 
@@ -3469,27 +2147,29 @@ vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetBufferAddressInfo()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetBufferAddressInfo();
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// ACCEL STRUCTURE OUTPUT //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3498,18 +2178,19 @@ SceneAccelStructureWeak MODULE_CLASS_NAME::GetAccelStruct()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetAccelStruct();
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return SceneAccelStructureWeak();
 }
 
@@ -3517,18 +2198,19 @@ vk::WriteDescriptorSetAccelerationStructureKHR* MODULE_CLASS_NAME::GetTLASInfo()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetTLASInfo();
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 
@@ -3536,27 +2218,29 @@ vk::DescriptorBufferInfo* MODULE_CLASS_NAME::GetBufferAddressInfo()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetBufferAddressInfo();
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// ACCEL STRUCTURE OUTPUT //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3583,39 +2267,45 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetBufferAddressInfo()
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	SceneAccelStructureWeak GetAccelStruct() override;
 	vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() override;
 	vk::DescriptorBufferInfo* GetBufferAddressInfo() override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/AccelStructureOutputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotAccelStructureOutput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public AccelStructureOutputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public AccelStructureOutputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddOutput(NodeSlotAccelStructureOutput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotLightGroupInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotLightGroupInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3624,30 +2314,31 @@ void NODE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetLightGroup(vSceneLightGroup);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3656,30 +2347,31 @@ void MODULE_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetLightGroup(vSceneLightGroup);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3703,37 +2395,43 @@ void PASS_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public LightGroupInputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public LightGroupInputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddInput(NodeSlotLightGroupInput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotLightGroupOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotLightGroupOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP OUTPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3742,27 +2440,29 @@ SceneLightGroupWeak NODE_CLASS_NAME::GetLightGroup()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetLightGroup();
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return SceneLightGroupWeak();
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP OUTPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3771,27 +2471,29 @@ SceneLightGroupWeak MODULE_CLASS_NAME::GetLightGroup()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetLightGroup();
 	}
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 	return SceneLightGroupWeak();
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP OUTPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3804,37 +2506,43 @@ SceneLightGroupWeak PASS_CLASS_NAME::GetLightGroup()
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	SceneLightGroupWeak GetLightGroup() override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/LightGroupOutputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupOutput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public LightGroupOutputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public LightGroupOutputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddOutput(NodeSlotLightGroupOutput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotModelInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotModelInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3843,30 +2551,31 @@ void NODE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetModel(vSceneModel);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3875,30 +2584,31 @@ void MODULE_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetModel(vSceneModel);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3911,37 +2621,43 @@ void PASS_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	void SetModel(SceneModelWeak vSceneModel) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/ModelInputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public ModelInputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public ModelInputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddInput(NodeSlotModelInput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotModelOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotModelOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3950,27 +2666,29 @@ SceneModelWeak NODE_CLASS_NAME::GetModel()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetModel();
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return SceneModelWeak();
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -3979,27 +2697,29 @@ SceneModelWeak MODULE_CLASS_NAME::GetModel()
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetModel();
 	}
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 	return SceneModelWeak();
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4012,40 +2732,47 @@ SceneModelWeak PASS_CLASS_NAME::GetModel()
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	SceneModelWeak GetModel() override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public ModelOutputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public ModelOutputInterface,)";
 
-	res.cpp_pass_private_var += u8R"(
+    res.cpp_pass_private_var +=
+        u8R"(
     SceneModelPtr m_OutputSceneModelPtr = nullptr;)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddOutput(NodeSlotModelOutput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotStorageBufferInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotStorageBufferInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STORAGE BUFFER INPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4054,30 +2781,31 @@ void NODE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetStorageBuffer(vBindingPoint, vStorageBuffer, vStorageBufferSize);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STORAGE BUFFER INPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4086,30 +2814,31 @@ void MODULE_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Desc
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetStorageBuffer(vBindingPoint, vStorageBuffer, vStorageBufferSize);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STORAGE BUFFER INPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4140,37 +2869,44 @@ void PASS_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	void SetStorageBuffer(const uint32_t& vBindingPoint, vk::DescriptorBufferInfo* vStorageBuffer, uint32_t* vStorageBufferSize = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/StorageBufferInputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotStorageBufferInput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public StorageBufferInputInterface<0U>,)";
 
-	res.pass_public_interface = ct::toStr(u8R"(
-	public StorageBufferInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer]);
+    res.pass_public_interface = ct::toStr(
+        u8R"(
+	public StorageBufferInputInterface,)",
+        m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer]);
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddInput(NodeSlotStorageBufferInput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotStorageBufferOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotStorageBufferOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STORAGE BUFFER OUTPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4179,27 +2915,29 @@ vk::DescriptorBufferInfo* NODE_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetStorageBuffer(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STORAGE BUFFER OUTPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4208,27 +2946,29 @@ vk::DescriptorBufferInfo* MODULE_CLASS_NAME::GetStorageBuffer(const uint32_t& vB
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetStorageBuffer(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// STORAGE BUFFER OUTPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4241,37 +2981,43 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	vk::DescriptorBufferInfo* GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/StorageBufferOutputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotStorageBufferOutput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public StorageBufferOutputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public StorageBufferOutputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddOutput(NodeSlotStorageBufferOutput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTexelBufferInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotTexelBufferInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXEL BUFFER INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4280,52 +3026,53 @@ void NODE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* 
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexelBuffer(vBindingPoint, vTexelBuffer, vTexelBufferSize);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 
 void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexelBufferView(vBindingPoint, vTexelBufferView, vTexelBufferSize);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXEL BUFFER INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4334,52 +3081,53 @@ void MODULE_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTexelBuffer(vBindingPoint, vTexelBuffer, vTexelBufferSize);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 
 void MODULE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize)
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTexelBufferView(vBindingPoint, vTexelBufferView, vTexelBufferSize);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXEL BUFFER INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4435,38 +3183,45 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	void SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize = nullptr) override;
 	void SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/TexelBufferInputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotTexelBufferInput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public TexelBufferInputInterface<0U>,)";
 
-	res.pass_public_interface = ct::toStr(u8R"(
-	public TexelBufferInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer]);
+    res.pass_public_interface = ct::toStr(
+        u8R"(
+	public TexelBufferInputInterface,)",
+        m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer]);
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddInput(NodeSlotTexelBufferInput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTexelBufferOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotTexelBufferOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXEL BUFFER OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4475,18 +3230,19 @@ vk::Buffer* NODE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct::u
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTexelBuffer(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 
@@ -4494,27 +3250,29 @@ vk::BufferView* NODE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTexelBufferView(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXEL BUFFER OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4523,18 +3281,19 @@ vk::Buffer* MODULE_CLASS_NAME::GetTexelBuffer(const uint32_t& vBindingPoint, ct:
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetTexelBuffer(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 	return nullptr;
 }
 
@@ -4542,27 +3301,29 @@ vk::BufferView* MODULE_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPo
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetTexelBufferView(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXEL BUFFER OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4582,38 +3343,44 @@ vk::BufferView* PASS_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
 	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/TexelBufferOutputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotTexelBufferOutput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public TexelBufferOutputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public TexelBufferOutputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddOutput(NodeSlotTexelBufferOutput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTextureInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotTextureInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4622,30 +3389,31 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4654,30 +3422,31 @@ void MODULE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::Descriptor
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4710,39 +3479,44 @@ void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/TextureInputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public TextureInputInterface<0U>,)";
 
-	res.pass_public_interface = ct::toStr(u8R"(
-	public TextureInputInterface<%u>,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
+    res.pass_public_interface = ct::toStr(
+        u8R"(
+	public TextureInputInterface<%u>,)",
+        m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddInput(NodeSlotTextureInput::Create("%s", %u), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(),
-		vSlot->descriptorBinding,
-		vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTextureOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotTextureOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4752,26 +3526,28 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 	ZoneScoped;
 )";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4781,26 +3557,28 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 	ZoneScoped;
 )";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4808,61 +3586,65 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {	
 	ZoneScoped;)";
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		res.cpp_pass_func += u8R"(
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        res.cpp_pass_func +=
+            u8R"(
 	if (m_FrameBufferPtr) {
         AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	})";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D ||
-		m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
-		m_RendererType == RENDERER_TYPE_COMPUTE_3D ||
-		m_RendererType == RENDERER_TYPE_RTX)
-	{
-		res.cpp_pass_func += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D || m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
+               m_RendererType == RENDERER_TYPE_COMPUTE_3D || m_RendererType == RENDERER_TYPE_RTX) {
+        res.cpp_pass_func +=
+            u8R"(
 	if (m_ComputeBufferPtr) {
         AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
 		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
 	})";
-	}
-	res.cpp_pass_func += u8R"(
+    }
+    res.cpp_pass_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public TextureOutputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public TextureOutputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddOutput(NodeSlotTextureOutput::Create("%s", %u), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTextureCubeInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotTextureCubeInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4871,30 +3653,31 @@ void NODE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4903,30 +3686,31 @@ void MODULE_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descri
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4957,39 +3741,44 @@ void PASS_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/TextureCubeInputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotTextureCubeInput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public TextureCubeInputInterface<0U>,)";
 
-	res.pass_public_interface = ct::toStr(u8R"(
-	public TextureCubeInputInterface<%u>,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube]);
+    res.pass_public_interface = ct::toStr(
+        u8R"(
+	public TextureCubeInputInterface<%u>,)",
+        m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube]);
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddInput(NodeSlotTextureCubeInput::Create("%s", %u), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(),
-		vSlot->descriptorBinding,
-		vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTextureCubeOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotTextureCubeOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE CUBE SLOT OUTPUT ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -4998,27 +3787,29 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetTextureCube(const uint32_t& vBindin
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetTextureCube(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE CUBE SLOT OUTPUT ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5027,27 +3818,29 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetTextureCube(const uint32_t& vBind
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetTextureCube(vBindingPoint, vOutSize);
 	}
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE CUBE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5060,37 +3853,43 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetTextureCube(const uint32_t& vBindin
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	vk::DescriptorImageInfo* GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/TextureCubeOutputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotTextureCubeOutput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public TextureCubeOutputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public TextureCubeOutputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddOutput(NodeSlotTextureCubeOutput::Create("%s", %u), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTextureGroupInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotTextureGroupInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE GROUP SLOT INPUT ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5099,30 +3898,31 @@ void NODE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE GROUP SLOT INPUT ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5131,30 +3931,31 @@ void MODULE_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorIma
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE GROUP SLOT INPUT ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5185,37 +3986,44 @@ void PASS_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public TextureGroupInputInterface<0U>,)";
 
-	res.pass_public_interface = ct::toStr(u8R"(
-	public TextureGroupInputInterface,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup]);
+    res.pass_public_interface = ct::toStr(
+        u8R"(
+	public TextureGroupInputInterface,)",
+        m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup]);
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddInput(NodeSlotTextureGroupInput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTextureGroupOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotTextureGroupOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE GROUP SLOT OUTPUT ///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5224,27 +4032,29 @@ DescriptorImageInfoVector* NODE_CLASS_NAME::GetDescriptorImageInfos(const uint32
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE GROUP SLOT OUTPUT ///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5253,27 +4063,29 @@ DescriptorImageInfoVector* MODULE_CLASS_NAME::GetDescriptorImageInfos(const uint
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetDescriptorImageInfos(vBindingPoint, vOutSizes);
 	}
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 	return nullptr;
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE GROUP SLOT OUTPUT ///////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5286,26 +4098,32 @@ DescriptorImageInfoVector* PASS_CLASS_NAME::GetDescriptorImageInfos(const uint32
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes = nullptr) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotTextureGroupOutput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public TextureGroupOutputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public TextureGroupOutputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddOutput(NodeSlotTextureGroupOutput::Create("%s"), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
 SlotStringStruct GeneratorNode::GetSlotShaderPassInput(NodeSlotInputPtr vSlot) {
@@ -5413,7 +4231,7 @@ SlotStringStruct GeneratorNode::GetSlotShaderPassOutput(NodeSlotOutputPtr vSlot)
     ////// NODE ////////////////////////////////////////
     ////////////////////////////////////////////////////
 
-    res.cpp_node_func = 
+    res.cpp_node_func =
         u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
@@ -5473,7 +4291,7 @@ SceneShaderPassWeak MODULE_CLASS_NAME::GetShaderPasses(const uint32_t& vSlotID)
         u8R"(
 	public ShaderPassOutputInterface,)";
 
-	res.cpp_module_private_var =
+    res.cpp_module_private_var =
         u8R"(
     SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;)";
 
@@ -5501,15 +4319,15 @@ SlotStringStruct GeneratorNode::GetSlotTaskOutput(NodeSlotOutputPtr vSlot) {
     return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotVariableInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotVariableInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5518,30 +4336,31 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->SetVariable(vVarIndex, vSceneVariable);
 	})";
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5550,30 +4369,31 @@ void MODULE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->SetVariable(vVarIndex, vSceneVariable);
 	})";
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5589,40 +4409,44 @@ void PASS_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/VariableInputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public VariableInputInterface<0U>,)";
 
-	res.pass_public_interface = ct::toStr(u8R"(
-	public VariableInputInterface<%u>,)", m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Variable]);
+    res.pass_public_interface = ct::toStr(
+        u8R"(
+	public VariableInputInterface<%u>,)",
+        m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Variable]);
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddInput(NodeSlotVariableInput::Create("%s", "%s", %u), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(),
-		vSlot->slotType.c_str(),
-		vSlot->variableIndex,
-		vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->slotType.c_str(), vSlot->variableIndex, vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotVariableOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotVariableOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = u8R"(
+    res.cpp_node_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5631,27 +4455,29 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func +=
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->GetVariable(vVarIndex);
 	}
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 	return SceneVariableWeak();
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = u8R"(
+    res.cpp_module_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5660,27 +4486,29 @@ SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 {	
 	ZoneScoped;)";
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func +=
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->GetVariable(vVarIndex);
 	}
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 	return SceneVariableWeak();
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = u8R"(
+    res.cpp_pass_func =
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5698,111 +4526,119 @@ SceneVariableWeak PASS_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 }
 )";
 
-	res.h_func = u8R"(
+    res.h_func =
+        u8R"(
 	SceneVariableWeak GetVariable(const uint32_t& vVarIndex) override;)";
 
-	res.include_interface = u8R"(
+    res.include_interface =
+        u8R"(
 #include <LumoBackend/Interfaces/VariableOutputInterface.h>)";
 
-	res.include_slot = u8R"(
+    res.include_slot =
+        u8R"(
 #include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>)";
 
-	res.node_module_public_interface = u8R"(
+    res.node_module_public_interface =
+        u8R"(
 	public VariableOutputInterface,)";
 
-	res.pass_public_interface = u8R"(
+    res.pass_public_interface =
+        u8R"(
 	public VariableOutputInterface,)";
 
-	res.node_slot_func += ct::toStr(u8R"(
+    res.node_slot_func += ct::toStr(
+        u8R"(
 	AddOutput(NodeSlotVariableOutput::Create("%s", "%s", %u), false, %s);)",
-		vSlot->hideName ? "" : vSlot->name.c_str(),
-		vSlot->slotType.c_str(),
-		vSlot->variableIndex,
-		vSlot->hideName ? "true" : "false");
+        vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->slotType.c_str(), vSlot->variableIndex, vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotCustomInput(NodeSlotInputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotCustomInput(NodeSlotInputPtr vSlot) {
+    SlotStringStruct res;
 
-	std::string comment;
-	size_t max_count = (size_t)82U - vSlot->slotType.size();
-	for (size_t i = 0U; i < max_count; ++i)
-	{
-		comment += "/";
-	}
+    std::string comment;
+    size_t max_count = (size_t)82U - vSlot->slotType.size();
+    for (size_t i = 0U; i < max_count; ++i) {
+        comment += "/";
+    }
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_node_func = ct::toStr(u8R"(
+    res.cpp_node_func = ct::toStr(
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// %s INPUT %s
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void NODE_CLASS_NAME::Set%s(const std::string& vName, %sWeak v%s)
 {	
-	ZoneScoped;)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+	ZoneScoped;)",
+        ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += ct::toStr(u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func += ct::toStr(
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		m_MODULE_CLASS_NAMEPtr->Set%s(vName, v%s);
-	})", vSlot->slotType.c_str(), vSlot->slotType.c_str());
-	}
-	else
-	{
-		res.cpp_node_func += u8R"(
+	})",
+            vSlot->slotType.c_str(), vSlot->slotType.c_str());
+    } else {
+        res.cpp_node_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_node_func += u8R"(
+    res.cpp_node_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = ct::toStr(u8R"(
+    res.cpp_module_func = ct::toStr(
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// %s INPUT %s
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void MODULE_CLASS_NAME::Set%s(const std::string& vName, %sWeak v%s)
 {	
-	ZoneScoped;)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+	ZoneScoped;)",
+        ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += ct::toStr(u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func += ct::toStr(
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		m_PASS_CLASS_NAME_Ptr->Set%s(vName, v%s);
-	})", vSlot->slotType.c_str(), vSlot->slotType.c_str());
-	}
-	else
-	{
-		res.cpp_module_func += u8R"(
+	})",
+            vSlot->slotType.c_str(), vSlot->slotType.c_str());
+    } else {
+        res.cpp_module_func +=
+            u8R"(
 )";
-	}
+    }
 
-	res.cpp_module_func += u8R"(
+    res.cpp_module_func +=
+        u8R"(
 }
 )";
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = ct::toStr(u8R"(
+    res.cpp_pass_func = ct::toStr(
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// %s INPUT %s
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5813,104 +4649,126 @@ void PASS_CLASS_NAME::Set%s(const std::string& vName, %sWeak v%s)
 
 	m_%ss[vName] = v%s;
 }
-)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+)",
+        ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(),
+        vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-	res.h_func = ct::toStr(u8R"(
-	void Set%s(const std::string& vName, %sWeak v%s) override;)", vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+    res.h_func = ct::toStr(
+        u8R"(
+	void Set%s(const std::string& vName, %sWeak v%s) override;)",
+        vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-	res.include_interface = ct::toStr(u8R"(
-#include <LumoBackend/Interfaces/%sInputInterface.h>)", vSlot->slotType.c_str());
+    res.include_interface = ct::toStr(
+        u8R"(
+#include <LumoBackend/Interfaces/%sInputInterface.h>)",
+        vSlot->slotType.c_str());
 
-	res.include_slot = ct::toStr(u8R"(
-#include <LumoBackend/Slots/NodeSlot%sInput.h>)", vSlot->slotType.c_str());
+    res.include_slot = ct::toStr(
+        u8R"(
+#include <LumoBackend/Slots/NodeSlot%sInput.h>)",
+        vSlot->slotType.c_str());
 
-	res.node_module_public_interface = ct::toStr(u8R"(
-	public %sInputInterface,)", vSlot->slotType.c_str());
+    res.node_module_public_interface = ct::toStr(
+        u8R"(
+	public %sInputInterface,)",
+        vSlot->slotType.c_str());
 
-	res.pass_public_interface = ct::toStr(u8R"(
-	public %sInputInterface,)", vSlot->slotType.c_str());
+    res.pass_public_interface = ct::toStr(
+        u8R"(
+	public %sInputInterface,)",
+        vSlot->slotType.c_str());
 
-	res.node_slot_func += ct::toStr(u8R"(
-	AddInput(NodeSlot%sInput::Create("%s"), false, %s);)", vSlot->slotType.c_str(),
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+    res.node_slot_func += ct::toStr(
+        u8R"(
+	AddInput(NodeSlot%sInput::Create("%s"), false, %s);)",
+        vSlot->slotType.c_str(), vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot)
-{
-	SlotStringStruct res;
+SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot) {
+    SlotStringStruct res;
 
-	////////////////////////////////////////////////////
-	////// NODE ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// NODE ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	std::string comment;
-	size_t max_count = (size_t)81U - vSlot->slotType.size();
-	for (size_t i = 0U; i < max_count; ++i)
-	{
-		comment += "/";
-	}
+    std::string comment;
+    size_t max_count = (size_t)81U - vSlot->slotType.size();
+    for (size_t i = 0U; i < max_count; ++i) {
+        comment += "/";
+    }
 
-	res.cpp_node_func = ct::toStr(u8R"(
+    res.cpp_node_func = ct::toStr(
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// %s OUTPUT %s
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 %sWeak NODE_CLASS_NAME::Get%s(const std::string& vName)
 {	
-	ZoneScoped;)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+	ZoneScoped;)",
+        ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-	if (m_GenerateAModule)
-	{
-		res.cpp_node_func += ct::toStr(u8R"(
+    if (m_GenerateAModule) {
+        res.cpp_node_func += ct::toStr(
+            u8R"(
 
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		return m_MODULE_CLASS_NAMEPtr->Get%s(vName);
 	}
-)", vSlot->slotType.c_str());
-	}
+)",
+            vSlot->slotType.c_str());
+    }
 
-	res.cpp_node_func += ct::toStr(u8R"(
+    res.cpp_node_func += ct::toStr(
+        u8R"(
 	return %sWeak();
 }
-)", vSlot->slotType.c_str());
+)",
+        vSlot->slotType.c_str());
 
-	////////////////////////////////////////////////////
-	////// MODULE //////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// MODULE //////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_module_func = ct::toStr(u8R"(
+    res.cpp_module_func = ct::toStr(
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// %s OUTPUT %s
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 %sWeak MODULE_CLASS_NAME::Get%s(const std::string& vName)
 {	
-	ZoneScoped;)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+	ZoneScoped;)",
+        ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-	if (m_GenerateAPass)
-	{
-		res.cpp_module_func += ct::toStr(u8R"(
+    if (m_GenerateAPass) {
+        res.cpp_module_func += ct::toStr(
+            u8R"(
 
 	if (m_PASS_CLASS_NAME_Ptr)
 	{
 		return m_PASS_CLASS_NAME_Ptr->Get%s(vName);
 	}
-)", vSlot->slotType.c_str());
-	}
+)",
+            vSlot->slotType.c_str());
+    }
 
-	res.cpp_module_func += ct::toStr(u8R"(
+    res.cpp_module_func += ct::toStr(
+        u8R"(
 	return %sWeak();
 }
-)", vSlot->slotType.c_str());
+)",
+        vSlot->slotType.c_str());
 
-	////////////////////////////////////////////////////
-	////// PASS ////////////////////////////////////////
-	////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////
+    ////// PASS ////////////////////////////////////////
+    ////////////////////////////////////////////////////
 
-	res.cpp_pass_func = ct::toStr(u8R"(
+    res.cpp_pass_func = ct::toStr(
+        u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// %s OUTPUT %s
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -5921,626 +4779,492 @@ SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot)
 
 	return m_%sPtr;
 }
-)", ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
+)",
+        ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-	res.h_func = ct::toStr(u8R"(
-	%sWeak Get%s(const std::string& vName) override;)", vSlot->slotType.c_str(), vSlot->slotType.c_str());
+    res.h_func = ct::toStr(
+        u8R"(
+	%sWeak Get%s(const std::string& vName) override;)",
+        vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-	res.include_interface = ct::toStr(u8R"(
-#include <LumoBackend/Interfaces/%sOutputInterface.h>)", vSlot->slotType.c_str());
+    res.include_interface = ct::toStr(
+        u8R"(
+#include <LumoBackend/Interfaces/%sOutputInterface.h>)",
+        vSlot->slotType.c_str());
 
-	res.include_slot = ct::toStr(u8R"(
-#include <LumoBackend/Slots/NodeSlot%sOutput.h>)", vSlot->slotType.c_str());
+    res.include_slot = ct::toStr(
+        u8R"(
+#include <LumoBackend/Slots/NodeSlot%sOutput.h>)",
+        vSlot->slotType.c_str());
 
-	res.node_module_public_interface = ct::toStr(u8R"(
-	public %sOutputInterface,)", vSlot->slotType.c_str());
+    res.node_module_public_interface = ct::toStr(
+        u8R"(
+	public %sOutputInterface,)",
+        vSlot->slotType.c_str());
 
-	res.pass_public_interface = ct::toStr(u8R"(
-	public %sOutputInterface,)", vSlot->slotType.c_str());
+    res.pass_public_interface = ct::toStr(
+        u8R"(
+	public %sOutputInterface,)",
+        vSlot->slotType.c_str());
 
-	res.node_slot_func += ct::toStr(u8R"(
-	AddOutput(NodeSlot%sOutput::Create("%s"), false, %s);)", vSlot->slotType.c_str(),
-		vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
+    res.node_slot_func += ct::toStr(
+        u8R"(
+	AddOutput(NodeSlot%sOutput::Create("%s"), false, %s);)",
+        vSlot->slotType.c_str(), vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->hideName ? "true" : "false");
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// GENERATOR NODE SLOTS SUMMARY CODE ///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GeneratorNode::GetNodeSlotsInputFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsInputFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							for (auto item : vDico.at(type).at(NodeSlot::PlaceEnum::INPUT))
-							{
-								res += item.node_slot_func;
-							}
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            for (auto item : vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)) {
+                                res += item.node_slot_func;
+                            }
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsOutputFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							for (auto item : vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT))
-							{
-								res += item.node_slot_func;
-							}
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            for (auto item : vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)) {
+                                res += item.node_slot_func;
+                            }
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputPublicInterfaces(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsInputPublicInterfaces(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].node_module_public_interface;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].node_module_public_interface;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputPublicInterfaces(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsOutputPublicInterfaces(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].node_module_public_interface;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].node_module_public_interface;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputIncludesSlots(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsInputIncludesSlots(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].include_slot;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].include_slot;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].include_slot;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].include_slot;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputIncludesInterfaces(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsInputIncludesInterfaces(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].include_interface;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].include_interface;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputIncludesInterfaces(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsOutputIncludesInterfaces(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].include_interface;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].include_interface;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputCppFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsInputCppFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].cpp_node_func;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].cpp_node_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputCppFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsOutputCppFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].cpp_node_func;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].cpp_node_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	if (!m_Inputs.empty())
-	{
-		res += u8R"(
+    if (!m_Inputs.empty()) {
+        res +=
+            u8R"(
 	// Interfaces Setters)";
-	}
+    }
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].h_func;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].h_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	if (!m_Inputs.empty())
-	{
-		res += u8R"(
+    if (!m_Inputs.empty()) {
+        res +=
+            u8R"(
 )";
-	}
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	if (!m_Outputs.empty())
-	{
-		res += u8R"(
+    if (!m_Outputs.empty()) {
+        res +=
+            u8R"(
 	// Interfaces Getters)";
-	}
+    }
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].h_func;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].h_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	if (!m_Outputs.empty())
-	{
-		res += u8R"(
+    if (!m_Outputs.empty()) {
+        res +=
+            u8R"(
 )";
-	}
+    }
 
-	return res;
+    return res;
 }
 
 std::string GeneratorNode::GetModuleInputPrivateVars(const SlotDico& vDico) {
@@ -6613,102 +5337,78 @@ std::string GeneratorNode::GetModuleOutputPrivateVars(const SlotDico& vDico) {
     return res;
 }
 
-std::string GeneratorNode::GetModuleInputCppFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetModuleInputCppFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].cpp_module_func;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].cpp_module_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetModuleOutputCppFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetModuleOutputCppFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].cpp_module_func;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].cpp_module_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
 std::string GeneratorNode::GetPassInputPrivateVars(const SlotDico& vDico) {
-	std::string res;
+    std::string res;
     std::set<BaseTypeEnum> _alreadyKnowTypes;
     for (const auto& inputSlot : m_Inputs) {
         if (inputSlot.second) {
@@ -6773,51 +5473,39 @@ std::string GeneratorNode::GetPassOutputPrivateVars(const SlotDico& vDico) {
     return res;
 }
 
-std::string GeneratorNode::GetPassInputPublicInterfaces(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetPassInputPublicInterfaces(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].pass_public_interface;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].pass_public_interface;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
 std::string GeneratorNode::GetPassOutputPublicInterfaces(const SlotDico& vDico) {
@@ -6855,98 +5543,74 @@ std::string GeneratorNode::GetPassOutputPublicInterfaces(const SlotDico& vDico) 
     return res;
 }
 
-std::string GeneratorNode::GetPassInputCppFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetPassInputCppFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& inputSlot : m_Inputs)
-	{
-		if (inputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].cpp_pass_func;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].cpp_pass_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string GeneratorNode::GetPassOutputCppFuncs(const SlotDico& vDico)
-{
-	std::string res;
+std::string GeneratorNode::GetPassOutputCppFuncs(const SlotDico& vDico) {
+    std::string res;
 
-	std::set<BaseTypeEnum> _alreadyKnowTypes;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
 
-	for (const auto& outputSlot : m_Outputs)
-	{
-		if (outputSlot.second)
-		{
-			auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
-			if (slotDatasPtr)
-			{
-				BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
-				auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
-				if (typeString == "None")
-				{
-					continue;
-				}
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
 
-				if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end())
-				{
-					if (vDico.find(type) != vDico.end())
-					{
-						if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end())
-						{
-							_alreadyKnowTypes.emplace(type);
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
-							res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].cpp_pass_func;
-						}
-						else
-						{
-							CTOOL_DEBUG_BREAK;
-						}
-					}
-					else
-					{
-						CTOOL_DEBUG_BREAK;
-					}
-				}
-			}
-		}
-	}
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].cpp_pass_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -7055,7 +5719,7 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
         res += vOffset + ct::toStr("\t\t<renderer_type>%s</renderer_type>\n", m_RendererType.c_str());
         res += vOffset + ct::toStr("\t\t<module_display_name>%s</module_display_name>\n", m_ModuleDisplayName.c_str());
         res += vOffset + ct::toStr("\t\t<module_xml_name>%s</module_xml_name>\n", m_ModuleXmlName.c_str());
-        res += vOffset + ct::toStr("\t\t<module_xml_simple_name>%s</module_xml_simple_name>\n", m_PassXmlName.c_str());        
+        res += vOffset + ct::toStr("\t\t<module_xml_simple_name>%s</module_xml_simple_name>\n", m_PassXmlName.c_str());
         res += vOffset + ct::toStr("\t\t<pass_specialization_type>%s</pass_specialization_type>\n", m_RendererTypePixel2DSpecializationType.c_str());
         res += vOffset + ct::toStr("\t\t<pass_use_ubo>%s</pass_use_ubo>\n", m_UBOEditors.m_UseUbos ? "true" : "false");
         res += vOffset + ct::toStr("\t\t<pass_use_sbo>%s</pass_use_sbo>\n", m_UseASbo ? "true" : "false");

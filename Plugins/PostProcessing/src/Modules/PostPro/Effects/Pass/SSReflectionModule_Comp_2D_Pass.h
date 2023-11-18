@@ -45,7 +45,7 @@ limitations under the License.
 
 class SSReflectionModule_Comp_2D_Pass :
 	public ShaderPass,
-	public TextureInputInterface<1>,
+	public TextureInputInterface<3>,
 	public TextureOutputInterface,
 	public NodeInterface
 {

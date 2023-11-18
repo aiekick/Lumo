@@ -70,12 +70,13 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(
                 if (vPlace == NodeSlot::PlaceEnum::INPUT) {
                     res = std::dynamic_pointer_cast<GeneratorNodeSlotInput>(
                         nodePtr->AddInput(GeneratorNodeSlotInput::Create("New Slot"), false, false).lock());
-                    NodeSlot::sSlotGraphOutputMouseLeft = res;
+                    NodeSlot::sSlotGraphOutputMouseMiddle = res;
                 } else if (vPlace == NodeSlot::PlaceEnum::OUTPUT) {
                     res = std::dynamic_pointer_cast<GeneratorNodeSlotOutput>(
                         nodePtr->AddOutput(GeneratorNodeSlotOutput::Create("New Slot"), false, false).lock());
                     NodeSlot::sSlotGraphOutputMouseRight = res;
                 }
+                SelectSlot(res);
                 ImGui::EndChild();
                 ImGui::PopID();
                 vChange = true;

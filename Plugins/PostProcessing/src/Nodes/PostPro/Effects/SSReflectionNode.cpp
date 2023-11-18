@@ -73,7 +73,9 @@ bool SSReflectionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	name = "SS Reflection";
 
-	AddInput(NodeSlotTextureInput::Create("", 0), false, true);
+	AddInput(NodeSlotTextureInput::Create("Color", 0), false, false);
+	AddInput(NodeSlotTextureInput::Create("Position", 0), false, false);
+	AddInput(NodeSlotTextureInput::Create("Normal", 0), false, false);
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 

@@ -280,6 +280,13 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
                 change = true;
             }
 
+            ImGui::SameLine();
+
+            if (ImGui::ContrastedButton("Generate Nodes")) {
+                ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", nullptr, FilesSaver::Instance()->m_GenerationRootPath,
+                    "", 1, nullptr, ImGuiFileDialogFlags_Modal);
+            }
+
             if (m_NodeDisplayNameInputText.DisplayInputText(aw, "Node Display Name :", "New Node")) {
                 nodePtr->m_NodeDisplayName = m_NodeDisplayNameInputText.GetText();
                 nodePtr->name = nodePtr->m_NodeDisplayName;
@@ -472,11 +479,6 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
 
                 }*/
             }
-
-            if (ImGui::ContrastedButton("Generate")) {
-                ImGuiFileDialog::Instance()->OpenDialog("GenerateToPath", "Generate To Path", nullptr, FilesSaver::Instance()->m_GenerationRootPath,
-                    "", 1, nullptr, ImGuiFileDialogFlags_Modal);
-            }
         }
         if (change) {
             SetProjectChange(change);
@@ -523,7 +525,7 @@ void CodeGeneratorPane::SelectSlot(const NodeSlotWeak& vSlot, const ImGuiMouseBu
         if (slotPtr) {
             if (slotPtr->IsAnInput()) {
                 m_SelectedNodeSlotInput = std::dynamic_pointer_cast<NodeSlotInput>(vSlot.lock());
-                NodeSlot::sSlotGraphOutputMouseLeft = m_SelectedNodeSlotInput;
+                NodeSlot::sSlotGraphOutputMouseMiddle = m_SelectedNodeSlotInput;
                 m_InputSlotEditor.SelectSlot(m_SelectedNodeSlotInput);
             } else if (slotPtr->IsAnOutput()) {
                 m_SelectedNodeSlotOutput = std::dynamic_pointer_cast<NodeSlotOutput>(vSlot.lock());

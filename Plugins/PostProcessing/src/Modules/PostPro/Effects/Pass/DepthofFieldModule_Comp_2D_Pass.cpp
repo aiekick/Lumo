@@ -231,7 +231,9 @@ bool DepthofFieldModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
 
 	bool res = true;
 	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute); // sampler input 
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute); // color output 
+
 
 	return res;
 }
@@ -242,7 +244,9 @@ bool DepthofFieldModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
 
 	bool res = true;
 	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfos);
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
+	res &= AddOrSetWriteDescriptorImage(1U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0U]);  // sampler input
+	res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
+
 	
 	return res;
 }
@@ -259,7 +263,6 @@ std::string DepthofFieldModule_Comp_2D_Pass::GetComputeShaderCode(std::string& v
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
 
 layout(std140, binding = 0) uniform UBO_Comp
 {
@@ -267,6 +270,11 @@ layout(std140, binding = 0) uniform UBO_Comp
 	float u_foreground_blur_amount;
 	float u_enabled;
 };
+
+layout(binding = 1) uniform sampler2D input_New Slot_map;
+
+layout(binding = 2, rgba32f) uniform image2D colorBuffer; // output
+
 
 void main()
 {
