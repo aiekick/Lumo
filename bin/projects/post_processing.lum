@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-0.00563197;-0.0966486;0</RotXYZ>
+			<RotXYZ>-0.0441021;0.00736398;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>18.3333</Zoom>
+			<Zoom>17.7671</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -25,7 +25,7 @@
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-238;-32" id="105150">
+					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-428;-32" id="105150">
 						<slot place="INPUT" index="0" name="Model" type="MESH" id="105154"/>
 						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="105158"/>
 						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="105162"/>
@@ -36,21 +36,21 @@
 						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="105182"/>
 						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="105186"/>
 					</node>
-					<node name="Model" type="MESH" pos="-370;-82" id="156328">
-						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
-						<mesh_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
-						</mesh_module>
-					</node>
-					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
+					<node name="Texture 2D" type="TEXTURE_2D" pos="-591;-2" id="269834">
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
 						<texture_2d_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\BazC_SkinMat.jpg</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
 						</texture_2d_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="0;-44" id="229189">
+					<node name="Model" type="MESH" pos="-560;-82" id="156328">
+						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
+						<mesh_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Post Processing" type="POST_PROCESSING" pos="-190;-44" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
 						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="229195"/>
 						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="229198"/>
@@ -66,7 +66,7 @@
 								<ao_scale>1</ao_scale>
 								<ao_bias>0.01</ao_bias>
 								<ao_intensity>5</ao_intensity>
-								<enabled>1</enabled>
+								<enabled>0</enabled>
 							</ssao_pass>
 							<bloom_pass>
 								<resize_by_event>true</resize_by_event>
@@ -98,7 +98,7 @@
 								<resize_by_hand>true</resize_by_hand>
 								<buffer_quality>1</buffer_quality>
 								<amount>1</amount>
-								<enabled>1</enabled>
+								<enabled>0</enabled>
 							</sharpness_pass>
 							<chromatic_aberrations_pass>
 								<resize_by_event>true</resize_by_event>
@@ -107,6 +107,17 @@
 								<amount>4</amount>
 								<enabled>0</enabled>
 							</chromatic_aberrations_pass>
+							<dilation_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<shape>0</shape>
+								<size>5</size>
+								<separation>1</separation>
+								<threshold>0;1</threshold>
+								<brightcolor>1;1;1</brightcolor>
+								<enabled>0</enabled>
+							</dilation_pass>
 							<tone_mapping_pass>
 								<resize_by_event>true</resize_by_event>
 								<resize_by_hand>true</resize_by_hand>
@@ -131,7 +142,7 @@
 							</vignette_pass>
 						</post_processing_module>
 					</node>
-					<node name="Matcap" type="MATCAP_RENDERER" pos="-176;-131" id="263812">
+					<node name="Matcap" type="MATCAP_RENDERER" pos="-366;-131" id="263812">
 						<slot place="INPUT" index="0" name="Model" type="MESH" id="263816"/>
 						<slot place="INPUT" index="1" name="Matcap" type="TEXTURE_2D" id="263820"/>
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="263824"/>
@@ -141,33 +152,14 @@
 							<show_face_normal>false</show_face_normal>
 						</matcap_renderer>
 					</node>
-					<node name="SS Reflection" type="SS_REFLECTION" pos="178;45" id="310097">
-						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="310100"/>
-						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="310103"/>
-						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="310106"/>
-						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="310109"/>
-						<ss_reflection_module>
-							<can_we_render>true</can_we_render>
-							<ss_reflection_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<amount>0</amount>
-								<enabled>1</enabled>
-							</ss_reflection_pass>
-						</ss_reflection_module>
-					</node>
 				</nodes>
 				<links>
 					<link in="156328:156332" out="105150:105154"/>
-					<link in="105150:105162" out="310097:310103"/>
 					<link in="105150:105162" out="229189:229195"/>
 					<link in="105150:105166" out="229189:229198"/>
 					<link in="156328:156332" out="263812:263816"/>
 					<link in="269834:269838" out="263812:263820"/>
 					<link in="263812:263824" out="229189:229192"/>
-					<link in="263812:263824" out="310097:310100"/>
-					<link in="105150:105166" out="310097:310106"/>
 				</links>
 				<outputs>
 					<output type="left" ids="229189:229201"/>
@@ -188,20 +180,20 @@
 							<scale>1</scale>
 						</canvas>
 						<nodes>
-							<node name="Color Balance" type="NONE" pos="0;0" id="269972">
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="269975" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="269978" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+							<node name="Dilation" type="NONE" pos="0;-25" id="300572">
+								<slot index="0" name="color" type="TEXTURE_2D" place="INPUT" id="300575" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="output" type="TEXTURE_2D" place="OUTPUT" id="300578" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
-									<class_name>ColorBalance</class_name>
+									<class_name>Dilation</class_name>
 									<category_name>PostPro</category_name>
-									<node_creation_name>COLOR_BALANCE</node_creation_name>
-									<node_display_name>Color Balance</node_display_name>
+									<node_creation_name>DILATION</node_creation_name>
+									<node_display_name>Dilation</node_display_name>
 									<generate_module>true</generate_module>
 									<generate_pass>true</generate_pass>
 									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Color Balance</module_display_name>
-									<module_xml_name>color_balance_module</module_xml_name>
-									<module_xml_simple_name>color_balance_pass</module_xml_simple_name>
+									<module_display_name>Dilation</module_display_name>
+									<module_xml_name>dilation_module</module_xml_name>
+									<module_xml_simple_name>dilation_pass</module_xml_simple_name>
 									<pass_specialization_type>Quad</pass_specialization_type>
 									<pass_use_ubo>true</pass_use_ubo>
 									<pass_use_sbo>false</pass_use_sbo>
@@ -211,120 +203,10 @@
 								</generation>
 								<UBOS renderer="Compute 2D">
 									<UBO stage="0">
-										<UBOItem name="red" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="green" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="blue" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-									</UBO>
-								</UBOS>
-							</node>
-							<node name="SS Reflection" type="NONE" pos="0;0" id="269998">
-								<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="270001" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="300574" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="2" name="Normal" type="TEXTURE_2D" place="INPUT" id="300580" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="270004" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<generation>
-									<class_name>SSReflection</class_name>
-									<category_name>PostPro</category_name>
-									<node_creation_name>SS_REFLECTION</node_creation_name>
-									<node_display_name>SS Reflection</node_display_name>
-									<generate_module>true</generate_module>
-									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>SS Reflection</module_display_name>
-									<module_xml_name>ss_reflection_module</module_xml_name>
-									<module_xml_simple_name>ss_reflection_pass</module_xml_simple_name>
-									<pass_specialization_type>Quad</pass_specialization_type>
-									<pass_use_ubo>true</pass_use_ubo>
-									<pass_use_sbo>false</pass_use_sbo>
-									<node_is_a_task>true</node_is_a_task>
-									<node_is_an_effect>true</node_is_an_effect>
-									<vertex_struct_type>0</vertex_struct_type>
-								</generation>
-								<UBOS renderer="Compute 2D">
-									<UBO stage="0">
-										<UBOItem name="amount" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-									</UBO>
-								</UBOS>
-							</node>
-							<node name="Fog" type="NONE" pos="0;0" id="300491">
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="300494" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="300497" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<generation>
-									<class_name>Fog</class_name>
-									<category_name>PostPro</category_name>
-									<node_creation_name>FOG</node_creation_name>
-									<node_display_name>Fog</node_display_name>
-									<generate_module>true</generate_module>
-									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Fog</module_display_name>
-									<module_xml_name>fog_module</module_xml_name>
-									<module_xml_simple_name>fog_pass</module_xml_simple_name>
-									<pass_specialization_type>Quad</pass_specialization_type>
-									<pass_use_ubo>true</pass_use_ubo>
-									<pass_use_sbo>false</pass_use_sbo>
-									<node_is_a_task>true</node_is_a_task>
-									<node_is_an_effect>true</node_is_an_effect>
-									<vertex_struct_type>0</vertex_struct_type>
-								</generation>
-								<UBOS renderer="Compute 2D">
-									<UBO stage="0">
-										<UBOItem name="amount" typeIndex="0" vx="0" vy="" vz="" vw=""/>
-									</UBO>
-								</UBOS>
-							</node>
-							<node name="Depth of Field" type="NONE" pos="0;0" id="300465">
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="300468" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="300471" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<generation>
-									<class_name>DepthofField</class_name>
-									<category_name>PostPro</category_name>
-									<node_creation_name>DEPTH_OF_FIELD</node_creation_name>
-									<node_display_name>Depth of Field</node_display_name>
-									<generate_module>true</generate_module>
-									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Depth of Field</module_display_name>
-									<module_xml_name>depth_of_field_module</module_xml_name>
-									<module_xml_simple_name>depth_of_field_pass</module_xml_simple_name>
-									<pass_specialization_type>Quad</pass_specialization_type>
-									<pass_use_ubo>true</pass_use_ubo>
-									<pass_use_sbo>false</pass_use_sbo>
-									<node_is_a_task>true</node_is_a_task>
-									<node_is_an_effect>true</node_is_an_effect>
-									<vertex_struct_type>0</vertex_struct_type>
-								</generation>
-								<UBOS renderer="Compute 2D">
-									<UBO stage="0">
-										<UBOItem name="backgroud_blur_amount" typeIndex="0" vx="1" vy="" vz="" vw=""/>
-										<UBOItem name="foreground_blur_amount" typeIndex="0" vx="1" vy="" vz="" vw=""/>
-									</UBO>
-								</UBOS>
-							</node>
-							<node name="Outlining" type="NONE" pos="0;0" id="300478">
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="INPUT" id="300481" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="300484" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<generation>
-									<class_name>Outlining</class_name>
-									<category_name>PostPro</category_name>
-									<node_creation_name>OUTLINING</node_creation_name>
-									<node_display_name>Outlining</node_display_name>
-									<generate_module>true</generate_module>
-									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Outlining</module_display_name>
-									<module_xml_name>outlining_module</module_xml_name>
-									<module_xml_simple_name>outlining_pass</module_xml_simple_name>
-									<pass_specialization_type>Quad</pass_specialization_type>
-									<pass_use_ubo>true</pass_use_ubo>
-									<pass_use_sbo>false</pass_use_sbo>
-									<node_is_a_task>true</node_is_a_task>
-									<node_is_an_effect>true</node_is_an_effect>
-									<vertex_struct_type>0</vertex_struct_type>
-								</generation>
-								<UBOS renderer="Compute 2D">
-									<UBO stage="0">
-										<UBOItem name="amount" typeIndex="0" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="shape" typeIndex="4" vx="0" vy="" vz="" vw=""/>
+										<UBOItem name="separation" typeIndex="0" vx="1" vy="" vz="" vw=""/>
+										<UBOItem name="threshold" typeIndex="1" vx="0.2" vy="0.5" vz="" vw=""/>
+										<UBOItem name="brightColor" typeIndex="2" vx="1" vy="1" vz="1" vw=""/>
 									</UBO>
 								</UBOS>
 							</node>
