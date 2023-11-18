@@ -210,10 +210,27 @@ std::string UBOItem::Get_Glsl_Item_Header() {
     auto _input_name = m_InputName.GetText();
     ct::replaceString(_input_name, " ", "_");
 
+    std::string default_values;
+    if (inputIdx == 0) {
+        default_values = m_InputValue_x.GetText();
+    } else if (inputIdx == 1) {
+        default_values = m_InputValue_x.GetText();
+        default_values += ", " + m_InputValue_y.GetText();
+    } else if (inputIdx == 2) {
+        default_values = m_InputValue_x.GetText();
+        default_values += ", " + m_InputValue_y.GetText();
+        default_values += ", " + m_InputValue_z.GetText();
+    } else if (inputIdx == 3) {
+        default_values = m_InputValue_x.GetText();
+        default_values += ", " + m_InputValue_y.GetText();
+        default_values += ", " + m_InputValue_z.GetText();
+        default_values += ", " + m_InputValue_w.GetText();
+    }
+
     res += ct::toStr(
         u8R"(
-	%s u_%s;)",
-        type.c_str(), _input_name.c_str());
+	%s u_%s; // default is %s)",
+        type.c_str(), _input_name.c_str(), default_values.c_str());
 
     return res;
 }

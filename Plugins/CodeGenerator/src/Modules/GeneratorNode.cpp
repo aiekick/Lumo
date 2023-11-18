@@ -973,7 +973,7 @@ std::string GeneratorNode::GetGlslHeader(const std::string& vStage, const bool& 
     }
     res += "\n"; 
     if (vStage == "Comp" && m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
-            res += ct::toStr("layout(binding = %u, rgba32f) uniform image2D colorBuffer; // output\n", bindingStartIndex++);
+            res += ct::toStr("layout(binding = %u, rgba32f) uniform image2D outColor; // output\n", bindingStartIndex++);
     }
     return res;
 }

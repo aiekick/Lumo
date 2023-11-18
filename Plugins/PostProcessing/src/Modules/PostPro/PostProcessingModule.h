@@ -50,12 +50,13 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class BlurModule_Comp_2D_Pass;
-class SSAOModule_Comp_2D_Pass;
 class BloomModule_Comp_2D_Pass;
+class ChromaticAberrationsModule_Comp_2D_Pass;
+class DilationModule_Comp_2D_Pass;
+class SharpnessModule_Comp_2D_Pass;
+class SSAOModule_Comp_2D_Pass;
 class ToneMapModule_Comp_2D_Pass;
 class VignetteModule_Comp_2D_Pass;
-class SharpnessModule_Comp_2D_Pass;
-class ChromaticAberrationsModule_Comp_2D_Pass;
 class PostProcessingModule :
 	public NodeInterface,
 	public BaseRenderer,	
@@ -69,13 +70,14 @@ public:
 private:
 	std::weak_ptr<PostProcessingModule> m_This;
 
+    std::shared_ptr<BloomModule_Comp_2D_Pass> m_BloomModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<BlurModule_Comp_2D_Pass> m_BlurModule_Comp_2D_Pass_Ptr = nullptr;
+    std::shared_ptr<ChromaticAberrationsModule_Comp_2D_Pass> m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = nullptr;
+    std::shared_ptr<DilationModule_Comp_2D_Pass> m_DilationModule_Comp_2D_Pass_Ptr = nullptr;
+    std::shared_ptr<SharpnessModule_Comp_2D_Pass> m_SharpnessModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<SSAOModule_Comp_2D_Pass> m_SSAOModule_Comp_2D_Pass_Ptr = nullptr;
-	std::shared_ptr<BloomModule_Comp_2D_Pass> m_BloomModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<ToneMapModule_Comp_2D_Pass> m_ToneMapModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<VignetteModule_Comp_2D_Pass> m_VignetteModule_Comp_2D_Pass_Ptr = nullptr;
-    std::shared_ptr <SharpnessModule_Comp_2D_Pass> m_SharpnessModule_Comp_2D_Pass_Ptr = nullptr;
-    std::shared_ptr<ChromaticAberrationsModule_Comp_2D_Pass> m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
 	PostProcessingModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
