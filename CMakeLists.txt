@@ -277,6 +277,27 @@ add_custom_command(
 )
 
 #############################################################
+### BUILD CONFIG NAME #######################################
+#############################################################
+
+### will store the build config name in a file
+### only during the building
+add_custom_command(
+	TARGET ${PROJECT} PRE_BUILD
+	COMMAND echo "$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>" > ${CMAKE_BINARY_DIR}/current_build_type
+	DEPENDS ${PROJECT}
+)
+
+### outside of the building we read the last file content
+### for get the current building config name
+if (EXISTS ${CMAKE_BINARY_DIR}/current_build_type)
+	file(READ ${CMAKE_BINARY_DIR}/current_build_type CURRENT_BUILD_TYPE)
+	string(STRIP ${CURRENT_BUILD_TYPE} CURRENT_BUILD_TYPE) ### removing end line wrote by echo command
+	set(PROJECT_BUILD_CONFIG_NAME ${CURRENT_BUILD_TYPE} CACHE STRING "" FORCE)
+	message("CURRENT BUILD CONFIG is : ${PROJECT_BUILD_CONFIG_NAME}")
+endif()
+
+#############################################################
 ### VERSION #################################################
 #############################################################
 
@@ -295,26 +316,6 @@ add_custom_command(
 	COMMAND echo "${PROJECT}_${CMAKE_SYSTEM_NAME}_${PROJECT_BUILD_CONFIG_NAME}_${ARCH}_v${MajorNumber}.${MinorNumber}.${BuildNumber}" > ${CMAKE_SOURCE_DIR}/VERSION
 	DEPENDS ${PROJECT}
 )
-
-#############################################################
-### BUILD CONFIG NAME #######################################
-#############################################################
-
-### will store the build config name in a file
-### only during the building
-add_custom_command(
-	TARGET ${PROJECT} PRE_BUILD
-	COMMAND echo "$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>" > ${CMAKE_BINARY_DIR}/current_build_type
-	DEPENDS ${PROJECT}
-)
-
-### outside of the building we read the last fiale content
-### for get the current building config name
-if (EXISTS ${CMAKE_BINARY_DIR}/current_build_type)
-	file(READ ${CMAKE_BINARY_DIR}/current_build_type PROJECT_BUILD_CONFIG_NAME)
-	string(STRIP ${PROJECT_BUILD_CONFIG_NAME} PROJECT_BUILD_CONFIG_NAME) ### removing end line wrote by echo command
-	message("CURRENT BUILD CONFIG is : ${PROJECT_BUILD_CONFIG_NAME}")
-endif()
 
 #############################################################
 ### INSTALL #################################################
