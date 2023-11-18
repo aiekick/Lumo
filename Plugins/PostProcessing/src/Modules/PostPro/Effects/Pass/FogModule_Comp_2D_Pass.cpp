@@ -57,13 +57,11 @@ std::shared_ptr<FogModule_Comp_2D_Pass> FogModule_Comp_2D_Pass::Create(const ct:
 //////////////////////////////////////////////////////////////
 
 FogModule_Comp_2D_Pass::FogModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
-{
+	: ShaderPass(vVulkanCorePtr) {
 	ZoneScoped;
-
 	SetRenderDocDebugName("Comp Pass : Fog", COMPUTE_SHADER_PASS_DEBUG_COLOR);
-
 	m_DontUseShaderFilesOnDisk = true;
+	*IsEffectEnabled() = true;
 }
 
 FogModule_Comp_2D_Pass::~FogModule_Comp_2D_Pass()
@@ -269,7 +267,7 @@ layout(std140, binding = 0) uniform UBO_Comp
 	float u_enabled;
 };
 
-layout(binding = 1) uniform sampler2D input_New Slot_map;
+layout(binding = 1) uniform sampler2D input_new_slot_map;
 
 layout(binding = 2, rgba32f) uniform image2D colorBuffer; // output
 

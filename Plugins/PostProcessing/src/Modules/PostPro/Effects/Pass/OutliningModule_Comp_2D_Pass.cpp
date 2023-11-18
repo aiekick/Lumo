@@ -57,13 +57,11 @@ std::shared_ptr<OutliningModule_Comp_2D_Pass> OutliningModule_Comp_2D_Pass::Crea
 //////////////////////////////////////////////////////////////
 
 OutliningModule_Comp_2D_Pass::OutliningModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
-{
+	: ShaderPass(vVulkanCorePtr) {
 	ZoneScoped;
-
 	SetRenderDocDebugName("Comp Pass : Outlining", COMPUTE_SHADER_PASS_DEBUG_COLOR);
-
 	m_DontUseShaderFilesOnDisk = true;
+	*IsEffectEnabled() = true;
 }
 
 OutliningModule_Comp_2D_Pass::~OutliningModule_Comp_2D_Pass()
@@ -269,7 +267,7 @@ layout(std140, binding = 0) uniform UBO_Comp
 	float u_enabled;
 };
 
-layout(binding = 1) uniform sampler2D input_New Slot_map;
+layout(binding = 1) uniform sampler2D input_new_slot_map;
 
 layout(binding = 2, rgba32f) uniform image2D colorBuffer; // output
 

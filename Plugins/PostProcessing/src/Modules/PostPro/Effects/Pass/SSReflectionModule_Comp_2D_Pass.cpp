@@ -57,13 +57,11 @@ std::shared_ptr<SSReflectionModule_Comp_2D_Pass> SSReflectionModule_Comp_2D_Pass
 //////////////////////////////////////////////////////////////
 
 SSReflectionModule_Comp_2D_Pass::SSReflectionModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
-{
+	: ShaderPass(vVulkanCorePtr) {
 	ZoneScoped;
-
 	SetRenderDocDebugName("Comp Pass : SS Reflection", COMPUTE_SHADER_PASS_DEBUG_COLOR);
-
 	m_DontUseShaderFilesOnDisk = true;
+	*IsEffectEnabled() = true;
 }
 
 SSReflectionModule_Comp_2D_Pass::~SSReflectionModule_Comp_2D_Pass()
@@ -273,9 +271,9 @@ layout(std140, binding = 0) uniform UBO_Comp
 	float u_enabled;
 };
 
-layout(binding = 1) uniform sampler2D input_Color_map;
-layout(binding = 2) uniform sampler2D input_Position_map;
-layout(binding = 3) uniform sampler2D input_Normal_map;
+layout(binding = 1) uniform sampler2D input_color_map;
+layout(binding = 2) uniform sampler2D input_position_map;
+layout(binding = 3) uniform sampler2D input_normal_map;
 
 layout(binding = 4, rgba32f) uniform image2D colorBuffer; // output
 

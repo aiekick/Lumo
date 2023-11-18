@@ -176,17 +176,24 @@ PASS_CLASS_NAME::PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
 	: RtxShaderPass(vVulkanCorePtr))";
 	}
 
-	cpp_pass_file_code += u8R"(
-{)";
+	cpp_pass_file_code += u8R"( {)";
 
 	cpp_pass_file_code += u8R"(
 	ZoneScoped;
+	SetRenderDocDebugName("RENDERER_DISPLAY_TYPE Pass : MODULE_DISPLAY_NAME", COMPUTE_SHADER_PASS_DEBUG_COLOR);)";
 
-	SetRenderDocDebugName("RENDERER_DISPLAY_TYPE Pass : MODULE_DISPLAY_NAME", COMPUTE_SHADER_PASS_DEBUG_COLOR);
-)";
+	cpp_pass_file_code +=
+        u8R"(
+	m_DontUseShaderFilesOnDisk = true;)";
 
-	cpp_pass_file_code += u8R"(
-	m_DontUseShaderFilesOnDisk = true;
+	if (m_IsAnEffect) {
+        cpp_pass_file_code +=
+            u8R"(
+	*IsEffectEnabled() = true;)";
+    }
+
+    cpp_pass_file_code +=
+        u8R"(
 }
 
 PASS_CLASS_NAME::~PASS_CLASS_NAME()

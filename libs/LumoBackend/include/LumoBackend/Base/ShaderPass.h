@@ -105,7 +105,7 @@ private:  // Tesselation
 protected:
     bool m_Loaded = false;
     bool m_DontUseShaderFilesOnDisk = false;
-    bool m_EffectEnabled = true;
+    bool m_EffectEnabled = false;
     bool m_LastEffectEnabled = true;
 
     GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;  // vulkan core

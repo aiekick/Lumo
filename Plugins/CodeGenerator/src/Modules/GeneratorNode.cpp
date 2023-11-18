@@ -965,7 +965,9 @@ std::string GeneratorNode::GetGlslHeader(const std::string& vStage, const bool& 
     for (const auto& input : m_Inputs) {
         if (input.second != nullptr) {
             if (input.second->slotType == "TEXTURE_2D") {
-                res += ct::toStr("layout(binding = %u) uniform sampler2D input_%s_map;\n", bindingStartIndex++, input.second->name. c_str());
+                std::string _name = ct::toLower(input.second->name);
+                ct::replaceString(_name, " ", "_");
+                res += ct::toStr("layout(binding = %u) uniform sampler2D input_%s_map;\n", bindingStartIndex++, _name.c_str());
             }
         }
     }
