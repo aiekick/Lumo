@@ -36,12 +36,25 @@
 						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="105182"/>
 						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="105186"/>
 					</node>
-					<node name="Model" type="MESH" pos="-370;-82" id="156328">
-						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
-						<mesh_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
-						</mesh_module>
+					<node name="SS Reflection" type="SS_REFLECTION" pos="11;-112" id="309484">
+						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="309487"/>
+						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="309490"/>
+						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="309493"/>
+						<slot place="INPUT" index="3" name="Mask" type="TEXTURE_2D" id="309496"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="309499"/>
+						<ss_reflection_module>
+							<can_we_render>true</can_we_render>
+							<ss_reflection_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<max_distance>8</max_distance>
+								<resolution>0.3</resolution>
+								<steps>5</steps>
+								<thickness>0.5</thickness>
+								<enabled>1</enabled>
+							</ss_reflection_pass>
+						</ss_reflection_module>
 					</node>
 					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
@@ -50,7 +63,14 @@
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
 						</texture_2d_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="0;-44" id="229189">
+					<node name="Model" type="MESH" pos="-370;-82" id="156328">
+						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
+						<mesh_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Post Processing" type="POST_PROCESSING" pos="0;24" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
 						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="229195"/>
 						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="229198"/>
@@ -154,17 +174,18 @@
 					</node>
 				</nodes>
 				<links>
+					<link in="105150:105162" out="309484:309490"/>
 					<link in="156328:156332" out="105150:105154"/>
+					<link in="105150:105166" out="309484:309493"/>
 					<link in="105150:105162" out="229189:229195"/>
 					<link in="105150:105166" out="229189:229198"/>
 					<link in="156328:156332" out="263812:263816"/>
 					<link in="269834:269838" out="263812:263820"/>
 					<link in="263812:263824" out="229189:229192"/>
+					<link in="309484:309487" out="263812:263824"/>
 				</links>
 				<outputs>
-					<output type="left" ids="229189:229201"/>
-					<output type="middle" ids="300593:300614"/>
-					<output type="right" ids="300593:300614"/>
+					<output type="left" ids="263812:263824"/>
 				</outputs>
 			</graph>
 		</scene>
@@ -182,11 +203,11 @@
 							<scale>1</scale>
 						</canvas>
 						<nodes>
-							<node name="SS Reflection" type="NONE" pos="0;-53" id="300593">
+							<node name="SS Reflection" type="NONE" pos="0;0" id="300593">
 								<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="300614" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="300620" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="2" name="Normal" type="TEXTURE_2D" place="INPUT" id="300626" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="3" name="Mask" type="TEXTURE_2D" place="INPUT" id="300632" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="300620" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="1" showWidget="false"/>
+								<slot index="2" name="Normal" type="TEXTURE_2D" place="INPUT" id="300626" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="2" showWidget="false"/>
+								<slot index="3" name="Mask" type="TEXTURE_2D" place="INPUT" id="300632" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="3" showWidget="false"/>
 								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="300599" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
 									<class_name>SSReflection</class_name>
@@ -220,9 +241,7 @@
 						<links>
 						</links>
 						<outputs>
-							<output type="left" ids="229189:229201"/>
-							<output type="middle" ids="300593:300614"/>
-							<output type="right" ids="300593:300614"/>
+							<output type="left" ids="263812:263824"/>
 						</outputs>
 					</graph>
 				</scene>

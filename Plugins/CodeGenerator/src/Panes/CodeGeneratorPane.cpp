@@ -50,6 +50,9 @@ bool CodeGeneratorPane::Init() {
 }
 
 void CodeGeneratorPane::Unit() {
+    NodeSlot::sSlotGraphOutputMouseLeft.reset();
+    NodeSlot::sSlotGraphOutputMouseMiddle.reset();
+    NodeSlot::sSlotGraphOutputMouseRight.reset();
 }
 
 void CodeGeneratorPane::setVulkanCore(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {

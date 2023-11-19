@@ -407,35 +407,27 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
 
 std::string UBOItem::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     UNUSED(vUserDatas);
-
     std::string str;
-
     str += vOffset + ct::toStr("<UBOItem name=\"%s\" widgetIndex=\"%u\" typeIndex=\"%u\" vx=\"%s\" vy=\"%s\" vz=\"%s\" vw=\"%s\" CheckBoxDefault=\"%s\" ColorRGBDefault=\"%s\" ColorRGBADefault=\"%s\"/>\n", m_InputName.GetText().c_str(),
                          m_WidgetIndex, m_InputTypeIndex, m_InputValue_x.GetText().c_str(), m_InputValue_y.GetText().c_str(), m_InputValue_z.GetText().c_str(), m_InputValue_w.GetText().c_str(),
                          m_CheckBoxItem_DefaultValue ? "true" : "false", m_ColorRGBItem_DefaultValue.string().c_str(), m_ColorRGBAItem_DefaultValue.string().c_str());
-
     return str;
 }
 
 bool UBOItem::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
     UNUSED(vUserDatas);
-
-    // The value of this child identifies the name of this element
     std::string strName;
     std::string strValue;
     std::string strParentName;
-
     strName = vElem->Value();
     if (vElem->GetText())
         strValue = vElem->GetText();
     if (vParent != 0)
         strParentName = vParent->Value();
-
     if (strName == "UBOItem") {
         for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next()) {
-            std::string attName = attr->Name();
-            std::string attValue = attr->Value();
-
+            const std::string& attName = attr->Name();
+            const std::string& attValue = attr->Value();
             if (attName == "name")
                 m_InputName.SetText(attValue);
             else if (attName == "widgetIndex")
@@ -456,7 +448,6 @@ bool UBOItem::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPar
                 m_ColorRGBItem_DefaultValue = ct::fvariant(attValue).GetV3();
             else if (attName == "ColorRGBADefault")
                 m_ColorRGBAItem_DefaultValue = ct::fvariant(attValue).GetV4();
-
         }
     }
 
@@ -648,8 +639,7 @@ std::string UBOEditor::Get_Glsl_Header(
 
     std::string res = ct::toStr(
         u8R"(
-layout(std140, binding = %i) uniform @UBO_NAME@
-{)",
+layout(std140, binding = %i) uniform @UBO_NAME@ {)",
         vUboBindingIndex);
 
     for (auto item : m_Items) {

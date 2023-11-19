@@ -997,8 +997,7 @@ layout(location = 0) out vec2 v_uv;
     res +=
         u8R"(
 
-void main() 
-{
+void main() {
 	v_uv = vertUv;
 	gl_Position = vec4(vertPosition, 0.0, 1.0);
 }
@@ -1020,8 +1019,7 @@ layout(location = 0) in vec2 v_uv;
     res +=
         u8R"(
 
-void main() 
-{
+void main() {
 	fragColor = vec4(0);
 }
 ))";
@@ -1059,8 +1057,7 @@ layout(location = 0) out vec4 vertColor;
     res +=
         u8R"("
 u8R"(
-void main() 
-{
+void main() {
 	vertColor = aColor;
 	gl_Position = cam * vec4(aPosition, 1.0);
 }
@@ -1083,8 +1080,7 @@ layout(location = 0) in vec4 vertColor;
     res +=
         u8R"(
 
-void main() 
-{
+void main() {
 	fragColor = vec4(0);
 }
 ))";
@@ -1119,8 +1115,7 @@ layout(location = 2) out vec4 v_color;
     res +=
         u8R"("
 u8R"(
-void main() 
-{
+void main() {
 	v_position = aPosition;
 	v_normal = aNormal;
 	v_color = aColor;
@@ -1152,8 +1147,7 @@ layout(location = 0) out vec3 v_position_tess_control[];
     res += GetGlslHeader("TessCtrl", m_IsAnEffect);
     res +=
         u8R"(
-void main()
-{
+void main() {
     // Set the control points of the output patch
     v_position_tess_control[gl_InvocationID] = v_position[gl_InvocationID];
 	
@@ -1205,8 +1199,7 @@ vec4 interpolateV4(vec4 v0, vec4 v1, vec4 v2) {
     return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
 } 
 
-void main()
-{
+void main() {
     // Interpolate the attributes of the output vertex using the barycentric coordinates
 	v_position = interpolateV3(v_position_tess_control[0], v_position_tess_control[1], v_position_tess_control[2]);
     v_normal = interpolateV3(v_normal_tess_control[0], v_normal_tess_control[1], v_normal_tess_control[2]);
@@ -1235,8 +1228,7 @@ layout(location = 2) in vec4 v_color;
     res += GetGlslHeader("Frag", m_IsAnEffect);
     res +=
         u8R"("
-void main() 
-{	
+void main() {	
 	fragColor = v_color;
 
 	int u_show_shaded_wireframe = 1; // show wireframe
@@ -1288,8 +1280,7 @@ layout(std140, binding = 1) uniform UBOStruct {
 	float axisSize;
 };
 
-void main() 
-{
+void main() {
 	float vertexId = float(gl_VertexIndex);
 	
 	float astep = 3.14159 * 2.0 / 70.;
@@ -1318,8 +1309,7 @@ layout(location = 0) in vec4 vertColor;
     res +=
         u8R"(
 
-void main() 
-{
+void main() {
 	fragColor = vertColor; 
 }
 ))";
@@ -1360,8 +1350,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
         res +=
             u8R"(
 
-void main()
-{
+void main() {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 }
 ))";
@@ -1382,18 +1371,31 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 )";
         res += GetGlslHeader("Comp", m_IsAnEffect);
-        res +=
-            u8R"(
 
-void main()
-{
+        if (m_IsAnEffect) {
+            res +=
+                u8R"(
+
+void main() {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
+	vec4 res = texelFetch(input_color_map, coords, 0);
+    if (u_enabled > 0.5) {
+        // do effect code    
+    }
+	imageStore(outColor, coords, res); 
+}
+))";
+        } else {
+            res +=
+                u8R"(
 
+void main() {
+	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 	vec4 color = vec4(coords, 0, 1);
-
 	imageStore(outColor, coords, color); 
 }
 ))";
+        }
         res +=
             u8R"(";
 		})";
@@ -1414,8 +1416,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
         res +=
             u8R"(
 
-void main()
-{
+void main() {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 }
 ))";
@@ -1437,7 +1438,6 @@ layout(binding = 1) uniform accelerationStructureEXT tlas;
 ))";
         res +=
             u8R"("
-+ CommonSystem::GetBufferObjectStructureHeader(2U) +
 u8R"(
 
 )";
@@ -1472,8 +1472,7 @@ vec3 getRayDirection(vec2 uv)
 	return rd;
 }
 
-void main()
-{
+void main() {
 	const vec2 p = vec2(gl_LaunchIDEXT.xy);
 	const vec2 s = vec2(gl_LaunchSizeEXT.xy);
 
@@ -1543,8 +1542,7 @@ layout(location = 1) rayPayloadEXT bool isShadowed;
         res +=
             u8R"(
 
-void main()
-{
+void main() {
 	prd.color = vec4(0.0, 0.0, 0.0, 1.0);
 	prd.diff = 0.0;
 	prd.spec = 0.0;
@@ -1669,8 +1667,7 @@ float ShadowTest(vec3 p, vec3 n, vec3 ld)
 	return 1.0;
 }
 
-void main()
-{
+void main() {
 	// When contructing the TLAS, we stored the model id in InstanceCustomIndexEXT, so the
 	// the instance can quickly have access to the data
 
@@ -3329,16 +3326,14 @@ SlotStringStruct GeneratorNode::GetSlotTextureInput(NodeSlotInputPtr vSlot) {
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
+void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {	
 	ZoneScoped;)";
 
     if (m_GenerateAModule) {
         res.cpp_node_func +=
             u8R"(
 
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
+	if (m_MODULE_CLASS_NAMEPtr)	{
 		m_MODULE_CLASS_NAMEPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	})";
     } else {
@@ -3362,16 +3357,14 @@ void NODE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void MODULE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
+void MODULE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {	
 	ZoneScoped;)";
 
     if (m_GenerateAPass) {
         res.cpp_module_func +=
             u8R"(
 
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
+	if (m_PASS_CLASS_NAME_Ptr) {
 		m_PASS_CLASS_NAME_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	})";
     } else {
@@ -3395,27 +3388,17 @@ void MODULE_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::Descriptor
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
+void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {	
 	ZoneScoped;
-
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
+	if (m_Loaded) {
+		if (vBindingPoint < m_ImageInfos.size()) {
+			if (vImageInfo) {
+				if (vTextureSize) {
 					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
-
 					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
 				}
-
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
-			}
-			else
-			{
+			} else {
 				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
@@ -3465,16 +3448,14 @@ SlotStringStruct GeneratorNode::GetSlotTextureOutput(NodeSlotOutputPtr vSlot) {
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
+vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
 	ZoneScoped;
 )";
 
     if (m_GenerateAModule) {
         res.cpp_node_func +=
             u8R"(
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
+	if (m_MODULE_CLASS_NAMEPtr)	{
 		return m_MODULE_CLASS_NAMEPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 )";
@@ -3496,16 +3477,14 @@ vk::DescriptorImageInfo* NODE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
+vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
 	ZoneScoped;
 )";
 
     if (m_GenerateAPass) {
         res.cpp_module_func +=
             u8R"(
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
+	if (m_PASS_CLASS_NAME_Ptr) {
 		return m_PASS_CLASS_NAME_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 )";
@@ -3527,8 +3506,7 @@ vk::DescriptorImageInfo* MODULE_CLASS_NAME::GetDescriptorImageInfo(const uint32_
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
+vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
 	ZoneScoped;)";
     if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
         res.cpp_pass_func +=
