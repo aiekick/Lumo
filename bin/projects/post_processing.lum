@@ -36,19 +36,19 @@
 						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="105182"/>
 						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="105186"/>
 					</node>
-					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
-						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
-						<texture_2d_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\BazC_SkinMat.jpg</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
-						</texture_2d_module>
-					</node>
 					<node name="Model" type="MESH" pos="-370;-82" id="156328">
 						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
 						<mesh_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
+					</node>
+					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
+						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
+						<texture_2d_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\BazC_SkinMat.jpg</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
+						</texture_2d_module>
 					</node>
 					<node name="Post Processing" type="POST_PROCESSING" pos="0;-44" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
@@ -163,6 +163,8 @@
 				</links>
 				<outputs>
 					<output type="left" ids="229189:229201"/>
+					<output type="middle" ids="300593:300614"/>
+					<output type="right" ids="300593:300614"/>
 				</outputs>
 			</graph>
 		</scene>
@@ -219,6 +221,8 @@
 						</links>
 						<outputs>
 							<output type="left" ids="229189:229201"/>
+							<output type="middle" ids="300593:300614"/>
+							<output type="right" ids="300593:300614"/>
 						</outputs>
 					</graph>
 				</scene>

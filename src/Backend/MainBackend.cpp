@@ -598,7 +598,7 @@ void MainBackend::m_UpdateCamera(const bool& vForce) {
     if (vForce) {
         CommonSystem::Instance()->NeedCamChange();
     }
-    CommonSystem::Instance()->UpdateIfNeeded(m_DisplaySize);
+    View3DPane::Instance()->UpdateCameraIfNeeded();
 }
 
 void MainBackend::m_UpdateSound() {

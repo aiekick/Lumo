@@ -142,13 +142,13 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
 						{
 							if (ImGui::IsMouseHoveringRect(org, org + siz))
 							{
-								if (m_CanWeTuneMouse && CanUpdateMouse(true, 0))
+								if (m_CanWeTuneMouse && m_CanUpdateMouse(true, 0))
 								{
 									ct::fvec2 norPos = (ImGui::GetMousePos() - org) / siz;
 									CommonSystem::Instance()->SetMousePos(norPos, m_PaneSize, ImGui::GetCurrentContext()->IO.MouseDown);
 								}
 
-								UpdateCamera(org, siz);
+								m_UpdateCamera(org, siz);
 							}
 						}
 
@@ -217,6 +217,10 @@ bool View3DPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
 	return false;
 }
 
+void View3DPane::Select(BaseNodeWeak vObjet) {
+    CTOOL_DEBUG_BREAK;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
@@ -270,13 +274,16 @@ void View3DPane::SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRend
 	m_VulkanImGuiRenderer = vVulkanImGuiRenderer; 
 }
 
-void View3DPane::SetDescriptor(GaiApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment)
+bool View3DPane::UpdateCameraIfNeeded() {
+    return CommonSystem::Instance()->UpdateIfNeeded(ct::uvec2(m_PaneSize.x, m_PaneSize.y));
+}
+
+void View3DPane::m_SetDescriptor(GaiApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment)
 {
 	m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, vVulkanFrameBufferAttachment);
 }
 
-bool View3DPane::CanUpdateMouse(bool vWithMouseDown, int vMouseButton)
-{
+bool View3DPane::m_CanUpdateMouse(bool vWithMouseDown, int vMouseButton) {
 	ZoneScoped;
 
 	bool canUpdateMouse = true;
@@ -296,14 +303,13 @@ bool View3DPane::CanUpdateMouse(bool vWithMouseDown, int vMouseButton)
 	return canUpdateMouse;
 }
 
-void View3DPane::UpdateCamera(ImVec2 vOrg, ImVec2 vSize)
-{
+void View3DPane::m_UpdateCamera(ImVec2 vOrg, ImVec2 vSize) {
 	ZoneScoped;
 
 	bool canTuneCamera = !ImGuizmo::IsUsing() && (m_CanWeTuneCamera || ImGui::IsKeyPressed(ImGuiKey_LeftAlt));
 
 	// update mesher camera // camera of renderpack
-	if (CanUpdateMouse(true, 0)) // left mouse rotate
+    if (m_CanUpdateMouse(true, 0))  // left mouse rotate
 	{
 		if (canTuneCamera)// && !ImGuizmo::IsUsing())
 		{
@@ -321,8 +327,7 @@ void View3DPane::UpdateCamera(ImVec2 vOrg, ImVec2 vSize)
 			if (!diff.emptyAND()) m_UINeedRefresh |= true;
 			m_LastNormalizedMousePos = m_CurrNormalizedMousePos;
 		}
-	}
-	else if (CanUpdateMouse(true, 1)) // right mouse zoom
+	} else if (m_CanUpdateMouse(true, 1))  // right mouse zoom
 	{
 		if (canTuneCamera)// && !ImGuizmo::IsUsing())
 		{
@@ -341,8 +346,7 @@ void View3DPane::UpdateCamera(ImVec2 vOrg, ImVec2 vSize)
 			if (!diff.emptyAND()) m_UINeedRefresh |= true;
 			m_LastNormalizedMousePos = m_CurrNormalizedMousePos;
 		}
-	}
-	else if (CanUpdateMouse(true, 2)) // middle mouse, translate
+	} else if (m_CanUpdateMouse(true, 2))  // middle mouse, translate
 	{
 		if (canTuneCamera)// && !ImGuizmo::IsUsing())
 		{

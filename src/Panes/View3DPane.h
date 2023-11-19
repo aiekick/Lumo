@@ -63,10 +63,12 @@ public:
 	ct::fvec2 SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot);
 	void SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRenderer);
 
+	bool UpdateCameraIfNeeded();
+
 private:
-	void SetDescriptor(GaiApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment);
-	bool CanUpdateMouse(bool vWithMouseDown, int vMouseButton);
-	void UpdateCamera(ImVec2 vOrg, ImVec2 vSize);
+	void m_SetDescriptor(GaiApi::VulkanFrameBufferAttachment* vVulkanFrameBufferAttachment);
+	bool m_CanUpdateMouse(bool vWithMouseDown, int vMouseButton);
+	void m_UpdateCamera(ImVec2 vOrg, ImVec2 vSize);
 
 public: // singleton
 	static std::shared_ptr<View3DPane> Instance()
