@@ -7,14 +7,28 @@
 #include <vector>
 class UBOItem : public conf::ConfigAbstract {
 private:
-    std::vector<std::string> m_TypeArray = {
-        "float", "vec2", "vec3", "vec4", "int", "ivec2", "ivec3", "ivec4", "uint", "uvec2", "uvec3", "uvec4", "bool", "bvec2", "bvec3", "bvec4"};
+    std::vector<std::string> m_WidgetsArray = {//
+        "Input",                               // 0
+        "Slider",                              // 1
+        "Combo Box",                           // 2
+        "Check Box",                           // 3
+        "Color RGB",                           // 4
+        "Color RGBA"};                         // 5
+    int m_WidgetIndex = 0U;
+    std::vector<std::string> m_TypeArray = {//
+        "float", "vec2", "vec3", "vec4",    //
+        "int", "ivec2", "ivec3", "ivec4",   //
+        "uint", "uvec2", "uvec3", "uvec4",  //
+        "bool", "bvec2", "bvec3", "bvec4"};
     int m_InputTypeIndex = 0U;
     ImWidgets::InputText m_InputName;
     ImWidgets::InputText m_InputValue_x;
     ImWidgets::InputText m_InputValue_y;
     ImWidgets::InputText m_InputValue_z;
     ImWidgets::InputText m_InputValue_w;
+    bool m_CheckBoxItem_DefaultValue = false;
+    ct::fvec3 m_ColorRGBItem_DefaultValue = false;
+    ct::fvec4 m_ColorRGBAItem_DefaultValue = false;
 
 public:
     UBOItem() = default;
@@ -47,7 +61,7 @@ public:
     std::string Get_Glsl_Header(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex, const bool& vIsAnEffect);
     std::string Get_Cpp_Header(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsAnEffect);
     std::string Get_Cpp_WriteDescriptors(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex);
-    std::string Get_Cpp_LayoutBindings(const std::string& vRendererType, const int32_t& vUboBindingIndex);
+    std::string Get_Cpp_LayoutBindings(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex);
     std::string Get_Cpp_GetXML(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsAnEffect);
     std::string Get_Cpp_SetXML(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsFirst, const bool& vIsAnEffect);
     std::string Get_Create_Header(const std::string& vRendererType, const int32_t& vUboIndex);

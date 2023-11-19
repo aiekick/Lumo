@@ -285,7 +285,7 @@ std::string ConwayModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShader
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+layout(binding = 0, rgba32f) uniform image2D outColor;
 )"
 + CommonSystem::GetBufferObjectStructureHeader(1U) +
 u8R"(
@@ -310,7 +310,7 @@ vec4 getNoise(ivec2 g, int x, int y)
 vec4 getPixel(ivec2 g, int x, int y)
 {
 	const ivec2 v = (g + ivec2(x,y)) % image_size;
-	return imageLoad(colorBuffer, v);
+	return imageLoad(outColor, v);
 }
 
 int IsPixelActivated(ivec2 g, int x, int y)
@@ -381,7 +381,7 @@ void main()
 
 	vec4 color = conWay(coords, left_mouse);
 
-	imageStore(colorBuffer, coords, color); 
+	imageStore(outColor, coords, color); 
 }
 )";
 }

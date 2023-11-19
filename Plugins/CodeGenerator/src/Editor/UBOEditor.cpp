@@ -9,54 +9,88 @@
 
 #include <Panes/CodeGeneratorPane.h>
 
+static ct::fvec3 s_colorRGBDefaultValue = 1.0f;
+static ct::fvec4 s_colorRGBADefaultValue = 1.0f;
+
 ///////////////////////////////////////////////////////
 //// UBOItem //////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
 bool UBOItem::DrawItem(const std::string& vStage) {
     bool change = false;
-    const float& aaw = (ImGui::GetContentRegionAvail().x - 150.0f) * 0.5f;
 
     ImGui::PushID(ImGui::IncPUSHID());
 
-    change |= m_InputName.DisplayInputText(aaw, "", "Name");
+    change |= m_InputName.DisplayInputText(150.0f, "", "Name");
 
     ImGui::SameLine();
 
-    change |= ImGui::ContrastedComboVectorDefault(150.0f, "##Type", &m_InputTypeIndex, m_TypeArray, 0);
+    if (ImGui::ContrastedComboVectorDefault(100.0f, "##Widget", &m_WidgetIndex, m_WidgetsArray, 0)) {
+        switch (m_WidgetIndex) {
+            case 2:
+                m_InputTypeIndex = 4;  // int
+                break;                 // combo box
+            case 3:
+                m_InputTypeIndex = 0;  // float
+                break;                 // check box
+            case 4:
+                m_InputTypeIndex = 2;  // vec3
+                break;                 // color rgb
+            case 5:
+                m_InputTypeIndex = 3;  // vec4
+                break;                 // color rgba
+        }
+    }
 
     ImGui::SameLine();
 
-    float aw = aaw;
-    if (m_InputTypeIndex % 4 == 0U)
-        aw = aaw;
-    else if (m_InputTypeIndex % 4 == 1U)
-        aw = aaw / 2.0f;
-    else if (m_InputTypeIndex % 4 == 2U)
-        aw = aaw / 3.0f;
-    else if (m_InputTypeIndex % 4 == 3U)
-        aw = aaw / 4.0f;
-
-    change |= m_InputValue_x.DisplayInputText(aw, "", "0");
-
-    if (m_InputTypeIndex % 4 > 0U) {
-        ImGui::SameLine();
-
-        change |= m_InputValue_y.DisplayInputText(aw, "", "0");
+    switch (m_WidgetIndex) {
+        case 2: {
+            float aw = ImGui::GetContentRegionAvail().x;
+            change |= m_InputValue_x.DisplayInputText(aw, "", "AAA,BBB,CCC,DDD");
+        } break;  // combo box
+        case 3: {
+            change |= ImGui::CheckBoxBoolDefault("##checkboxdefaultvalue", &m_CheckBoxItem_DefaultValue, false);
+        } break;  // check box
+        case 4: {
+            float aw = ImGui::GetContentRegionAvail().x;
+            change |= ImGui::ColorEdit3Default(aw, "##color3defaultvalue", &m_ColorRGBItem_DefaultValue.x, &s_colorRGBDefaultValue.x);
+        } break;  // color rgb
+        case 5: {
+            float aw = ImGui::GetContentRegionAvail().x;
+            change |= ImGui::ColorEdit4Default(aw, "##color4defaultvalue", &m_ColorRGBAItem_DefaultValue.x, &s_colorRGBADefaultValue.x);
+        } break;   // color rgba
+        case 0:    // input
+        case 1: {  // slider
+            change |= ImGui::ContrastedComboVectorDefault(75.0f, "##Type", &m_InputTypeIndex, m_TypeArray, 0);
+            ImGui::SameLine();
+            float aw = ImGui::GetContentRegionAvail().x;
+            if (m_InputTypeIndex % 4 == 0U) {
+                aw = aw;
+            } else if (m_InputTypeIndex % 4 == 1U) {
+                aw *= 0.5f;
+            } else if (m_InputTypeIndex % 4 == 2U) {
+                aw *= 0.33f;
+            } else if (m_InputTypeIndex % 4 == 3U) {
+                aw *= 0.25f;
+            }
+            change |= m_InputValue_x.DisplayInputText(aw, "", "0");
+            if (m_InputTypeIndex % 4 > 0U) {
+                ImGui::SameLine();
+                change |= m_InputValue_y.DisplayInputText(aw, "", "0");
+            }
+            if (m_InputTypeIndex % 4 > 1U) {
+                ImGui::SameLine();
+                change |= m_InputValue_z.DisplayInputText(aw, "", "0");
+            }
+            if (m_InputTypeIndex % 4 > 2U) {
+                ImGui::SameLine();
+                change |= m_InputValue_w.DisplayInputText(aw, "", "0");
+            }
+        } break;
+        default: break;
     }
-
-    if (m_InputTypeIndex % 4 > 1U) {
-        ImGui::SameLine();
-
-        change |= m_InputValue_z.DisplayInputText(aw, "", "0");
-    }
-
-    if (m_InputTypeIndex % 4 > 2U) {
-        ImGui::SameLine();
-
-        change |= m_InputValue_w.DisplayInputText(aw, "", "0");
-    }
-
+    
     ImGui::PopID();
 
     return change;
@@ -244,94 +278,129 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
     auto baseType = m_TypeArray[baseTypeIdx];
     std::string value = m_InputValue_x.GetText(baseType);
 
-    if (m_InputTypeIndex > 0 && m_InputTypeIndex < 4)
+    if (m_InputTypeIndex > 0 && m_InputTypeIndex < 4) {
         type = "f" + type;
-
+    }
+    
     auto uniform_name = m_InputName.GetText();
     ct::replaceString(uniform_name, " ", "_");
 
-    if (type == "float") {
-        float fv = ct::fvariant(value).GetF();
+    if (m_WidgetIndex == 2) { // combo box
+        auto arr = ct::splitStringToVector(value, ',');
+        std::string array_string = "{ ";
+        size_t idx = 0U;
+        for (const auto& item : arr) {
+            if (idx++ == 0U) {
+                array_string += ", ";
+            }
+            array_string += "\"" + item + "\"";
+        }
+        array_string += " }";
         res += ct::toStr(
             u8R"(
+		change |= ImGui::ContrastedComboVectorDefault(0.0f, "%s", &m_@UBO_NAME@.u_%s, %s, 0);)",
+            uniform_name.c_str(), uniform_name.c_str(), array_string.c_str());
+    } else if (m_WidgetIndex == 3) {  // check box
+        res += ct::toStr(
+            u8R"(
+		change |= ImGui::CheckBoxFloatDefault("%s", &m_@UBO_NAME@.u_%s, false);)",
+            uniform_name.c_str(), uniform_name.c_str());
+    } else if (m_WidgetIndex == 4) {  // color RGB
+        res += ct::toStr(
+            u8R"(
+        static ct::fvec3 _default_value = 1.0f;
+		change |= ImGui::ColorEdit3Default(0.0f, "%s", &m_@UBO_NAME@.u_%s.x, &_default_value.x);)",
+            uniform_name.c_str(), uniform_name.c_str());
+    } else if (m_WidgetIndex == 5) {  // color RGBA
+        res += ct::toStr(
+            u8R"(
+        static ct::fvec4 _default_value = 1.0f;
+		change |= ImGui::ColorEdit4Default(0.0f, "%s", &m_@UBO_NAME@.u_%s.x, &_default_value.x);)",
+            uniform_name.c_str(), uniform_name.c_str());
+    } else if (m_WidgetIndex < 2) {  // 0:input, 1:slider 
+        if (type == "float") {
+            float fv = ct::fvariant(value).GetF();
+            res += ct::toStr(
+                u8R"(
 		change |= ImGui::SliderFloatDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %.3ff, %.3ff, %.3ff, 0.0f, "%%.3f");)",
-            uniform_name.c_str(), uniform_name.c_str(), 0.0f, fv * 2.0f, fv);
-    } else if (type == "uint") {
-        uint32_t uv = ct::uvariant(value).GetU();
-        res += ct::toStr(
-            u8R"(
+                uniform_name.c_str(), uniform_name.c_str(), 0.0f, fv * 2.0f, fv);
+        } else if (type == "uint") {
+            uint32_t uv = ct::uvariant(value).GetU();
+            res += ct::toStr(
+                u8R"(
 		change |= ImGui::SliderUIntDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %uU, %uU, %uU);)",
-            uniform_name.c_str(), uniform_name.c_str(), 0U, uv * 2U, uv);
-    } else if (type == "int") {
-        int32_t iv = ct::uvariant(value).GetI();
-        res += ct::toStr(
-            u8R"(
+                uniform_name.c_str(), uniform_name.c_str(), 0U, uv * 2U, uv);
+        } else if (type == "int") {
+            int32_t iv = ct::uvariant(value).GetI();
+            res += ct::toStr(
+                u8R"(
 		change |= ImGui::SliderIntDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %i, %i, %i);)",
-            uniform_name.c_str(), uniform_name.c_str(), 0, iv * 2, iv);
-    } else if (type == "bool") {
-        bool bv = ct::ivariant(value).GetB();
-        res += ct::toStr(
-            u8R"(
+                uniform_name.c_str(), uniform_name.c_str(), 0, iv * 2, iv);
+        } else if (type == "bool") {
+            bool bv = ct::ivariant(value).GetB();
+            res += ct::toStr(
+                u8R"(
 		change |= ImGui::CheckBoxBoolDefault("%s", &m_@UBO_NAME@.u_%s, %s);)",
-            uniform_name.c_str(), uniform_name.c_str(), bv ? "true" : "false");
-    } else if (inputIdx == 1)  // for help, but not functionnal
-    {
-        std::string widget;
-        if (baseType == "float")
-            widget = "InputFloatDefault";
-        else if (baseType == "int")
-            widget = "InputIntDefault";
-        else if (baseType == "uint")
-            widget = "InputUIntDefault";
+                uniform_name.c_str(), uniform_name.c_str(), bv ? "true" : "false");
+        } else if (inputIdx == 1)  // for help, but not functionnal
+        {
+            std::string widget;
+            if (baseType == "float")
+                widget = "InputFloatDefault";
+            else if (baseType == "int")
+                widget = "InputIntDefault";
+            else if (baseType == "uint")
+                widget = "InputUIntDefault";
 
-        type = "ct::" + type;
-        res += ct::toStr(
-            u8R"(
+            type = "ct::" + type;
+            res += ct::toStr(
+                u8R"(
 		change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);
 		change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);)",
-            widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str(), widget.c_str(),
-            uniform_name.c_str(), uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str());
-    } else if (inputIdx == 2)  // for help, but not functionnal
-    {
-        std::string widget;
-        if (baseType == "float")
-            widget = "InputFloatDefault";
-        else if (baseType == "int")
-            widget = "InputIntDefault";
-        else if (baseType == "uint")
-            widget = "InputUIntDefault";
+                widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str(), widget.c_str(),
+                uniform_name.c_str(), uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str());
+        } else if (inputIdx == 2)  // for help, but not functionnal
+        {
+            std::string widget;
+            if (baseType == "float")
+                widget = "InputFloatDefault";
+            else if (baseType == "int")
+                widget = "InputIntDefault";
+            else if (baseType == "uint")
+                widget = "InputUIntDefault";
 
-        type = "ct::" + type;
-        res += ct::toStr(
-            u8R"(
+            type = "ct::" + type;
+            res += ct::toStr(
+                u8R"(
 		change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);
 		change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);
 		change |= ImGui::%s(0.0f, "%s z", &m_@UBO_NAME@.u_%s.z, %s);)",
-            widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str(), widget.c_str(),
-            uniform_name.c_str(), uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str(), widget.c_str(), uniform_name.c_str(),
-            uniform_name.c_str(), m_InputValue_z.GetText(baseType).c_str());
-    } else if (inputIdx == 3)  // for help, but not functionnal
-    {
-        std::string widget;
-        if (baseType == "float")
-            widget = "InputFloatDefault";
-        else if (baseType == "int")
-            widget = "InputIntDefault";
-        else if (baseType == "uint")
-            widget = "InputUIntDefault";
+                widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str(), widget.c_str(),
+                uniform_name.c_str(), uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str(), widget.c_str(), uniform_name.c_str(),
+                uniform_name.c_str(), m_InputValue_z.GetText(baseType).c_str());
+        } else if (inputIdx == 3)  // for help, but not functionnal
+        {
+            std::string widget;
+            if (baseType == "float")
+                widget = "InputFloatDefault";
+            else if (baseType == "int")
+                widget = "InputIntDefault";
+            else if (baseType == "uint")
+                widget = "InputUIntDefault";
 
-        type = "ct::" + type;
-        res += ct::toStr(
-            u8R"(
+            type = "ct::" + type;
+            res += ct::toStr(
+                u8R"(
 		change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);
 		change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);
 		change |= ImGui::%s(0.0f, "%s z", &m_@UBO_NAME@.u_%s.z, %s);
 		change |= ImGui::%s(0.0f, "%s w", &m_@UBO_NAME@.u_%s.w, %s);)",
-            widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str(), widget.c_str(),
-            uniform_name.c_str(), uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str(), widget.c_str(), uniform_name.c_str(),
-            uniform_name.c_str(), m_InputValue_z.GetText(baseType).c_str(), widget.c_str(), uniform_name.c_str(), uniform_name.c_str(),
-            m_InputValue_w.GetText(baseType).c_str());
-    }
+                widget.c_str(), uniform_name.c_str(), uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str(), widget.c_str(),
+                uniform_name.c_str(), uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str(), widget.c_str(), uniform_name.c_str(),
+                uniform_name.c_str(), m_InputValue_z.GetText(baseType).c_str(), widget.c_str(), uniform_name.c_str(), uniform_name.c_str(),
+                m_InputValue_w.GetText(baseType).c_str());
+        }
+    } 
 
     return res;
 }
@@ -341,9 +410,9 @@ std::string UBOItem::getXml(const std::string& vOffset, const std::string& vUser
 
     std::string str;
 
-    str += vOffset + ct::toStr("<UBOItem name=\"%s\" typeIndex=\"%u\" vx=\"%s\" vy=\"%s\" vz=\"%s\" vw=\"%s\"/>\n", m_InputName.GetText().c_str(),
-                         m_InputTypeIndex, m_InputValue_x.GetText().c_str(), m_InputValue_y.GetText().c_str(), m_InputValue_z.GetText().c_str(),
-                         m_InputValue_w.GetText().c_str());
+    str += vOffset + ct::toStr("<UBOItem name=\"%s\" widgetIndex=\"%u\" typeIndex=\"%u\" vx=\"%s\" vy=\"%s\" vz=\"%s\" vw=\"%s\" CheckBoxDefault=\"%s\" ColorRGBDefault=\"%s\" ColorRGBADefault=\"%s\"/>\n", m_InputName.GetText().c_str(),
+                         m_WidgetIndex, m_InputTypeIndex, m_InputValue_x.GetText().c_str(), m_InputValue_y.GetText().c_str(), m_InputValue_z.GetText().c_str(), m_InputValue_w.GetText().c_str(),
+                         m_CheckBoxItem_DefaultValue ? "true" : "false", m_ColorRGBItem_DefaultValue.string().c_str(), m_ColorRGBAItem_DefaultValue.string().c_str());
 
     return str;
 }
@@ -369,6 +438,8 @@ bool UBOItem::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPar
 
             if (attName == "name")
                 m_InputName.SetText(attValue);
+            else if (attName == "widgetIndex")
+                m_WidgetIndex = ct::ivariant(attValue).GetI();
             else if (attName == "typeIndex")
                 m_InputTypeIndex = ct::ivariant(attValue).GetI();
             else if (attName == "vx")
@@ -379,6 +450,13 @@ bool UBOItem::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPar
                 m_InputValue_z.SetText(attValue);
             else if (attName == "vw")
                 m_InputValue_w.SetText(attValue);
+            else if (attName == "CheckBoxDefault")
+                m_CheckBoxItem_DefaultValue = ct::ivariant(attValue).GetB();
+            else if (attName == "ColorRGBDefault")
+                m_ColorRGBItem_DefaultValue = ct::fvariant(attValue).GetV3();
+            else if (attName == "ColorRGBADefault")
+                m_ColorRGBAItem_DefaultValue = ct::fvariant(attValue).GetV4();
+
         }
     }
 
@@ -458,18 +536,15 @@ std::string UBOEditor::Get_Widgets_Header(const std::string& vRendererType, cons
 
 std::string UBOEditor::Get_Cpp_WriteDescriptors(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex) {
     m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
-
     std::string res = ct::toStr(
-        "\tres &= AddOrSetWriteDescriptorBuffer(%iU, vk::DescriptorType::eUniformBuffer, &m_@UBO_NAME@_BufferInfos);\n",
+        "\n\tres &= AddOrSetWriteDescriptorBuffer(%iU, vk::DescriptorType::eUniformBuffer, &m_@UBO_NAME@_BufferInfos); // @UBO_NAME@",
         vUboBindingIndex);
-
     ct::replaceString(res, "@UBO_NAME@", "UBO_" + (vUboIndex < 0 ? "" : ct::toStr(vUboIndex) + "_") + m_Stage);
     return res;
 }
 
-std::string UBOEditor::Get_Cpp_LayoutBindings(const std::string& vRendererType, const int32_t& vUboBindingIndex) {
+std::string UBOEditor::Get_Cpp_LayoutBindings(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex) {
     m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
-
     vk::ShaderStageFlagBits::eFragment;
     std::string _ShaderStageFlagBits;
     if (m_Stage == "Vert")
@@ -492,9 +567,10 @@ std::string UBOEditor::Get_Cpp_LayoutBindings(const std::string& vRendererType, 
         _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eClosestHitKHR";
     else if (m_Stage == "Inter")
         _ShaderStageFlagBits = "vk::ShaderStageFlagBits::eIntersectionKHR";
-
-    return ct::toStr("\tres &= AddOrSetLayoutDescriptor(%iU, vk::DescriptorType::eUniformBuffer, %s);\n",
-        vUboBindingIndex, _ShaderStageFlagBits.c_str());
+    std::string res = ct::toStr("\n\tres &= AddOrSetLayoutDescriptor(%iU, vk::DescriptorType::eUniformBuffer, %s); // @UBO_NAME@", vUboBindingIndex,
+        _ShaderStageFlagBits.c_str());
+    ct::replaceString(res, "@UBO_NAME@", "UBO_" + (vUboIndex < 0 ? "" : ct::toStr(vUboIndex) + "_") + m_Stage);
+    return res;
 }
 
 std::string UBOEditor::Get_Cpp_GetXML(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsAnEffect) {
@@ -583,7 +659,7 @@ layout(std140, binding = %i) uniform @UBO_NAME@
     if (vIsAnEffect) {
         res +=
             u8R"(
-	float u_enabled;)";
+	float u_enabled; // default is 0.0 (false))";
     }
 
     res += ct::toStr(
@@ -718,8 +794,6 @@ bool UBOEditors::DrawPane(const std::string& vRendererType) {
 
     m_RendererType = vRendererType;
 
-    ImGui::Separator();
-
     change |= ImGui::CheckBoxBoolDefault("Use A UBO", &m_UseUbos, true);
 
     if (!m_UseUbos) {
@@ -842,8 +916,7 @@ std::string UBOEditors::Get_Widgets_Header() {
             res +=
                 u8R"(
 
-		if (change)
-		{
+		if (change)	{
 			NeedNewUBOUpload();
 		})";
         }
@@ -892,7 +965,6 @@ bool PASS_CLASS_NAME::CreateUBO() {
         res +=
             u8R"(
 	NeedNewUBOUpload();
-
 	return true;
 }
 )";
@@ -948,16 +1020,15 @@ std::string UBOEditors::Get_Cpp_Functions_Header() {
 
 std::string UBOEditors::Get_Cpp_WriteDescriptors(uint32_t& vBindingStartIndex) {
     std::string res;
-
     if (m_UseUbos) {
         for (auto& uboEditors : m_UBOEditors) {
             int32_t _uboIndex = -1;
             for (auto& uboEditor : uboEditors.second) {
                 res += uboEditor.Get_Cpp_WriteDescriptors(m_RendererType, vBindingStartIndex++, _uboIndex);
             }
-
-            if (uboEditors.second.size() > 1U)
+            if (uboEditors.second.size() > 1U) {
                 _uboIndex++;
+            }
         }
     }
     return res;
@@ -965,57 +1036,54 @@ std::string UBOEditors::Get_Cpp_WriteDescriptors(uint32_t& vBindingStartIndex) {
 
 std::string UBOEditors::Get_Cpp_LayoutBindings(uint32_t& vBindingStartIndex) {
     std::string res;
-
     if (m_UseUbos) {
         for (auto& uboEditors : m_UBOEditors) {
+            int32_t _uboIndex = -1;
             for (auto& uboEditor : uboEditors.second) {
-                res += uboEditor.Get_Cpp_LayoutBindings(m_RendererType, vBindingStartIndex++);
+                res += uboEditor.Get_Cpp_LayoutBindings(m_RendererType, vBindingStartIndex++, _uboIndex);
+            }
+            if (uboEditors.second.size() > 1U) {
+                _uboIndex++;
             }
         }
     }
-
     return res;
 }
 
 std::string UBOEditors::Get_Cpp_GetXML(const bool& vIsAnEffect) {
     std::string res;
-
     if (m_UseUbos) {
         for (auto& uboEditors : m_UBOEditors) {
             int32_t _uboIndex = -1;
             for (auto& uboEditor : uboEditors.second) {
                 res += uboEditor.Get_Cpp_GetXML(m_RendererType, _uboIndex, vIsAnEffect);
             }
-
-            if (uboEditors.second.size() > 1U)
+            if (uboEditors.second.size() > 1U) {
                 _uboIndex++;
+            }
         }
     }
-
     return res;
 }
 
 std::string UBOEditors::Get_Cpp_SetXML(const bool& vIsAnEffect) {
     std::string res;
-
     if (m_UseUbos) {
         for (auto& uboEditors : m_UBOEditors) {
             int32_t _uboIndex = -1;
             for (auto& uboEditor : uboEditors.second) {
                 res += uboEditor.Get_Cpp_SetXML(m_RendererType, _uboIndex, res.empty(), vIsAnEffect);
             }
-
-            if (uboEditors.second.size() > 1U)
+            if (uboEditors.second.size() > 1U) {
                 _uboIndex++;
+            }
         }
     }
-
     return res;
 }
 
 std::string UBOEditors::Get_Cpp_Header(const bool& vIsAnEffect) {
     std::string res;
-
     if (m_UseUbos) {
         for (auto& uboEditors : m_UBOEditors) {
             int32_t _uboIndex = -1;
@@ -1025,28 +1093,23 @@ std::string UBOEditors::Get_Cpp_Header(const bool& vIsAnEffect) {
                     u8R"(
 )";
             }
-
-            if (uboEditors.second.size() > 1U)
+            if (uboEditors.second.size() > 1U) {
                 _uboIndex++;
+            }
         }
     }
-
     return res;
 }
 
 std::string UBOEditors::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     std::string str;
-
     str += vOffset + ct::toStr("<UBOS renderer=\"%s\">\n", m_RendererType.c_str());
-
     for (auto& uboEditors : m_UBOEditors) {
         for (auto& uboEditor : uboEditors.second) {
             str += uboEditor.getXml(vOffset + "\t", vUserDatas);
         }
     }
-
     str += vOffset + "</UBOS>\n";
-
     return str;
 }
 

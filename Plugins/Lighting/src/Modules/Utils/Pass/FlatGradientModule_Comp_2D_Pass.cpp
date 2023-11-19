@@ -277,7 +277,7 @@ std::string FlatGradientModule_Comp_2D_Pass::GetComputeShaderCode(std::string& v
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+layout(binding = 0, rgba32f) uniform image2D outColor;
 
 layout(std140, binding = 1) uniform UBO_Comp
 {
@@ -289,7 +289,7 @@ layout(binding = 3) uniform sampler2D u_end_sampler;
 
 void main()
 {
-	const vec2 size = vec2(imageSize(colorBuffer));
+	const vec2 size = vec2(imageSize(outColor));
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 	const vec2 v_nor_uv = clamp(vec2(coords) / size, 0.0, 1.0);
 	
@@ -301,7 +301,7 @@ void main()
 
 	vec4 color = mix(start_color, end_color, vec4(ratio));
 
-	imageStore(colorBuffer, coords, color); 
+	imageStore(outColor, coords, color); 
 }
 )";
 }

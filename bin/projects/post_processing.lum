@@ -6,7 +6,7 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-0.131006;-0.139244;0</RotXYZ>
+			<RotXYZ>-0.00958942;-0.1183;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
 			<Zoom>19.0171</Zoom>
@@ -25,7 +25,7 @@
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-428;-32" id="105150">
+					<node name="Mesh Attributes" type="MESH_ATTRIBUTES" pos="-238;-32" id="105150">
 						<slot place="INPUT" index="0" name="Model" type="MESH" id="105154"/>
 						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="105158"/>
 						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="105162"/>
@@ -36,21 +36,21 @@
 						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="105182"/>
 						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="105186"/>
 					</node>
-					<node name="Model" type="MESH" pos="-560;-82" id="156328">
-						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
-						<mesh_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
-						</mesh_module>
-					</node>
-					<node name="Texture 2D" type="TEXTURE_2D" pos="-591;-2" id="269834">
+					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
 						<texture_2d_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\BazC_SkinMat.jpg</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
 						</texture_2d_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="-175;-85" id="229189">
+					<node name="Model" type="MESH" pos="-370;-82" id="156328">
+						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
+						<mesh_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Post Processing" type="POST_PROCESSING" pos="0;-44" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
 						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="229195"/>
 						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="229198"/>
@@ -142,7 +142,7 @@
 							</vignette_pass>
 						</post_processing_module>
 					</node>
-					<node name="Matcap" type="MATCAP_RENDERER" pos="-366;-131" id="263812">
+					<node name="Matcap" type="MATCAP_RENDERER" pos="-176;-131" id="263812">
 						<slot place="INPUT" index="0" name="Model" type="MESH" id="263816"/>
 						<slot place="INPUT" index="1" name="Matcap" type="TEXTURE_2D" id="263820"/>
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="263824"/>
@@ -180,33 +180,37 @@
 							<scale>1</scale>
 						</canvas>
 						<nodes>
-							<node name="Dilation" type="NONE" pos="0;-25" id="300572">
-								<slot index="0" name="color" type="TEXTURE_2D" place="INPUT" id="300575" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="output" type="TEXTURE_2D" place="OUTPUT" id="300578" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+							<node name="SS Reflection" type="NONE" pos="0;-53" id="300593">
+								<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="300614" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="300620" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="2" name="Normal" type="TEXTURE_2D" place="INPUT" id="300626" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="3" name="Mask" type="TEXTURE_2D" place="INPUT" id="300632" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="300599" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
-									<class_name>Dilation</class_name>
+									<class_name>SSReflection</class_name>
 									<category_name>PostPro</category_name>
-									<node_creation_name>DILATION</node_creation_name>
-									<node_display_name>Dilation</node_display_name>
+									<node_creation_name>SS_REFLECTION</node_creation_name>
+									<node_display_name>SS Reflection</node_display_name>
 									<generate_module>true</generate_module>
 									<generate_pass>true</generate_pass>
 									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Dilation</module_display_name>
-									<module_xml_name>dilation_module</module_xml_name>
-									<module_xml_simple_name>dilation_pass</module_xml_simple_name>
+									<module_display_name>SS Reflection</module_display_name>
+									<module_xml_name>ss_reflection_module</module_xml_name>
+									<module_xml_simple_name>ss_reflection_pass</module_xml_simple_name>
 									<pass_specialization_type>Quad</pass_specialization_type>
 									<pass_use_ubo>true</pass_use_ubo>
 									<pass_use_sbo>false</pass_use_sbo>
 									<node_is_a_task>true</node_is_a_task>
 									<node_is_an_effect>true</node_is_an_effect>
 									<vertex_struct_type>0</vertex_struct_type>
+									<use_common_system_ubo>true</use_common_system_ubo>
 								</generation>
 								<UBOS renderer="Compute 2D">
 									<UBO stage="0">
-										<UBOItem name="shape" typeIndex="4" vx="0" vy="" vz="" vw=""/>
-										<UBOItem name="separation" typeIndex="0" vx="1" vy="" vz="" vw=""/>
-										<UBOItem name="threshold" typeIndex="1" vx="0.2" vy="0.5" vz="" vw=""/>
-										<UBOItem name="brightColor" typeIndex="2" vx="1" vy="1" vz="1" vw=""/>
+										<UBOItem name="max_distance" widgetIndex="0" typeIndex="0" vx="8" vy="0" vz="0" vw="0" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="resolution" widgetIndex="1" typeIndex="0" vx="0.3" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="steps" widgetIndex="1" typeIndex="4" vx="5" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="thickness" widgetIndex="1" typeIndex="0" vx="0.5" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
 									</UBO>
 								</UBOS>
 							</node>

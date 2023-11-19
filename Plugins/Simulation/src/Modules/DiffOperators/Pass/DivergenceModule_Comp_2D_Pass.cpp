@@ -265,7 +265,7 @@ std::string DivergenceModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOu
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+layout(binding = 0, rgba32f) uniform image2D outColor;
 
 layout(std140, binding = 1) uniform UBO_Comp
 {
@@ -328,7 +328,7 @@ void main()
 		}
 	}
 
-	imageStore(colorBuffer, coords, vec4(value)); 
+	imageStore(outColor, coords, vec4(value)); 
 }
 )";
 		}

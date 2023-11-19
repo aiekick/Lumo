@@ -339,7 +339,7 @@ std::string GrayScottModule_Comp_Pass::GetComputeShaderCode(std::string& vOutSha
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+layout(binding = 0, rgba32f) uniform image2D outColor;
 )"
 + CommonSystem::GetBufferObjectStructureHeader(1U) +
 u8R"(
@@ -360,7 +360,7 @@ layout(binding = 3) uniform sampler2D input_mask;
 vec4 getPixel(ivec2 g, int x, int y)
 {
     ivec2 v = (g + ivec2(x,y)) % image_size;
-	return imageLoad(colorBuffer, v);
+	return imageLoad(outColor, v);
 }
 
 /* laplacian corner ratio */	#define lc .2
@@ -417,7 +417,7 @@ void main()
 
 	vec4 color = grayScott(coords, left_mouse);
 
-	imageStore(colorBuffer, coords, color); 
+	imageStore(outColor, coords, color); 
 }
 )";
 }

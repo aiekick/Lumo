@@ -248,7 +248,7 @@ std::string GradientModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutS
 
 layout (local_size_x = 32, local_size_y = 32, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+layout(binding = 0, rgba32f) uniform image2D outColor;
 
 layout(std140, binding = 1) uniform UBO_Comp
 {
@@ -299,7 +299,7 @@ void main()
 	float fy = (f-getValue(getPixel(coords, 0, 1)))/e;
 	vec4 color = vec4(normalize(vec3(0,0,1) - vec3(fx,fy,0.0)) * 0.5 + 0.5, 1.0);
 	
-	imageStore(colorBuffer, coords, color); 
+	imageStore(outColor, coords, color); 
 }
 )";
 }

@@ -143,6 +143,7 @@ public:  // to save
     bool m_UseASbo = false;
     int32_t m_VertexStructTypesIndex = 0;
     UBOEditors m_UBOEditors;
+    bool m_UseCommonSystemUBO = false;
 
 public:
     static GeneratorNodePtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);

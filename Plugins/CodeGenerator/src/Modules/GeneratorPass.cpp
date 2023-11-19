@@ -196,18 +196,15 @@ PASS_CLASS_NAME::PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
         u8R"(
 }
 
-PASS_CLASS_NAME::~PASS_CLASS_NAME()
-{
+PASS_CLASS_NAME::~PASS_CLASS_NAME() {
 	ZoneScoped;
-
 	Unit();
 }
 )";
 	if (m_RendererType == RENDERER_TYPE_RTX)
 	{
 		cpp_pass_file_code += u8R"(
-void PASS_CLASS_NAME::ActionBeforeCompilation()
-{
+void PASS_CLASS_NAME::ActionBeforeCompilation() {
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR, "main"), "main");
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR, "main"), "main");
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR, "main"), "main");
@@ -216,12 +213,9 @@ void PASS_CLASS_NAME::ActionBeforeCompilation()
 	}
 
 		cpp_pass_file_code += u8R"(
-void PASS_CLASS_NAME::ActionBeforeInit()
-{
+void PASS_CLASS_NAME::ActionBeforeInit() {
 	ZoneScoped;
-
-	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
-)";
+	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);)";
 
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
@@ -239,44 +233,38 @@ void PASS_CLASS_NAME::ActionBeforeInit()
 	if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer])
 	{
 		cpp_pass_file_code += u8R"(
-	for (auto& info : m_StorageBuffers)
-	{
+	for (auto& info : m_StorageBuffers)	{
 		info = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer])
 	{
 		cpp_pass_file_code += u8R"(
-	for (auto& info : m_TexelBuffers)
-	{
+	for (auto& info : m_TexelBuffers) {
 		info = nullptr;
 	}
-	for (auto& info : m_TexelBufferViews)
-	{
+	for (auto& info : m_TexelBufferViews) {
 		info = m_VulkanCorePtr->getEmptyBufferView();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture])
 	{
 		cpp_pass_file_code += u8R"(
-	for (auto& info : m_ImageInfos)
-	{
+	for (auto& info : m_ImageInfos)	{
 		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
 	{
 		cpp_pass_file_code += u8R"(
-	for (auto& info : m_ImageCubeInfos)
-	{
+	for (auto& info : m_ImageCubeInfos)	{
 		info = m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup])
 	{
 		cpp_pass_file_code += u8R"(
-	for (auto& infos : m_ImageGroups)
-	{
+	for (auto& infos : m_ImageGroups) {
 		for(auto& info : infos)
 		{
 			info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
@@ -288,8 +276,7 @@ void PASS_CLASS_NAME::ActionBeforeInit()
         u8R"(
 }
 
-bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
@@ -321,20 +308,17 @@ bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	cpp_pass_file_code +=
             u8R"(
 	}
-
 	return change;
 }
 
-bool PASS_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool PASS_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
 	return false;
 }
 
-bool PASS_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool PASS_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
@@ -350,8 +334,7 @@ bool PASS_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PASS_CLASS_NAME::WasJustResized()
-{
+void PASS_CLASS_NAME::WasJustResized() {
 	ZoneScoped;
 }
 )";
@@ -361,26 +344,19 @@ void PASS_CLASS_NAME::WasJustResized()
 	if (m_UseASbo)
 	{
 		cpp_pass_file_code += u8R"(
-bool PASS_CLASS_NAME::CreateSBO()
-{
+bool PASS_CLASS_NAME::CreateSBO() {
 	ZoneScoped;
-
 	NeedNewSBOUpload();
-
 	return true;
 }
 
-void PASS_CLASS_NAME::UploadSBO()
-{
+void PASS_CLASS_NAME::UploadSBO() {
 	ZoneScoped;
-
 	//VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
-void PASS_CLASS_NAME::DestroySBO()
-{
+void PASS_CLASS_NAME::DestroySBO() {
 	ZoneScoped;
-
 	//m_SBOCompPtr.reset();
 	//m_SBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
@@ -390,48 +366,33 @@ void PASS_CLASS_NAME::DestroySBO()
 	if (m_RendererType == RENDERER_TYPE_RTX)
 	{
 		cpp_pass_file_code += u8R"(
-bool PASS_CLASS_NAME::CanUpdateDescriptors()
-{
+bool PASS_CLASS_NAME::CanUpdateDescriptors() {
 	ZoneScoped;
-
-	if (!m_SceneAccelStructure.expired())
-	{
+	if (!m_SceneAccelStructure.expired()) {
 		auto accelStructurePtr = m_SceneAccelStructure.lock();
-		if (accelStructurePtr)
-		{
+		if (accelStructurePtr) {
 			return accelStructurePtr->IsOk();
 		}
 	}
-
 	return false;
 }
 )";
 	}
 
 	cpp_pass_file_code += u8R"(
-bool PASS_CLASS_NAME::UpdateLayoutBindingInRessourceDescriptor()
-{
+bool PASS_CLASS_NAME::UpdateLayoutBindingInRessourceDescriptor() {
 	ZoneScoped;
-
-	bool res = true;
-)";
-
+	bool res = true;)";
 	cpp_pass_file_code += GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
 	cpp_pass_file_code += u8R"(
-
 	return res;
 }
 
-bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
-{
+bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor() {
 	ZoneScoped;
-
-	bool res = true;
-)";
-
+	bool res = true;)";
 	cpp_pass_file_code += GetPassUpdateBufferInfoInRessourceDescriptorHeader();
 	cpp_pass_file_code += u8R"(
-	
 	return res;
 }
 )";
@@ -444,8 +405,7 @@ bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
+std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas) {
 	ZoneScoped;
 	std::string str;
     str += vOffset + "<PASS_XML_NAME>\n";
@@ -456,15 +416,11 @@ std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::strin
 	return str;
 }
 
-bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
+bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
 	ZoneScoped;
-
-	// The value of this child identifies the name of this element
 	std::string strName;
 	std::string strValue;
 	std::string strParentName;
-
 	strName = vElem->Value();
 	if (vElem->GetText()) {
 		strValue = vElem->GetText();
@@ -472,18 +428,15 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	if (vParent != nullptr) {
 		strParentName = vParent->Value();
 	}
-
 	if (strParentName == "PASS_XML_NAME") {
 		ShaderPass::setFromXml(vElem, vParent, vUserDatas);)";
     cpp_pass_file_code += m_UBOEditors.Get_Cpp_SetXML(m_IsAnEffect);
 	cpp_pass_file_code += u8R"(
 	}
-
 	return true;
 }
 
-void PASS_CLASS_NAME::AfterNodeXmlLoading()
-{
+void PASS_CLASS_NAME::AfterNodeXmlLoading() {
 	ZoneScoped;
 	NeedNewUBOUpload();
 }

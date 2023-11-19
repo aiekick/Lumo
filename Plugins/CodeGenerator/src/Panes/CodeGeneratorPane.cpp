@@ -471,6 +471,10 @@ void CodeGeneratorPane::DrawNodeCreationPane() {
                         0.0f, "VertexStruct type", &nodePtr->m_VertexStructTypesIndex, nodePtr->m_BaseTypes.m_VertexStructTypes, 0);
                 }
 
+                ImGui::Separator();
+
+                ImGui::CheckBoxBoolDefault("Use a CommonSystem UBO", &nodePtr->m_UseCommonSystemUBO, false);
+
                 change |= nodePtr->m_UBOEditors.DrawPane(nodePtr->m_RendererType);
 
                 /*change |= ImGui::CheckBoxBoolDefault("Use A SBO", &nodePtr->m_UseASbo, false);

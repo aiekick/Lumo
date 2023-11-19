@@ -237,7 +237,7 @@ std::string VignetteModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutS
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
 
-layout(binding = 0, rgba32f) uniform image2D colorBuffer;
+layout(binding = 0, rgba32f) uniform image2D outColor;
 
 layout(std140, binding = 1) uniform UBO_1_Comp
 {
@@ -256,7 +256,7 @@ void main() {
         uv *= 1.0 - uv.yx;
 	    res *= pow(uv.x * uv.y * u_Intensity, u_Width);
     }
-	imageStore(colorBuffer, coords, res); 
+	imageStore(outColor, coords, res); 
 }
 )";
 }

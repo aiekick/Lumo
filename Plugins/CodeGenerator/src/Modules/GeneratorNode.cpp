@@ -25,6 +25,7 @@
 #include <LumoBackend/Graph/Slots/NodeSlotTextureGroupOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotStorageBufferInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotStorageBufferOutput.h>
+#include <LumoBackend/Systems/CommonSystem.h>
 
 namespace fs = std::filesystem;
 
@@ -760,37 +761,24 @@ std::string GeneratorNode::GetPassRendererFunctionHeader() {
                    m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
             res +=
                 u8R"(
-void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vIterationNumber)
-{
+void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vIterationNumber) {
 	ZoneScoped;
-
 	if (!m_Loaded) return;
-
-	if (vCmdBufferPtr)
-	{
+	if (vCmdBufferPtr) {
 		auto modelPtr = m_SceneModel.lock();
 		if (!modelPtr || modelPtr->empty()) return;
-
 		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
-		{
+        {
 			//VKFPScoped(*vCmdBufferPtr, "MODULE_DISPLAY_NAME", "DrawModel");
-
 			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-
-			for (auto meshPtr : *modelPtr)
-			{
-				if (meshPtr)
-				{
+			for (auto meshPtr : *modelPtr) {
+				if (meshPtr != nullptr) {
 					vk::DeviceSize offsets = 0;
 					vCmdBufferPtr->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
-
-					if (meshPtr->GetIndicesCount())
-					{
+					if (meshPtr->GetIndicesCount())	{
 						vCmdBufferPtr->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
 						vCmdBufferPtr->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
-					}
-					else
-					{
+					} else {
 						vCmdBufferPtr->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
 					}
 				}
@@ -806,18 +794,13 @@ void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vI
                m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
         res +=
             u8R"(
-void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	if (vCmdBufferPtr)
-	{
+void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+	if (vCmdBufferPtr) {
 		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		{
 			//VKFPScoped(*vCmdBufferPtr, "MODULE_DISPLAY_NAME", "Compute");
-
 			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-
-			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
-			{
+			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)	{
 				Dispatch(vCmdBufferPtr);
 			}
 		}
@@ -834,9 +817,6 @@ void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIter
 std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader() {
     std::string res;
 
-    uint32_t bindingStartIndex = 0U;
-    res += m_UBOEditors.Get_Cpp_LayoutBindings(bindingStartIndex);
-
     std::string stageFlagString;
     if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
         stageFlagString = "vk::ShaderStageFlagBits::eFragment";
@@ -848,10 +828,19 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
         stageFlagString = "vk::ShaderStageFlagBits::eClosestHitKHR";
     }
 
+    uint32_t bindingStartIndex = 0U;
+
+    if (m_UseCommonSystemUBO) {
+        res += ct::toStr("\n\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eUniformBuffer, %s); // common system", bindingStartIndex++,
+            stageFlagString.c_str());
+    }
+
+    res += m_UBOEditors.Get_Cpp_LayoutBindings(bindingStartIndex);
+
     for (const auto& input : m_Inputs) {
         if (input.second != nullptr) {
             if (input.second->slotType == "TEXTURE_2D") {
-                res += ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eCombinedImageSampler, %s); // sampler input \n",
+                res += ct::toStr("\n\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eCombinedImageSampler, %s); // sampler input",
                     bindingStartIndex++, stageFlagString.c_str());
             }
         }
@@ -869,26 +858,27 @@ std::string GeneratorNode::GetPassUpdateLayoutBindingInRessourceDescriptorHeader
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
         res += u8R"()";
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
-        res +=
-            ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute); // color output \n",
-                bindingStartIndex++);
+        res += ct::toStr(
+            "\n\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute); // color output",
+            bindingStartIndex++);
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
         res += u8R"()";
     } else if (m_RendererType == RENDERER_TYPE_RTX) {
-        res += ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR);  // output \n",
-            bindingStartIndex++);
-        res += ct::toStr(
-            "\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eRaygenKHR | "
-            "vk::ShaderStageFlagBits::eClosestHitKHR);  // accel struct \n",
-            bindingStartIndex++);
         res +=
-            ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR); // camera \n",
+            ct::toStr("\n\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR);  // output",
                 bindingStartIndex++);
         res += ct::toStr(
-            "\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // model device "
-            "address \n",
+            "\n\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eRaygenKHR | "
+            "vk::ShaderStageFlagBits::eClosestHitKHR);  // accel struct",
             bindingStartIndex++);
-        res += ct::toStr("\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);\n ",
+        res +=
+            ct::toStr("\n\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR); // camera",
+                bindingStartIndex++);
+        res += ct::toStr(
+            "\n\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR); // model device "
+            "address",
+            bindingStartIndex++);
+        res += ct::toStr("\n\tres &= AddOrSetLayoutDescriptor(%uU, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);\n ",
             bindingStartIndex++);
     }
 
@@ -899,6 +889,14 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader() 
     std::string res;
 
     uint32_t bindingStartIndex = 0U;
+
+    if (m_UseCommonSystemUBO) {
+        res += ct::toStr(
+            "\n\tres &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // common "
+            "system",
+            bindingStartIndex++);
+    }
+
     res += m_UBOEditors.Get_Cpp_WriteDescriptors(bindingStartIndex);
 
     uint32_t imageInfosBinding = 0U;
@@ -906,7 +904,7 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader() 
         if (input.second != nullptr) {
             if (input.second->slotType == "TEXTURE_2D") {
                 res += ct::toStr(
-                    "\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[%uU]);  // sampler input\n",
+                    "\n\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[%uU]);  // sampler input",
                     bindingStartIndex++, imageInfosBinding++);
             }
         }
@@ -925,33 +923,33 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader() 
         res += u8R"()";
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
         res += ct::toStr(
-            "\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // "
-            "output\n",
+            "\n\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // "
+            "output",
             bindingStartIndex++);
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
         res += u8R"()";
     } else if (m_RendererType == RENDERER_TYPE_RTX) {
         res += ct::toStr(
-            "\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // "
-            "output\n",
+            "\n\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // "
+            "output",
             bindingStartIndex++);
         res += ct::toStr(
-            "\tres &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera\n",
+            "\n\tres &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera",
             bindingStartIndex++);
-        res +=
-            ct::toStr("res &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights\n",
-                bindingStartIndex++);
+        res += ct::toStr(
+            "res &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights",
+            bindingStartIndex++);
         res += "\tauto accelStructurePtr = m_SceneAccelStructure.lock();\n";
         res += "\tif (accelStructurePtr && accelStructurePtr->GetTLASInfo() && accelStructurePtr->GetBufferAddressInfo()) {\n";
-            res += ct::toStr(
-                "\t\tres &= AddOrSetWriteDescriptorNext(%uU, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo()); // accel "
+        res += ct::toStr(
+            "\t\tres &= AddOrSetWriteDescriptorNext(%uU, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo()); // accel "
             "struct\n",
-                bindingStartIndex++);
-            res += ct::toStr(
-                "\t\tres &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model "
-                "device address\n",
-                bindingStartIndex++);
-            res += "\t}\n";
+            bindingStartIndex++);
+        res += ct::toStr(
+            "\t\tres &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model "
+            "device address\n",
+            bindingStartIndex++);
+        res += "\t}";
     }
 
     return res;
@@ -960,8 +958,11 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader() 
 std::string GeneratorNode::GetGlslHeader(const std::string& vStage, const bool& vIsAnEffect) {
     std::string res;
     uint32_t bindingStartIndex = 0U;
+    if (m_UseCommonSystemUBO) {
+        res += CommonSystem::GetBufferObjectStructureHeader(bindingStartIndex++);
+    }
     res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect, bindingStartIndex);
-    res += "\n"; 
+    res += "\n";
     for (const auto& input : m_Inputs) {
         if (input.second != nullptr) {
             if (input.second->slotType == "TEXTURE_2D") {
@@ -971,9 +972,9 @@ std::string GeneratorNode::GetGlslHeader(const std::string& vStage, const bool& 
             }
         }
     }
-    res += "\n"; 
+    res += "\n";
     if (vStage == "Comp" && m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
-            res += ct::toStr("layout(binding = %u, rgba32f) uniform image2D outColor; // output\n", bindingStartIndex++);
+        res += ct::toStr("layout(binding = %u, rgba32f) uniform image2D outColor; // output\n", bindingStartIndex++);
     }
     return res;
 }
@@ -981,14 +982,10 @@ std::string GeneratorNode::GetGlslHeader(const std::string& vStage, const bool& 
 std::string GeneratorNode::GetPixel2DSpecializationQuad() {
     std::string res;
 
-    
-
     res +=
         u8R"(
-std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
-
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -1010,17 +1007,15 @@ void main()
         u8R"(";
 }
 
-std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Fragment";
-
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec2 v_uv;
 )";
-    
+
     res += GetGlslHeader("Frag", m_IsAnEffect);
     res +=
         u8R"(
@@ -1041,11 +1036,10 @@ std::string GeneratorNode::GetPixel2DSpecializationMesh() {
 
     res +=
         u8R"(
-std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
-
-	return u8R"(#version 450
+	return u8R"(
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec3 aPosition;
@@ -1056,7 +1050,7 @@ layout(location = 4) in vec2 aUv;
 layout(location = 5) in vec4 aColor;
 layout(location = 0) out vec4 vertColor;
 )";
-    
+
     res += GetGlslHeader("Vert", m_IsAnEffect);
     res +=
         u8R"(
@@ -1064,7 +1058,6 @@ layout(location = 0) out vec4 vertColor;
 ))";
     res +=
         u8R"("
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 void main() 
 {
@@ -1076,17 +1069,16 @@ void main()
         u8R"(";
 }
 
-std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Fragment";
-
-	return u8R"(#version 450
+	return u8R"(
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec4 vertColor;
 )";
-    
+
     res += GetGlslHeader("Frag", m_IsAnEffect);
     res +=
         u8R"(
@@ -1108,11 +1100,10 @@ std::string GeneratorNode::GetPixel2DSpecializationTesselation() {
 
     res +=
         u8R"(
-std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
-
-	return u8R"(#version 450
+	return u8R"(
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec3 aPosition;
@@ -1123,15 +1114,10 @@ layout(location = 0) out vec3 v_position;
 layout(location = 1) out vec3 v_normal;
 layout(location = 2) out vec4 v_color;
 )";
-    
+
     res += GetGlslHeader("Vert", m_IsAnEffect);
     res +=
-        u8R"(
-
-))";
-    res +=
         u8R"("
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 void main() 
 {
@@ -1146,11 +1132,10 @@ void main()
         u8R"(";
 }
 
-std::string PASS_CLASS_NAME::GetTesselationControlShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetTesselationControlShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Tesselation_Control";
-
-	return u8R"(#version 450
+	return u8R"(
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 // define the number of CPs in the output patch
@@ -1163,12 +1148,8 @@ layout(location = 2) in vec4 v_color[];
 
 layout(location = 0) out vec3 v_position_tess_control[];
 )";
-    
-    res += GetGlslHeader("TessCtrl", m_IsAnEffect);
-    res +=
-        u8R"(
 
-)";
+    res += GetGlslHeader("TessCtrl", m_IsAnEffect);
     res +=
         u8R"(
 void main()
@@ -1194,10 +1175,8 @@ void main()
         u8R"(";
 }
 
-std::string PASS_CLASS_NAME::GetTesselationEvaluationShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetTesselationEvaluationShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Tesselation_Evaluation";
-
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -1209,15 +1188,10 @@ layout(location = 0) out vec3 v_position;
 layout(location = 1) out vec3 v_normal;
 layout(location = 2) out vec4 v_color;
 )";
-    
+
     res += GetGlslHeader("TessEval", m_IsAnEffect);
     res +=
-        u8R"(
-
-))";
-    res +=
         u8R"("
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
 vec2 interpolateV2(vec2 v0, vec2 v1, vec2 v2) {
     return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
@@ -1245,11 +1219,10 @@ void main()
         u8R"(";
 }
 
-std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Fragment";
-
-	return u8R"(#version 450
+	return u8R"(
+#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
@@ -1258,12 +1231,8 @@ layout(location = 0) in vec3 v_position;
 layout(location = 1) in vec3 v_normal;
 layout(location = 2) in vec4 v_color;
 )";
-    
-    res += GetGlslHeader("Frag", m_IsAnEffect);
-    res +=
-        u8R"(
 
-))";
+    res += GetGlslHeader("Frag", m_IsAnEffect);
     res +=
         u8R"("
 void main() 
@@ -1300,25 +1269,19 @@ std::string GeneratorNode::GetPixel2DSpecializationVertex() {
 
     res +=
         u8R"(
-std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetVertexShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Vertex";
-
 	return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 vertColor;
 )";
-    
+
     res += GetGlslHeader("Vert", m_IsAnEffect);
     res +=
-        u8R"(
-
-))";
-    res +=
         u8R"("
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
+
 u8R"(
 layout(std140, binding = 1) uniform UBOStruct {
 	
@@ -1341,10 +1304,8 @@ void main()
         u8R"(";
 		}
 
-std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Fragment";
-
 	return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -1352,7 +1313,7 @@ std::string PASS_CLASS_NAME::GetFragmentShaderCode(std::string& vOutShaderName)
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec4 vertColor;
 )";
-    
+
     res += GetGlslHeader("Frag", m_IsAnEffect);
     res +=
         u8R"(
@@ -1385,19 +1346,16 @@ std::string GeneratorNode::GetPassShaderCode() {
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
         res +=
             u8R"(
-std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Compute";
-
 	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
-
 	return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 )";
-        
+
         res += GetGlslHeader("Comp", m_IsAnEffect);
         res +=
             u8R"(
@@ -1413,12 +1371,9 @@ void main()
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
         res +=
             u8R"(
-std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Compute";
-
 	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
-
 	return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -1436,7 +1391,7 @@ void main()
 
 	vec4 color = vec4(coords, 0, 1);
 
-	imageStore(colorBuffer, coords, color); 
+	imageStore(outColor, coords, color); 
 }
 ))";
         res +=
@@ -1445,19 +1400,16 @@ void main()
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
         res +=
             u8R"(
-std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Compute";
-
 	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
-
 	return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 )";
-        
+
         res += GetGlslHeader("Comp", m_IsAnEffect);
         res +=
             u8R"(
@@ -1473,10 +1425,8 @@ void main()
     } else if (m_RendererType == RENDERER_TYPE_RTX) {
         res +=
             u8R"(
-std::string PASS_CLASS_NAME::GetRayGenerationShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetRayGenerationShaderCode(std::string& vOutShaderName) {
 	ZoneScoped;
-
 	vOutShaderName = "PASS_CLASS_NAME_RGen";
 	return u8R"(
 #version 460
@@ -1491,7 +1441,7 @@ layout(binding = 1) uniform accelerationStructureEXT tlas;
 u8R"(
 
 )";
-        
+
         res += GetGlslHeader("RGen", m_IsAnEffect);
         res +=
             u8R"(
@@ -1554,10 +1504,8 @@ void main()
             u8R"(";
 }
 
-std::string PASS_CLASS_NAME::GetRayIntersectionShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetRayIntersectionShaderCode(std::string& vOutShaderName) {
 	ZoneScoped;
-
 	vOutShaderName = "PASS_CLASS_NAME_Inter";
 	return u8R"(
 )";
@@ -1569,10 +1517,8 @@ std::string PASS_CLASS_NAME::GetRayIntersectionShaderCode(std::string& vOutShade
             u8R"(";
 }
 
-std::string PASS_CLASS_NAME::GetRayMissShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetRayMissShaderCode(std::string& vOutShaderName) {
 	ZoneScoped;
-
 	vOutShaderName = "PASS_CLASS_NAME_Miss";
 	return u8R"(
 #version 460
@@ -1610,8 +1556,7 @@ void main()
             u8R"(";
 }
 
-std::string PASS_CLASS_NAME::GetRayAnyHitShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetRayAnyHitShaderCode(std::string& vOutShaderName) {
 	vOutShaderName = "PASS_CLASS_NAME_Ahit";
 	return u8R"(
 )";
@@ -1623,13 +1568,10 @@ std::string PASS_CLASS_NAME::GetRayAnyHitShaderCode(std::string& vOutShaderName)
             u8R"(";
 }
 
-std::string PASS_CLASS_NAME::GetRayClosestHitShaderCode(std::string& vOutShaderName)
-{
+std::string PASS_CLASS_NAME::GetRayClosestHitShaderCode(std::string& vOutShaderName) {
 	ZoneScoped;
-
 	vOutShaderName = "PASS_CLASS_NAME_Chit";
 	return u8R"(
-
 #version 460
 #extension GL_EXT_ray_tracing : enable
 #extension GL_EXT_scalar_block_layout : enable
@@ -5728,6 +5670,7 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
         res += vOffset + ct::toStr("\t\t<node_is_a_task>%s</node_is_a_task>\n", m_IsATask ? "true" : "false");
         res += vOffset + ct::toStr("\t\t<node_is_an_effect>%s</node_is_an_effect>\n", m_IsAnEffect ? "true" : "false");
         res += vOffset + ct::toStr("\t\t<vertex_struct_type>%i</vertex_struct_type>\n", m_VertexStructTypesIndex);
+        res += vOffset + ct::toStr("\t\t<use_common_system_ubo>%s</use_common_system_ubo>\n", m_UseCommonSystemUBO ? "true" : "false");
 
         res += vOffset + "\t</generation>\n";
 
@@ -5980,6 +5923,8 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
             m_IsAnEffect = ct::ivariant(strValue).GetB();
         else if (strName == "vertex_struct_type")
             m_VertexStructTypesIndex = ct::ivariant(strValue).GetI();
+        else if (strName == "use_common_system_ubo")
+            m_UseCommonSystemUBO = ct::ivariant(strValue).GetB();
 
         return true;
     } else if (strParentName == "UBOS") {
