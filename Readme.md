@@ -62,7 +62,7 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 
 ## Build Status Matrix
  
-| Target | Win | Linux | MacOs |
+| Target | Win (x64) | Linux (x64) | MacOs (x64) |
 | - | - | - | - |
 | Lumo                   | [![Build Status][ba_applic_lumoapp_win]][ci_applic_lumoapp_win] | [![Build Status][ba_applic_lumoapp_lin]][ci_applic_lumoapp_lin] | - |
 | Plugin AudiArt         | [![Build Status][ba_plugin_audiart_win]][ci_plugin_audiart_win] | [![Build Status][ba_plugin_audiart_lin]][ci_plugin_audiart_lin] | - |
