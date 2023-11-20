@@ -67,7 +67,7 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 | Lumo                   | [![Build Status][ba_applic_lumoapp_win]][ci_applic_lumoapp_win] | [![Build Status][ba_applic_lumoapp_lin]][ci_applic_lumoapp_lin] | - |
 | Plugin AudiArt         | [![Build Status][ba_plugin_audiart_win]][ci_plugin_audiart_win] | [![Build Status][ba_plugin_audiart_lin]][ci_plugin_audiart_lin] | - |
 | Plugin CodeGenerator   | [![Build Status][ba_plugin_codegen_win]][ci_plugin_codegen_win] | [![Build Status][ba_plugin_codegen_lin]][ci_plugin_codegen_lin] | - |
-| Plugin Lighting        | [![Build Status][ba_plugin_meshgen_win]][ci_plugin_meshgen_win] | [![Build Status][ba_plugin_meshgen_lin]][ci_plugin_meshgen_lin] | - |
+| Plugin Lighting        | [![Build Status][ba_plugin_lightin_win]][ci_plugin_lightin_win] | [![Build Status][ba_plugin_lightin_lin]][ci_plugin_lightin_lin] | - |
 | Plugin MeshGen         | [![Build Status][ba_plugin_meshgen_win]][ci_plugin_meshgen_win] | [![Build Status][ba_plugin_meshgen_lin]][ci_plugin_meshgen_lin] | - |
 | Plugin Misc            | [![Build Status][ba_plugin_miscxxx_win]][ci_plugin_miscxxx_win] | [![Build Status][ba_plugin_miscxxx_lin]][ci_plugin_miscxxx_lin] | - |
 | Plugin Particles       | [![Build Status][ba_plugin_particl_win]][ci_plugin_particl_win] | [![Build Status][ba_plugin_particl_lin]][ci_plugin_particl_lin] | - |
