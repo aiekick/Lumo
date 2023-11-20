@@ -136,14 +136,18 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 
 ## AudiArt Plugin :
 
+### Description : 
+
+Audio Manipulation for Art
+
 ### Status : 
 
 [![Win Audiart](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml ) 
 [![Linux Audiart](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml)
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -158,11 +162,15 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 
 ## BluePrints Plugin : 
 
+### Description : 
+
+Blue Print node system like in Unreal Engine for shaders
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :x: | :x: | ![img](https://progress-bar.dev/20) | Blue Print node system like in Unreal Engine for shaders |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/20) |
 
 ### Nodes: 
 
@@ -170,15 +178,6 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 | - | - | - |
 
 ## Code Generator Plugin :
-
-### Status : 
-
-[![Win Code Generator](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_CodeGenerator.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_CodeGenerator.yml) 
-[![Linux Code Generator](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_CodeGenerator.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_CodeGenerator.yml)
-
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
 
 ### Description : 
 
@@ -189,16 +188,27 @@ then with one operation, generate base cades for :
 - module class
 - pass class
 
+### Status : 
+
+[![Win Code Generator](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_CodeGenerator.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_CodeGenerator.yml) 
+[![Linux Code Generator](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_CodeGenerator.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_CodeGenerator.yml)
+
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/70) |
+
 ## Lighting Plugin :
+
+### Description : 
 
 ### Status : 
 
 [![Win Lighting](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Lighting.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Lighting.yml) 
 [![Linux Lighting](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Lighting.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Lighting.yml)
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -232,14 +242,18 @@ then with one operation, generate base cades for :
 
 ## MeshGen Plugin : 
 
+### Description : 
+
+Mesh generation
+
 ### Status : 
 
 [![Win MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml) 
 [![Linux MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_MeshGen.yml)
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -253,11 +267,15 @@ then with one operation, generate base cades for :
 
 ## MeshSim Plugin : 
 
+### Description : 
+
+Simulation on mesh without texture or uv map
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -269,11 +287,15 @@ then with one operation, generate base cades for :
 
 ## MeshSSS Plugin : 
 
+### Description : 
+
+My Mesh Sub Surface Scattering (SSS) Idea
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -282,14 +304,18 @@ then with one operation, generate base cades for :
 
 ## Misc Plugin :
 
+### Description : 
+
+Many misc nodes
+
 ### Status : 
 
 [![Win Misc](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Misc.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Misc.yml) 
 [![Linux Misc](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Misc.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Misc.yml)
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -302,11 +328,15 @@ then with one operation, generate base cades for :
 
 ## MorphoGenesis Plugin : 
 
+### Description : 
+
+Morphogenesis Nodes like on https://github.com/jasonwebb/morphogenesis-resources
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :x: | :x: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -315,14 +345,18 @@ then with one operation, generate base cades for :
 
 ## Particles Plugin :
 
+### Description : 
+
+GPU particles nodes
+
 ### Status : 
 
 [![Win Particles](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Particles.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Particles.yml)
 [![Linux Particles](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Particles.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Particles.yml)
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -334,14 +368,18 @@ then with one operation, generate base cades for :
 
 ## Planet System Plugin :
 
+### Description : 
+
+A generation of planet system, like in Universe Sandbox
+
 ### Status : 
 
 [![Win PlanetSystem](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PlanetSystem.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PlanetSystem.yml)
 [![Linux PlanetSystem](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PlanetSystem.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PlanetSystem.yml) 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -351,14 +389,20 @@ then with one operation, generate base cades for :
 
 ## Post Processing Plugin :
 
+### Description : 
+
+Post Processing Effects
+
+There is a summary nodes for all effects
+
 ### Status : 
 
 [![Win Processing](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PostProcessing.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PostProcessing.yml) 
 [![Linux Processing](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PostProcessing.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PostProcessing.yml)
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -388,14 +432,18 @@ then with one operation, generate base cades for :
 
 ## Simulation Plugin :
 
+### Description : 
+
+Many nodes of Simulation
+
 ### Status : 
 
 [![Win Simulation](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Simulation.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Simulation.yml) 
 [![Linux Simulation](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Simulation.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Simulation.yml)
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -410,14 +458,18 @@ then with one operation, generate base cades for :
 
 ## RTX Plugin :
 
+### Description : 
+
+Ray Tracing Integration (RTX)
+
 ### Status : 
 
 [![Win RTX](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_RTX.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_RTX.yml)
 [![Linux RTX](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_RTX.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_RTX.yml)
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
@@ -430,11 +482,15 @@ then with one operation, generate base cades for :
 
 ## SdfEditor Plugin : 
 
+### Description : 
+
+Sdf Editor like Magica CSG
+ 
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) | Sdf Editor like Magica CSG |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) |
 
 ### Nodes: 
 
@@ -443,11 +499,15 @@ then with one operation, generate base cades for :
 
 ## SdfMesher Plugin : 
 
+### Description : 
+
+Sdf to Mesh Generation
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :x: | :x: | ![img](https://progress-bar.dev/40) | Sdf to Mesh Generation |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/40) |
 
 ### Nodes: 
 
@@ -456,11 +516,15 @@ then with one operation, generate base cades for :
 
 ## Smoke Plugin : 
 
+### Description : 
+
+Smoke Rendering like Embergen
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) | Smoke Rendering like Embergen |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) |
 
 ### Nodes: 
 
@@ -469,11 +533,15 @@ then with one operation, generate base cades for :
 
 ## SoGLSL Plugin : 
 
+### Description : 
+
+Scripting Over GLSL system for write shaders
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :x: | :x: | ![img](https://progress-bar.dev/50) | Scripting Over GLSL system for write shaders |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/50) |
 
 ### Nodes: 
 
@@ -482,11 +550,15 @@ then with one operation, generate base cades for :
 
 ## UVDiffMap Plugin :
 
+### Description : 
+
+UV Mapper of high def Model based of Vertex Diffusion
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) | UV Mapper of high def Model based of Vertex Diffusion |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) |
 
 ### Nodes: 
 
@@ -495,11 +567,15 @@ then with one operation, generate base cades for :
 
 ## VDBTools Plugin : 
 
+### Description : 
+
+OpenVDB Nodes 
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) | OpenVDB Nodes |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) |
 
 ### Nodes: 
 
@@ -508,11 +584,15 @@ then with one operation, generate base cades for :
 
 ## Voxel Plugin : 
 
+### Description : 
+
+Voxel Manipulation like Magicavoxel
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) | Voxel Manipulation like Magicavoxel |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) |
 
 ### Nodes: 
 
@@ -521,11 +601,15 @@ then with one operation, generate base cades for :
 
 ## VR Plugin : 
 
+### Description : 
+
+Virtual Reality integration
+
 ### Status : 
 
-| Published | Open Source | Free | status | Description |
-| - | - | - | - | - |
-| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) | Virtual Reality integration |
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) |
 
 ### Nodes: 
 
