@@ -60,6 +60,72 @@ all libs and code used here are cross platform, so compatible (win, linux).
 
 The mac platform is not supported for the moment, due to the vulkan driver. Could be tested at some stage with the Molten-VK implementation.. 
 
+## Build Status Matrix
+ 
+| Target | Win | Linux | MacOs |
+| - | - | - | - |
+| Lumo                   | [![Build Status][ba_applic_lumoapp_win]][ci_applic_lumoapp_win] | [![Build Status][ba_applic_lumoapp_lin]][ci_applic_lumoapp_lin] | - |
+| Plugin AudiArt         | [![Build Status][ba_plugin_audiart_win]][ci_plugin_audiart_win] | [![Build Status][ba_plugin_audiart_lin]][ci_plugin_audiart_lin] | - |
+| Plugin CodeGenerator   | [![Build Status][ba_plugin_codegen_win]][ci_plugin_codegen_win] | [![Build Status][ba_plugin_codegen_lin]][ci_plugin_codegen_lin] | - |
+| Plugin Lighting        | [![Build Status][ba_plugin_meshgen_win]][ci_plugin_meshgen_win] | [![Build Status][ba_plugin_meshgen_lin]][ci_plugin_meshgen_lin] | - |
+| Plugin MeshGen         | [![Build Status][ba_plugin_meshgen_win]][ci_plugin_meshgen_win] | [![Build Status][ba_plugin_meshgen_lin]][ci_plugin_meshgen_lin] | - |
+| Plugin Misc            | [![Build Status][ba_plugin_miscxxx_win]][ci_plugin_miscxxx_win] | [![Build Status][ba_plugin_miscxxx_lin]][ci_plugin_miscxxx_lin] | - |
+| Plugin Particles       | [![Build Status][ba_plugin_particl_win]][ci_plugin_particl_win] | [![Build Status][ba_plugin_particl_lin]][ci_plugin_particl_lin] | - |
+| Plugin Planet System   | [![Build Status][ba_plugin_planets_win]][ci_plugin_planets_win] | [![Build Status][ba_plugin_planets_lin]][ci_plugin_planets_lin] | - |
+| Plugin Post Processing | [![Build Status][ba_plugin_postpro_win]][ci_plugin_postpro_win] | [![Build Status][ba_plugin_postpro_lin]][ci_plugin_postpro_lin] | - |
+| Plugin Simulation      | [![Build Status][ba_plugin_simulat_win]][ci_plugin_simulat_win] | [![Build Status][ba_plugin_simulat_lin]][ci_plugin_simulat_lin] | - |
+| Plugin RTX             | [![Build Status][ba_plugin_rtxxxxx_win]][ci_plugin_rtxxxxx_win] | [![Build Status][ba_plugin_rtxxxxx_lin]][ci_plugin_rtxxxxx_lin] | - |
+
+[ba_applic_lumoapp_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Lumo.yml?branch=master
+[ci_applic_lumoapp_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Lumo.yml
+[ba_applic_lumoapp_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Lumo.yml?branch=master
+[ci_applic_lumoapp_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Lumo.yml
+ 
+[ba_plugin_audiart_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Audiart.yml?branch=master
+[ci_plugin_audiart_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml
+[ba_plugin_audiart_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Audiart.yml?branch=master
+[ci_plugin_audiart_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml
+
+[ba_plugin_lightin_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Lighting.yml?branch=master
+[ci_plugin_lightin_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Lighting.yml
+[ba_plugin_lightin_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Lighting.yml?branch=master
+[ci_plugin_lightin_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Lighting.yml
+
+[ba_plugin_codegen_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_CodeGenerator.yml?branch=master
+[ci_plugin_codegen_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_CodeGenerator.yml
+[ba_plugin_codegen_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_CodeGenerator.yml?branch=master
+[ci_plugin_codegen_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_CodeGenerator.yml
+
+[ba_plugin_meshgen_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_MeshGen.yml?branch=master
+[ci_plugin_meshgen_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml
+[ba_plugin_meshgen_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_MeshGen.yml?branch=master
+[ci_plugin_meshgen_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_MeshGen.yml
+
+[ba_plugin_miscxxx_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Misc.yml?branch=master
+[ci_plugin_miscxxx_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Misc.yml
+[ba_plugin_miscxxx_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Misc.yml?branch=master
+[ci_plugin_miscxxx_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Misc.yml
+
+[ba_plugin_particl_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Particles.yml?branch=master
+[ci_plugin_particl_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Particles.yml
+[ba_plugin_particl_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Particles.yml?branch=master
+[ci_plugin_particl_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Particles.yml
+
+[ba_plugin_planets_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_PlanetSystem.yml?branch=master
+[ci_plugin_planets_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PlanetSystem.yml
+[ba_plugin_planets_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_PlanetSystem.yml?branch=master
+[ci_plugin_planets_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PlanetSystem.yml
+
+[ba_plugin_postpro_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_PostProcessing.yml?branch=master
+[ci_plugin_postpro_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PostProcessing.yml
+[ba_plugin_postpro_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_PostProcessing.yml?branch=master
+[ci_plugin_postpro_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PostProcessing.yml
+
+[ba_plugin_simulat_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Simulation.yml?branch=master
+[ci_plugin_simulat_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Simulation.yml
+[ba_plugin_simulat_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Simulation.yml?branch=master
+[ci_plugin_simulat_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Simulation.yml
+
 # Tech's to implement :
 
 | Published | Feature | status |
@@ -750,3 +816,4 @@ My MeshSim plugin, with a basic deferred renderrer, one light shadow + ssao
 - [ctools](https://github.com/aiekick/cTools.git) (MIT)
 - [ImGuiFileDialog](https://github.com/aiekick/ImGuiFileDialog.git) (MIT)
 - [BuildInc](https://github.com/aiekick/buildinc.git) (MIT)
+
