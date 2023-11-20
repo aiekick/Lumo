@@ -134,7 +134,9 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 
 # Lumo Plugins :
 
-## AudiArt Plugin :
+<details>
+
+<summary>AudiArt Plugin :</summary>
 
 ### Description : 
 
@@ -160,7 +162,11 @@ Audio Manipulation for Art
 | :heavy_check_mark:  | Viewers / Visu Hex Grid Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Windowing / Blackman FIlter Node  | ![img](https://progress-bar.dev/0) |
 
-## BluePrints Plugin : 
+</details>
+
+<details>
+
+<summary>BluePrints Plugin :</summary>
 
 ### Description : 
 
@@ -177,7 +183,11 @@ Blue Print node system like in Unreal Engine for shaders
 | Published | Node | status |
 | - | - | - |
 
-## Code Generator Plugin :
+</details>
+
+<details>
+
+<summary>Code Generator Plugin :</summary>
 
 ### Description : 
 
@@ -197,7 +207,11 @@ then with one operation, generate base cades for :
 | - | - | - | - |
 | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/70) |
 
-## Lighting Plugin :
+</details>
+
+<details>
+
+<summary>Lighting Plugin :</summary>
 
 ### Description : 
 
@@ -240,7 +254,11 @@ then with one operation, generate base cades for :
 | :x:  | Utils / LongLat To MatCap Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Utils / Flat Gradient Node | ![img](https://progress-bar.dev/100) |
 
-## MeshGen Plugin : 
+</details>
+
+<details>
+
+<summary>MeshGen Plugin :</summary>
 
 ### Description : 
 
@@ -265,7 +283,11 @@ Mesh generation
 | :x:  | Mesh Ops / Extrusion along path Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Surface / Parametric UV Surface Node | ![img](https://progress-bar.dev/100) |
 
-## MeshSim Plugin : 
+</details>
+
+<details>
+
+<summary>MeshSim Plugin :</summary>
 
 ### Description : 
 
@@ -285,7 +307,11 @@ Simulation on mesh without texture or uv map
 | :x:  | Modifiers / Simulator Node | ![img](https://progress-bar.dev/100) |
 | :x:  | Renderers / Renderer Node | ![img](https://progress-bar.dev/100) |
 
-## MeshSSS Plugin : 
+</details>
+
+<details>
+
+<summary>MeshSSS Plugin :</summary>
 
 ### Description : 
 
@@ -302,7 +328,11 @@ My Mesh Sub Surface Scattering (SSS) Idea
 | Published | Node | status |
 | - | - | - |
 
-## Misc Plugin :
+</details>
+
+<details>
+
+<summary>Misc Plugin :</summary>
 
 ### Description : 
 
@@ -326,7 +356,11 @@ Many misc nodes
 | :heavy_check_mark:  | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Tesselation / Alien Rock Node | ![img](https://progress-bar.dev/0) |
 
-## MorphoGenesis Plugin : 
+</details>
+
+<details>
+
+<summary>MorphoGenesis Plugin :</summary>
 
 ### Description : 
 
@@ -343,7 +377,11 @@ Morphogenesis Nodes like on https://github.com/jasonwebb/morphogenesis-resources
 | Published | Node | status |
 | - | - | - |
 
-## Particles Plugin :
+</details>
+
+<details>
+
+<summary>Particles Plugin :</summary>
 
 ### Description : 
 
@@ -366,7 +404,11 @@ GPU particles nodes
 | :x:  | Simulation / Simulation Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Constraints / Force Node | ![img](https://progress-bar.dev/0) |
 
-## Planet System Plugin :
+</details>
+
+<details>
+
+<summary>Planet System Plugin :</summary>
 
 ### Description : 
 
@@ -387,7 +429,11 @@ A generation of planet system, like in Universe Sandbox
 | - | - | - |
 | :heavy_check_mark:  | Planet Node | ![img](https://progress-bar.dev/30) |
 
-## Post Processing Plugin :
+</details>
+
+<details>
+
+<summary>Post Processing Plugin :</summary>
 
 ### Description : 
 
@@ -430,7 +476,11 @@ There is a summary nodes for all effects
 | :heavy_check_mark:  | Postpro / Effects / Vignette Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Postpro / PostProcessing Node | ![img](https://progress-bar.dev/100) |
 
-## Simulation Plugin :
+</details>
+
+<details>
+
+<summary>Simulation Plugin :</summary>
 
 ### Description : 
 
@@ -456,7 +506,11 @@ Many nodes of Simulation
 | :heavy_check_mark:  | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Simulation / Conway Node (Game of Life) | ![img](https://progress-bar.dev/100) |
 
-## RTX Plugin :
+</details>
+
+<details>
+
+<summary>RTX Plugin :</summary>
 
 ### Description : 
 
@@ -480,7 +534,11 @@ Ray Tracing Integration (RTX)
 | :heavy_check_mark:  | Renderers / PBR Node | ![img](https://progress-bar.dev/100) |
 | :x:  | Renderers / SSS Node | ![img](https://progress-bar.dev/20) |
 
-## SdfEditor Plugin : 
+</details>
+
+<details>
+
+<summary>SdfEditor Plugin :</summary>
 
 ### Description : 
 
@@ -497,7 +555,11 @@ Sdf Editor like Magica CSG
 | Published | Node | status |
 | - | - | - |
 
-## SdfMesher Plugin : 
+</details>
+
+<details>
+
+<summary>SdfMesher Plugin :</summary>
 
 ### Description : 
 
@@ -514,7 +576,11 @@ Sdf to Mesh Generation
 | Published | Node | status |
 | - | - | - |
 
-## Smoke Plugin : 
+</details>
+
+<details>
+
+<summary>Smoke Plugin :</summary>
 
 ### Description : 
 
@@ -531,7 +597,11 @@ Smoke Rendering like Embergen
 | Published | Node | status |
 | - | - | - |
 
-## SoGLSL Plugin : 
+</details>
+
+<details>
+
+<summary>SoGLSL Plugin :</summary>
 
 ### Description : 
 
@@ -548,7 +618,11 @@ Scripting Over GLSL system for write shaders
 | Published | Node | status |
 | - | - | - |
 
-## UVDiffMap Plugin :
+</details>
+
+<details>
+
+<summary>UVDiffMap Plugin :</summary>
 
 ### Description : 
 
@@ -565,7 +639,11 @@ UV Mapper of high def Model based of Vertex Diffusion
 | Published | Node | status |
 | - | - | - |
 
-## VDBTools Plugin : 
+</details>
+
+<details>
+
+<summary>VDBTools Plugin :</summary>
 
 ### Description : 
 
@@ -582,7 +660,11 @@ OpenVDB Nodes
 | Published | Node | status |
 | - | - | - |
 
-## Voxel Plugin : 
+</details>
+
+<details>
+
+<summary>Voxel Plugin :</summary>
 
 ### Description : 
 
@@ -599,7 +681,11 @@ Voxel Manipulation like Magicavoxel
 | Published | Node | status |
 | - | - | - |
 
-## VR Plugin : 
+</details>
+
+<details>
+
+<summary>VR Plugin :</summary>
 
 ### Description : 
 
@@ -615,6 +701,8 @@ Virtual Reality integration
 
 | Published | Node | status |
 | - | - | - |
+
+</details>
 
 # ScreenShots
 
