@@ -10,6 +10,7 @@ option(USE_TESTING_LUMO "Enable Tests" OFF)
 option(USE_CONSOLE_APP "Enable Console" OFF)
 option(USE_DEBUG_SANITIZER "Enable Address Sanitizer" OFF)
 option(USE_PACKAGE_TO_NSIS_OR_ZIP "Package to NISIS Installer or ZIP" OFF)
+option(PRINT_CMAKE_TARGETS "Will print all cmake target used in this project for CMake tuning" OFF)
 
 project(
 	${PROJECT} 
@@ -20,6 +21,7 @@ project(
 ## for group smake targets in the dir cmakeTargets
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmakeTargets")
+set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -217,7 +219,7 @@ target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
 if(USE_DEBUG_SANITIZER)
 	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
 	target_link_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
-	message("Address Sanitizer enabled for projet ${PROJECT}")
+	message(STATUS "Address Sanitizer enabled for projet ${PROJECT}")
 endif()
 
 target_include_directories(${PROJECT} PRIVATE
@@ -300,7 +302,7 @@ if (EXISTS ${CMAKE_BINARY_DIR}/current_build_type)
 	file(READ ${CMAKE_BINARY_DIR}/current_build_type CURRENT_BUILD_TYPE)
 	string(STRIP ${CURRENT_BUILD_TYPE} CURRENT_BUILD_TYPE) ### removing end line wrote by echo command
 	set(PROJECT_BUILD_CONFIG_NAME ${CURRENT_BUILD_TYPE} CACHE STRING "" FORCE)
-	message("CURRENT BUILD CONFIG is : ${PROJECT_BUILD_CONFIG_NAME}")
+	message(STATUS "CURRENT BUILD CONFIG is : ${PROJECT_BUILD_CONFIG_NAME}")
 endif()
 
 #############################################################
@@ -315,7 +317,7 @@ set(MinorNumber ${CMAKE_MATCH_1})
 string(REGEX MATCH "#define ${PROJECT}_MajorNumber ([0-9]*)" _ ${BuildIdFile})
 set(MajorNumber ${CMAKE_MATCH_1})
 set(${PROJECT}_Version "v${MajorNumber}_${MinorNumber}_${BuildNumber}")
-message("${PROJECT} Version to install : ${${PROJECT}_Version}")
+message(STATUS "${PROJECT} Version to install : ${${PROJECT}_Version}")
 
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
@@ -394,3 +396,28 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/VERSION)
 endif()
 
 include(CPack)
+
+#############################################################
+### TARGETS LISTING #########################################
+#############################################################
+
+if (PRINT_CMAKE_TARGETS)
+
+message(STATUS "##############################################")
+message(STATUS "CMake Targets Listing :")
+function(print_all_targets DIR)
+    get_property(TGTS DIRECTORY "${DIR}" PROPERTY BUILDSYSTEM_TARGETS)
+    foreach(TGT IN LISTS TGTS)
+        message(STATUS "Target: ${TGT}")
+    endforeach()
+
+    get_property(SUBDIRS DIRECTORY "${DIR}" PROPERTY SUBDIRECTORIES)
+    foreach(SUBDIR IN LISTS SUBDIRS)
+        print_all_targets("${SUBDIR}")
+    endforeach()
+endfunction()
+
+print_all_targets(.)
+message(STATUS "##############################################")
+
+endif()

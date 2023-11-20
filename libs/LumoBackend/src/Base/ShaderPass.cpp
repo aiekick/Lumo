@@ -21,6 +21,7 @@ limitations under the License.
 
 #include <functional>
 
+#include <Gaia/gaia.h>
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 

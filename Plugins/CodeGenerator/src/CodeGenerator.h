@@ -17,9 +17,9 @@ limitations under the License.
 */
 
 #include <LumoBackend/Interfaces/PluginInterface.h>
+#include <Gaia/gaia.h>
 #include <Modules/GeneratorNode.h>
 #include <Gaia/Resources/VulkanRessource.h>
-#include <Gaia/Core/vk_mem_alloc.h>
 
 class CodeGenerator : public PluginInterface
 {

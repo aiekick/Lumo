@@ -24,7 +24,7 @@ limitations under the License.
 
 
 #include <Gaia/gaia.h>
-#include <Gaia/Core/vk_mem_alloc.h>
+
 #include <ctools/cTools.h>
 #include <LumoBackend/Base/ShaderPass.h>
 #include <ctools/ConfigAbstract.h>

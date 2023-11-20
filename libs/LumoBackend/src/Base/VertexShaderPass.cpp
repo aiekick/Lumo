@@ -19,6 +19,8 @@ limitations under the License.
 
 #include <LumoBackend/Base/VertexShaderPass.h>
 
+#include <Gaia/gaia.h>
+
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
 #include PROFILER_INCLUDE
@@ -30,14 +32,12 @@ limitations under the License.
 VertexShaderPass::VertexShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr, GenericType::PIXEL) {
     ZoneScoped;
-
 }
 
 VertexShaderPass::VertexShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr,	
 	vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
 	: ShaderPass(vVulkanCorePtr, GenericType::PIXEL, vCommandPool, vDescriptorPool) {
     ZoneScoped;
-
 }
 
 void VertexShaderPass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& /*vIterationNumber*/) {

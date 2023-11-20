@@ -791,7 +791,7 @@ void CommonSystem::UploadBufferObjectIfDirty(GaiApi::VulkanCorePtr vVulkanCorePt
 bool CommonSystem::CreateBufferObject(GaiApi::VulkanCorePtr vVulkanCorePtr) {
     ZoneScoped;
 
-    vkDeviceWaitIdle((VkDevice)vVulkanCorePtr->getDevice());
+    vVulkanCorePtr->getDevice().waitIdle();
 
     m_BufferObjectPtr = GaiApi::VulkanRessource::createUniformBufferObject(vVulkanCorePtr, sizeof(UBOCamera));
     if (m_BufferObjectPtr && m_BufferObjectPtr->buffer) {

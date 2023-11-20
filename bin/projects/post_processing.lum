@@ -6,14 +6,14 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>0.862821;-0.562042;0</RotXYZ>
+			<RotXYZ>0.0442371;-0.111748;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>64.2241</Zoom>
+			<Zoom>20.0574</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
-			<CamFar>30</CamFar>
+			<CamFar>1000</CamFar>
 			<CameraType>0</CameraType>
 			<CameraType>0</CameraType>
 			<CameraMode>0</CameraMode>
@@ -36,6 +36,20 @@
 						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="105182"/>
 						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="105186"/>
 					</node>
+					<node name="Model" type="MESH" pos="-370;-82" id="156328">
+						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
+						<mesh_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
+						</mesh_module>
+					</node>
+					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
+						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
+						<texture_2d_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\00ZBrush_RedWax.png</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
+						</texture_2d_module>
+					</node>
 					<node name="SS Reflection" type="SS_REFLECTION" pos="11;-112" id="309484">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="309487"/>
 						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="309490"/>
@@ -55,20 +69,6 @@
 								<enabled>1</enabled>
 							</ss_reflection_pass>
 						</ss_reflection_module>
-					</node>
-					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
-						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
-						<texture_2d_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\00ZBrush_RedWax.png</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
-						</texture_2d_module>
-					</node>
-					<node name="Model" type="MESH" pos="-370;-82" id="156328">
-						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
-						<mesh_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
-						</mesh_module>
 					</node>
 					<node name="Post Processing" type="POST_PROCESSING" pos="0;24" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
@@ -185,7 +185,7 @@
 					<link in="309484:309487" out="263812:263824"/>
 				</links>
 				<outputs>
-					<output type="left" ids="309484:309499"/>
+					<output type="left" ids="229189:229201"/>
 				</outputs>
 			</graph>
 		</scene>
@@ -241,7 +241,7 @@
 						<links>
 						</links>
 						<outputs>
-							<output type="left" ids="309484:309499"/>
+							<output type="left" ids="229189:229201"/>
 						</outputs>
 					</graph>
 				</scene>

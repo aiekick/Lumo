@@ -498,26 +498,17 @@ bool MathModule_Quad_Pass::DrawCombo(const float vWidth)
 
 	if (!m_Functions.empty())
 	{
-		float px = ImGui::GetCursorPosX();
-
 		ImGui::PushID(ImGui::IncPUSHID());
 
 		change = ImGui::ContrastedButton("R");
 		if (change)
 			m_UBOFrag.u_Function_index = 0;
 
-		//ImGui::CustomSameLine();
-
-		//nd::Suspend();
-
 		change |= ImGui::ContrastedCombo(vWidth, "##Function", &m_UBOFrag.u_Function_index, [](void* data, int idx, const char** out_text)
 			{
 				*out_text = std::get<0>(((const std::vector<MathModuleEntry>*)data)->at(idx)).c_str();
 				return true;
 			}, (void*)&m_Functions, (int)m_Functions.size(), -1);
-
-
-		//nd::Resume();
 
 		ImGui::PopID();
 	}

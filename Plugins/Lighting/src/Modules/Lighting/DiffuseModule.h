@@ -33,7 +33,6 @@ limitations under the License.
 #include <Gaia/Resources/Texture2D.h>
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Core/VulkanDevice.h>
-#include <Gaia/Core/vk_mem_alloc.h>
 #include <Gaia/Shader/VulkanShader.h>
 #include <Gaia/Gui/ImGuiTexture.h>
 #include <Gaia/Resources/VulkanRessource.h>

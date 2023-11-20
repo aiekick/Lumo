@@ -22,6 +22,7 @@ limitations under the License.
 #include <utility>
 #include <functional>
 
+#include <Gaia/gaia.h>
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Core/VulkanDevice.h>
 #include <Gaia/Buffer/FrameBuffer.h>
@@ -63,14 +64,12 @@ using namespace GaiApi;
 
 BaseRenderer::BaseRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr) {
     ZoneScoped;
-
     m_VulkanCorePtr = vVulkanCorePtr;
     m_Device = m_VulkanCorePtr->getDevice();
 }
 
 BaseRenderer::BaseRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool) {
     ZoneScoped;
-
     m_VulkanCorePtr = vVulkanCorePtr;
     m_Device = m_VulkanCorePtr->getDevice();
     m_CommandPool = *vCommandPool;
@@ -79,7 +78,6 @@ BaseRenderer::BaseRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool
 
 BaseRenderer::~BaseRenderer() {
     ZoneScoped;
-
     Unit();
 }
 
@@ -99,7 +97,6 @@ ShaderPassWeak BaseRenderer::GetGenericPass(const uint32_t& vIdx) {
     if (m_ShaderPasses.size() > vIdx) {
         return m_ShaderPasses.at(vIdx);
     }
-
     return ShaderPassWeak();
 }
 

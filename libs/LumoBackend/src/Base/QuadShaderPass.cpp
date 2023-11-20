@@ -19,6 +19,7 @@ limitations under the License.
 
 #include <LumoBackend/Base/QuadShaderPass.h>
 
+#include <Gaia/gaia.h>
 #include <Gaia/Resources/VulkanRessource.h>
 
 #ifdef PROFILER_INCLUDE

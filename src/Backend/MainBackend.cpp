@@ -120,7 +120,7 @@ bool MainBackend::init() {
 void MainBackend::unit() {
     SaveConfigFile("config.xml");
     m_FileDialogAssets.clear();
-    vkDeviceWaitIdle((VkDevice)m_VulkanCorePtr->getDevice());
+    m_VulkanCorePtr->getDevice().waitIdle();
     m_UnitSystems();
     m_DestroyRenderers();
     m_DestroyImGuiOverlay();
@@ -332,7 +332,7 @@ void MainBackend::m_MainLoop() {
         }
 
 #ifdef USE_THUMBNAILS
-        vkDeviceWaitIdle((VkDevice)m_VulkanCorePtr->getDevice());
+        m_VulkanCorePtr->getDevice().waitIdle();
         ImGuiFileDialog::Instance()->ManageGPUThumbnails();
 #endif
 
