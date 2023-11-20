@@ -126,6 +126,11 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 [ba_plugin_simulat_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Simulation.yml?branch=master
 [ci_plugin_simulat_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Simulation.yml
 
+[ba_plugin_rtxxxxx_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_RTX.yml?branch=master
+[ci_plugin_rtxxxxx_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_RTX.yml
+[ba_plugin_rtxxxxx_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_RTX.yml?branch=master
+[ci_plugin_rtxxxxx_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_RTX.yml
+
 # Tech's to implement :
 
 | Published | Feature | status |
