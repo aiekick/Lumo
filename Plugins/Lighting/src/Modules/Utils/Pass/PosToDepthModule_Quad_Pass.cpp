@@ -251,38 +251,28 @@ layout(location = 0) in vec2 v_uv;
 )"
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
-layout (std140, binding = 1) uniform UBO_Vert 
-{ 
+layout (std140, binding = 1) uniform UBO_Vert { 
 	float use_sampler_pos;
 };
 layout(binding = 2) uniform sampler2D pos_map_sampler;
 
-vec3 getRayOrigin()
-{
+vec3 getRayOrigin() {
 	vec3 ro = view[3].xyz + model[3].xyz;
 	ro *= mat3(view * model);
 	return -ro;
 }
 
-void main() 
-{
+void main() {
 	vec3 pos = texture(pos_map_sampler, v_uv).xyz;
-	
-	if (use_sampler_pos > 0.5)
-	{
-		if (dot(pos, pos) > 0.0)
-		{
+	if (use_sampler_pos > 0.5) {
+		if (dot(pos, pos) > 0.0) {
 			vec3 ro = getRayOrigin();
 			float dep = length(ro - pos) / cam_far;
 			fragColor = vec4(vec3(dep), 1.0);
-		}
-		else
-		{
+		} else {
 			fragColor = vec4(0.0);
 		}
-	}
-	else 
-	{
+	} else {
 		fragColor = vec4(0.0);
 	}
 }

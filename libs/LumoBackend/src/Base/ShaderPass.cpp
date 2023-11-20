@@ -1356,12 +1356,12 @@ bool ShaderPass::CompilPixel() {
             } else if (m_IsShaderCompiled) {
                 m_Device.waitIdle();
                 DestroyPipeline();
-                DestroyRessourceDescriptor();
-                DestroyUBO();
-                DestroySBO();
-                CreateSBO();
-                CreateUBO();
-                CreateRessourceDescriptor();
+                //DestroyRessourceDescriptor();
+                //DestroyUBO();
+                //DestroySBO();
+                //CreateSBO();
+                //CreateUBO();
+                //CreateRessourceDescriptor();
                 CreatePixelPipeline();
                 res = true;
             }
@@ -1402,12 +1402,12 @@ bool ShaderPass::CompilCompute() {
             } else if (m_IsShaderCompiled) {
                 m_Device.waitIdle();
                 DestroyPipeline();
-                DestroyRessourceDescriptor();
-                DestroyUBO();
-                DestroySBO();
-                CreateSBO();
-                CreateUBO();
-                CreateRessourceDescriptor();
+                //DestroyRessourceDescriptor();
+                //DestroyUBO();
+                //DestroySBO();
+                //CreateSBO();
+                //CreateUBO();
+                //CreateRessourceDescriptor();
                 CreateComputePipeline();
                 res = true;
             }

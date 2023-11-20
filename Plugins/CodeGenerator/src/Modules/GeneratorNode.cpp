@@ -767,9 +767,8 @@ void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vI
 	if (vCmdBufferPtr) {
 		auto modelPtr = m_SceneModel.lock();
 		if (!modelPtr || modelPtr->empty()) return;
-		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
-        {
-			//VKFPScoped(*vCmdBufferPtr, "MODULE_DISPLAY_NAME", "DrawModel");
+			VKFPScoped(*vCmdBufferPtr, "MODULE_DISPLAY_NAME", "DrawModel");
+		    vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 			for (auto meshPtr : *modelPtr) {
 				if (meshPtr != nullptr) {
@@ -783,7 +782,6 @@ void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vI
 					}
 				}
 			}
-		}
 	}
 }
 )";
@@ -796,13 +794,11 @@ void PASS_CLASS_NAME::DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vI
             u8R"(
 void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
 	if (vCmdBufferPtr) {
+		VKFPScoped(*vCmdBufferPtr, "MODULE_DISPLAY_NAME", "Compute");
 		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
-		{
-			//VKFPScoped(*vCmdBufferPtr, "MODULE_DISPLAY_NAME", "Compute");
-			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)	{
-				Dispatch(vCmdBufferPtr);
-			}
+		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+		for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)	{
+			Dispatch(vCmdBufferPtr);
 		}
 	}
 }
@@ -962,19 +958,17 @@ std::string GeneratorNode::GetGlslHeader(const std::string& vStage, const bool& 
         res += CommonSystem::GetBufferObjectStructureHeader(bindingStartIndex++);
     }
     res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect, bindingStartIndex);
-    res += "\n";
     for (const auto& input : m_Inputs) {
         if (input.second != nullptr) {
             if (input.second->slotType == "TEXTURE_2D") {
                 std::string _name = ct::toLower(input.second->name);
                 ct::replaceString(_name, " ", "_");
-                res += ct::toStr("layout(binding = %u) uniform sampler2D input_%s_map;\n", bindingStartIndex++, _name.c_str());
+                res += ct::toStr("\nlayout(binding = %u) uniform sampler2D input_%s_map;", bindingStartIndex++, _name.c_str());
             }
         }
     }
-    res += "\n";
     if (vStage == "Comp" && m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
-        res += ct::toStr("layout(binding = %u, rgba32f) uniform image2D outColor; // output\n", bindingStartIndex++);
+        res += ct::toStr("\nlayout(binding = %u, rgba32f) uniform image2D outColor; // output", bindingStartIndex++);
     }
     return res;
 }
@@ -1368,7 +1362,6 @@ std::string PASS_CLASS_NAME::GetComputeShaderCode(std::string& vOutShaderName) {
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
-
 )";
         res += GetGlslHeader("Comp", m_IsAnEffect);
 
@@ -1376,11 +1369,15 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
             res +=
                 u8R"(
 
+vec4 effect(ivec2 vCoords) {
+    return vec4(0.0);
+}
+
 void main() {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 	vec4 res = texelFetch(input_color_map, coords, 0);
     if (u_enabled > 0.5) {
-        // do effect code    
+        res = effect(coords);
     }
 	imageStore(outColor, coords, res); 
 }

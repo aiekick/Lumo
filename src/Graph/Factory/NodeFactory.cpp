@@ -25,7 +25,6 @@ limitations under the License.
 
 #include <Graph/Nodes/Misc/GridNode.h>
 #include <Graph/Nodes/Misc/SceneMergerNode.h>
-#include <Graph/Nodes/Misc/AnimatorNode.h>
 
 #include <Graph/Nodes/Renderers/MatcapRendererNode.h>
 #include <Graph/Nodes/Renderers/ChannelRendererNode.h>
@@ -44,55 +43,71 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
         auto corePtr = graphPtr->m_VulkanCorePtr;
         if (corePtr) {
             // Assets
-            if (vNodeType == "MESH")
+            if (vNodeType == "MESH"){
                 return MeshNode::Create(corePtr);
-            else if (vNodeType == "TEXTURE_2D")
+		}
+            else if (vNodeType == "TEXTURE_2D"){
                 return Texture2DNode::Create(corePtr);
-            else if (vNodeType == "CUBE_MAP")
+		}
+            else if (vNodeType == "CUBE_MAP"){
                 return CubeMapNode::Create(corePtr);
+		}
 
             // Exporters
-            else if (vNodeType == "MODEL_EXPORTER")
+            else if (vNodeType == "MODEL_EXPORTER"){
                 return ModelExporterNode::Create(corePtr);
-            else if (vNodeType == "TEXTURE_2D_EXPORTER")
+		}
+            else if (vNodeType == "TEXTURE_2D_EXPORTER"){
                 return TextureExporterNode::Create(corePtr);
+		}
             
             // Misc
-            else if (vNodeType == "ANIMATOR")
-                return AnimatorNode::Create(corePtr);
-            else if (vNodeType == "GRID_AXIS")
+            else if (vNodeType == "GRID_AXIS"){
                 return GridNode::Create(corePtr);
-            else if (vNodeType == "SCENE_MERGER")
+		}
+            else if (vNodeType == "SCENE_MERGER"){
                 return SceneMergerNode::Create(corePtr);
+		}
 
             // renderers
-            else if (vNodeType == "CHANNEL_RENDERER")
+            else if (vNodeType == "CHANNEL_RENDERER"){
                 return ChannelRendererNode::Create(corePtr);
-            else if (vNodeType == "HEATMAP_RENDERER")
+		}
+            else if (vNodeType == "HEATMAP_RENDERER"){
                 return HeatmapRendererNode::Create(corePtr);
-            else if (vNodeType == "MATCAP_RENDERER")
+		}
+            else if (vNodeType == "MATCAP_RENDERER"){
                 return MatcapRendererNode::Create(corePtr);
-            else if (vNodeType == "MODEL_RENDERER")
+		}
+            else if (vNodeType == "MODEL_RENDERER"){
                 return ModelRendererNode::Create(corePtr);
+		}
 
             // Variables
-            else if (vNodeType == "WIDGET_BOOLEAN")
+            else if (vNodeType == "WIDGET_BOOLEAN"){
                 return VariableNode::Create(corePtr, vNodeType);
-            else if (vNodeType == "WIDGET_FLOAT")
+		}
+            else if (vNodeType == "WIDGET_FLOAT"){
                 return VariableNode::Create(corePtr, vNodeType);
-            else if (vNodeType == "WIDGET_INT")
+		}
+            else if (vNodeType == "WIDGET_INT"){
                 return VariableNode::Create(corePtr, vNodeType);
-            else if (vNodeType == "WIDGET_UINT")
+		}
+            else if (vNodeType == "WIDGET_UINT"){
                 return VariableNode::Create(corePtr, vNodeType);
-            else if (vNodeType == "WIDGET_COLOR")
+		}
+            else if (vNodeType == "WIDGET_COLOR"){
                 return WidgetColorNode::Create(corePtr);
+		}
 
             // Utils
-            else if (vNodeType == "MATH")
+            else if (vNodeType == "MATH"){
                 return MathNode::Create(corePtr);
-            else if (vNodeType == "MESH_ATTRIBUTES")
-                return MeshAttributesNode::Create(corePtr);
-        }
+		}
+            else if (vNodeType == "MESH_ATTRIBUTES"){
+				return MeshAttributesNode::Create(corePtr);
+		}
+		}
     }
 
     return nullptr;

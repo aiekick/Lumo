@@ -86,6 +86,9 @@ using namespace GaiApi;
 #ifndef ZoneScoped
 #define ZoneScoped
 #endif
+#ifndef VKFPScoped
+#define VKFPScoped
+#endif
 
 //////////////////////////////////////////////////////////////
 ///// STATIC /////////////////////////////////////////////////
@@ -284,13 +287,11 @@ bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
     if (m_IsAnEffect) {
         cpp_pass_file_code +=
             u8R"(
-	//change |= DrawResizeWidget();
-)";
+	//change |= DrawResizeWidget();)";
     } else {
         cpp_pass_file_code +=
             u8R"(
-	change |= DrawResizeWidget();
-)";
+	change |= DrawResizeWidget();)";
 	}
 
 	if (m_IsAnEffect) {
@@ -673,7 +674,6 @@ protected:)";
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 )";
-
 
 	h_pass_file_code += GetPassShaderHeader();
 

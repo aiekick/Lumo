@@ -58,11 +58,7 @@ Some cMake version need Build mode define via the directive CMAKE_BUILD_TYPE or 
 
 all libs and code used here are cross platform, so compatible (win, linux). 
 
-The mac platform is not supported for the moment, due to the vulkan driver. 
-
-Could be tested at some stage with the Molten-VK implementation.. 
-
-But i not tested it for the moment, So i know he compile fine on Windows with MSVC or clang, for the moment that's all.
+The mac platform is not supported for the moment, due to the vulkan driver. Could be tested at some stage with the Molten-VK implementation.. 
 
 # Tech's to implement :
 
@@ -74,9 +70,9 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :heavy_check_mark:  | Vulkan Framework | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Mesh Use | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Mesh Texturing | ![img](https://progress-bar.dev/50) |
-| :heavy_check_mark:  | Plugin system | ![img](https://progress-bar.dev/90) |
-| :x:  | Sdf Merging | ![img](https://progress-bar.dev/80) |
-| :heavy_check_mark:  | Node Graph | ![img](https://progress-bar.dev/80) |
+| :heavy_check_mark:  | Plugin system | ![img](https://progress-bar.dev/100) |
+| :x:  | Sdf Merging | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Node Graph | ![img](https://progress-bar.dev/100) |
 | :x:  | Sub Node Graph | ![img](https://progress-bar.dev/0) |
 | :x:  | Instancing | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | SkyBox (Cubemap, LongLat) | ![img](https://progress-bar.dev/100) |
@@ -96,38 +92,60 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :x:  | Parallax Mapping | ![img](https://progress-bar.dev/0) |
 | :x:  | Alpha Mapping | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Environment Mapping | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Light Directionnal | ![img](https://progress-bar.dev/80) |
+| :heavy_check_mark:  | Light Directionnal | ![img](https://progress-bar.dev/100) |
 | :x:  | Light Point | ![img](https://progress-bar.dev/0) |
 | :x:  | Light Spot | ![img](https://progress-bar.dev/0) |
 | :x:  | Light Area | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Bloom | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | SSAO | ![img](https://progress-bar.dev/100) |
 | :x:  | SSS | ![img](https://progress-bar.dev/50) |
+| :x:  | SSR (Reflection) | ![img](https://progress-bar.dev/80) |
+| :x:  | SSR (Refraction) | ![img](https://progress-bar.dev/0) |
 | :x:  | VR | ![img](https://progress-bar.dev/20) |
 | :x:  | Particles System | ![img](https://progress-bar.dev/50) |
+| :x:  | Depth of field | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Dilation | ![img](https://progress-bar.dev/100) |
+| :heavy_check_markx:  | Blur | ![img](https://progress-bar.dev/100) |
+| :heavy_check_markx:  | Bloom | ![img](https://progress-bar.dev/100) |
+| :heavy_check_markx:  | Chromatic Aberration | ![img](https://progress-bar.dev/100) |
+| :heavy_check_markx:  | Sharpen | ![img](https://progress-bar.dev/100) |
+| :heavy_check_markx:  | Tone Mapping | ![img](https://progress-bar.dev/100) |
+| :heavy_check_markx:  | Vignette | ![img](https://progress-bar.dev/100) |
 
-# Nodes Plugins :
+# Lumo Native Nodes :
 
-| Published | Plugin | Open Source | Free | status | Description |
-| - | - | - | - | - | - |
-| :heavy_check_mark: | AudiArt | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
-| :heavy_check_mark: | Core | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | Core pack of Nodes |
-| :heavy_check_mark: | MeshGen | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | Procedural Mesh generation |
-| :x:  | MeshSim | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/90) | Texture Less Reaction Diffusion Simulation on Meshs |
-| :x:  | MeshSSS | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | My Own SSS Idea For RT SSS for Static mesh with Moving Ligth |
-| :x:  | MorphoGenesis | :x: | :x: | ![img](https://progress-bar.dev/30) | Real Time MorphoGenesis Algos |
-| :heavy_check_mark: | Particles | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/50) | GPU Particle Engine |
-| :heavy_check_mark: | Planet System | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Planet System Renderer |
-| :heavy_check_mark: | RTX | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/60) | RTX Pipeline |
-| :x:  | SdfMesher | :x: | :x: | ![img](https://progress-bar.dev/50) | Procedural Mesh Generation from Shader, Pictures or SDF |
-| :x:  | Common | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/30) | Advanced Shader System Over GLSL (Used in NoodlesPlate) |
-| :x:  | Smoke | :x: | :x: | ![img](https://progress-bar.dev/30) | GPU RT Smoke System |
-| :x:  | UVDiffMap | :x: | :x: | ![img](https://progress-bar.dev/10) | Fast UV Mapping idea for any mesh Based on Vertex Diffusion |
-| :x:  | VDBTools | :x: | :x: | ![img](https://progress-bar.dev/20) | OpenVDB Toolkit |
-| :x:  | Voxel | :x: | :x: | ![img](https://progress-bar.dev/20) | Voxel Engine/Editor |
-| :x:  | VR | :x: | :x: | ![img](https://progress-bar.dev/70) | VR Engine |
+| Category | Name | status | Description |
+| - | - | - | - |
+| Assets/Loader | Cube Map | ![img](https://progress-bar.dev/100) | load a cube amp texture |
+| Assets/Loader | Model | ![img](https://progress-bar.dev/80) | load a model |
+| Assets/Loader | Texture 2D | ![img](https://progress-bar.dev/100) | Load a texture |
+| Assets/Saver | Model Exporter | ![img](https://progress-bar.dev/100) | Export model to file. support sketchfab animations |
+| Assets/Saver | Texture Exporter | ![img](https://progress-bar.dev/100) | Export texture to file |
+| Assets/Misc | Grid | ![img](https://progress-bar.dev/100) | - |
+| Assets/Misc | Scene Merger | ![img](https://progress-bar.dev/100) | Meerge many node in the same FBO target |
+| Assets/Renderer | Channel Renderer | ![img](https://progress-bar.dev/100) | can display channels of each model (pos, nor, tan, btan, col) |
+| Assets/Renderer | HeatMap Renderer | ![img](https://progress-bar.dev/100) | HeatMap of the color channel |
+| Assets/Renderer | MatCap Renderer | ![img](https://progress-bar.dev/100) | Render a matcap on the model |
+| Assets/Renderer | Model Renderer | ![img](https://progress-bar.dev/100) | - |
+| Assets/Utils | Math | ![img](https://progress-bar.dev/100) | - |
+| Assets/Utils | Mesh Attribute | ![img](https://progress-bar.dev/100) | extract mesh attribute (pos, nor, tan, btan, col, depth) |
+| Assets/Widgets | Variable | ![img](https://progress-bar.dev/100) | - |
+| Assets/Widgets | Color | ![img](https://progress-bar.dev/100) | - |
+
+# Lumo Plugins :
 
 ## AudiArt Plugin :
+
+### Status : 
+
+[![Win Audiart](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml ) 
+[![Linux Audiart](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml)
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |
@@ -138,22 +156,56 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :heavy_check_mark:  | Viewers / Visu Hex Grid Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Windowing / Blackman FIlter Node  | ![img](https://progress-bar.dev/0) |
 
-## Core Plugin :
+## BluePrints Plugin : 
+
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/20) | Blue Print node system like in Unreal Engine for shaders |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |
-| :heavy_check_mark:  | Assets / Mesh Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Assets / Texture 2D Node  | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Assets / Cube Map Node  | ![img](https://progress-bar.dev/100) |
+
+## Code Generator Plugin :
+
+### Status : 
+
+[![Win Code Generator](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_CodeGenerator.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_CodeGenerator.yml) 
+[![Linux Code Generator](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_CodeGenerator.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_CodeGenerator.yml)
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Description : 
+
+This plugin not expose nodes, but a pane for easy node generation ready to compile.
+you can set inputs and outputs of one or many nodes.
+then with one operation, generate base cades for : 
+- node class
+- module class
+- pass class
+
+## Lighting Plugin :
+
+### Status : 
+
+[![Win Lighting](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Lighting.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Lighting.yml) 
+[![Linux Lighting](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Lighting.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Lighting.yml)
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
+
+| Published | Node | status |
+| - | - | - |
 | :heavy_check_mark:  | Breaks / Break Texture 2D Group Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Differential Operators / Divergence Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Differential Operators / Gradient Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Differential Operators / Curl Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Exporters / Export Texture to file Node | ![img](https://progress-bar.dev/0) |
-| :x:  | Exporters / Export Cube Map to files Node | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Exporters / Export Mesh to file Node | ![img](https://progress-bar.dev/100) |
-| :x:  | Exporters / Export Mesh to file Node (Transform feedback) | ![img](https://progress-bar.dev/0) |
+| :x:  | Exporters / Export Texture Group to file Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Joins / Join Texture 2D Group Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Lighting / Fog Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Lighting / Diffuse Node | ![img](https://progress-bar.dev/100) |
@@ -165,39 +217,31 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :heavy_check_mark:  | Lighting / Shadow Mappings Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Lighting / Specular Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Lighting / Cell Shading Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Misc / 2D Layering Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Misc / Grid / Axis Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Misc / Scene Merger Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Blur Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Bloom Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / SSAO Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Tone Map Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Vignette Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Preview / Cube Map Preview Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Preview / LongLat Preview Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Renderers / Channels Renderer Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Renderers / Deferred Renderer Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Renderers / Heatmap Renderer Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Renderers / Matcap Renderer Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Renderers / PBR Renderer Node | ![img](https://progress-bar.dev/10) |
-| :heavy_check_mark:  | Renderers / Model Renderer Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Renderers / Billboard Renderer Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Simulation / Conway Node (Game of Life) | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Utils / Depth To Pos Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Utils / Math Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Utils / Mesh Attributes Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Utils / Depth Converter Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Utils / Pos To Depth Node | ![img](https://progress-bar.dev/100) |
 | :x:  | Utils / Cube Map to LongLat Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Utils / Cube Map To MatCap Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Utils / LongLat to Cube Map Node  | ![img](https://progress-bar.dev/0) |
 | :x:  | Utils / LongLat To MatCap Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Utils / Flat Gradient Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Widgets / Color Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Widgets / Variable Node | ![img](https://progress-bar.dev/30) |
 
 ## MeshGen Plugin : 
+
+### Status : 
+
+[![Win MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_MeshGen.yml) 
+[![Linux MeshGen](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_MeshGen.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_MeshGen.yml)
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |
@@ -209,6 +253,14 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 ## MeshSim Plugin : 
 
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
+
 | Published | Node | status |
 | - | - | - |
 | :x:  | Lighting / Shadow Map Node | ![img](https://progress-bar.dev/100) |
@@ -217,15 +269,62 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 ## MeshSSS Plugin : 
 
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :x: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
+
 | Published | Node | status |
 | - | - | - |
 
+## Misc Plugin :
+
+### Status : 
+
+[![Win Misc](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Misc.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Misc.yml) 
+[![Linux Misc](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Misc.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Misc.yml)
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
+
+| Published | Node | status |
+| - | - | - |
+| :heavy_check_mark:  | Misc / Layering Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Misc / Sdf Texture Node | ![img](https://progress-bar.dev/30) |
+| :heavy_check_mark:  | Modifiers / Smooth Normals Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Tesselation / Alien Rock Node | ![img](https://progress-bar.dev/0) |
+
 ## MorphoGenesis Plugin : 
+
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |
 
 ## Particles Plugin :
+
+### Status : 
+
+[![Win Particles](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Particles.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Particles.yml)
+[![Linux Particles](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Particles.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Particles.yml)
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |
@@ -235,11 +334,92 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 
 ## Planet System Plugin :
 
+### Status : 
+
+[![Win PlanetSystem](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PlanetSystem.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PlanetSystem.yml)
+[![Linux PlanetSystem](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PlanetSystem.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PlanetSystem.yml) 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
+
 | Published | Node | status |
 | - | - | - |
 | :heavy_check_mark:  | Planet Node | ![img](https://progress-bar.dev/30) |
 
+## Post Processing Plugin :
+
+### Status : 
+
+[![Win Processing](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PostProcessing.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PostProcessing.yml) 
+[![Linux Processing](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PostProcessing.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PostProcessing.yml)
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
+
+| Published | Node | status |
+| - | - | - |
+| :heavy_check_mark:  | Postpro / Effects / Bloom Node | ![img](https://progress-bar.dev/100) 
+| :heavy_check_mark:  | Postpro / Effects / Blur Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Effects / Chromatic Aberration Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Effects / Color Corrector Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Depth of Field Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Dilation Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Effects / Fog Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Grain Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / LUT Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Motion Blur Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Outlining Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Posteriztion Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Pixelisation Node | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Sharpness Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Effects / Screen Space Ambient Occlusion Node (SSAO) | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Effects / Screen Space Interior Node (SSRa) | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Screen Space Reflection Node (SSRe) | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Screen Space Refraction Node (SSRa) | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Tone Mapping Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Effects / Vignette Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / PostProcessing Node | ![img](https://progress-bar.dev/100) |
+
+## Simulation Plugin :
+
+### Status : 
+
+[![Win Simulation](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Simulation.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Simulation.yml) 
+[![Linux Simulation](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Simulation.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Simulation.yml)
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
+
+| Published | Node | status |
+| - | - | - |
+| :heavy_check_mark:  | Differential Operators / Curl Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Differential Operators / Divergence Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Differential Operators / Gradient Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Simulation / Conway Node (Game of Life) | ![img](https://progress-bar.dev/100) |
+
 ## RTX Plugin :
+
+### Status : 
+
+[![Win RTX](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_RTX.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_RTX.yml)
+[![Linux RTX](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_RTX.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_RTX.yml)
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) | Audio Manipulation for Art |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |
@@ -248,37 +428,106 @@ But i not tested it for the moment, So i know he compile fine on Windows with MS
 | :heavy_check_mark:  | Renderers / PBR Node | ![img](https://progress-bar.dev/100) |
 | :x:  | Renderers / SSS Node | ![img](https://progress-bar.dev/20) |
 
-## SdfMesher Plugin : 
+## SdfEditor Plugin : 
+
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) | Sdf Editor like Magica CSG |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |
 
-## Common Plugin : 
+## SdfMesher Plugin : 
+
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/40) | Sdf to Mesh Generation |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |
 
 ## Smoke Plugin : 
 
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) | Smoke Rendering like Embergen |
+
+### Nodes: 
+
+| Published | Node | status |
+| - | - | - |
+
+## SoGLSL Plugin : 
+
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/50) | Scripting Over GLSL system for write shaders |
+
+### Nodes: 
+
 | Published | Node | status |
 | - | - | - |
 
 ## UVDiffMap Plugin :
+
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) | UV Mapper of high def Model based of Vertex Diffusion |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |
 
 ## VDBTools Plugin : 
 
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) | OpenVDB Nodes |
+
+### Nodes: 
+
 | Published | Node | status |
 | - | - | - |
 
 ## Voxel Plugin : 
 
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) | Voxel Manipulation like Magicavoxel |
+
+### Nodes: 
+
 | Published | Node | status |
 | - | - | - |
 
 ## VR Plugin : 
+
+### Status : 
+
+| Published | Open Source | Free | status | Description |
+| - | - | - | - | - |
+| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) | Virtual Reality integration |
+
+### Nodes: 
 
 | Published | Node | status |
 | - | - | - |

@@ -297,12 +297,9 @@ void main() {
 			    for (int j = 0; j < iterations; ++j) {	
 				    vec2 c1 = reflect(vec[j], rand) * u_ao_radius; 
 				    vec2 c2 = vec2(c1.x - c1.y, c1.x + c1.y) * 0.707; 
-				    occ += getAO(uv, c1 * 0.25, p, n); 
-				    occ += getAO(uv, c2 * 0.50, p, n); 
-				    occ += getAO(uv, c1 * 0.75, p, n); 
-				    occ += getAO(uv, c2 * 1.00, p, n); 
+				    occ += getAO(uv, c1, p, n);
 			    }
-			    occ /= float(iterations) * 4.0; 	
+			    occ /= float(iterations); 	
 			    res = vec4(1.0 - occ);
                 if (use_sampler_color > 0.5) {
                     res *= getColor(uv);

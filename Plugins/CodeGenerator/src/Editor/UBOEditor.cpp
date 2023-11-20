@@ -673,15 +673,13 @@ std::string UBOEditor::Get_Create_Header(const std::string& vRendererType, const
 		m_@UBO_NAME@_BufferInfos.buffer = m_@UBO_NAME@_Ptr->buffer;
 		m_@UBO_NAME@_BufferInfos.range = sizeof(@UBO_NAME@);
 		m_@UBO_NAME@_BufferInfos.offset = 0;
-	}
-)";
+	})";
     ct::replaceString(res, "@UBO_NAME@", "UBO_" + (vUboIndex < 0 ? "" : ct::toStr(vUboIndex) + "_") + m_Stage);
     return res;
 }
 
 std::string UBOEditor::Get_Upload_Header(const std::string& vRendererType, const int32_t& vUboIndex) {
     m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
-
     std::string res =
         u8R"(
 	VulkanRessource::upload(m_VulkanCorePtr, m_@UBO_NAME@_Ptr, &m_@UBO_NAME@, sizeof(@UBO_NAME@));)";
@@ -691,12 +689,10 @@ std::string UBOEditor::Get_Upload_Header(const std::string& vRendererType, const
 
 std::string UBOEditor::Get_Destroy_Header(const std::string& vRendererType, const int32_t& vUboIndex) {
     m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
-
     std::string res =
         u8R"(
 	m_@UBO_NAME@_Ptr.reset();
-	m_@UBO_NAME@_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-)";
+	m_@UBO_NAME@_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };)";
     ct::replaceString(res, "@UBO_NAME@", "UBO_" + (vUboIndex < 0 ? "" : ct::toStr(vUboIndex) + "_") + m_Stage);
     return res;
 }
@@ -905,7 +901,6 @@ std::string UBOEditors::Get_Widgets_Header() {
         if (!res.empty()) {
             res +=
                 u8R"(
-
 		if (change)	{
 			NeedNewUBOUpload();
 		})";
@@ -947,8 +942,7 @@ std::string UBOEditors::Get_Cpp_Functions_Imp(const bool& vIsAnEffect) {
             u8R"(
 
 bool PASS_CLASS_NAME::CreateUBO() {
-	ZoneScoped;
-)";
+	ZoneScoped;)";
 
         res += Get_Create_Header();
 
@@ -980,8 +974,7 @@ void PASS_CLASS_NAME::UploadUBO() {
         res +=
             u8R"(
 void PASS_CLASS_NAME::DestroyUBO() {
-	ZoneScoped;
-)";
+	ZoneScoped;)";
 
         res += Get_Destroy_Header();
 

@@ -6,14 +6,14 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-0.00958942;-0.1183;0</RotXYZ>
+			<RotXYZ>0.862821;-0.562042;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>19.0171</Zoom>
+			<Zoom>64.2241</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
-			<CamFar>1000</CamFar>
+			<CamFar>30</CamFar>
 			<CameraType>0</CameraType>
 			<CameraType>0</CameraType>
 			<CameraMode>0</CameraMode>
@@ -59,7 +59,7 @@
 					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
 						<texture_2d_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\BazC_SkinMat.jpg</file_path_name>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\00ZBrush_RedWax.png</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
 						</texture_2d_module>
 					</node>
@@ -82,11 +82,11 @@
 								<resize_by_hand>true</resize_by_hand>
 								<buffer_quality>1</buffer_quality>
 								<noise_scale>1</noise_scale>
-								<ao_radius>0.018</ao_radius>
+								<ao_radius>0.003</ao_radius>
 								<ao_scale>1</ao_scale>
-								<ao_bias>0.01</ao_bias>
-								<ao_intensity>5</ao_intensity>
-								<enabled>0</enabled>
+								<ao_bias>0.001</ao_bias>
+								<ao_intensity>2</ao_intensity>
+								<enabled>1</enabled>
 							</ssao_pass>
 							<bloom_pass>
 								<resize_by_event>true</resize_by_event>
@@ -118,7 +118,7 @@
 								<resize_by_hand>true</resize_by_hand>
 								<buffer_quality>1</buffer_quality>
 								<amount>1</amount>
-								<enabled>0</enabled>
+								<enabled>1</enabled>
 							</sharpness_pass>
 							<chromatic_aberrations_pass>
 								<resize_by_event>true</resize_by_event>
@@ -142,7 +142,7 @@
 								<resize_by_event>true</resize_by_event>
 								<resize_by_hand>true</resize_by_hand>
 								<buffer_quality>1</buffer_quality>
-								<algo>1</algo>
+								<algo>7</algo>
 								<aces>2.510;0.030;2.430;0.590;0.140</aces>
 								<filmic>0.004;6.200;0.500;1.700;0.060;2.200</filmic>
 								<lotted>1.600;0.977;8.000;0.180;0.267</lotted>
@@ -185,7 +185,7 @@
 					<link in="309484:309487" out="263812:263824"/>
 				</links>
 				<outputs>
-					<output type="left" ids="263812:263824"/>
+					<output type="left" ids="309484:309499"/>
 				</outputs>
 			</graph>
 		</scene>
@@ -241,7 +241,7 @@
 						<links>
 						</links>
 						<outputs>
-							<output type="left" ids="263812:263824"/>
+							<output type="left" ids="309484:309499"/>
 						</outputs>
 					</graph>
 				</scene>

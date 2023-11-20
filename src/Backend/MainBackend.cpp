@@ -60,7 +60,7 @@ using namespace gaia;
 //////////////////////////////////////////////////////////////////////////////////
 
 static void glfw_window_close_callback(GLFWwindow* window) {
-    glfwSetWindowShouldClose(window, GL_FALSE);  // block app closing
+    glfwSetWindowShouldClose(window, GL_FALSE); // block app closing
     MainBackend::Instance()->GetOverlayPtr()->getFrontend()->Action_Window_CloseApp();
 }
 
@@ -162,7 +162,6 @@ void MainBackend::PostRenderingActions() {
         ProjectFile::Instance()->Clear();
         ProjectFile::Instance()->New(m_ProjectFileToLoad);
         m_VulkanWindowPtr->setAppTitle(m_ProjectFileToLoad);
-
         m_ProjectFileToLoad.clear();
         m_NeedToNewProject = false;
     }
@@ -337,6 +336,8 @@ void MainBackend::m_MainLoop() {
         ImGuiFileDialog::Instance()->ManageGPUThumbnails();
 #endif
 
+        RenderDocController::Instance()->EndCaptureIfResquested();
+
         // delete imgui nodes now
         // like that => no issue with imgui descriptors because after imgui render and before next node computing
         m_DeleteNodesIfAnys();
@@ -348,8 +349,6 @@ void MainBackend::m_MainLoop() {
 
         // will pause the view until we move the mouse or press keys
         // glfwWaitEvents();
-
-        RenderDocController::Instance()->EndCaptureIfResquested();
     }
 }
 
@@ -392,6 +391,8 @@ void MainBackend::m_PrepareImGui(ct::ivec4 vViewport) {
 
 void MainBackend::m_Update() {
     ZoneScoped;
+
+    m_CheckIfTheseAreSomeFileChanges();
     m_UpdateCameraAndMouse();
     m_UpdateSound();
 
@@ -402,7 +403,6 @@ void MainBackend::m_Update() {
     NodeManager::Instance()->Execute(m_CurrentFrame);
 
     m_RenderOffScreen();  // frame rendering
-    m_CheckIfTheseAreSomeFileChanges();
 }
 
 void MainBackend::m_IncFrame() { ++m_CurrentFrame; }
@@ -466,7 +466,6 @@ void MainBackend::m_UpdateFiles(const std::set<std::string>& vFiles) {
             file.find(".comp") != std::string::npos || file.find(".rgen") != std::string::npos ||
             file.find(".rint") != std::string::npos || file.find(".miss") != std::string::npos ||
             file.find(".ahit") != std::string::npos || file.find(".chit") != std::string::npos) {
-            file = FileHelper::Instance()->GetAppPath() + "/" + file;
             ct::replaceString(file, "\\", "/");
             ct::replaceString(file, "./", "");
             ct::replaceString(file, "//", "/");
@@ -671,9 +670,9 @@ bool MainBackend::m_CreateVulkanWindow() {
 
 void MainBackend::m_DestroyVulkanWindow() { m_VulkanWindowPtr.reset(); }
 
-void MainBackend::m_InitFilesTracker() {  //
-    m_InitFilesTracker(std::bind(&MainBackend::m_UpdateFiles, this, std::placeholders::_1),
-        std::list<std::string>{".", "shaders", "debug"});
+void MainBackend::m_InitFilesTracker() {                                                     //
+    m_InitFilesTracker(std::bind(&MainBackend::m_UpdateFiles, this, std::placeholders::_1),  //
+        std::list<std::string>{".", "shaders", "debug", "debug/shaders"});
 }
 
 bool MainBackend::m_CreateVulkanCore() {
