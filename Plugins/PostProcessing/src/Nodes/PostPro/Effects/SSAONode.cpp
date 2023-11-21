@@ -52,9 +52,10 @@ bool SSAONode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	name = "SS_AO";
 
-	AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
-	AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
-	AddInput(NodeSlotTextureInput::Create("Noise", 2U), true, false);
+    AddInput(NodeSlotTextureInput::Create("Color", 0U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Position", 1U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Normal", 2U), true, false);
+	AddInput(NodeSlotTextureInput::Create("Noise", 3U), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
 	bool res = false;

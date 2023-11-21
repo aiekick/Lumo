@@ -78,7 +78,7 @@ void UserNodeLibrary::AnalyseRootDirectory()
 
     // Utils
     m_RootLibraryCategory.AddCustom("Utils", "Math", "MATH");
-    m_RootLibraryCategory.AddCustom("Model", "Model Attributes", "MESH_ATTRIBUTES");
+    m_RootLibraryCategory.AddCustom("Model", "Model Buffers", "MESH_BUFFERS");
 
 	// shader nodes
     AnalyseRootDirectoryRecurs(LIBRARY_EFECT_ROOT_PATH, 0, &m_RootLibraryCategory);

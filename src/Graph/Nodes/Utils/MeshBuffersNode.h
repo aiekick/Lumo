@@ -24,8 +24,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
-class MeshAttributesModule;
-class MeshAttributesNode : 
+class MeshBuffersModule;
+class MeshBuffersNode : 
 	public BaseNode, 
 	public ModelInputInterface,
 	public TextureInputInterface<0U>,
@@ -33,14 +33,14 @@ class MeshAttributesNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<MeshAttributesNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<MeshBuffersNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
 
 private:
-	std::shared_ptr<MeshAttributesModule> m_MeshAttributesModulePtr = nullptr;
+	std::shared_ptr<MeshBuffersModule> m_MeshBuffersModulePtr = nullptr;
 
 public:
-	MeshAttributesNode();
-	~MeshAttributesNode() override;
+	MeshBuffersNode();
+	~MeshBuffersNode() override;
 	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;

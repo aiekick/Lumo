@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "MeshAttributesNode.h"
-#include <Graph/Modules/Utils/MeshAttributesModule.h>
+#include "MeshBuffersNode.h"
+#include <Graph/Modules/Utils/MeshBuffersModule.h>
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
@@ -29,9 +29,9 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<MeshAttributesNode> MeshAttributesNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MeshBuffersNode> MeshBuffersNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
-	auto res = std::make_shared<MeshAttributesNode>();
+	auto res = std::make_shared<MeshBuffersNode>();
 	res->m_This = res;
 	if (!res->Init(vVulkanCorePtr))
 	{
@@ -40,19 +40,19 @@ std::shared_ptr<MeshAttributesNode> MeshAttributesNode::Create(GaiApi::VulkanCor
 	return res;
 }
 
-MeshAttributesNode::MeshAttributesNode() : BaseNode()
+MeshBuffersNode::MeshBuffersNode() : BaseNode()
 {
-	m_NodeTypeString = "MESH_ATTRIBUTES";
+	m_NodeTypeString = "MESH_BUFFERS";
 }
 
-MeshAttributesNode::~MeshAttributesNode()
+MeshBuffersNode::~MeshBuffersNode()
 {
 	Unit();
 }
 
-bool MeshAttributesNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool MeshBuffersNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
-	name = "Mesh Attributes";
+	name = "Mesh Buffers";
 
 	AddInput(NodeSlotModelInput::Create("Model"), true, false);
 	AddInput(NodeSlotTextureInput::Create("Mask", 0U), true, false);
@@ -66,8 +66,8 @@ bool MeshAttributesNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_MeshAttributesModulePtr = MeshAttributesModule::Create(vVulkanCorePtr);
-	if (m_MeshAttributesModulePtr)
+	m_MeshBuffersModulePtr = MeshBuffersModule::Create(vVulkanCorePtr);
+	if (m_MeshBuffersModulePtr)
 	{
 		res = true;
 	}
@@ -75,38 +75,38 @@ bool MeshAttributesNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	return res;
 }
 
-void MeshAttributesNode::Unit()
+void MeshBuffersNode::Unit()
 {
-	m_MeshAttributesModulePtr.reset();
+	m_MeshBuffersModulePtr.reset();
 }
 
-bool MeshAttributesNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool MeshBuffersNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
 	UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
-	if (m_MeshAttributesModulePtr)
+	if (m_MeshBuffersModulePtr)
 	{
-		return m_MeshAttributesModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+		return m_MeshBuffersModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 	}
 	return false;
 }
 
-bool MeshAttributesNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool MeshBuffersNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_MeshAttributesModulePtr)
+	if (m_MeshBuffersModulePtr)
 	{
-		return m_MeshAttributesModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+		return m_MeshBuffersModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 	}
 
 	return false;
 }
 
-bool MeshAttributesNode::DrawOverlays(
+bool MeshBuffersNode::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -114,19 +114,19 @@ bool MeshAttributesNode::DrawOverlays(
     return false;
 }
 
-bool MeshAttributesNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool MeshBuffersNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_MeshAttributesModulePtr)
+	if (m_MeshBuffersModulePtr)
 	{
-        return m_MeshAttributesModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+        return m_MeshBuffersModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
 	}
 
 	return false;
 }
 
-void MeshAttributesNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+void MeshBuffersNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
 {
 	if (vBaseNodeState && vBaseNodeState->debug_mode)
 	{
@@ -143,38 +143,38 @@ void MeshAttributesNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeStat
 	}
 }
 
-void MeshAttributesNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void MeshBuffersNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
-	if (m_MeshAttributesModulePtr)
+	if (m_MeshBuffersModulePtr)
 	{
-		m_MeshAttributesModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+		m_MeshBuffersModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 	}
 
 	// on fait ca apres
 	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void MeshAttributesNode::SetModel(SceneModelWeak vSceneModel)
+void MeshBuffersNode::SetModel(SceneModelWeak vSceneModel)
 {
-	if (m_MeshAttributesModulePtr)
+	if (m_MeshBuffersModulePtr)
 	{
-		m_MeshAttributesModulePtr->SetModel(vSceneModel);
+		m_MeshBuffersModulePtr->SetModel(vSceneModel);
 	}
 }
 
-void MeshAttributesNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void MeshBuffersNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
-	if (m_MeshAttributesModulePtr)
+	if (m_MeshBuffersModulePtr)
 	{
-		m_MeshAttributesModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_MeshBuffersModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* MeshAttributesNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* MeshBuffersNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
-	if (m_MeshAttributesModulePtr)
+	if (m_MeshBuffersModulePtr)
 	{
-		return m_MeshAttributesModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_MeshBuffersModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -184,7 +184,7 @@ vk::DescriptorImageInfo* MeshAttributesNode::GetDescriptorImageInfo(const uint32
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string MeshAttributesNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+std::string MeshBuffersNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
 {
 	std::string res;
 
@@ -210,9 +210,9 @@ std::string MeshAttributesNode::getXml(const std::string& vOffset, const std::st
 			res += slot.second->getXml(vOffset + "\t", vUserDatas);
 		}
 
-		if (m_MeshAttributesModulePtr)
+		if (m_MeshBuffersModulePtr)
 		{
-			res += m_MeshAttributesModulePtr->getXml(vOffset + "\t", vUserDatas);
+			res += m_MeshBuffersModulePtr->getXml(vOffset + "\t", vUserDatas);
 		}
 
 		res += vOffset + "</node>\n";
@@ -221,7 +221,7 @@ std::string MeshAttributesNode::getXml(const std::string& vOffset, const std::st
 	return res;
 }
 
-bool MeshAttributesNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+bool MeshBuffersNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;
@@ -236,18 +236,18 @@ bool MeshAttributesNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEl
 
 	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_MeshAttributesModulePtr)
+	if (m_MeshBuffersModulePtr)
 	{
-		m_MeshAttributesModulePtr->setFromXml(vElem, vParent, vUserDatas);
+		m_MeshBuffersModulePtr->setFromXml(vElem, vParent, vUserDatas);
 	}
 
 	return true;
 }
 
-void MeshAttributesNode::UpdateShaders(const std::set<std::string>& vFiles)
+void MeshBuffersNode::UpdateShaders(const std::set<std::string>& vFiles)
 {
-	if (m_MeshAttributesModulePtr)
+	if (m_MeshBuffersModulePtr)
 	{
-		m_MeshAttributesModulePtr->UpdateShaders(vFiles);
+		m_MeshBuffersModulePtr->UpdateShaders(vFiles);
 	}
 }

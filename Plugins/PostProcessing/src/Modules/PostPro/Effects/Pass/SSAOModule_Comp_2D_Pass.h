@@ -55,10 +55,10 @@ private:
 	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Comp;
 
 	struct UBOComp {
+        alignas(4) float use_sampler_color = 0.0f;
 		alignas(4) float use_sampler_pos = 0.0f;
 		alignas(4) float use_sampler_nor = 0.0f;
         alignas(4) float use_sampler_noise = 0.0f;
-        alignas(4) float use_sampler_color = 0.0f;
 		alignas(4) float u_noise_scale = 1.0f;
 		alignas(4) float u_ao_radius = 0.01f;
 		alignas(4) float u_ao_scale = 1.0f;

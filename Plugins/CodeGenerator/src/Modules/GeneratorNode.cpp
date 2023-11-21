@@ -955,7 +955,13 @@ std::string GeneratorNode::GetGlslHeader(const std::string& vStage, const bool& 
     std::string res;
     uint32_t bindingStartIndex = 0U;
     if (m_UseCommonSystemUBO) {
-        res += CommonSystem::GetBufferObjectStructureHeader(bindingStartIndex++);
+        res += ct::toStr(
+"\")\n\
++\
+CommonSystem::Instance()->GetBufferObjectStructureHeader(%u)\
++\
+u8R\"(",
+            bindingStartIndex++);
     }
     res += m_UBOEditors.Get_Glsl_Header("Comp", m_IsAnEffect, bindingStartIndex);
     for (const auto& input : m_Inputs) {

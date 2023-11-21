@@ -32,60 +32,46 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/CameraInterface.h>
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/CameraInterface.h>
+#include <LumoBackend/Interfaces/MergedInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 
 
-class MeshAttributesModule_Mesh_Pass :
-	public ShaderPass,
+class MeshBuffersModule_Mesh_Pass;
+class MeshBuffersModule :
+	public BaseRenderer,
+	public NodeInterface,
 	
 	public ModelInputInterface,
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface
+	public TextureInputInterface<0U>,
+	public TextureOutputInterface,
+	public TaskInterface
 {
+public:
+	static std::shared_ptr<MeshBuffersModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+
 private:
-	VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
-
-	struct UBOVert {
-		alignas(16) glm::mat4x4 transform = glm::mat4x4(1.0f);
-	} m_UBOVert;
-
-	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
-
-	struct UBOFrag {
-		alignas(4) float use_sampler_mask = 0.0f;
-	} m_UBOFrag;
+	std::shared_ptr<MeshBuffersModule_Mesh_Pass> m_MeshBuffersModule_Mesh_Pass_Ptr = nullptr;
 
 public:
-	MeshAttributesModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	~MeshAttributesModule_Mesh_Pass() override;
+	MeshBuffersModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	~MeshBuffersModule() override;
 
-	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+	bool Init();
+
+	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;
 	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-private:
-	void DestroyModel(const bool& vReleaseDatas = false) override;
-
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
-
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
-
-	void SetInputStateBeforePipelineCreation() override;
-
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

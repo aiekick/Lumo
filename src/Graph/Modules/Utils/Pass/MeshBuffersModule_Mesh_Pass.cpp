@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "MeshAttributesModule_Mesh_Pass.h"
+#include "MeshBuffersModule_Mesh_Pass.h"
 
 #include <functional>
-
-
 
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
@@ -28,8 +26,6 @@ limitations under the License.
 #include <ImWidgets.h>
 
 #include <LumoBackend/Systems/CommonSystem.h>
-
-
 
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Shader/VulkanShader.h>
@@ -48,7 +44,7 @@ using namespace GaiApi;
 //// FIRST PASS //////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshAttributesModule_Mesh_Pass::MeshAttributesModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
+MeshBuffersModule_Mesh_Pass::MeshBuffersModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: ShaderPass(vVulkanCorePtr)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Mesh Attributes", MESH_SHADER_PASS_DEBUG_COLOR);
@@ -56,12 +52,12 @@ MeshAttributesModule_Mesh_Pass::MeshAttributesModule_Mesh_Pass(GaiApi::VulkanCor
 	m_DontUseShaderFilesOnDisk = true;
 }
 
-MeshAttributesModule_Mesh_Pass::~MeshAttributesModule_Mesh_Pass()
+MeshBuffersModule_Mesh_Pass::~MeshBuffersModule_Mesh_Pass()
 {
 	Unit();
 }
 
-bool MeshAttributesModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool MeshBuffersModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
@@ -77,7 +73,7 @@ bool MeshAttributesModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, 
 	return false;
 }
 
-bool MeshAttributesModule_Mesh_Pass::DrawOverlays(
+bool MeshBuffersModule_Mesh_Pass::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
@@ -85,7 +81,7 @@ bool MeshAttributesModule_Mesh_Pass::DrawOverlays(
     return false;
 }
 
-bool MeshAttributesModule_Mesh_Pass::DrawDialogsAndPopups(
+bool MeshBuffersModule_Mesh_Pass::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
@@ -93,14 +89,14 @@ bool MeshAttributesModule_Mesh_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void MeshAttributesModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
+void MeshBuffersModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
 	m_SceneModel = vSceneModel;
 }
 
-void MeshAttributesModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void MeshBuffersModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
@@ -132,7 +128,7 @@ void MeshAttributesModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, v
 	}
 }
 
-vk::DescriptorImageInfo* MeshAttributesModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* MeshBuffersModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	if (m_FrameBufferPtr)
 	{
@@ -147,7 +143,7 @@ vk::DescriptorImageInfo* MeshAttributesModule_Mesh_Pass::GetDescriptorImageInfo(
 	return nullptr;
 }
 
-void MeshAttributesModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
+void MeshBuffersModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
 {
 	ZoneScoped;
 
@@ -160,7 +156,7 @@ void MeshAttributesModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr,
 
 		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
 		{
-			//VKFPScoped(*vCmdBufferPtr, "MeshAttributesModule_Mesh_Pass", "DrawModel");
+			//VKFPScoped(*vCmdBufferPtr, "MeshBuffersModule_Mesh_Pass", "DrawModel");
 
 			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
@@ -186,7 +182,7 @@ void MeshAttributesModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr,
 	}
 }
 
-void MeshAttributesModule_Mesh_Pass::DestroyModel(const bool& vReleaseDatas)
+void MeshBuffersModule_Mesh_Pass::DestroyModel(const bool& vReleaseDatas)
 {
 	ZoneScoped;
 
@@ -196,7 +192,7 @@ void MeshAttributesModule_Mesh_Pass::DestroyModel(const bool& vReleaseDatas)
 	}
 }
 
-bool MeshAttributesModule_Mesh_Pass::CreateUBO()
+bool MeshBuffersModule_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
 
@@ -226,7 +222,7 @@ bool MeshAttributesModule_Mesh_Pass::CreateUBO()
 	return true;
 }
 
-void MeshAttributesModule_Mesh_Pass::UploadUBO()
+void MeshBuffersModule_Mesh_Pass::UploadUBO()
 {
 	ZoneScoped;
 
@@ -234,7 +230,7 @@ void MeshAttributesModule_Mesh_Pass::UploadUBO()
 	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void MeshAttributesModule_Mesh_Pass::DestroyUBO()
+void MeshBuffersModule_Mesh_Pass::DestroyUBO()
 {
 	ZoneScoped;
 
@@ -242,7 +238,7 @@ void MeshAttributesModule_Mesh_Pass::DestroyUBO()
 	m_UBOFragPtr.reset();
 }
 
-bool MeshAttributesModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
+bool MeshBuffersModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -253,7 +249,7 @@ bool MeshAttributesModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
 	return res;
 }
 
-bool MeshAttributesModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
+bool MeshBuffersModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
 {
 	ZoneScoped;
 
@@ -264,14 +260,14 @@ bool MeshAttributesModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
 	return res;
 }
 
-void MeshAttributesModule_Mesh_Pass::SetInputStateBeforePipelineCreation()
+void MeshBuffersModule_Mesh_Pass::SetInputStateBeforePipelineCreation()
 {
 	VertexStruct::P3_N3_TA3_BTA3_T2_C4::GetInputState(m_InputState);
 }
 
-std::string MeshAttributesModule_Mesh_Pass::GetVertexShaderCode(std::string& vOutShaderName)
+std::string MeshBuffersModule_Mesh_Pass::GetVertexShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "MeshAttributesModule_Vertex_Pass";
+	vOutShaderName = "MeshBuffersModule_Vertex_Pass";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -292,10 +288,9 @@ layout(location = 5) out vec4 vertColor;
 )"
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
-void main() 
-{
-	vertPosition = aPosition;
-	vertNormal = aNormal;
+void main() {
+    vertPosition = (model * vec4(aPosition, 1.0)).xyz; 
+    vertNormal = transpose(inverse(mat3(model))) * aNormal;
 	vertTangent = aTangent;
 	vertBiTangent = aBiTangent;
 	vertUv = aUv;
@@ -305,9 +300,9 @@ void main()
 )";
 }
 
-std::string MeshAttributesModule_Mesh_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
+std::string MeshBuffersModule_Mesh_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
 {
-	vOutShaderName = "MeshAttributesModule_Fragment_Pass";
+	vOutShaderName = "MeshBuffersModule_Fragment_Pass";
 
 	return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
@@ -329,28 +324,21 @@ layout(location = 5) in vec4 vertColor;
 )"
 + CommonSystem::GetBufferObjectStructureHeader(0U) +
 u8R"(
-
-layout (std140, binding = 1) uniform UBO_Vert 
-{ 
+layout (std140, binding = 1) uniform UBO_Vert { 
 	float use_sampler_mask;
 };
 layout(binding = 2) uniform sampler2D mask_map_sampler;
 
-void main() 
-{
-	fragPos = vec4(vertPosition,1);
-	fragNor = vec4(vertNormal * 0.5 + 0.5,1);
-	fragTan = vec4(vertTangent,1);
-	fragBTan = vec4(vertBiTangent,1);
-	fragUV = vec4(vertUv,0,1);
+void main() {
+	fragPos = vec4(vertPosition, 1.0);
+	fragNor = vec4(normalize(vertNormal) * 0.5 + 0.5, 1.0);
+	fragTan = vec4(vertTangent, 1.0);
+	fragBTan = vec4(vertBiTangent, 1.0);
+	fragUV = vec4(vertUv, 0.0, 1.0);
 	fragCol = vertColor;
 	fragDep = vec4(LinearizeDepth(gl_FragCoord.z / gl_FragCoord.w));
-
-	if (use_sampler_mask > 0.5)
-	{
-		float mask = texture(mask_map_sampler, vertUv).r;
-		if (mask < 0.5)
-		{
+	if (use_sampler_mask > 0.5)	{
+		if (texture(mask_map_sampler, vertUv).r < 0.5)	{
 			discard;
 		}
 	}

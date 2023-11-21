@@ -47,219 +47,204 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSReflectionModule> SSReflectionModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<SSReflectionModule> SSReflectionModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SSReflectionModule>(vVulkanCorePtr);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init()) {
-		res.reset();
-	}
+    if (!vVulkanCorePtr)
+        return nullptr;
+    auto res = std::make_shared<SSReflectionModule>(vVulkanCorePtr);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSReflectionModule::SSReflectionModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
-{
-	ZoneScoped;
+SSReflectionModule::SSReflectionModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+    ZoneScoped;
 }
 
-SSReflectionModule::~SSReflectionModule()
-{
-	ZoneScoped;
+SSReflectionModule::~SSReflectionModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SSReflectionModule::Init()
-{
-	ZoneScoped;
+bool SSReflectionModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	ct::uvec2 map_size = 512;
-	if (BaseRenderer::InitCompute2D(map_size)) {
-		//SetExecutionWhenNeededOnly(true);
-		m_SSReflectionModule_Comp_2D_Pass_Ptr = SSReflectionModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
-		if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-			// by default but can be changed via widget
-			m_SSReflectionModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
-			m_SSReflectionModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
-			AddGenericPass(m_SSReflectionModule_Comp_2D_Pass_Ptr);
-			m_Loaded = true;
-		}
-	}
+    ct::uvec2 map_size = 512;
+    if (BaseRenderer::InitCompute2D(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
+        m_SSReflectionModule_Comp_2D_Pass_Ptr = SSReflectionModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+            // by default but can be changed via widget
+            m_SSReflectionModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
+            m_SSReflectionModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+            AddGenericPass(m_SSReflectionModule_Comp_2D_Pass_Ptr);
+            m_Loaded = true;
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SSReflectionModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
-		BaseRenderer::Render("SS Reflection", vCmd);
-	return true;
+bool SSReflectionModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
+    BaseRenderer::Render("SS Reflection", vCmd);
+    return true;
 }
 
-bool SSReflectionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
-	BaseRenderer::Render("SS Reflection", vCmd);
-	return true;
+bool SSReflectionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
+    BaseRenderer::Render("SS Reflection", vCmd);
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SSReflectionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-			return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-		}
-		
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+            return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool SSReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SSReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-			return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
-		}
-	}
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+            return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool SSReflectionModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SSReflectionModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-			return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-		}
-	}
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+            return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+        }
+    }
 
-	return false;
+    return false;
 }
 
-void SSReflectionModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void SSReflectionModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SSReflectionModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {	
-	ZoneScoped;
+void SSReflectionModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-		m_SSReflectionModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+        m_SSReflectionModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SSReflectionModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
-	ZoneScoped;
+vk::DescriptorImageInfo* SSReflectionModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-		return m_SSReflectionModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+        return m_SSReflectionModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SSReflectionModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	std::string str;
-	str += vOffset + "<ss_reflection_module>\n";
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
-	if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-		str += m_SSReflectionModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
-	str += vOffset + "</ss_reflection_module>\n";
-	return str;
+std::string SSReflectionModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
+    std::string str;
+    str += vOffset + "<ss_reflection_module>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+        str += m_SSReflectionModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
+    str += vOffset + "</ss_reflection_module>\n";
+    return str;
 }
 
-bool SSReflectionModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SSReflectionModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "ss_reflection_module")	{
-		if (strName == "can_we_render") {
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-		} 
-	}
-		if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-			m_SSReflectionModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
+    if (strParentName == "ss_reflection_module") {
+        if (strName == "can_we_render") {
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+        }
+    }
 
-	return true;
+    if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+        m_SSReflectionModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+    }
+
+    return true;
 }
 
-void SSReflectionModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
-	if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-		m_SSReflectionModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
-	}
+void SSReflectionModule::AfterNodeXmlLoading() {
+    ZoneScoped;
+    if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
+        m_SSReflectionModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    }
 }

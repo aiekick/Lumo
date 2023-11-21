@@ -236,32 +236,11 @@ std::string SSReflectionModule_Comp_2D_Pass::GetComputeShaderCode(std::string& v
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
-
-layout(std140, binding = 0) uniform UBO_CommonSystem {
-	mat4 cam;			// the MVP matrix
-	mat4 model;			// the model matrix
-	mat4 view;			// the view matrix
-	mat4 proj;			// the proj matrix
-	mat4 normalMat;		// the normal matrix
-	vec4 left_mouse;	// 2pos_2click_normalized
-	vec4 middle_mouse;	// 2pos_2click_normalized
-	vec4 right_mouse;	// 2pos_2click_normalized
-	vec2 screenSize;	// the screensize
-	vec2 viewportSize;	// the viewportSize
-	float cam_near;		// the cam near
-	float cam_far;		// the cam far
-};
-
-float LinearizeDepth(float vDepth) {
-	return vDepth;
-	//return (cam_near * cam_far) / (cam_far + cam_near - vDepth * (cam_far - cam_near));
-}
-
-float DeLinearizeDepth(float vDepth) {
-	return vDepth;
-	//return (cam_near + cam_far) * vDepth - cam_far * cam_near / (cam_near - cam_far) * vDepth;
-}
-
+)" 
++ 
+CommonSystem::Instance()->GetBufferObjectStructureHeader(0U)
++
+u8R"(
 layout(std140, binding = 1) uniform UBO_Comp {
 	float u_max_distance; // default is 8
 	float u_resolution; // default is 0.3
@@ -275,37 +254,125 @@ layout(binding = 2) uniform sampler2D input_color_map;
 layout(binding = 3) uniform sampler2D input_position_map;
 layout(binding = 4) uniform sampler2D input_normal_map;
 layout(binding = 5) uniform sampler2D input_mask_map;
+
 layout(binding = 6, rgba32f) uniform image2D outColor; // output
 
-vec4 getReflectedUVs(ivec2 vCoords) {
-	vec4 position_from = texelFetch(input_position_map, vCoords, 0);
-	if ( position_from.w <= 0.0) { 
-		return vec4(0.0); 
-	}
-	if (u_use_mask_sampler > 0.5){
-		vec4 mask = texelFetch(input_mask_map, vCoords, 0);
-		if (mask.r <= 0.0) { 
-			return vec4(0.0); 
+vec4 getEffect(ivec2 vCoords) {
+	vec2 si = textureSize(input_position_map, 0);
+	vec2 uv = vec2(vCoords);
+	
+	vec4 currentColor = texelFetch(input_color_map, vCoords, 0);
+	
+	vec4 positionFrom     = texelFetch(input_position_map, vCoords, 0);
+	vec3 unitPositionFrom = normalize(positionFrom.xyz);
+	vec3 normal           = normalize(texelFetch(input_normal_map, vCoords, 0).xyz);
+	vec3 pivot            = normalize(reflect(unitPositionFrom, normal));
+	
+	vec4 positionTo = positionFrom;
+
+	vec4 startView = vec4(positionFrom.xyz + (pivot *            0.0), 1.0);
+	vec4 endView   = vec4(positionFrom.xyz + (pivot * u_max_distance), 1.0);
+
+	vec4 startFrag = startView;
+	// Project to screen space.
+	startFrag = proj * startFrag;
+	// Perform the perspective divide.
+	startFrag.xyz /= startFrag.w;
+	// Convert the screen-space XY coordinates to UV coordinates.
+	startFrag.xy = startFrag.xy * 0.5 + 0.5;
+	// Convert the UV coordinates to fragment/pixel coordnates.
+	
+	vec4 endFrag = endView;
+	endFrag = proj * endFrag;
+	endFrag.xyz /= endFrag.w;
+	endFrag.xy = endFrag.xy * 0.5 + 0.5;
+	   
+	float deltaX = endFrag.x - startFrag.x;
+	float deltaY = endFrag.y - startFrag.y;
+	
+	float useX = abs(deltaX) >= abs(deltaY) ? 1 : 0;
+	float delta = mix(abs(deltaY), abs(deltaX), useX) * clamp(u_resolution, 0.0, 1.0);
+	
+	if (delta != 0 && deltaX != 0 && deltaY != 0) {
+		vec2 increment = vec2(deltaX, deltaY) / max(delta, 0.001);
+		
+		float search0 = 0;
+		float search1 = 0;
+
+		int hit0 = 0;
+		int hit1 = 0;
+		
+		float viewDistance = startView.y;
+		float depth = u_thickness;
+		
+		vec2 frag = startFrag.xy;
+	   
+		for (int i=0; i<u_steps; ++i) {
+			frag += increment;
+			positionTo = texelFetch(input_position_map, ivec2(frag), 0);
+			float searchX = (frag.x - startFrag.x) / deltaX;
+			float searchY = (frag.y - startFrag.y) / deltaY;
+			search1 = mix(searchY, searchX, useX);
+			search1 = clamp(search1, 0.0, 1.0);
+			float quo = mix(endView.y, startView.y, search1);
+			if (quo != 0) {
+				viewDistance = (startView.y * endView.y) / quo;
+				depth = viewDistance - positionTo.y;
+				if (depth > 0 && depth < u_thickness) {
+					hit0 = 1;
+					break;
+				} else {
+					search0 = search1;
+				}
+			}
 		}
+		
+		search1 = search0 + ((search1 - search0) / 2.0);
+
+		int steps = u_steps * hit0;
+
+		for (int i=0; i<steps; ++i) {
+			frag = mix(startFrag.xy, endFrag.xy, search1);
+			positionTo = texelFetch(input_position_map, ivec2(frag), 0);
+			float quo = mix(endView.y, startView.y, search1);
+			if (quo != 0) {
+				viewDistance = (startView.y * endView.y) / quo;
+				depth = viewDistance - positionTo.y;
+				if (depth > 0 && depth < u_thickness) {
+					hit1 = 1;
+					search1 = search0 + ((search1 - search0) * 0.5);
+				} else {
+					float temp = search1;
+					search1 = search1 + ((search1 - search0) * 0.5);
+					search0 = temp;
+				}
+			}
+		}
+
+		float visibility = hit1 * 
+			positionTo.w * 
+			(1.0 - max ( dot(-unitPositionFrom, pivot), 0.0)) * 
+			(1.0 - clamp( depth / max(u_thickness, 1.0), 0.0, 1.0)) *  
+			(1.0 - clamp(length(positionTo - positionFrom) / max(u_max_distance, 1.0), 0.0, 1.0)) * 
+			(uv.x < 0 || uv.x > 1.0 ? 0.0 : 1.0) * 
+			(uv.y < 0 || uv.y > 1.0 ? 0.0 : 1.0);
+
+		float alpha = clamp(visibility, 0.0, 1.0);
+		vec4 refectedColor = texelFetch(input_color_map, ivec2(frag), 0);
+		
+		return mix(currentColor, refectedColor, alpha);
 	}
-
-    vec4 col = vec4(0);
-
-	return col;
+	return currentColor;
 }
 
 void main() {
 	const ivec2 coords = ivec2(gl_GlobalInvocationID.xy);
 	vec4 res = texelFetch(input_color_map, coords, 0);
-    if (u_enabled > 0.5) {
-        vec4 uv_vis = getReflectedUVs(coords);
-		res = texture(input_color_map, uv_vis.xy);
-		//float alpha = clamp(uv_vis.b, 0, 1);
-		//res = vec4(mix(vec3(0), res.rgb, alpha), alpha);
+    if (u_enabled > 0.5 &&  res.a > 0.0) {
+        res = getEffect(coords);
     }
 	imageStore(outColor, coords, res); 
 }
-
 )";
 }
 

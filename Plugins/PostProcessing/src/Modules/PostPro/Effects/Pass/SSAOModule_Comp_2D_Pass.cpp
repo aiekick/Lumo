@@ -85,27 +85,18 @@ void SSAOModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const in
 bool SSAOModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
-
     if (ImGui::CollapsingHeader_CheckBox("SSAO##SSAOModule_Comp_2D_Pass", -1.0f, false, true, IsEffectEnabled())) {
         bool change = false;
-
         change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOComp.u_noise_scale, 0.0f, 2.0f, 1.0f);
         change |= ImGui::SliderFloatDefaultCompact(0.0f, "Radius", &m_UBOComp.u_ao_radius, 0.0f, 0.25f, 0.01f);
         change |= ImGui::SliderFloatDefaultCompact(0.0f, "Scale", &m_UBOComp.u_ao_scale, 0.0f, 1.0f, 1.0f);
         change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOComp.u_ao_bias, 0.0f, 0.1f, 0.001f);
         change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &m_UBOComp.u_ao_intensity, 0.0f, 5.0f, 2.0f);
-
         if (change) {
             NeedNewUBOUpload();
         }
-
-        // DrawInputTexture(m_VulkanCorePtr, "Input Position", 0U, m_OutputRatio);
-        // DrawInputTexture(m_VulkanCorePtr, "Input Normal", 1U, m_OutputRatio);
-        // DrawInputTexture(m_VulkanCorePtr, "Input Blue Noise", 2U, m_OutputRatio);
-
         return change;
     }
-
     return false;
 }
 
@@ -133,16 +124,14 @@ void SSAOModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Desc
                     m_ImageInfosSize[vBindingPoint] = *vTextureSize;
                     NeedResizeByHandIfChanged(m_ImageInfosSize[0]); // pos and nor must have the same size, but noise no
                 }
-
                 m_ImageInfos[vBindingPoint] = *vImageInfo;
-
-                if ((&m_UBOComp.use_sampler_pos)[vBindingPoint] < 1.0f) {
-                    (&m_UBOComp.use_sampler_pos)[vBindingPoint] = 1.0f;
+                if ((&m_UBOComp.use_sampler_color)[vBindingPoint] < 1.0f) {
+                    (&m_UBOComp.use_sampler_color)[vBindingPoint] = 1.0f;
                     NeedNewUBOUpload();
                 }
             } else {
-                if ((&m_UBOComp.use_sampler_pos)[vBindingPoint] > 0.0f) {
-                    (&m_UBOComp.use_sampler_pos)[vBindingPoint] = 0.0f;
+                if ((&m_UBOComp.use_sampler_color)[vBindingPoint] > 0.0f) {
+                    (&m_UBOComp.use_sampler_color)[vBindingPoint] = 0.0f;
                     NeedNewUBOUpload();
                 }
 
@@ -216,10 +205,10 @@ bool SSAOModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor() {
         bool res = true;
         res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));  // output
         res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Comp);
-        res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // depth
-        res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);  // normal
-        res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]);  // RGB noise
-        res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[3]);  // source color
+        res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // source color
+        res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);  // position
+        res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]);  // normal
+        res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[3]);  // RGB noise
         return res;
     }
     return false;
@@ -238,10 +227,10 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
 layout(binding = 0, rgba32f) uniform writeonly image2D outColor;
 
 layout (std140, binding = 1) uniform UBO_Comp {
+	float use_sampler_color;
 	float use_sampler_pos;
 	float use_sampler_nor;
 	float use_sampler_noise;
-	float use_sampler_color;
 	float u_noise_scale;
 	float u_ao_radius;
 	float u_ao_scale;
@@ -249,10 +238,10 @@ layout (std140, binding = 1) uniform UBO_Comp {
 	float u_ao_intensity;
 	uint u_enabled; // default is 1
 };
-layout(binding = 2) uniform sampler2D pos_map_sampler;
-layout(binding = 3) uniform sampler2D nor_map_sampler;
-layout(binding = 4) uniform sampler2D noise_map_sampler;
-layout(binding = 5) uniform sampler2D color_map_sampler;
+layout(binding = 2) uniform sampler2D color_map_sampler;
+layout(binding = 3) uniform sampler2D pos_map_sampler;
+layout(binding = 4) uniform sampler2D nor_map_sampler;
+layout(binding = 5) uniform sampler2D noise_map_sampler;
 
 // https://www.gamedev.net/tutorials/programming/graphics/a-simple-and-practical-approach-to-ssao-r2753/
 

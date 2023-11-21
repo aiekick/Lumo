@@ -14,11 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#include "MeshAttributesModule.h"
+#include "MeshBuffersModule.h"
 
 #include <functional>
-
-
 
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
@@ -29,12 +27,10 @@ limitations under the License.
 
 #include <LumoBackend/Systems/CommonSystem.h>
 
-
-
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Shader/VulkanShader.h>
 
-#include <Graph/Modules/Utils/Pass/MeshAttributesModule_Mesh_Pass.h>
+#include <Graph/Modules/Utils/Pass/MeshBuffersModule_Mesh_Pass.h>
 
 using namespace GaiApi;
 
@@ -50,10 +46,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MeshAttributesModule> MeshAttributesModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MeshBuffersModule> MeshBuffersModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
 {
 	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MeshAttributesModule>(vVulkanCorePtr);
+	auto res = std::make_shared<MeshBuffersModule>(vVulkanCorePtr);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -66,13 +62,13 @@ std::shared_ptr<MeshAttributesModule> MeshAttributesModule::Create(GaiApi::Vulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshAttributesModule::MeshAttributesModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
+MeshBuffersModule::MeshBuffersModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	: BaseRenderer(vVulkanCorePtr)
 {
 
 }
 
-MeshAttributesModule::~MeshAttributesModule()
+MeshBuffersModule::~MeshBuffersModule()
 {
 	Unit();
 }
@@ -81,7 +77,7 @@ MeshAttributesModule::~MeshAttributesModule()
 //// INIT ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool MeshAttributesModule::Init()
+bool MeshBuffersModule::Init()
 {
 	ZoneScoped;
 
@@ -91,13 +87,13 @@ bool MeshAttributesModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_MeshAttributesModule_Mesh_Pass_Ptr = std::make_shared<MeshAttributesModule_Mesh_Pass>(m_VulkanCorePtr);
-		if (m_MeshAttributesModule_Mesh_Pass_Ptr)
+		m_MeshBuffersModule_Mesh_Pass_Ptr = std::make_shared<MeshBuffersModule_Mesh_Pass>(m_VulkanCorePtr);
+		if (m_MeshBuffersModule_Mesh_Pass_Ptr)
 		{
-			if (m_MeshAttributesModule_Mesh_Pass_Ptr->InitPixel(map_size, 7U, true, true, 0.0f,
+			if (m_MeshBuffersModule_Mesh_Pass_Ptr->InitPixel(map_size, 7U, true, true, 0.0f,
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
-				AddGenericPass(m_MeshAttributesModule_Mesh_Pass_Ptr);
+				AddGenericPass(m_MeshBuffersModule_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}
 		}
@@ -110,7 +106,7 @@ bool MeshAttributesModule::Init()
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool MeshAttributesModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+bool MeshBuffersModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
 
@@ -119,7 +115,7 @@ bool MeshAttributesModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Com
 	return true;
 }
 
-bool MeshAttributesModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool MeshBuffersModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
 {
 	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
@@ -127,9 +123,9 @@ bool MeshAttributesModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	{
 		if (ImGui::CollapsingHeader_CheckBox("Mesh Attributes", -1.0f, true, true, &m_CanWeRender))
 		{
-			if (m_MeshAttributesModule_Mesh_Pass_Ptr)
+			if (m_MeshBuffersModule_Mesh_Pass_Ptr)
 			{
-				return m_MeshAttributesModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+				return m_MeshBuffersModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
 			}
 		}
 	}
@@ -137,7 +133,7 @@ bool MeshAttributesModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiConte
 	return false;
 }
 
-bool MeshAttributesModule::DrawOverlays(
+bool MeshBuffersModule::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
@@ -148,7 +144,7 @@ bool MeshAttributesModule::DrawOverlays(
     return false;
 }
 
-bool MeshAttributesModule::DrawDialogsAndPopups(
+bool MeshBuffersModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
 
@@ -159,38 +155,38 @@ bool MeshAttributesModule::DrawDialogsAndPopups(
     return false;
 }
 
-void MeshAttributesModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+void MeshBuffersModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
 {
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void MeshAttributesModule::SetModel(SceneModelWeak vSceneModel)
+void MeshBuffersModule::SetModel(SceneModelWeak vSceneModel)
 {
 	ZoneScoped;
 
-	if (m_MeshAttributesModule_Mesh_Pass_Ptr)
+	if (m_MeshBuffersModule_Mesh_Pass_Ptr)
 	{
-		m_MeshAttributesModule_Mesh_Pass_Ptr->SetModel(vSceneModel);
+		m_MeshBuffersModule_Mesh_Pass_Ptr->SetModel(vSceneModel);
 	}
 }
 
-void MeshAttributesModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
+void MeshBuffersModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
 {
 	ZoneScoped;
 
-	if (m_MeshAttributesModule_Mesh_Pass_Ptr)
+	if (m_MeshBuffersModule_Mesh_Pass_Ptr)
 	{
-		m_MeshAttributesModule_Mesh_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_MeshBuffersModule_Mesh_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
 	}
 }
 
-vk::DescriptorImageInfo* MeshAttributesModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
+vk::DescriptorImageInfo* MeshBuffersModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
 {
 	ZoneScoped;
 
-	if (m_MeshAttributesModule_Mesh_Pass_Ptr)
+	if (m_MeshBuffersModule_Mesh_Pass_Ptr)
 	{
-		return m_MeshAttributesModule_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_MeshBuffersModule_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
 	}
 
 	return nullptr;
@@ -200,14 +196,14 @@ vk::DescriptorImageInfo* MeshAttributesModule::GetDescriptorImageInfo(const uint
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string MeshAttributesModule::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
+std::string MeshBuffersModule::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
 {
 	std::string str;
 
 	return str;
 }
 
-bool MeshAttributesModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
+bool MeshBuffersModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
 {
 	// The value of this child identifies the name of this element
 	std::string strName;

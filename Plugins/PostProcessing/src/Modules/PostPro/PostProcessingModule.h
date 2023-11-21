@@ -55,6 +55,7 @@ class ChromaticAberrationsModule_Comp_2D_Pass;
 class DilationModule_Comp_2D_Pass;
 class SharpnessModule_Comp_2D_Pass;
 class SSAOModule_Comp_2D_Pass;
+class SSReflectionModule_Comp_2D_Pass;
 class ToneMapModule_Comp_2D_Pass;
 class VignetteModule_Comp_2D_Pass;
 class PostProcessingModule :
@@ -76,6 +77,7 @@ private:
     std::shared_ptr<DilationModule_Comp_2D_Pass> m_DilationModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<SharpnessModule_Comp_2D_Pass> m_SharpnessModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<SSAOModule_Comp_2D_Pass> m_SSAOModule_Comp_2D_Pass_Ptr = nullptr;
+    std::shared_ptr<SSReflectionModule_Comp_2D_Pass> m_SSReflectionModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<ToneMapModule_Comp_2D_Pass> m_ToneMapModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<VignetteModule_Comp_2D_Pass> m_VignetteModule_Comp_2D_Pass_Ptr = nullptr;
 

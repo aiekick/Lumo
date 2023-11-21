@@ -35,7 +35,7 @@ limitations under the License.
 #include <Graph/Nodes/Widgets/WidgetColorNode.h>
 
 #include <Graph/Nodes/Utils/MathNode.h>
-#include <Graph/Nodes/Utils/MeshAttributesNode.h>
+#include <Graph/Nodes/Utils/MeshBuffersNode.h>
 
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType) {
     auto graphPtr = vNodeGraph.lock();
@@ -104,8 +104,8 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
             else if (vNodeType == "MATH"){
                 return MathNode::Create(corePtr);
 		}
-            else if (vNodeType == "MESH_ATTRIBUTES"){
-				return MeshAttributesNode::Create(corePtr);
+            else if (vNodeType == "MESH_BUFFERS"){
+				return MeshBuffersNode::Create(corePtr);
 		}
 		}
     }
