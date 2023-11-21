@@ -1,0 +1,37 @@
+name: Win Lumo With Base Plugins
+
+on:   
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+    - scheduled
+    branches:
+    - master
+    types:
+    - requested  
+
+jobs:
+  build_Win_Lumo_With_Base_Plugins:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:  
+        ref: master
+    - name: checkout submodules
+      run : git submodule update --init --recursive 
+    - name: Prepare Vulkan SDK
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      with:
+        vulkan-query-version: 1.3.224.1
+        vulkan-components: Vulkan-Headers, Vulkan-Loader
+        vulkan-use-cache: true
+    - name: configure
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DPLUGIN_ENABLE_MeshGen=ON -DPLUGIN_ENABLE_LIGHTING=ON -DPLUGIN_ENABLE_MISC=ON -DPLUGIN_ENABLE_POST_PROCESSING=ON -DPLUGIN_ENABLE_SIMULATION=ON 	  
+    - name: build
+      run: cmake --build build --config Release --target package
+    - name: upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Lumo_Win_With_Base_Plugins
+        path: "bin/packages/Lumo*.zip"
+        
