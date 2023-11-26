@@ -182,12 +182,12 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 | :x:  | Particles System | ![img](https://progress-bar.dev/50) |
 | :x:  | Depth of field | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Dilation | ![img](https://progress-bar.dev/100) |
-| :heavy_check_markx:  | Blur | ![img](https://progress-bar.dev/100) |
-| :heavy_check_markx:  | Bloom | ![img](https://progress-bar.dev/100) |
-| :heavy_check_markx:  | Chromatic Aberration | ![img](https://progress-bar.dev/100) |
-| :heavy_check_markx:  | Sharpen | ![img](https://progress-bar.dev/100) |
-| :heavy_check_markx:  | Tone Mapping | ![img](https://progress-bar.dev/100) |
-| :heavy_check_markx:  | Vignette | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Blur | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Bloom | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Chromatic Aberration | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Sharpen | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Tone Mapping | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Vignette | ![img](https://progress-bar.dev/100) |
 
 # Lumo Native Nodes :
 
@@ -573,7 +573,7 @@ Many nodes of Simulation
 | Published | Node | status |
 | - | - | - |
 | :heavy_check_mark:  | Postpro / Effects / Screen Space Ambient Occlusion Node (SSAO) | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Effects / Screen Space Interior Node (SSRa) | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Screen Space Interior Node (SSI) | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Postpro / Effects / Screen Space Reflection Node (SSRe) | ![img](https://progress-bar.dev/20) |
 | :heavy_check_mark:  | Postpro / Effects / Screen Space Refraction Node (SSRa) | ![img](https://progress-bar.dev/0) |
 
