@@ -33,121 +33,103 @@ limitations under the License.
 
 #ifndef USE_PLUGIN_STATIC_LINKING
 // needed for plugin creating / destroying
-extern "C" // needed for avoid renaming of funcs by the compiler
+extern "C"  // needed for avoid renaming of funcs by the compiler
 {
 #ifdef WIN32
-#define PLUGIN_PREFIX __declspec (dllexport)
+#define PLUGIN_PREFIX __declspec(dllexport)
 #else
 #define PLUGIN_PREFIX
 #endif
 
-	PLUGIN_PREFIX RTX* allocator()
-	{
-		return new RTX();
-	}
-
-	PLUGIN_PREFIX void deleter(RTX* ptr)
-	{
-		delete ptr;
-	}
+PLUGIN_PREFIX RTX* allocator() {
+    return new RTX();
 }
-#endif // USE_PLUGIN_STATIC_LINKING
 
-RTX::RTX()
-{
+PLUGIN_PREFIX void deleter(RTX* ptr) {
+    delete ptr;
+}
+}
+#endif  // USE_PLUGIN_STATIC_LINKING
+
+RTX::RTX() {
 #ifdef _MSC_VER
-	// active memory leak detector
-	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    // active memory leak detector
+    //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 }
 
-bool RTX::AuthorizeLoading()
-{
-	auto vkCorePtr = m_VulkanCoreWeak.lock();
-	return (vkCorePtr && vkCorePtr->GetSupportedFeatures().is_RTX_Supported); // autohrisation to load if RTX Feature available
+bool RTX::AuthorizeLoading() {
+    auto vkCorePtr = m_VulkanCoreWeak.lock();
+    if (vkCorePtr) {
+        const auto& features = vkCorePtr->GetSupportedFeatures();
+        return features.is_RTX_Supported;  // authorisation to load if RTX Feature available
+    }
+    return false;
 }
 
-void RTX::ActionAfterInit()
-{
-	NodeSlot::sGetSlotColors()->AddSlotColor("RTX_ACCEL_STRUCTURE", ImVec4(0.8f, 0.5f, 0.8f, 1.0f));
+void RTX::ActionAfterInit() {
+    NodeSlot::sGetSlotColors()->AddSlotColor("RTX_ACCEL_STRUCTURE", ImVec4(0.8f, 0.5f, 0.8f, 1.0f));
 }
 
-uint32_t RTX::GetVersionMajor() const
-{
-	return RTX_MinorNumber;
+uint32_t RTX::GetVersionMajor() const {
+    return RTX_MinorNumber;
 }
 
-uint32_t RTX::GetVersionMinor() const
-{
-	return RTX_MajorNumber;
+uint32_t RTX::GetVersionMinor() const {
+    return RTX_MajorNumber;
 }
 
-uint32_t RTX::GetVersionBuild() const
-{
-	return RTX_BuildNumber;
+uint32_t RTX::GetVersionBuild() const {
+    return RTX_BuildNumber;
 }
 
-std::string RTX::GetName() const
-{
-	return "RTX";
+std::string RTX::GetName() const {
+    return "RTX";
 }
 
-std::string RTX::GetVersion() const
-{
-	return RTX_BuildId;
+std::string RTX::GetVersion() const {
+    return RTX_BuildId;
 }
 
-std::string RTX::GetDescription() const
-{
-	auto vkCorePtr = m_VulkanCoreWeak.lock();
-	if (!vkCorePtr->GetSupportedFeatures().is_RTX_Supported)
-	{
-		return "Err : the RTX Features are not availables";
-	}
-	return "Ray Tracing (RTX) plugin";
-
+std::string RTX::GetDescription() const {
+    auto vkCorePtr = m_VulkanCoreWeak.lock();
+    if (!vkCorePtr->GetSupportedFeatures().is_RTX_Supported) {
+        return "Err : the RTX Features are not availables";
+    }
+    return "Ray Tracing (RTX) plugin";
 }
 
-std::vector<std::string> RTX::GetNodes() const
-{
-	return
-	{
-		"RTX_PBR_RENDERER",
-		"RTX_MODEL_SHADOW",
-		"RTX_MODEL_TO_ACCELERATION_STRUCTURE"
-	};
+std::vector<std::string> RTX::GetNodes() const {
+    return {"RTX_PBR_RENDERER", "RTX_MODEL_SHADOW", "RTX_MODEL_TO_ACCELERATION_STRUCTURE"};
 }
 
-std::vector<LibraryEntry> RTX::GetLibrary() const
-{
-	std::vector<LibraryEntry> res;
+std::vector<LibraryEntry> RTX::GetLibrary() const {
+    std::vector<LibraryEntry> res;
 
-	res.push_back(AddLibraryEntry("RTX/3D", "AccelStruct Builder", "RTX_MODEL_TO_ACCELERATION_STRUCTURE"));
-	res.push_back(AddLibraryEntry("RTX/3D", "Model Shadw", "RTX_MODEL_SHADOW"));
-	res.push_back(AddLibraryEntry("RTX/3D", "PBR Renderer", "RTX_PBR_RENDERER"));
+    res.push_back(AddLibraryEntry("RTX", "AccelStruct Builder", "RTX_MODEL_TO_ACCELERATION_STRUCTURE"));
+    res.push_back(AddLibraryEntry("RTX", "Model Shadw", "RTX_MODEL_SHADOW"));
+    res.push_back(AddLibraryEntry("RTX", "PBR Renderer", "RTX_PBR_RENDERER"));
 
-	return res;
+    return res;
 }
 
-BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName)
-{
-	auto vkCorePtr = m_VulkanCoreWeak.lock();
+BaseNodePtr RTX::CreatePluginNode(const std::string& vPluginNodeName) {
+    auto vkCorePtr = m_VulkanCoreWeak.lock();
 
-	if (vPluginNodeName == "RTX_MODEL_SHADOW")
-		return RtxModelShadowNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "RTX_MODEL_TO_ACCELERATION_STRUCTURE")
-		return ModelToAccelStructNode::Create(vkCorePtr);
-	else if (vPluginNodeName == "RTX_PBR_RENDERER")
-		return RtxPbrRendererNode::Create(vkCorePtr);
+    if (vPluginNodeName == "RTX_MODEL_SHADOW")
+        return RtxModelShadowNode::Create(vkCorePtr);
+    else if (vPluginNodeName == "RTX_MODEL_TO_ACCELERATION_STRUCTURE")
+        return ModelToAccelStructNode::Create(vkCorePtr);
+    else if (vPluginNodeName == "RTX_PBR_RENDERER")
+        return RtxPbrRendererNode::Create(vkCorePtr);
 
-	return nullptr;
+    return nullptr;
 }
 
-std::vector<PluginPaneConfig> RTX::GetPanes() const
-{
-	std::vector<PluginPaneConfig> res;
+std::vector<PluginPaneConfig> RTX::GetPanes() const {
+    std::vector<PluginPaneConfig> res;
 
-	return res;
+    return res;
 }
 
 int RTX::ResetImGuiID(const int& vWidgetId) {

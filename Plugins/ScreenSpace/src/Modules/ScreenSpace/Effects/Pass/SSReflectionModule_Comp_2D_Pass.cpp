@@ -119,12 +119,14 @@ bool SSReflectionModule_Comp_2D_Pass::DrawDialogsAndPopups(
 
 void SSReflectionModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
     ZoneScoped;
-    if (m_Loaded && *IsEffectEnabled()) {
+    if (m_Loaded) {
         if (vBindingPoint < m_ImageInfos.size()) {
             if (vImageInfo) {
                 if (vTextureSize) {
                     m_ImageInfosSize[vBindingPoint] = *vTextureSize;
-                    NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
+                    if (*IsEffectEnabled()) {
+                        NeedResizeByHandIfChanged(m_ImageInfosSize[0]);  // the output is the size of the inputpos and nor must have the same size, but noise no
+                    }
                 }
                 m_ImageInfos[vBindingPoint] = *vImageInfo;
                 if (vBindingPoint == 3) {  // mask sampler

@@ -91,7 +91,7 @@ std::vector<std::string> ScreenSpace::GetNodes() const {
 std::vector<LibraryEntry> ScreenSpace::GetLibrary() const {
     std::vector<LibraryEntry> res;
 
-    res.push_back(AddLibraryEntry("ScreenSpace/Effects", "Screen Space Reflection (SSR)", "SS_REFLECTION"));
+    res.push_back(AddLibraryEntry("ScreenSpace/Effects", "Screen Space Reflection (SSRe)", "SS_REFLECTION"));
     res.push_back(AddLibraryEntry("ScreenSpace/Effects", "Screen Space Ambient Occlusion (SSAO)", "SS_AO"));
 
     res.push_back(AddLibraryEntry("ScreenSpace", "ScreenSpace", "SCREEN_SPACE"));

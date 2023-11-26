@@ -116,12 +116,14 @@ bool SSAOModule_Comp_2D_Pass::DrawDialogsAndPopups(
 void SSAOModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
     ZoneScoped;
 
-    if (m_Loaded && *IsEffectEnabled()) {
+    if (m_Loaded) {
         if (vBindingPoint < m_ImageInfos.size()) {
             if (vImageInfo) {
                 if (vTextureSize) {
                     m_ImageInfosSize[vBindingPoint] = *vTextureSize;
-                    NeedResizeByHandIfChanged(m_ImageInfosSize[0]); // pos and nor must have the same size, but noise no
+                    if (*IsEffectEnabled()) {
+                        NeedResizeByHandIfChanged(m_ImageInfosSize[0]);  // pos and nor must have the same size, but noise no
+                    }
                 }
                 m_ImageInfos[vBindingPoint] = *vImageInfo;
                 if ((&m_UBOComp.use_sampler_color)[vBindingPoint] < 1.0f) {
