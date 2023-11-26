@@ -1607,6 +1607,20 @@ bool ShaderPass::UpdateLayoutBindingInRessourceDescriptor() {
     return res;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PRIVATE / MIP MAPPING /////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShaderPass::UpdateMipMappingIfNeeded() {
+    if (m_CanUpdateMipMapping) {
+        if (m_ComputeBufferPtr != nullptr) {
+            m_ComputeBufferPtr->UpdateMipMapping(0);
+        } else if (m_FrameBufferPtr != nullptr) {
+            m_ComputeBufferPtr->UpdateMipMapping(0);
+        }
+    }
+}
+
 /////////////////////////////////////////////////////////////////////
 //// WRITE DESCRIPTORS //////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
@@ -1954,11 +1968,6 @@ void ShaderPass::UpdateRessourceDescriptor() {
     EachFramesDescriptorUpdate();
 
     UpdateModel(m_Loaded);
-
-    if (IsEffectEnabled() && *IsEffectEnabled() != m_LastEffectEnabled) {
-        m_NeedNewUBOUpload = true;
-        m_LastEffectEnabled = *IsEffectEnabled();
-    }
 
     if (m_NeedNewUBOUpload) {
         UploadUBO();

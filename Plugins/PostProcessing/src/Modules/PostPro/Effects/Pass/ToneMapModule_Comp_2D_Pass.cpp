@@ -61,10 +61,9 @@ std::shared_ptr<ToneMapModule_Comp_2D_Pass> ToneMapModule_Comp_2D_Pass::Create(c
 //////////////////////////////////////////////////////////////
 
 ToneMapModule_Comp_2D_Pass::ToneMapModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) 
-    : ShaderPass(vVulkanCorePtr) {
+    : EffectPass(vVulkanCorePtr) {
     SetRenderDocDebugName("Comp Pass : Tone Map", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
-    *IsEffectEnabled() = false;
 }
 
 ToneMapModule_Comp_2D_Pass::~ToneMapModule_Comp_2D_Pass() {

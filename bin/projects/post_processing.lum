@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-2.98512;0.506097;0</RotXYZ>
+			<RotXYZ>-2.81775;0.558455;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>11.25</Zoom>
+			<Zoom>17.9167</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -28,7 +28,7 @@
 					<node name="Model" type="MESH" pos="-370;-82" id="156328">
 						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
 						<mesh_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\ico_plane.gltf</file_path_name>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\sample_model.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
 					</node>
@@ -39,7 +39,7 @@
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
 						</texture_2d_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="0;-44" id="229189">
+					<node name="Post Processing" type="POST_PROCESSING" pos="16;-82" id="229189">
 						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="229192"/>
 						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="229195"/>
 						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="229198"/>
@@ -54,7 +54,7 @@
 								<resolution>0.3</resolution>
 								<steps>5</steps>
 								<thickness>0.5</thickness>
-								<enabled>1</enabled>
+								<enabled>0</enabled>
 							</ss_reflection_pass>
 							<ssao_pass>
 								<resize_by_event>true</resize_by_event>

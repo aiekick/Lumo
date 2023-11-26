@@ -88,6 +88,9 @@ bool BloomModule::Init() {
     if (BaseRenderer::InitCompute2D(map_size)) {
         m_BloomModule_Comp_2D_Pass_Ptr = BloomModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
         if (m_BloomModule_Comp_2D_Pass_Ptr) {
+            // by default but can be changed via widget
+            m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
+            m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
             AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);
             m_Loaded = true;
         }

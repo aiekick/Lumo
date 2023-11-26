@@ -56,10 +56,9 @@ std::shared_ptr<BlurModule_Comp_2D_Pass> BlurModule_Comp_2D_Pass::Create(const c
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BlurModule_Comp_2D_Pass::BlurModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
+BlurModule_Comp_2D_Pass::BlurModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : EffectPass(vVulkanCorePtr) {
     SetRenderDocDebugName("Comp Pass : Blur", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
-    *IsEffectEnabled() = false;
 }
 
 BlurModule_Comp_2D_Pass::~BlurModule_Comp_2D_Pass() {

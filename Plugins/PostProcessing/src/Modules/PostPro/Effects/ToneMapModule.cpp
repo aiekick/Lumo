@@ -80,6 +80,9 @@ bool ToneMapModule::Init() {
     if (BaseRenderer::InitCompute2D(map_size)) {
         m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
         if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
+            // by default but can be changed via widget
+            m_ToneMapModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
+            m_ToneMapModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
             AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);
             m_Loaded = true;
         }

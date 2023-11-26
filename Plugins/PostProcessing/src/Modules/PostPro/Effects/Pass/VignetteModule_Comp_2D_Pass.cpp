@@ -61,10 +61,9 @@ std::shared_ptr<VignetteModule_Comp_2D_Pass> VignetteModule_Comp_2D_Pass::Create
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VignetteModule_Comp_2D_Pass::VignetteModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
+VignetteModule_Comp_2D_Pass::VignetteModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : EffectPass(vVulkanCorePtr) {
     SetRenderDocDebugName("Comp Pass : Vignette", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
-    *IsEffectEnabled() = false;
 }
 
 VignetteModule_Comp_2D_Pass::~VignetteModule_Comp_2D_Pass() {

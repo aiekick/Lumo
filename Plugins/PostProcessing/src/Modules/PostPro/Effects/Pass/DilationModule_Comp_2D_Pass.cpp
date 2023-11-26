@@ -58,11 +58,10 @@ std::shared_ptr<DilationModule_Comp_2D_Pass> DilationModule_Comp_2D_Pass::Create
 ///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DilationModule_Comp_2D_Pass::DilationModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
+DilationModule_Comp_2D_Pass::DilationModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : EffectPass(vVulkanCorePtr) {
     ZoneScoped;
     SetRenderDocDebugName("Comp Pass : Dilation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
-    *IsEffectEnabled() = true;
 }
 
 DilationModule_Comp_2D_Pass::~DilationModule_Comp_2D_Pass() {

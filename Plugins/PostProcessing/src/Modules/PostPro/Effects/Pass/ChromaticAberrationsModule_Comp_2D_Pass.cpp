@@ -57,11 +57,10 @@ std::shared_ptr<ChromaticAberrationsModule_Comp_2D_Pass> ChromaticAberrationsMod
 ///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ChromaticAberrationsModule_Comp_2D_Pass::ChromaticAberrationsModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
+ChromaticAberrationsModule_Comp_2D_Pass::ChromaticAberrationsModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : EffectPass(vVulkanCorePtr) {
     ZoneScoped;
     SetRenderDocDebugName("Comp Pass : Chromatic Aberrations", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
-    *IsEffectEnabled() = false;
 }
 
 ChromaticAberrationsModule_Comp_2D_Pass::~ChromaticAberrationsModule_Comp_2D_Pass() {

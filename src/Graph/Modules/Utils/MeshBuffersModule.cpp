@@ -93,6 +93,7 @@ bool MeshBuffersModule::Init()
 			if (m_MeshBuffersModule_Mesh_Pass_Ptr->InitPixel(map_size, 7U, true, true, 0.0f,
 				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
 			{
+                //m_MeshBuffersModule_Mesh_Pass_Ptr->SetMipMappingGenerationAfterRendering(true);
 				AddGenericPass(m_MeshBuffersModule_Mesh_Pass_Ptr);
 				m_Loaded = true;
 			}

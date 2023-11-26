@@ -56,10 +56,9 @@ std::shared_ptr<BloomModule_Comp_2D_Pass> BloomModule_Comp_2D_Pass::Create(const
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BloomModule_Comp_2D_Pass::BloomModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
+BloomModule_Comp_2D_Pass::BloomModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : EffectPass(vVulkanCorePtr) {
     SetRenderDocDebugName("Comp 2D Pass : Bloom", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
-    *IsEffectEnabled() = false;
 }
 
 BloomModule_Comp_2D_Pass::~BloomModule_Comp_2D_Pass() {

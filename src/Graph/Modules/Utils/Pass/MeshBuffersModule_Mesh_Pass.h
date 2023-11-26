@@ -38,8 +38,6 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-
-
 class MeshBuffersModule_Mesh_Pass :
 	public ShaderPass,
 	

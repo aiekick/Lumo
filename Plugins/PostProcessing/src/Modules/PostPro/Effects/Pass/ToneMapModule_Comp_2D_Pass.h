@@ -25,7 +25,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <LumoBackend/Base/BaseRenderer.h>
-#include <LumoBackend/Base/ShaderPass.h>
+#include <LumoBackend/Base/EffectPass.h>
 
 #include <Gaia/gaia.h>
 #include <Gaia/Resources/Texture2D.h>
@@ -42,11 +42,9 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class ToneMapModule_Comp_2D_Pass : 
-	public ShaderPass,	
-	public NodeInterface,
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface {
+class ToneMapModule_Comp_2D_Pass :  
+    public EffectPass<1U>,
+	public NodeInterface {
 public:
     static std::shared_ptr<ToneMapModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
 

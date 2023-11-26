@@ -12,13 +12,11 @@
 #include <Gaia/Gui/VulkanWindow.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 
-#include <Nodes/PostPro/Effects/SSAONode.h>
 #include <Nodes/PostPro/Effects/BlurNode.h>
 #include <Nodes/PostPro/Effects/BloomNode.h>
 #include <Nodes/PostPro/Effects/ChromaticAberrationsNode.h>
 #include <Nodes/PostPro/Effects/DilationNode.h>
 #include <Nodes/PostPro/Effects/SharpnessNode.h>
-#include <Nodes/PostPro/Effects/SSReflectionNode.h>
 #include <Nodes/PostPro/Effects/ToneMapNode.h>
 #include <Nodes/PostPro/Effects/VignetteNode.h>
 #include <Nodes/PostPro/PostProcessingNode.h>
@@ -103,8 +101,6 @@ std::vector<LibraryEntry> PostProcessing::GetLibrary() const {
     res.push_back(AddLibraryEntry("PostPro/Effects", "Chromatic Aberrations", "CHROMATIC_ABERRATIONS"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Dilation", "DILATION"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Sharpness", "SHARPNESS"));
-    res.push_back(AddLibraryEntry("PostPro/Effects", "Screen Space Reflection (SSR)", "SS_REFLECTION"));
-    res.push_back(AddLibraryEntry("PostPro/Effects", "Screen Space Ambient Occlusion (SSAO)", "SS_AO"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Tone Map", "TONE_MAP"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Vignette", "VIGNETTE"));
 
@@ -116,7 +112,6 @@ std::vector<LibraryEntry> PostProcessing::GetLibrary() const {
 BaseNodePtr PostProcessing::CreatePluginNode(const std::string& vPluginNodeName) {
     auto vkPostProcessingPtr = m_VulkanCoreWeak.lock();
 
-    // Post Processing
     if (vPluginNodeName == "BLOOM") {
         return BloomNode::Create(vkPostProcessingPtr);
     } else if (vPluginNodeName == "BLUR") {
@@ -127,10 +122,6 @@ BaseNodePtr PostProcessing::CreatePluginNode(const std::string& vPluginNodeName)
         return DilationNode::Create(vkPostProcessingPtr);
     } else if (vPluginNodeName == "SHARPNESS") {
         return SharpnessNode::Create(vkPostProcessingPtr);
-    } else if (vPluginNodeName == "SS_AO") {
-        return SSAONode::Create(vkPostProcessingPtr);
-    } else if (vPluginNodeName == "SS_REFLECTION") {
-        return SSReflectionNode::Create(vkPostProcessingPtr);
     } else if (vPluginNodeName == "TONE_MAP") {
         return ToneMapNode::Create(vkPostProcessingPtr);
     } else if (vPluginNodeName == "VIGNETTE") {

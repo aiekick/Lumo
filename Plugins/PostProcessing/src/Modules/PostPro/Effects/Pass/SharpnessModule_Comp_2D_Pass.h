@@ -27,7 +27,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <LumoBackend/Base/BaseRenderer.h>
-#include <LumoBackend/Base/ShaderPass.h>
+#include <LumoBackend/Base/EffectPass.h>
 #include <Gaia/gaia.h>
 #include <Gaia/Resources/Texture2D.h>
 #include <Gaia/Core/VulkanCore.h>
@@ -44,9 +44,7 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class SharpnessModule_Comp_2D_Pass :
-	public ShaderPass,
-	public TextureInputInterface<1>,
-	public TextureOutputInterface,
+    public EffectPass<1U>,
 	public NodeInterface
 {
 public:

@@ -56,11 +56,10 @@ std::shared_ptr<SharpnessModule_Comp_2D_Pass> SharpnessModule_Comp_2D_Pass::Crea
 ///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SharpnessModule_Comp_2D_Pass::SharpnessModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {
+SharpnessModule_Comp_2D_Pass::SharpnessModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : EffectPass(vVulkanCorePtr) {
     ZoneScoped;
     SetRenderDocDebugName("Comp Pass : Sharpness", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
-    *IsEffectEnabled() = false;
 }
 
 SharpnessModule_Comp_2D_Pass::~SharpnessModule_Comp_2D_Pass() {

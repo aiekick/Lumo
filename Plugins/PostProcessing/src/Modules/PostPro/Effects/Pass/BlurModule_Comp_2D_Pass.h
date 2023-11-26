@@ -25,7 +25,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <LumoBackend/Base/BaseRenderer.h>
-#include <LumoBackend/Base/ShaderPass.h>
+#include <LumoBackend/Base/EffectPass.h>
 
 #include <Gaia/gaia.h>
 #include <Gaia/Resources/Texture2D.h>
@@ -43,10 +43,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class BlurModule_Comp_2D_Pass :
-	public ShaderPass,
-	public NodeInterface,	
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface {
+	public EffectPass<1U>,
+	public NodeInterface {
 public:
     static std::shared_ptr<BlurModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
 
@@ -80,8 +78,8 @@ public:
 	BlurModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
 	virtual ~BlurModule_Comp_2D_Pass();
 
-	void ActionBeforeInit();
-	void ActionBeforeCompilation();
+	void ActionBeforeInit() override;
+    void ActionBeforeCompilation() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;

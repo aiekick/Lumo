@@ -73,6 +73,7 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 | Plugin Particles       | [![Build Status][ba_plugin_particl_win]][ci_plugin_particl_win] | [![Build Status][ba_plugin_particl_lin]][ci_plugin_particl_lin] | - |
 | Plugin Planet System   | [![Build Status][ba_plugin_planets_win]][ci_plugin_planets_win] | [![Build Status][ba_plugin_planets_lin]][ci_plugin_planets_lin] | - |
 | Plugin Post Processing | [![Build Status][ba_plugin_postpro_win]][ci_plugin_postpro_win] | [![Build Status][ba_plugin_postpro_lin]][ci_plugin_postpro_lin] | - |
+| Plugin Screen Space    | [![Build Status][ba_plugin_screspa_win]][ci_plugin_screspa_win] | [![Build Status][ba_plugin_screspa_lin]][ci_plugin_screspa_lin] | - |
 | Plugin Simulation      | [![Build Status][ba_plugin_simulat_win]][ci_plugin_simulat_win] | [![Build Status][ba_plugin_simulat_lin]][ci_plugin_simulat_lin] | - |
 | Plugin RTX             | [![Build Status][ba_plugin_rtxxxxx_win]][ci_plugin_rtxxxxx_win] | [![Build Status][ba_plugin_rtxxxxx_lin]][ci_plugin_rtxxxxx_lin] | - |
 
@@ -120,6 +121,11 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 [ci_plugin_postpro_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_PostProcessing.yml
 [ba_plugin_postpro_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_PostProcessing.yml?branch=master
 [ci_plugin_postpro_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_PostProcessing.yml
+
+[ba_plugin_screspa_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_ScreenSpace.yml?branch=master
+[ci_plugin_screspa_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_ScreenSpace.yml
+[ba_plugin_screspa_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_ScreenSpace.yml?branch=master
+[ci_plugin_screspa_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_ScreenSpace.yml
 
 [ba_plugin_simulat_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Simulation.yml?branch=master
 [ci_plugin_simulat_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Simulation.yml
@@ -539,13 +545,37 @@ There is a summary nodes for all effects
 | :heavy_check_mark:  | Postpro / Effects / Posteriztion Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Postpro / Effects / Pixelisation Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Postpro / Effects / Sharpness Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Effects / Screen Space Ambient Occlusion Node (SSAO) | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Effects / Screen Space Interior Node (SSRa) | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Postpro / Effects / Screen Space Reflection Node (SSRe) | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Postpro / Effects / Screen Space Refraction Node (SSRa) | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Postpro / Effects / Tone Mapping Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Postpro / Effects / Vignette Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Postpro / PostProcessing Node | ![img](https://progress-bar.dev/100) |
+
+</details>
+
+<details>
+
+<summary>Screen Space Plugin :</summary>
+
+### Description : 
+
+Many nodes of Simulation
+
+### Status : 
+
+[![Win Simulation](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_ScreenSpace.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_ScreenSpace.yml) 
+[![Linux Simulation](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_ScreenSpace.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_ScreenSpace.yml)
+
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
+
+### Nodes: 
+
+| Published | Node | status |
+| - | - | - |
+| :heavy_check_mark:  | Postpro / Effects / Screen Space Ambient Occlusion Node (SSAO) | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Effects / Screen Space Interior Node (SSRa) | ![img](https://progress-bar.dev/0) |
+| :heavy_check_mark:  | Postpro / Effects / Screen Space Reflection Node (SSRe) | ![img](https://progress-bar.dev/20) |
+| :heavy_check_mark:  | Postpro / Effects / Screen Space Refraction Node (SSRa) | ![img](https://progress-bar.dev/0) |
 
 </details>
 

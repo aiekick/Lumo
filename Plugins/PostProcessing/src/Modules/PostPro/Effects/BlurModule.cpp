@@ -79,6 +79,9 @@ bool BlurModule::Init() {
     if (BaseRenderer::InitCompute2D(map_size)) {
         m_BlurModule_Comp_2D_Pass_Ptr = BlurModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
         if (m_BlurModule_Comp_2D_Pass_Ptr) {
+            // by default but can be changed via widget
+            m_BlurModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);
+            m_BlurModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(false);
             AddGenericPass(m_BlurModule_Comp_2D_Pass_Ptr);
             m_Loaded = true;
         }

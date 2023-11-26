@@ -105,8 +105,6 @@ private:  // Tesselation
 protected:
     bool m_Loaded = false;
     bool m_DontUseShaderFilesOnDisk = false;
-    bool m_EffectEnabled = false;
-    bool m_LastEffectEnabled = true;
 
     GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;  // vulkan core
     GaiApi::VulkanQueue m_Queue;                      // queue
@@ -144,6 +142,8 @@ protected:
 
     bool m_IsShaderCompiled = false;
     bool m_DescriptorWasUpdated = false;
+
+    bool m_CanUpdateMipMapping = false;
 
     // ressources
     std::vector<DescriptorSetStruct> m_DescriptorSets = {DescriptorSetStruct()};
@@ -197,7 +197,10 @@ public:
     ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr);
     ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum);
     ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
-    ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+    ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr,
+        const GenericType& vRendererTypeEnum,
+        vk::CommandPool* vCommandPool,
+        vk::DescriptorPool* vDescriptorPool);
     virtual ~ShaderPass();
 
     // during init
@@ -218,7 +221,7 @@ public:
         const bool& vUseDepth,                                                       // use depth merging
         const bool& vNeedToClear,                                                    // need to clear
         const ct::fvec4& vClearColor,                                                // color used to clear
-        const bool& vPingPongBufferMode,                                                  // will create pingpong fbos
+        const bool& vPingPongBufferMode,                                             // will create pingpong fbos
         const bool& vTesselated,                                                     // use tesselation pipeline
         const vk::Format& vFormat = vk::Format::eR32G32B32A32Sfloat,                 // image format
         const vk::SampleCountFlagBits& vSampleCount = vk::SampleCountFlagBits::e1);  // image sampling
@@ -227,28 +230,34 @@ public:
     virtual bool InitCompute2D(                                                      // compute 2D
         const ct::uvec2& vDispatchSize,                                              // compute size
         const uint32_t& vCountColorBuffers,                                          // count color attachments
-        const bool& vPingPongBufferMode,                                                  // will create pingpong fbos
+        const bool& vPingPongBufferMode,                                             // will create pingpong fbos
         const vk::Format& vFormat);                                                  // image format, (no sampling possible with compute images)
     virtual bool InitCompute3D(                                                      // compute 3D
         const ct::uvec3& vDispatchSize);                                             // compute size
     virtual bool InitRtx(                                                            // RTX pipeline
         const ct::uvec2& vDispatchSize,                                              // compute size
         const uint32_t& vCountColorBuffers,                                          // count color attachments
-        const bool& vPingPongBufferMode,                                                  // will create pingpong fbos
+        const bool& vPingPongBufferMode,                                             // will create pingpong fbos
         const vk::Format& vFormat);                                                  // image format, (no sampling possible with compute images)
     virtual void Unit();
 
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
     void SetFrameBuffer(FrameBufferWeak vFrameBufferWeak);
 
     void SetMergedRendering(const bool& vMergedRendering);
 
     // for have widget display when used as SHADER_PASS in MERGER instead of module as classic task
-    void SetLastExecutedFrame(const uint32_t& vFrame) { m_LastExecutedFrame = vFrame; }
-    uint32_t GetLastExecutedFrame() const { return m_LastExecutedFrame; }
+    void SetLastExecutedFrame(const uint32_t& vFrame) {
+        m_LastExecutedFrame = vFrame;
+    }
+    uint32_t GetLastExecutedFrame() const {
+        return m_LastExecutedFrame;
+    }
 
     void SetRenderDocDebugName(const char* vLabel, ct::fvec4 vColor);
 
@@ -306,8 +315,15 @@ public:
     bool IsRtxRenderer();
 
     // FBO
-    FrameBufferWeak GetFrameBuffer() { return m_FrameBufferPtr; }
+    FrameBufferWeak GetFrameBuffer() {
+        return m_FrameBufferPtr;
+    }
     void UpdateFBOColorBuffersCount(const uint32_t& vNewColorBufferCount);
+
+    // anble the MipMapping Generation update after rendering
+    void SetMipMappingGenerationAfterRendering(const bool& vFlag) {
+        m_CanUpdateMipMapping = vFlag;
+    }
 
     /// <summary>
     /// set the compute local group size
@@ -360,12 +376,6 @@ public:
 
     // reset renderpass to nativz renderpass
     void ReSetRenderPassToNative();
-
-    // effect is enabled
-    // if disabled the rendering must be done, but the output is not transformed
-    bool* IsEffectEnabled() {
-        return &m_EffectEnabled;
-    }
 
     /// <summary>
     /// chnage the primitive topology if enebled with m_CanDynamicallyChangePrimitiveTopology
@@ -475,11 +485,15 @@ protected:
     virtual std::string GetRayClosestHitShaderCode(std::string& vOutShaderName);
 
     ShaderCode& AddShaderCode(const ShaderCode& vShaderCode, const ShaderEntryPoint& vEntryPoint);
-    ShaderCode
-    CompilShaderCode(const vk::ShaderStageFlagBits& vShaderType, const std::string& vCode, const std::string& vShaderName, const std::string& vEntryPoint = "main");
+    ShaderCode CompilShaderCode(const vk::ShaderStageFlagBits& vShaderType,
+        const std::string& vCode,
+        const std::string& vShaderName,
+        const std::string& vEntryPoint = "main");
     ShaderCode CompilShaderCode(const vk::ShaderStageFlagBits& vShaderType, const std::string& vEntryPoint = "main");
-    virtual const std::vector<unsigned int>
-    CompilGLSLToSpirv(const std::string& vCode, const std::string& vShaderSuffix, const std::string& vOriginalFileName, const ShaderEntryPoint& vEntryPoint = "main");
+    virtual const std::vector<unsigned int> CompilGLSLToSpirv(const std::string& vCode,
+        const std::string& vShaderSuffix,
+        const std::string& vOriginalFileName,
+        const ShaderEntryPoint& vEntryPoint = "main");
     virtual bool CompilPixel();
     virtual bool CompilCompute();
     virtual bool CompilRtx();
@@ -509,28 +523,27 @@ protected:
     virtual bool UpdateLayoutBindingInRessourceDescriptor();
     virtual bool UpdateBufferInfoInRessourceDescriptor();
 
+    // MipMapping
+    void UpdateMipMappingIfNeeded();
+
     void ClearWriteDescriptors();
     void ClearWriteDescriptors(const uint32_t& vDescriptorSetIndex);
-    bool AddOrSetWriteDescriptorImage(
-        const uint32_t& vBindingPoint,
+    bool AddOrSetWriteDescriptorImage(const uint32_t& vBindingPoint,
         const vk::DescriptorType& vType,
         const vk::DescriptorImageInfo* vImageInfo,
         const uint32_t& vCount = 1U,
         const uint32_t& vDescriptorSetIndex = 0U);
-    bool AddOrSetWriteDescriptorBuffer(
-        const uint32_t& vBindingPoint,
+    bool AddOrSetWriteDescriptorBuffer(const uint32_t& vBindingPoint,
         const vk::DescriptorType& vType,
         const vk::DescriptorBufferInfo* vBufferInfo,
         const uint32_t& vCount = 1U,
         const uint32_t& vDescriptorSetIndex = 0U);
-    bool AddOrSetWriteDescriptorBufferView(
-        const uint32_t& vBindingPoint,
+    bool AddOrSetWriteDescriptorBufferView(const uint32_t& vBindingPoint,
         const vk::DescriptorType& vType,
         const vk::BufferView* vBufferView,
         const uint32_t& vCount = 1U,
         const uint32_t& vDescriptorSetIndex = 0U);
-    bool AddOrSetWriteDescriptorNext(
-        const uint32_t& vBindingPoint,
+    bool AddOrSetWriteDescriptorNext(const uint32_t& vBindingPoint,
         const vk::DescriptorType& vType,
         const void* vNext,
         const uint32_t& vCount = 1U,
@@ -538,8 +551,7 @@ protected:
 
     void ClearLayoutDescriptors();
     void ClearLayoutDescriptors(const uint32_t& vDescriptorSetIndex);
-    bool AddOrSetLayoutDescriptor(
-        const uint32_t& vBindingPoint,
+    bool AddOrSetLayoutDescriptor(const uint32_t& vBindingPoint,
         const vk::DescriptorType& vType,
         const vk::ShaderStageFlags& vStage,
         const uint32_t& vCount = 1U,

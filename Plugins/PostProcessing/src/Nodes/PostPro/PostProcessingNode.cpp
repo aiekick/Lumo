@@ -74,9 +74,6 @@ bool PostProcessingNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	name = "Post Processing";
 
 	AddInput(NodeSlotTextureInput::Create("Color", 0), false, false);
-	AddInput(NodeSlotTextureInput::Create("Position", 1), false, false);
-	AddInput(NodeSlotTextureInput::Create("Normal", 2), false, false);
-
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
 	m_PostProcessingModulePtr = PostProcessingModule::Create(vVulkanCorePtr, m_This);

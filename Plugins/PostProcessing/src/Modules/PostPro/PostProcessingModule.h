@@ -14,7 +14,6 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-
 #pragma once
 
 #include <set>
@@ -28,7 +27,7 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 #include <LumoBackend/Base/BaseRenderer.h>
-#include <LumoBackend/Base/QuadShaderPass.h>
+#include <LumoBackend/Base/EffectPass.h>
 
 #include <Gaia/gaia.h>
 #include <Gaia/Resources/Texture2D.h>
@@ -54,15 +53,13 @@ class BloomModule_Comp_2D_Pass;
 class ChromaticAberrationsModule_Comp_2D_Pass;
 class DilationModule_Comp_2D_Pass;
 class SharpnessModule_Comp_2D_Pass;
-class SSAOModule_Comp_2D_Pass;
-class SSReflectionModule_Comp_2D_Pass;
 class ToneMapModule_Comp_2D_Pass;
 class VignetteModule_Comp_2D_Pass;
 class PostProcessingModule :
 	public NodeInterface,
 	public BaseRenderer,	
 	public TaskInterface,
-	public TextureInputInterface<0U>,
+	public TextureInputInterface<1U>, // when no effect is enabled
 	public TextureOutputInterface
 {
 public:
@@ -76,10 +73,11 @@ private:
     std::shared_ptr<ChromaticAberrationsModule_Comp_2D_Pass> m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<DilationModule_Comp_2D_Pass> m_DilationModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<SharpnessModule_Comp_2D_Pass> m_SharpnessModule_Comp_2D_Pass_Ptr = nullptr;
-    std::shared_ptr<SSAOModule_Comp_2D_Pass> m_SSAOModule_Comp_2D_Pass_Ptr = nullptr;
-    std::shared_ptr<SSReflectionModule_Comp_2D_Pass> m_SSReflectionModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<ToneMapModule_Comp_2D_Pass> m_ToneMapModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<VignetteModule_Comp_2D_Pass> m_VignetteModule_Comp_2D_Pass_Ptr = nullptr;
+
+    std::shared_ptr<TextureInputFunctions> m_FirstPassPtr = nullptr;
+    std::shared_ptr<TextureOutputInterface> m_LastPassPtr = nullptr;
 
 public:
 	PostProcessingModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
