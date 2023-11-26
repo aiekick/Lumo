@@ -18,6 +18,7 @@ limitations under the License.
 */
 #include "RTX.h"
 #include <Headers/RTXBuild.h>
+#include <Gaia/gaia.h>
 #include <ctools/FileHelper.h>
 #include <ImGuiPack.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>

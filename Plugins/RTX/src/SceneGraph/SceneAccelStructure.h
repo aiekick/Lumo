@@ -17,6 +17,7 @@ limitations under the License.
 #pragma once
 
 #include <vector>
+#include <Gaia/gaia.h>
 #include <ctools/cTools.h>
 #include <vulkan/vulkan.hpp>
 #include <Gaia/Resources/VulkanRessource.h>
@@ -33,7 +34,6 @@ public:
 
 private:
 	SceneAccelStructureWeak m_This;
-	vk::Device m_Device = nullptr;
 	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 	std::vector<VulkanAccelStructObjectPtr> m_AccelStructure_Bottom_Ptrs;
 	VulkanAccelStructObjectPtr m_AccelStructure_Top_Ptr = nullptr;

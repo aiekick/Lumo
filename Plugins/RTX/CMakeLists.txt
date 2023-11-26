@@ -29,8 +29,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
 add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize imgui issue when we have child glfw windows
 
-## include(cmake/3rdparty.cmake)
-
 if (uninstall)
 	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
 endif()
@@ -53,6 +51,7 @@ add_definitions(-DUSE_IMCOOL_BAR)
 add_definitions(-DUSE_IMGUI_MARKDOW)
 add_definitions(-DUSE_IMGUI_FILE_DIALOG)
 add_definitions(-DUSE_IMGUI_NODE_EDITOR)
+add_definitions(-DUSE_IMGUI_COLOR_TEXT_EDIT)
 
 if(UNIX)
     add_definitions(-DUNIX)
@@ -61,6 +60,7 @@ elseif(WIN32)
 endif()
 
 if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 ")
     add_definitions(-D_USE_MATH_DEFINES)
     add_definitions(-DMSVC)
 	add_definitions(-DNOMINMAX) ## for avoid issue regarding std::max and std::min
@@ -96,18 +96,10 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${CMAKE_R
 
 set(ENABLE_EXPORTS ON CACHE STRING "" FORCE)
 
-set(LINKING_TYPE MODULE)
-if (PLUGIN_ENABLE_STATIC_LINKING)
-	set(LINKING_TYPE STATIC)
-	add_definitions(-DPLUGIN_ENABLE_STATIC_LINKING)
-endif()
-
-add_library(${PROJECT} ${LINKING_TYPE}
+add_library(${PROJECT} MODULE
 	${CMAKE_RECURSE}
 	${SHADER_SOURCES}
-	${IMGUIIMPL_SOURCES}
 	${PROJECT_SRC_RECURSE}
-	${IMGUI_FREETYPE_SOURCES}
 	${PROJECT_SHADERS_RECURSE}
 )
 
@@ -117,14 +109,12 @@ else()
 	set(ARCH x32)
 endif()
 
-target_compile_definitions(${PROJECT} PRIVATE VULKAN)
+## set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}_${CMAKE_SYSTEM_NAME}_${ARCH}")
+set_target_properties(${PROJECT} PROPERTIES	OUTPUT_NAME "${PROJECT}")
 target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
-target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)
-target_compile_definitions(${PROJECT} PRIVATE VULKAN_HPP_STORAGE_SHARED)
+target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
 target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
-target_compile_definitions(${PROJECT} PRIVATE VULKAN_HPP_TYPESAFE_CONVERSION=1) 
-target_compile_definitions(${PROJECT} PRIVATE VULKAN_HPP_DISPATCH_LOADER_DYNAMIC=1)
 
 if(USE_DEBUG_SANITIZER)
 	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
@@ -132,7 +122,7 @@ if(USE_DEBUG_SANITIZER)
 	message("Address Sanitizer enabled for projet ${PROJECT}")
 endif()
 
-set(FINAL_BIN_DIR ${CMAKE_BINARY_DIR}/../bin/plugins)
+set(FINAL_BIN_DIR ${CMAKE_SOURCE_DIR}/bin/plugins)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 set_target_properties(${PROJECT} PROPERTIES OUTPUT_NAME "${PLUGIN_PREFIX}_${PROJECT}_${CMAKE_SYSTEM_NAME}_$<$<CONFIG:Debug>:Debug>$<$<CONFIG:Release>:Release>$<$<CONFIG:MinSizeRel>:MinSizeRel>$<$<CONFIG:RelWithDebInfo>:RelWithDebInfo>_${ARCH}")
@@ -140,7 +130,7 @@ set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BI
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Plugins)
-
+			
 install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
 include_directories(
@@ -164,8 +154,12 @@ set(LOADED_LUMO_PLUGINS ${LOADED_LUMO_PLUGINS} ${PROJECT} PARENT_SCOPE)
 ## only for Debug
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=${PROJECT} 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
+	COMMAND BuildInc -prefix=${PROJECT} 1000000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
 	DEPENDS ${PROJECT}
 )
+
+########################################################
+########################################################
+########################################################
 
 endif() #PLUGIN_ENABLE_RTX

@@ -16,6 +16,7 @@ limitations under the License.
 
 #pragma once
 
+#include <Gaia/gaia.h>
 #include <LumoBackend/Base/ShaderPass.h>
 
 /*
