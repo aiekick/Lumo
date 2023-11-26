@@ -8,7 +8,7 @@ on:
     - 'Plugins/PostProcessing/**'    
 
 jobs:
-  build_Linux_Plugin_Core:
+  build_Linux_Plugin_PostPro:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
