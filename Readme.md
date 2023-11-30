@@ -191,6 +191,8 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 
 # Lumo Native Nodes :
 
+<details>
+
 | Category | Name | status | Description |
 | - | - | - | - |
 | Assets/Loader | Cube Map | ![img](https://progress-bar.dev/100) | load a cube amp texture |
@@ -208,6 +210,8 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 | Assets/Utils | Mesh Attribute | ![img](https://progress-bar.dev/100) | extract mesh attribute (pos, nor, tan, btan, col, depth) |
 | Assets/Widgets | Variable | ![img](https://progress-bar.dev/100) | - |
 | Assets/Widgets | Color | ![img](https://progress-bar.dev/100) | - |
+
+</details>
 
 # Lumo Plugins :
 
@@ -534,16 +538,16 @@ There is a summary nodes for all effects
 | :heavy_check_mark:  | Postpro / Effects / Bloom Node | ![img](https://progress-bar.dev/100) 
 | :heavy_check_mark:  | Postpro / Effects / Blur Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Postpro / Effects / Chromatic Aberration Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Effects / Color Corrector Node | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Postpro / Effects / Depth of Field Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Color Corrector Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Depth of Field Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Postpro / Effects / Dilation Node | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Effects / Fog Node | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Postpro / Effects / Grain Node | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Postpro / Effects / LUT Node | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Postpro / Effects / Motion Blur Node | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Postpro / Effects / Outlining Node | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Postpro / Effects / Posteriztion Node | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Postpro / Effects / Pixelisation Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Fog Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Grain Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / LUT Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Motion Blur Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Outlining Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Posteriztion Node | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Pixelisation Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Postpro / Effects / Sharpness Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Postpro / Effects / Tone Mapping Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Postpro / Effects / Vignette Node | ![img](https://progress-bar.dev/100) |
@@ -573,9 +577,9 @@ Many nodes of Simulation
 | Published | Node | status |
 | - | - | - |
 | :heavy_check_mark:  | Postpro / Effects / Screen Space Ambient Occlusion Node (SSAO) | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Postpro / Effects / Screen Space Interior Node (SSI) | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Screen Space Interior Node (SSI) | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Postpro / Effects / Screen Space Reflection Node (SSRe) | ![img](https://progress-bar.dev/20) |
-| :heavy_check_mark:  | Postpro / Effects / Screen Space Refraction Node (SSRa) | ![img](https://progress-bar.dev/0) |
+| :x:  | Postpro / Effects / Screen Space Refraction Node (SSRa) | ![img](https://progress-bar.dev/0) |
 
 </details>
 
