@@ -49,12 +49,11 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ModelRendererModule> ModelRendererModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<ModelRendererModule> ModelRendererModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ModelRendererModule>(vVulkanCorePtr);
+	auto res = std::make_shared<ModelRendererModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -69,8 +68,8 @@ std::shared_ptr<ModelRendererModule> ModelRendererModule::Create(GaiApi::VulkanC
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelRendererModule::ModelRendererModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: TaskRenderer(vVulkanCorePtr)
+ModelRendererModule::ModelRendererModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: TaskRenderer(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -102,7 +101,7 @@ bool ModelRendererModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_ModelRendererModule_Mesh_Pass_Ptr = std::make_shared<ModelRendererModule_Mesh_Pass>(m_VulkanCorePtr);
+		m_ModelRendererModule_Mesh_Pass_Ptr = std::make_shared<ModelRendererModule_Mesh_Pass>(m_VulkanCore);
 		if (m_ModelRendererModule_Mesh_Pass_Ptr)
 		{
 			// by default but can be changed via widget

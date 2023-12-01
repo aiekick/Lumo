@@ -35,10 +35,10 @@ LUMO_BACKEND_API uint32_t BaseNode::freeNodeId = MAGIC_NUMBER;
 ////// STATIC ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-BaseNodePtr BaseNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+BaseNodePtr BaseNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     BaseNodePtr res = std::make_shared<BaseNode>();
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
         res = nullptr;
     }
@@ -194,8 +194,8 @@ BaseNode::~BaseNode() {
 ////// INIT //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-bool BaseNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    m_VulkanCorePtr = vVulkanCorePtr;
+bool BaseNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    m_VulkanCore = vVulkanCore;
     InitGraph(m_Style);
     return true;
 }

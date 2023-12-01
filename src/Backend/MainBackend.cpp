@@ -668,7 +668,10 @@ bool MainBackend::m_CreateVulkanWindow() {
     return (m_VulkanWindowPtr != nullptr);
 }
 
-void MainBackend::m_DestroyVulkanWindow() { m_VulkanWindowPtr.reset(); }
+void MainBackend::m_DestroyVulkanWindow() {
+    m_VulkanWindowPtr->Unit();
+    m_VulkanWindowPtr.reset();
+}
 
 void MainBackend::m_InitFilesTracker() {                                                     //
     m_InitFilesTracker(std::bind(&MainBackend::m_UpdateFiles, this, std::placeholders::_1),  //
@@ -731,6 +734,7 @@ void MainBackend::m_InitPanes() {
 }
 
 void MainBackend::m_DestroyVulkanCore() {
+    m_VulkanCorePtr->Unit();
     m_VulkanCorePtr.reset();
     GaiApi::VulkanCore::sVulkanShader.reset();
 }
@@ -789,7 +793,10 @@ bool MainBackend::m_CreateImGuiOverlay() {
     return false;
 }
 
-void MainBackend::m_DestroyImGuiOverlay() { m_ImGuiOverlayPtr.reset(); }
+void MainBackend::m_DestroyImGuiOverlay() {
+    m_ImGuiOverlayPtr->Unit();
+    m_ImGuiOverlayPtr.reset();
+}
 
 bool MainBackend::m_CreateRenderers() {
     m_DisplaySizeQuadRendererPtr = DisplaySizeQuadRenderer::Create(m_VulkanCorePtr);

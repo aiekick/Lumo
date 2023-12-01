@@ -55,7 +55,7 @@ class MathModule :
 	public NodeInterface
 {
 public:
-	static std::shared_ptr<MathModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<MathModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<MathModule> m_This;
@@ -63,7 +63,7 @@ private:
 	std::shared_ptr<MathModule_Quad_Pass> m_MathModule_Quad_Pass_Ptr = nullptr;
 
 public:
-	MathModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	MathModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~MathModule() override;
 
 	bool Init();

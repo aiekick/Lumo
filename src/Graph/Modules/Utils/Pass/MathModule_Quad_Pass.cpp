@@ -47,8 +47,8 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MathModule_Quad_Pass::MathModule_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
+MathModule_Quad_Pass::MathModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass : Math", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
@@ -207,7 +207,9 @@ void MathModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 					NeedNewUBOUpload();
 				}
 
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -233,14 +235,16 @@ bool MathModule_Quad_Pass::CreateUBO()
 	ZoneScoped;
 
 	auto size_in_bytes = sizeof(UBOFrag);
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
+    m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes, "MathModule_Quad_Pass");
 	m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
 	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();
@@ -252,7 +256,7 @@ void MathModule_Quad_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void MathModule_Quad_Pass::DestroyUBO()

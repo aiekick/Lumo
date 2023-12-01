@@ -49,11 +49,11 @@ NodeManager::NodeManager()
 //// INIT / UNIT ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool NodeManager::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
-	m_RootNodePtr = BaseNode::Create(vVulkanCorePtr);
+	m_RootNodePtr = BaseNode::Create(vVulkanCore);
 	if (m_RootNodePtr) {
         m_RootNodePtr->name = "LumoGraph";
         m_RootNodePtr->m_NodeTypeString = "Graph";

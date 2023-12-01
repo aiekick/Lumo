@@ -29,8 +29,8 @@ class LUMO_BACKEND_API TaskRenderer :
 	public TaskInterface
 {
 public:
-	TaskRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	TaskRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+	TaskRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
+	TaskRenderer(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 	virtual ~TaskRenderer() = default;
 
 	bool IsTheGoodFrame(const uint32_t& vFrame);

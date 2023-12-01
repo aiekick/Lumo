@@ -53,14 +53,14 @@ class WidgetColorModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<WidgetColorModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<WidgetColorModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<WidgetColorModule> m_This;
 	std::shared_ptr<WidgetColorModule_Pass> m_WidgetColorModule_Pass_Ptr = nullptr;
 
 public:
-	WidgetColorModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	WidgetColorModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~WidgetColorModule() override;
 
 	bool Init();

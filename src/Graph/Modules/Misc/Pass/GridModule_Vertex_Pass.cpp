@@ -35,8 +35,8 @@ using namespace GaiApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GridModule_Vertex_Pass::GridModule_Vertex_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: VertexShaderPass(vVulkanCorePtr)
+GridModule_Vertex_Pass::GridModule_Vertex_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: VertexShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Vertex Pass 1 : Grid", VERTEX_SHADER_PASS_DEBUG_COLOR);
 
@@ -128,7 +128,7 @@ bool GridModule_Vertex_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
+	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert), "GridModule_Vertex_Pass");
 	if (m_UBOVertPtr)
 	{
 		m_DescriptorBufferInfo_Vert.buffer = m_UBOVertPtr->buffer;
@@ -149,7 +149,7 @@ void GridModule_Vertex_Pass::UploadUBO()
 		4 * m_UBOVert.gridCount + 4 // grid
 		+ 6 // axis
 		;
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCore, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
 }
 
 void GridModule_Vertex_Pass::DestroyUBO()

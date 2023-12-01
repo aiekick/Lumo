@@ -60,11 +60,11 @@ class ModelExporterModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<ModelExporterModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<ModelExporterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<ModelExporterModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
     std::string unique_SaveMeshFileDialog_id;
     std::string unique_SavePathFileDialog_id;
     SceneModelWeak m_InputModel;
@@ -91,7 +91,7 @@ private: // to save
     bool m_AutoSaverPreviewEnabled = false;
 
 public:
-	ModelExporterModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ModelExporterModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ModelExporterModule();
 
 	bool Init();

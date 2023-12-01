@@ -40,10 +40,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<HeatmapRenderer>(vVulkanCorePtr);
+	auto res = std::make_shared<HeatmapRenderer>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -56,8 +55,8 @@ std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-HeatmapRenderer::HeatmapRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: TaskRenderer(vVulkanCorePtr)
+HeatmapRenderer::HeatmapRenderer(GaiApi::VulkanCoreWeak vVulkanCore)
+	: TaskRenderer(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -85,7 +84,7 @@ bool HeatmapRenderer::Init()
 
 	if (TaskRenderer::InitPixel(map_size))
 	{
-		m_HeatmapRenderer_Mesh_Pass_Ptr = std::make_shared<HeatmapRenderer_Mesh_Pass>(m_VulkanCorePtr);
+		m_HeatmapRenderer_Mesh_Pass_Ptr = std::make_shared<HeatmapRenderer_Mesh_Pass>(m_VulkanCore);
 		if (m_HeatmapRenderer_Mesh_Pass_Ptr)
 		{
 			if (m_HeatmapRenderer_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

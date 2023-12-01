@@ -26,10 +26,10 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<MeshNode> MeshNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+std::shared_ptr<MeshNode> MeshNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     auto res = std::make_shared<MeshNode>();
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
     }
     return res;
@@ -39,12 +39,12 @@ MeshNode::MeshNode() : BaseNode() { m_NodeTypeString = "MESH"; }
 
 MeshNode::~MeshNode() {}
 
-bool MeshNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+bool MeshNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Model";
 
     AddOutput(NodeSlotModelOutput::Create("Output"), true, true);
 
-    m_MeshModule = MeshModule::Create(vVulkanCorePtr, m_This);
+    m_MeshModule = MeshModule::Create(vVulkanCore, m_This);
     if (m_MeshModule) {
         return true;
     }

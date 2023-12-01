@@ -27,11 +27,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<MathNode> MathNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MathNode> MathNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<MathNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -48,7 +48,7 @@ MathNode::~MathNode()
 	Unit();
 }
 
-bool MathNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool MathNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Math";
 
@@ -71,7 +71,7 @@ bool MathNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_MathModulePtr = MathModule::Create(vVulkanCorePtr);
+	m_MathModulePtr = MathModule::Create(vVulkanCore);
 	if (m_MathModulePtr)
 	{
 		ReorganizeSlots();

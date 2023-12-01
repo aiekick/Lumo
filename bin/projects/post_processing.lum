@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-2.69073;0.705062;0</RotXYZ>
+			<RotXYZ>-0.0553404;0.0652121;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>27.0834</Zoom>
+			<Zoom>20.7848</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -25,162 +25,40 @@
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Texture 2D" type="TEXTURE_2D" pos="-401;-2" id="269834">
-						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="269838"/>
-						<texture_2d_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\00ZBrush_RedWax.png</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
-						</texture_2d_module>
+					<node name="Model Renderer" type="MODEL_RENDERER" pos="0;-34" id="5826">
+						<slot place="INPUT" index="0" name="Mesh" type="MESH" id="5829"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="5832"/>
+						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="5836"/>
+						<model_renderer_module>
+							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<display_mode>3</display_mode>
+							<line_thickness>1</line_thickness>
+							<point_size>1</point_size>
+							<show_layer>0</show_layer>
+							<use_indices_restriction>false</use_indices_restriction>
+							<restricted_indices_count_to_draw>362016</restricted_indices_count_to_draw>
+						</model_renderer_module>
 					</node>
-					<node name="Model" type="MESH" pos="-370;-82" id="156328">
-						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="156332"/>
+					<node name="Model" type="MESH" pos="-132;-25" id="7008">
+						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="7012"/>
 						<mesh_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\sample_model.gltf</file_path_name>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
 					</node>
-					<node name="Matcap" type="MATCAP_RENDERER" pos="-176;-131" id="263812">
-						<slot place="INPUT" index="0" name="Model" type="MESH" id="263816"/>
-						<slot place="INPUT" index="1" name="Matcap" type="TEXTURE_2D" id="263820"/>
-						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="263824"/>
-						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="263828"/>
-						<matcap_renderer>
-							<can_we_render>true</can_we_render>
-							<show_face_normal>false</show_face_normal>
-						</matcap_renderer>
-					</node>
-					<node name="Mesh Attributes" type="MESH_BUFFERS" pos="-238;-32" id="314870">
-						<slot place="INPUT" index="0" name="Model" type="MESH" id="314874"/>
-						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="314878"/>
-						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="314882"/>
-						<slot place="OUTPUT" index="1" name="Normal" type="TEXTURE_2D" id="314886"/>
-						<slot place="OUTPUT" index="2" name="Tangeant" type="TEXTURE_2D" id="314890"/>
-						<slot place="OUTPUT" index="3" name="BiTangeant" type="TEXTURE_2D" id="314894"/>
-						<slot place="OUTPUT" index="4" name="UV" type="TEXTURE_2D" id="314898"/>
-						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="314902"/>
-						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="314906"/>
-					</node>
-					<node name="Screen Space" type="SCREEN_SPACE" pos="0;-44" id="319662">
-						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="319665"/>
-						<slot place="INPUT" index="1" name="Position" type="TEXTURE_2D" id="319668"/>
-						<slot place="INPUT" index="2" name="Normal" type="TEXTURE_2D" id="319671"/>
-						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="319674"/>
-						<screen_space_module>
-							<can_we_render>true</can_we_render>
-							<ss_reflection_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<max_distance>8</max_distance>
-								<resolution>0.3</resolution>
-								<steps>5</steps>
-								<thickness>0.5</thickness>
-								<enabled>0</enabled>
-							</ss_reflection_pass>
-							<ssao_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<noise_scale>1</noise_scale>
-								<ao_radius>0.01</ao_radius>
-								<ao_scale>1</ao_scale>
-								<ao_bias>0.01</ao_bias>
-								<ao_intensity>2</ao_intensity>
-								<enabled>1</enabled>
-							</ssao_pass>
-						</screen_space_module>
-					</node>
 				</nodes>
 				<links>
-					<link in="314870:314882" out="319662:319668"/>
-					<link in="156328:156332" out="263812:263816"/>
-					<link in="314870:314886" out="319662:319671"/>
-					<link in="269834:269838" out="263812:263820"/>
-					<link in="156328:156332" out="314870:314874"/>
-					<link in="319662:319665" out="263812:263824"/>
+					<link in="7008:7012" out="5826:5829"/>
 				</links>
 				<outputs>
-					<output type="left" ids="319662:319674"/>
+					<output type="left" ids="5826:5832"/>
 				</outputs>
 			</graph>
 		</scene>
 		<plugins>
-			<AudiArt>
-			</AudiArt>
-			<BluePrints>
-			</BluePrints>
-			<CodeGenerator>
-				<custom_types>
-				</custom_types>
-				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\PostProcessing\src</root_path>
-				<scene>
-					<graph>
-						<canvas>
-							<offset>0;0</offset>
-							<scale>1</scale>
-						</canvas>
-						<nodes>
-							<node name="SS Reflection" type="NONE" pos="0;0" id="300593">
-								<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="300614" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="300620" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="1" showWidget="false"/>
-								<slot index="2" name="Normal" type="TEXTURE_2D" place="INPUT" id="300626" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="2" showWidget="false"/>
-								<slot index="3" name="Mask" type="TEXTURE_2D" place="INPUT" id="300632" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="3" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="300599" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<generation>
-									<class_name>SSReflection</class_name>
-									<category_name>PostPro</category_name>
-									<node_creation_name>SS_REFLECTION</node_creation_name>
-									<node_display_name>SS Reflection</node_display_name>
-									<generate_module>true</generate_module>
-									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>SS Reflection</module_display_name>
-									<module_xml_name>ss_reflection_module</module_xml_name>
-									<module_xml_simple_name>ss_reflection_pass</module_xml_simple_name>
-									<pass_specialization_type>Quad</pass_specialization_type>
-									<pass_use_ubo>true</pass_use_ubo>
-									<pass_use_sbo>false</pass_use_sbo>
-									<node_is_a_task>true</node_is_a_task>
-									<node_is_an_effect>true</node_is_an_effect>
-									<vertex_struct_type>0</vertex_struct_type>
-									<use_common_system_ubo>true</use_common_system_ubo>
-								</generation>
-								<UBOS renderer="Compute 2D">
-									<UBO stage="0">
-										<UBOItem name="max_distance" widgetIndex="0" typeIndex="0" vx="8" vy="0" vz="0" vw="0" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
-										<UBOItem name="resolution" widgetIndex="1" typeIndex="0" vx="0.3" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
-										<UBOItem name="steps" widgetIndex="1" typeIndex="4" vx="5" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
-										<UBOItem name="thickness" widgetIndex="1" typeIndex="0" vx="0.5" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
-									</UBO>
-								</UBOS>
-							</node>
-						</nodes>
-						<links>
-						</links>
-						<outputs>
-							<output type="left" ids="319662:319674"/>
-						</outputs>
-					</graph>
-				</scene>
-			</CodeGenerator>
-			<Lighting>
-			</Lighting>
-			<MeshGen>
-			</MeshGen>
-			<MeshSim>
-			</MeshSim>
-			<Misc>
-			</Misc>
-			<PostProcessing>
-			</PostProcessing>
-			<RTX>
-			</RTX>
-			<ScreenSpace>
-			</ScreenSpace>
-			<SdfMesher>
-			</SdfMesher>
-			<Simulation>
-			</Simulation>
 		</plugins>
 	</project>
 </config>

@@ -26,18 +26,18 @@ using namespace GaiApi;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T_VertexType>
-std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SceneMesh<T_VertexType>>(vVulkanCorePtr);
+	if (!vVulkanCore) return nullptr;
+	auto res = std::make_shared<SceneMesh<T_VertexType>>(vVulkanCore);
 	res->m_This = res;
 	return res;
 }
 
 template<typename T_VertexType>
-std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
+std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCoreWeak vVulkanCore, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
 {
-	auto res = std::make_shared<SceneMesh>(vVulkanCorePtr, vVerticeArray, vIndiceArray);
+	auto res = std::make_shared<SceneMesh>(vVulkanCore, vVerticeArray, vIndiceArray);
 	res->m_This = res;
 	if (!res->Init())
 		res.reset();
@@ -62,15 +62,15 @@ std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Copy(const std
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T_VertexType>
-SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCorePtr vVulkanCorePtr) 
-	: m_VulkanCorePtr(vVulkanCorePtr)
+SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCoreWeak vVulkanCore) 
+	: m_VulkanCorePtr(vVulkanCore)
 {
 
 }
 
 template<typename T_VertexType>
-SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCorePtr vVulkanCorePtr, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
-	: m_VulkanCorePtr(vVulkanCorePtr)
+SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCoreWeak vVulkanCore, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
+	: m_VulkanCorePtr(vVulkanCore)
 {
 	m_Vertices.m_Array = vVerticeArray;
 	m_Indices.m_Array = vIndiceArray;
@@ -307,7 +307,7 @@ bool SceneMesh<T_VertexType>::BuildVBO(bool vUseSBO)
 {
 	DestroyVBO();
 
-	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO, false, m_VulkanCorePtr->GetSupportedFeatures().is_RTX_Supported);
+	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCore, m_Vertices.m_Array, vUseSBO, false, corePtr->GetSupportedFeatures().is_RTX_Supported);
 	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 
 	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
@@ -322,7 +322,7 @@ bool SceneMesh<T_VertexType>::BuildVBO(bool vUseSBO)
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::DestroyVBO()
 {
-	m_VulkanCorePtr->getDevice().waitIdle();
+	corePtr->getDevice().waitIdle();
 
 	m_Vertices.m_Buffer.reset();
 	m_Vertices.m_BufferInfo = vk::DescriptorBufferInfo();
@@ -333,10 +333,10 @@ void SceneMesh<T_VertexType>::BuildIBO(bool vUseSBO)
 {
 	DestroyIBO();
 
-	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+	auto devicePtr = corePtr->getFrameworkDevice().lock();
 	if (devicePtr)
 	{
-		m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse()); // the last true is for RTX
+		m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCore, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse()); // the last true is for RTX
 		m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 
 		m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
@@ -350,7 +350,7 @@ void SceneMesh<T_VertexType>::BuildIBO(bool vUseSBO)
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::DestroyIBO()
 {
-	m_VulkanCorePtr->getDevice().waitIdle();
+	corePtr->getDevice().waitIdle();
 
 	m_Indices.m_Buffer.reset();
 	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo();

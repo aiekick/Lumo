@@ -46,10 +46,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MathModule> MathModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MathModule> MathModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MathModule>(vVulkanCorePtr);
+	auto res = std::make_shared<MathModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +61,8 @@ std::shared_ptr<MathModule> MathModule::Create(GaiApi::VulkanCorePtr vVulkanCore
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MathModule::MathModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+MathModule::MathModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +86,7 @@ bool MathModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_MathModule_Quad_Pass_Ptr = std::make_shared<MathModule_Quad_Pass>(m_VulkanCorePtr);
+		m_MathModule_Quad_Pass_Ptr = std::make_shared<MathModule_Quad_Pass>(m_VulkanCore);
 		if (m_MathModule_Quad_Pass_Ptr)
 		{
 			// by default but can be changed via widget

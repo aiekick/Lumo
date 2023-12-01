@@ -201,8 +201,8 @@ public:
     //// BUFFER OBJECTS ///////////////////////////////////
     ///////////////////////////////////////////////////////
 
-    void UploadBufferObjectIfDirty(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
-    bool CreateBufferObject(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+    void UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    bool CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore) override;
     void DestroyBufferObject() override;
 
 private:

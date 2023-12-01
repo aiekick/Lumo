@@ -60,7 +60,7 @@ private:
 	//VulkanBufferObjectPtr m_SBO_Empty_Colors = nullptr;
 
 public:
-	HeatmapRenderer_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	HeatmapRenderer_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~HeatmapRenderer_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;

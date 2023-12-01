@@ -1,13 +1,13 @@
 #include <LumoBackend/Base/TaskRenderer.h>
 
-TaskRenderer::TaskRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+TaskRenderer::TaskRenderer(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
 
-TaskRenderer::TaskRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
-	: BaseRenderer(vVulkanCorePtr, vCommandPool, vDescriptorPool)
+TaskRenderer::TaskRenderer(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
+	: BaseRenderer(vVulkanCore, vCommandPool, vDescriptorPool)
 {
 
 }

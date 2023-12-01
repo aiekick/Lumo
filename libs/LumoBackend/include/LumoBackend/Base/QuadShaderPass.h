@@ -23,8 +23,8 @@ limitations under the License.
 class LUMO_BACKEND_API QuadShaderPass : public MeshShaderPass<VertexStruct::P2_T2>
 {
 public:
-	QuadShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType);
-	QuadShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType,
+	QuadShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const MeshShaderPassType& vMeshShaderPassType);
+	QuadShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const MeshShaderPassType& vMeshShaderPassType,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
 	bool BuildModel() override;

@@ -26,10 +26,10 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<VariableNode> VariableNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, const std::string& vNodeType) {
+std::shared_ptr<VariableNode> VariableNode::Create(GaiApi::VulkanCoreWeak vVulkanCore, const std::string& vNodeType) {
     auto res = std::make_shared<VariableNode>(vNodeType);
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
     }
     return res;
@@ -43,7 +43,7 @@ VariableNode::~VariableNode() {
     Unit();
 }
 
-bool VariableNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+bool VariableNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Widget Bool";
 
     std::string slot_type;

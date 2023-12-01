@@ -46,10 +46,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MeshBuffersModule> MeshBuffersModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MeshBuffersModule> MeshBuffersModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MeshBuffersModule>(vVulkanCorePtr);
+	auto res = std::make_shared<MeshBuffersModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +61,8 @@ std::shared_ptr<MeshBuffersModule> MeshBuffersModule::Create(GaiApi::VulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshBuffersModule::MeshBuffersModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+MeshBuffersModule::MeshBuffersModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +86,7 @@ bool MeshBuffersModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_MeshBuffersModule_Mesh_Pass_Ptr = std::make_shared<MeshBuffersModule_Mesh_Pass>(m_VulkanCorePtr);
+		m_MeshBuffersModule_Mesh_Pass_Ptr = std::make_shared<MeshBuffersModule_Mesh_Pass>(m_VulkanCore);
 		if (m_MeshBuffersModule_Mesh_Pass_Ptr)
 		{
 			if (m_MeshBuffersModule_Mesh_Pass_Ptr->InitPixel(map_size, 7U, true, true, 0.0f,

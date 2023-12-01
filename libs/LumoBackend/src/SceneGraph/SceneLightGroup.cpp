@@ -23,11 +23,11 @@ limitations under the License.
 //// STATIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneLightGroupPtr SceneLightGroup::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+SceneLightGroupPtr SceneLightGroup::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<SceneLightGroup>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -51,19 +51,14 @@ layout(std430, binding = %u) readonly buffer SBO_LightGroup
 }
 
 // will create a empty sbo for default sbo when no slot are connected
-VulkanBufferObjectPtr SceneLightGroup::CreateEmptyBuffer(GaiApi::VulkanCorePtr vVulkanCorePtr)
+VulkanBufferObjectPtr SceneLightGroup::CreateEmptyBuffer(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
-	if (vVulkanCorePtr)
-	{
 		auto size_in_bytes = sizeof(uint32_t) + sizeof(SceneLight::lightDatas);
 		//gpu only since no udpate will be done
-		return GaiApi::VulkanRessource::createStorageBufferObject(
-			vVulkanCorePtr, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
-	}
+		return GaiApi::VulkanRessource::createStorageBufferObject(vVulkanCore, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY, "SceneLightGroup");
 
-	return nullptr;
 }
 
 ///////////////////////////////////////////////////////
@@ -84,12 +79,11 @@ SceneLightGroup::~SceneLightGroup()
 //// PUBLIC : INIT / UNIT /////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool SceneLightGroup::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SceneLightGroup::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	m_VulkanCorePtr = vVulkanCorePtr;
+	m_VulkanCore = vVulkanCore;
 
-	if (m_VulkanCorePtr)
-	{
+
 		m_SBO430.RegisterVar("LightsCount", m_LightsCount);
 
 		if (empty())
@@ -97,10 +91,7 @@ bool SceneLightGroup::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 			Add();
 		}
 
-		return CreateBufferObject(m_VulkanCorePtr);
-	}
-
-	return false;
+		return CreateBufferObject(m_VulkanCore);
 }
 
 void SceneLightGroup::Unit()
@@ -232,22 +223,24 @@ bool SceneLightGroup::IsOk()
 	return false;
 }
 
-void SceneLightGroup::UploadBufferObjectIfDirty(GaiApi::VulkanCorePtr vVulkanCorePtr)
+void SceneLightGroup::UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
-	m_SBO430.Upload(vVulkanCorePtr, true);
+	m_SBO430.Upload(vVulkanCore, true);
 }
 
-bool SceneLightGroup::CreateBufferObject(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SceneLightGroup::CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
-	if (vVulkanCorePtr && !m_Lights.empty())
-	{
-		vVulkanCorePtr->getDevice().waitIdle();
+	if (!m_Lights.empty()) {
+        auto corePtr = vVulkanCore.lock();
+        assert(corePtr != nullptr);
 
-		return m_SBO430.CreateSBO(vVulkanCorePtr, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
+		corePtr->getDevice().waitIdle();
+
+		return m_SBO430.CreateSBO(vVulkanCore, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
 	}
 
 	return false;

@@ -42,10 +42,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ChannelRenderer> ChannelRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ChannelRenderer> ChannelRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ChannelRenderer>(vVulkanCorePtr);
+	auto res = std::make_shared<ChannelRenderer>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -58,8 +57,8 @@ std::shared_ptr<ChannelRenderer> ChannelRenderer::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ChannelRenderer::ChannelRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: TaskRenderer(vVulkanCorePtr)
+ChannelRenderer::ChannelRenderer(GaiApi::VulkanCoreWeak vVulkanCore)
+	: TaskRenderer(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -87,7 +86,7 @@ bool ChannelRenderer::Init()
 
 	if (TaskRenderer::InitPixel(map_size))
 	{
-		m_ChannelRenderer_Mesh_Pass_Ptr = std::make_shared<ChannelRenderer_Mesh_Pass>(m_VulkanCorePtr);
+		m_ChannelRenderer_Mesh_Pass_Ptr = std::make_shared<ChannelRenderer_Mesh_Pass>(m_VulkanCore);
 		if (m_ChannelRenderer_Mesh_Pass_Ptr)
 		{
 			if (m_ChannelRenderer_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

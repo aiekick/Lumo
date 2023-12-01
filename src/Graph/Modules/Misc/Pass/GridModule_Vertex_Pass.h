@@ -42,7 +42,7 @@ private:
 	} m_UBOVert;
 
 public:
-	GridModule_Vertex_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	GridModule_Vertex_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~GridModule_Vertex_Pass() override;
 
 	void ActionBeforeInit() override;

@@ -10,7 +10,7 @@ private:
     vk::DescriptorImageInfo m_ImageInfos;
 
 public:
-    DisplaySizeQuadPass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    DisplaySizeQuadPass(GaiApi::VulkanCoreWeak vVulkanCore);
     virtual ~DisplaySizeQuadPass();
 
     void SetImageInfos(const vk::DescriptorImageInfo* vImageInfosPtr);

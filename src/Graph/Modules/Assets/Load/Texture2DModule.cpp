@@ -33,12 +33,11 @@ limitations under the License.
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<Texture2DModule> Texture2DModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<Texture2DModule> Texture2DModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<Texture2DModule>(vVulkanCorePtr);
+	auto res = std::make_shared<Texture2DModule>(vVulkanCore);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -52,8 +51,8 @@ std::shared_ptr<Texture2DModule> Texture2DModule::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Texture2DModule::Texture2DModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: m_VulkanCorePtr(vVulkanCorePtr)
+Texture2DModule::Texture2DModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: m_VulkanCore(vVulkanCore)
 {
 	unique_OpenPictureFileDialog_id = ct::toStr("OpenPictureFileDialog%u", (uintptr_t)this);
 }
@@ -183,7 +182,7 @@ vk::DescriptorImageInfo* Texture2DModule::GetDescriptorImageInfo(const uint32_t&
 
 void Texture2DModule::LoadTexture2D(const std::string& vFilePathName)
 {
-	m_Texture2DPtr = Texture2D::CreateFromFile(m_VulkanCorePtr, vFilePathName);
+	m_Texture2DPtr = Texture2D::CreateFromFile(m_VulkanCore, vFilePathName);
 	if (m_Texture2DPtr)
 	{
 		auto ps = FileHelper::Instance()->ParsePathFileName(m_FilePathName);
@@ -192,7 +191,9 @@ void Texture2DModule::LoadTexture2D(const std::string& vFilePathName)
 			m_FileName = ps.name;
 		}
 
-		auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().lock();
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+		auto imguiRendererPtr = corePtr->GetVulkanImGuiRenderer().lock();
 		if (imguiRendererPtr)
 		{
 			m_ImGuiTexture.SetDescriptor(imguiRendererPtr, &m_Texture2DPtr->m_DescriptorImageInfo, m_Texture2DPtr->m_Ratio);

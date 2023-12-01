@@ -29,11 +29,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<MeshBuffersNode> MeshBuffersNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MeshBuffersNode> MeshBuffersNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<MeshBuffersNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -50,7 +50,7 @@ MeshBuffersNode::~MeshBuffersNode()
 	Unit();
 }
 
-bool MeshBuffersNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool MeshBuffersNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Mesh Buffers";
 
@@ -66,7 +66,7 @@ bool MeshBuffersNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_MeshBuffersModulePtr = MeshBuffersModule::Create(vVulkanCorePtr);
+	m_MeshBuffersModulePtr = MeshBuffersModule::Create(vVulkanCore);
 	if (m_MeshBuffersModulePtr)
 	{
 		res = true;

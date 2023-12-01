@@ -23,7 +23,7 @@ limitations under the License.
 class MeshModule;
 class MeshNode : public BaseNode, public ModelOutputInterface {
 public:
-    static std::shared_ptr<MeshNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<MeshNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
     std::shared_ptr<MeshModule> m_MeshModule = nullptr;
@@ -31,7 +31,7 @@ private:
 public:
     MeshNode();
     ~MeshNode() override;
-    bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,
         ImGuiContext* vContextPtr = nullptr,
         const std::string& vUserDatas = {}) override;

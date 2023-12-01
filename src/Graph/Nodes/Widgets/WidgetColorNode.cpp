@@ -26,11 +26,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<WidgetColorNode> WidgetColorNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<WidgetColorNode> WidgetColorNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<WidgetColorNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -47,7 +47,7 @@ WidgetColorNode::~WidgetColorNode()
 	Unit();
 }
 
-bool WidgetColorNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool WidgetColorNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Widget Color";
 
@@ -58,7 +58,7 @@ bool WidgetColorNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 		AddOutput(slotPtr, true, true);
 	}
 
-	m_WidgetColorModule = WidgetColorModule::Create(vVulkanCorePtr);
+	m_WidgetColorModule = WidgetColorModule::Create(vVulkanCore);
 	if (m_WidgetColorModule)
 	{
 		return true;

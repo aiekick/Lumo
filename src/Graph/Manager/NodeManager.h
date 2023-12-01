@@ -36,7 +36,7 @@ public:
 
 public:
 	// init / unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore);
 	void Unit();
 	
 	void Clear();

@@ -27,7 +27,7 @@ class WidgetColorNode :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<WidgetColorNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<WidgetColorNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<WidgetColorModule> m_WidgetColorModule = nullptr;
@@ -35,7 +35,7 @@ private:
 public:
 	WidgetColorNode();
 	~WidgetColorNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 	void DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;

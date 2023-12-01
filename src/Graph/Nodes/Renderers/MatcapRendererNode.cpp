@@ -30,11 +30,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<MatcapRendererNode> MatcapRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MatcapRendererNode> MatcapRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<MatcapRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -51,7 +51,7 @@ MatcapRendererNode::~MatcapRendererNode()
 	Unit();
 }
 
-bool MatcapRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool MatcapRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Matcap";
 
@@ -62,7 +62,7 @@ bool MatcapRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_MatcapRenderer = MatcapRenderer::Create(vVulkanCorePtr);
+	m_MatcapRenderer = MatcapRenderer::Create(vVulkanCore);
 	if (m_MatcapRenderer)
 	{
 		res = true;

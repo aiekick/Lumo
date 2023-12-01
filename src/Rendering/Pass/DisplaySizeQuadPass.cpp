@@ -6,7 +6,7 @@ using namespace GaiApi;
 //// CHANNEL RENDERER PASS ///////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DisplaySizeQuadPass::DisplaySizeQuadPass(GaiApi::VulkanCorePtr vVulkanCorePtr) : QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL) {
+DisplaySizeQuadPass::DisplaySizeQuadPass(GaiApi::VulkanCoreWeak vVulkanCore) : QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL) {
     ZoneScoped;
     SetRenderDocDebugName("Shader Pass : Display Size Quad", QUAD_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
@@ -19,14 +19,18 @@ DisplaySizeQuadPass::~DisplaySizeQuadPass() {
 
 void DisplaySizeQuadPass::ActionBeforeInit() {
     ZoneScoped;
-    m_ImageInfos = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_ImageInfos = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 }
 
 void DisplaySizeQuadPass::SetImageInfos(const vk::DescriptorImageInfo* vImageInfosPtr) {
     if (vImageInfosPtr != nullptr) {
         m_ImageInfos = *vImageInfosPtr;
     } else {
-        m_ImageInfos = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+        m_ImageInfos = *corePtr->getEmptyTexture2DDescriptorImageInfo();
     }
 }
 

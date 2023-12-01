@@ -47,12 +47,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SceneMergerModule> SceneMergerModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<SceneMergerModule> SceneMergerModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
-
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SceneMergerModule>(vVulkanCorePtr);
+	auto res = std::make_shared<SceneMergerModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -67,8 +65,8 @@ std::shared_ptr<SceneMergerModule> SceneMergerModule::Create(GaiApi::VulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneMergerModule::SceneMergerModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+SceneMergerModule::SceneMergerModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -99,7 +97,7 @@ bool SceneMergerModule::Init()
 		AllowResizeOnResizeEvents(true);
 		AllowResizeByHandOrByInputs(true);
 
-		m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
+		m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCore);
 		if (m_FrameBufferPtr && m_FrameBufferPtr->Init(
 			map_size, 1U, true, true, 0.0f, false,
 			vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))

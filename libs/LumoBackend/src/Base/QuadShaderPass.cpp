@@ -31,22 +31,22 @@ limitations under the License.
 #endif
 
 QuadShaderPass::QuadShaderPass(
-	GaiApi::VulkanCorePtr vVulkanCorePtr,
+	GaiApi::VulkanCoreWeak vVulkanCore,
 	const MeshShaderPassType& vMeshShaderPassType)
 	: MeshShaderPass<VertexStruct::P2_T2>(
-		vVulkanCorePtr,
+		vVulkanCore,
 		vMeshShaderPassType) {
     ZoneScoped;
 
 }
 
 QuadShaderPass::QuadShaderPass(
-	GaiApi::VulkanCorePtr vVulkanCorePtr,
+	GaiApi::VulkanCoreWeak vVulkanCore,
 	const MeshShaderPassType& vMeshShaderPassType,
 	vk::CommandPool* vCommandPool,
 	vk::DescriptorPool* vDescriptorPool)
 	: MeshShaderPass<VertexStruct::P2_T2>(
-		vVulkanCorePtr,
+		vVulkanCore,
 		vMeshShaderPassType,
 		vCommandPool,
 		vDescriptorPool) {
@@ -68,13 +68,13 @@ bool QuadShaderPass::BuildModel()
 		0U, 1U, 2U, 0U, 2U, 3U
 	};
 
-	m_Vertices.m_Buffer = GaiApi::VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array);
+	m_Vertices.m_Buffer = GaiApi::VulkanRessource::createVertexBufferObject(m_VulkanCore, m_Vertices.m_Array, false, false, false, "QuadShaderPass");
 	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
 	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
 	m_Vertices.m_BufferInfo.offset = 0;
 
-	m_Indices.m_Buffer = GaiApi::VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array);
+	m_Indices.m_Buffer = GaiApi::VulkanRessource::createIndexBufferObject(m_VulkanCore, m_Indices.m_Array,false, false, false, "QuadShaderPass");
 	m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 	m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
 	m_Indices.m_BufferInfo.range = m_Indices.m_Count * sizeof(uint32_t);
@@ -85,9 +85,11 @@ bool QuadShaderPass::BuildModel()
 
 void QuadShaderPass::DestroyModel(const bool& /*vReleaseDatas*/)
 {
-	ZoneScoped;
+    ZoneScoped;
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
 
-	m_VulkanCorePtr->getDevice().waitIdle();
+	corePtr->getDevice().waitIdle();
 
 	m_Vertices.m_Buffer.reset();
 	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo{};

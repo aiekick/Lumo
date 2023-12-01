@@ -42,10 +42,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MatcapRenderer>(vVulkanCorePtr);
+	auto res = std::make_shared<MatcapRenderer>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -58,8 +57,8 @@ std::shared_ptr<MatcapRenderer> MatcapRenderer::Create(GaiApi::VulkanCorePtr vVu
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MatcapRenderer::MatcapRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: TaskRenderer(vVulkanCorePtr)
+MatcapRenderer::MatcapRenderer(GaiApi::VulkanCoreWeak vVulkanCore)
+	: TaskRenderer(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -87,7 +86,7 @@ bool MatcapRenderer::Init()
 
 	if (TaskRenderer::InitPixel(map_size))
 	{
-		m_MatcapRenderer_Mesh_Pass_Ptr = std::make_shared<MatcapRenderer_Mesh_Pass>(m_VulkanCorePtr);
+		m_MatcapRenderer_Mesh_Pass_Ptr = std::make_shared<MatcapRenderer_Mesh_Pass>(m_VulkanCore);
 		if (m_MatcapRenderer_Mesh_Pass_Ptr)
 		{
 			if (m_MatcapRenderer_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

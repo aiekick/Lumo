@@ -60,7 +60,7 @@ class SceneMergerModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<SceneMergerModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<SceneMergerModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<SceneMergerModule> m_This;
@@ -69,7 +69,7 @@ private:
 	std::vector<uint32_t> m_JustDeletedSceneShaderPassSlots;
 
 public:
-	SceneMergerModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SceneMergerModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SceneMergerModule() override;
 
 	bool Init();

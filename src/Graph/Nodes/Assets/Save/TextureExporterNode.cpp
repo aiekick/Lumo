@@ -33,13 +33,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<TextureExporterNode> TextureExporterNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<TextureExporterNode> TextureExporterNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<TextureExporterNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ TextureExporterNode::~TextureExporterNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool TextureExporterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool TextureExporterNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -75,7 +75,7 @@ bool TextureExporterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("Texture", 0), false, false);
 
 
-	m_TextureExporterModulePtr = TextureExporterModule::Create(vVulkanCorePtr, m_This);
+	m_TextureExporterModulePtr = TextureExporterModule::Create(vVulkanCore, m_This);
 	if (m_TextureExporterModulePtr)
 	{
 		res = true;

@@ -68,7 +68,7 @@ private:
 	std::vector<MathModuleEntry> m_Functions;
 
 public:
-	MathModule_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	MathModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~MathModule_Quad_Pass() override;
 
 	void ActionBeforeInit() override;

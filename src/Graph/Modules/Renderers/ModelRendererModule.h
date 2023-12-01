@@ -57,7 +57,7 @@ class ModelRendererModule :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<ModelRendererModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<ModelRendererModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<ModelRendererModule> m_This;
@@ -65,7 +65,7 @@ private:
 	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
-	ModelRendererModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ModelRendererModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ModelRendererModule() override;
 
 	bool Init();

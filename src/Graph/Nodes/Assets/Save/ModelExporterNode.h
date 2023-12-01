@@ -27,7 +27,7 @@ class ModelExporterNode :
 	public VariableInputInterface<0U>,
 	public BaseNode {
 public:
-	static std::shared_ptr<ModelExporterNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ModelExporterNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<ModelExporterModule> m_ModelExporterModulePtr = nullptr;
@@ -37,7 +37,7 @@ public:
 	~ModelExporterNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	//  Task
     bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;

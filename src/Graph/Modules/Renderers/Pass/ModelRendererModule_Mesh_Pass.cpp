@@ -47,8 +47,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelRendererModule_Mesh_Pass::ModelRendererModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: MeshShaderPass<VertexStruct::P3_N3_TA3_BTA3_T2_C4>(vVulkanCorePtr, MeshShaderPassType::PIXEL)
+ModelRendererModule_Mesh_Pass::ModelRendererModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: MeshShaderPass<VertexStruct::P3_N3_TA3_BTA3_T2_C4>(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	ZoneScoped;
 
@@ -259,7 +259,7 @@ bool ModelRendererModule_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Vert));
+	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "ModelRendererModule_Mesh_Pass");
 	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBO_Vert_Ptr)
 	{
@@ -268,7 +268,7 @@ bool ModelRendererModule_Mesh_Pass::CreateUBO()
 		m_UBO_Vert_BufferInfos.offset = 0;
 	}
 
-	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Frag));
+	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "ModelRendererModule_Mesh_Pass");
 	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 	if (m_UBO_Frag_Ptr)
 	{
@@ -286,8 +286,8 @@ void ModelRendererModule_Mesh_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
 }
 
 void ModelRendererModule_Mesh_Pass::DestroyUBO()

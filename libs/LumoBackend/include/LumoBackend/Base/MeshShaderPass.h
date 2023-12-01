@@ -37,8 +37,8 @@ protected:
 	MeshInfo<VertexStruct::I1> m_Indices;
 
 public:
-	MeshShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType);
-	MeshShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const MeshShaderPassType& vMeshShaderPassType,
+	MeshShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const MeshShaderPassType& vMeshShaderPassType);
+	MeshShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const MeshShaderPassType& vMeshShaderPassType,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
 	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
@@ -59,10 +59,10 @@ protected:
 
 template<typename T_VertexType>
 MeshShaderPass<T_VertexType>::MeshShaderPass(
-	GaiApi::VulkanCorePtr vVulkanCorePtr,
+	GaiApi::VulkanCoreWeak vVulkanCore,
 	const MeshShaderPassType& vMeshShaderPassType)
 	: ShaderPass(
-		vVulkanCorePtr,
+		vVulkanCore,
 		(GenericType)vMeshShaderPassType) {
     ZoneScoped;
 	
@@ -70,12 +70,12 @@ MeshShaderPass<T_VertexType>::MeshShaderPass(
 
 template<typename T_VertexType>
 MeshShaderPass<T_VertexType>::MeshShaderPass(
-	GaiApi::VulkanCorePtr vVulkanCorePtr,
+	GaiApi::VulkanCoreWeak vVulkanCore,
 	const MeshShaderPassType& vMeshShaderPassType,
 	vk::CommandPool* vCommandPool,
 	vk::DescriptorPool* vDescriptorPool)
 	: ShaderPass(
-		vVulkanCorePtr,
+		vVulkanCore,
 		(GenericType)vMeshShaderPassType,
 		vCommandPool,
 		vDescriptorPool) {
@@ -139,7 +139,11 @@ bool MeshShaderPass<T_VertexType>::BuildVBO(bool vUseSBO) {
     ZoneScoped;
 	DestroyVBO();
 
-	m_Vertices.m_Buffer = GaiApi::VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO, false, m_VulkanCorePtr->GetSupportedFeatures().is_RTX_Supported);
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
+	m_Vertices.m_Buffer = GaiApi::VulkanRessource::createVertexBufferObject(
+        m_VulkanCore, m_Vertices.m_Array, vUseSBO, false, corePtr->GetSupportedFeatures().is_RTX_Supported, "MeshShaderPass");
 	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 
 	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
@@ -152,7 +156,11 @@ bool MeshShaderPass<T_VertexType>::BuildVBO(bool vUseSBO) {
 template<typename T_VertexType>
 void MeshShaderPass<T_VertexType>::DestroyVBO() {
     ZoneScoped;
-	m_VulkanCorePtr->getDevice().waitIdle();
+
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
+	corePtr->getDevice().waitIdle();
 
 	m_Vertices.m_Buffer.reset();
 	m_Vertices.m_BufferInfo = vk::DescriptorBufferInfo();
@@ -163,10 +171,14 @@ void MeshShaderPass<T_VertexType>::BuildIBO(bool vUseSBO) {
     ZoneScoped;
 	DestroyIBO();
 
-	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
+	auto devicePtr = corePtr->getFrameworkDevice().lock();
 	if (devicePtr)
 	{
-        m_Indices.m_Buffer = GaiApi::VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse());  // the last true is for RTX
+        m_Indices.m_Buffer = GaiApi::VulkanRessource::createIndexBufferObject(
+            m_VulkanCore, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse(), "MeshShaderPass");  // the last true is for RTX
 		m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 
 		m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
@@ -178,7 +190,11 @@ void MeshShaderPass<T_VertexType>::BuildIBO(bool vUseSBO) {
 template<typename T_VertexType>
 void MeshShaderPass<T_VertexType>::DestroyIBO() {
     ZoneScoped;
-	m_VulkanCorePtr->getDevice().waitIdle();
+
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
+	corePtr->getDevice().waitIdle();
 
 	m_Indices.m_Buffer.reset();
 	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo();

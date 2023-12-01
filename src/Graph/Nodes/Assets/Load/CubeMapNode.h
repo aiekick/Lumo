@@ -21,7 +21,7 @@ limitations under the License.
 class CubeMapModule;
 class CubeMapNode : public TextureCubeOutputInterface, public BaseNode {
 public:
-    static std::shared_ptr<CubeMapNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<CubeMapNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
     std::shared_ptr<CubeMapModule> m_CubeMapModulePtr = nullptr;
@@ -31,7 +31,7 @@ public:
     ~CubeMapNode() override;
 
     // Init / Unit
-    bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
     // Draw Widgets
     bool DrawWidgets(const uint32_t& vCurrentFrame,

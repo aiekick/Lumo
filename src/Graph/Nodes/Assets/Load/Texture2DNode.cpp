@@ -26,10 +26,10 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<Texture2DNode> Texture2DNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+std::shared_ptr<Texture2DNode> Texture2DNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     auto res = std::make_shared<Texture2DNode>();
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
     }
     return res;
@@ -39,7 +39,7 @@ Texture2DNode::Texture2DNode() : BaseNode() { m_NodeTypeString = "TEXTURE_2D"; }
 
 Texture2DNode::~Texture2DNode() {}
 
-bool Texture2DNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+bool Texture2DNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Texture 2D";
 
     auto texPtr = NodeSlotTextureOutput::Create("Output", 0U);
@@ -48,7 +48,7 @@ bool Texture2DNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
         AddOutput(texPtr, true, true);
     }
 
-    m_Texture2DModule = Texture2DModule::Create(vVulkanCorePtr, m_This);
+    m_Texture2DModule = Texture2DModule::Create(vVulkanCore, m_This);
     if (m_Texture2DModule) {
         return true;
     }

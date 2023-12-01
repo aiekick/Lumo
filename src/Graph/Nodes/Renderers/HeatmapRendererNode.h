@@ -31,7 +31,7 @@ class HeatmapRendererNode :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<HeatmapRendererNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<HeatmapRendererNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<HeatmapRenderer> m_HeatmapRenderer = nullptr;
@@ -39,7 +39,7 @@ private:
 public:
 	HeatmapRendererNode();
 	~HeatmapRendererNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,

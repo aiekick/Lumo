@@ -23,11 +23,11 @@ limitations under the License.
 //// STATIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneTextureGroupPtr SceneTextureGroup::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+SceneTextureGroupPtr SceneTextureGroup::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<SceneTextureGroup>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -44,16 +44,16 @@ std::string SceneTextureGroup::GetBufferObjectStructureHeader(const uint32_t& vB
 }
 
 // will create a empty sbo for default sbo when no slot are connected
-VulkanBufferObjectPtr SceneTextureGroup::CreateEmptyBuffer(GaiApi::VulkanCorePtr vVulkanCorePtr)
+VulkanBufferObjectPtr SceneTextureGroup::CreateEmptyBuffer(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
-	/*if (vVulkanCorePtr)
+	/*if (vVulkanCore)
 	{
 		auto size_in_bytes = sizeof(SceneTexture::lightDatas);
 		//gpu only since no udpate will be done
 		return GaiApi::VulkanRessource::createStorageBufferObject(
-			vVulkanCorePtr, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
+			vVulkanCore, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
 	}*/
 
 	return nullptr;
@@ -77,21 +77,17 @@ SceneTextureGroup::~SceneTextureGroup()
 //// PUBLIC : INIT / UNIT /////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool SceneTextureGroup::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SceneTextureGroup::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	m_VulkanCorePtr = vVulkanCorePtr;
+	m_VulkanCore = vVulkanCore;
 
-	if (m_VulkanCorePtr)
-	{
+
 		if (empty())
 		{
 			Add();
 		}
 
-		return CreateBufferObject(m_VulkanCorePtr);
-	}
-
-	return false;
+		return CreateBufferObject(m_VulkanCore);
 }
 
 void SceneTextureGroup::Unit()
@@ -201,22 +197,22 @@ bool SceneTextureGroup::IsOk()
 	return false;
 }
 
-void SceneTextureGroup::UploadBufferObjectIfDirty(GaiApi::VulkanCorePtr vVulkanCorePtr)
+void SceneTextureGroup::UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
-	//m_SBO430.Upload(vVulkanCorePtr, true);
+	//m_SBO430.Upload(vVulkanCore, true);
 }
 
-bool SceneTextureGroup::CreateBufferObject(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SceneTextureGroup::CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
-	/*if (vVulkanCorePtr && !m_Textures.empty())
+	/*if (vVulkanCore && !m_Textures.empty())
 	{
-		vVulkanCorePtr->getDevice().waitIdle();
+		corePtr->getDevice().waitIdle();
 
-		return m_SBO430.CreateSBO(vVulkanCorePtr, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
+		return m_SBO430.CreateSBO(vVulkanCore, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
 	}*/
 
 	return false;

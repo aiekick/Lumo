@@ -29,7 +29,7 @@ class GridNode :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<GridNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<GridNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<GridModule> m_GridModulePtr = nullptr;
@@ -37,7 +37,7 @@ private:
 public:
 	GridNode();
 	~GridNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,

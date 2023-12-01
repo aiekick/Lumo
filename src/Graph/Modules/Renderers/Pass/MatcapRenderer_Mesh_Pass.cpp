@@ -40,8 +40,8 @@ using namespace GaiApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MatcapRenderer_Mesh_Pass::MatcapRenderer_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+MatcapRenderer_Mesh_Pass::MatcapRenderer_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Matcap", MESH_SHADER_PASS_DEBUG_COLOR);
 
@@ -109,7 +109,7 @@ bool MatcapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 		NeedNewUBOUpload();
 	}
 
-	DrawInputTexture(m_VulkanCorePtr, "Input Matcap", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Input Matcap", 0U, m_OutputRatio);
 
 	return change;
 }
@@ -149,9 +149,10 @@ void MatcapRenderer_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Des
 			{
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
 			}
-			else
-			{
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+			else {
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -187,7 +188,7 @@ bool MatcapRenderer_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
+	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert), "MatcapRenderer_Mesh_Pass");
 	if (m_UBOVertPtr)
 	{
 		m_DescriptorBufferInfo_Vert.buffer = m_UBOVertPtr->buffer;
@@ -195,7 +196,7 @@ bool MatcapRenderer_Mesh_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Vert.offset = 0;
 	}
 
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
+	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "MatcapRenderer_Mesh_Pass");
 	if (m_UBOFragPtr)
 	{
 		m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
@@ -203,9 +204,11 @@ bool MatcapRenderer_Mesh_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Frag.offset = 0;
 	}
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();
@@ -217,8 +220,8 @@ void MatcapRenderer_Mesh_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCore, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void MatcapRenderer_Mesh_Pass::DestroyUBO()

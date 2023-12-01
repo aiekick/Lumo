@@ -28,11 +28,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<GridNode> GridNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<GridNode> GridNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<GridNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -49,14 +49,14 @@ GridNode::~GridNode()
 
 }
 
-bool GridNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool GridNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Grid / Axis";
 
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
-	m_GridModulePtr = GridModule::Create(vVulkanCorePtr);
+	m_GridModulePtr = GridModule::Create(vVulkanCore);
 	if (m_GridModulePtr)
 	{
 		return true;

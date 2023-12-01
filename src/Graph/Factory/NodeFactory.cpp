@@ -40,7 +40,7 @@ limitations under the License.
 BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType) {
     auto graphPtr = vNodeGraph.lock();
     if (graphPtr) {
-        auto corePtr = graphPtr->m_VulkanCorePtr;
+        auto corePtr = graphPtr->m_VulkanCore.lock();
         if (corePtr) {
             // Assets
             if (vNodeType == "MESH"){

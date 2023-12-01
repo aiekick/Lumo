@@ -21,7 +21,7 @@ limitations under the License.
 class VariableModule;
 class VariableNode : public BaseNode, public VariableOutputInterface {
 public:
-    static std::shared_ptr<VariableNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, const std::string& vNodeType);
+    static std::shared_ptr<VariableNode> Create(GaiApi::VulkanCoreWeak vVulkanCore, const std::string& vNodeType);
 
 private:
     std::shared_ptr<VariableModule> m_VariableModulePtr = nullptr;
@@ -29,7 +29,7 @@ private:
 public:
     VariableNode(const std::string& vNodeType);
     ~VariableNode() override;
-    bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
     bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
     bool DrawOverlays(

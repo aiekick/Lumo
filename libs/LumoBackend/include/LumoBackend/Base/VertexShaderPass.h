@@ -23,8 +23,8 @@ limitations under the License.
 class LUMO_BACKEND_API VertexShaderPass : public ShaderPass
 {
 public:
-	VertexShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	VertexShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr,
+	VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore);
+	VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
 	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;

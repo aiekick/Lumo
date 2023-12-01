@@ -57,7 +57,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	MatcapRenderer_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	MatcapRenderer_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~MatcapRenderer_Mesh_Pass() override;
 	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;

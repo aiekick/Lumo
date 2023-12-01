@@ -35,8 +35,8 @@ public:
 	bool m_BufferObjectIsDirty = false;
 
 public:
-	virtual void UploadBufferObjectIfDirty(GaiApi::VulkanCorePtr vVulkanCorePtr) = 0;
-	virtual bool CreateBufferObject(GaiApi::VulkanCorePtr vVulkanCorePtr) = 0;
+	virtual void UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore) = 0;
+	virtual bool CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore) = 0;
 	virtual void DestroyBufferObject()
 	{
 		m_BufferObjectPtr.reset();

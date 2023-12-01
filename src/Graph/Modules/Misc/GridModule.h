@@ -34,7 +34,7 @@ class GridModule :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<GridModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<GridModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
     std::shared_ptr<GridModule_Vertex_Pass> m_GridModule_Vertex_Pass_Ptr = nullptr;
@@ -42,7 +42,7 @@ private:
 
 
 public:
-	GridModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	GridModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~GridModule() override;
 
 	bool Init();

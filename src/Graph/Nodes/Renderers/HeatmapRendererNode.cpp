@@ -29,11 +29,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<HeatmapRendererNode> HeatmapRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<HeatmapRendererNode> HeatmapRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<HeatmapRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -50,7 +50,7 @@ HeatmapRendererNode::~HeatmapRendererNode()
 	Unit();
 }
 
-bool HeatmapRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool HeatmapRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Heatmap";
 
@@ -60,7 +60,7 @@ bool HeatmapRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_HeatmapRenderer = HeatmapRenderer::Create(vVulkanCorePtr);
+	m_HeatmapRenderer = HeatmapRenderer::Create(vVulkanCore);
 	if (m_HeatmapRenderer)
 	{
 		res = true;

@@ -36,12 +36,11 @@ limitations under the License.
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MeshModule> MeshModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<MeshModule> MeshModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MeshModule>(vVulkanCorePtr);
+	auto res = std::make_shared<MeshModule>(vVulkanCore);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -55,10 +54,10 @@ std::shared_ptr<MeshModule> MeshModule::Create(GaiApi::VulkanCorePtr vVulkanCore
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshModule::MeshModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
+MeshModule::MeshModule(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	unique_OpenMeshFileDialog_id = ct::toStr("OpenMeshFileDialog%u", (uintptr_t)this);
-	m_VulkanCorePtr = vVulkanCorePtr;
+	m_VulkanCore = vVulkanCore;
 }
 
 MeshModule::~MeshModule()
@@ -220,7 +219,7 @@ void MeshModule::LoadMesh(const std::string& vFilePathName)
 
 					if (mesh)
 					{
-						auto sceneMeshPtr = SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>::Create(m_VulkanCorePtr);
+						auto sceneMeshPtr = SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>::Create(m_VulkanCore);
 						if (sceneMeshPtr)
 						{
 							sceneMeshPtr->GetVertices()->reserve(mesh->mNumVertices);

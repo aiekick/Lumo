@@ -46,10 +46,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<WidgetColorModule> WidgetColorModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<WidgetColorModule> WidgetColorModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<WidgetColorModule>(vVulkanCorePtr);
+	auto res = std::make_shared<WidgetColorModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +61,8 @@ std::shared_ptr<WidgetColorModule> WidgetColorModule::Create(GaiApi::VulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-WidgetColorModule::WidgetColorModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+WidgetColorModule::WidgetColorModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +86,7 @@ bool WidgetColorModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_WidgetColorModule_Pass_Ptr = std::make_shared<WidgetColorModule_Pass>(m_VulkanCorePtr);
+		m_WidgetColorModule_Pass_Ptr = std::make_shared<WidgetColorModule_Pass>(m_VulkanCore);
 		if (m_WidgetColorModule_Pass_Ptr)
 		{
 			if (m_WidgetColorModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))

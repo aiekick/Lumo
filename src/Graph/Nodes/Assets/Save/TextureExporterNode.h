@@ -23,7 +23,7 @@ class TextureExporterNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<TextureExporterNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<TextureExporterNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<TextureExporterModule> m_TextureExporterModulePtr = nullptr;
@@ -33,7 +33,7 @@ public:
 	~TextureExporterNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Draw Widgets
     bool DrawWidgets(const uint32_t& vCurrentFrame,

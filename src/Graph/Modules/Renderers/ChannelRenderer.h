@@ -44,14 +44,14 @@ class ChannelRenderer :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<ChannelRenderer> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ChannelRenderer> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<ChannelRenderer_Mesh_Pass> m_ChannelRenderer_Mesh_Pass_Ptr = nullptr;
 	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
-	ChannelRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ChannelRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ChannelRenderer() override;
 
 	bool Init();

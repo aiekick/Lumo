@@ -29,14 +29,14 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-VertexShaderPass::VertexShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr, GenericType::PIXEL) {
+VertexShaderPass::VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore, GenericType::PIXEL) {
     ZoneScoped;
 }
 
-VertexShaderPass::VertexShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr,	
+VertexShaderPass::VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore,	
 	vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
-	: ShaderPass(vVulkanCorePtr, GenericType::PIXEL, vCommandPool, vDescriptorPool) {
+	: ShaderPass(vVulkanCore, GenericType::PIXEL, vCommandPool, vDescriptorPool) {
     ZoneScoped;
 }
 

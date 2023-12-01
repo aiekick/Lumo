@@ -57,7 +57,7 @@ private:
 	ct::fvec4 m_DefaultColor = ct::fvec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 public:
-	WidgetColorModule_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	WidgetColorModule_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~WidgetColorModule_Pass() override;
 
 	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;

@@ -35,10 +35,8 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<GridModule> GridModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<GridModule>(vVulkanCorePtr);
+std::shared_ptr<GridModule> GridModule::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<GridModule>(vVulkanCore);
     res->m_This = res;
     if (!res->Init()) {
         res.reset();
@@ -50,7 +48,7 @@ std::shared_ptr<GridModule> GridModule::Create(GaiApi::VulkanCorePtr vVulkanCore
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GridModule::GridModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : TaskRenderer(vVulkanCorePtr) { m_SceneShaderPassPtr = SceneShaderPass::Create(); }
+GridModule::GridModule(GaiApi::VulkanCoreWeak vVulkanCore) : TaskRenderer(vVulkanCore) { m_SceneShaderPassPtr = SceneShaderPass::Create(); }
 
 GridModule::~GridModule() {
     Unit();
@@ -70,7 +68,7 @@ bool GridModule::Init() {
     m_Loaded = true;
 
     if (TaskRenderer::InitPixel(map_size)) {
-        m_GridModule_Vertex_Pass_Ptr = std::make_shared<GridModule_Vertex_Pass>(m_VulkanCorePtr);
+        m_GridModule_Vertex_Pass_Ptr = std::make_shared<GridModule_Vertex_Pass>(m_VulkanCore);
         if (m_GridModule_Vertex_Pass_Ptr) {
             if (m_GridModule_Vertex_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
                 AddGenericPass(m_GridModule_Vertex_Pass_Ptr);

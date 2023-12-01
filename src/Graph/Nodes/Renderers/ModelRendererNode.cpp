@@ -35,13 +35,13 @@ limitations under the License.
 //// STATIC'S ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ModelRendererNode> ModelRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ModelRendererNode> ModelRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<ModelRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -71,7 +71,7 @@ ModelRendererNode::~ModelRendererNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ModelRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -84,7 +84,7 @@ bool ModelRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
-	m_ModelRendererModulePtr = ModelRendererModule::Create(vVulkanCorePtr, m_This);
+	m_ModelRendererModulePtr = ModelRendererModule::Create(vVulkanCore, m_This);
 	if (m_ModelRendererModulePtr)
 	{
 		res = true;

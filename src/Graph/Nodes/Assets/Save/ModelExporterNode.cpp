@@ -35,12 +35,12 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ModelExporterNode> ModelExporterNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+std::shared_ptr<ModelExporterNode> ModelExporterNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
     auto res = std::make_shared<ModelExporterNode>();
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
     }
 
@@ -63,7 +63,7 @@ ModelExporterNode::~ModelExporterNode() {
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelExporterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+bool ModelExporterNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
     bool res = false;
@@ -74,7 +74,7 @@ bool ModelExporterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
     AddInput(NodeSlotVariableInput::Create("Start saver", "WIDGET_BOOLEAN", 0U), false, false);
     AddOutput(NodeSlotModelOutput::Create("Model"), false, false);
 
-    m_ModelExporterModulePtr = ModelExporterModule::Create(vVulkanCorePtr, m_This);
+    m_ModelExporterModulePtr = ModelExporterModule::Create(vVulkanCore, m_This);
     if (m_ModelExporterModulePtr) {
         res = true;
     }

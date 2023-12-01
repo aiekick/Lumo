@@ -48,12 +48,11 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<CubeMapModule> CubeMapModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<CubeMapModule> CubeMapModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<CubeMapModule>(vVulkanCorePtr);
+	auto res = std::make_shared<CubeMapModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -67,8 +66,8 @@ std::shared_ptr<CubeMapModule> CubeMapModule::Create(GaiApi::VulkanCorePtr vVulk
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CubeMapModule::CubeMapModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: m_VulkanCorePtr(vVulkanCorePtr)
+CubeMapModule::CubeMapModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: m_VulkanCore(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -191,7 +190,9 @@ vk::DescriptorImageInfo* CubeMapModule::GetTextureCube(const uint32_t& vBindingP
 		return &m_TextureCubePtr->m_DescriptorImageInfo;
 	}
 
-	return m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
+	auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+	return corePtr->getEmptyTextureCubeDescriptorImageInfo();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -237,13 +238,14 @@ void CubeMapModule::LoadTextures(const std::string& vFilePathName)
 
 		if (is_ok)
 		{
-			m_TextureCubePtr = TextureCube::CreateFromFiles(m_VulkanCorePtr, m_FilePathNames);
-			if (m_TextureCubePtr)
-			{
+			m_TextureCubePtr = TextureCube::CreateFromFiles(m_VulkanCore, m_FilePathNames);
+			if (m_TextureCubePtr) {
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
 				for (uint32_t idx = 0U; idx < 6U; ++idx)
 				{
 					m_Texture2Ds[idx] = Texture2D::CreateFromFile(
-						m_VulkanCorePtr, 
+						m_VulkanCore, 
 						m_FilePathNames[idx],
 						MAX_THUMBNAIL_HEIGHT);
 					if (m_Texture2Ds[idx])
@@ -254,7 +256,7 @@ void CubeMapModule::LoadTextures(const std::string& vFilePathName)
 							m_FileNames[idx] = ps.name;
 						}
 
-						auto imguiRendererPtr = m_VulkanCorePtr->GetVulkanImGuiRenderer().lock();
+						auto imguiRendererPtr = corePtr->GetVulkanImGuiRenderer().lock();
 						if (imguiRendererPtr)
 						{
 							m_ImGuiTextures[idx].SetDescriptor(

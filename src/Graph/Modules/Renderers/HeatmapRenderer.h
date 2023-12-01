@@ -43,14 +43,14 @@ class HeatmapRenderer :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<HeatmapRenderer> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<HeatmapRenderer> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<HeatmapRenderer_Mesh_Pass> m_HeatmapRenderer_Mesh_Pass_Ptr = nullptr;
 	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
-	HeatmapRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	HeatmapRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
 	~HeatmapRenderer() override;
 
 	bool Init();

@@ -39,11 +39,11 @@ class CubeMapModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<CubeMapModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<CubeMapModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<CubeMapModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 	std::string unique_OpenPictureFileDialog_id;
 	TextureCubePtr m_TextureCubePtr = nullptr;
 	std::string m_SelectedFilePathName; // to save
@@ -54,7 +54,7 @@ private:
 	std::array<std::string, 6U> m_FileNames;
 
 public:
-	CubeMapModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	CubeMapModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~CubeMapModule();
 
 	bool Init();

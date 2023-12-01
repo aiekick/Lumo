@@ -52,13 +52,13 @@ class MeshBuffersModule :
 	public TaskInterface
 {
 public:
-	static std::shared_ptr<MeshBuffersModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<MeshBuffersModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<MeshBuffersModule_Mesh_Pass> m_MeshBuffersModule_Mesh_Pass_Ptr = nullptr;
 
 public:
-	MeshBuffersModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	MeshBuffersModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~MeshBuffersModule() override;
 
 	bool Init();

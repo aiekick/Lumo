@@ -53,7 +53,7 @@ private:
 	std::vector<std::string> m_Layers;
 
 public:
-	ChannelRenderer_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ChannelRenderer_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ChannelRenderer_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;

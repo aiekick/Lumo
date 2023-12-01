@@ -35,7 +35,7 @@ class Texture2DModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<Texture2DModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<Texture2DModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<Texture2DModule> m_This;
@@ -45,10 +45,10 @@ private:
 	std::string unique_OpenPictureFileDialog_id;
 	Texture2DPtr m_Texture2DPtr = nullptr;
 	ImGuiTexture m_ImGuiTexture;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	Texture2DModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	Texture2DModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~Texture2DModule();
 
 	bool Init();

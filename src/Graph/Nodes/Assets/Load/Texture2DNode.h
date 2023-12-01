@@ -23,7 +23,7 @@ limitations under the License.
 class Texture2DModule;
 class Texture2DNode : public BaseNode, public TextureOutputInterface {
 public:
-    static std::shared_ptr<Texture2DNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<Texture2DNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
     std::shared_ptr<Texture2DModule> m_Texture2DModule = nullptr;
@@ -32,7 +32,7 @@ private:
 public:
     Texture2DNode();
     ~Texture2DNode() override;
-    bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,
         ImGuiContext* vContextPtr = nullptr,
         const std::string& vUserDatas = {}) override;

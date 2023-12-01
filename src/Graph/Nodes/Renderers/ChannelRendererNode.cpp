@@ -29,11 +29,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<ChannelRendererNode> ChannelRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ChannelRendererNode> ChannelRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<ChannelRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -50,7 +50,7 @@ ChannelRendererNode::~ChannelRendererNode()
 	Unit();
 }
 
-bool ChannelRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ChannelRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Channels";
 
@@ -60,7 +60,7 @@ bool ChannelRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_ChannelRenderer = ChannelRenderer::Create(vVulkanCorePtr);
+	m_ChannelRenderer = ChannelRenderer::Create(vVulkanCore);
 	if (m_ChannelRenderer)
 	{
 		res = true;

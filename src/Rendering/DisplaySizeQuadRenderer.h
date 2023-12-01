@@ -14,14 +14,14 @@ typedef std::weak_ptr<DisplaySizeQuadPass> DisplaySizeQuadPassWeak;
 class DisplaySizeQuadPass;
 class DisplaySizeQuadRenderer : public BaseRenderer {
 public:
-    static std::shared_ptr<DisplaySizeQuadRenderer> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<DisplaySizeQuadRenderer> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
     DisplaySizeQuadRendererWeak m_This;
     DisplaySizeQuadPassPtr m_DisplaySizeQuadPassPtr = nullptr;
 
 public:
-    DisplaySizeQuadRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    DisplaySizeQuadRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
     ~DisplaySizeQuadRenderer() override;
 
     bool init();

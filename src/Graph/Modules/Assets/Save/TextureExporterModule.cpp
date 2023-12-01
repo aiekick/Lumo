@@ -47,12 +47,11 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<TextureExporterModule> TextureExporterModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<TextureExporterModule> TextureExporterModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<TextureExporterModule>(vVulkanCorePtr);
+	auto res = std::make_shared<TextureExporterModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -70,8 +69,8 @@ std::shared_ptr<TextureExporterModule> TextureExporterModule::Create(GaiApi::Vul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-TextureExporterModule::TextureExporterModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: m_VulkanCorePtr(vVulkanCorePtr)
+TextureExporterModule::TextureExporterModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: m_VulkanCore(vVulkanCore)
 {
 	ZoneScoped;
 }

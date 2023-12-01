@@ -58,12 +58,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ModelExporterModule> ModelExporterModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+std::shared_ptr<ModelExporterModule> ModelExporterModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
     ZoneScoped;
 
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<ModelExporterModule>(vVulkanCorePtr);
+    auto res = std::make_shared<ModelExporterModule>(vVulkanCore);
     res->SetParentNode(vParentNode);
     res->m_This = res;
     if (!res->Init()) {
@@ -77,7 +75,7 @@ std::shared_ptr<ModelExporterModule> ModelExporterModule::Create(GaiApi::VulkanC
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelExporterModule::ModelExporterModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : m_VulkanCorePtr(vVulkanCorePtr) {
+ModelExporterModule::ModelExporterModule(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) {
     ZoneScoped;
     unique_SaveMeshFileDialog_id = ct::toStr("OpenMeshFileDialog%u", (uintptr_t)this);
     unique_SavePathFileDialog_id = ct::toStr("SavePathFileDialog%u", (uintptr_t)this);

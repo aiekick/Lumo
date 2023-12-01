@@ -106,7 +106,7 @@ protected:
     bool m_Loaded = false;
     bool m_DontUseShaderFilesOnDisk = false;
 
-    GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;  // vulkan core
+    GaiApi::VulkanCoreWeak m_VulkanCore;  // vulkan core
     GaiApi::VulkanQueue m_Queue;                      // queue
     vk::CommandPool m_CommandPool;                    // command pool
     vk::DescriptorPool m_DescriptorPool;              // descriptor pool
@@ -194,10 +194,10 @@ protected:
     std::string m_RayClosestHitCode;
 
 public:
-    ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr);
-    ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum);
-    ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
-    ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr,
+    ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const GenericType& vRendererTypeEnum);
+    ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+    ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore,
         const GenericType& vRendererTypeEnum,
         vk::CommandPool* vCommandPool,
         vk::DescriptorPool* vDescriptorPool);

@@ -66,8 +66,8 @@ template<typename T_VertexType>
 class SceneMesh
 {
 public:
-	static std::shared_ptr<SceneMesh<T_VertexType>> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	static std::shared_ptr<SceneMesh<T_VertexType>> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray);
+	static std::shared_ptr<SceneMesh<T_VertexType>> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+	static std::shared_ptr<SceneMesh<T_VertexType>> Create(GaiApi::VulkanCoreWeak vVulkanCore, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray);
 	static std::shared_ptr<SceneMesh<T_VertexType>> Copy(const std::weak_ptr<SceneMesh<T_VertexType>>& vSceneMeshToCopy);
 
 private:
@@ -88,11 +88,11 @@ private:
 	bool m_HaveVertexColors = false;
 	bool m_HaveIndices = false;
 
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	SceneMesh(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	SceneMesh(GaiApi::VulkanCorePtr vVulkanCorePtr, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray);
+	SceneMesh(GaiApi::VulkanCoreWeak vVulkanCore);
+	SceneMesh(GaiApi::VulkanCoreWeak vVulkanCore, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray);
 	~SceneMesh();
 
 	bool Init();
@@ -146,18 +146,17 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T_VertexType>
-std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SceneMesh<T_VertexType>>(vVulkanCorePtr);
+	auto res = std::make_shared<SceneMesh<T_VertexType>>(vVulkanCore);
 	res->m_This = res;
 	return res;
 }
 
 template<typename T_VertexType>
-std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
+std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCoreWeak vVulkanCore, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
 {
-	auto res = std::make_shared<SceneMesh>(vVulkanCorePtr, vVerticeArray, vIndiceArray);
+	auto res = std::make_shared<SceneMesh>(vVulkanCore, vVerticeArray, vIndiceArray);
 	res->m_This = res;
 	if (!res->Init())
 		res.reset();
@@ -182,15 +181,15 @@ std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Copy(const std
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T_VertexType>
-SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: m_VulkanCorePtr(vVulkanCorePtr)
+SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCoreWeak vVulkanCore)
+	: m_VulkanCore(vVulkanCore)
 {
 
 }
 
 template<typename T_VertexType>
-SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCorePtr vVulkanCorePtr, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
-	: m_VulkanCorePtr(vVulkanCorePtr)
+SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCoreWeak vVulkanCore, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
+	: m_VulkanCore(vVulkanCore)
 {
 	m_Vertices.m_Array = vVerticeArray;
 	m_Indices.m_Array = vIndiceArray;
@@ -399,14 +398,14 @@ std::vector<T_VertexType> SceneMesh<T_VertexType>::GetVerticesFromGPU()
     stagingBufferInfo.size = m_Vertices.m_BufferInfo.range;
     stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferDst;
     stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU;
-    auto stagebufferPtr = GaiApi::VulkanRessource::createSharedBufferObject(m_VulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+    auto stagebufferPtr = GaiApi::VulkanRessource::createSharedBufferObject(m_VulkanCore, stagingBufferInfo, stagingAllocInfo, "SceneMesh");
     if (stagebufferPtr) {
         vk::BufferCopy region = {};
         region.size = stagingBufferInfo.size;
-        GaiApi::VulkanRessource::copy(m_VulkanCorePtr, stagebufferPtr->buffer, m_Vertices.m_Buffer->buffer, region);
+        GaiApi::VulkanRessource::copy(m_VulkanCore, stagebufferPtr->buffer, m_Vertices.m_Buffer->buffer, region);
         std::vector<T_VertexType> res;
         res.resize(m_Vertices.m_Count);
-        if (GaiApi::VulkanRessource::download(m_VulkanCorePtr, stagebufferPtr, (void*)res.data(), stagingBufferInfo.size)) {
+        if (GaiApi::VulkanRessource::download(m_VulkanCore, stagebufferPtr, (void*)res.data(), stagingBufferInfo.size)) {
             return res;
         }
     }
@@ -421,14 +420,14 @@ std::vector<VertexStruct::I1> SceneMesh<T_VertexType>::GetIndicesFromGPU()
     stagingBufferInfo.size = m_Indices.m_BufferInfo.range;
     stagingBufferInfo.usage = vk::BufferUsageFlagBits::eTransferDst;
     stagingAllocInfo.usage = VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU;
-    auto stagebufferPtr = GaiApi::VulkanRessource::createSharedBufferObject(m_VulkanCorePtr, stagingBufferInfo, stagingAllocInfo);
+    auto stagebufferPtr = GaiApi::VulkanRessource::createSharedBufferObject(m_VulkanCore, stagingBufferInfo, stagingAllocInfo, "SceneMesh");
     if (stagebufferPtr) {
         vk::BufferCopy region = {};
         region.size = stagingBufferInfo.size;
-        GaiApi::VulkanRessource::copy(m_VulkanCorePtr, stagebufferPtr->buffer, m_Indices.m_Buffer->buffer, region);
+        GaiApi::VulkanRessource::copy(m_VulkanCore, stagebufferPtr->buffer, m_Indices.m_Buffer->buffer, region);
         std::vector<VertexStruct::I1> res;
         res.resize(m_Indices.m_Count);
-        if (GaiApi::VulkanRessource::download(m_VulkanCorePtr, stagebufferPtr, (void*)res.data(), stagingBufferInfo.size)) {
+        if (GaiApi::VulkanRessource::download(m_VulkanCore, stagebufferPtr, (void*)res.data(), stagingBufferInfo.size)) {
             return res;
         }
     }
@@ -451,7 +450,10 @@ bool SceneMesh<T_VertexType>::BuildVBO(bool vUseSBO)
 {
 	DestroyVBO();
 
-	m_Vertices.m_Buffer = GaiApi::VulkanRessource::createVertexBufferObject(m_VulkanCorePtr, m_Vertices.m_Array, vUseSBO, false, m_VulkanCorePtr->GetSupportedFeatures().is_RTX_Supported);
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Vertices.m_Buffer = GaiApi::VulkanRessource::createVertexBufferObject(
+        m_VulkanCore, m_Vertices.m_Array, vUseSBO, false, corePtr->GetSupportedFeatures().is_RTX_Supported, "SceneMesh");
 	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 
 	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
@@ -464,9 +466,10 @@ bool SceneMesh<T_VertexType>::BuildVBO(bool vUseSBO)
 }
 
 template<typename T_VertexType>
-void SceneMesh<T_VertexType>::DestroyVBO()
-{
-	m_VulkanCorePtr->getDevice().waitIdle();
+void SceneMesh<T_VertexType>::DestroyVBO() {
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+	corePtr->getDevice().waitIdle();
 
 	m_Vertices.m_Buffer.reset();
 	m_Vertices.m_BufferInfo = vk::DescriptorBufferInfo();
@@ -477,10 +480,13 @@ void SceneMesh<T_VertexType>::BuildIBO(bool vUseSBO)
 {
 	DestroyIBO();
 
-	auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+	auto devicePtr = corePtr->getFrameworkDevice().lock();
 	if (devicePtr)
 	{
-		m_Indices.m_Buffer = GaiApi::VulkanRessource::createIndexBufferObject(m_VulkanCorePtr, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse()); // the last true is for RTX
+        m_Indices.m_Buffer = GaiApi::VulkanRessource::createIndexBufferObject(
+            m_VulkanCore, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse(), "SceneMesh");  // the last true is for RTX
 		m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 
 		m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
@@ -492,9 +498,10 @@ void SceneMesh<T_VertexType>::BuildIBO(bool vUseSBO)
 }
 
 template<typename T_VertexType>
-void SceneMesh<T_VertexType>::DestroyIBO()
-{
-	m_VulkanCorePtr->getDevice().waitIdle();
+void SceneMesh<T_VertexType>::DestroyIBO() {
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+	corePtr->getDevice().waitIdle();
 
 	m_Indices.m_Buffer.reset();
 	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo();

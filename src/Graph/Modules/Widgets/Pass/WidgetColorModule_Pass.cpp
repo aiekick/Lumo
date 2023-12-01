@@ -44,8 +44,8 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-WidgetColorModule_Pass::WidgetColorModule_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+WidgetColorModule_Pass::WidgetColorModule_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Comp Pass : Widget Color", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
@@ -127,7 +127,7 @@ bool WidgetColorModule_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "WidgetColorModule_Pass");
 	if (m_UBOCompPtr->buffer)
 	{
 		m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{ m_UBOCompPtr->buffer, 0, sizeof(UBOComp) };
@@ -146,7 +146,7 @@ void WidgetColorModule_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void WidgetColorModule_Pass::DestroyUBO()

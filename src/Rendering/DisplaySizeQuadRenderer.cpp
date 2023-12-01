@@ -6,10 +6,8 @@
 //// PUBLIC / STATIC ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-DisplaySizeQuadRendererPtr DisplaySizeQuadRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<DisplaySizeQuadRenderer>(vVulkanCorePtr);
+DisplaySizeQuadRendererPtr DisplaySizeQuadRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<DisplaySizeQuadRenderer>(vVulkanCore);
     res->m_This = res;
     if (!res->init()) {
         res.reset();
@@ -21,7 +19,7 @@ DisplaySizeQuadRendererPtr DisplaySizeQuadRenderer::Create(GaiApi::VulkanCorePtr
 //// PUBLIC / CONSTRUCTOR //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-DisplaySizeQuadRenderer::DisplaySizeQuadRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+DisplaySizeQuadRenderer::DisplaySizeQuadRenderer(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
     ZoneScoped;
 }
 
@@ -42,9 +40,11 @@ bool DisplaySizeQuadRenderer::init() {
     m_Loaded = true;
 
     if (BaseRenderer::InitPixel(map_size)) {
-        m_DisplaySizeQuadPassPtr = std::make_shared<DisplaySizeQuadPass>(m_VulkanCorePtr);
+        m_DisplaySizeQuadPassPtr = std::make_shared<DisplaySizeQuadPass>(m_VulkanCore);
         if (m_DisplaySizeQuadPassPtr != nullptr) {
-            if (m_DisplaySizeQuadPassPtr->InitPixelWithoutFBO(map_size, 1U, false, &m_VulkanCorePtr->getMainRenderPassRef(), vk::SampleCountFlagBits::e1)) {
+            auto corePtr = m_VulkanCore.lock();
+            assert(corePtr != nullptr);
+            if (m_DisplaySizeQuadPassPtr->InitPixelWithoutFBO(map_size, 1U, false, &corePtr->getMainRenderPassRef(), vk::SampleCountFlagBits::e1)) {
                 AddGenericPass(m_DisplaySizeQuadPassPtr);
                 SetMergedRendering(true);
                 m_Loaded = true;

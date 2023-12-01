@@ -55,14 +55,14 @@ class TextureExporterModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<TextureExporterModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<TextureExporterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<TextureExporterModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	TextureExporterModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	TextureExporterModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~TextureExporterModule();
 
 	bool Init();

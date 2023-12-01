@@ -50,39 +50,47 @@ using namespace GaiApi;
 //// PUBLIC / CONSTRUCTOR //////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ShaderPass::ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+ShaderPass::ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
     m_RendererType = GenericType::NONE;
-    m_VulkanCorePtr = vVulkanCorePtr;
-    m_Device = m_VulkanCorePtr->getDevice();
+    m_VulkanCore = vVulkanCore;
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
 }
 
-ShaderPass::ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum) {
+ShaderPass::ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const GenericType& vRendererTypeEnum) {
     ZoneScoped;
 
     m_RendererType = vRendererTypeEnum;
-    m_VulkanCorePtr = vVulkanCorePtr;
-    m_Device = m_VulkanCorePtr->getDevice();
+    m_VulkanCore = vVulkanCore;
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
 }
 
-ShaderPass::ShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool) {
+ShaderPass::ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool) {
     ZoneScoped;
 
     m_RendererType = GenericType::NONE;
-    m_VulkanCorePtr = vVulkanCorePtr;
-    m_Device = m_VulkanCorePtr->getDevice();
+    m_VulkanCore = vVulkanCore;
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
     m_CommandPool = *vCommandPool;
     m_DescriptorPool = *vDescriptorPool;
 }
 
 ShaderPass::ShaderPass(
-    GaiApi::VulkanCorePtr vVulkanCorePtr, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool) {
+    GaiApi::VulkanCoreWeak vVulkanCore, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool) {
     ZoneScoped;
 
     m_RendererType = vRendererTypeEnum;
-    m_VulkanCorePtr = vVulkanCorePtr;
-    m_Device = m_VulkanCorePtr->getDevice();
+    m_VulkanCore = vVulkanCore;
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
     m_CommandPool = *vCommandPool;
     m_DescriptorPool = *vDescriptorPool;
 }
@@ -130,9 +138,11 @@ bool ShaderPass::InitPixelWithoutFBO(const ct::uvec2& vSize,
 
     m_Loaded = false;
 
-    m_Device = m_VulkanCorePtr->getDevice();
-    m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
-    m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
+    m_Queue = corePtr->getQueue(vk::QueueFlagBits::eGraphics);
+    m_DescriptorPool = corePtr->getDescriptorPool();
     m_CommandPool = m_Queue.cmdPools;
 
     m_CountColorBuffers = vCountColorBuffers;
@@ -196,9 +206,11 @@ bool ShaderPass::InitPixel(const ct::uvec2& vSize,
 
     m_Loaded = false;
 
-    m_Device = m_VulkanCorePtr->getDevice();
-    m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
-    m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
+    m_Queue = corePtr->getQueue(vk::QueueFlagBits::eGraphics);
+    m_DescriptorPool = corePtr->getDescriptorPool();
     m_CommandPool = m_Queue.cmdPools;
 
     m_CountColorBuffers = vCountColorBuffers;
@@ -217,7 +229,7 @@ bool ShaderPass::InitPixel(const ct::uvec2& vSize,
 
     CompilPixel();
 
-    m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
+    m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCore);
     if (m_FrameBufferPtr &&
         m_FrameBufferPtr->Init(vSize, vCountColorBuffers, vUseDepth, vNeedToClear, vClearColor, vPingPongBufferMode, vFormat, vSampleCount)) {
         // must be set one time only by the direct parent of this pass
@@ -262,9 +274,11 @@ bool ShaderPass::InitCompute1D(const uint32_t& vDispatchSize) {
 
     m_Loaded = false;
 
-    m_Device = m_VulkanCorePtr->getDevice();
-    m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
-    m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
+    m_Queue = corePtr->getQueue(vk::QueueFlagBits::eGraphics);
+    m_DescriptorPool = corePtr->getDescriptorPool();
     m_CommandPool = m_Queue.cmdPools;
 
     // ca peut ne pas compiler, masi c'est plus bloquant
@@ -311,9 +325,11 @@ bool ShaderPass::InitCompute2D(
 
     m_Loaded = false;
 
-    m_Device = m_VulkanCorePtr->getDevice();
-    m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
-    m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
+    m_Queue = corePtr->getQueue(vk::QueueFlagBits::eGraphics);
+    m_DescriptorPool = corePtr->getDescriptorPool();
     m_CommandPool = m_Queue.cmdPools;
 
     m_CountColorBuffers = vCountColorBuffers;
@@ -325,7 +341,7 @@ bool ShaderPass::InitCompute2D(
 
     SetDispatchSize2D(vDispatchSize);
 
-    m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
+    m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCore);
     if (m_ComputeBufferPtr && m_ComputeBufferPtr->Init(vDispatchSize, vCountColorBuffers, vPingPongBufferMode, vFormat)) {
         if (BuildModel()) {
             if (CreateSBO()) {
@@ -363,9 +379,11 @@ bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize) {
 
     m_Loaded = false;
 
-    m_Device = m_VulkanCorePtr->getDevice();
-    m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
-    m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
+    m_Queue = corePtr->getQueue(vk::QueueFlagBits::eGraphics);
+    m_DescriptorPool = corePtr->getDescriptorPool();
     m_CommandPool = m_Queue.cmdPools;
 
     // ca peut ne pas compiler, masi c'est plus bloquant
@@ -409,9 +427,11 @@ bool ShaderPass::InitRtx(
 
     m_Loaded = false;
 
-    m_Device = m_VulkanCorePtr->getDevice();
-    m_Queue = m_VulkanCorePtr->getQueue(vk::QueueFlagBits::eGraphics);
-    m_DescriptorPool = m_VulkanCorePtr->getDescriptorPool();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    m_Device = corePtr->getDevice();
+    m_Queue = corePtr->getQueue(vk::QueueFlagBits::eGraphics);
+    m_DescriptorPool = corePtr->getDescriptorPool();
     m_CommandPool = m_Queue.cmdPools;
 
     m_CountColorBuffers = vCountColorBuffers;
@@ -423,7 +443,7 @@ bool ShaderPass::InitRtx(
 
     SetDispatchSize2D(vDispatchSize);
 
-    m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCorePtr);
+    m_ComputeBufferPtr = ComputeBuffer::Create(m_VulkanCore);
     if (m_ComputeBufferPtr && m_ComputeBufferPtr->Init(vDispatchSize, vCountColorBuffers, vPingPongBufferMode, vFormat)) {
         if (BuildModel()) {
             if (CreateSBO()) {
@@ -676,7 +696,9 @@ bool ShaderPass::AreWeValidForRender() {
 bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
     if (AreWeValidForRender() && CanRender()) {
-        auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+        auto devicePtr = corePtr->getFrameworkDevice().lock();
         if (devicePtr) {
             devicePtr->BeginDebugLabel(vCmdBufferPtr, m_RenderDocDebugName, m_RenderDocDebugColor);
         }
@@ -704,7 +726,9 @@ bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
 
 void ShaderPass::EndDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
-    auto devicePtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    auto devicePtr = corePtr->getFrameworkDevice().lock();
     if (devicePtr) {
         devicePtr->EndDebugLabel(vCmdBufferPtr);
     }
@@ -981,7 +1005,9 @@ GaiApi::VulkanComputeImageTarget* ShaderPass::GetFrontTarget(uint32_t /*vIndex*/
 void ShaderPass::SetLocalGroupSize(const ct::uvec3& vLocalGroupSize) {
     ZoneScoped;
 
-    auto max_group = m_VulkanCorePtr->getPhysicalDevice().getProperties().limits.maxComputeWorkGroupSize;
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    auto max_group = corePtr->getPhysicalDevice().getProperties().limits.maxComputeWorkGroupSize;
     ct::uvec3 min = 1U;
     ct::uvec3 max = ct::uvec3(max_group[0], max_group[1], max_group[2]);
     m_LocalGroupSize = ct::clamp(vLocalGroupSize, min, max);
@@ -1004,7 +1030,9 @@ void ShaderPass::SetDispatchSize3D(const ct::uvec3& vDispatchSize) {
 
     m_DispatchSize = vDispatchSize / m_LocalGroupSize;
 
-    auto max_dispatch = m_VulkanCorePtr->getPhysicalDevice().getProperties().limits.maxComputeWorkGroupCount;
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+    auto max_dispatch = corePtr->getPhysicalDevice().getProperties().limits.maxComputeWorkGroupCount;
     ct::uvec3 min = 1U;
     ct::uvec3 max = ct::uvec3(max_dispatch[0], max_dispatch[1], max_dispatch[2]);
     m_DispatchSize = ct::clamp(m_DispatchSize, min, max);
@@ -1688,6 +1716,9 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(const uint32_t& vBindingPoint,
     const uint32_t& vDescriptorSetIndex) {
     ZoneScoped;
     if (vDescriptorSetIndex < (uint32_t)m_DescriptorSets.size()) {
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+
         bool _needUpdate = false;
         uint32_t indexToUpdate = 0U;
         for (const auto& desc : m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets) {
@@ -1712,7 +1743,7 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(const uint32_t& vBindingPoint,
             } else {
                 m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] =
                     vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr,
-                        m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+                        corePtr->getEmptyDescriptorBufferInfo());
             }
         } else {  // add
             if (vBufferInfo && vBufferInfo->buffer) {
@@ -1720,7 +1751,7 @@ bool ShaderPass::AddOrSetWriteDescriptorBuffer(const uint32_t& vBindingPoint,
                     m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, vBufferInfo);
             } else {
                 m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet,
-                    vBindingPoint, 0, vCount, vType, nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+                    vBindingPoint, 0, vCount, vType, nullptr, corePtr->getEmptyDescriptorBufferInfo());
             }
         }
 
@@ -1739,6 +1770,9 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(const uint32_t& vBindingPoint
     const uint32_t& vDescriptorSetIndex) {
     ZoneScoped;
     if (vDescriptorSetIndex < (uint32_t)m_DescriptorSets.size()) {
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+
         bool _needUpdate = false;
         uint32_t indexToUpdate = 0U;
         for (const auto& desc : m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets) {
@@ -1763,7 +1797,7 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(const uint32_t& vBindingPoint
             } else {
                 m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets[indexToUpdate] =
                     vk::WriteDescriptorSet(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr,
-                        m_VulkanCorePtr->getEmptyBufferView());
+                        corePtr->getEmptyBufferView());
             }
         } else {  // Add
             if (vBufferView) {
@@ -1771,7 +1805,7 @@ bool ShaderPass::AddOrSetWriteDescriptorBufferView(const uint32_t& vBindingPoint
                     m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet, vBindingPoint, 0, vCount, vType, nullptr, nullptr, vBufferView);
             } else {
                 m_DescriptorSets[vDescriptorSetIndex].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[vDescriptorSetIndex].m_DescriptorSet,
-                    vBindingPoint, 0, vCount, vType, nullptr, nullptr, m_VulkanCorePtr->getEmptyBufferView());
+                    vBindingPoint, 0, vCount, vType, nullptr, nullptr, corePtr->getEmptyBufferView());
             }
         }
 

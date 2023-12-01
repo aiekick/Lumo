@@ -99,7 +99,7 @@ private:
 	uint32_t m_RestrictedIndicesCountToDraw = 0U;
 
 public:
-	ModelRendererModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ModelRendererModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ModelRendererModule_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;

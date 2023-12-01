@@ -33,12 +33,12 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<CubeMapNode> CubeMapNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+std::shared_ptr<CubeMapNode> CubeMapNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
     auto res = std::make_shared<CubeMapNode>();
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
     }
     return res;
@@ -60,7 +60,7 @@ CubeMapNode::~CubeMapNode() {
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+bool CubeMapNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
     bool res = false;
@@ -71,7 +71,7 @@ bool CubeMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
     ptr->showWidget = true;
     AddOutput(ptr, false, true);
 
-    m_CubeMapModulePtr = CubeMapModule::Create(vVulkanCorePtr, m_This);
+    m_CubeMapModulePtr = CubeMapModule::Create(vVulkanCore, m_This);
     if (m_CubeMapModulePtr) {
         res = true;
     }

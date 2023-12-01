@@ -778,22 +778,25 @@ void CommonSystem::SetViewportSize(ct::uvec2 vViewportSize) {
     m_BufferObjectIsDirty = true;
 }
 
-void CommonSystem::UploadBufferObjectIfDirty(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+void CommonSystem::UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
     if (m_BufferObjectIsDirty) {
-        GaiApi::VulkanRessource::upload(vVulkanCorePtr, m_BufferObjectPtr, &m_UBOCamera, sizeof(UBOCamera));
+        GaiApi::VulkanRessource::upload(vVulkanCore, m_BufferObjectPtr, &m_UBOCamera, sizeof(UBOCamera));
 
         m_BufferObjectIsDirty = false;
     }
 }
 
-bool CommonSystem::CreateBufferObject(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+bool CommonSystem::CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
-    vVulkanCorePtr->getDevice().waitIdle();
+    auto corePtr = vVulkanCore.lock();
+    assert(corePtr != nullptr);
 
-    m_BufferObjectPtr = GaiApi::VulkanRessource::createUniformBufferObject(vVulkanCorePtr, sizeof(UBOCamera));
+    corePtr->getDevice().waitIdle();
+
+    m_BufferObjectPtr = GaiApi::VulkanRessource::createUniformBufferObject(vVulkanCore, sizeof(UBOCamera), "CommonSystem");
     if (m_BufferObjectPtr && m_BufferObjectPtr->buffer) {
         m_DescriptorBufferInfo = vk::DescriptorBufferInfo{m_BufferObjectPtr->buffer, 0, sizeof(UBOCamera)};
     } else {

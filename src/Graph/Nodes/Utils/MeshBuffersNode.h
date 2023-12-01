@@ -33,7 +33,7 @@ class MeshBuffersNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<MeshBuffersNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<MeshBuffersNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<MeshBuffersModule> m_MeshBuffersModulePtr = nullptr;
@@ -41,7 +41,7 @@ private:
 public:
 	MeshBuffersNode();
 	~MeshBuffersNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,

@@ -46,14 +46,14 @@ class MatcapRenderer :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<MatcapRenderer> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<MatcapRenderer> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<MatcapRenderer_Mesh_Pass> m_MatcapRenderer_Mesh_Pass_Ptr = nullptr;
 	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
-	MatcapRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	MatcapRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
 	~MatcapRenderer() override;
 
 	bool Init();

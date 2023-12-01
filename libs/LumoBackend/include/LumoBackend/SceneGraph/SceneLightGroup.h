@@ -41,12 +41,12 @@ public:
 	static constexpr uint32_t sMaxLightCount = 8U;
 
 public:
-	static SceneLightGroupPtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static SceneLightGroupPtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
 	static std::string GetBufferObjectStructureHeader(const uint32_t& vBindingPoint);
-	static VulkanBufferObjectPtr CreateEmptyBuffer(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static VulkanBufferObjectPtr CreateEmptyBuffer(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 	SceneLightGroupWeak m_This;
 	uint32_t m_LightsCount = 0U;
 	std::vector<SceneLightPtr> m_Lights;
@@ -58,7 +58,7 @@ public:
 	SceneLightGroup();
 	~SceneLightGroup();
 
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore);
 	void Unit();
 
 	void clear();
@@ -75,8 +75,8 @@ public:
 	bool CanRemoveLight() const;
 
 	bool IsOk();
-	void UploadBufferObjectIfDirty(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
-	bool CreateBufferObject(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	void UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore) override;
+	bool CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void DestroyBufferObject() override;
 	vk::DescriptorBufferInfo* GetBufferInfo() override;
 

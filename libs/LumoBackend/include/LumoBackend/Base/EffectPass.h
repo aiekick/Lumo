@@ -35,7 +35,7 @@ class EffectPass :
     public TextureInputInterface<size_of_array>, 
     public TextureOutputInterface {
 public:
-    EffectPass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr) {}
+    EffectPass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {}
     virtual ~EffectPass() = default;
 
 protected:

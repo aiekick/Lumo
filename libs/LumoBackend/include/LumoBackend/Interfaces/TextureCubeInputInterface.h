@@ -46,14 +46,16 @@ protected:
 	std::array<std::array<ImGuiTexture, 6U>, size_of_array> m_ImGuiTextureCubes;
 
 protected: // internal use
-	void DrawInputTextureCube(GaiApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio);
+	void DrawInputTextureCube(GaiApi::VulkanCoreWeak vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio);
 };
 
 template<size_t size_of_array>
-void TextureCubeInputInterface<size_of_array>::DrawInputTextureCube(GaiApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio)
-{
-	if (vVKCore && vLabel && vIdx <= (uint32_t)size_of_array) {
-		auto imguiRendererPtr = vVKCore->GetVulkanImGuiRenderer().lock();
+void TextureCubeInputInterface<size_of_array>::DrawInputTextureCube(
+    GaiApi::VulkanCoreWeak vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio) {
+    if (!vVKCore.expired() && vLabel && vIdx <= (uint32_t)size_of_array) {
+        auto corePtr = vVKCore.lock();
+        assert(corePtr != nullptr);
+        auto imguiRendererPtr = corePtr->GetVulkanImGuiRenderer().lock();
 		if (imguiRendererPtr) {
 			if (ImGui::CollapsingHeader(vLabel)) {
 				m_ImGuiTextureCubes[(size_t)vIdx].SetDescriptor(imguiRendererPtr,

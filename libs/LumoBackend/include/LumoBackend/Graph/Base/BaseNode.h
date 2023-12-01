@@ -181,7 +181,7 @@ class LUMO_BACKEND_API BaseNode : public conf::ConfigAbstract,
 public:
     static uint32_t freeNodeId;
     static uint32_t GetNextNodeId();
-    static BaseNodePtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static BaseNodePtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
     static BaseNodePtr GetSharedFromWeak(const BaseNodeWeak& vNode);
 
 public:
@@ -332,14 +332,14 @@ public:
 public:
     std::string m_NodeGraphConfigFile;
     ax::NodeEditor::Style m_Style;
-    GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
     BaseNode();
     virtual ~BaseNode();
 
 public:
-    virtual bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    virtual bool Init(GaiApi::VulkanCoreWeak vVulkanCore);
     virtual bool Init(const BaseNodeWeak& vThis);
     virtual bool Init(const std::string& vCode, const BaseNodeWeak& vThis);
     void InitGraph(const ax::NodeEditor::Style& vStyle = ax::NodeEditor::Style());

@@ -44,14 +44,16 @@ protected:
     std::array<ImGuiTexture, size_of_array> m_ImGuiTextures;
 
 protected:  // internal use
-    void DrawInputTexture(GaiApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio);
+    void DrawInputTexture(GaiApi::VulkanCoreWeak vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio);
 };
 
 template <size_t size_of_array>
 void TextureInputInterface<size_of_array>::DrawInputTexture(
-    GaiApi::VulkanCorePtr vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio) {
-    if (vVKCore && vLabel && vIdx <= (uint32_t)size_of_array) {
-        auto imguiRendererPtr = vVKCore->GetVulkanImGuiRenderer().lock();
+    GaiApi::VulkanCoreWeak vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio) {
+    if (!vVKCore.expired() && vLabel && vIdx <= (uint32_t)size_of_array) {
+        auto corePtr = vVKCore.lock();
+        assert(corePtr != nullptr);
+        auto imguiRendererPtr = corePtr->GetVulkanImGuiRenderer().lock();
         if (imguiRendererPtr) {
             if (ImGui::CollapsingHeader(vLabel)) {
                 m_ImGuiTextures[(size_t)vIdx].SetDescriptor(imguiRendererPtr, &m_ImageInfos[(size_t)vIdx], vRatio);

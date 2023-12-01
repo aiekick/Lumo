@@ -40,8 +40,8 @@ using namespace GaiApi;
 //// CHANNEL RENDERER PASS ///////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ChannelRenderer_Mesh_Pass::ChannelRenderer_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+ChannelRenderer_Mesh_Pass::ChannelRenderer_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Mesh Pass 1 : Channel", MESH_SHADER_PASS_DEBUG_COLOR);
 
@@ -181,7 +181,7 @@ bool ChannelRenderer_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOVert));
+	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert), "ChannelRenderer_Mesh_Pass");
 	if (m_UBOVertPtr)
 	{
 		m_DescriptorBufferInfo_Vert.buffer = m_UBOVertPtr->buffer;
@@ -189,7 +189,7 @@ bool ChannelRenderer_Mesh_Pass::CreateUBO()
 		m_DescriptorBufferInfo_Vert.offset = 0;
 	}
 
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
+	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "ChannelRenderer_Mesh_Pass");
 	if (m_UBOFragPtr)
 	{
 		m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
@@ -206,8 +206,8 @@ void ChannelRenderer_Mesh_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCore, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
+	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void ChannelRenderer_Mesh_Pass::DestroyUBO()

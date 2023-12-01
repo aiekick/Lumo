@@ -36,7 +36,7 @@ class MatcapRendererNode :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<MatcapRendererNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<MatcapRendererNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<MatcapRenderer> m_MatcapRenderer = nullptr;
@@ -44,7 +44,7 @@ private:
 public:
 	MatcapRendererNode();
 	~MatcapRendererNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,

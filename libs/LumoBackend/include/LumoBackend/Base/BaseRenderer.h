@@ -90,7 +90,7 @@ protected:
 	uint32_t m_CountBuffers = 0U;			// FRAGMENT count framebuffer color attachment from 0 to 7
 
 	// vulkan creation
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;	// vulkan core
+	GaiApi::VulkanCoreWeak m_VulkanCore;	// vulkan core
 	GaiApi::VulkanQueue m_Queue;					// queue
 	vk::CommandPool m_CommandPool;				// command pool
 	vk::DescriptorPool m_DescriptorPool;		// descriptor pool
@@ -113,8 +113,8 @@ protected:
 	std::vector<ShaderPassWeak> m_ShaderPasses;
 
 public: // contructor
-	BaseRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	BaseRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+	BaseRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
+	BaseRenderer(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 	virtual ~BaseRenderer();
 
 	// Generic Renderer Pass

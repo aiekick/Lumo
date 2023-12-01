@@ -40,12 +40,12 @@ public:
 	static constexpr uint32_t sMaxTextureCount = 8U;
 
 public:
-	static SceneTextureGroupPtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static SceneTextureGroupPtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
 	static std::string GetBufferObjectStructureHeader(const uint32_t& vBindingPoint, const char* vTextureName, const uint32_t& vCount);
-	static VulkanBufferObjectPtr CreateEmptyBuffer(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static VulkanBufferObjectPtr CreateEmptyBuffer(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 	SceneTextureGroupWeak m_This;
 	DescriptorImageInfoVector m_Textures;
 	vk::DescriptorBufferInfo m_EmptyBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
@@ -54,7 +54,7 @@ public:
 	SceneTextureGroup();
 	~SceneTextureGroup();
 
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore);
 	void Unit();
 
 	void clear();
@@ -70,8 +70,8 @@ public:
 	bool CanRemoveTexture() const;
 
 	bool IsOk();
-	void UploadBufferObjectIfDirty(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
-	bool CreateBufferObject(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	void UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore) override;
+	bool CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void DestroyBufferObject() override;
 	vk::DescriptorBufferInfo* GetBufferInfo() override;
 
