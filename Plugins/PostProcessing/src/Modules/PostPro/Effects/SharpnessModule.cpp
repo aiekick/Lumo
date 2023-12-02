@@ -47,12 +47,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SharpnessModule> SharpnessModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+std::shared_ptr<SharpnessModule> SharpnessModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
     ZoneScoped;
-
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<SharpnessModule>(vVulkanCorePtr);
+    auto res = std::make_shared<SharpnessModule>(vVulkanCore);
     res->SetParentNode(vParentNode);
     res->m_This = res;
     if (!res->Init()) {
@@ -66,7 +63,7 @@ std::shared_ptr<SharpnessModule> SharpnessModule::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SharpnessModule::SharpnessModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+SharpnessModule::SharpnessModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
     ZoneScoped;
 }
 
@@ -88,7 +85,7 @@ bool SharpnessModule::Init() {
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
         // SetExecutionWhenNeededOnly(true);
-        m_SharpnessModule_Comp_2D_Pass_Ptr = SharpnessModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        m_SharpnessModule_Comp_2D_Pass_Ptr = SharpnessModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
         if (m_SharpnessModule_Comp_2D_Pass_Ptr) {
             // by default but can be changed via widget
             m_SharpnessModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);

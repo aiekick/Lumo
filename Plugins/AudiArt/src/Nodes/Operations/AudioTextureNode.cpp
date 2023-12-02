@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<AudioTextureNode> AudioTextureNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<AudioTextureNode> AudioTextureNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<AudioTextureNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ AudioTextureNode::~AudioTextureNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AudioTextureNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool AudioTextureNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -78,7 +78,7 @@ bool AudioTextureNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_AudioTextureModulePtr = AudioTextureModule::Create(vVulkanCorePtr, m_This);
+	m_AudioTextureModulePtr = AudioTextureModule::Create(vVulkanCore, m_This);
 	if (m_AudioTextureModulePtr)
 	{
 		res = true;

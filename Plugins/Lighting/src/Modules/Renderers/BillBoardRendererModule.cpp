@@ -49,12 +49,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<BillBoardRendererModule> BillBoardRendererModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<BillBoardRendererModule> BillBoardRendererModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<BillBoardRendererModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<BillBoardRendererModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -69,8 +69,8 @@ std::shared_ptr<BillBoardRendererModule> BillBoardRendererModule::Create(GaiApi:
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BillBoardRendererModule::BillBoardRendererModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: TaskRenderer(vVulkanCorePtr)
+BillBoardRendererModule::BillBoardRendererModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: TaskRenderer(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -102,7 +102,7 @@ bool BillBoardRendererModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_BillBoardRendererModule_Mesh_Pass_Ptr = std::make_shared<BillBoardRendererModule_Mesh_Pass>(m_VulkanCorePtr);
+		m_BillBoardRendererModule_Mesh_Pass_Ptr = std::make_shared<BillBoardRendererModule_Mesh_Pass>(m_VulkanCore);
 		if (m_BillBoardRendererModule_Mesh_Pass_Ptr)
 		{
 			// by default but can be changed via widget

@@ -56,14 +56,14 @@ class SourcePreviewModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<SourcePreviewModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<SourcePreviewModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<SourcePreviewModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	SourcePreviewModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SourcePreviewModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SourcePreviewModule();
 
 	bool Init();

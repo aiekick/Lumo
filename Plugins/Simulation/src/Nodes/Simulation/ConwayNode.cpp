@@ -27,11 +27,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<ConwayNode> ConwayNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ConwayNode> ConwayNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<ConwayNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -48,7 +48,7 @@ ConwayNode::~ConwayNode()
 	Unit();
 }
 
-bool ConwayNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ConwayNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Conway";
 
@@ -58,7 +58,7 @@ bool ConwayNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_ConwayModulePtr = ConwayModule::Create(vVulkanCorePtr);
+	m_ConwayModulePtr = ConwayModule::Create(vVulkanCore);
 	if (m_ConwayModulePtr)
 	{
 		res = true;

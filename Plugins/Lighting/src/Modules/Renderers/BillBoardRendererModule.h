@@ -62,7 +62,7 @@ class BillBoardRendererModule :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<BillBoardRendererModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<BillBoardRendererModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<BillBoardRendererModule> m_This;
@@ -70,7 +70,7 @@ private:
 	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
-	BillBoardRendererModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	BillBoardRendererModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~BillBoardRendererModule() override;
 
 	bool Init();

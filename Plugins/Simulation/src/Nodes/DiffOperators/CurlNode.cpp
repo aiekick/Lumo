@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<CurlNode> CurlNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<CurlNode> CurlNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<CurlNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ CurlNode::~CurlNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CurlNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool CurlNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -77,7 +77,7 @@ bool CurlNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_CurlModulePtr = CurlModule::Create(vVulkanCorePtr, m_This);
+	m_CurlModulePtr = CurlModule::Create(vVulkanCore, m_This);
 	if (m_CurlModulePtr)
 	{
 		res = true;

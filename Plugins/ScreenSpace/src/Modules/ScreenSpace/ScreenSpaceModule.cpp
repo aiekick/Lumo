@@ -49,12 +49,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ScreenSpaceModule> ScreenSpaceModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+std::shared_ptr<ScreenSpaceModule> ScreenSpaceModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
     ZoneScoped;
-    if (!vVulkanCorePtr) {
-        return nullptr;
-    }
-    auto res = std::make_shared<ScreenSpaceModule>(vVulkanCorePtr);
+    auto res = std::make_shared<ScreenSpaceModule>(vVulkanCore);
     res->SetParentNode(vParentNode);
     res->m_This = res;
     if (!res->Init()) {
@@ -67,7 +64,7 @@ std::shared_ptr<ScreenSpaceModule> ScreenSpaceModule::Create(GaiApi::VulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ScreenSpaceModule::ScreenSpaceModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+ScreenSpaceModule::ScreenSpaceModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
     ZoneScoped;
 }
 
@@ -84,10 +81,10 @@ bool ScreenSpaceModule::Init() {
     ZoneScoped;
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_SSReflectionModule_Comp_2D_Pass_Ptr = SSReflectionModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        m_SSReflectionModule_Comp_2D_Pass_Ptr = SSReflectionModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
         if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
             m_SSReflectionModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-            m_SSAOModule_Comp_2D_Pass_Ptr = SSAOModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+            m_SSAOModule_Comp_2D_Pass_Ptr = SSAOModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
             if (m_SSAOModule_Comp_2D_Pass_Ptr) {
                 m_SSAOModule_Comp_2D_Pass_Ptr->EnableEffect(false);
                 AddGenericPass(m_SSReflectionModule_Comp_2D_Pass_Ptr);  // 1) SSR

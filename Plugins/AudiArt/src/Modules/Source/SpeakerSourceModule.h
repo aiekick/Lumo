@@ -56,14 +56,14 @@ class SpeakerSourceModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<SpeakerSourceModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<SpeakerSourceModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<SpeakerSourceModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	SpeakerSourceModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SpeakerSourceModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SpeakerSourceModule();
 
 	bool Init();

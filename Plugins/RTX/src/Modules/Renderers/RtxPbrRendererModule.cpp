@@ -48,12 +48,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<RtxPbrRendererModule> RtxPbrRendererModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<RtxPbrRendererModule> RtxPbrRendererModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<RtxPbrRendererModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<RtxPbrRendererModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -68,8 +68,8 @@ std::shared_ptr<RtxPbrRendererModule> RtxPbrRendererModule::Create(GaiApi::Vulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RtxPbrRendererModule::RtxPbrRendererModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+RtxPbrRendererModule::RtxPbrRendererModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -97,7 +97,7 @@ bool RtxPbrRendererModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_RtxPbrRendererModule_Rtx_Pass_Ptr = std::make_shared<RtxPbrRendererModule_Rtx_Pass>(m_VulkanCorePtr);
+		m_RtxPbrRendererModule_Rtx_Pass_Ptr = std::make_shared<RtxPbrRendererModule_Rtx_Pass>(m_VulkanCore);
 		if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
 		{
 			// by default but can be changed via widget

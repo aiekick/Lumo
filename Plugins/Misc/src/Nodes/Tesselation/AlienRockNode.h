@@ -26,7 +26,7 @@ class AlienRockNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<AlienRockNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<AlienRockNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<AlienRockModule> m_AlienRockModulePtr = nullptr;
@@ -36,7 +36,7 @@ public:
 	~AlienRockNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Execute Task
 	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;

@@ -36,13 +36,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<RtxPbrRendererNode> RtxPbrRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RtxPbrRendererNode> RtxPbrRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<RtxPbrRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -68,7 +68,7 @@ RtxPbrRendererNode::~RtxPbrRendererNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RtxPbrRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool RtxPbrRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -83,7 +83,7 @@ bool RtxPbrRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("LongLat", 2U), false, false);
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_RtxPbrRendererModulePtr = RtxPbrRendererModule::Create(vVulkanCorePtr, m_This);
+	m_RtxPbrRendererModulePtr = RtxPbrRendererModule::Create(vVulkanCore, m_This);
 	if (m_RtxPbrRendererModulePtr)
 	{
 		res = true;

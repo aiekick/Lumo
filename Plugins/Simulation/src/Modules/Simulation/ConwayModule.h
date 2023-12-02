@@ -53,14 +53,14 @@ class ConwayModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<ConwayModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ConwayModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<ConwayModule> m_This;
 	std::shared_ptr<ConwayModule_Comp_Pass> m_ConwayModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	ConwayModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ConwayModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ConwayModule() override;
 
 	bool Init();

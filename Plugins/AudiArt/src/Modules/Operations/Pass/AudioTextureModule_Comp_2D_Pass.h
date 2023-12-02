@@ -52,7 +52,7 @@ class AudioTextureModule_Comp_2D_Pass :
 private:
 
 public:
-	AudioTextureModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	AudioTextureModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~AudioTextureModule_Comp_2D_Pass() override;
 
 	void ActionBeforeInit() override;

@@ -28,7 +28,7 @@ class Layering2DNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<Layering2DNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<Layering2DNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<Layering2DModule> m_Layering2DModulePtr = nullptr;
@@ -36,7 +36,7 @@ private:
 public:
 	Layering2DNode();
 	~Layering2DNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,
         ImGuiContext* vContextPtr = nullptr,

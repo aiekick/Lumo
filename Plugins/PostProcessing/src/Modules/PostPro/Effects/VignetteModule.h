@@ -56,7 +56,7 @@ class VignetteModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<VignetteModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<VignetteModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<VignetteModule> m_This;
@@ -64,7 +64,7 @@ private:
 	std::shared_ptr<VignetteModule_Comp_2D_Pass> m_VignetteModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	VignetteModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	VignetteModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~VignetteModule() override;
 
 	bool Init();

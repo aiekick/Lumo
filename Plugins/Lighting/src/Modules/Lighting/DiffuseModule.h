@@ -57,14 +57,14 @@ class DiffuseModule :
 	public LightGroupInputInterface
 {
 public:
-	static std::shared_ptr<DiffuseModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<DiffuseModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<DiffuseModule> m_This;
 	std::shared_ptr<DiffuseModule_Comp_Pass> m_DiffuseModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	DiffuseModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	DiffuseModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~DiffuseModule() override;
 
 	bool Init();

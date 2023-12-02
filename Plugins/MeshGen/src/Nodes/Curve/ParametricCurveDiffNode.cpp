@@ -26,13 +26,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricCurveDiffNode> ParametricCurveDiffNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParametricCurveDiffNode> ParametricCurveDiffNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<ParametricCurveDiffNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -58,7 +58,7 @@ ParametricCurveDiffNode::~ParametricCurveDiffNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveDiffNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ParametricCurveDiffNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -69,7 +69,7 @@ bool ParametricCurveDiffNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotModelOutput::Create("Curve"), false, false);
 
-	m_ParametricCurveDiffModulePtr = ParametricCurveDiffModule::Create(vVulkanCorePtr, m_This);
+	m_ParametricCurveDiffModulePtr = ParametricCurveDiffModule::Create(vVulkanCore, m_This);
 	if (m_ParametricCurveDiffModulePtr)
 	{
 		res = true;

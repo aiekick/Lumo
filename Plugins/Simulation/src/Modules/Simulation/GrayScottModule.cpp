@@ -46,10 +46,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<GrayScottModule> GrayScottModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<GrayScottModule> GrayScottModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<GrayScottModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<GrayScottModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +62,8 @@ std::shared_ptr<GrayScottModule> GrayScottModule::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GrayScottModule::GrayScottModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+GrayScottModule::GrayScottModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +87,7 @@ bool GrayScottModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_GrayScottModule_Comp_Pass_Ptr = std::make_shared<GrayScottModule_Comp_Pass>(m_VulkanCorePtr);
+		m_GrayScottModule_Comp_Pass_Ptr = std::make_shared<GrayScottModule_Comp_Pass>(m_VulkanCore);
 		if (m_GrayScottModule_Comp_Pass_Ptr)
 		{
 			// by default but can be changed via widget

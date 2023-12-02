@@ -47,8 +47,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BillBoardRendererModule_Mesh_Pass::BillBoardRendererModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
+BillBoardRendererModule_Mesh_Pass::BillBoardRendererModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	ZoneScoped;
 
@@ -70,9 +70,12 @@ void BillBoardRendererModule_Mesh_Pass::ActionBeforeInit()
 
 	m_BlendingEnabled = true;
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 }
 
@@ -176,9 +179,11 @@ void BillBoardRendererModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
 			}
-			else
-			{
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+			else {
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -215,7 +220,7 @@ bool BillBoardRendererModule_Mesh_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Vert));
+	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "BillBoardRendererModule_Mesh_Pass");
 	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 	if (m_UBO_Vert_Ptr)
 	{
@@ -224,7 +229,7 @@ bool BillBoardRendererModule_Mesh_Pass::CreateUBO()
 		m_UBO_Vert_BufferInfos.offset = 0;
 	}
 
-	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Frag));
+	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "BillBoardRendererModule_Mesh_Pass");
 	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBO_Frag_Ptr)
 	{
@@ -242,8 +247,8 @@ void BillBoardRendererModule_Mesh_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
 }
 
 void BillBoardRendererModule_Mesh_Pass::DestroyUBO()

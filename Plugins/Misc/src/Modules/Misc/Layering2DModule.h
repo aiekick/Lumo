@@ -54,14 +54,14 @@ class Layering2DModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<Layering2DModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<Layering2DModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<Layering2DModule> m_This;
 	std::shared_ptr<Layering2DModule_Comp_Pass> m_Layering2DModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	Layering2DModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	Layering2DModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~Layering2DModule() override;
 
 	bool Init();

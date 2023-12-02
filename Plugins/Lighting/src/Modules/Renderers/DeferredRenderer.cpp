@@ -43,10 +43,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<DeferredRenderer>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<DeferredRenderer>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -59,8 +59,8 @@ std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(GaiApi::VulkanCorePtr
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DeferredRenderer::DeferredRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: TaskRenderer(vVulkanCorePtr)
+DeferredRenderer::DeferredRenderer(GaiApi::VulkanCoreWeak vVulkanCore)
+	: TaskRenderer(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -90,7 +90,7 @@ bool DeferredRenderer::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_DeferredRenderer_Quad_Pass_Ptr = std::make_shared<DeferredRenderer_Quad_Pass>(m_VulkanCorePtr);
+		m_DeferredRenderer_Quad_Pass_Ptr = std::make_shared<DeferredRenderer_Quad_Pass>(m_VulkanCore);
 		if (m_DeferredRenderer_Quad_Pass_Ptr)
 		{
 			// by default but can be changed via widget

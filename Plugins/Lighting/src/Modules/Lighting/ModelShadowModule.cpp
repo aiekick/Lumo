@@ -46,10 +46,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ModelShadowModule> ModelShadowModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ModelShadowModule> ModelShadowModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ModelShadowModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<ModelShadowModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +62,8 @@ std::shared_ptr<ModelShadowModule> ModelShadowModule::Create(GaiApi::VulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelShadowModule::ModelShadowModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+ModelShadowModule::ModelShadowModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +87,7 @@ bool ModelShadowModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_ModelShadowModule_Quad_Pass_Ptr = std::make_shared<ModelShadowModule_Quad_Pass>(m_VulkanCorePtr);
+		m_ModelShadowModule_Quad_Pass_Ptr = std::make_shared<ModelShadowModule_Quad_Pass>(m_VulkanCore);
 		if (m_ModelShadowModule_Quad_Pass_Ptr)
 		{
 			if (m_ModelShadowModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, false, true, 0.0f,

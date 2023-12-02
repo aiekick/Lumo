@@ -48,12 +48,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<HistorizeModule> HistorizeModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<HistorizeModule> HistorizeModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<HistorizeModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<HistorizeModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -68,8 +68,8 @@ std::shared_ptr<HistorizeModule> HistorizeModule::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-HistorizeModule::HistorizeModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+HistorizeModule::HistorizeModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -97,7 +97,7 @@ bool HistorizeModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_HistorizeModule_Comp_2D_Pass_Ptr = std::make_shared<HistorizeModule_Comp_2D_Pass>(m_VulkanCorePtr);
+		m_HistorizeModule_Comp_2D_Pass_Ptr = std::make_shared<HistorizeModule_Comp_2D_Pass>(m_VulkanCore);
 		if (m_HistorizeModule_Comp_2D_Pass_Ptr)
 		{
 			// by default but can be changed via widget

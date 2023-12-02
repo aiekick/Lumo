@@ -45,8 +45,8 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CellShadingModule_Comp_Pass::CellShadingModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+CellShadingModule_Comp_Pass::CellShadingModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Comp Pass : Cell Shading", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
@@ -61,10 +61,11 @@ CellShadingModule_Comp_Pass::~CellShadingModule_Comp_Pass()
 void CellShadingModule_Comp_Pass::ActionBeforeInit()
 {
 	ZoneScoped;
-
+	auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 }
 
@@ -132,7 +133,9 @@ void CellShadingModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::
 					NeedNewUBOUpload();
 				}
 
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -177,11 +180,8 @@ void CellShadingModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, cons
 	}
 }
 
-bool CellShadingModule_Comp_Pass::CreateUBO()
-{
-	ZoneScoped;
-
-	m_UBOComp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
+bool CellShadingModule_Comp_Pass::CreateUBO() {
+	m_UBOComp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Comp), "CellShadingModule_Comp_Pass");
 	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 	if (m_UBOComp_Ptr)
 	{
@@ -199,7 +199,7 @@ void CellShadingModule_Comp_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOComp_Ptr, &m_UBOComp, sizeof(UBO_Comp));
+	VulkanRessource::upload(m_VulkanCore, m_UBOComp_Ptr, &m_UBOComp, sizeof(UBO_Comp));
 }
 
 void CellShadingModule_Comp_Pass::DestroyUBO()

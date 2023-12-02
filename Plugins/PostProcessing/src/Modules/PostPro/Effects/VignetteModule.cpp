@@ -49,12 +49,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<VignetteModule> VignetteModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+std::shared_ptr<VignetteModule> VignetteModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
     ZoneScoped;
-
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<VignetteModule>(vVulkanCorePtr);
+    auto res = std::make_shared<VignetteModule>(vVulkanCore);
     res->SetParentNode(vParentNode);
     res->m_This = res;
     if (!res->Init()) {
@@ -67,7 +64,7 @@ std::shared_ptr<VignetteModule> VignetteModule::Create(GaiApi::VulkanCorePtr vVu
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VignetteModule::VignetteModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+VignetteModule::VignetteModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
     ZoneScoped;
 }
 
@@ -86,7 +83,7 @@ bool VignetteModule::Init() {
 
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
         if (m_VignetteModule_Comp_2D_Pass_Ptr) {
             // by default but can be changed via widget
             m_VignetteModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);

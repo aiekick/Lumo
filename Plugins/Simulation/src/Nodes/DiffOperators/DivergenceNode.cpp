@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<DivergenceNode> DivergenceNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<DivergenceNode> DivergenceNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<DivergenceNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ DivergenceNode::~DivergenceNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool DivergenceNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool DivergenceNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -77,7 +77,7 @@ bool DivergenceNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_DivergenceModulePtr = DivergenceModule::Create(vVulkanCorePtr, m_This);
+	m_DivergenceModulePtr = DivergenceModule::Create(vVulkanCore, m_This);
 	if (m_DivergenceModulePtr)
 	{
 		res = true;

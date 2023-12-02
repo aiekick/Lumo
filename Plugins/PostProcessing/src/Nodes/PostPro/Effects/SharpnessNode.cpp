@@ -33,13 +33,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SharpnessNode> SharpnessNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SharpnessNode> SharpnessNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<SharpnessNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ SharpnessNode::~SharpnessNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SharpnessNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SharpnessNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -77,7 +77,7 @@ bool SharpnessNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_SharpnessModulePtr = SharpnessModule::Create(vVulkanCorePtr, m_This);
+	m_SharpnessModulePtr = SharpnessModule::Create(vVulkanCore, m_This);
 	if (m_SharpnessModulePtr)
 	{
 		res = true;

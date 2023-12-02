@@ -25,7 +25,7 @@ class SubdivideNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<SubdivideNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SubdivideNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<SubdivideModule> m_SubdivideModulePtr = nullptr;
@@ -35,7 +35,7 @@ public:
 	~SubdivideNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Draw Widgets
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;

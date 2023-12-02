@@ -25,7 +25,7 @@ class SoundFFTNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<SoundFFTNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SoundFFTNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<SoundFFTModule> m_SoundFFTModulePtr = nullptr;
@@ -35,7 +35,7 @@ public:
 	~SoundFFTNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Execute Task
 	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;

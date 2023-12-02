@@ -48,7 +48,7 @@ class ChromaticAberrationsModule_Comp_2D_Pass :
 	public NodeInterface
 {
 public:
-	static std::shared_ptr<ChromaticAberrationsModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ChromaticAberrationsModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	struct UBO_Comp {
@@ -60,7 +60,7 @@ private:
 
 
 public:
-	ChromaticAberrationsModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ChromaticAberrationsModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ChromaticAberrationsModule_Comp_2D_Pass() override;
 
 	void ActionBeforeInit() override;

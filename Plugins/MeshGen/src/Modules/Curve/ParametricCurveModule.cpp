@@ -37,12 +37,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricCurveModule> ParametricCurveModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<ParametricCurveModule> ParametricCurveModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ParametricCurveModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<ParametricCurveModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -57,8 +57,8 @@ std::shared_ptr<ParametricCurveModule> ParametricCurveModule::Create(GaiApi::Vul
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ParametricCurveModule::ParametricCurveModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: m_VulkanCorePtr(vVulkanCorePtr)
+ParametricCurveModule::ParametricCurveModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: m_VulkanCore(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -383,7 +383,7 @@ void ParametricCurveModule::prUpdateMesh()
 			indices[verts_len] = 0;
 		}
 
-		auto sceneMeshPtr = SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>::Create(m_VulkanCorePtr, vertices, indices);
+		auto sceneMeshPtr = SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>::Create(m_VulkanCore, vertices, indices);
 		sceneMeshPtr->SetPrimitiveType(SceneModelPrimitiveType::SCENE_MODEL_PRIMITIVE_TYPE_CURVES);
 		m_SceneModelPtr->clear();
 		m_SceneModelPtr->Add(sceneMeshPtr);

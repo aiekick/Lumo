@@ -47,12 +47,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ChromaticAberrationsModule> ChromaticAberrationsModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+std::shared_ptr<ChromaticAberrationsModule> ChromaticAberrationsModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
     ZoneScoped;
-
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<ChromaticAberrationsModule>(vVulkanCorePtr);
+    auto res = std::make_shared<ChromaticAberrationsModule>(vVulkanCore);
     res->SetParentNode(vParentNode);
     res->m_This = res;
     if (!res->Init()) {
@@ -66,7 +63,7 @@ std::shared_ptr<ChromaticAberrationsModule> ChromaticAberrationsModule::Create(G
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ChromaticAberrationsModule::ChromaticAberrationsModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+ChromaticAberrationsModule::ChromaticAberrationsModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
     ZoneScoped;
 }
 
@@ -88,7 +85,7 @@ bool ChromaticAberrationsModule::Init() {
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
         // SetExecutionWhenNeededOnly(true);
-        m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = ChromaticAberrationsModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = ChromaticAberrationsModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
         if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
             // by default but can be changed via widget
             m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);

@@ -58,7 +58,7 @@ private:
 
 
 public:
-	HistorizeModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	HistorizeModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~HistorizeModule_Comp_2D_Pass() override;
 
 	void ActionBeforeInit() override;

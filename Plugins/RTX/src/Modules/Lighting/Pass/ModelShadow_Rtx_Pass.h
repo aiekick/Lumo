@@ -72,7 +72,7 @@ private:
 	vk::DescriptorBufferInfo m_UBO_Rtx_BufferInfos;
 
 public:
-	ModelShadow_Rtx_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ModelShadow_Rtx_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ModelShadow_Rtx_Pass() override;
 
 	void ActionBeforeCompilation() override;

@@ -30,11 +30,11 @@ typedef std::weak_ptr<SceneAccelStructure> SceneAccelStructureWeak;
 class SceneAccelStructure
 {
 public:
-	static SceneAccelStructurePtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static SceneAccelStructurePtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	SceneAccelStructureWeak m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 	std::vector<VulkanAccelStructObjectPtr> m_AccelStructure_Bottom_Ptrs;
 	VulkanAccelStructObjectPtr m_AccelStructure_Top_Ptr = nullptr;
 	vk::WriteDescriptorSetAccelerationStructureKHR m_AccelStructureTopDescriptorInfo;
@@ -44,7 +44,7 @@ private:
 	bool m_SuccessfullyBuilt = false;
 
 public:
-	SceneAccelStructure(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SceneAccelStructure(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SceneAccelStructure();
 	void Clear();
 	bool BuildForModel(SceneModelWeak vSceneModelWeak);

@@ -75,7 +75,7 @@ public:
 	};
 
 public:
-	static SceneParticlesPtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static SceneParticlesPtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
 	static std::string GetParticlesDatasBufferHeader(const uint32_t& vStartBindingPoint);
 	static std::string GetParticlesVertexInputBufferHeader();
 	static std::string GetAliveParticlesIndexBufferHeader(const uint32_t& vStartBindingPoint);
@@ -85,7 +85,7 @@ public:
 
 private:
 	SceneParticlesWeak m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 	vk::DescriptorBufferInfo m_EmptyDescriptorBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 	CounterStruct m_Counters;
@@ -97,7 +97,7 @@ private:
 	GpuOnlyStorageBufferPtr m_DrawArraysIndirectCommandBufferPtr = nullptr;
 
 public:
-	SceneParticles(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SceneParticles(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SceneParticles();
 
 	bool IsOk();

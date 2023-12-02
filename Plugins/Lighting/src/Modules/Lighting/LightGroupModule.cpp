@@ -35,10 +35,10 @@ limitations under the License.
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LightGroupModulePtr LightGroupModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+LightGroupModulePtr LightGroupModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<LightGroupModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<LightGroupModule>(vVulkanCore);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -52,8 +52,8 @@ LightGroupModulePtr LightGroupModule::Create(GaiApi::VulkanCorePtr vVulkanCorePt
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LightGroupModule::LightGroupModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: m_VulkanCorePtr(vVulkanCorePtr)
+LightGroupModule::LightGroupModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: m_VulkanCore(vVulkanCore)
 {
 	
 }
@@ -69,7 +69,7 @@ LightGroupModule::~LightGroupModule()
 
 bool LightGroupModule::Init()
 {
-	m_SceneLightGroupPtr = SceneLightGroup::Create(m_VulkanCorePtr);
+	m_SceneLightGroupPtr = SceneLightGroup::Create(m_VulkanCore);
 
 	return (m_SceneLightGroupPtr != nullptr);
 }
@@ -95,7 +95,7 @@ bool LightGroupModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
 		++idx;
 	}
 
-	m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
+	m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCore);
 
 	return false;
 }
@@ -113,7 +113,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 			if (ImGui::ContrastedButton("Add LightGroup"))
 			{
 				m_SceneLightGroupPtr->Add();
-				m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
+				m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCore);
 				auto parentNodePtr = GetParentNode().lock();
 				if (parentNodePtr)
 				{
@@ -145,7 +145,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 					if (delete_button)
 					{
 						m_SceneLightGroupPtr->erase(idx);
-						m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
+						m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCore);
 						auto parentNodePtr = GetParentNode().lock();
 						if (parentNodePtr)
 						{
@@ -231,7 +231,7 @@ bool LightGroupModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
 
 		if (oneChangedLightGroupAtLeast)
 		{
-			m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCorePtr);
+			m_SceneLightGroupPtr->UploadBufferObjectIfDirty(m_VulkanCore);
 
 			auto parentNodePtr = GetParentNode().lock();
 			if (parentNodePtr)

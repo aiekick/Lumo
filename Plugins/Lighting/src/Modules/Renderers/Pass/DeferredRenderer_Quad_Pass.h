@@ -76,7 +76,7 @@ private:
 	std::string m_FragmentShaderCode;
 
 public:
-	DeferredRenderer_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	DeferredRenderer_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~DeferredRenderer_Quad_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;

@@ -45,8 +45,8 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GradientModule_Comp_2D_Pass::GradientModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+GradientModule_Comp_2D_Pass::GradientModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Comp Pass : Normal From Texture", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
@@ -62,9 +62,12 @@ void GradientModule_Comp_2D_Pass::ActionBeforeInit()
 {
 	ZoneScoped;
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 }
 
@@ -125,9 +128,11 @@ void GradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::
 			{
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
 			}
-			else
-			{
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+			else {
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -180,7 +185,7 @@ bool GradientModule_Comp_2D_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "GradientModule_Comp_2D_Pass");
 	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBOCompPtr)
 	{
@@ -189,9 +194,12 @@ bool GradientModule_Comp_2D_Pass::CreateUBO()
 		m_UBOComp_BufferInfos.offset = 0;
 	}
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();
@@ -203,7 +211,7 @@ void GradientModule_Comp_2D_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void GradientModule_Comp_2D_Pass::DestroyUBO()

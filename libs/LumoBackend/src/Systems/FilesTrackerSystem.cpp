@@ -22,22 +22,20 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 
-FilesTrackerSystem::FilesTrackerSystem()
-{
-	// Create the file system watcher instance
+bool FilesTrackerSystem::init() {// Create the file system watcher instance
 	// efsw::FileWatcher allow a first boolean parameter that indicates if it should start with the generic file watcher instead of the platform specific backend
-	m_FilesTracker = std::make_unique<efsw::FileWatcher>();
+    m_FilesTracker = std::make_unique<efsw::FileWatcher>();
+    return true;
 }
 
-FilesTrackerSystem::~FilesTrackerSystem()
-{
-	for (auto wid : m_WatchIDs)
-		m_FilesTracker->removeWatch(wid);
-	m_FilesTracker.reset();
+void FilesTrackerSystem::unit() {
+    for (auto wid : m_WatchIDs)
+        m_FilesTracker->removeWatch(wid);
+    m_FilesTracker.reset();
+
 }
 
-void FilesTrackerSystem::addWatch(std::string& vPath)
-{
+void FilesTrackerSystem::addWatch(std::string& vPath) {
 	// Add a folder to watch, and get the efsw::WatchID
 	// It will watch the /tmp folder recursively ( the third parameter indicates that is recursive )
 	// Reporting the files and directories changes to the instance of the listener

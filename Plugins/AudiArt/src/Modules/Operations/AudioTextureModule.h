@@ -58,7 +58,7 @@ class AudioTextureModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<AudioTextureModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<AudioTextureModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<AudioTextureModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<AudioTextureModule_Comp_2D_Pass> m_AudioTextureModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	AudioTextureModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	AudioTextureModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~AudioTextureModule() override;
 
 	bool Init();

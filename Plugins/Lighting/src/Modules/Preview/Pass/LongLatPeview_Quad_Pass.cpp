@@ -47,8 +47,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LongLatPeview_Quad_Pass::LongLatPeview_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
+LongLatPeview_Quad_Pass::LongLatPeview_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass : LongLat Peview", QUAD_SHADER_PASS_DEBUG_COLOR);
 
@@ -60,11 +60,13 @@ LongLatPeview_Quad_Pass::~LongLatPeview_Quad_Pass()
 	Unit();
 }
 
-void LongLatPeview_Quad_Pass::ActionBeforeInit()
-{
+void LongLatPeview_Quad_Pass::ActionBeforeInit() {
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 }
 
@@ -140,7 +142,10 @@ void LongLatPeview_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Desc
 					NeedNewUBOUpload();
 				}
 
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -179,7 +184,7 @@ bool LongLatPeview_Quad_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
+	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "LongLatPeview_Quad_Pass");
 	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBOFragPtr)
 	{
@@ -197,7 +202,7 @@ void LongLatPeview_Quad_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void LongLatPeview_Quad_Pass::DestroyUBO()

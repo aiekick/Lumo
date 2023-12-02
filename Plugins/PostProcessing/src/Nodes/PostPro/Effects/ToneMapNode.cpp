@@ -27,11 +27,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<ToneMapNode> ToneMapNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ToneMapNode> ToneMapNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<ToneMapNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -48,7 +48,7 @@ ToneMapNode::~ToneMapNode()
 	Unit();
 }
 
-bool ToneMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ToneMapNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Tone Map";
 
@@ -59,7 +59,7 @@ bool ToneMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_ToneMapModulePtr = ToneMapModule::Create(vVulkanCorePtr);
+	m_ToneMapModulePtr = ToneMapModule::Create(vVulkanCore);
 	if (m_ToneMapModulePtr)
 	{
 		res = true;

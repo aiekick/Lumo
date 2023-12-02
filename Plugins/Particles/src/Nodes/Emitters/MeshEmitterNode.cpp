@@ -19,10 +19,10 @@ limitations under the License.
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <Slots/NodeSlotParticlesOutput.h>
 
-std::shared_ptr<MeshEmitterNode> MeshEmitterNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+std::shared_ptr<MeshEmitterNode> MeshEmitterNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     auto res = std::make_shared<MeshEmitterNode>();
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
     }
     return res;
@@ -40,7 +40,7 @@ MeshEmitterNode::~MeshEmitterNode() {
     Unit();
 }
 
-bool MeshEmitterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+bool MeshEmitterNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
     name = "Mesh Emitter";
@@ -48,7 +48,7 @@ bool MeshEmitterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
     AddInput(NodeSlotModelInput::Create("Model"), true, true);
     AddOutput(NodeSlotParticlesOutput::Create("Particles"), true, true);
 
-    m_MeshEmitterModulePtr = MeshEmitterModule::Create(vVulkanCorePtr, m_This);
+    m_MeshEmitterModulePtr = MeshEmitterModule::Create(vVulkanCore, m_This);
     if (m_MeshEmitterModulePtr) {
         return true;
     }

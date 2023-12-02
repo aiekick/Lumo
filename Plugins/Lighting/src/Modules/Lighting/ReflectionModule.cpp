@@ -49,12 +49,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ReflectionModule> ReflectionModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<ReflectionModule> ReflectionModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ReflectionModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<ReflectionModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -68,8 +68,8 @@ std::shared_ptr<ReflectionModule> ReflectionModule::Create(GaiApi::VulkanCorePtr
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ReflectionModule::ReflectionModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+ReflectionModule::ReflectionModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -97,7 +97,7 @@ bool ReflectionModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_Reflection_Quad_Pass_Ptr = std::make_shared<Reflection_Quad_Pass>(m_VulkanCorePtr);
+		m_Reflection_Quad_Pass_Ptr = std::make_shared<Reflection_Quad_Pass>(m_VulkanCore);
 		if (m_Reflection_Quad_Pass_Ptr)
 		{
 			// by default but can be changed via widget

@@ -55,7 +55,7 @@ class SSReflectionModule : public BaseRenderer,
                            public TextureOutputInterface,
                            public NodeInterface {
 public:
-    static std::shared_ptr<SSReflectionModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+    static std::shared_ptr<SSReflectionModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
     std::weak_ptr<SSReflectionModule> m_This;
@@ -63,7 +63,7 @@ private:
     std::shared_ptr<SSReflectionModule_Comp_2D_Pass> m_SSReflectionModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-    SSReflectionModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    SSReflectionModule(GaiApi::VulkanCoreWeak vVulkanCore);
     ~SSReflectionModule() override;
 
     bool Init();

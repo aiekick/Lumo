@@ -58,7 +58,7 @@ class CurlModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<CurlModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<CurlModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<CurlModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<CurlModule_Comp_2D_Pass> m_CurlModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	CurlModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	CurlModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~CurlModule() override;
 
 	bool Init();

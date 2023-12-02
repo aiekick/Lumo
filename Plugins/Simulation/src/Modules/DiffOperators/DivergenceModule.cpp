@@ -49,12 +49,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DivergenceModule> DivergenceModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<DivergenceModule> DivergenceModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<DivergenceModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<DivergenceModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -69,8 +69,8 @@ std::shared_ptr<DivergenceModule> DivergenceModule::Create(GaiApi::VulkanCorePtr
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DivergenceModule::DivergenceModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+DivergenceModule::DivergenceModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -98,7 +98,7 @@ bool DivergenceModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_DivergenceModule_Comp_2D_Pass_Ptr = std::make_shared<DivergenceModule_Comp_2D_Pass>(m_VulkanCorePtr);
+		m_DivergenceModule_Comp_2D_Pass_Ptr = std::make_shared<DivergenceModule_Comp_2D_Pass>(m_VulkanCore);
 		if (m_DivergenceModule_Comp_2D_Pass_Ptr)
 		{
 			// by default but can be changed via widget

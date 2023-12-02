@@ -49,12 +49,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<FlatGradientModule> FlatGradientModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<FlatGradientModule> FlatGradientModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<FlatGradientModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<FlatGradientModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -69,8 +69,8 @@ std::shared_ptr<FlatGradientModule> FlatGradientModule::Create(GaiApi::VulkanCor
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-FlatGradientModule::FlatGradientModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+FlatGradientModule::FlatGradientModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -98,7 +98,7 @@ bool FlatGradientModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_FlatGradientModule_Comp_2D_Pass_Ptr = std::make_shared<FlatGradientModule_Comp_2D_Pass>(m_VulkanCorePtr);
+		m_FlatGradientModule_Comp_2D_Pass_Ptr = std::make_shared<FlatGradientModule_Comp_2D_Pass>(m_VulkanCore);
 		if (m_FlatGradientModule_Comp_2D_Pass_Ptr)
 		{
 			// by default but can be changed via widget

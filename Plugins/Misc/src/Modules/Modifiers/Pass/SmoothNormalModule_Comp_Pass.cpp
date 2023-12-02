@@ -36,8 +36,8 @@ using namespace GaiApi;
 //// SSAO FIRST PASS : AO ////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SmoothNormalModule_Comp_Pass::SmoothNormalModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+SmoothNormalModule_Comp_Pass::SmoothNormalModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Comp Pass : Smooth Normal", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
@@ -188,7 +188,7 @@ bool SmoothNormalModule_Comp_Pass::BuildModel()
 		m_NormalDatas.resize(meshPtr->GetVerticesCount() * 3U);
 		const auto sizeInBytes = sizeof(int) * m_NormalDatas.size();
 		memset(m_NormalDatas.data(), 0U, sizeInBytes);
-		m_SBO_Normals_Compute_Helper = VulkanRessource::createGPUOnlyStorageBufferObject(m_VulkanCorePtr, m_NormalDatas.data(), sizeInBytes);
+        m_SBO_Normals_Compute_Helper = VulkanRessource::createGPUOnlyStorageBufferObject(m_VulkanCore, m_NormalDatas.data(), sizeInBytes, "SmoothNormalModule_Comp_Pass");
 		if (m_SBO_Normals_Compute_Helper->buffer)
 		{
 			m_SBO_Normals_Compute_Helper_BufferInfos = vk::DescriptorBufferInfo{ m_SBO_Normals_Compute_Helper->buffer, 0, sizeInBytes };
@@ -236,14 +236,16 @@ bool SmoothNormalModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 		// Normals
 		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, &m_SBO_Normals_Compute_Helper_BufferInfos);
 	}
-	else
-	{
+	else {
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+
 		// empty version, almost empty because his size is thr size of 1 VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, corePtr->getEmptyDescriptorBufferInfo());
 		// empty version, almost empty because his size is thr size of 1 VertexStruct::I1
-		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, corePtr->getEmptyDescriptorBufferInfo());
 		// empty version, almost empty because his size is thr size of 1 uvec3
-		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, corePtr->getEmptyDescriptorBufferInfo());
 	}
 
 	return res;

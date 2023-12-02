@@ -60,7 +60,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	Refraction_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	Refraction_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~Refraction_Quad_Pass() override;
 
 	void ActionBeforeInit() override;

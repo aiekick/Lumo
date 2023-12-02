@@ -62,14 +62,14 @@ class PBRRenderer :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<PBRRenderer> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<PBRRenderer> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<PBRRenderer_Quad_Pass> m_PBRRenderer_Quad_Pass_Ptr = nullptr;
 	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
-	PBRRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	PBRRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
 	~PBRRenderer() override;
 
 	bool Init();

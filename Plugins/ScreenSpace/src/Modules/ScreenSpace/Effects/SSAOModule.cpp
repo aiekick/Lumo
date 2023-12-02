@@ -46,10 +46,8 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSAOModule> SSAOModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<SSAOModule>(vVulkanCorePtr);
+std::shared_ptr<SSAOModule> SSAOModule::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<SSAOModule>(vVulkanCore);
     res->m_This = res;
     if (!res->Init()) {
         res.reset();
@@ -61,7 +59,7 @@ std::shared_ptr<SSAOModule> SSAOModule::Create(GaiApi::VulkanCorePtr vVulkanCore
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SSAOModule::SSAOModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+SSAOModule::SSAOModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
 }
 
 SSAOModule::~SSAOModule() {
@@ -77,7 +75,7 @@ bool SSAOModule::Init() {
 
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_SSAOModule_Comp_2D_Pass_Ptr = SSAOModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        m_SSAOModule_Comp_2D_Pass_Ptr = SSAOModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
         if (m_SSAOModule_Comp_2D_Pass_Ptr) {
             // by default but can be changed via widget
             m_SSAOModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);

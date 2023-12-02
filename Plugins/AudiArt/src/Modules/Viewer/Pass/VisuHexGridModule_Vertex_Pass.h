@@ -64,7 +64,7 @@ private:
 
 
 public:
-	VisuHexGridModule_Vertex_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	VisuHexGridModule_Vertex_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~VisuHexGridModule_Vertex_Pass() override;
 
 	void ActionBeforeInit() override;

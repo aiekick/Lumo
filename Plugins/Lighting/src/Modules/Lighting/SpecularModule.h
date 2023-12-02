@@ -58,14 +58,14 @@ class SpecularModule :
 	public LightGroupInputInterface
 {
 public:
-	static std::shared_ptr<SpecularModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SpecularModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<SpecularModule> m_This;
 	std::shared_ptr<SpecularModule_Comp_Pass> m_SpecularModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	SpecularModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SpecularModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SpecularModule() override;
 
 	bool Init();

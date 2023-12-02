@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<LaplacianNode> LaplacianNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<LaplacianNode> LaplacianNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<LaplacianNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ LaplacianNode::~LaplacianNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool LaplacianNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool LaplacianNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -76,7 +76,7 @@ bool LaplacianNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("", 0), false, true);
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_LaplacianModulePtr = LaplacianModule::Create(vVulkanCorePtr, m_This);
+	m_LaplacianModulePtr = LaplacianModule::Create(vVulkanCore, m_This);
 	if (m_LaplacianModulePtr)
 	{
 		res = true;

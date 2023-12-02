@@ -667,7 +667,7 @@ std::string UBOEditor::Get_Create_Header(const std::string& vRendererType, const
 
     std::string res =
         u8R"(
-	m_@UBO_NAME@_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(@UBO_NAME@));
+	m_@UBO_NAME@_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(@UBO_NAME@));
 	m_@UBO_NAME@_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_@UBO_NAME@_Ptr) {
 		m_@UBO_NAME@_BufferInfos.buffer = m_@UBO_NAME@_Ptr->buffer;
@@ -682,7 +682,7 @@ std::string UBOEditor::Get_Upload_Header(const std::string& vRendererType, const
     m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
     std::string res =
         u8R"(
-	VulkanRessource::upload(m_VulkanCorePtr, m_@UBO_NAME@_Ptr, &m_@UBO_NAME@, sizeof(@UBO_NAME@));)";
+	VulkanRessource::upload(m_VulkanCore, m_@UBO_NAME@_Ptr, &m_@UBO_NAME@, sizeof(@UBO_NAME@));)";
     ct::replaceString(res, "@UBO_NAME@", "UBO_" + (vUboIndex < 0 ? "" : ct::toStr(vUboIndex) + "_") + m_Stage);
     return res;
 }

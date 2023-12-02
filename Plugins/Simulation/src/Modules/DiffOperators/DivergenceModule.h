@@ -58,7 +58,7 @@ class DivergenceModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<DivergenceModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<DivergenceModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<DivergenceModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<DivergenceModule_Comp_2D_Pass> m_DivergenceModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	DivergenceModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	DivergenceModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~DivergenceModule() override;
 
 	bool Init();

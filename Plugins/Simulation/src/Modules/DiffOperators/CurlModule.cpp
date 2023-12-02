@@ -49,12 +49,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<CurlModule> CurlModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<CurlModule> CurlModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<CurlModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<CurlModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -69,8 +69,8 @@ std::shared_ptr<CurlModule> CurlModule::Create(GaiApi::VulkanCorePtr vVulkanCore
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CurlModule::CurlModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+CurlModule::CurlModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -98,7 +98,7 @@ bool CurlModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_CurlModule_Comp_2D_Pass_Ptr = std::make_shared<CurlModule_Comp_2D_Pass>(m_VulkanCorePtr);
+		m_CurlModule_Comp_2D_Pass_Ptr = std::make_shared<CurlModule_Comp_2D_Pass>(m_VulkanCore);
 		if (m_CurlModule_Comp_2D_Pass_Ptr)
 		{
 			// by default but can be changed via widget

@@ -46,10 +46,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SpecularModule> SpecularModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SpecularModule> SpecularModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SpecularModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<SpecularModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +62,8 @@ std::shared_ptr<SpecularModule> SpecularModule::Create(GaiApi::VulkanCorePtr vVu
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SpecularModule::SpecularModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+SpecularModule::SpecularModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +87,7 @@ bool SpecularModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_SpecularModule_Comp_Pass_Ptr = std::make_shared<SpecularModule_Comp_Pass>(m_VulkanCorePtr);
+		m_SpecularModule_Comp_Pass_Ptr = std::make_shared<SpecularModule_Comp_Pass>(m_VulkanCore);
 		if (m_SpecularModule_Comp_Pass_Ptr)
 		{
 			if (m_SpecularModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))

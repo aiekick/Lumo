@@ -46,10 +46,8 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<BlurModule> BlurModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<BlurModule>(vVulkanCorePtr);
+std::shared_ptr<BlurModule> BlurModule::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<BlurModule>(vVulkanCore);
     res->m_This = res;
     if (!res->Init()) {
         res.reset();
@@ -61,7 +59,7 @@ std::shared_ptr<BlurModule> BlurModule::Create(GaiApi::VulkanCorePtr vVulkanCore
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BlurModule::BlurModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+BlurModule::BlurModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
 }
 
 BlurModule::~BlurModule() {
@@ -77,7 +75,7 @@ bool BlurModule::Init() {
 
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_BlurModule_Comp_2D_Pass_Ptr = BlurModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        m_BlurModule_Comp_2D_Pass_Ptr = BlurModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
         if (m_BlurModule_Comp_2D_Pass_Ptr) {
             // by default but can be changed via widget
             m_BlurModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);

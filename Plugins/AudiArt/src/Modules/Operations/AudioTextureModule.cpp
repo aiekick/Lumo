@@ -48,12 +48,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<AudioTextureModule> AudioTextureModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<AudioTextureModule> AudioTextureModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<AudioTextureModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<AudioTextureModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -68,8 +68,8 @@ std::shared_ptr<AudioTextureModule> AudioTextureModule::Create(GaiApi::VulkanCor
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-AudioTextureModule::AudioTextureModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+AudioTextureModule::AudioTextureModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -97,7 +97,7 @@ bool AudioTextureModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_AudioTextureModule_Comp_2D_Pass_Ptr = std::make_shared<AudioTextureModule_Comp_2D_Pass>(m_VulkanCorePtr);
+		m_AudioTextureModule_Comp_2D_Pass_Ptr = std::make_shared<AudioTextureModule_Comp_2D_Pass>(m_VulkanCore);
 		if (m_AudioTextureModule_Comp_2D_Pass_Ptr)
 		{
 			// by default but can be changed via widget

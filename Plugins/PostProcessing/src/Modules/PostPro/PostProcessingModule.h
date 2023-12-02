@@ -63,7 +63,7 @@ class PostProcessingModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<PostProcessingModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<PostProcessingModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<PostProcessingModule> m_This;
@@ -80,7 +80,7 @@ private:
     std::shared_ptr<TextureOutputInterface> m_LastPassPtr = nullptr;
 
 public:
-	PostProcessingModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	PostProcessingModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~PostProcessingModule() override;
 
 	bool Init();

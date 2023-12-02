@@ -43,8 +43,8 @@ using namespace GaiApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelShadowModule_Quad_Pass::ModelShadowModule_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
+ModelShadowModule_Quad_Pass::ModelShadowModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : Model Shadow", QUAD_SHADER_PASS_DEBUG_COLOR);
 
@@ -87,7 +87,7 @@ bool ModelShadowModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
 		}
 	}
 
-	DrawInputTexture(m_VulkanCorePtr, "Input Position", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Input Position", 0U, m_OutputRatio);
 
 	return change;
 }
@@ -143,7 +143,9 @@ void ModelShadowModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::
 						NeedNewUBOUpload();
 					}
 
-					m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                    auto corePtr = m_VulkanCore.lock();
+                    assert(corePtr != nullptr);
+					m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 				}
 			}
 		}
@@ -187,11 +189,12 @@ void ModelShadowModule_Quad_Pass::SetTextures(const uint32_t& vBindingPoint, Des
 					NeedNewUBOUpload();
 				}
 			}
-			else
-			{
+			else {
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
 				for (auto& info : m_ImageGroupInfos)
 				{
-					info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+					info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 				}
 
 				if (m_UBOFrag.use_sampler_shadow_map > 0.0f)
@@ -274,19 +277,22 @@ bool ModelShadowModule_Quad_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
+	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "ModelShadowModule_Quad_Pass");
 	m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
 	m_DescriptorBufferInfo_Frag.range = sizeof(UBOFrag);
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	for (auto& info : m_ImageGroupInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 		//info.imageView = VK_NULL_HANDLE;
 	}
 
@@ -299,7 +305,7 @@ void ModelShadowModule_Quad_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void ModelShadowModule_Quad_Pass::DestroyUBO()

@@ -74,7 +74,7 @@ private:
 	} m_UBOComp;
 
 public:
-	GradientModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	GradientModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~GradientModule_Comp_2D_Pass() override;
 
 	void WasJustResized() override;

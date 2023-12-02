@@ -63,7 +63,7 @@ private:
 	vk::DescriptorBufferInfo m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
 public:
-	DiffuseModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	DiffuseModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~DiffuseModule_Comp_Pass() override;
 
 	void ActionBeforeInit();

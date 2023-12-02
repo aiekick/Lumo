@@ -58,7 +58,7 @@ class LaplacianModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<LaplacianModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<LaplacianModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<LaplacianModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<LaplacianModule_Comp_2D_Pass> m_LaplacianModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	LaplacianModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	LaplacianModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~LaplacianModule() override;
 
 	bool Init();

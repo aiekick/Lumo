@@ -27,11 +27,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<SSAONode> SSAONode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SSAONode> SSAONode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<SSAONode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -48,7 +48,7 @@ SSAONode::~SSAONode()
 	Unit();
 }
 
-bool SSAONode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SSAONode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "SS_AO";
 
@@ -60,7 +60,7 @@ bool SSAONode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_SSAOModulePtr = SSAOModule::Create(vVulkanCorePtr);
+	m_SSAOModulePtr = SSAOModule::Create(vVulkanCore);
 	if (m_SSAOModulePtr)
 	{
 		res = true;

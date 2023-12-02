@@ -29,11 +29,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<SpecularNode> SpecularNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SpecularNode> SpecularNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<SpecularNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -50,7 +50,7 @@ SpecularNode::~SpecularNode()
 	Unit();
 }
 
-bool SpecularNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SpecularNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Specular";
 
@@ -59,7 +59,7 @@ bool SpecularNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
-	m_SpecularModulePtr = SpecularModule::Create(vVulkanCorePtr);
+	m_SpecularModulePtr = SpecularModule::Create(vVulkanCore);
 	if (m_SpecularModulePtr)
 	{
 		return true;

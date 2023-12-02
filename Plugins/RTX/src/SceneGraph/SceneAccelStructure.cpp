@@ -37,21 +37,18 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneAccelStructurePtr SceneAccelStructure::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    if (vVulkanCorePtr && vVulkanCorePtr->getDevice()) {
-        auto res = std::make_shared<SceneAccelStructure>(vVulkanCorePtr);
-        res->m_This = res;
-        return res;
-    }
-    return nullptr;
+SceneAccelStructurePtr SceneAccelStructure::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<SceneAccelStructure>(vVulkanCore);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// PUBLIC : BUILD / CLEAR //////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneAccelStructure::SceneAccelStructure(GaiApi::VulkanCorePtr vVulkanCorePtr)
-    : m_VulkanCorePtr(vVulkanCorePtr) {
+SceneAccelStructure::SceneAccelStructure(GaiApi::VulkanCoreWeak vVulkanCore)
+    : m_VulkanCore(vVulkanCore) {
 }
 
 SceneAccelStructure::~SceneAccelStructure() {
@@ -85,9 +82,9 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak) {
 
             auto sizeInBytes = modelPtr->size() * sizeof(SceneMeshBuffers);
             m_ModelAdressesPtr =
-                VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeInBytes, bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+                VulkanRessource::createStorageBufferObject(m_VulkanCore, sizeInBytes, bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU, "SceneAccelStructure");
             if (m_ModelAdressesPtr) {
-                VulkanRessource::upload(m_VulkanCorePtr, m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
+                VulkanRessource::upload(m_VulkanCore, m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
 
                 m_ModelAdressesBufferInfo.buffer = m_ModelAdressesPtr->buffer;
                 m_ModelAdressesBufferInfo.offset = 0U;
@@ -141,16 +138,19 @@ vk::DescriptorBufferInfo* SceneAccelStructure::GetBufferAddressInfo() {
 bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(const SceneMeshWeak& vMesh) {
     auto meshPtr = vMesh.lock();
     if (meshPtr) {
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+
         auto buffer_usage_flags =
             vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
         vk::TransformMatrixKHR transform_matrix =
             std::array<std::array<float, 4>, 3>{1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f};
 
-        auto transformMatrixBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeof(transform_matrix),
+        auto transformMatrixBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCore, sizeof(transform_matrix),
             vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-            VMA_MEMORY_USAGE_CPU_TO_GPU);
-        VulkanRessource::upload(m_VulkanCorePtr, transformMatrixBufferPtr, &transform_matrix, sizeof(transform_matrix));
+            VMA_MEMORY_USAGE_CPU_TO_GPU, "SceneAccelStructure");
+        VulkanRessource::upload(m_VulkanCore, transformMatrixBufferPtr, &transform_matrix, sizeof(transform_matrix));
 
         vk::AccelerationStructureGeometryTrianglesDataKHR triangles;
         triangles.vertexFormat = vk::Format::eR32G32B32Sfloat;
@@ -176,29 +176,30 @@ bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(const Sc
 
         const uint32_t triangle_count = meshPtr->GetIndicesCount() / 3U;
 
-        auto accelStructureBuildSizeInfo = m_VulkanCorePtr->getDevice().getAccelerationStructureBuildSizesKHR(
+        auto accelStructureBuildSizeInfo = corePtr->getDevice().getAccelerationStructureBuildSizesKHR(
             vk::AccelerationStructureBuildTypeKHR::eDevice, accelStructureBuildGeometryInfo, triangle_count);
 
         // Create a buffer to hold the acceleration structure
         auto accelStructure_Bottom_Ptr = VulkanRessource::createAccelStructureBufferObject(
-            m_VulkanCorePtr, accelStructureBuildSizeInfo.accelerationStructureSize, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
+            m_VulkanCore, accelStructureBuildSizeInfo.accelerationStructureSize, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY, "SceneAccelStructure");
 
         // Create the acceleration structure
         vk::AccelerationStructureCreateInfoKHR accelStructureCreateInfo;
         accelStructureCreateInfo.buffer = accelStructure_Bottom_Ptr->buffer;
         accelStructureCreateInfo.size = accelStructureBuildSizeInfo.accelerationStructureSize;
         accelStructureCreateInfo.type = vk::AccelerationStructureTypeKHR::eBottomLevel;
-        accelStructure_Bottom_Ptr->handle = m_VulkanCorePtr->getDevice().createAccelerationStructureKHR(accelStructureCreateInfo);
+        accelStructure_Bottom_Ptr->handle = corePtr->getDevice().createAccelerationStructureKHR(accelStructureCreateInfo);
 
         // The actual build process starts here
 
         // Create a scratch buffer as a temporary storage for the acceleration structure build
-        auto scratchBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, accelStructureBuildSizeInfo.accelerationStructureSize,
-            vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer, VMA_MEMORY_USAGE_CPU_TO_GPU);
+        auto scratchBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCore, accelStructureBuildSizeInfo.accelerationStructureSize,
+            vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer, VMA_MEMORY_USAGE_CPU_TO_GPU,
+            "SceneAccelStructure");
 
         vk::BufferDeviceAddressInfoKHR scratchBufferDeviceAddressInfo{};
         scratchBufferDeviceAddressInfo.buffer = scratchBufferPtr->buffer;
-        auto scratchBufferAddress = m_VulkanCorePtr->getDevice().getBufferAddressKHR(&scratchBufferDeviceAddressInfo);
+        auto scratchBufferAddress = corePtr->getDevice().getBufferAddressKHR(&scratchBufferDeviceAddressInfo);
 
         vk::AccelerationStructureBuildGeometryInfoKHR accelBuildGeometryInfo;
         accelBuildGeometryInfo.type = vk::AccelerationStructureTypeKHR::eBottomLevel;
@@ -217,9 +218,9 @@ bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(const Sc
         std::vector<vk::AccelerationStructureBuildRangeInfoKHR*> accelStructureBuildRangeInfos = {&accelStructureBuildRangeInfo};
 
         // Build the acceleration structure on the device via a one-time command buffer submission
-        auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(m_VulkanCorePtr, true);
+        auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(m_VulkanCore, true);
         cmd.buildAccelerationStructuresKHR(1, &accelBuildGeometryInfo, accelStructureBuildRangeInfos.data());
-        VulkanCommandBuffer::flushSingleTimeCommands(m_VulkanCorePtr, cmd, true);
+        VulkanCommandBuffer::flushSingleTimeCommands(m_VulkanCore, cmd, true);
 
         // delete_scratch_buffer(scratch_buffer);
         scratchBufferPtr.reset();
@@ -233,24 +234,30 @@ bool SceneAccelStructure::CreateBottomLevelAccelerationStructureForMesh(const Sc
 }
 
 void SceneAccelStructure::DestroyBottomLevelAccelerationStructureForMesh() {
-    m_VulkanCorePtr->getDevice().waitIdle();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
+    corePtr->getDevice().waitIdle();
     for (auto& accelPtr : m_AccelStructure_Bottom_Ptrs) {
         if (accelPtr) {
-            m_VulkanCorePtr->getDevice().destroyAccelerationStructureKHR(accelPtr->handle);
+            corePtr->getDevice().destroyAccelerationStructureKHR(accelPtr->handle);
         }
     }
     m_AccelStructure_Bottom_Ptrs.clear();
 }
 
 bool SceneAccelStructure::CreateTopLevelAccelerationStructure(const std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances) {
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
     auto blasInstances = vBlasInstances;
 
     auto instancesBufferPtr =
-        VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeof(vk::AccelerationStructureInstanceKHR) * blasInstances.size(),
+        VulkanRessource::createStorageBufferObject(m_VulkanCore, sizeof(vk::AccelerationStructureInstanceKHR) * blasInstances.size(),
             vk::BufferUsageFlagBits::eAccelerationStructureBuildInputReadOnlyKHR | vk::BufferUsageFlagBits::eShaderDeviceAddress,
-            VMA_MEMORY_USAGE_CPU_TO_GPU);
+            VMA_MEMORY_USAGE_CPU_TO_GPU, "SceneAccelStructure");
     VulkanRessource::upload(
-        m_VulkanCorePtr, instancesBufferPtr, blasInstances.data(), sizeof(vk::AccelerationStructureInstanceKHR) * blasInstances.size());
+        m_VulkanCore, instancesBufferPtr, blasInstances.data(), sizeof(vk::AccelerationStructureInstanceKHR) * blasInstances.size());
 
     vk::DeviceOrHostAddressConstKHR instance_data_device_address{};
     instance_data_device_address.deviceAddress = instancesBufferPtr->device_address;
@@ -272,19 +279,19 @@ bool SceneAccelStructure::CreateTopLevelAccelerationStructure(const std::vector<
 
     const auto primitive_count = static_cast<uint32_t>(blasInstances.size());
 
-    auto accelStructureBuildSizeInfo = m_VulkanCorePtr->getDevice().getAccelerationStructureBuildSizesKHR(
+    auto accelStructureBuildSizeInfo = corePtr->getDevice().getAccelerationStructureBuildSizesKHR(
         vk::AccelerationStructureBuildTypeKHR::eDevice, accelStructureBuildGeometryInfo, primitive_count);
 
     // Create a buffer to hold the acceleration structure
     m_AccelStructure_Top_Ptr = VulkanRessource::createAccelStructureBufferObject(
-        m_VulkanCorePtr, accelStructureBuildSizeInfo.accelerationStructureSize, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
+        m_VulkanCore, accelStructureBuildSizeInfo.accelerationStructureSize, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY, "SceneAccelStructure");
 
     // Create the acceleration structure
     vk::AccelerationStructureCreateInfoKHR accelStructureCreateInfo;
     accelStructureCreateInfo.buffer = m_AccelStructure_Top_Ptr->buffer;
     accelStructureCreateInfo.size = accelStructureBuildSizeInfo.accelerationStructureSize;
     accelStructureCreateInfo.type = vk::AccelerationStructureTypeKHR::eTopLevel;
-    m_AccelStructure_Top_Ptr->handle = m_VulkanCorePtr->getDevice().createAccelerationStructureKHR(accelStructureCreateInfo);
+    m_AccelStructure_Top_Ptr->handle = corePtr->getDevice().createAccelerationStructureKHR(accelStructureCreateInfo);
 
     // for the m_WriteDescriptorSets
     m_AccelStructureTopDescriptorInfo = vk::WriteDescriptorSetAccelerationStructureKHR{};
@@ -294,12 +301,12 @@ bool SceneAccelStructure::CreateTopLevelAccelerationStructure(const std::vector<
     // The actual build process starts here
 
     // Create a scratch buffer as a temporary storage for the acceleration structure build
-    auto scratchBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, accelStructureBuildSizeInfo.accelerationStructureSize,
-        vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer, VMA_MEMORY_USAGE_CPU_TO_GPU);
+    auto scratchBufferPtr = VulkanRessource::createStorageBufferObject(m_VulkanCore, accelStructureBuildSizeInfo.accelerationStructureSize,
+        vk::BufferUsageFlagBits::eShaderDeviceAddress | vk::BufferUsageFlagBits::eStorageBuffer, VMA_MEMORY_USAGE_CPU_TO_GPU, "SceneAccelStructure");
 
     vk::BufferDeviceAddressInfoKHR scratchBufferDeviceAddressInfo{};
     scratchBufferDeviceAddressInfo.buffer = scratchBufferPtr->buffer;
-    auto scratchBufferAddress = m_VulkanCorePtr->getDevice().getBufferAddressKHR(&scratchBufferDeviceAddressInfo);
+    auto scratchBufferAddress = corePtr->getDevice().getBufferAddressKHR(&scratchBufferDeviceAddressInfo);
 
     vk::AccelerationStructureBuildGeometryInfoKHR accelBuildGeometryInfo;
     accelBuildGeometryInfo.type = vk::AccelerationStructureTypeKHR::eTopLevel;
@@ -318,9 +325,9 @@ bool SceneAccelStructure::CreateTopLevelAccelerationStructure(const std::vector<
     std::vector<vk::AccelerationStructureBuildRangeInfoKHR*> accelStructureBuildRangeInfos = {&accelStructureBuildRangeInfo};
 
     // Build the acceleration structure on the device via a one-time command buffer submission
-    auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(m_VulkanCorePtr, true);
+    auto cmd = VulkanCommandBuffer::beginSingleTimeCommands(m_VulkanCore, true);
     cmd.buildAccelerationStructuresKHR(1, &accelBuildGeometryInfo, accelStructureBuildRangeInfos.data());
-    VulkanCommandBuffer::flushSingleTimeCommands(m_VulkanCorePtr, cmd, true);
+    VulkanCommandBuffer::flushSingleTimeCommands(m_VulkanCore, cmd, true);
 
     // delete_scratch_buffer(scratch_buffer);
     scratchBufferPtr.reset();
@@ -329,9 +336,12 @@ bool SceneAccelStructure::CreateTopLevelAccelerationStructure(const std::vector<
 }
 
 void SceneAccelStructure::DestroyTopLevelAccelerationStructure() {
-    m_VulkanCorePtr->getDevice().waitIdle();
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
+    corePtr->getDevice().waitIdle();
     if (m_AccelStructure_Top_Ptr) {
-        m_VulkanCorePtr->getDevice().destroyAccelerationStructureKHR(m_AccelStructure_Top_Ptr->handle);
+        corePtr->getDevice().destroyAccelerationStructureKHR(m_AccelStructure_Top_Ptr->handle);
     }
     m_AccelStructure_Top_Ptr.reset();
 }
@@ -341,12 +351,15 @@ vk::AccelerationStructureInstanceKHR SceneAccelStructure::CreateBlasInstance(con
     glm::mat3x4 rtxT = glm::transpose(mat);
     memcpy(&transform_matrix, glm::value_ptr(rtxT), sizeof(vk::TransformMatrixKHR));
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
     auto blasPtr = m_AccelStructure_Bottom_Ptrs[(size_t)blas_id];
     if (blasPtr) {
         // Get the bottom acceleration structure's handle, which will be used during the top level acceleration build
         vk::AccelerationStructureDeviceAddressInfoKHR accelDeviceAddressInfo;
         accelDeviceAddressInfo.accelerationStructure = blasPtr->handle;
-        auto device_address = m_VulkanCorePtr->getDevice().getAccelerationStructureAddressKHR(accelDeviceAddressInfo);
+        auto device_address = corePtr->getDevice().getAccelerationStructureAddressKHR(accelDeviceAddressInfo);
 
         vk::AccelerationStructureInstanceKHR blas_instance{};
         blas_instance.transform = transform_matrix;

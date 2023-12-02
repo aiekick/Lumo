@@ -24,7 +24,7 @@ class SourcePreviewNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<SourcePreviewNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SourcePreviewNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<SourcePreviewModule> m_SourcePreviewModulePtr = nullptr;
@@ -34,7 +34,7 @@ public:
 	~SourcePreviewNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Execute Task
 	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;

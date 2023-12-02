@@ -63,7 +63,7 @@ class BloomModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<BloomModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<BloomModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<BloomModule> m_This;
@@ -71,7 +71,7 @@ private:
 	std::shared_ptr<BloomModule_Comp_2D_Pass> m_BloomModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	BloomModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	BloomModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~BloomModule() override;
 
 	bool Init();

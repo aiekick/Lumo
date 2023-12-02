@@ -28,7 +28,7 @@ class ToneMapNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<ToneMapNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ToneMapNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<ToneMapModule> m_ToneMapModulePtr = nullptr;
@@ -36,7 +36,7 @@ private:
 public:
 	ToneMapNode();
 	~ToneMapNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,
         ImGuiContext* vContextPtr = nullptr,

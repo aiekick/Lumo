@@ -45,8 +45,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 
 std::shared_ptr<ChromaticAberrationsModule_Comp_2D_Pass> ChromaticAberrationsModule_Comp_2D_Pass::Create(
-    const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    auto res_ptr = std::make_shared<ChromaticAberrationsModule_Comp_2D_Pass>(vVulkanCorePtr);
+    const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res_ptr = std::make_shared<ChromaticAberrationsModule_Comp_2D_Pass>(vVulkanCore);
     if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
         res_ptr.reset();
     }
@@ -57,7 +57,7 @@ std::shared_ptr<ChromaticAberrationsModule_Comp_2D_Pass> ChromaticAberrationsMod
 ///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ChromaticAberrationsModule_Comp_2D_Pass::ChromaticAberrationsModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : EffectPass(vVulkanCorePtr) {
+ChromaticAberrationsModule_Comp_2D_Pass::ChromaticAberrationsModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : EffectPass(vVulkanCore) {
     ZoneScoped;
     SetRenderDocDebugName("Comp Pass : Chromatic Aberrations", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
@@ -74,8 +74,11 @@ void ChromaticAberrationsModule_Comp_2D_Pass::ActionBeforeInit() {
 
     // m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
     for (auto& info : m_ImageInfos) {
-        info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
     }
 }
 
@@ -128,7 +131,10 @@ void ChromaticAberrationsModule_Comp_2D_Pass::SetTexture(
                 }
                 m_ImageInfos[vBindingPoint] = *vImageInfo;
             } else {
-                m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
             }
         }
     }
@@ -174,7 +180,7 @@ void ChromaticAberrationsModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuf
 bool ChromaticAberrationsModule_Comp_2D_Pass::CreateUBO() {
     ZoneScoped;
 
-    m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Comp));
+    m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Comp), "ChromaticAberrationsModule_Comp_2D_Pass");
     m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
     if (m_UBO_Comp_Ptr) {
         m_UBO_Comp_BufferInfos.buffer = m_UBO_Comp_Ptr->buffer;
@@ -191,7 +197,7 @@ void ChromaticAberrationsModule_Comp_2D_Pass::UploadUBO() {
     ZoneScoped;
     assert(IsEffectEnabled() != nullptr);
     m_UBO_Comp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
-    VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
 }
 
 void ChromaticAberrationsModule_Comp_2D_Pass::DestroyUBO() {

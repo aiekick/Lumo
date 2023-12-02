@@ -29,11 +29,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<CellShadingNode> CellShadingNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<CellShadingNode> CellShadingNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<CellShadingNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -50,7 +50,7 @@ CellShadingNode::~CellShadingNode()
 	Unit();
 }
 
-bool CellShadingNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool CellShadingNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "CellShading";
 
@@ -62,7 +62,7 @@ bool CellShadingNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_CellShadingModulePtr = CellShadingModule::Create(vVulkanCorePtr);
+	m_CellShadingModulePtr = CellShadingModule::Create(vVulkanCore);
 	if (m_CellShadingModulePtr)
 	{
 		res = true;

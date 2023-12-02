@@ -47,7 +47,7 @@ class BloomModule_Comp_2D_Pass :
 	public NodeInterface
 {
 public:
-    static std::shared_ptr<BloomModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<BloomModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	struct UBOComp {
@@ -67,7 +67,7 @@ private:
 	vk::DescriptorBufferInfo m_SBO_GaussianWeightsBufferInfo = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
 public:
-	BloomModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	BloomModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~BloomModule_Comp_2D_Pass() override;
     void ActionBeforeInit() override;
     void ActionBeforeCompilation() override;

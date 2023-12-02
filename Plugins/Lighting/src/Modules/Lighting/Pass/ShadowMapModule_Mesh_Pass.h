@@ -60,7 +60,7 @@ protected:
 	} m_PushConstants;
 
 public:
-	ShadowMapModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ShadowMapModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ShadowMapModule_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;

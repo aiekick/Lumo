@@ -106,11 +106,11 @@ private:
 	};
 
 public:
-	static std::shared_ptr<PrimitiveModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<PrimitiveModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<PrimitiveModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 	SceneModelPtr m_SceneModelPtr = nullptr;
 	std::vector<std::string> m_PrimitiveTypes;
 	int32_t m_PrimitiveTypeIndex = PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE;
@@ -134,7 +134,7 @@ private: // framework
 	bool m_HaveTextureCoords = false;
 
 public:
-	PrimitiveModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	PrimitiveModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~PrimitiveModule();
 
 	bool Init();

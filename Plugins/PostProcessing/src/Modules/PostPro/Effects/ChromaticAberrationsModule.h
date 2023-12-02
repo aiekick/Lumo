@@ -59,7 +59,7 @@ class ChromaticAberrationsModule :
 	public NodeInterface
 {
 public:
-	static std::shared_ptr<ChromaticAberrationsModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<ChromaticAberrationsModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<ChromaticAberrationsModule> m_This;
@@ -67,7 +67,7 @@ private:
 	std::shared_ptr<ChromaticAberrationsModule_Comp_2D_Pass> m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	ChromaticAberrationsModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ChromaticAberrationsModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ChromaticAberrationsModule() override;
 
 	bool Init();

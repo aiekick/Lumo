@@ -30,7 +30,7 @@ class SpecularNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<SpecularNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SpecularNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<SpecularModule> m_SpecularModulePtr = nullptr;
@@ -38,7 +38,7 @@ private:
 public:
 	SpecularNode();
 	~SpecularNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,
         ImGuiContext* vContextPtr = nullptr,

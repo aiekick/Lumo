@@ -58,7 +58,7 @@ class ModelShadowModule :
 	public LightGroupInputInterface
 {
 public:
-	static std::shared_ptr<ModelShadowModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ModelShadowModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<ModelShadowModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<ModelShadowModule_Quad_Pass> m_ModelShadowModule_Quad_Pass_Ptr = nullptr;
 
 public:
-	ModelShadowModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ModelShadowModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ModelShadowModule() override;
 
 	bool Init();

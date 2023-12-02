@@ -45,8 +45,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VisuHexGridModule_Vertex_Pass::VisuHexGridModule_Vertex_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: VertexShaderPass(vVulkanCorePtr)
+VisuHexGridModule_Vertex_Pass::VisuHexGridModule_Vertex_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: VertexShaderPass(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -73,9 +73,11 @@ void VisuHexGridModule_Vertex_Pass::ActionBeforeInit()
 	//m_LineWidth.y = 10.0f;	// max value
 	//m_LineWidth.z = 2.0f;	// default value
 	//m_LineWidth.w;			// value to change
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 }
 
@@ -144,9 +146,10 @@ void VisuHexGridModule_Vertex_Pass::SetTexture(const uint32_t& vBindingPoint, vk
 
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
 			}
-			else
-			{
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+			else {
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -187,7 +190,7 @@ bool VisuHexGridModule_Vertex_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Frag));
+	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "VisuHexGridModule_Vertex_Pass");
 	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBO_Frag_Ptr)
 	{
@@ -196,7 +199,7 @@ bool VisuHexGridModule_Vertex_Pass::CreateUBO()
 		m_UBO_Frag_BufferInfos.offset = 0;
 	}
 
-	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Vert));
+	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "VisuHexGridModule_Vertex_Pass");
 	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBO_Vert_Ptr)
 	{
@@ -214,8 +217,8 @@ void VisuHexGridModule_Vertex_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
 }
 
 void VisuHexGridModule_Vertex_Pass::DestroyUBO()

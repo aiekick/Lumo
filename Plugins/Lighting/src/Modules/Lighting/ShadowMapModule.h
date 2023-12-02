@@ -58,7 +58,7 @@ class ShadowMapModule :
 	public LightGroupOutputInterface
 {
 public:
-	static std::shared_ptr<ShadowMapModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ShadowMapModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<ShadowMapModule> m_This;
@@ -72,7 +72,7 @@ private:
 	void Unit();
 
 public:
-	ShadowMapModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ShadowMapModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ShadowMapModule() override;
 
 	void RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) override;

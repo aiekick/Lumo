@@ -24,7 +24,7 @@ class SpeakerSourceNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<SpeakerSourceNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SpeakerSourceNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<SpeakerSourceModule> m_SpeakerSourceModulePtr = nullptr;
@@ -34,7 +34,7 @@ public:
 	~SpeakerSourceNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Execute Task
 	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;

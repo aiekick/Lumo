@@ -1,7 +1,7 @@
 #pragma once
 
 #define MeshGen_Prefix "MeshGen"
-#define MeshGen_BuildNumber 366
+#define MeshGen_BuildNumber 378
 #define MeshGen_MinorNumber 0
 #define MeshGen_MajorNumber 0
-#define MeshGen_BuildId "0.0.366"
+#define MeshGen_BuildId "0.0.378"

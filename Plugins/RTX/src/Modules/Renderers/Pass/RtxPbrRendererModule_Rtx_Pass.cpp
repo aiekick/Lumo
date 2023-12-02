@@ -45,8 +45,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RtxPbrRendererModule_Rtx_Pass::RtxPbrRendererModule_Rtx_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: RtxShaderPass(vVulkanCorePtr)
+RtxPbrRendererModule_Rtx_Pass::RtxPbrRendererModule_Rtx_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: RtxShaderPass(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -75,9 +75,12 @@ void RtxPbrRendererModule_Rtx_Pass::ActionBeforeInit()
 
 	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 }
 
@@ -192,7 +195,10 @@ void RtxPbrRendererModule_Rtx_Pass::SetTexture(const uint32_t& vBindingPoint, vk
 					NeedNewUBOUpload();
 				}
 
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -231,7 +237,7 @@ bool RtxPbrRendererModule_Rtx_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Chit_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Chit));
+	m_UBO_Chit_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Chit), "RtxPbrRendererModule_Rtx_Pass");
 	m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBO_Chit_Ptr)
 	{
@@ -249,7 +255,7 @@ void RtxPbrRendererModule_Rtx_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Chit_Ptr, &m_UBO_Chit, sizeof(UBO_Chit));
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Chit_Ptr, &m_UBO_Chit, sizeof(UBO_Chit));
 }
 
 void RtxPbrRendererModule_Rtx_Pass::DestroyUBO()

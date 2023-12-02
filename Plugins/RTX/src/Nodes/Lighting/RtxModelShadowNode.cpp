@@ -30,11 +30,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<RtxModelShadowNode> RtxModelShadowNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RtxModelShadowNode> RtxModelShadowNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<RtxModelShadowNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -51,7 +51,7 @@ RtxModelShadowNode::~RtxModelShadowNode()
 	Unit();
 }
 
-bool RtxModelShadowNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool RtxModelShadowNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Rtx Model Shadow";
 
@@ -61,7 +61,7 @@ bool RtxModelShadowNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_RtxModelShadowModulePtr = RtxModelShadowModule::Create(vVulkanCorePtr);
+	m_RtxModelShadowModulePtr = RtxModelShadowModule::Create(vVulkanCore);
 	if (m_RtxModelShadowModulePtr)
 	{
 		res = true;

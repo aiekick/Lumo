@@ -43,10 +43,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PBRRenderer> PBRRenderer::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<PBRRenderer> PBRRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<PBRRenderer>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<PBRRenderer>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -59,8 +59,8 @@ std::shared_ptr<PBRRenderer> PBRRenderer::Create(GaiApi::VulkanCorePtr vVulkanCo
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PBRRenderer::PBRRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: TaskRenderer(vVulkanCorePtr)
+PBRRenderer::PBRRenderer(GaiApi::VulkanCoreWeak vVulkanCore)
+	: TaskRenderer(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -88,7 +88,7 @@ bool PBRRenderer::Init()
 
 	if (TaskRenderer::InitPixel(map_size))
 	{
-		m_PBRRenderer_Quad_Pass_Ptr = std::make_shared<PBRRenderer_Quad_Pass>(m_VulkanCorePtr);
+		m_PBRRenderer_Quad_Pass_Ptr = std::make_shared<PBRRenderer_Quad_Pass>(m_VulkanCore);
 		if (m_PBRRenderer_Quad_Pass_Ptr)
 		{
 			if (m_PBRRenderer_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

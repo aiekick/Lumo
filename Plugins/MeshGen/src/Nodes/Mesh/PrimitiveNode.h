@@ -23,7 +23,7 @@ class PrimitiveNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<PrimitiveNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<PrimitiveNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<PrimitiveModule> m_PrimitiveModulePtr = nullptr;
@@ -33,7 +33,7 @@ public:
 	~PrimitiveNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Draw Widgets
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;

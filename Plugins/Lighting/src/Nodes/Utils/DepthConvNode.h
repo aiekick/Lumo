@@ -29,7 +29,7 @@ class DepthConvNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<DepthConvNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<DepthConvNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<DepthConvModule> m_DepthConvModulePtr = nullptr;
@@ -37,7 +37,7 @@ private:
 public:
 	DepthConvNode();
 	~DepthConvNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,
         ImGuiContext* vContextPtr = nullptr,

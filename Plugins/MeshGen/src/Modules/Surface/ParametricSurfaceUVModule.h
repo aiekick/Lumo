@@ -58,11 +58,11 @@ private:
 	static constexpr size_t s_EXPR_MAX_LEN = 1024;
 
 public:
-	static std::shared_ptr<ParametricSurfaceUVModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<ParametricSurfaceUVModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<ParametricSurfaceUVModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 	SceneModelPtr m_SceneModelPtr = nullptr;
 
 private: // curve
@@ -84,7 +84,7 @@ private: // curve
 	ct::dvec3 m_CenterPoint;
 
 public:
-	ParametricSurfaceUVModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ParametricSurfaceUVModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ParametricSurfaceUVModule();
 
 	bool Init();

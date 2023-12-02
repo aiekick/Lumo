@@ -50,12 +50,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PlanetModule> PlanetModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+std::shared_ptr<PlanetModule> PlanetModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
     ZoneScoped;
 
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<PlanetModule>(vVulkanCorePtr);
+    auto res = std::make_shared<PlanetModule>(vVulkanCore);
     res->SetParentNode(vParentNode);
     res->m_This = res;
     if (!res->Init()) {
@@ -69,7 +67,7 @@ std::shared_ptr<PlanetModule> PlanetModule::Create(GaiApi::VulkanCorePtr vVulkan
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PlanetModule::PlanetModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) { ZoneScoped; }
+PlanetModule::PlanetModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) { ZoneScoped; }
 
 PlanetModule::~PlanetModule() {
     ZoneScoped;
@@ -90,10 +88,10 @@ bool PlanetModule::Init() {
 
     if (BaseRenderer::InitPixel(map_size)) {
         // SetExecutionWhenNeededOnly(true);
-        m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCorePtr);
+        m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCore);
         if (m_FrameBufferPtr && m_FrameBufferPtr->Init(map_size, 3U, true, true, 0.0f, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
             // ground pass
-            m_PlanetModule_Ground_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Ground_Mesh_Pass>(m_VulkanCorePtr);
+            m_PlanetModule_Ground_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Ground_Mesh_Pass>(m_VulkanCore);
             if (m_PlanetModule_Ground_Mesh_Pass_Ptr) {
                 m_PlanetModule_Ground_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
                 m_PlanetModule_Ground_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
@@ -107,7 +105,7 @@ bool PlanetModule::Init() {
             }
 
             // water pass
-            m_PlanetModule_Water_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Water_Mesh_Pass>(m_VulkanCorePtr);
+            m_PlanetModule_Water_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Water_Mesh_Pass>(m_VulkanCore);
             if (m_PlanetModule_Water_Mesh_Pass_Ptr) {
                 m_PlanetModule_Water_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
                 m_PlanetModule_Water_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
@@ -121,7 +119,7 @@ bool PlanetModule::Init() {
             }
 
             // atmosphere pass
-            /*m_PlanetModule_Atmosphere_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Atmosphere_Mesh_Pass>(m_VulkanCorePtr);
+            /*m_PlanetModule_Atmosphere_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Atmosphere_Mesh_Pass>(m_VulkanCore);
             if (m_PlanetModule_Atmosphere_Mesh_Pass_Ptr)
             {
                 m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);

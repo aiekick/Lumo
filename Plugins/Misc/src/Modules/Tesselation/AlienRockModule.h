@@ -56,7 +56,7 @@ class AlienRockModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<AlienRockModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<AlienRockModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<AlienRockModule> m_This;
@@ -64,7 +64,7 @@ private:
 	std::shared_ptr<AlienRockModule_Mesh_Pass> m_AlienRockModule_Mesh_Pass_Ptr = nullptr;
 
 public:
-	AlienRockModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	AlienRockModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~AlienRockModule() override;
 
 	bool Init();

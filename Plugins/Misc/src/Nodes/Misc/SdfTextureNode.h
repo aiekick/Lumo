@@ -28,7 +28,7 @@ class SdfTextureNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<SdfTextureNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SdfTextureNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<SdfTextureModule> m_SdfTextureModulePtr = nullptr;
@@ -36,7 +36,7 @@ private:
 public:
 	SdfTextureNode();
 	~SdfTextureNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,
         ImGuiContext* vContextPtr = nullptr,

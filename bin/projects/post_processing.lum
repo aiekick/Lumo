@@ -59,6 +59,43 @@
 			</graph>
 		</scene>
 		<plugins>
+			<AudiArt>
+			</AudiArt>
+			<BluePrints>
+			</BluePrints>
+			<CodeGenerator>
+				<custom_types>
+				</custom_types>
+				<root_path></root_path>
+				<scene>
+				</scene>
+			</CodeGenerator>
+			<Lighting>
+			</Lighting>
+			<MeshGen>
+			</MeshGen>
+			<MeshSim>
+			</MeshSim>
+			<Misc>
+			</Misc>
+			<Particles>
+			</Particles>
+			<PlanetSystem>
+			</PlanetSystem>
+			<PostProcessing>
+			</PostProcessing>
+			<RTX>
+			</RTX>
+			<ScreenSpace>
+			</ScreenSpace>
+			<SdfMesher>
+			</SdfMesher>
+			<Simulation>
+			</Simulation>
+			<Smoke>
+			</Smoke>
+			<UVDiffMap>
+			</UVDiffMap>
 		</plugins>
 	</project>
 </config>

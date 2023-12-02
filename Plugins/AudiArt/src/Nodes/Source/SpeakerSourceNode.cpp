@@ -33,13 +33,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SpeakerSourceNode> SpeakerSourceNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SpeakerSourceNode> SpeakerSourceNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<SpeakerSourceNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ SpeakerSourceNode::~SpeakerSourceNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SpeakerSourceNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SpeakerSourceNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -77,7 +77,7 @@ bool SpeakerSourceNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddOutput(NodeSlotSceneAudiArtOutput::Create("PCM L"), false, false);
 	AddOutput(NodeSlotSceneAudiArtOutput::Create("PCM R"), false, false);
 
-	m_SpeakerSourceModulePtr = SpeakerSourceModule::Create(vVulkanCorePtr, m_This);
+	m_SpeakerSourceModulePtr = SpeakerSourceModule::Create(vVulkanCore, m_This);
 	if (m_SpeakerSourceModulePtr)
 	{
 		res = true;

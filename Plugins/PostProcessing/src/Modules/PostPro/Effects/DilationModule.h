@@ -56,7 +56,7 @@ class DilationModule : public BaseRenderer,
                        public TextureOutputInterface,
                        public NodeInterface {
 public:
-    static std::shared_ptr<DilationModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+    static std::shared_ptr<DilationModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
     std::weak_ptr<DilationModule> m_This;
@@ -64,7 +64,7 @@ private:
     std::shared_ptr<DilationModule_Comp_2D_Pass> m_DilationModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-    DilationModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    DilationModule(GaiApi::VulkanCoreWeak vVulkanCore);
     ~DilationModule() override;
 
     bool Init();

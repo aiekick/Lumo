@@ -47,10 +47,8 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ToneMapModule> ToneMapModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<ToneMapModule>(vVulkanCorePtr);
+std::shared_ptr<ToneMapModule> ToneMapModule::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<ToneMapModule>(vVulkanCore);
     res->m_This = res;
     if (!res->Init()) {
         res.reset();
@@ -62,7 +60,7 @@ std::shared_ptr<ToneMapModule> ToneMapModule::Create(GaiApi::VulkanCorePtr vVulk
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ToneMapModule::ToneMapModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+ToneMapModule::ToneMapModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
 }
 
 ToneMapModule::~ToneMapModule() {
@@ -78,7 +76,7 @@ bool ToneMapModule::Init() {
 
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
         if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
             // by default but can be changed via widget
             m_ToneMapModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);

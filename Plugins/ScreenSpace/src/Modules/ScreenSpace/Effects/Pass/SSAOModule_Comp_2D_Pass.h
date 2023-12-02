@@ -46,7 +46,7 @@ class SSAOModule_Comp_2D_Pass :
     public EffectPass<4U>, // 1:pos, 2:nor, 3:noise, 4:source_color for blending only with pass not with nodes
 	public NodeInterface {
 public:
-    static std::shared_ptr<SSAOModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<SSAOModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
@@ -66,7 +66,7 @@ private:
 	} m_UBOComp;
 
 public:
-	SSAOModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SSAOModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SSAOModule_Comp_2D_Pass() override;
 
 	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;

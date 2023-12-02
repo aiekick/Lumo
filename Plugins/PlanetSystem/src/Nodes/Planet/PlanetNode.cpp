@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<PlanetNode> PlanetNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<PlanetNode> PlanetNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<PlanetNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ PlanetNode::~PlanetNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PlanetNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool PlanetNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -83,7 +83,7 @@ bool PlanetNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddOutput(NodeSlotTextureOutput::Create("Normal", 1), false, false);
 	AddOutput(NodeSlotTextureOutput::Create("Color", 2), false, false);
 
-	m_PlanetModulePtr = PlanetModule::Create(vVulkanCorePtr, m_This);
+	m_PlanetModulePtr = PlanetModule::Create(vVulkanCore, m_This);
 	if (m_PlanetModulePtr)
 	{
 		res = true;

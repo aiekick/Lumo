@@ -62,7 +62,7 @@ private:
 	uint32_t m_MaxIterations = 0;
 
 public:
-	SdfTextureModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SdfTextureModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SdfTextureModule_Comp_Pass() override;
 	void ActionBeforeInit();
 	void ActionBeforeCompilation();

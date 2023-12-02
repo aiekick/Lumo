@@ -58,7 +58,7 @@ class ReflectionModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<ReflectionModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<ReflectionModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<ReflectionModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<Reflection_Quad_Pass> m_Reflection_Quad_Pass_Ptr = nullptr;
 
 public:
-	ReflectionModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ReflectionModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ReflectionModule() override;
 
 	bool Init();

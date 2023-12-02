@@ -45,7 +45,7 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PlanetModule_Ground_Mesh_Pass::PlanetModule_Ground_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : MeshShaderPass<VertexStruct::P3_N3_C4>(vVulkanCorePtr, MeshShaderPassType::PIXEL) {
+PlanetModule_Ground_Mesh_Pass::PlanetModule_Ground_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : MeshShaderPass<VertexStruct::P3_N3_C4>(vVulkanCore, MeshShaderPassType::PIXEL) {
     ZoneScoped;
 
     SetRenderDocDebugName("Mesh Pass : Planet Ground", MESH_SHADER_PASS_DEBUG_COLOR);
@@ -72,8 +72,11 @@ void PlanetModule_Ground_Mesh_Pass::ActionBeforeInit() {
     m_LineWidth.z = 2.0f;   // default value
     m_LineWidth.w;          // value to change
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
     for (auto& info : m_ImageInfos) {
-        info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
     }
 }
 
@@ -186,7 +189,10 @@ void PlanetModule_Ground_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk
                 EnableTextureUse(vBindingPoint, 1U, m_UBO_Frag.u_use_normal_map);
                 EnableTextureUse(vBindingPoint, 2U, m_UBO_Frag.u_use_color_map);
             } else {
-                m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 
                 DisableTextureUse(vBindingPoint, 0U, m_UBO_Tess_Eval.u_use_height_map);
                 DisableTextureUse(vBindingPoint, 1U, m_UBO_Frag.u_use_normal_map);
@@ -404,7 +410,7 @@ void PlanetModule_Ground_Mesh_Pass::BuildMesh() {
 bool PlanetModule_Ground_Mesh_Pass::CreateUBO() {
     ZoneScoped;
 
-    m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Vert));
+    m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "PlanetModule_Ground_Mesh_Pass");
     m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
     if (m_UBO_Vert_Ptr) {
         m_UBO_Vert_BufferInfos.buffer = m_UBO_Vert_Ptr->buffer;
@@ -412,7 +418,7 @@ bool PlanetModule_Ground_Mesh_Pass::CreateUBO() {
         m_UBO_Vert_BufferInfos.offset = 0;
     }
 
-    m_UBO_Tess_Ctrl_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Tess_Ctrl));
+    m_UBO_Tess_Ctrl_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Tess_Ctrl), "PlanetModule_Ground_Mesh_Pass");
     m_UBO_Tess_Ctrl_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
     if (m_UBO_Tess_Ctrl_Ptr) {
         m_UBO_Tess_Ctrl_BufferInfos.buffer = m_UBO_Tess_Ctrl_Ptr->buffer;
@@ -420,7 +426,7 @@ bool PlanetModule_Ground_Mesh_Pass::CreateUBO() {
         m_UBO_Tess_Ctrl_BufferInfos.offset = 0;
     }
 
-    m_UBO_Tess_Eval_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Tess_Eval));
+    m_UBO_Tess_Eval_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Tess_Eval), "PlanetModule_Ground_Mesh_Pass");
     m_UBO_Tess_Eval_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
     if (m_UBO_Tess_Eval_Ptr) {
         m_UBO_Tess_Eval_BufferInfos.buffer = m_UBO_Tess_Eval_Ptr->buffer;
@@ -428,7 +434,7 @@ bool PlanetModule_Ground_Mesh_Pass::CreateUBO() {
         m_UBO_Tess_Eval_BufferInfos.offset = 0;
     }
 
-    m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Frag));
+    m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "PlanetModule_Ground_Mesh_Pass");
     m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
     if (m_UBO_Frag_Ptr) {
         m_UBO_Frag_BufferInfos.buffer = m_UBO_Frag_Ptr->buffer;
@@ -444,10 +450,10 @@ bool PlanetModule_Ground_Mesh_Pass::CreateUBO() {
 void PlanetModule_Ground_Mesh_Pass::UploadUBO() {
     ZoneScoped;
 
-    VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
-    VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Tess_Ctrl_Ptr, &m_UBO_Tess_Ctrl, sizeof(UBO_Tess_Ctrl));
-    VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Tess_Eval_Ptr, &m_UBO_Tess_Eval, sizeof(UBO_Tess_Eval));
-    VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Tess_Ctrl_Ptr, &m_UBO_Tess_Ctrl, sizeof(UBO_Tess_Ctrl));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Tess_Eval_Ptr, &m_UBO_Tess_Eval, sizeof(UBO_Tess_Eval));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
 }
 
 void PlanetModule_Ground_Mesh_Pass::DestroyUBO() {

@@ -55,7 +55,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	LongLatPeview_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	LongLatPeview_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~LongLatPeview_Quad_Pass() override;
 
 	void ActionBeforeInit() override;

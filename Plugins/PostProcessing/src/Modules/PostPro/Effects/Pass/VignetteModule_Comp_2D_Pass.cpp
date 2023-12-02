@@ -47,8 +47,8 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<VignetteModule_Comp_2D_Pass> VignetteModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    auto res_ptr = std::make_shared<VignetteModule_Comp_2D_Pass>(vVulkanCorePtr);
+std::shared_ptr<VignetteModule_Comp_2D_Pass> VignetteModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res_ptr = std::make_shared<VignetteModule_Comp_2D_Pass>(vVulkanCore);
     res_ptr->AllowResizeOnResizeEvents(false);
     res_ptr->AllowResizeByHandOrByInputs(true);
     if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
@@ -61,7 +61,7 @@ std::shared_ptr<VignetteModule_Comp_2D_Pass> VignetteModule_Comp_2D_Pass::Create
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VignetteModule_Comp_2D_Pass::VignetteModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : EffectPass(vVulkanCorePtr) {
+VignetteModule_Comp_2D_Pass::VignetteModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : EffectPass(vVulkanCore) {
     SetRenderDocDebugName("Comp Pass : Vignette", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
 }
@@ -72,8 +72,11 @@ VignetteModule_Comp_2D_Pass::~VignetteModule_Comp_2D_Pass() {
 
 void VignetteModule_Comp_2D_Pass::ActionBeforeInit() {
     // m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
     for (auto& info : m_ImageInfos) {
-        info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
     }
 }
 
@@ -130,7 +133,10 @@ void VignetteModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::
 
                 m_ImageInfos[vBindingPoint] = *vImageInfo;
             } else {
-                m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
             }
         }
     }
@@ -176,7 +182,7 @@ void VignetteModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, cons
 bool VignetteModule_Comp_2D_Pass::CreateUBO() {
     ZoneScoped;
 
-    m_UBOComp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_1_Comp));
+    m_UBOComp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_1_Comp), "VignetteModule_Comp_2D_Pass");
     m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
     if (m_UBOComp_Ptr) {
         m_UBOComp_BufferInfos.buffer = m_UBOComp_Ptr->buffer;
@@ -193,7 +199,7 @@ void VignetteModule_Comp_2D_Pass::UploadUBO() {
     ZoneScoped;
     assert(IsEffectEnabled() != nullptr);
     m_UBOComp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
-    VulkanRessource::upload(m_VulkanCorePtr, m_UBOComp_Ptr, &m_UBOComp, sizeof(UBO_1_Comp));
+    VulkanRessource::upload(m_VulkanCore, m_UBOComp_Ptr, &m_UBOComp, sizeof(UBO_1_Comp));
 }
 
 void VignetteModule_Comp_2D_Pass::DestroyUBO() {

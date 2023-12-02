@@ -73,8 +73,8 @@ protected:
 	vk::StridedDeviceAddressRegionKHR m_CallableShaderSbtEntry = {};
 
 public:
-	RtxShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr);
-	RtxShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr,
+	RtxShaderPass(GaiApi::VulkanCoreWeak vVulkanCore);
+	RtxShaderPass(GaiApi::VulkanCoreWeak vVulkanCore,
 		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
 protected:

@@ -153,13 +153,14 @@ private:
     bool m_CreateImGuiOverlay();
     bool m_CreateRenderers();
 
+    void m_DestroyRenderers();
+    void m_DestroyImGuiOverlay();
     void m_UnitNodes();
     void m_UnitPlugins();
     void m_UnitSystems();
     void m_DestroyVulkanWindow();
     void m_DestroyVulkanCore();
-    void m_DestroyImGuiOverlay();
-    void m_DestroyRenderers();
+    void m_UnitFilesTracker();
 
     void m_DeleteNodesIfAnys();
 

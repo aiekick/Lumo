@@ -27,11 +27,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<Layering2DNode> Layering2DNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<Layering2DNode> Layering2DNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<Layering2DNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -48,7 +48,7 @@ Layering2DNode::~Layering2DNode()
 	Unit();
 }
 
-bool Layering2DNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool Layering2DNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "2D Layering";
 
@@ -58,7 +58,7 @@ bool Layering2DNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_Layering2DModulePtr = Layering2DModule::Create(vVulkanCorePtr);
+	m_Layering2DModulePtr = Layering2DModule::Create(vVulkanCore);
 	if (m_Layering2DModulePtr)
 	{
 		res = true;

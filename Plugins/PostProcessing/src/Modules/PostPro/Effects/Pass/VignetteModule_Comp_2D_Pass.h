@@ -45,7 +45,7 @@ class VignetteModule_Comp_2D_Pass :
     public EffectPass<1U>,
 	public NodeInterface {
 public:
-    static std::shared_ptr<VignetteModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<VignetteModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	struct UBO_1_Comp {
@@ -57,7 +57,7 @@ private:
 	vk::DescriptorBufferInfo m_UBOComp_BufferInfos;
 
 public:
-	VignetteModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	VignetteModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~VignetteModule_Comp_2D_Pass() override;
 
 	void ActionBeforeInit() override;

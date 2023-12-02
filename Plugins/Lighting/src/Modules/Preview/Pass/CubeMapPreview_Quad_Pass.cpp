@@ -47,8 +47,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CubeMapPreview_Quad_Pass::CubeMapPreview_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
+CubeMapPreview_Quad_Pass::CubeMapPreview_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass : CubeMap Preview", QUAD_SHADER_PASS_DEBUG_COLOR);
 
@@ -60,11 +60,13 @@ CubeMapPreview_Quad_Pass::~CubeMapPreview_Quad_Pass()
 	Unit();
 }
 
-void CubeMapPreview_Quad_Pass::ActionBeforeInit()
-{
+void CubeMapPreview_Quad_Pass::ActionBeforeInit() {
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageCubeInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
+		info = *corePtr->getEmptyTextureCubeDescriptorImageInfo();
 	}
 }
 
@@ -138,7 +140,10 @@ void CubeMapPreview_Quad_Pass::SetTextureCube(const uint32_t& vBindingPoint, vk:
 					NeedNewUBOUpload();
 				}
 
-				m_ImageCubeInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+				m_ImageCubeInfos[vBindingPoint] = *corePtr->getEmptyTextureCubeDescriptorImageInfo();
 			}
 		}
 	}
@@ -178,7 +183,7 @@ bool CubeMapPreview_Quad_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
+	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "CubeMapPreview_Quad_Pass");
 	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBOFragPtr)
 	{
@@ -196,7 +201,7 @@ void CubeMapPreview_Quad_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void CubeMapPreview_Quad_Pass::DestroyUBO()

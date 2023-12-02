@@ -98,32 +98,32 @@ using namespace GaiApi;
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
             cpp_pass_file_code +=
                 u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCore);
 	if (!res_ptr->InitPixel(vSize, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1)))";
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
         cpp_pass_file_code +=
             u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const uint32_t& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const uint32_t& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCore);
 	if (!res_ptr->InitCompute1D(vSize)) {)";
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
         cpp_pass_file_code +=
             u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCore);
 	if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {)";
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
         cpp_pass_file_code +=
             u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec3& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec3& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCore);
 	if (!res_ptr->InitCompute3D(vSize)) {)";
     } else if (m_RendererType == RENDERER_TYPE_RTX) {
         cpp_pass_file_code +=
             u8R"(
-std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCorePtr);
+std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCore);
 	if (!res_ptr->InitRtx(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {)";
     }
 cpp_pass_file_code += u8R"(
@@ -136,47 +136,47 @@ cpp_pass_file_code += u8R"(
 ///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PASS_CLASS_NAME::PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
+PASS_CLASS_NAME::PASS_CLASS_NAME(GaiApi::VulkanCoreWeak vVulkanCore))";
 
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{
 		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
 		{
 			cpp_pass_file_code += u8R"(
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL))";
+	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL))";
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
 			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
 		{
 			cpp_pass_file_code += ct::toStr(u8R"(
-	: MeshShaderPass<VertexStruct::%s>(vVulkanCorePtr, MeshShaderPassType::PIXEL))", 
+	: MeshShaderPass<VertexStruct::%s>(vVulkanCore, MeshShaderPassType::PIXEL))", 
 				m_BaseTypes.m_VertexStructTypes[m_VertexStructTypesIndex].c_str());
 		}
 		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
 		{
 			cpp_pass_file_code += u8R"(
-	: VertexShaderPass(vVulkanCorePtr))";
+	: VertexShaderPass(vVulkanCore))";
 		}
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
 	{
 		cpp_pass_file_code += u8R"(
-	: ShaderPass(vVulkanCorePtr))";
+	: ShaderPass(vVulkanCore))";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
 	{
 		cpp_pass_file_code += u8R"(
-	: ShaderPass(vVulkanCorePtr))";
+	: ShaderPass(vVulkanCore))";
 	}
 	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
 	{
 		cpp_pass_file_code += u8R"(
-	: ShaderPass(vVulkanCorePtr))";
+	: ShaderPass(vVulkanCore))";
 	}
 	else if (m_RendererType == RENDERER_TYPE_RTX)
 	{
 		cpp_pass_file_code += u8R"(
-	: RtxShaderPass(vVulkanCorePtr))";
+	: RtxShaderPass(vVulkanCore))";
 	}
 
 	cpp_pass_file_code += u8R"( {)";
@@ -237,7 +237,7 @@ void PASS_CLASS_NAME::ActionBeforeInit() {
 	{
 		cpp_pass_file_code += u8R"(
 	for (auto& info : m_StorageBuffers)	{
-		info = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
+		info = corePtr->getEmptyDescriptorBufferInfo();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer])
@@ -247,21 +247,21 @@ void PASS_CLASS_NAME::ActionBeforeInit() {
 		info = nullptr;
 	}
 	for (auto& info : m_TexelBufferViews) {
-		info = m_VulkanCorePtr->getEmptyBufferView();
+		info = corePtr->getEmptyBufferView();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture])
 	{
 		cpp_pass_file_code += u8R"(
 	for (auto& info : m_ImageInfos)	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
 	{
 		cpp_pass_file_code += u8R"(
 	for (auto& info : m_ImageCubeInfos)	{
-		info = m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
+		info = corePtr->getEmptyTextureCubeDescriptorImageInfo();
 	})";
 	}
 	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup])
@@ -270,7 +270,7 @@ void PASS_CLASS_NAME::ActionBeforeInit() {
 	for (auto& infos : m_ImageGroups) {
 		for(auto& info : infos)
 		{
-			info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+			info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 		}
 	})";
 	}
@@ -353,7 +353,7 @@ bool PASS_CLASS_NAME::CreateSBO() {
 
 void PASS_CLASS_NAME::UploadSBO() {
 	ZoneScoped;
-	//VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+	//VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void PASS_CLASS_NAME::DestroySBO() {
@@ -562,23 +562,23 @@ public:)";
     if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
         h_pass_file_code +=
             u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);)";
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
         h_pass_file_code +=
             u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const uint32_t& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const uint32_t& vSize, GaiApi::VulkanCoreWeak vVulkanCore);)";
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
         h_pass_file_code +=
             u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);)";
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
         h_pass_file_code +=
             u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec3& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec3& vSize, GaiApi::VulkanCoreWeak vVulkanCore);)";
     } else if (m_RendererType == RENDERER_TYPE_RTX) {
         h_pass_file_code +=
             u8R"(
-	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);)";
+	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);)";
     }
 
     h_pass_file_code += u8R"(
@@ -593,7 +593,7 @@ private:)";
 	h_pass_file_code += u8R"(
 
 public:
-	PASS_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	PASS_CLASS_NAME(GaiApi::VulkanCoreWeak vVulkanCore);
 	~PASS_CLASS_NAME() override;
 )";
 

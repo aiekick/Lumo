@@ -34,7 +34,7 @@ class ModelShadowNode :
 	public ShaderUpdateInterface
 {
 public:
-	static std::shared_ptr<ModelShadowNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ModelShadowNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<ModelShadowModule> m_ModelShadowModulePtr = nullptr;
@@ -42,7 +42,7 @@ private:
 public:
 	ModelShadowNode();
 	~ModelShadowNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,

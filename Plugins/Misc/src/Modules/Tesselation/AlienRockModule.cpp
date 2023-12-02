@@ -48,12 +48,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<AlienRockModule> AlienRockModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<AlienRockModule> AlienRockModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<AlienRockModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<AlienRockModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -68,8 +68,8 @@ std::shared_ptr<AlienRockModule> AlienRockModule::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-AlienRockModule::AlienRockModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+AlienRockModule::AlienRockModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -97,7 +97,7 @@ bool AlienRockModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_AlienRockModule_Mesh_Pass_Ptr = std::make_shared<AlienRockModule_Mesh_Pass>(m_VulkanCorePtr);
+		m_AlienRockModule_Mesh_Pass_Ptr = std::make_shared<AlienRockModule_Mesh_Pass>(m_VulkanCore);
 		if (m_AlienRockModule_Mesh_Pass_Ptr)
 		{
 			// by default but can be changed via widget

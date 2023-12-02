@@ -44,8 +44,8 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Layering2DModule_Comp_Pass::Layering2DModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+Layering2DModule_Comp_Pass::Layering2DModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Comp Pass : 2D Layering", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
@@ -138,7 +138,10 @@ void Layering2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::D
 					m_UBOComp.use_input_color_buffer = 0.0f;
 				}
 
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -191,7 +194,7 @@ bool Layering2DModule_Comp_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "Layering2DModule_Comp_Pass");
 	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBOCompPtr)
 	{
@@ -200,9 +203,12 @@ bool Layering2DModule_Comp_Pass::CreateUBO()
 		m_UBOComp_BufferInfos.offset = 0;
 	}
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();
@@ -214,7 +220,7 @@ void Layering2DModule_Comp_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void Layering2DModule_Comp_Pass::DestroyUBO()

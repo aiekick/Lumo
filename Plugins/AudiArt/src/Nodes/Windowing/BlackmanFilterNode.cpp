@@ -34,12 +34,12 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<BlackmanFilterNode> BlackmanFilterNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+std::shared_ptr<BlackmanFilterNode> BlackmanFilterNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
     auto res = std::make_shared<BlackmanFilterNode>();
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
     }
 
@@ -62,7 +62,7 @@ BlackmanFilterNode::~BlackmanFilterNode() {
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BlackmanFilterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+bool BlackmanFilterNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     ZoneScoped;
 
     bool res = false;
@@ -73,7 +73,7 @@ bool BlackmanFilterNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
 
     AddOutput(NodeSlotSceneAudiArtOutput::Create(""), false, true);
 
-    m_BlackmanFilterModulePtr = BlackmanFilterModule::Create(vVulkanCorePtr, m_This);
+    m_BlackmanFilterModulePtr = BlackmanFilterModule::Create(vVulkanCore, m_This);
     if (m_BlackmanFilterModulePtr) {
         res = true;
     }

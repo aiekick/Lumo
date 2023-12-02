@@ -32,11 +32,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<ShadowMapNode> ShadowMapNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ShadowMapNode> ShadowMapNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<ShadowMapNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -53,7 +53,7 @@ ShadowMapNode::~ShadowMapNode()
 	Unit();
 }
 
-bool ShadowMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ShadowMapNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Shadow Map";
 
@@ -63,7 +63,7 @@ bool ShadowMapNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddOutput(NodeSlotTextureGroupOutput::Create("Outputs"), true, false);
 
 	bool res = false;
-	m_ShadowMapModulePtr = ShadowMapModule::Create(vVulkanCorePtr);
+	m_ShadowMapModulePtr = ShadowMapModule::Create(vVulkanCore);
 	if (m_ShadowMapModulePtr)
 	{
 		res = true;

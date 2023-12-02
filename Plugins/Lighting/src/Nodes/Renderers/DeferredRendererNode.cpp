@@ -32,13 +32,13 @@ limitations under the License.
 //// STATIC'S ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<DeferredRendererNode> DeferredRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<DeferredRendererNode> DeferredRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<DeferredRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -67,7 +67,7 @@ DeferredRendererNode::~DeferredRendererNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool DeferredRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool DeferredRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -87,7 +87,7 @@ bool DeferredRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
-	m_DeferredRendererPtr = DeferredRenderer::Create(vVulkanCorePtr);
+	m_DeferredRendererPtr = DeferredRenderer::Create(vVulkanCore);
 	if (m_DeferredRendererPtr)
 	{
 		res = true;

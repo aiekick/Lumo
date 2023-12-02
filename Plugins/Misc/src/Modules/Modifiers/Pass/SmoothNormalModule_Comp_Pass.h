@@ -61,7 +61,7 @@ private:
 	} m_PushConstants;
 
 public:
-	SmoothNormalModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SmoothNormalModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SmoothNormalModule_Comp_Pass() override;
 
 	void ActionBeforeInit();

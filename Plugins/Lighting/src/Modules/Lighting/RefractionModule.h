@@ -58,7 +58,7 @@ class RefractionModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<RefractionModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<RefractionModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<RefractionModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<Refraction_Quad_Pass> m_Refraction_Quad_Pass_Ptr = nullptr;
 
 public:
-	RefractionModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	RefractionModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~RefractionModule() override;
 
 	bool Init();

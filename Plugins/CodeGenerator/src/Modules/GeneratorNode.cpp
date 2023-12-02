@@ -33,10 +33,10 @@ namespace fs = std::filesystem;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-GeneratorNodePtr GeneratorNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+GeneratorNodePtr GeneratorNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     GeneratorNodePtr res = std::make_shared<GeneratorNode>();
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
         res = nullptr;
     }
@@ -168,13 +168,13 @@ class NODE_CLASS_NAME :)";
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<NODE_CLASS_NAME> NODE_CLASS_NAME::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<NODE_CLASS_NAME> NODE_CLASS_NAME::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<NODE_CLASS_NAME>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -200,7 +200,7 @@ NODE_CLASS_NAME::~NODE_CLASS_NAME()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NODE_CLASS_NAME::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool NODE_CLASS_NAME::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -221,7 +221,7 @@ bool NODE_CLASS_NAME::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
     if (m_GenerateAModule) {
         cpp_node_file_code +=
             u8R"(
-	m_MODULE_CLASS_NAMEPtr = MODULE_CLASS_NAME::Create(vVulkanCorePtr, m_This);
+	m_MODULE_CLASS_NAMEPtr = MODULE_CLASS_NAME::Create(vVulkanCore, m_This);
 	if (m_MODULE_CLASS_NAMEPtr)
 	{
 		res = true;
@@ -566,7 +566,7 @@ void NODE_CLASS_NAME::UpdateShaders(const std::set<std::string>& vFiles)
         u8R"(
 {
 public:
-	static std::shared_ptr<NODE_CLASS_NAME> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<NODE_CLASS_NAME> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 )";
 
     if (m_GenerateAModule) {
@@ -584,7 +584,7 @@ public:
 	~NODE_CLASS_NAME() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 )";
     if (m_IsATask) {
         h_node_file_code +=
@@ -2806,7 +2806,7 @@ void PASS_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 			}
 			else
 			{
-				m_StorageBuffers[vBindingPoint] = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
+				m_StorageBuffers[vBindingPoint] = corePtr->getEmptyDescriptorBufferInfo();
 			}
 		}
 	}
@@ -3095,7 +3095,7 @@ void PASS_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* 
 			}
 			else
 			{
-				m_TexelBuffers[vBindingPoint] = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
+				m_TexelBuffers[vBindingPoint] = corePtr->getEmptyDescriptorBufferInfo();
 			}
 		}
 	}
@@ -3120,7 +3120,7 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 			}
 			else
 			{
-				m_TexelBufferViews[vBindingPoint] = m_VulkanCorePtr->getEmptyDescriptorBufferInfo();
+				m_TexelBufferViews[vBindingPoint] = corePtr->getEmptyDescriptorBufferInfo();
 			}
 		}
 	}
@@ -3402,7 +3402,7 @@ void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 				}
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
 			} else {
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -3659,7 +3659,7 @@ void PASS_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 			}
 			else
 			{
-				m_ImageCubeInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+				m_ImageCubeInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -3904,7 +3904,7 @@ void PASS_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 			}
 			else
 			{
-				m_ImageGroups[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+				m_ImageGroups[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}

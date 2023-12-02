@@ -55,14 +55,14 @@ class MeshEmitterModule :
 	public ParticlesOutputInterface
 {
 public:
-	static std::shared_ptr<MeshEmitterModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<MeshEmitterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<MeshEmitterModule> m_This;
 	std::shared_ptr<MeshEmitterModule_Comp_Pass> m_MeshEmitterModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	MeshEmitterModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	MeshEmitterModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~MeshEmitterModule() override;
 
 	bool Init();

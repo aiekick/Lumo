@@ -59,7 +59,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	Reflection_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	Reflection_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~Reflection_Quad_Pass() override;
 
 	void ActionBeforeInit() override;

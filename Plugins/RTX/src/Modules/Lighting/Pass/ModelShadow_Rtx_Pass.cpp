@@ -44,8 +44,8 @@ using namespace GaiApi;
 
 #define RTX_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.6f, 0.2f, 0.9f, 0.5f)
 
-ModelShadow_Rtx_Pass::ModelShadow_Rtx_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: RtxShaderPass(vVulkanCorePtr)
+ModelShadow_Rtx_Pass::ModelShadow_Rtx_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: RtxShaderPass(vVulkanCore)
 {
 	ZoneScoped;
 
@@ -214,7 +214,7 @@ bool ModelShadow_Rtx_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBO_Rtx_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBO_Rtx));
+	m_UBO_Rtx_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Rtx), "ModelShadow_Rtx_Pass");
 	m_UBO_Rtx_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 	if (m_UBO_Rtx_Ptr)
 	{
@@ -232,7 +232,7 @@ void ModelShadow_Rtx_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBO_Rtx_Ptr, &m_UBO_Rtx, sizeof(UBO_Rtx));
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Rtx_Ptr, &m_UBO_Rtx, sizeof(UBO_Rtx));
 }
 
 void ModelShadow_Rtx_Pass::DestroyUBO()

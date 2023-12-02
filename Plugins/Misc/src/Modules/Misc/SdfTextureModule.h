@@ -56,7 +56,7 @@ class SdfTextureModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<SdfTextureModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SdfTextureModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<SdfTextureModule> m_This;
@@ -64,7 +64,7 @@ private:
 	std::shared_ptr<SdfTextureModule_Comp_Pass> m_SdfTextureModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	SdfTextureModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SdfTextureModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SdfTextureModule() override;
 
 	bool Init();

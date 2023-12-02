@@ -26,7 +26,7 @@ class LightGroupNode :
 	public LightGroupOutputInterface
 {
 public:
-	static std::shared_ptr<LightGroupNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<LightGroupNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<LightGroupModule> m_LightGroupModulePtr = nullptr;
@@ -34,7 +34,7 @@ private:
 public:
 	LightGroupNode();
 	~LightGroupNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,
         ImGuiContext* vContextPtr = nullptr,

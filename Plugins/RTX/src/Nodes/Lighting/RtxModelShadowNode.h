@@ -37,7 +37,7 @@ class RtxModelShadowNode :
 	public AccelStructureInputInterface
 {
 public:
-	static std::shared_ptr<RtxModelShadowNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<RtxModelShadowNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<RtxModelShadowModule> m_RtxModelShadowModulePtr = nullptr;
@@ -46,7 +46,7 @@ public:
 	RtxModelShadowNode();
 	~RtxModelShadowNode() override;
 	
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void Unit() override;
 
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;

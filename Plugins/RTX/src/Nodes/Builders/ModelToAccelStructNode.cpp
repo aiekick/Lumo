@@ -29,11 +29,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<ModelToAccelStructNode> ModelToAccelStructNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ModelToAccelStructNode> ModelToAccelStructNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<ModelToAccelStructNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -50,7 +50,7 @@ ModelToAccelStructNode::~ModelToAccelStructNode()
 	Unit();
 }
 
-bool ModelToAccelStructNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ModelToAccelStructNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Rtx BVH Builder";
 
@@ -59,7 +59,7 @@ bool ModelToAccelStructNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_SceneAccelStructurePtr = SceneAccelStructure::Create(vVulkanCorePtr);
+	m_SceneAccelStructurePtr = SceneAccelStructure::Create(vVulkanCore);
 	if (m_SceneAccelStructurePtr)
 	{
 		res = true;

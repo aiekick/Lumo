@@ -62,7 +62,7 @@ private:
 	} m_UBOComp;
 
 public:
-	ConwayModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ConwayModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ConwayModule_Comp_Pass() override;
 
 	void ActionBeforeInit() override;

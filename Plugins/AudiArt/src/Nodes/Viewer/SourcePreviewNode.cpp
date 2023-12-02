@@ -33,13 +33,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SourcePreviewNode> SourcePreviewNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SourcePreviewNode> SourcePreviewNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<SourcePreviewNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ SourcePreviewNode::~SourcePreviewNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SourcePreviewNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SourcePreviewNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -76,7 +76,7 @@ bool SourcePreviewNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotSceneAudiArtInput::Create("New Slot"), false, false);
 
 
-	m_SourcePreviewModulePtr = SourcePreviewModule::Create(vVulkanCorePtr, m_This);
+	m_SourcePreviewModulePtr = SourcePreviewModule::Create(vVulkanCore, m_This);
 	if (m_SourcePreviewModulePtr)
 	{
 		res = true;

@@ -59,13 +59,13 @@ class PosToDepthModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<PosToDepthModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<PosToDepthModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<PosToDepthModule_Quad_Pass> m_PosToDepthModule_Quad_Pass_Ptr = nullptr;
 
 public:
-	PosToDepthModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	PosToDepthModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~PosToDepthModule() override;
 
 	bool Init();

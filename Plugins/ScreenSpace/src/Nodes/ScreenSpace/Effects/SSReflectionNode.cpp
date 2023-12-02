@@ -33,13 +33,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSReflectionNode> SSReflectionNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SSReflectionNode> SSReflectionNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<SSReflectionNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ SSReflectionNode::~SSReflectionNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SSReflectionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SSReflectionNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -80,7 +80,7 @@ bool SSReflectionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_SSReflectionModulePtr = SSReflectionModule::Create(vVulkanCorePtr, m_This);
+	m_SSReflectionModulePtr = SSReflectionModule::Create(vVulkanCore, m_This);
 	if (m_SSReflectionModulePtr)
 	{
 		res = true;

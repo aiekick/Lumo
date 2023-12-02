@@ -46,10 +46,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ConwayModule> ConwayModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ConwayModule> ConwayModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ConwayModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<ConwayModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +62,8 @@ std::shared_ptr<ConwayModule> ConwayModule::Create(GaiApi::VulkanCorePtr vVulkan
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ConwayModule::ConwayModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+ConwayModule::ConwayModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +87,7 @@ bool ConwayModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_ConwayModule_Comp_Pass_Ptr = std::make_shared<ConwayModule_Comp_Pass>(m_VulkanCorePtr);
+		m_ConwayModule_Comp_Pass_Ptr = std::make_shared<ConwayModule_Comp_Pass>(m_VulkanCore);
 		if (m_ConwayModule_Comp_Pass_Ptr)
 		{
 			// by default but can be changed via widget

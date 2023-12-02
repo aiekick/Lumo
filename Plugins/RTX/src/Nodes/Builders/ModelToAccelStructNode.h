@@ -31,7 +31,7 @@ class ModelToAccelStructNode :
 	public AccelStructureOutputInterface
 {
 public:
-	static std::shared_ptr<ModelToAccelStructNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ModelToAccelStructNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	SceneAccelStructurePtr m_SceneAccelStructurePtr = nullptr;
@@ -40,7 +40,7 @@ public:
 	ModelToAccelStructNode();
 	~ModelToAccelStructNode() override;
 
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void Unit() override;
 	
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;

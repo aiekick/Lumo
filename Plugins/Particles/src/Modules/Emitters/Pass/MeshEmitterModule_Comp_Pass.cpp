@@ -36,12 +36,12 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshEmitterModule_Comp_Pass::MeshEmitterModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+MeshEmitterModule_Comp_Pass::MeshEmitterModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Comp Pass : Particles Simulation", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	m_ParticlesPtr = SceneParticles::Create(m_VulkanCorePtr);
+	m_ParticlesPtr = SceneParticles::Create(m_VulkanCore);
 
 	//m_DontUseShaderFilesOnDisk = true;
 }
@@ -172,8 +172,10 @@ SceneParticlesWeak MeshEmitterModule_Comp_Pass::GetParticles()
 
 void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
 {
-	if (vCmdBuffer)
-	{
+	if (vCmdBuffer) {
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+
 		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 
 		vCmdBuffer->pipelineBarrier(
@@ -186,7 +188,7 @@ void MeshEmitterModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const i
 
 		vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
-		m_PushConstants.delta_time = m_VulkanCorePtr->GetDeltaTime();
+		m_PushConstants.delta_time = corePtr->GetDeltaTime();
 		m_PushConstants.absolute_time += m_PushConstants.delta_time;
 		SetDispatchSize1D(1U);
 		ComputePass(vCmdBuffer, 0U); // reset
@@ -275,7 +277,7 @@ bool MeshEmitterModule_Comp_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOComp));
+	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "MeshEmitterModule_Comp_Pass");
 	if (m_UBOCompPtr && 
 		m_UBOCompPtr->buffer)
 	{
@@ -293,7 +295,7 @@ void MeshEmitterModule_Comp_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+	VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void MeshEmitterModule_Comp_Pass::DestroyUBO()
@@ -339,9 +341,12 @@ bool MeshEmitterModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
 	}
 	else
 	{
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+
 		m_DescriptorSets[0].m_WriteDescriptorSets.emplace_back(m_DescriptorSets[0].m_DescriptorSet, 0U, 0, 1, 
 			vk::DescriptorType::eStorageBuffer, 
-			nullptr, m_VulkanCorePtr->getEmptyDescriptorBufferInfo());
+			nullptr, corePtr->getEmptyDescriptorBufferInfo());
 	}
 
 	// Ubo

@@ -25,8 +25,8 @@ limitations under the License.
 //// STATIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneParticlesPtr SceneParticles::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    auto res = std::make_shared<SceneParticles>(vVulkanCorePtr);
+SceneParticlesPtr SceneParticles::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<SceneParticles>(vVulkanCore);
     res->m_This = res;
     return res;
 }
@@ -164,11 +164,11 @@ layout(std430, binding = %u) buffer SBO_DrawIndexedIndirectCommand
 //// PUBLIC : CTOR / DTOR /////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneParticles::SceneParticles(GaiApi::VulkanCorePtr vVulkanCorePtr) : m_VulkanCorePtr(vVulkanCorePtr) {
-    m_ParticlesDatasBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
-    m_AliveParticlesIndexBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
-    m_CountersBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
-    m_DrawArraysIndirectCommandBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCorePtr);
+SceneParticles::SceneParticles(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) {
+    m_ParticlesDatasBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCore);
+    m_AliveParticlesIndexBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCore);
+    m_CountersBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCore);
+    m_DrawArraysIndirectCommandBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCore);
 }
 
 SceneParticles::~SceneParticles() { Destroy(); }

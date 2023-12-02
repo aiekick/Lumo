@@ -53,16 +53,16 @@ class SubdivideModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<SubdivideModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<SubdivideModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<SubdivideModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 	SceneModelWeak m_InputModel;
 	SceneModelPtr m_OutputModelPtr = nullptr;
 
 public:
-	SubdivideModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SubdivideModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SubdivideModule();
 
 	bool Init();

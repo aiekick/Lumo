@@ -49,12 +49,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<LaplacianModule> LaplacianModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<LaplacianModule> LaplacianModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<LaplacianModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<LaplacianModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -69,8 +69,8 @@ std::shared_ptr<LaplacianModule> LaplacianModule::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LaplacianModule::LaplacianModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+LaplacianModule::LaplacianModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -98,7 +98,7 @@ bool LaplacianModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_LaplacianModule_Comp_2D_Pass_Ptr = std::make_shared<LaplacianModule_Comp_2D_Pass>(m_VulkanCorePtr);
+		m_LaplacianModule_Comp_2D_Pass_Ptr = std::make_shared<LaplacianModule_Comp_2D_Pass>(m_VulkanCore);
 		if (m_LaplacianModule_Comp_2D_Pass_Ptr)
 		{
 			// by default but can be changed via widget

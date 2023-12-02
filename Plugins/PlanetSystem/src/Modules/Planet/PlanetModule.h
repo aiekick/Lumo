@@ -59,7 +59,7 @@ class PlanetModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<PlanetModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<PlanetModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<PlanetModule> m_This;
@@ -69,7 +69,7 @@ private:
 	FrameBufferPtr m_FrameBufferPtr = nullptr;
 
 public:
-	PlanetModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	PlanetModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~PlanetModule() override;
 
 	bool Init();

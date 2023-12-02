@@ -58,14 +58,14 @@ class BlackmanFilterModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<BlackmanFilterModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<BlackmanFilterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<BlackmanFilterModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	BlackmanFilterModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	BlackmanFilterModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~BlackmanFilterModule();
 
 	bool Init();

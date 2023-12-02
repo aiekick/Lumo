@@ -44,12 +44,12 @@ class LightGroupModule :
 	public TaskInterface
 {
 public:
-	static LightGroupModulePtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static LightGroupModulePtr Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	LightGroupModuleWeak m_This;
 	SceneLightGroupPtr m_SceneLightGroupPtr = nullptr;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 
 private: // imgui
 	ct::fvec4 m_DefaultLightGroupColor = 1.0f;
@@ -59,7 +59,7 @@ private: // imgui
 	bool m_FirstXmlLightGroup = true;
 
 public:
-	LightGroupModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	LightGroupModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~LightGroupModule();
 
 	bool Init();

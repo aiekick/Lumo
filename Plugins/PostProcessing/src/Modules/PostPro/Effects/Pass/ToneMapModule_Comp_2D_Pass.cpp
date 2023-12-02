@@ -48,8 +48,8 @@ use the code from https://dmnsgn.github.io/glsl-tone-map/
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ToneMapModule_Comp_2D_Pass> ToneMapModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    auto res_ptr = std::make_shared<ToneMapModule_Comp_2D_Pass>(vVulkanCorePtr);
+std::shared_ptr<ToneMapModule_Comp_2D_Pass> ToneMapModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res_ptr = std::make_shared<ToneMapModule_Comp_2D_Pass>(vVulkanCore);
     if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
         res_ptr.reset();
     }
@@ -60,8 +60,8 @@ std::shared_ptr<ToneMapModule_Comp_2D_Pass> ToneMapModule_Comp_2D_Pass::Create(c
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ToneMapModule_Comp_2D_Pass::ToneMapModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) 
-    : EffectPass(vVulkanCorePtr) {
+ToneMapModule_Comp_2D_Pass::ToneMapModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore) 
+    : EffectPass(vVulkanCore) {
     SetRenderDocDebugName("Comp Pass : Tone Map", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
 }
@@ -206,7 +206,10 @@ void ToneMapModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::D
 
                 m_ImageInfos[vBindingPoint] = *vImageInfo;
             } else {
-                m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
             }
         }
     }
@@ -228,13 +231,16 @@ bool ToneMapModule_Comp_2D_Pass::CreateUBO() {
     ZoneScoped;
 
     auto size_in_bytes = sizeof(UBOComp);
-    m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
+    m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes, "ToneMapModule_Comp_2D_Pass");
     m_DescriptorBufferInfo_Comp.buffer = m_UBOCompPtr->buffer;
     m_DescriptorBufferInfo_Comp.range = size_in_bytes;
     m_DescriptorBufferInfo_Comp.offset = 0;
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
     for (auto& info : m_ImageInfos) {
-        info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
     }
 
     NeedNewUBOUpload();
@@ -246,7 +252,7 @@ void ToneMapModule_Comp_2D_Pass::UploadUBO() {
     ZoneScoped;
     assert(IsEffectEnabled() != nullptr);
     m_UBOComp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
-    VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+    VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void ToneMapModule_Comp_2D_Pass::DestroyUBO() {

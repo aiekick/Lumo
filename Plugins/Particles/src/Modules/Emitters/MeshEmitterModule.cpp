@@ -38,10 +38,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MeshEmitterModule> MeshEmitterModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<MeshEmitterModule> MeshEmitterModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MeshEmitterModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<MeshEmitterModule>(vVulkanCore);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -55,8 +55,8 @@ std::shared_ptr<MeshEmitterModule> MeshEmitterModule::Create(GaiApi::VulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MeshEmitterModule::MeshEmitterModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+MeshEmitterModule::MeshEmitterModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -80,7 +80,7 @@ bool MeshEmitterModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_MeshEmitterModule_Comp_Pass_Ptr = std::make_shared<MeshEmitterModule_Comp_Pass>(m_VulkanCorePtr);
+		m_MeshEmitterModule_Comp_Pass_Ptr = std::make_shared<MeshEmitterModule_Comp_Pass>(m_VulkanCore);
 		if (m_MeshEmitterModule_Comp_Pass_Ptr)
 		{
 			m_MeshEmitterModule_Comp_Pass_Ptr->SetParentNode(GetParentNode());

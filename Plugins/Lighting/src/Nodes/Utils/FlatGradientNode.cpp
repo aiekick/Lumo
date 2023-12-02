@@ -35,13 +35,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<FlatGradientNode> FlatGradientNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<FlatGradientNode> FlatGradientNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<FlatGradientNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -67,7 +67,7 @@ FlatGradientNode::~FlatGradientNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool FlatGradientNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool FlatGradientNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -80,7 +80,7 @@ bool FlatGradientNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_FlatGradientModulePtr = FlatGradientModule::Create(vVulkanCorePtr, m_This);
+	m_FlatGradientModulePtr = FlatGradientModule::Create(vVulkanCore, m_This);
 	if (m_FlatGradientModulePtr)
 	{
 		res = true;

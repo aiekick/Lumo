@@ -48,10 +48,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SdfTextureModule> SdfTextureModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SdfTextureModule> SdfTextureModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SdfTextureModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<SdfTextureModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -64,8 +64,8 @@ std::shared_ptr<SdfTextureModule> SdfTextureModule::Create(GaiApi::VulkanCorePtr
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SdfTextureModule::SdfTextureModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+SdfTextureModule::SdfTextureModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -93,7 +93,7 @@ bool SdfTextureModule::Init()
 		// will be executed when the mesh will be updated
 		SetExecutionWhenNeededOnly(true);
 
-		m_SdfTextureModule_Comp_Pass_Ptr = std::make_shared<SdfTextureModule_Comp_Pass>(m_VulkanCorePtr);
+		m_SdfTextureModule_Comp_Pass_Ptr = std::make_shared<SdfTextureModule_Comp_Pass>(m_VulkanCore);
 		if (m_SdfTextureModule_Comp_Pass_Ptr)
 		{
 			if (m_SdfTextureModule_Comp_Pass_Ptr->InitCompute2D(map_size, 2U, false, vk::Format::eR32G32B32A32Sfloat))

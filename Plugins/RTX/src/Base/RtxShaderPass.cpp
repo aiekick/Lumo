@@ -35,16 +35,20 @@ using namespace GaiApi;
 #define ZoneScoped
 #endif
 
-RtxShaderPass::RtxShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr) : ShaderPass(vVulkanCorePtr, GenericType::RTX) {
-    auto devPtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+RtxShaderPass::RtxShaderPass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore, GenericType::RTX) {
+    auto corePtr = vVulkanCore.lock();
+    assert(corePtr != nullptr);
+    auto devPtr = corePtr->getFrameworkDevice().lock();
     if (devPtr) {
         m_RayTracingPipelineProperties = devPtr->m_RayTracingDeviceProperties;
     }
 }
 
-RtxShaderPass::RtxShaderPass(GaiApi::VulkanCorePtr vVulkanCorePtr, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
-    : ShaderPass(vVulkanCorePtr, GenericType::RTX, vCommandPool, vDescriptorPool) {
-    auto devPtr = m_VulkanCorePtr->getFrameworkDevice().lock();
+RtxShaderPass::RtxShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
+    : ShaderPass(vVulkanCore, GenericType::RTX, vCommandPool, vDescriptorPool) {
+    auto corePtr = vVulkanCore.lock();
+    assert(corePtr != nullptr);
+    auto devPtr = corePtr->getFrameworkDevice().lock();
     if (devPtr) {
         m_RayTracingPipelineProperties = devPtr->m_RayTracingDeviceProperties;
     }
@@ -73,8 +77,6 @@ bool RtxShaderPass::BuildModel() {
 
 void RtxShaderPass::DestroyModel(const bool& vReleaseDatas) {
     ZoneScoped;
-
-    m_VulkanCorePtr->getDevice().waitIdle();
 }
 
 bool RtxShaderPass::CreateRtxPipeline() {
@@ -215,19 +217,20 @@ bool RtxShaderPass::CreateShaderBindingTable() {
         const auto bufferUsageFlags =
             vk::BufferUsageFlagBits::eShaderBindingTableKHR | vk::BufferUsageFlagBits::eTransferSrc | vk::BufferUsageFlagBits::eShaderDeviceAddress;
         m_RayGenShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(
-            m_VulkanCorePtr, handle_size_aligned * (uint32_t)rgen_index.size(), bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+            m_VulkanCore, handle_size_aligned * (uint32_t)rgen_index.size(), bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU, "RtxShaderPass");
         m_RayMissShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(
-            m_VulkanCorePtr, handle_size_aligned * (uint32_t)miss_index.size(), bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+            m_VulkanCore, handle_size_aligned * (uint32_t)miss_index.size(), bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU, "RtxShaderPass");
         m_RayHitShaderBindingTablePtr = VulkanRessource::createStorageBufferObject(
-            m_VulkanCorePtr, handle_size_aligned * (uint32_t)hit_index.size(), bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU);
+            m_VulkanCore, handle_size_aligned * (uint32_t)hit_index.size(), bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU, "RtxShaderPass");
 
         if (m_RayGenShaderBindingTablePtr && m_RayMissShaderBindingTablePtr && m_RayHitShaderBindingTablePtr) {
             // Copy the pipeline's shader handles into a host buffer
             const auto group_count = static_cast<uint32_t>(rgen_index.size() + miss_index.size() + hit_index.size());
             const auto sbt_size = group_count * handle_size_aligned;
             std::vector<uint8_t> shader_handle_storage(sbt_size);
-
-            if (m_VulkanCorePtr->getDevice().getRayTracingShaderGroupHandlesKHR(
+            auto corePtr = m_VulkanCore.lock();
+            assert(corePtr != nullptr);
+            if (corePtr->getDevice().getRayTracingShaderGroupHandlesKHR(
                     m_Pipelines[0].m_Pipeline, 0, group_count, sbt_size, shader_handle_storage.data()) == vk::Result::eSuccess) {
                 // Write the handles in the SBT buffer
                 auto copyHandles = [&](VulkanBufferObjectPtr vBufferPtr, std::vector<uint32_t>& indices, uint32_t stride) {

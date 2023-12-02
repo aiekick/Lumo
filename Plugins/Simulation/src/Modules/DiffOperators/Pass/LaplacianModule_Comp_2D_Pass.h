@@ -73,7 +73,7 @@ private:
 
 
 public:
-	LaplacianModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	LaplacianModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~LaplacianModule_Comp_2D_Pass() override;
 
 	void ActionBeforeInit() override;

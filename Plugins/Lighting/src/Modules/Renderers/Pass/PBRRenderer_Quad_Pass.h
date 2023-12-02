@@ -86,7 +86,7 @@ private:
 	std::string m_FragmentShaderCode;
 
 public:
-	PBRRenderer_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	PBRRenderer_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~PBRRenderer_Quad_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;

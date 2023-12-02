@@ -92,7 +92,7 @@ private:
 	m_PushConstants;
 
 public:
-	MeshEmitterModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	MeshEmitterModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~MeshEmitterModule_Comp_Pass() override;
 
 	void ActionBeforeInit() override;

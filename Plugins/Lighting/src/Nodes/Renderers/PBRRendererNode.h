@@ -39,7 +39,7 @@ class PBRRendererNode :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<PBRRendererNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<PBRRendererNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<PBRRenderer> m_PBRRendererPtr = nullptr;
@@ -47,7 +47,7 @@ private:
 public:
 	PBRRendererNode();
 	~PBRRendererNode() override;
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 	void Unit() override;
 	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame,

@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<GradientNode> GradientNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<GradientNode> GradientNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<GradientNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ GradientNode::~GradientNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool GradientNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool GradientNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -77,7 +77,7 @@ bool GradientNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_GradientModulePtr = GradientModule::Create(vVulkanCorePtr, m_This);
+	m_GradientModulePtr = GradientModule::Create(vVulkanCore, m_This);
 	if (m_GradientModulePtr)
 	{
 		res = true;

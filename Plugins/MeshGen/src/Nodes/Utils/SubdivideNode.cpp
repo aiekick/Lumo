@@ -26,13 +26,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SubdivideNode> SubdivideNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SubdivideNode> SubdivideNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<SubdivideNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -58,7 +58,7 @@ SubdivideNode::~SubdivideNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SubdivideNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SubdivideNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -69,7 +69,7 @@ bool SubdivideNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotModelOutput::Create("Model"), false, false);
 
-	m_SubdivideModulePtr = SubdivideModule::Create(vVulkanCorePtr, m_This);
+	m_SubdivideModulePtr = SubdivideModule::Create(vVulkanCore, m_This);
 	if (m_SubdivideModulePtr)
 	{
 		res = true;

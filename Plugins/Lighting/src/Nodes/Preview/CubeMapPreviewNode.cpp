@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<CubeMapPreviewNode> CubeMapPreviewNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<CubeMapPreviewNode> CubeMapPreviewNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<CubeMapPreviewNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ CubeMapPreviewNode::~CubeMapPreviewNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapPreviewNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool CubeMapPreviewNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -76,7 +76,7 @@ bool CubeMapPreviewNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureCubeInput::Create("CubeMap", 0), false, false);
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_CubeMapPreviewModulePtr = CubeMapPreviewModule::Create(vVulkanCorePtr, m_This);
+	m_CubeMapPreviewModulePtr = CubeMapPreviewModule::Create(vVulkanCore, m_This);
 	if (m_CubeMapPreviewModulePtr)
 	{
 		res = true;

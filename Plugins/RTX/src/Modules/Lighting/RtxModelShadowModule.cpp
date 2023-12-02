@@ -41,10 +41,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<RtxModelShadowModule> RtxModelShadowModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RtxModelShadowModule> RtxModelShadowModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<RtxModelShadowModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<RtxModelShadowModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -57,8 +57,8 @@ std::shared_ptr<RtxModelShadowModule> RtxModelShadowModule::Create(GaiApi::Vulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RtxModelShadowModule::RtxModelShadowModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+RtxModelShadowModule::RtxModelShadowModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -82,7 +82,7 @@ bool RtxModelShadowModule::Init()
 
 	if (BaseRenderer::InitRtx(map_size))
 	{
-		m_ModelShadow_Rtx_Pass_Ptr = std::make_shared<ModelShadow_Rtx_Pass>(m_VulkanCorePtr);
+		m_ModelShadow_Rtx_Pass_Ptr = std::make_shared<ModelShadow_Rtx_Pass>(m_VulkanCore);
 		if (m_ModelShadow_Rtx_Pass_Ptr)
 		{
 			if (m_ModelShadow_Rtx_Pass_Ptr->InitRtx(map_size, 

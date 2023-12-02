@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<VignetteNode> VignetteNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<VignetteNode> VignetteNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<VignetteNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ VignetteNode::~VignetteNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VignetteNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool VignetteNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -76,7 +76,7 @@ bool VignetteNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_VignetteModulePtr = VignetteModule::Create(vVulkanCorePtr, m_This);
+	m_VignetteModulePtr = VignetteModule::Create(vVulkanCore, m_This);
 	if (m_VignetteModulePtr)
 	{
 		res = true;

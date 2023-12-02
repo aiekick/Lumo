@@ -28,13 +28,13 @@ private:
     DescriptorImageInfoVector m_Textures;
 
 public:
-    static std::shared_ptr<BreakTexturesGroupNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<BreakTexturesGroupNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 public:
     BreakTexturesGroupNode();
     ~BreakTexturesGroupNode() override;
 
-    bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
     void Unit() override;
 
     bool ExecuteAllTime(const uint32_t& vCurrentFrame,

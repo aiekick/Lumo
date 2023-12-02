@@ -56,7 +56,7 @@ class SmoothNormalModule :
 	public ModelOutputInterface
 {
 public:
-	static std::shared_ptr<SmoothNormalModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<SmoothNormalModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<SmoothNormalModule> m_This;
@@ -64,7 +64,7 @@ private:
 	std::shared_ptr<SmoothNormalModule_Comp_Pass> m_SmoothNormalModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	SmoothNormalModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SmoothNormalModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SmoothNormalModule() override;
 
 	bool Init();

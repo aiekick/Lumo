@@ -46,10 +46,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<ShadowMapModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<ShadowMapModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +62,8 @@ std::shared_ptr<ShadowMapModule> ShadowMapModule::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ShadowMapModule::ShadowMapModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+ShadowMapModule::ShadowMapModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -92,7 +92,7 @@ bool ShadowMapModule::Init()
 		bool res = true;
 		for (size_t i = 0U; i < 8U; ++i)
 		{
-			m_FrameBuffers[i] = FrameBuffer::Create(m_VulkanCorePtr);
+			m_FrameBuffers[i] = FrameBuffer::Create(m_VulkanCore);
 			if (m_FrameBuffers[i])
 			{
 				if (i == 0U)
@@ -115,7 +115,7 @@ bool ShadowMapModule::Init()
 
 		if (res)
 		{
-			m_ShadowMapModule_Mesh_Pass_Ptr = std::make_shared<ShadowMapModule_Mesh_Pass>(m_VulkanCorePtr);
+			m_ShadowMapModule_Mesh_Pass_Ptr = std::make_shared<ShadowMapModule_Mesh_Pass>(m_VulkanCore);
 			if (m_ShadowMapModule_Mesh_Pass_Ptr)
 			{
 				if (m_ShadowMapModule_Mesh_Pass_Ptr->InitPixelWithoutFBO(

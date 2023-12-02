@@ -77,7 +77,7 @@ private:
 	} m_UBOComp;
 
 public:
-	Layering2DModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	Layering2DModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~Layering2DModule_Comp_Pass() override;
 
 	void WasJustResized() override;

@@ -48,10 +48,10 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 
 std::shared_ptr<SmoothNormalModule> SmoothNormalModule::Create(
-	GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+	GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<SmoothNormalModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<SmoothNormalModule>(vVulkanCore);
 	res->m_This = res;
 	res->SetParentNode(vParentNode);
 	if (!res->Init())
@@ -65,8 +65,8 @@ std::shared_ptr<SmoothNormalModule> SmoothNormalModule::Create(
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SmoothNormalModule::SmoothNormalModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+SmoothNormalModule::SmoothNormalModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -94,7 +94,7 @@ bool SmoothNormalModule::Init()
 
 	if (BaseRenderer::InitCompute3D(map_size))
 	{
-		m_SmoothNormalModule_Comp_Pass_Ptr = std::make_shared<SmoothNormalModule_Comp_Pass>(m_VulkanCorePtr);
+		m_SmoothNormalModule_Comp_Pass_Ptr = std::make_shared<SmoothNormalModule_Comp_Pass>(m_VulkanCore);
 		if (m_SmoothNormalModule_Comp_Pass_Ptr)
 		{
 			if (m_SmoothNormalModule_Comp_Pass_Ptr->InitCompute3D(map_size))

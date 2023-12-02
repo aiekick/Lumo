@@ -47,8 +47,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Reflection_Quad_Pass::Reflection_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
+Reflection_Quad_Pass::Reflection_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass : Reflection", QUAD_SHADER_PASS_DEBUG_COLOR);
 
@@ -60,16 +60,18 @@ Reflection_Quad_Pass::~Reflection_Quad_Pass()
 	Unit();
 }
 
-void Reflection_Quad_Pass::ActionBeforeInit()
-{
+void Reflection_Quad_Pass::ActionBeforeInit() {
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	for (auto& info : m_ImageCubeInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
+		info = *corePtr->getEmptyTextureCubeDescriptorImageInfo();
 	}
 }
 
@@ -143,7 +145,10 @@ void Reflection_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 					NeedNewUBOUpload();
 				}
 
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -184,7 +189,10 @@ void Reflection_Quad_Pass::SetTextureCube(const uint32_t& vBindingPoint, vk::Des
 					NeedNewUBOUpload();
 				}
 
-				m_ImageCubeInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTextureCubeDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+				m_ImageCubeInfos[vBindingPoint] = *corePtr->getEmptyTextureCubeDescriptorImageInfo();
 			}
 		}
 	}
@@ -222,7 +230,7 @@ bool Reflection_Quad_Pass::CreateUBO()
 {
 	ZoneScoped;
 
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, sizeof(UBOFrag));
+	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "Reflection_Quad_Pass");
 	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_UBOFragPtr)
 	{
@@ -240,7 +248,7 @@ void Reflection_Quad_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void Reflection_Quad_Pass::DestroyUBO()

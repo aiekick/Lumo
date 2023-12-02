@@ -71,7 +71,7 @@ private:
 
 
 public:
-	DivergenceModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	DivergenceModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~DivergenceModule_Comp_2D_Pass() override;
 
 	void ActionBeforeInit() override;

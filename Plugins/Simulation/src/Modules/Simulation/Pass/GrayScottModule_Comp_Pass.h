@@ -70,7 +70,7 @@ private:
 	} m_UBOComp;
 
 public:
-	GrayScottModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	GrayScottModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~GrayScottModule_Comp_Pass() override;
 
 	void ActionBeforeInit() override;

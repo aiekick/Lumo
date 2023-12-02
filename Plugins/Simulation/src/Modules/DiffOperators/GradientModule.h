@@ -58,7 +58,7 @@ class GradientModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<GradientModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<GradientModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<GradientModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<GradientModule_Comp_2D_Pass> m_GradientModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	GradientModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	GradientModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~GradientModule() override;
 
 	bool Init();

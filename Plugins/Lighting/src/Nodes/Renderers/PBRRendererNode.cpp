@@ -32,11 +32,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<PBRRendererNode> PBRRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<PBRRendererNode> PBRRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<PBRRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -53,7 +53,7 @@ PBRRendererNode::~PBRRendererNode()
 	Unit();
 }
 
-bool PBRRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool PBRRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "PBR Renderer";
 
@@ -69,7 +69,7 @@ bool PBRRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_PBRRendererPtr = PBRRenderer::Create(vVulkanCorePtr);
+	m_PBRRendererPtr = PBRRenderer::Create(vVulkanCore);
 	if (m_PBRRendererPtr)
 	{
 		res = true;

@@ -23,7 +23,7 @@ limitations under the License.
 class DilationModule;
 class DilationNode : public TextureInputInterface<0U>, public TextureOutputInterface, public ShaderUpdateInterface, public BaseNode {
 public:
-    static std::shared_ptr<DilationNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<DilationNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
     std::shared_ptr<DilationModule> m_DilationModulePtr = nullptr;
@@ -33,7 +33,7 @@ public:
     ~DilationNode() override;
 
     // Init / Unit
-    bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
     // Execute Task
     bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;

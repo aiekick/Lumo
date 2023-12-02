@@ -61,7 +61,7 @@ private:
 
 
 public:
-	FlatGradientModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	FlatGradientModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~FlatGradientModule_Comp_2D_Pass() override;
 
 	void ActionBeforeInit() override;

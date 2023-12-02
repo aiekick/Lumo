@@ -46,7 +46,7 @@ class BlurModule_Comp_2D_Pass :
 	public EffectPass<1U>,
 	public NodeInterface {
 public:
-    static std::shared_ptr<BlurModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<BlurModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	bool m_UseDistinctiveBlurRadiusVH = false;						// to save
@@ -75,7 +75,7 @@ private:
 	} m_Gaussian_V, m_Gaussian_H;
 
 public:
-	BlurModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	BlurModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	virtual ~BlurModule_Comp_2D_Pass();
 
 	void ActionBeforeInit() override;

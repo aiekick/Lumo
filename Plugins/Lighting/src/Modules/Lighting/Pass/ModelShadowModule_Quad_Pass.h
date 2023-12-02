@@ -67,7 +67,7 @@ protected:
 	} m_UBOFrag;
 
 public:
-	ModelShadowModule_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ModelShadowModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ModelShadowModule_Quad_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;

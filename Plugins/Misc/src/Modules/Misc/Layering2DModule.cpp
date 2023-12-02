@@ -46,10 +46,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<Layering2DModule> Layering2DModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<Layering2DModule> Layering2DModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<Layering2DModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<Layering2DModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +62,8 @@ std::shared_ptr<Layering2DModule> Layering2DModule::Create(GaiApi::VulkanCorePtr
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Layering2DModule::Layering2DModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+Layering2DModule::Layering2DModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +87,7 @@ bool Layering2DModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_Layering2DModule_Comp_Pass_Ptr = std::make_shared<Layering2DModule_Comp_Pass>(m_VulkanCorePtr);
+		m_Layering2DModule_Comp_Pass_Ptr = std::make_shared<Layering2DModule_Comp_Pass>(m_VulkanCore);
 		if (m_Layering2DModule_Comp_Pass_Ptr)
 		{
 			// will be resized ot input size

@@ -59,13 +59,13 @@ class DepthConvModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<DepthConvModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<DepthConvModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<DepthConvModule_Quad_Pass> m_DepthConvModule_Quad_Pass_Ptr = nullptr;
 
 public:
-	DepthConvModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	DepthConvModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~DepthConvModule() override;
 
 	bool Init();

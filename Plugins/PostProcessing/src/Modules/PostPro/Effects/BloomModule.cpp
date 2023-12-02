@@ -49,12 +49,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<BloomModule> BloomModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+std::shared_ptr<BloomModule> BloomModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
     ZoneScoped;
 
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<BloomModule>(vVulkanCorePtr);
+    auto res = std::make_shared<BloomModule>(vVulkanCore);
     res->SetParentNode(vParentNode);
     res->m_This = res;
     if (!res->Init()) {
@@ -67,7 +65,7 @@ std::shared_ptr<BloomModule> BloomModule::Create(GaiApi::VulkanCorePtr vVulkanCo
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BloomModule::BloomModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+BloomModule::BloomModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
     ZoneScoped;
 }
 
@@ -86,7 +84,7 @@ bool BloomModule::Init() {
 
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_BloomModule_Comp_2D_Pass_Ptr = BloomModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        m_BloomModule_Comp_2D_Pass_Ptr = BloomModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
         if (m_BloomModule_Comp_2D_Pass_Ptr) {
             // by default but can be changed via widget
             m_BloomModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(true);

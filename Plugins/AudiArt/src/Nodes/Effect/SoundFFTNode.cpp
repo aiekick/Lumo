@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SoundFFTNode> SoundFFTNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SoundFFTNode> SoundFFTNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<SoundFFTNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ SoundFFTNode::~SoundFFTNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SoundFFTNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SoundFFTNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -78,7 +78,7 @@ bool SoundFFTNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotSceneAudiArtOutput::Create("FFT"), false, false);
 
-	m_SoundFFTModulePtr = SoundFFTModule::Create(vVulkanCorePtr, m_This);
+	m_SoundFFTModulePtr = SoundFFTModule::Create(vVulkanCore, m_This);
 	if (m_SoundFFTModulePtr)
 	{
 		res = true;

@@ -44,8 +44,8 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<BloomModule_Comp_2D_Pass> BloomModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr) {
-    auto res_ptr = std::make_shared<BloomModule_Comp_2D_Pass>(vVulkanCorePtr);
+std::shared_ptr<BloomModule_Comp_2D_Pass> BloomModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res_ptr = std::make_shared<BloomModule_Comp_2D_Pass>(vVulkanCore);
     if (!res_ptr->InitCompute2D(vSize, 2U, false, vk::Format::eR32G32B32A32Sfloat)) {
         res_ptr.reset();
     }
@@ -56,7 +56,7 @@ std::shared_ptr<BloomModule_Comp_2D_Pass> BloomModule_Comp_2D_Pass::Create(const
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BloomModule_Comp_2D_Pass::BloomModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr) : EffectPass(vVulkanCorePtr) {
+BloomModule_Comp_2D_Pass::BloomModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : EffectPass(vVulkanCore) {
     SetRenderDocDebugName("Comp 2D Pass : Bloom", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
 }
@@ -106,8 +106,8 @@ bool BloomModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
             ReComputeGaussianBlurWeights();
         }
 
-        // DrawInputTexture(m_VulkanCorePtr, "Input", 0U, m_OutputRatio);
-        // DrawInputTexture(m_VulkanCorePtr, "Output Blur", 0U, m_OutputRatio);
+        // DrawInputTexture(m_VulkanCore, "Input", 0U, m_OutputRatio);
+        // DrawInputTexture(m_VulkanCore, "Output Blur", 0U, m_OutputRatio);
 
         return change;
     }
@@ -141,7 +141,10 @@ void BloomModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Des
                 }
                 m_ImageInfos[vBindingPoint] = *vImageInfo;
             } else {
-                m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
             }
         }
     }
@@ -232,13 +235,16 @@ bool BloomModule_Comp_2D_Pass::CreateUBO() {
     ZoneScoped;
 
     auto size_in_bytes = sizeof(UBOComp);
-    m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
+    m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes, "BloomModule_Comp_2D_Pass");
     m_DescriptorBufferInfo_Comp.buffer = m_UBOCompPtr->buffer;
     m_DescriptorBufferInfo_Comp.range = size_in_bytes;
     m_DescriptorBufferInfo_Comp.offset = 0;
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
     for (auto& info : m_ImageInfos) {
-        info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
     }
 
     NeedNewUBOUpload();
@@ -250,7 +256,7 @@ void BloomModule_Comp_2D_Pass::UploadUBO() {
     ZoneScoped;
     assert(IsEffectEnabled() != nullptr);
     m_UBOComp.u_enabled = (*IsEffectEnabled()) ? 1.0f : 0.0f;
-    VulkanRessource::upload(m_VulkanCorePtr, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+    VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
 void BloomModule_Comp_2D_Pass::DestroyUBO() {
@@ -300,7 +306,7 @@ bool BloomModule_Comp_2D_Pass::CreateSBO() {
     m_SBO_GaussianWeights.reset();
 
     const auto sizeInBytes = sizeof(float) * m_GaussianWeights.size();
-    m_SBO_GaussianWeights = VulkanRessource::createStorageBufferObject(m_VulkanCorePtr, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
+    m_SBO_GaussianWeights = VulkanRessource::createStorageBufferObject(m_VulkanCore, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU, "BloomModule_Comp_2D_Pass");
     if (m_SBO_GaussianWeights && m_SBO_GaussianWeights->buffer) {
         m_SBO_GaussianWeightsBufferInfo = vk::DescriptorBufferInfo{m_SBO_GaussianWeights->buffer, 0, sizeInBytes};
     } else {
@@ -315,7 +321,7 @@ bool BloomModule_Comp_2D_Pass::CreateSBO() {
 void BloomModule_Comp_2D_Pass::UploadSBO() {
     if (m_SBO_GaussianWeights) {
         const auto sizeInBytes = sizeof(float) * m_GaussianWeights.size();
-        VulkanRessource::upload(m_VulkanCorePtr, m_SBO_GaussianWeights, m_GaussianWeights.data(), sizeInBytes);
+        VulkanRessource::upload(m_VulkanCore, m_SBO_GaussianWeights, m_GaussianWeights.data(), sizeInBytes);
     }
 }
 

@@ -44,8 +44,8 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SdfTextureModule_Comp_Pass::SdfTextureModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+SdfTextureModule_Comp_Pass::SdfTextureModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	SetRenderDocDebugName("Comp Pass : SdfTexture", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
@@ -137,11 +137,13 @@ void SdfTextureModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::Descri
 
 				m_ImageInfos[vBinding] = *vImageInfo;
 			}
-			else
-			{
+			else {
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
 				SetDispatchSize2D(0);
 				m_ImageInfosSize[vBinding] = ct::fvec2();
-				m_ImageInfos[vBinding] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+				m_ImageInfos[vBinding] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}

@@ -27,11 +27,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<PosToDepthNode> PosToDepthNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<PosToDepthNode> PosToDepthNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<PosToDepthNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -48,7 +48,7 @@ PosToDepthNode::~PosToDepthNode()
 	Unit();
 }
 
-bool PosToDepthNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool PosToDepthNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Pos To Depth";
 
@@ -57,7 +57,7 @@ bool PosToDepthNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_PosToDepthModulePtr = PosToDepthModule::Create(vVulkanCorePtr);
+	m_PosToDepthModulePtr = PosToDepthModule::Create(vVulkanCore);
 	if (m_PosToDepthModulePtr)
 	{
 		res = true;

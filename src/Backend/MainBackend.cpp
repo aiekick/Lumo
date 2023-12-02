@@ -127,6 +127,7 @@ void MainBackend::unit() {
     m_UnitNodes();
     m_UnitPlugins();
     m_DestroyVulkanCore();
+    m_UnitFilesTracker();
     m_DestroyVulkanWindow();
 }
 
@@ -673,9 +674,15 @@ void MainBackend::m_DestroyVulkanWindow() {
     m_VulkanWindowPtr.reset();
 }
 
-void MainBackend::m_InitFilesTracker() {                                                     //
+void MainBackend::m_InitFilesTracker() {
+    FilesTrackerSystem::Instance()->init();                                                  //
     m_InitFilesTracker(std::bind(&MainBackend::m_UpdateFiles, this, std::placeholders::_1),  //
         std::list<std::string>{".", "shaders", "debug", "debug/shaders"});
+}
+
+
+void MainBackend::m_UnitFilesTracker() {
+    FilesTrackerSystem::Instance()->unit(); 
 }
 
 bool MainBackend::m_CreateVulkanCore() {
@@ -736,6 +743,7 @@ void MainBackend::m_InitPanes() {
 void MainBackend::m_DestroyVulkanCore() {
     m_VulkanCorePtr->Unit();
     m_VulkanCorePtr.reset();
+    GaiApi::VulkanCore::sVulkanShader->Unit();
     GaiApi::VulkanCore::sVulkanShader.reset();
 }
 

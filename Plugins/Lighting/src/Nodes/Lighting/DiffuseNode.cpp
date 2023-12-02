@@ -29,11 +29,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<DiffuseNode> DiffuseNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<DiffuseNode> DiffuseNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<DiffuseNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -50,7 +50,7 @@ DiffuseNode::~DiffuseNode()
 	Unit();
 }
 
-bool DiffuseNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool DiffuseNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Diffuse";
 
@@ -62,7 +62,7 @@ bool DiffuseNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_DiffuseModulePtr = DiffuseModule::Create(vVulkanCorePtr);
+	m_DiffuseModulePtr = DiffuseModule::Create(vVulkanCore);
 	if (m_DiffuseModulePtr)
 	{
 		res = true;

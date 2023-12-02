@@ -56,7 +56,7 @@ private:
 	} m_UBOFrag;
 
 public:
-	CubeMapPreview_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	CubeMapPreview_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~CubeMapPreview_Quad_Pass() override;
 
 	void ActionBeforeInit() override;

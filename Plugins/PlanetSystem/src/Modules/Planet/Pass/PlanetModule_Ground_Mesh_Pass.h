@@ -123,7 +123,7 @@ private:
 	uint32_t m_RestrictedIndicesCountToDraw = 0U;
 
 public:
-	PlanetModule_Ground_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	PlanetModule_Ground_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~PlanetModule_Ground_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;

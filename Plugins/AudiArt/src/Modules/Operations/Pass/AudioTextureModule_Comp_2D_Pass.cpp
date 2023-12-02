@@ -45,8 +45,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-AudioTextureModule_Comp_2D_Pass::AudioTextureModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: ShaderPass(vVulkanCorePtr)
+AudioTextureModule_Comp_2D_Pass::AudioTextureModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: ShaderPass(vVulkanCore)
 {
 	ZoneScoped;
 

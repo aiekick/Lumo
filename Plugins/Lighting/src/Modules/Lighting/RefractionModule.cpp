@@ -49,12 +49,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<RefractionModule> RefractionModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<RefractionModule> RefractionModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<RefractionModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<RefractionModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -68,8 +68,8 @@ std::shared_ptr<RefractionModule> RefractionModule::Create(GaiApi::VulkanCorePtr
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RefractionModule::RefractionModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+RefractionModule::RefractionModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -97,7 +97,7 @@ bool RefractionModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_Refraction_Quad_Pass_Ptr = std::make_shared<Refraction_Quad_Pass>(m_VulkanCorePtr);
+		m_Refraction_Quad_Pass_Ptr = std::make_shared<Refraction_Quad_Pass>(m_VulkanCore);
 		if (m_Refraction_Quad_Pass_Ptr)
 		{
 			// by default but can be changed via widget

@@ -58,7 +58,7 @@ class VisuHexGridModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<VisuHexGridModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<VisuHexGridModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<VisuHexGridModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<VisuHexGridModule_Vertex_Pass> m_VisuHexGridModule_Vertex_Pass_Ptr = nullptr;
 
 public:
-	VisuHexGridModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	VisuHexGridModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~VisuHexGridModule() override;
 
 	bool Init();

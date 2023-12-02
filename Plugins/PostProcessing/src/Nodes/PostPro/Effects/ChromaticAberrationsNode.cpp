@@ -33,13 +33,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ChromaticAberrationsNode> ChromaticAberrationsNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ChromaticAberrationsNode> ChromaticAberrationsNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<ChromaticAberrationsNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ ChromaticAberrationsNode::~ChromaticAberrationsNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ChromaticAberrationsNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ChromaticAberrationsNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -77,7 +77,7 @@ bool ChromaticAberrationsNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_ChromaticAberrationsModulePtr = ChromaticAberrationsModule::Create(vVulkanCorePtr, m_This);
+	m_ChromaticAberrationsModulePtr = ChromaticAberrationsModule::Create(vVulkanCore, m_This);
 	if (m_ChromaticAberrationsModulePtr)
 	{
 		res = true;

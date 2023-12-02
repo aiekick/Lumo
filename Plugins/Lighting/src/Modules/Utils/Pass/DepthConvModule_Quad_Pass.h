@@ -65,7 +65,7 @@ private:
 	std::string m_FragmentShaderCode;
 
 public:
-	DepthConvModule_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	DepthConvModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~DepthConvModule_Quad_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;

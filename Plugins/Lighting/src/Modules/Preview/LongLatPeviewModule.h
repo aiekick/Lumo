@@ -56,7 +56,7 @@ class LongLatPeviewModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<LongLatPeviewModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<LongLatPeviewModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<LongLatPeviewModule> m_This;
@@ -64,7 +64,7 @@ private:
 	std::shared_ptr<LongLatPeview_Quad_Pass> m_LongLatPeview_Quad_Pass_Ptr = nullptr;
 
 public:
-	LongLatPeviewModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	LongLatPeviewModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~LongLatPeviewModule() override;
 
 	bool Init();

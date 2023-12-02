@@ -54,7 +54,7 @@ class BlurModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<BlurModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<BlurModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<BlurModule> m_This;
@@ -62,7 +62,7 @@ private:
 	std::shared_ptr<BlurModule_Comp_2D_Pass> m_BlurModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	BlurModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	BlurModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~BlurModule() override;
 
 	bool Init();

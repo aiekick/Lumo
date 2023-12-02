@@ -36,6 +36,9 @@ private:
 	std::set<efsw::WatchID> m_WatchIDs;
 
 public:
+    bool init();
+    void unit();
+
 	static FilesTrackerSystem* Instance()
 	{
 		static FilesTrackerSystem _instance;
@@ -45,10 +48,10 @@ public:
 protected:
 	void handleFileAction(efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "") override;
 
-	FilesTrackerSystem(); // Prevent construction
+	FilesTrackerSystem() = default;                                                                                // Prevent construction
 	FilesTrackerSystem(const FilesTrackerSystem&) = default; // Prevent construction by copying
 	FilesTrackerSystem& operator =(const FilesTrackerSystem&) { return *this; }; // Prevent assignment
-	~FilesTrackerSystem(); // Prevent unwanted destruction
+    ~FilesTrackerSystem() = default;  // Prevent unwanted destruction
 
 public:
 	void addWatch(std::string& vPath);

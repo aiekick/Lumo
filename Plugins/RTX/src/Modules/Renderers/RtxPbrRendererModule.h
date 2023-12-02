@@ -61,7 +61,7 @@ class RtxPbrRendererModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<RtxPbrRendererModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<RtxPbrRendererModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<RtxPbrRendererModule> m_This;
@@ -69,7 +69,7 @@ private:
 	std::shared_ptr<RtxPbrRendererModule_Rtx_Pass> m_RtxPbrRendererModule_Rtx_Pass_Ptr = nullptr;
 
 public:
-	RtxPbrRendererModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	RtxPbrRendererModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~RtxPbrRendererModule() override;
 
 	bool Init();

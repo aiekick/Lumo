@@ -25,7 +25,7 @@ class ParametricCurveDiffNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<ParametricCurveDiffNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ParametricCurveDiffNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<ParametricCurveDiffModule> m_ParametricCurveDiffModulePtr = nullptr;
@@ -35,7 +35,7 @@ public:
 	~ParametricCurveDiffNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Draw Widgets
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;

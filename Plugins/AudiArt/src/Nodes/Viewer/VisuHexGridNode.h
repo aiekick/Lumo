@@ -28,7 +28,7 @@ class VisuHexGridNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<VisuHexGridNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<VisuHexGridNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<VisuHexGridModule> m_VisuHexGridModulePtr = nullptr;
@@ -38,7 +38,7 @@ public:
 	~VisuHexGridNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Execute Task
 	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;

@@ -124,7 +124,7 @@ private:
 	uint32_t m_RestrictedIndicesCountToDraw = 0U;
 
 public:
-	AlienRockModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	AlienRockModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~AlienRockModule_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;

@@ -66,7 +66,7 @@ class ScreenSpaceModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<ScreenSpaceModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<ScreenSpaceModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<ScreenSpaceModule> m_This;
@@ -85,7 +85,7 @@ private:
     std::shared_ptr<TextureOutputInterface> m_LastPassPtr = nullptr;
 
 public:
-	ScreenSpaceModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ScreenSpaceModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ScreenSpaceModule() override;
 
 	bool Init();

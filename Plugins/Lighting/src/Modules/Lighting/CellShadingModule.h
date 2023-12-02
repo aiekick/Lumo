@@ -57,14 +57,14 @@ class CellShadingModule :
 	public LightGroupInputInterface
 {
 public:
-	static std::shared_ptr<CellShadingModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<CellShadingModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<CellShadingModule> m_This;
 	std::shared_ptr<CellShadingModule_Comp_Pass> m_CellShadingModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	CellShadingModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	CellShadingModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~CellShadingModule() override;
 
 	bool Init();

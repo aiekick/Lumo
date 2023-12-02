@@ -60,7 +60,7 @@ class FlatGradientModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<FlatGradientModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<FlatGradientModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<FlatGradientModule> m_This;
@@ -68,7 +68,7 @@ private:
 	uint32_t m_Output_Width = 0U;
 
 public:
-	FlatGradientModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	FlatGradientModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~FlatGradientModule() override;
 
 	bool Init();

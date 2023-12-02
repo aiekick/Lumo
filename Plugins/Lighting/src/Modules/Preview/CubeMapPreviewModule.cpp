@@ -49,12 +49,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<CubeMapPreviewModule> CubeMapPreviewModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<CubeMapPreviewModule> CubeMapPreviewModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<CubeMapPreviewModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<CubeMapPreviewModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -68,8 +68,8 @@ std::shared_ptr<CubeMapPreviewModule> CubeMapPreviewModule::Create(GaiApi::Vulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CubeMapPreviewModule::CubeMapPreviewModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+CubeMapPreviewModule::CubeMapPreviewModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -97,7 +97,7 @@ bool CubeMapPreviewModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_CubeMapPreview_Quad_Pass_Ptr = std::make_shared<CubeMapPreview_Quad_Pass>(m_VulkanCorePtr);
+		m_CubeMapPreview_Quad_Pass_Ptr = std::make_shared<CubeMapPreview_Quad_Pass>(m_VulkanCore);
 		if (m_CubeMapPreview_Quad_Pass_Ptr)
 		{
 			// by default but can be changed via widget

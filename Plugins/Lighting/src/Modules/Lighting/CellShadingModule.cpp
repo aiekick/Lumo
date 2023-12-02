@@ -46,10 +46,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<CellShadingModule> CellShadingModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<CellShadingModule> CellShadingModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<CellShadingModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<CellShadingModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +62,8 @@ std::shared_ptr<CellShadingModule> CellShadingModule::Create(GaiApi::VulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CellShadingModule::CellShadingModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+CellShadingModule::CellShadingModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +87,7 @@ bool CellShadingModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_CellShadingModule_Comp_Pass_Ptr = std::make_shared<CellShadingModule_Comp_Pass>(m_VulkanCorePtr);
+		m_CellShadingModule_Comp_Pass_Ptr = std::make_shared<CellShadingModule_Comp_Pass>(m_VulkanCore);
 		if (m_CellShadingModule_Comp_Pass_Ptr)
 		{
 			if (m_CellShadingModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))

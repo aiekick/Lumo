@@ -35,12 +35,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PrimitiveModule> PrimitiveModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+std::shared_ptr<PrimitiveModule> PrimitiveModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
     ZoneScoped;
 
-    if (!vVulkanCorePtr)
-        return nullptr;
-    auto res = std::make_shared<PrimitiveModule>(vVulkanCorePtr);
+    auto res = std::make_shared<PrimitiveModule>(vVulkanCore);
     res->SetParentNode(vParentNode);
     res->m_This = res;
     if (!res->Init()) {
@@ -54,7 +52,7 @@ std::shared_ptr<PrimitiveModule> PrimitiveModule::Create(GaiApi::VulkanCorePtr v
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PrimitiveModule::PrimitiveModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : m_VulkanCorePtr(vVulkanCorePtr) { ZoneScoped; }
+PrimitiveModule::PrimitiveModule(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) { ZoneScoped; }
 
 PrimitiveModule::~PrimitiveModule() {
     ZoneScoped;
@@ -878,7 +876,7 @@ void PrimitiveModule::BuildMesh() {
             v.n = v.n.GetNormalized();
         }
 
-        auto mesh_ptr = SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>::Create(m_VulkanCorePtr, vertices, indices);
+        auto mesh_ptr = SceneMesh<VertexStruct::P3_N3_TA3_BTA3_T2_C4>::Create(m_VulkanCore, vertices, indices);
         if (mesh_ptr) {
             if (m_HaveTextureCoords) {
                 mesh_ptr->HaveTextureCoords();

@@ -26,13 +26,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricSurfaceUVNode> ParametricSurfaceUVNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParametricSurfaceUVNode> ParametricSurfaceUVNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<ParametricSurfaceUVNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -58,7 +58,7 @@ ParametricSurfaceUVNode::~ParametricSurfaceUVNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricSurfaceUVNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ParametricSurfaceUVNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -69,7 +69,7 @@ bool ParametricSurfaceUVNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotModelOutput::Create("Curve"), false, false);
 
-	m_ParametricSurfaceUVModulePtr = ParametricSurfaceUVModule::Create(vVulkanCorePtr, m_This);
+	m_ParametricSurfaceUVModulePtr = ParametricSurfaceUVModule::Create(vVulkanCore, m_This);
 	if (m_ParametricSurfaceUVModulePtr)
 	{
 		res = true;

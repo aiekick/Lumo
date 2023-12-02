@@ -146,7 +146,7 @@ public:  // to save
     bool m_UseCommonSystemUBO = false;
 
 public:
-    static GeneratorNodePtr Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static GeneratorNodePtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
     static std::string GetLicenceHeader();
     static std::string GetPVSStudioHeader();
 

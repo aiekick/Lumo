@@ -58,14 +58,14 @@ class SoundFFTModule :
 	public GuiInterface
 {
 public:
-	static std::shared_ptr<SoundFFTModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<SoundFFTModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<SoundFFTModule> m_This;
-	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	SoundFFTModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SoundFFTModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SoundFFTModule();
 
 	bool Init();

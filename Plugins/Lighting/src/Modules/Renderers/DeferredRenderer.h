@@ -59,14 +59,14 @@ class DeferredRenderer :
 	public ShaderPassOutputInterface
 {
 public:
-	static std::shared_ptr<DeferredRenderer> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<DeferredRenderer> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<DeferredRenderer_Quad_Pass> m_DeferredRenderer_Quad_Pass_Ptr = nullptr;
 	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
-	DeferredRenderer(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	DeferredRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
 	~DeferredRenderer() override;
 
 	bool Init();

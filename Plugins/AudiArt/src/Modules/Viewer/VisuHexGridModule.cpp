@@ -48,12 +48,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<VisuHexGridModule> VisuHexGridModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<VisuHexGridModule> VisuHexGridModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<VisuHexGridModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<VisuHexGridModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -68,8 +68,8 @@ std::shared_ptr<VisuHexGridModule> VisuHexGridModule::Create(GaiApi::VulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VisuHexGridModule::VisuHexGridModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+VisuHexGridModule::VisuHexGridModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -97,7 +97,7 @@ bool VisuHexGridModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_VisuHexGridModule_Vertex_Pass_Ptr = std::make_shared<VisuHexGridModule_Vertex_Pass>(m_VulkanCorePtr);
+		m_VisuHexGridModule_Vertex_Pass_Ptr = std::make_shared<VisuHexGridModule_Vertex_Pass>(m_VulkanCore);
 		if (m_VisuHexGridModule_Vertex_Pass_Ptr)
 		{
 			// by default but can be changed via widget

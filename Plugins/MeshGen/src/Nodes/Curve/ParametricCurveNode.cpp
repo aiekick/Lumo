@@ -26,13 +26,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricCurveNode> ParametricCurveNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<ParametricCurveNode> ParametricCurveNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<ParametricCurveNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -58,7 +58,7 @@ ParametricCurveNode::~ParametricCurveNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool ParametricCurveNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -69,7 +69,7 @@ bool ParametricCurveNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotModelOutput::Create("Curve"), false, false);
 
-	m_ParametricCurveModulePtr = ParametricCurveModule::Create(vVulkanCorePtr, m_This);
+	m_ParametricCurveModulePtr = ParametricCurveModule::Create(vVulkanCore, m_This);
 	if (m_ParametricCurveModulePtr)
 	{
 		res = true;

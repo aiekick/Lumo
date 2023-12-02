@@ -59,7 +59,7 @@ private:
 	} m_UBOComp;
 
 public:
-	SpecularModule_Comp_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SpecularModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SpecularModule_Comp_Pass() override;
 
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;

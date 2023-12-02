@@ -58,7 +58,7 @@ class HistorizeModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<HistorizeModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<HistorizeModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<HistorizeModule> m_This;
@@ -66,7 +66,7 @@ private:
 	std::shared_ptr<HistorizeModule_Comp_2D_Pass> m_HistorizeModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	HistorizeModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	HistorizeModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~HistorizeModule() override;
 
 	bool Init();

@@ -27,11 +27,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<SdfTextureNode> SdfTextureNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SdfTextureNode> SdfTextureNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<SdfTextureNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -48,7 +48,7 @@ SdfTextureNode::~SdfTextureNode()
 	Unit();
 }
 
-bool SdfTextureNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SdfTextureNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "SdfTexture";
 
@@ -57,7 +57,7 @@ bool SdfTextureNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_SdfTextureModulePtr = SdfTextureModule::Create(vVulkanCorePtr);
+	m_SdfTextureModulePtr = SdfTextureModule::Create(vVulkanCore);
 	if (m_SdfTextureModulePtr)
 	{
 		res = true;

@@ -25,7 +25,7 @@ class ParametricSurfaceUVNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<ParametricSurfaceUVNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ParametricSurfaceUVNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<ParametricSurfaceUVModule> m_ParametricSurfaceUVModulePtr = nullptr;
@@ -35,7 +35,7 @@ public:
 	~ParametricSurfaceUVNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Draw 
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;

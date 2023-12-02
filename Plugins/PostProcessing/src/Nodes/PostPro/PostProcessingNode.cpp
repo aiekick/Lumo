@@ -33,13 +33,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<PostProcessingNode> PostProcessingNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<PostProcessingNode> PostProcessingNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<PostProcessingNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ PostProcessingNode::~PostProcessingNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PostProcessingNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool PostProcessingNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -76,7 +76,7 @@ bool PostProcessingNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("Color", 0), false, false);
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_PostProcessingModulePtr = PostProcessingModule::Create(vVulkanCorePtr, m_This);
+	m_PostProcessingModulePtr = PostProcessingModule::Create(vVulkanCore, m_This);
 	if (m_PostProcessingModulePtr)
 	{
 		res = true;

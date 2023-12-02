@@ -46,7 +46,7 @@ class ToneMapModule_Comp_2D_Pass :
     public EffectPass<1U>,
 	public NodeInterface {
 public:
-    static std::shared_ptr<ToneMapModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<ToneMapModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
@@ -104,7 +104,7 @@ private:
 
 
 public:
-	ToneMapModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ToneMapModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ToneMapModule_Comp_2D_Pass() override;
 
 	void ActionBeforeInit() override;

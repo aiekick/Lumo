@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<BloomNode> BloomNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<BloomNode> BloomNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<BloomNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -65,7 +65,7 @@ BloomNode::~BloomNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BloomNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool BloomNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -75,7 +75,7 @@ bool BloomNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddInput(NodeSlotTextureInput::Create("", 0), false, true);
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_BloomModulePtr = BloomModule::Create(vVulkanCorePtr, m_This);
+	m_BloomModulePtr = BloomModule::Create(vVulkanCore, m_This);
 	if (m_BloomModulePtr)
 	{
 		res = true;

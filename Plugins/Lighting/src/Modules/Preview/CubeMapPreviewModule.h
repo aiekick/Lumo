@@ -57,7 +57,7 @@ class CubeMapPreviewModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<CubeMapPreviewModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<CubeMapPreviewModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<CubeMapPreviewModule> m_This;
@@ -65,7 +65,7 @@ private:
 	std::shared_ptr<CubeMapPreview_Quad_Pass> m_CubeMapPreview_Quad_Pass_Ptr = nullptr;
 
 public:
-	CubeMapPreviewModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	CubeMapPreviewModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~CubeMapPreviewModule() override;
 
 	bool Init();

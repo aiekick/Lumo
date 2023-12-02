@@ -62,13 +62,13 @@ class RtxModelShadowModule :
 	public AccelStructureInputInterface
 {
 public:
-	static std::shared_ptr<RtxModelShadowModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<RtxModelShadowModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<ModelShadow_Rtx_Pass> m_ModelShadow_Rtx_Pass_Ptr = nullptr;
 
 public:
-	RtxModelShadowModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	RtxModelShadowModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~RtxModelShadowModule() override;
 
 	bool Init();

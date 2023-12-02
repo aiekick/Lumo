@@ -36,13 +36,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<BillBoardRendererNode> BillBoardRendererNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<BillBoardRendererNode> BillBoardRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<BillBoardRendererNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -68,7 +68,7 @@ BillBoardRendererNode::~BillBoardRendererNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BillBoardRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool BillBoardRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -81,7 +81,7 @@ bool BillBoardRendererNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
-	m_BillBoardRendererModulePtr = BillBoardRendererModule::Create(vVulkanCorePtr, m_This);
+	m_BillBoardRendererModulePtr = BillBoardRendererModule::Create(vVulkanCore, m_This);
 	if (m_BillBoardRendererModulePtr)
 	{
 		res = true;

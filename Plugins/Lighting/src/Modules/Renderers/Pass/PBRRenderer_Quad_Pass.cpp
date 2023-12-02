@@ -43,8 +43,8 @@ using namespace GaiApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PBRRenderer_Quad_Pass::PBRRenderer_Quad_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: QuadShaderPass(vVulkanCorePtr, MeshShaderPassType::PIXEL)
+PBRRenderer_Quad_Pass::PBRRenderer_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
 {
 	SetRenderDocDebugName("Quad Pass 1 : PBR", QUAD_SHADER_PASS_DEBUG_COLOR);
 
@@ -90,15 +90,15 @@ bool PBRRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCont
 	}
 
 	/*
-	DrawInputTexture(m_VulkanCorePtr, "Position", 0U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Normal", 1U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Albedo", 2U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Diffuse", 3U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Specular", 4U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Attenuation", 5U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Mask", 6U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "Ao", 7U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCorePtr, "shadow", 8U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Position", 0U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Normal", 1U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Albedo", 2U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Diffuse", 3U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Specular", 4U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Attenuation", 5U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Mask", 6U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "Ao", 7U, m_OutputRatio);
+	DrawInputTexture(m_VulkanCore, "shadow", 8U, m_OutputRatio);
 	*/
 
 	if (change)
@@ -150,8 +150,11 @@ void PBRRenderer_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descri
 					(&m_UBOFrag.use_sampler_position)[vBindingPoint] = 0.0f;
 					NeedNewUBOUpload();
 				}
-				
-				m_ImageInfos[vBindingPoint] = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
 	}
@@ -192,11 +195,13 @@ void PBRRenderer_Quad_Pass::SetTextures(const uint32_t& vBindingPoint, Descripto
 					NeedNewUBOUpload();
 				}
 			}
-			else
-			{
+			else {
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
 				for (auto& info : m_ImageGroupInfos)
 				{
-					info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+					info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 				}
 
 				if (m_UBOFrag.use_sampler_position > 0.0f)
@@ -281,19 +286,22 @@ bool PBRRenderer_Quad_Pass::CreateUBO()
 	ZoneScoped;
 
 	auto size_in_bytes = sizeof(UBOFrag);
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCorePtr, size_in_bytes);
+    m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes, "PBRRenderer_Quad_Pass");
 	m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
 	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
 	m_DescriptorBufferInfo_Frag.offset = 0;
 
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+
 	for (auto& info : m_ImageInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	for (auto& info : m_ImageGroupInfos)
 	{
-		info = *m_VulkanCorePtr->getEmptyTexture2DDescriptorImageInfo();
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	}
 
 	NeedNewUBOUpload();
@@ -305,7 +313,7 @@ void PBRRenderer_Quad_Pass::UploadUBO()
 {
 	ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCorePtr, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
 void PBRRenderer_Quad_Pass::DestroyUBO()

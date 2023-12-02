@@ -27,11 +27,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<BlurNode> BlurNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<BlurNode> BlurNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<BlurNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -48,7 +48,7 @@ BlurNode::~BlurNode()
 	Unit();
 }
 
-bool BlurNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool BlurNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Blur";
 
@@ -57,7 +57,7 @@ bool BlurNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	bool res = false;
 
-	m_BlurModulePtr = BlurModule::Create(vVulkanCorePtr);
+	m_BlurModulePtr = BlurModule::Create(vVulkanCore);
 	if (m_BlurModulePtr)
 	{
 		res = true;

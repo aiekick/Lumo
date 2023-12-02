@@ -46,10 +46,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DiffuseModule> DiffuseModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<DiffuseModule> DiffuseModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<DiffuseModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<DiffuseModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -62,8 +62,8 @@ std::shared_ptr<DiffuseModule> DiffuseModule::Create(GaiApi::VulkanCorePtr vVulk
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DiffuseModule::DiffuseModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+DiffuseModule::DiffuseModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -87,7 +87,7 @@ bool DiffuseModule::Init()
 
 	if (BaseRenderer::InitCompute2D(map_size))
 	{
-		m_DiffuseModule_Comp_Pass_Ptr = std::make_shared<DiffuseModule_Comp_Pass>(m_VulkanCorePtr);
+		m_DiffuseModule_Comp_Pass_Ptr = std::make_shared<DiffuseModule_Comp_Pass>(m_VulkanCore);
 		if (m_DiffuseModule_Comp_Pass_Ptr)
 		{
 			if (m_DiffuseModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))

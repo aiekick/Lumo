@@ -43,10 +43,10 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PosToDepthModule> PosToDepthModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<PosToDepthModule> PosToDepthModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<PosToDepthModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<PosToDepthModule>(vVulkanCore);
 	res->m_This = res;
 	if (!res->Init())
 	{
@@ -59,8 +59,8 @@ std::shared_ptr<PosToDepthModule> PosToDepthModule::Create(GaiApi::VulkanCorePtr
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PosToDepthModule::PosToDepthModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+PosToDepthModule::PosToDepthModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 
 }
@@ -84,7 +84,7 @@ bool PosToDepthModule::Init()
 
 	if (BaseRenderer::InitPixel(map_size))
 	{
-		m_PosToDepthModule_Quad_Pass_Ptr = std::make_shared<PosToDepthModule_Quad_Pass>(m_VulkanCorePtr);
+		m_PosToDepthModule_Quad_Pass_Ptr = std::make_shared<PosToDepthModule_Quad_Pass>(m_VulkanCore);
 		if (m_PosToDepthModule_Quad_Pass_Ptr)
 		{
 			if (m_PosToDepthModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,

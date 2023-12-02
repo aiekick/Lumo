@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<HistorizeNode> HistorizeNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<HistorizeNode> HistorizeNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<HistorizeNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ HistorizeNode::~HistorizeNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HistorizeNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool HistorizeNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -78,7 +78,7 @@ bool HistorizeNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_HistorizeModulePtr = HistorizeModule::Create(vVulkanCorePtr, m_This);
+	m_HistorizeModulePtr = HistorizeModule::Create(vVulkanCore, m_This);
 	if (m_HistorizeModulePtr)
 	{
 		res = true;

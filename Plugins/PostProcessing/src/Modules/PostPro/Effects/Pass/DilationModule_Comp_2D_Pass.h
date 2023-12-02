@@ -47,7 +47,7 @@ class DilationModule_Comp_2D_Pass :
     public EffectPass<2U>,
     public NodeInterface {
 public:
-    static std::shared_ptr<DilationModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCorePtr vVulkanCorePtr);
+    static std::shared_ptr<DilationModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
     struct UBO_Comp {
@@ -62,7 +62,7 @@ private:
     vk::DescriptorBufferInfo m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
 public:
-    DilationModule_Comp_2D_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+    DilationModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
     ~DilationModule_Comp_2D_Pass() override;
 
     void ActionBeforeInit() override;

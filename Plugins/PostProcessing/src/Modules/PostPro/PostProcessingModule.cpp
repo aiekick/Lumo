@@ -54,12 +54,9 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<PostProcessingModule> PostProcessingModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode) {
+std::shared_ptr<PostProcessingModule> PostProcessingModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
     ZoneScoped;
-    if (!vVulkanCorePtr) {
-        return nullptr;
-    }
-    auto res = std::make_shared<PostProcessingModule>(vVulkanCorePtr);
+    auto res = std::make_shared<PostProcessingModule>(vVulkanCore);
     res->SetParentNode(vParentNode);
     res->m_This = res;
     if (!res->Init()) {
@@ -72,7 +69,7 @@ std::shared_ptr<PostProcessingModule> PostProcessingModule::Create(GaiApi::Vulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PostProcessingModule::PostProcessingModule(GaiApi::VulkanCorePtr vVulkanCorePtr) : BaseRenderer(vVulkanCorePtr) {
+PostProcessingModule::PostProcessingModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
     ZoneScoped;
 }
 
@@ -89,25 +86,25 @@ bool PostProcessingModule::Init() {
     ZoneScoped;
     ct::uvec2 map_size = 512;
     if (BaseRenderer::InitCompute2D(map_size)) {
-        m_BloomModule_Comp_2D_Pass_Ptr = BloomModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+        m_BloomModule_Comp_2D_Pass_Ptr = BloomModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
         if (m_BloomModule_Comp_2D_Pass_Ptr) {
             m_BloomModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-            m_BlurModule_Comp_2D_Pass_Ptr = BlurModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+            m_BlurModule_Comp_2D_Pass_Ptr = BlurModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
             if (m_BlurModule_Comp_2D_Pass_Ptr) {
                 m_BlurModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-                m_SharpnessModule_Comp_2D_Pass_Ptr = SharpnessModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                m_SharpnessModule_Comp_2D_Pass_Ptr = SharpnessModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
                 if (m_SharpnessModule_Comp_2D_Pass_Ptr) {
                     m_SharpnessModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-                    m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = ChromaticAberrationsModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                    m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr = ChromaticAberrationsModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
                     if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
                         m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-                        m_DilationModule_Comp_2D_Pass_Ptr = DilationModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                        m_DilationModule_Comp_2D_Pass_Ptr = DilationModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
                         if (m_DilationModule_Comp_2D_Pass_Ptr) {
                             m_DilationModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-                            m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                            m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
                             if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
                                 m_ToneMapModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-                                m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCorePtr);
+                                m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
                                 if (m_VignetteModule_Comp_2D_Pass_Ptr) {
                                     m_VignetteModule_Comp_2D_Pass_Ptr->EnableEffect(false);
                                     AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);                 // 1) BLOOM

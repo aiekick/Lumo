@@ -35,13 +35,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<RefractionNode> RefractionNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<RefractionNode> RefractionNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<RefractionNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ RefractionNode::~RefractionNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RefractionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool RefractionNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -80,7 +80,7 @@ bool RefractionNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_RefractionModulePtr = RefractionModule::Create(vVulkanCorePtr, m_This);
+	m_RefractionModulePtr = RefractionModule::Create(vVulkanCore, m_This);
 	if (m_RefractionModulePtr)
 	{
 		res = true;

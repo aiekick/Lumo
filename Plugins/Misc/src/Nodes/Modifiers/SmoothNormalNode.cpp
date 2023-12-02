@@ -27,11 +27,11 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<SmoothNormalNode> SmoothNormalNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<SmoothNormalNode> SmoothNormalNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	auto res = std::make_shared<SmoothNormalNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -48,7 +48,7 @@ SmoothNormalNode::~SmoothNormalNode()
 
 }
 
-bool SmoothNormalNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool SmoothNormalNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	name = "Smooth Normal";
 
@@ -57,7 +57,7 @@ bool SmoothNormalNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	// we keep this node in ExecuteAllTime, because we need to propagate to inputs for each frames
 	
-	m_SmoothNormalModulePtr = SmoothNormalModule::Create(vVulkanCorePtr, m_This);
+	m_SmoothNormalModulePtr = SmoothNormalModule::Create(vVulkanCore, m_This);
 	if (m_SmoothNormalModulePtr)
 	{
 		return true;

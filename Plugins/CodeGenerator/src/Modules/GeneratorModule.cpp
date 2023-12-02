@@ -112,12 +112,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<MODULE_CLASS_NAME>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<MODULE_CLASS_NAME>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init()) {
@@ -131,11 +131,11 @@ std::shared_ptr<MODULE_CLASS_NAME> MODULE_CLASS_NAME::Create(GaiApi::VulkanCoreP
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-MODULE_CLASS_NAME::MODULE_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
+MODULE_CLASS_NAME::MODULE_CLASS_NAME(GaiApi::VulkanCoreWeak vVulkanCore))";
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		cpp_module_file_code += u8R"(
-	: BaseRenderer(vVulkanCorePtr))";
+	: BaseRenderer(vVulkanCore))";
 	}
 	if (!m_GenerateAPass)
 	{
@@ -144,7 +144,7 @@ MODULE_CLASS_NAME::MODULE_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr))";
 			cpp_module_file_code += u8R"(,)";
 		}
 		cpp_module_file_code += u8R"(
-	: m_VulkanCorePtr(vVulkanCorePtr))";
+	: m_VulkanCore(vVulkanCore))";
 	}
 		cpp_module_file_code += u8R"(
 {
@@ -182,7 +182,7 @@ bool MODULE_CLASS_NAME::Init()
 	ct::uvec2 map_size = 512;
 	if (BaseRenderer::InitPixel(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCore);
 		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
 			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
@@ -199,7 +199,7 @@ bool MODULE_CLASS_NAME::Init()
 	uint32_t map_size = 512;
 	if (BaseRenderer::InitCompute1D(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCore);
 		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
 			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
@@ -216,7 +216,7 @@ bool MODULE_CLASS_NAME::Init()
 	ct::uvec2 map_size = 512;
 	if (BaseRenderer::InitCompute2D(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCore);
 		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
 			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
@@ -233,7 +233,7 @@ bool MODULE_CLASS_NAME::Init()
 	ct::uvec3 map_size = 512;
 	if (BaseRenderer::InitCompute3D(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCore);
 		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
 			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
@@ -250,7 +250,7 @@ bool MODULE_CLASS_NAME::Init()
 	ct::uvec2 map_size = 512;
 	if (BaseRenderer::InitRtx(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
-		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCorePtr);
+		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCore);
 		if (m_PASS_CLASS_NAME_Ptr) {
 			// by default but can be changed via widget
 			m_PASS_CLASS_NAME_Ptr->AllowResizeOnResizeEvents(true);
@@ -605,7 +605,7 @@ class MODULE_CLASS_NAME :)";
 	public NodeInterface
 {
 public:
-	static std::shared_ptr<MODULE_CLASS_NAME> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<MODULE_CLASS_NAME> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<MODULE_CLASS_NAME> m_This;
@@ -614,7 +614,7 @@ private:
     h_module_file_code += GetModuleOutputPrivateVars(vDico);
 	if (!m_GenerateAPass)
 	{
-		h_module_file_code += u8R"(	GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
+		h_module_file_code += u8R"(	GaiApi::VulkanCoreWeak m_VulkanCore;
 )";
 	}
 
@@ -627,7 +627,7 @@ private:
 
 	h_module_file_code += u8R"(
 public:
-	MODULE_CLASS_NAME(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	MODULE_CLASS_NAME(GaiApi::VulkanCoreWeak vVulkanCore);
 	~MODULE_CLASS_NAME())";
 	if (m_GenerateAPass)
 	{

@@ -54,14 +54,14 @@ class ToneMapModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<ToneMapModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<ToneMapModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<ToneMapModule> m_This;
 	std::shared_ptr<ToneMapModule_Comp_2D_Pass> m_ToneMapModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	ToneMapModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	ToneMapModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~ToneMapModule() override;
 
 	bool Init();

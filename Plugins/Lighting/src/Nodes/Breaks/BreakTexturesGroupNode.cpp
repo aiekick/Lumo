@@ -33,10 +33,10 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<BreakTexturesGroupNode> BreakTexturesGroupNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+std::shared_ptr<BreakTexturesGroupNode> BreakTexturesGroupNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     auto res = std::make_shared<BreakTexturesGroupNode>();
     res->m_This = res;
-    if (!res->Init(vVulkanCorePtr)) {
+    if (!res->Init(vVulkanCore)) {
         res.reset();
     }
     return res;
@@ -52,7 +52,7 @@ BreakTexturesGroupNode::BreakTexturesGroupNode() : BaseNode() {
 
 BreakTexturesGroupNode::~BreakTexturesGroupNode() { Unit(); }
 
-bool BreakTexturesGroupNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr) {
+bool BreakTexturesGroupNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Break Tex2D Group";
 
     AddInput(NodeSlotTextureGroupInput::Create("Textures"), true, false);

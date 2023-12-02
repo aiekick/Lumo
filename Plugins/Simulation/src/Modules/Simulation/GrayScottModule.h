@@ -53,14 +53,14 @@ class GrayScottModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<GrayScottModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<GrayScottModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<GrayScottModule> m_This;
 	std::shared_ptr<GrayScottModule_Comp_Pass> m_GrayScottModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	GrayScottModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	GrayScottModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~GrayScottModule() override;
 
 	bool Init();

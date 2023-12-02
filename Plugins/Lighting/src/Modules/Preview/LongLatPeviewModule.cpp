@@ -49,12 +49,12 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<LongLatPeviewModule> LongLatPeviewModule::Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode)
+std::shared_ptr<LongLatPeviewModule> LongLatPeviewModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
 {
 	ZoneScoped;
 
-	if (!vVulkanCorePtr) return nullptr;
-	auto res = std::make_shared<LongLatPeviewModule>(vVulkanCorePtr);
+	
+	auto res = std::make_shared<LongLatPeviewModule>(vVulkanCore);
 	res->SetParentNode(vParentNode);
 	res->m_This = res;
 	if (!res->Init())
@@ -68,8 +68,8 @@ std::shared_ptr<LongLatPeviewModule> LongLatPeviewModule::Create(GaiApi::VulkanC
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LongLatPeviewModule::LongLatPeviewModule(GaiApi::VulkanCorePtr vVulkanCorePtr)
-	: BaseRenderer(vVulkanCorePtr)
+LongLatPeviewModule::LongLatPeviewModule(GaiApi::VulkanCoreWeak vVulkanCore)
+	: BaseRenderer(vVulkanCore)
 {
 	ZoneScoped;
 }
@@ -97,7 +97,7 @@ bool LongLatPeviewModule::Init()
 	{
 		//SetExecutionWhenNeededOnly(true);
 
-		m_LongLatPeview_Quad_Pass_Ptr = std::make_shared<LongLatPeview_Quad_Pass>(m_VulkanCorePtr);
+		m_LongLatPeview_Quad_Pass_Ptr = std::make_shared<LongLatPeview_Quad_Pass>(m_VulkanCore);
 		if (m_LongLatPeview_Quad_Pass_Ptr)
 		{
 			// by default but can be changed via widget

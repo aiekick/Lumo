@@ -71,7 +71,7 @@ private:
 	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
 public:
-	BillBoardRendererModule_Mesh_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	BillBoardRendererModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~BillBoardRendererModule_Mesh_Pass() override;
 
 	void ActionBeforeInit() override;

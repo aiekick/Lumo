@@ -28,7 +28,7 @@ class SSReflectionNode :
 	public BaseNode
 {
 public:
-	static std::shared_ptr<SSReflectionNode> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SSReflectionNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::shared_ptr<SSReflectionModule> m_SSReflectionModulePtr = nullptr;
@@ -38,7 +38,7 @@ public:
 	~SSReflectionNode() override;
 
 	// Init / Unit
-	bool Init(GaiApi::VulkanCorePtr vVulkanCorePtr) override;
+	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
 	// Execute Task
 	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;

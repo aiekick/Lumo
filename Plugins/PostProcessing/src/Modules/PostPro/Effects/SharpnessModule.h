@@ -59,7 +59,7 @@ class SharpnessModule :
 	public NodeInterface
 {
 public:
-	static std::shared_ptr<SharpnessModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr, BaseNodeWeak vParentNode);
+	static std::shared_ptr<SharpnessModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
 	std::weak_ptr<SharpnessModule> m_This;
@@ -67,7 +67,7 @@ private:
 	std::shared_ptr<SharpnessModule_Comp_2D_Pass> m_SharpnessModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	SharpnessModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SharpnessModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SharpnessModule() override;
 
 	bool Init();

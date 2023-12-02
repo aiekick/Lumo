@@ -69,7 +69,7 @@ private:
 	vk::DescriptorBufferInfo m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 public:
-	RtxPbrRendererModule_Rtx_Pass(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	RtxPbrRendererModule_Rtx_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
 	~RtxPbrRendererModule_Rtx_Pass() override;
 
 	void ActionBeforeCompilation() override;

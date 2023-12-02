@@ -34,13 +34,13 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<VisuHexGridNode> VisuHexGridNode::Create(GaiApi::VulkanCorePtr vVulkanCorePtr)
+std::shared_ptr<VisuHexGridNode> VisuHexGridNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
 	auto res = std::make_shared<VisuHexGridNode>();
 	res->m_This = res;
-	if (!res->Init(vVulkanCorePtr))
+	if (!res->Init(vVulkanCore))
 	{
 		res.reset();
 	}
@@ -66,7 +66,7 @@ VisuHexGridNode::~VisuHexGridNode()
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VisuHexGridNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
+bool VisuHexGridNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 {
 	ZoneScoped;
 
@@ -78,7 +78,7 @@ bool VisuHexGridNode::Init(GaiApi::VulkanCorePtr vVulkanCorePtr)
 
 	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_VisuHexGridModulePtr = VisuHexGridModule::Create(vVulkanCorePtr, m_This);
+	m_VisuHexGridModulePtr = VisuHexGridModule::Create(vVulkanCore, m_This);
 	if (m_VisuHexGridModulePtr)
 	{
 		res = true;

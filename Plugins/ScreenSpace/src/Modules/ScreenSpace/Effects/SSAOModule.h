@@ -54,7 +54,7 @@ class SSAOModule :
 	public TextureOutputInterface
 {
 public:
-	static std::shared_ptr<SSAOModule> Create(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	static std::shared_ptr<SSAOModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
 	std::weak_ptr<SSAOModule> m_This;
@@ -62,7 +62,7 @@ private:
 	std::shared_ptr<SSAOModule_Comp_2D_Pass> m_SSAOModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	SSAOModule(GaiApi::VulkanCorePtr vVulkanCorePtr);
+	SSAOModule(GaiApi::VulkanCoreWeak vVulkanCore);
 	~SSAOModule() override;
 
 	bool Init();
