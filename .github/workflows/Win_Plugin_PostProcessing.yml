@@ -8,7 +8,7 @@ on:
     - 'Plugins/PostProcessing/**'    
 
 jobs:
-  build_Win_Plugin_PostProcessing:
+  build_Win_Plugin_PostPro:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
