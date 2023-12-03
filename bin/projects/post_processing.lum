@@ -19,44 +19,6 @@
 			<CameraMode>0</CameraMode>
 		</CommonSystem>
 		<scene>
-			<graph>
-				<canvas>
-					<offset>0;0</offset>
-					<scale>1</scale>
-				</canvas>
-				<nodes>
-					<node name="Model Renderer" type="MODEL_RENDERER" pos="0;-34" id="5826">
-						<slot place="INPUT" index="0" name="Mesh" type="MESH" id="5829"/>
-						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="5832"/>
-						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="5836"/>
-						<model_renderer_module>
-							<can_we_render>true</can_we_render>
-							<resize_by_event>true</resize_by_event>
-							<resize_by_hand>true</resize_by_hand>
-							<buffer_quality>1</buffer_quality>
-							<display_mode>3</display_mode>
-							<line_thickness>1</line_thickness>
-							<point_size>1</point_size>
-							<show_layer>0</show_layer>
-							<use_indices_restriction>false</use_indices_restriction>
-							<restricted_indices_count_to_draw>362016</restricted_indices_count_to_draw>
-						</model_renderer_module>
-					</node>
-					<node name="Model" type="MESH" pos="-132;-25" id="7008">
-						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="7012"/>
-						<mesh_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
-						</mesh_module>
-					</node>
-				</nodes>
-				<links>
-					<link in="7008:7012" out="5826:5829"/>
-				</links>
-				<outputs>
-					<output type="left" ids="5826:5832"/>
-				</outputs>
-			</graph>
 		</scene>
 		<plugins>
 			<AudiArt>
@@ -66,8 +28,53 @@
 			<CodeGenerator>
 				<custom_types>
 				</custom_types>
-				<root_path></root_path>
+				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\PostProcessing\src</root_path>
 				<scene>
+					<graph>
+						<canvas>
+							<offset>0;0</offset>
+							<scale>1</scale>
+						</canvas>
+						<nodes>
+							<node name="Outlining" type="NONE" pos="0;-34" id="13613">
+								<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="13616" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="13625" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="1" showWidget="false"/>
+								<slot index="0" name="ouput" type="TEXTURE_2D" place="OUTPUT" id="13619" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>Outlining</class_name>
+									<category_name>PostPro</category_name>
+									<node_creation_name>OUTLINING</node_creation_name>
+									<node_display_name>Outlining</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 2D</renderer_type>
+									<module_display_name>Outlining</module_display_name>
+									<module_xml_name>outlining_module</module_xml_name>
+									<module_xml_simple_name>outlining_pass</module_xml_simple_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<node_is_an_effect>true</node_is_an_effect>
+									<vertex_struct_type>0</vertex_struct_type>
+									<use_common_system_ubo>false</use_common_system_ubo>
+								</generation>
+								<UBOS renderer="Compute 2D">
+									<UBO stage="0">
+										<UBOItem name="thickness" widgetIndex="1" typeIndex="0" vx="1" vy="0" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="color" widgetIndex="5" typeIndex="3" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+									</UBO>
+								</UBOS>
+							</node>
+						</nodes>
+						<links>
+						</links>
+						<outputs>
+							<output type="left" ids="13613:13625"/>
+							<output type="middle" ids="13613:13625"/>
+							<output type="right" ids="13613:13625"/>
+						</outputs>
+					</graph>
 				</scene>
 			</CodeGenerator>
 			<Lighting>

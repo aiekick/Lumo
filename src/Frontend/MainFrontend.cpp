@@ -42,6 +42,7 @@ limitations under the License.
 #include <Panes/GraphPane.h>
 #include <Panes/ConsolePane.h>
 #include <Panes/AnimatePane.h>
+#include <Panes/ProfilerPane.h>
 
 #include <ImWidgets.h>
 
@@ -99,6 +100,7 @@ bool MainFrontend::init() {
     LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D Pane", "", PaneDisposal::LEFT, true, true);
     LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D Pane", "", PaneDisposal::LEFT, false, false);
     LayoutManager::Instance()->AddPane(ConsolePane::Instance(), "Console Pane", "", PaneDisposal::BOTTOM, false, false);
+    LayoutManager::Instance()->AddPane(ProfilerPane::Instance(), "Profiler Pane", "", PaneDisposal::BOTTOM, false, false);
     // LayoutManager::Instance()->AddPane(AnimatePane::Instance(), "Animate Pane", "", PaneDisposal::BOTTOM, false, false);
 
     // InitPänes is done in m_InitPanes, because a specific order is needed
@@ -108,7 +110,6 @@ bool MainFrontend::init() {
 
 void MainFrontend::unit() {
     LayoutManager::Instance()->UnitPanes();
-
     auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
     for (auto& pluginPane : pluginPanes) {
         if (!pluginPane.paneWeak.expired()) {

@@ -2806,6 +2806,9 @@ void PASS_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 			}
 			else
 			{
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
 				m_StorageBuffers[vBindingPoint] = corePtr->getEmptyDescriptorBufferInfo();
 			}
 		}
@@ -3095,6 +3098,9 @@ void PASS_CLASS_NAME::SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* 
 			}
 			else
 			{
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
 				m_TexelBuffers[vBindingPoint] = corePtr->getEmptyDescriptorBufferInfo();
 			}
 		}
@@ -3120,6 +3126,9 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 			}
 			else
 			{
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
 				m_TexelBufferViews[vBindingPoint] = corePtr->getEmptyDescriptorBufferInfo();
 			}
 		}
@@ -3402,6 +3411,8 @@ void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 				}
 				m_ImageInfos[vBindingPoint] = *vImageInfo;
 			} else {
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
 				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
@@ -3659,6 +3670,9 @@ void PASS_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 			}
 			else
 			{
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
 				m_ImageCubeInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}
@@ -3904,6 +3918,9 @@ void PASS_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 			}
 			else
 			{
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+
 				m_ImageGroups[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 			}
 		}

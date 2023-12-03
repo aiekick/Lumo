@@ -667,7 +667,7 @@ std::string UBOEditor::Get_Create_Header(const std::string& vRendererType, const
 
     std::string res =
         u8R"(
-	m_@UBO_NAME@_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(@UBO_NAME@));
+	m_@UBO_NAME@_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(@UBO_NAME@), "PASS_CLASS_NAME");
 	m_@UBO_NAME@_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 	if (m_@UBO_NAME@_Ptr) {
 		m_@UBO_NAME@_BufferInfos.buffer = m_@UBO_NAME@_Ptr->buffer;

@@ -218,7 +218,9 @@ void PASS_CLASS_NAME::ActionBeforeCompilation() {
 		cpp_pass_file_code += u8R"(
 void PASS_CLASS_NAME::ActionBeforeInit() {
 	ZoneScoped;
-	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);)";
+	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+    auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);)";
 
 	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
 	{

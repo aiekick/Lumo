@@ -17,6 +17,8 @@
 #include <Graph/Library/UserNodeLibrary.h>
 #include <LayoutManager.h>
 
+#include <ImGuiPack.h>
+
 #include <Panes/View2DPane.h>
 #include <Panes/View3DPane.h>
 
@@ -32,6 +34,7 @@
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Shader/VulkanShader.h>
 #include <Gaia/Gui/VulkanImGuiRenderer.h>
+#include <Gaia/Gui/VulkanProfiler.h>
 
 #include <LumoBackend/Systems/CommonSystem.h>
 #include <LumoBackend/Systems/FilesTrackerSystem.h>
@@ -60,8 +63,10 @@ using namespace gaia;
 //////////////////////////////////////////////////////////////////////////////////
 
 static void glfw_window_close_callback(GLFWwindow* window) {
-    glfwSetWindowShouldClose(window, GL_FALSE); // block app closing
-    MainBackend::Instance()->GetOverlayPtr()->getFrontend()->Action_Window_CloseApp();
+    glfwSetWindowShouldClose(window, GL_FALSE);  // block app closing
+    auto overLayPtr = MainBackend::Instance()->GetOverlay().lock();
+    assert(overLayPtr != nullptr);
+    overLayPtr->getFrontend()->Action_Window_CloseApp();
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -137,7 +142,9 @@ bool MainBackend::isValid() const {
             m_ImGuiOverlayPtr != nullptr);   //
 }
 
-bool MainBackend::isThereAnError() const { return false; }
+bool MainBackend::isThereAnError() const {
+    return false;
+}
 
 void MainBackend::NeedToNewProject(const std::string& vFilePathName) {
     m_NeedToNewProject = true;
@@ -149,9 +156,13 @@ void MainBackend::NeedToLoadProject(const std::string& vFilePathName) {
     m_ProjectFileToLoad = vFilePathName;
 }
 
-void MainBackend::NeedToCloseProject() { m_NeedToCloseProject = true; }
+void MainBackend::NeedToCloseProject() {
+    m_NeedToCloseProject = true;
+}
 
-bool MainBackend::SaveProject() { return ProjectFile::Instance()->Save(); }
+bool MainBackend::SaveProject() {
+    return ProjectFile::Instance()->Save();
+}
 
 void MainBackend::SaveAsProject(const std::string& vFilePathName) {
     ProjectFile::Instance()->SaveAs(vFilePathName);
@@ -186,15 +197,26 @@ void MainBackend::PostRenderingActions() {
     }
 }
 
-bool MainBackend::IsNeedToCloseApp() { return m_NeedToCloseApp; }
+bool MainBackend::IsNeedToCloseApp() {
+    return m_NeedToCloseApp;
+}
 
-void MainBackend::NeedToCloseApp(const bool& vFlag) { m_NeedToCloseApp = vFlag; }
+void MainBackend::NeedToCloseApp(const bool& vFlag) {
+    m_NeedToCloseApp = vFlag;
+}
 
-void MainBackend::CloseApp() { getWindowPtr()->CloseWindowWhenPossible(); }
+void MainBackend::CloseApp() {
+    assert(m_VulkanWindowPtr != nullptr);
+    m_VulkanWindowPtr->CloseWindowWhenPossible();
+}
 
-void MainBackend::setSize(const ct::ivec2& vSize) { m_size = vSize; }
+void MainBackend::setSize(const ct::ivec2& vSize) {
+    m_size = vSize;
+}
 
-const ct::ivec2& MainBackend::getSize() const { return m_size; }
+const ct::ivec2& MainBackend::getSize() const {
+    return m_size;
+}
 
 bool MainBackend::resize(const ct::ivec2& vNewSize) {
     m_DisplaySize = vNewSize;
@@ -207,21 +229,22 @@ bool MainBackend::resize(const ct::ivec2& vNewSize) {
 }
 
 void MainBackend::setAppTitle(const std::string& vFilePathName) {
-    if (m_VulkanWindowPtr) {
-        auto ps = FileHelper::Instance()->ParsePathFileName(vFilePathName);
-        if (ps.isOk) {
-            char bufTitle[1024];
-            snprintf(bufTitle, 1023, "Lumo Beta %s - Project : %s.lum", Lumo_BuildId, ps.name.c_str());
-            m_VulkanWindowPtr->setAppTitle(bufTitle);
-        } else {
-            char bufTitle[1024];
-            snprintf(bufTitle, 1023, "Lumo Beta %s", Lumo_BuildId);
-            m_VulkanWindowPtr->setAppTitle(bufTitle);
-        }
+    assert(m_VulkanWindowPtr != nullptr);
+    auto ps = FileHelper::Instance()->ParsePathFileName(vFilePathName);
+    if (ps.isOk) {
+        char bufTitle[1024];
+        snprintf(bufTitle, 1023, "Lumo Beta %s - Project : %s.lum", Lumo_BuildId, ps.name.c_str());
+        m_VulkanWindowPtr->setAppTitle(bufTitle);
+    } else {
+        char bufTitle[1024];
+        snprintf(bufTitle, 1023, "Lumo Beta %s", Lumo_BuildId);
+        m_VulkanWindowPtr->setAppTitle(bufTitle);
     }
 }
 
-void MainBackend::setFrontend(const MainFrontendWeak& vFontend) { m_Frontend = vFontend; }
+void MainBackend::setFrontend(const MainFrontendWeak& vFontend) {
+    m_Frontend = vFontend;
+}
 
 ct::dvec2 MainBackend::GetMousePos() {
     if (m_VulkanWindowPtr) {
@@ -248,8 +271,6 @@ std::string MainBackend::getAppRelativeFilePathName(const std::string& vFilePath
     }
     return {};
 }
-
-GaiApi::VulkanWindowPtr MainBackend::getWindowPtr() { return m_VulkanWindowPtr; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONSOLE ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -278,7 +299,9 @@ void MainBackend::SwitchConsoleVisibility() {
     SetConsoleVisibility(m_ConsoleVisiblity);
 }
 
-bool MainBackend::GetConsoleVisibility() { return m_ConsoleVisiblity; }
+bool MainBackend::GetConsoleVisibility() {
+    return m_ConsoleVisiblity;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// RENDER ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -401,20 +424,23 @@ void MainBackend::m_Update() {
 
     CommonSystem::Instance()->UploadBufferObjectIfDirty(m_VulkanCorePtr);
 
+    // evaluation of the graph
     NodeManager::Instance()->Execute(m_CurrentFrame);
 
     m_RenderOffScreen();  // frame rendering
 }
 
-void MainBackend::m_IncFrame() { ++m_CurrentFrame; }
+void MainBackend::m_IncFrame() {
+    ++m_CurrentFrame;
+}
 
-void MainBackend::m_Resize() { 
+void MainBackend::m_Resize() {
     auto swapChainPtr = m_VulkanCorePtr->getSwapchain().lock();
     if (swapChainPtr != nullptr) {
         const auto& extent = swapChainPtr->getRenderArea().extent;
         ct::ivec2 new_size((int32_t)extent.width, (int32_t)extent.height);
         resize(new_size);
-    } 
+    }
 }
 
 #define SHADER_PATH 0
@@ -434,8 +460,7 @@ void MainBackend::m_AddPathToTrack(std::string vPathToTrack, bool vCreateDirecto
     }
 }
 
-void MainBackend::m_InitFilesTracker(
-    std::function<void(std::set<std::string>)> vChangeFunc, std::list<std::string> vPathsToTrack) {
+void MainBackend::m_InitFilesTracker(std::function<void(std::set<std::string>)> vChangeFunc, std::list<std::string> vPathsToTrack) {
     ZoneScoped;
     m_ChangeFunc = vChangeFunc;
     for (auto path : vPathsToTrack) {
@@ -460,12 +485,10 @@ void MainBackend::m_UpdateFiles(const std::set<std::string>& vFiles) {
     std::set<std::string> updated_files;
 
     for (auto file : vFiles) {
-        if (file.find(".vert") != std::string::npos || file.find(".frag") != std::string::npos ||
-            file.find(".tess") != std::string::npos || file.find(".eval") != std::string::npos ||
-            file.find(".glsl") != std::string::npos || file.find(".geom") != std::string::npos ||
-            file.find(".scen") != std::string::npos || file.find(".blue") != std::string::npos ||
-            file.find(".comp") != std::string::npos || file.find(".rgen") != std::string::npos ||
-            file.find(".rint") != std::string::npos || file.find(".miss") != std::string::npos ||
+        if (file.find(".vert") != std::string::npos || file.find(".frag") != std::string::npos || file.find(".tess") != std::string::npos ||
+            file.find(".eval") != std::string::npos || file.find(".glsl") != std::string::npos || file.find(".geom") != std::string::npos ||
+            file.find(".scen") != std::string::npos || file.find(".blue") != std::string::npos || file.find(".comp") != std::string::npos ||
+            file.find(".rgen") != std::string::npos || file.find(".rint") != std::string::npos || file.find(".miss") != std::string::npos ||
             file.find(".ahit") != std::string::npos || file.find(".chit") != std::string::npos) {
             ct::replaceString(file, "\\", "/");
             ct::replaceString(file, "./", "");
@@ -491,8 +514,7 @@ void MainBackend::UpdateMouseDatas(bool vCanUseMouse) {
     }
 
     m_MouseInterface.canUpdateMouse =
-        m_BackendDatas.canWeTuneMouse &&
-        (m_MouseInterface.buttonDown[0] || m_MouseInterface.buttonDown[1] || m_MouseInterface.buttonDown[2]);
+        m_BackendDatas.canWeTuneMouse && (m_MouseInterface.buttonDown[0] || m_MouseInterface.buttonDown[1] || m_MouseInterface.buttonDown[2]);
 
     if (vCanUseMouse) {
         // m_MouseInterface pos is needed for camera and mouse
@@ -521,11 +543,9 @@ void MainBackend::m_UpdateCameraAndMouse() {
 
             if (CommonSystem::Instance()->m_CameraSettings.m_CameraMode == CAMERA_MODE_Enum::CAMERA_MODE_FREE) {
                 if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
-                    CommonSystem::Instance()->IncFlyingPosition(
-                        CommonSystem::Instance()->m_CameraSettings.m_SpeedFactor);
+                    CommonSystem::Instance()->IncFlyingPosition(CommonSystem::Instance()->m_CameraSettings.m_SpeedFactor);
                 } else if (ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
-                    CommonSystem::Instance()->IncFlyingPosition(
-                        -CommonSystem::Instance()->m_CameraSettings.m_SpeedFactor);
+                    CommonSystem::Instance()->IncFlyingPosition(-CommonSystem::Instance()->m_CameraSettings.m_SpeedFactor);
                 }
             }
 
@@ -590,9 +610,12 @@ void MainBackend::m_UpdateCameraAndMouse() {
     m_UpdateCamera();
 }
 
-void MainBackend::NeedRefresh(const bool& vFlag) { m_NeedRefresh |= vFlag; }
+void MainBackend::NeedRefresh(const bool& vFlag) {
+    m_NeedRefresh |= vFlag;
+}
 
-void MainBackend::m_UpdateMouse() {}
+void MainBackend::m_UpdateMouse() {
+}
 
 void MainBackend::m_UpdateCamera(const bool& vForce) {
     if (vForce) {
@@ -623,8 +646,7 @@ std::string MainBackend::getXml(const std::string& vOffset, const std::string& v
     return str;
 }
 
-bool MainBackend::setFromXml(
-    tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+bool MainBackend::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
     UNUSED(vUserDatas);
 
     // The value of this child identifies the name of this element
@@ -659,7 +681,9 @@ bool MainBackend::setFromXml(
 //// PRIVATE /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////
 
-bool MainBackend::m_build() { return false; }
+bool MainBackend::m_build() {
+    return false;
+}
 
 bool MainBackend::m_CreateVulkanWindow() {
     m_VulkanWindowPtr = GaiApi::VulkanWindow::Create(INITIAL_WIDTH, INITIAL_HEIGHT, Lumo_Prefix " beta", false);
@@ -680,16 +704,15 @@ void MainBackend::m_InitFilesTracker() {
         std::list<std::string>{".", "shaders", "debug", "debug/shaders"});
 }
 
-
 void MainBackend::m_UnitFilesTracker() {
-    FilesTrackerSystem::Instance()->unit(); 
+    FilesTrackerSystem::Instance()->unit();
 }
 
 bool MainBackend::m_CreateVulkanCore() {
     GaiApi::VulkanCore::sVulkanShader = VulkanShader::Create();
     if (GaiApi::VulkanCore::sVulkanShader != nullptr) {
-        m_VulkanCorePtr = GaiApi::VulkanCore::Create(
-            MainBackend::Instance()->getWindowPtr(), Lumo_Prefix, 1, Lumo_Prefix " Engine", 1, true, USE_RTX);
+        m_VulkanCorePtr =
+            GaiApi::VulkanCore::Create(MainBackend::Instance()->getWindow(), Lumo_Prefix, 1, Lumo_Prefix " Engine", 1, true, USE_RTX);
         return (m_VulkanCorePtr != nullptr);
     }
     return false;
@@ -709,8 +732,8 @@ void MainBackend::m_InitPlugins() {
     auto pluginPanes = PluginManager::Instance()->GetPluginsPanes();
     for (auto& pluginPane : pluginPanes) {
         if (!pluginPane.paneWeak.expired()) {
-            LayoutManager::Instance()->AddPane(pluginPane.paneWeak, pluginPane.paneName, pluginPane.paneCategory,
-                pluginPane.paneDisposal, pluginPane.isPaneOpenedDefault, pluginPane.isPaneFocusedDefault);
+            LayoutManager::Instance()->AddPane(pluginPane.paneWeak, pluginPane.paneName, pluginPane.paneCategory, pluginPane.paneDisposal,
+                pluginPane.isPaneOpenedDefault, pluginPane.isPaneFocusedDefault);
             auto plugin_ptr = std::dynamic_pointer_cast<PluginPane>(pluginPane.paneWeak.lock());
             if (plugin_ptr != nullptr) {
                 plugin_ptr->SetProjectInstancePtr(ProjectFile::Instance());
@@ -748,8 +771,7 @@ void MainBackend::m_DestroyVulkanCore() {
 }
 
 bool MainBackend::m_CreateImGuiOverlay() {
-    m_ImGuiOverlayPtr = ImGuiOverlay::Create(
-        m_VulkanCorePtr, MainBackend::Instance()->getWindowPtr());  // needed for alloc ImGui Textures
+    m_ImGuiOverlayPtr = ImGuiOverlay::Create(m_VulkanCorePtr, MainBackend::Instance()->getWindow());  // needed for alloc ImGui Textures
     View3DPane::Instance()->SetVulkanImGuiRenderer(m_ImGuiOverlayPtr->GetImGuiRenderer());
     View2DPane::Instance()->SetVulkanImGuiRenderer(m_ImGuiOverlayPtr->GetImGuiRenderer());
     if (m_ImGuiOverlayPtr != nullptr) {
@@ -757,14 +779,17 @@ bool MainBackend::m_CreateImGuiOverlay() {
         ImGuiFileDialog::Instance()->SetCreateThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info) {
             if (vThumbnail_Info && vThumbnail_Info->isReadyToUpload && vThumbnail_Info->textureFileDatas) {
                 m_VulkanCorePtr->getDevice().waitIdle();
-                std::shared_ptr<FileDialogAsset> resPtr = std::shared_ptr<FileDialogAsset>(new FileDialogAsset, [](FileDialogAsset* obj) { delete obj; });
+                std::shared_ptr<FileDialogAsset> resPtr =
+                    std::shared_ptr<FileDialogAsset>(new FileDialogAsset, [](FileDialogAsset* obj) { delete obj; });
                 if (resPtr) {
-                    resPtr->texturePtr = Texture2D::CreateFromMemory(m_VulkanCorePtr, vThumbnail_Info->textureFileDatas, vThumbnail_Info->textureWidth, vThumbnail_Info->textureHeight, vThumbnail_Info->textureChannels);
+                    resPtr->texturePtr = Texture2D::CreateFromMemory(m_VulkanCorePtr, vThumbnail_Info->textureFileDatas,
+                        vThumbnail_Info->textureWidth, vThumbnail_Info->textureHeight, vThumbnail_Info->textureChannels);
                     if (resPtr->texturePtr) {
                         auto imguiRendererPtr = m_ImGuiOverlayPtr->GetImGuiRenderer().lock();
                         if (imguiRendererPtr) {
-                            resPtr->descriptorSet = imguiRendererPtr->CreateImGuiTexture(
-                                (VkSampler)resPtr->texturePtr->m_DescriptorImageInfo.sampler, (VkImageView)resPtr->texturePtr->m_DescriptorImageInfo.imageView, (VkImageLayout)resPtr->texturePtr->m_DescriptorImageInfo.imageLayout);
+                            resPtr->descriptorSet = imguiRendererPtr->CreateImGuiTexture((VkSampler)resPtr->texturePtr->m_DescriptorImageInfo.sampler,
+                                (VkImageView)resPtr->texturePtr->m_DescriptorImageInfo.imageView,
+                                (VkImageLayout)resPtr->texturePtr->m_DescriptorImageInfo.imageLayout);
                             vThumbnail_Info->userDatas = (void*)resPtr.get();
                             m_FileDialogAssets.push_back(resPtr);
                             vThumbnail_Info->textureID = (ImTextureID)&resPtr->descriptorSet;
@@ -814,7 +839,9 @@ bool MainBackend::m_CreateRenderers() {
     return false;
 }
 
-void MainBackend::m_DestroyRenderers() { m_DisplaySizeQuadRendererPtr.reset(); }
+void MainBackend::m_DestroyRenderers() {
+    m_DisplaySizeQuadRendererPtr.reset();
+}
 
 void MainBackend::m_DeleteNodesIfAnys() {
     if (NodeManager::Instance()->m_RootNodePtr) {

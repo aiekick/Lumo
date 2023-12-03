@@ -27,15 +27,15 @@
 #include <unordered_map>
 
 struct FileDialogAsset {
-    Texture2DPtr texturePtr         = nullptr;
+    Texture2DPtr texturePtr = nullptr;
     vk::DescriptorSet descriptorSet = vk::DescriptorSet{};
 };
 
 struct BackendDatas {
     bool canWeTuneCamera = false;  // enable/disable Camera
-    bool canWeTuneMouse  = false;  // enable/disable Mouse
-    bool canWeTuneGizmo  = false;  // enable/disable Gizmo
-    bool canWeShowGrid   = false;  // show/hide Grid Renderer
+    bool canWeTuneMouse = false;   // enable/disable Mouse
+    bool canWeTuneGizmo = false;   // enable/disable Gizmo
+    bool canWeShowGrid = false;    // show/hide Grid Renderer
 };
 
 class MainBackend : public gaia::iService, public gaia::iSurface<ct::ivec2>, public conf::ConfigAbstract {
@@ -47,8 +47,8 @@ private:
     MainFrontendWeak m_Frontend;
 
     GaiApi::VulkanWindowPtr m_VulkanWindowPtr = nullptr;
-    ImGuiOverlayPtr m_ImGuiOverlayPtr         = nullptr;
-    GaiApi::VulkanCorePtr m_VulkanCorePtr     = nullptr;
+    ImGuiOverlayPtr m_ImGuiOverlayPtr = nullptr;
+    GaiApi::VulkanCorePtr m_VulkanCorePtr = nullptr;
 
     std::vector<std::shared_ptr<FileDialogAsset>> m_FileDialogAssets;
 
@@ -61,12 +61,12 @@ private:
     ct::fvec2 m_LastNormalizedMousePos;
     ct::fvec2 m_NormalizedMousePos;
 
-    bool         m_JustRecoveredFocus = false;
-    bool         m_MouseDrag          = false;
-    bool         m_NeedRefresh        = true;
-    bool         m_ConsoleVisiblity   = false;
+    bool m_JustRecoveredFocus = false;
+    bool m_MouseDrag = false;
+    bool m_NeedRefresh = true;
+    bool m_ConsoleVisiblity = false;
     BackendDatas m_BackendDatas;
-    float        m_DisplayQuality = 1.0f;
+    float m_DisplayQuality = 1.0f;
     uint32_t m_CurrentFrame = 0U;
 
     bool m_NeedToCloseApp = false;  // when app closing app is required
@@ -77,13 +77,17 @@ private:
     std::string m_ProjectFileToLoad;
 
     std::function<void(std::set<std::string>)> m_ChangeFunc;
-    std::set<std::string>                      m_PathsToTrack;
+    std::set<std::string> m_PathsToTrack;
 
     DisplaySizeQuadRendererPtr m_DisplaySizeQuadRendererPtr = nullptr;  // will render in swapchain the offscreen textures of m_FrameBufferMergerPtr
 
 public:  // getters
-    BackendDatas&          GetBackendDatasRef() { return m_BackendDatas; }
-    ImVec2 GetDisplaySize() { return ImVec2((float)m_DisplaySize.x, (float)m_DisplaySize.y); }
+    BackendDatas& GetBackendDatasRef() {
+        return m_BackendDatas;
+    }
+    ImVec2 GetDisplaySize() {
+        return ImVec2((float)m_DisplaySize.x, (float)m_DisplaySize.y);
+    }
 
 public:
     virtual ~MainBackend();
@@ -93,9 +97,22 @@ public:
     bool init() override;
     void unit() override;
 
-    MainBackendWeak GetWeak() { return m_This; }
-    MainFrontendWeak GetFrontend() { return m_Frontend; }
-    ImGuiOverlayPtr GetOverlayPtr() { return m_ImGuiOverlayPtr; }
+    MainBackendWeak GetWeak() {
+        return m_This;
+    }
+    MainFrontendWeak GetFrontend() {
+        return m_Frontend;
+    }
+    GaiApi::VulkanCoreWeak GetVulkanCore() {
+        return m_VulkanCorePtr;
+    }
+    ImGuiOverlayWeak GetOverlay() {
+        return m_ImGuiOverlayPtr;
+    }
+
+    GaiApi::VulkanWindowWeak getWindow() {
+        return m_VulkanWindowPtr;
+    }
 
     bool isValid() const override;
     bool isThereAnError() const override;
@@ -125,13 +142,11 @@ public:
 
     std::string getAppRelativeFilePathName(const std::string& vFilePathName);
 
-    GaiApi::VulkanWindowPtr getWindowPtr();
-
     void UpdateMouseDatas(bool vCanUseMouse);
 
     void NeedRefresh(const bool& vFlag = true);
 
-    public:  // configuration
+public:  // configuration
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 

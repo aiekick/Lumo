@@ -73,7 +73,7 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(
                     NodeSlot::sSlotGraphOutputMouseMiddle = res;
                     auto slot_ptr = res.lock();
                     if (slot_ptr != nullptr) {
-                        slot_ptr->descriptorBinding = nodePtr->m_Inputs.size() - 1U;
+                        slot_ptr->descriptorBinding = (uint32_t)nodePtr->m_Inputs.size() - 1U;
                     }
                 } else if (vPlace == NodeSlot::PlaceEnum::OUTPUT) {
                     res = std::dynamic_pointer_cast<GeneratorNodeSlotOutput>(
@@ -81,7 +81,7 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(
                     NodeSlot::sSlotGraphOutputMouseRight = res;
                     auto slot_ptr = res.lock();
                     if (slot_ptr != nullptr) {
-                        slot_ptr->descriptorBinding = nodePtr->m_Inputs.size() - 1U;
+                        slot_ptr->descriptorBinding = (uint32_t)nodePtr->m_Inputs.size() - 1U;
                     }
                 }
                 SelectSlot(res);
