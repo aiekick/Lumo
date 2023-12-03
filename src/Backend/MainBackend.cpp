@@ -316,6 +316,10 @@ void MainBackend::m_MainLoop() {
     while (!glfwWindowShouldClose(main_window_ptr)) {
         ZoneScoped;
 
+        auto profilerPtr = m_VulkanCorePtr->getVkProfiler().lock();
+        assert(profilerPtr != nullptr);
+        profilerPtr->BeginFrame("GPU Frame");
+
         ProjectFile::Instance()->NewFrame();
 
         RenderDocController::Instance()->StartCaptureIfResquested();
@@ -370,6 +374,10 @@ void MainBackend::m_MainLoop() {
         PostRenderingActions();
 
         ++m_CurrentFrame;
+
+        profilerPtr->EndFrame();
+
+        profilerPtr->Collect();
 
         // will pause the view until we move the mouse or press keys
         // glfwWaitEvents();

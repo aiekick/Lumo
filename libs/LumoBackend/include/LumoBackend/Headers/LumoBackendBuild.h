@@ -1,7 +1,7 @@
 #pragma once
 
 #define LumoBackend_Prefix "LumoBackend"
-#define LumoBackend_BuildNumber 564
+#define LumoBackend_BuildNumber 568
 #define LumoBackend_MinorNumber 2
 #define LumoBackend_MajorNumber 0
-#define LumoBackend_BuildId "0.2.564"
+#define LumoBackend_BuildId "0.2.568"
