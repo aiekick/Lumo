@@ -43,12 +43,92 @@
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
 					</node>
+					<node name="Post Processing" type="POST_PROCESSING" pos="304;-18" id="28012">
+						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="28015"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="28018"/>
+						<post_processing_module>
+							<can_we_render>true</can_we_render>
+							<bloom_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<radius>4</radius>
+								<gaussian_sigma_auto>true</gaussian_sigma_auto>
+								<gaussian_sigma>1</gaussian_sigma>
+								<gamma_correction>2.2</gamma_correction>
+								<exposure_correction>1</exposure_correction>
+								<high_freq_threshold>0.8;0.8;0.8</high_freq_threshold>
+								<enabled>1</enabled>
+							</bloom_pass>
+							<blur_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<radius_h>4</radius_h>
+								<radius_v>4</radius_v>
+								<disctinct_v_and_h>false</disctinct_v_and_h>
+								<gaussian_sigma>1</gaussian_sigma>
+								<gaussian_sigma_auto>true</gaussian_sigma_auto>
+								<use_h>true</use_h>
+								<use_v>true</use_v>
+								<enabled>1</enabled>
+							</blur_pass>
+							<sharpness_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<amount>1</amount>
+								<enabled>1</enabled>
+							</sharpness_pass>
+							<chromatic_aberrations_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<amount>1</amount>
+								<enabled>1</enabled>
+							</chromatic_aberrations_pass>
+							<dilation_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<shape>0</shape>
+								<size>5</size>
+								<separation>1</separation>
+								<threshold>0;1</threshold>
+								<brightcolor>1;1;1</brightcolor>
+								<enabled>1</enabled>
+							</dilation_pass>
+							<tone_mapping_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<algo>0</algo>
+								<aces>2.510;0.030;2.430;0.590;0.140</aces>
+								<filmic>0.004;6.200;0.500;1.700;0.060;2.200</filmic>
+								<lotted>1.600;0.977;8.000;0.180;0.267</lotted>
+								<reinhard2>1.600</reinhard2>
+								<uchimura>1.000;1.000;0.220;0.400;1.330;0.000</uchimura>
+								<uncharted2>0.150;0.500;0.100;0.200;0.020;0.300;11.200;2.000</uncharted2>
+								<unreal>0.154;1.019</unreal>
+								<enabled>1</enabled>
+							</tone_mapping_pass>
+							<vignette_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<width>0.25</width>
+								<intensity>15</intensity>
+								<enabled>1</enabled>
+							</vignette_pass>
+						</post_processing_module>
+					</node>
 				</nodes>
 				<links>
 					<link in="22484:22488" out="19160:19164"/>
+					<link in="19160:19176" out="28012:28015"/>
 				</links>
 				<outputs>
-					<output type="left" ids="19160:19176"/>
+					<output type="left" ids="28012:28018"/>
 				</outputs>
 			</graph>
 		</scene>
@@ -102,7 +182,7 @@
 						<links>
 						</links>
 						<outputs>
-							<output type="left" ids="19160:19176"/>
+							<output type="left" ids="28012:28018"/>
 						</outputs>
 					</graph>
 				</scene>

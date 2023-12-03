@@ -600,6 +600,9 @@ void BaseRenderer::BeginCommandBuffer(const char* vSectionLabel) {
     if (vSectionLabel) {
         auto corePtr = m_VulkanCore.lock();
         assert(corePtr != nullptr);
+        auto profilerPtr = corePtr->getVkProfiler().lock();
+        assert(profilerPtr != nullptr);
+        profilerPtr->beginZone(*cmd, false, nullptr, "BaseRenderer", "%s", vSectionLabel);
         auto devicePtr = corePtr->getFrameworkDevice().lock();
         if (devicePtr) {
             devicePtr->BeginDebugLabel(cmd, vSectionLabel, GENERIC_RENDERER_DEBUG_COLOR);
@@ -626,6 +629,9 @@ void BaseRenderer::EndCommandBuffer() {
                 devicePtr->EndDebugLabel(cmd);
                 m_DebugLabelWasUsed = false;
             }
+            auto profilerPtr = corePtr->getVkProfiler().lock();
+            assert(profilerPtr != nullptr);
+            profilerPtr->endZone(*cmd);
         }
 
         DoBeforeEndCommandBuffer(cmd);

@@ -340,8 +340,6 @@ void MainBackend::m_MainLoop() {
         // Merged Rendering
         bool needResize = false;
         if (m_BeginRender(needResize)) {
-            auto cmd = m_VulkanCorePtr->getGraphicCommandBuffer();
-            // m_DisplaySizeQuadRendererPtr->RenderShaderPasses(&cmd);
             m_ImGuiOverlayPtr->render();  // gui rendering
             m_EndRender();
         } else if (needResize) {
@@ -388,9 +386,13 @@ bool MainBackend::m_BeginRender(bool& vNeedResize) {
     ZoneScoped;
 
     if (m_VulkanCorePtr->AcquireNextImage(m_VulkanWindowPtr)) {
-        m_VulkanCorePtr->frameBegin();
-        m_VulkanCorePtr->beginMainRenderPass();
-        return true;
+        if (m_VulkanCorePtr->frameBegin()) {
+            auto profilerPtr = m_VulkanCorePtr->getVkProfiler().lock();
+            assert(profilerPtr != nullptr);
+            //profilerPtr->beginZone(m_VulkanCorePtr->getGraphicCommandBuffer(), false, nullptr, "", "%s", "ImGui");
+            m_VulkanCorePtr->beginMainRenderPass();
+            return true;
+        }
     } else {  // maybe a resize will fix
         vNeedResize = true;
     }
@@ -402,6 +404,9 @@ void MainBackend::m_EndRender() {
     ZoneScoped;
 
     m_VulkanCorePtr->endMainRenderPass();
+    auto profilerPtr = m_VulkanCorePtr->getVkProfiler().lock();
+    assert(profilerPtr != nullptr);
+    //profilerPtr->endZone(m_VulkanCorePtr->getGraphicCommandBuffer());
     m_VulkanCorePtr->frameEnd();
     m_VulkanCorePtr->Present();
 }

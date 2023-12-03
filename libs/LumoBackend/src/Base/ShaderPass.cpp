@@ -695,9 +695,12 @@ bool ShaderPass::AreWeValidForRender() {
 
 bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
-    if (AreWeValidForRender() && CanRender()) {
+    if (AreWeValidForRender() && CanRender() && vCmdBufferPtr) {
         auto corePtr = m_VulkanCore.lock();
         assert(corePtr != nullptr);
+        auto profilerPtr = corePtr->getVkProfiler().lock();
+        assert(profilerPtr != nullptr);
+        profilerPtr->beginZone(*vCmdBufferPtr, false, nullptr, "ShaderPass", "%s", m_RenderDocDebugName);
         auto devicePtr = corePtr->getFrameworkDevice().lock();
         if (devicePtr) {
             devicePtr->BeginDebugLabel(vCmdBufferPtr, m_RenderDocDebugName, m_RenderDocDebugColor);
@@ -726,11 +729,16 @@ bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
 
 void ShaderPass::EndDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
     ZoneScoped;
-    auto corePtr = m_VulkanCore.lock();
-    assert(corePtr != nullptr);
-    auto devicePtr = corePtr->getFrameworkDevice().lock();
-    if (devicePtr) {
-        devicePtr->EndDebugLabel(vCmdBufferPtr);
+    if (vCmdBufferPtr) {
+        auto corePtr = m_VulkanCore.lock();
+        assert(corePtr != nullptr);
+        auto devicePtr = corePtr->getFrameworkDevice().lock();
+        if (devicePtr) {
+            devicePtr->EndDebugLabel(vCmdBufferPtr);
+        }
+        auto profilerPtr = corePtr->getVkProfiler().lock();
+        assert(profilerPtr != nullptr);
+        profilerPtr->endZone(*vCmdBufferPtr);
     }
 }
 
