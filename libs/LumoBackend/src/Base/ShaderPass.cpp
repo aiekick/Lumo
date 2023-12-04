@@ -698,9 +698,7 @@ bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
     if (AreWeValidForRender() && CanRender() && vCmdBufferPtr) {
         auto corePtr = m_VulkanCore.lock();
         assert(corePtr != nullptr);
-        auto profilerPtr = corePtr->getVkProfiler().lock();
-        assert(profilerPtr != nullptr);
-        profilerPtr->beginZone(*vCmdBufferPtr, false, nullptr, "ShaderPass", "%s", m_RenderDocDebugName);
+        vkProfBeginZone(*vCmdBufferPtr, "ShaderPass", "%s", m_RenderDocDebugName);
         auto devicePtr = corePtr->getFrameworkDevice().lock();
         if (devicePtr) {
             devicePtr->BeginDebugLabel(vCmdBufferPtr, m_RenderDocDebugName, m_RenderDocDebugColor);
@@ -736,9 +734,8 @@ void ShaderPass::EndDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
         if (devicePtr) {
             devicePtr->EndDebugLabel(vCmdBufferPtr);
         }
-        auto profilerPtr = corePtr->getVkProfiler().lock();
-        assert(profilerPtr != nullptr);
-        profilerPtr->endZone(*vCmdBufferPtr);
+
+        vkProfEndZone(*vCmdBufferPtr);
     }
 }
 

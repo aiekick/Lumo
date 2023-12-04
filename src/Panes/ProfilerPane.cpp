@@ -39,9 +39,6 @@ ProfilerPane::~ProfilerPane() {
 }
 
 bool ProfilerPane::Init() {
-    auto corePtr = MainBackend::Instance()->GetVulkanCore().lock();
-    assert(corePtr != nullptr);
-    m_vkProfiler = corePtr->getVkProfiler();
     /*iagp::InAppGpuProfiler::Instance()->SetImGuiBeginFunctor([this](const char* vLabel, bool* pOpen, ImGuiWindowFlags vFlags) -> bool {
         static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
         if (ImGui::Begin<PaneFlags>(paneName.c_str(), &m_InOutPaneShown, paneFlag, flags, pOpen)) {
@@ -73,9 +70,7 @@ bool ProfilerPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPan
     UNUSED(vUserDatas);
     bool change = false;
 
-    auto profilerPtr = m_vkProfiler.lock();
-    assert(profilerPtr != nullptr);
-    profilerPtr->isActiveRef() = false;
+    GaiApi::vkProfiler::Instance()->isActiveRef() = false;
 
     if (vInOutPaneShown & paneFlag) {
         m_InOutPaneShown = vInOutPaneShown;
@@ -89,16 +84,16 @@ bool ProfilerPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPan
                 flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
 #endif
             // draw iagp frame
-            profilerPtr->isActiveRef() = true;
-            profilerPtr->DrawFlamGraphNoWin();
+            GaiApi::vkProfiler::Instance()->isActiveRef() = true;
+            GaiApi::vkProfiler::Instance()->DrawFlamGraphNoWin();
         }
 
         //MainFrame::sAnyWindowsHovered |= ImGui::IsWindowHovered();
 
         ImGui::End();
 
-        profilerPtr->DrawFlamGraphChilds();
-        profilerPtr->DrawDetails();
+        GaiApi::vkProfiler::Instance()->DrawFlamGraphChilds();
+        GaiApi::vkProfiler::Instance()->DrawDetails();
 
         vInOutPaneShown = m_InOutPaneShown;
     }

@@ -29,7 +29,6 @@ class ProjectFile;
 class ProfilerPane : public AbstractPane {
 private:
     PaneFlags m_InOutPaneShown = -1;
-    GaiApi::vkProfilerWeak m_vkProfiler;
 
 public:
     bool Init() override;

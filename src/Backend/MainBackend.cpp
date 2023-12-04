@@ -316,9 +316,7 @@ void MainBackend::m_MainLoop() {
     while (!glfwWindowShouldClose(main_window_ptr)) {
         ZoneScoped;
 
-        auto profilerPtr = m_VulkanCorePtr->getVkProfiler().lock();
-        assert(profilerPtr != nullptr);
-        profilerPtr->BeginFrame("GPU Frame");
+        vkProfBeginFrame("GPU Frame");
 
         ProjectFile::Instance()->NewFrame();
 
@@ -373,9 +371,8 @@ void MainBackend::m_MainLoop() {
 
         ++m_CurrentFrame;
 
-        profilerPtr->EndFrame();
-
-        profilerPtr->Collect();
+        vkProfEndFrame;
+        vkProfCollectFrame;
 
         // will pause the view until we move the mouse or press keys
         // glfwWaitEvents();
@@ -384,12 +381,9 @@ void MainBackend::m_MainLoop() {
 
 bool MainBackend::m_BeginRender(bool& vNeedResize) {
     ZoneScoped;
-
     if (m_VulkanCorePtr->AcquireNextImage(m_VulkanWindowPtr)) {
         if (m_VulkanCorePtr->frameBegin()) {
-            auto profilerPtr = m_VulkanCorePtr->getVkProfiler().lock();
-            assert(profilerPtr != nullptr);
-            //profilerPtr->beginZone(m_VulkanCorePtr->getGraphicCommandBuffer(), false, nullptr, "", "%s", "ImGui");
+            vkProfBeginZone(m_VulkanCorePtr->getGraphicCommandBuffer(), "", "%s", "ImGui");
             m_VulkanCorePtr->beginMainRenderPass();
             return true;
         }
@@ -402,11 +396,8 @@ bool MainBackend::m_BeginRender(bool& vNeedResize) {
 
 void MainBackend::m_EndRender() {
     ZoneScoped;
-
     m_VulkanCorePtr->endMainRenderPass();
-    auto profilerPtr = m_VulkanCorePtr->getVkProfiler().lock();
-    assert(profilerPtr != nullptr);
-    //profilerPtr->endZone(m_VulkanCorePtr->getGraphicCommandBuffer());
+    vkProfEndZone(m_VulkanCorePtr->getGraphicCommandBuffer());
     m_VulkanCorePtr->frameEnd();
     m_VulkanCorePtr->Present();
 }
