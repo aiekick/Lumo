@@ -173,6 +173,7 @@ bool ShaderPass::InitPixelWithoutFBO(const ct::uvec2& vSize,
                     // c'est pas bon mais on renvoi true car on va afficher
                     // l'erreur dans le node et on pourra le corriger en editant le shader
                     CreatePixelPipeline();
+
                     m_Loaded = true;
                 }
             }
@@ -401,6 +402,7 @@ bool ShaderPass::InitCompute3D(const ct::uvec3& vDispatchSize) {
                     // c'est pas bon mais on renvoi true car on va afficher
                     // l'erreur dans le node et on pourra le corriger en editant le shader
                     CreateComputePipeline();
+
                     m_Loaded = true;
                 }
             }
@@ -456,6 +458,7 @@ bool ShaderPass::InitRtx(
                     // c'est pas bon mais on renvoi true car on va afficher
                     // l'erreur dans le node et on pourra le corriger en editant le shader
                     CreateRtxPipeline();
+
                     m_Loaded = true;
                 }
             }
@@ -2006,14 +2009,18 @@ void ShaderPass::UpdateRessourceDescriptor() {
 
     EachFramesDescriptorUpdate();
 
-    UpdateModel(m_Loaded);
+    {
+        UpdateModel(m_Loaded);
+    }
 
     if (m_NeedNewUBOUpload) {
+        //vkProfScopedNoCmd("ShaderPass", "%s", "UploadUBO");
         UploadUBO();
         m_NeedNewUBOUpload = false;
     }
 
     if (m_NeedNewSBOUpload) {
+        //vkProfScopedNoCmd("ShaderPass", "%s", "UploadSBO");
         UploadSBO();
         m_NeedNewSBOUpload = false;
     }

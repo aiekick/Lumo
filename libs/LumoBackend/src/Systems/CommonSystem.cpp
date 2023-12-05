@@ -18,7 +18,8 @@ limitations under the License.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
 #include <LumoBackend/Systems/CommonSystem.h>
-#include <ImWidgets.h>
+#include <ImGuiPack.h>
+#include <Gaia/Gui/VulkanProfiler.h>
 
 #ifdef PROFILER_INCLUDE
 #include PROFILER_INCLUDE
@@ -782,7 +783,9 @@ void CommonSystem::UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore)
     ZoneScoped;
 
     if (m_BufferObjectIsDirty) {
+        //vkProfBeginZoneNoCmd("CommonSystem", "%s", "UploadUBO");
         GaiApi::VulkanRessource::upload(vVulkanCore, m_BufferObjectPtr, &m_UBOCamera, sizeof(UBOCamera));
+        //vkProfEndZoneNoCmd;
 
         m_BufferObjectIsDirty = false;
     }
