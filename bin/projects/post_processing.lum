@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>1.00628;0.0804927;0</RotXYZ>
+			<RotXYZ>-0.0368443;0.2241;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>22.0348</Zoom>
+			<Zoom>24.9515</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -25,212 +25,66 @@
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Mesh Sim" type="COMPUTE_MESH_SIM" pos="-482;-34" id="34962">
-						<slot place="INPUT" index="0" name="Model" type="MESH" id="34965"/>
-						<slot place="OUTPUT" index="0" name="Model" type="MESH" id="34968"/>
-						<slot place="OUTPUT" index="1" name="Just Painted" type="WIDGET_BOOLEAN" id="34971"/>
-						<compute_mesh_sim>
-							<can_we_render>true</can_we_render>
-							<mouse_radius>0.05</mouse_radius>
-							<mouse_inversion>0</mouse_inversion>
-							<grayscott_diffusion_u>0.21</grayscott_diffusion_u>
-							<grayscott_diffusion_v>0.105</grayscott_diffusion_v>
-							<grayscott_feed>0.029</grayscott_feed>
-							<grayscott_kill>0.057</grayscott_kill>
-							<displacement>0.2</displacement>
-							<iterations_count>10</iterations_count>
-							<simulation_config>5</simulation_config>
-						</compute_mesh_sim>
-					</node>
-					<node name="Mesh Buffers" type="MESH_BUFFERS" pos="-238;-82" id="19160">
-						<slot place="INPUT" index="0" name="Model" type="MESH" id="19164"/>
-						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="19168"/>
-						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="19172"/>
-						<slot place="OUTPUT" index="1" name="Normal" type="TEXTURE_2D" id="19176"/>
-						<slot place="OUTPUT" index="2" name="Tangeant" type="TEXTURE_2D" id="19180"/>
-						<slot place="OUTPUT" index="3" name="BiTangeant" type="TEXTURE_2D" id="19184"/>
-						<slot place="OUTPUT" index="4" name="UV" type="TEXTURE_2D" id="19188"/>
-						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="19192"/>
-						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="19196"/>
-					</node>
-					<node name="Model" type="MESH" pos="-614;-25" id="22484">
+					<node name="Model" type="MESH" pos="-308;-82" id="22484">
 						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="22488"/>
 						<mesh_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="0;-25" id="28012">
-						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="28015"/>
-						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="28018"/>
-						<post_processing_module>
+					<node name="Matcap" type="MATCAP_RENDERER" pos="-176;-84" id="26104">
+						<slot place="INPUT" index="0" name="Model" type="MESH" id="26108"/>
+						<slot place="INPUT" index="1" name="Matcap" type="TEXTURE_2D" id="26112"/>
+						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="26116"/>
+						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="26120"/>
+						<matcap_renderer>
 							<can_we_render>true</can_we_render>
-							<bloom_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<radius>4</radius>
-								<gaussian_sigma_auto>true</gaussian_sigma_auto>
-								<gaussian_sigma>1</gaussian_sigma>
-								<gamma_correction>2.2</gamma_correction>
-								<exposure_correction>1</exposure_correction>
-								<high_freq_threshold>0.8;0.8;0.8</high_freq_threshold>
-								<enabled>1</enabled>
-							</bloom_pass>
-							<blur_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<radius_h>4</radius_h>
-								<radius_v>4</radius_v>
-								<disctinct_v_and_h>false</disctinct_v_and_h>
-								<gaussian_sigma>1</gaussian_sigma>
-								<gaussian_sigma_auto>true</gaussian_sigma_auto>
-								<use_h>true</use_h>
-								<use_v>true</use_v>
-								<enabled>1</enabled>
-							</blur_pass>
-							<sharpness_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<amount>1</amount>
-								<enabled>1</enabled>
-							</sharpness_pass>
-							<chromatic_aberrations_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<amount>1</amount>
-								<enabled>1</enabled>
-							</chromatic_aberrations_pass>
-							<dilation_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<shape>0</shape>
-								<size>5</size>
-								<separation>1</separation>
-								<threshold>0;1</threshold>
-								<brightcolor>1;1;1</brightcolor>
-								<enabled>1</enabled>
-							</dilation_pass>
-							<tone_mapping_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<algo>0</algo>
-								<aces>2.510;0.030;2.430;0.590;0.140</aces>
-								<filmic>0.004;6.200;0.500;1.700;0.060;2.200</filmic>
-								<lotted>1.600;0.977;8.000;0.180;0.267</lotted>
-								<reinhard2>1.600</reinhard2>
-								<uchimura>1.000;1.000;0.220;0.400;1.330;0.000</uchimura>
-								<uncharted2>0.150;0.500;0.100;0.200;0.020;0.300;11.200;2.000</uncharted2>
-								<unreal>0.154;1.019</unreal>
-								<enabled>1</enabled>
-							</tone_mapping_pass>
-							<vignette_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<width>0.25</width>
-								<intensity>15</intensity>
-								<enabled>1</enabled>
-							</vignette_pass>
-						</post_processing_module>
+							<show_face_normal>false</show_face_normal>
+						</matcap_renderer>
+					</node>
+					<node name="Texture 2D" type="TEXTURE_2D" pos="-338;-2" id="27420">
+						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="27424"/>
+						<texture_2d_module>
+							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\Jade_Light.png</file_path_name>
+							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
+						</texture_2d_module>
+					</node>
+					<node name="Grid / Axis" type="GRID_AXIS" pos="-156;15" id="30372">
+						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="30376"/>
+						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="30380"/>
+						<grid_module>
+							<can_we_render>true</can_we_render>
+							<line_thickness>1</line_thickness>
+							<show_grid>true</show_grid>
+							<grid_size>7.5</grid_size>
+							<grid_count>20</grid_count>
+							<show_axis>true</show_axis>
+							<both_sides>false</both_sides>
+							<axis_size>5</axis_size>
+						</grid_module>
+					</node>
+					<node name="Scene Merger" type="SCENE_MERGER" pos="0;-44" id="30839">
+						<slot place="INPUT" index="0" name="" type="SHADER_PASS" id="30842"/>
+						<slot place="INPUT" index="1" name="" type="SHADER_PASS" id="30849"/>
+						<slot place="INPUT" index="2" name="" type="SHADER_PASS" id="30853"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="30845"/>
+						<scene_merger_module>
+							<can_we_render>true</can_we_render>
+						</scene_merger_module>
 					</node>
 				</nodes>
 				<links>
-					<link in="34962:34965" out="22484:22488"/>
-					<link in="34962:34968" out="19160:19164"/>
-					<link in="19160:19192" out="28012:28015"/>
+					<link in="22484:22488" out="26104:26108"/>
+					<link in="27420:27424" out="26104:26112"/>
+					<link in="26104:26120" out="30839:30842"/>
+					<link in="30372:30380" out="30839:30849"/>
 				</links>
 				<outputs>
-					<output type="left" ids="28012:28018"/>
+					<output type="left" ids="30839:30845"/>
 				</outputs>
 			</graph>
 		</scene>
 		<plugins>
-			<AudiArt>
-			</AudiArt>
-			<BluePrints>
-			</BluePrints>
-			<CodeGenerator>
-				<custom_types>
-				</custom_types>
-				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\PostProcessing\src</root_path>
-				<scene>
-					<graph>
-						<canvas>
-							<offset>0;0</offset>
-							<scale>1</scale>
-						</canvas>
-						<nodes>
-							<node name="Outlining" type="NONE" pos="0;-34" id="13613">
-								<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="13616" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="1" name="Position" type="TEXTURE_2D" place="INPUT" id="13625" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="1" showWidget="false"/>
-								<slot index="0" name="ouput" type="TEXTURE_2D" place="OUTPUT" id="13619" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<generation>
-									<class_name>Outlining</class_name>
-									<category_name>PostPro</category_name>
-									<node_creation_name>OUTLINING</node_creation_name>
-									<node_display_name>Outlining</node_display_name>
-									<generate_module>true</generate_module>
-									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Outlining</module_display_name>
-									<module_xml_name>outlining_module</module_xml_name>
-									<module_xml_simple_name>outlining_pass</module_xml_simple_name>
-									<pass_specialization_type>Quad</pass_specialization_type>
-									<pass_use_ubo>true</pass_use_ubo>
-									<pass_use_sbo>false</pass_use_sbo>
-									<node_is_a_task>true</node_is_a_task>
-									<node_is_an_effect>true</node_is_an_effect>
-									<vertex_struct_type>0</vertex_struct_type>
-									<use_common_system_ubo>false</use_common_system_ubo>
-								</generation>
-								<UBOS renderer="Compute 2D">
-									<UBO stage="0">
-										<UBOItem name="thickness" widgetIndex="1" typeIndex="0" vx="1" vy="0" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
-										<UBOItem name="color" widgetIndex="5" typeIndex="3" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
-									</UBO>
-								</UBOS>
-							</node>
-						</nodes>
-						<links>
-						</links>
-						<outputs>
-							<output type="left" ids="28012:28018"/>
-						</outputs>
-					</graph>
-				</scene>
-			</CodeGenerator>
-			<Lighting>
-			</Lighting>
-			<MeshGen>
-			</MeshGen>
-			<MeshSim>
-			</MeshSim>
-			<Misc>
-			</Misc>
-			<Particles>
-			</Particles>
-			<PlanetSystem>
-			</PlanetSystem>
-			<PostProcessing>
-			</PostProcessing>
-			<RTX>
-			</RTX>
-			<ScreenSpace>
-			</ScreenSpace>
-			<SdfMesher>
-			</SdfMesher>
-			<Simulation>
-			</Simulation>
-			<Smoke>
-			</Smoke>
-			<UVDiffMap>
-			</UVDiffMap>
 		</plugins>
 	</project>
 </config>

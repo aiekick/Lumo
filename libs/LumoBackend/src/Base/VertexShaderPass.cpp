@@ -46,7 +46,7 @@ void VertexShaderPass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& /*
 
 	if (vCmdBufferPtr)
 	{
-		vkProfScoped(*vCmdBufferPtr, "VertexShaderPass", "DrawModel");
+        vkProfScoped(*vCmdBufferPtr, m_RenderDocDebugName , "%s", "DrawModel");
 		vCmdBufferPtr->setLineWidth(m_LineWidth.w);
 		//vCmdBufferPtr->setPrimitiveTopologyEXT(m_BasePrimitiveTopology);
 		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);

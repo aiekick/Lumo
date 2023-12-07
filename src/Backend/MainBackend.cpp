@@ -383,7 +383,7 @@ bool MainBackend::m_BeginRender(bool& vNeedResize) {
     ZoneScoped;
     if (m_VulkanCorePtr->AcquireNextImage(m_VulkanWindowPtr)) {
         if (m_VulkanCorePtr->frameBegin()) {
-            vkProfBeginZone(m_VulkanCorePtr->getGraphicCommandBuffer(), "", "%s", "ImGui");
+            vkProfBeginZone(m_VulkanCorePtr->getGraphicCommandBuffer(), "ImGui", "%s", "Render");
             m_VulkanCorePtr->beginMainRenderPass();
             return true;
         }

@@ -441,10 +441,11 @@ void BaseRenderer::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) {
 
 void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* /*vCmdBufferPtr*/) {
     ZoneScoped;
-
+    m_SectionLabel = vSectionLabel;
     if (m_CanWeRender || m_JustReseted) {
         auto cmd = GetCommandBuffer();
         if (cmd) {
+            vkProfScopedPtrNoCmd(this, m_SectionLabel, "%s : Render", m_SectionLabel);
             if (BeginRender(vSectionLabel)) {
                 RenderShaderPasses(cmd);
                 EndRender();
@@ -454,6 +455,8 @@ void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* /*vCmdBu
 }
 
 void BaseRenderer::UpdateDescriptorsBeforeCommandBuffer() {
+    //m_Device.waitIdle();
+    //vkProfScopedPtrNoCmd(this, m_SectionLabel, "%s", "Descriptors");       
     for (auto pass : m_ShaderPasses) {
         auto pass_ptr = pass.lock();
         if (pass_ptr) {
@@ -600,7 +603,7 @@ void BaseRenderer::BeginCommandBuffer(const char* vSectionLabel) {
     if (vSectionLabel) {
         auto corePtr = m_VulkanCore.lock();
         assert(corePtr != nullptr);
-        vkProfBeginZone(*cmd, "BaseRenderer", "%s", vSectionLabel);
+        vkProfBeginZone(*cmd, vSectionLabel, "%s", "BaseRenderer");
         auto devicePtr = corePtr->getFrameworkDevice().lock();
         if (devicePtr) {
             devicePtr->BeginDebugLabel(cmd, vSectionLabel, GENERIC_RENDERER_DEBUG_COLOR);

@@ -83,6 +83,8 @@ protected:
 	vk::DebugUtilsLabelEXT markerInfo;		// marker info for vkCmdBeginDebugUtilsLabelEXT
 	bool m_DebugLabelWasUsed = false;		// used for say than a vkCmdBeginDebugUtilsLabelEXT was used for name a section in renderdoc
 
+	const char* m_SectionLabel = nullptr;
+
 	int64_t m_FirstTimeMark = 0LL;			// first mark time for deltatime Calculation
 	int64_t m_SecondTimeMark = 0LL;			// last mark time for deltatime Calculation
 	float m_DeltaTime = 0.0f;				// last frame render time

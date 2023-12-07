@@ -38,12 +38,12 @@ limitations under the License.
 #include <Graph/Factory/NodeFactory.h>
 #include <Graph/Library/UserNodeLibrary.h>
 
+#include <Gaia/Gui/VulkanProfiler.h>
+
 using namespace GaiApi;
 using namespace std::placeholders;
 
-NodeManager::NodeManager()
-{
-}
+NodeManager::NodeManager() = default;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT ///////////////////////////////////////////////////////////////////////////////////////////
@@ -102,13 +102,14 @@ bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 	auto rootNode3DPtr = m_RootNodePtr->m_GraphRoot3DNode.lock();
 	if (rootNode3DPtr)
 	{
+        vkProfScopedNoCmd("Graph 3D", "%s", "Graph 3D");
 		res |= rootNode3DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
 	}
 
     // double middle click on a ouput slot texture or pass
 	auto rootNode2DPtr = m_RootNodePtr->m_GraphRoot2DNode.lock();
-	if (rootNode2DPtr)
-	{
+	if (rootNode2DPtr) {
+        vkProfScopedNoCmd("Graph 2D", "%s", "Graph 2D");
 		res |= rootNode2DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
 	}
 
@@ -317,6 +318,7 @@ void NodeManager::SelectNode(const BaseNodeWeak& vNode) {
 
 void NodeManager::SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton) {
     if (NodeManager::Instance()->m_RootNodePtr) {
+        GaiApi::vkProfiler::Instance()->Clear();
         if (vButton == ImGuiMouseButton_Left) {
             View3DPane::Instance()->SetOrUpdateOutput(vSlot);
         } else if (vButton == ImGuiMouseButton_Middle) {

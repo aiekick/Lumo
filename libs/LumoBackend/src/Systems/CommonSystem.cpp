@@ -783,10 +783,7 @@ void CommonSystem::UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore)
     ZoneScoped;
 
     if (m_BufferObjectIsDirty) {
-        //vkProfBeginZoneNoCmd("CommonSystem", "%s", "UploadUBO");
         GaiApi::VulkanRessource::upload(vVulkanCore, m_BufferObjectPtr, &m_UBOCamera, sizeof(UBOCamera));
-        //vkProfEndZoneNoCmd;
-
         m_BufferObjectIsDirty = false;
     }
 }
