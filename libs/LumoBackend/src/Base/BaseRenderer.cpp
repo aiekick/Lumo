@@ -427,6 +427,7 @@ void BaseRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void BaseRenderer::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) {
+    vkProfScopedPtrNoCmd(this, m_SectionLabel, "%s : Passes", m_SectionLabel);
     if (m_MergedRendering) {
         vCmdBufferPtr->setViewport(0, 1, &m_Viewport);
         vCmdBufferPtr->setScissor(0, 1, &m_RenderArea);
@@ -455,8 +456,7 @@ void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* /*vCmdBu
 }
 
 void BaseRenderer::UpdateDescriptorsBeforeCommandBuffer() {
-    //m_Device.waitIdle();
-    //vkProfScopedPtrNoCmd(this, m_SectionLabel, "%s", "Descriptors");       
+    vkProfScopedPtrNoCmd(this, m_SectionLabel, "%s : Descriptors", m_SectionLabel);    
     for (auto pass : m_ShaderPasses) {
         auto pass_ptr = pass.lock();
         if (pass_ptr) {

@@ -701,7 +701,6 @@ bool ShaderPass::StartDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
     if (AreWeValidForRender() && CanRender() && vCmdBufferPtr) {
         auto corePtr = m_VulkanCore.lock();
         assert(corePtr != nullptr);
-        vkProfBeginZone(*vCmdBufferPtr, m_RenderDocDebugName, "%s", "DrawPass");
         auto devicePtr = corePtr->getFrameworkDevice().lock();
         if (devicePtr) {
             devicePtr->BeginDebugLabel(vCmdBufferPtr, m_RenderDocDebugName, m_RenderDocDebugColor);
@@ -733,15 +732,15 @@ void ShaderPass::EndDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
         if (devicePtr) {
             devicePtr->EndDebugLabel(vCmdBufferPtr);
         }
-        vkProfEndZone(*vCmdBufferPtr);
     }
 }
 
 void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
     ZoneScoped;
+    vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : DrawPass", m_RenderDocDebugName);       
     if (StartDrawPass(vCmdBufferPtr)) {
         if (IsPixelRenderer()) {
-            vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s", "DrawPixel");
+            vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : DrawPixel", m_RenderDocDebugName);
             if (m_FrameBufferPtr) {
                 if (m_FrameBufferPtr->Begin(vCmdBufferPtr)) {
                     m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBufferPtr, m_ForceFBOClearing);
@@ -769,13 +768,13 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBufferPtr, const int& vIteratio
                 ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
             }
         } else if (IsCompute1DRenderer()) {
-            vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName,"%s", "Compute1D");
+            vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : Compute1D", m_RenderDocDebugName);
             ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
             Compute(vCmdBufferPtr, vIterationNumber);
             ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
         } else if (IsCompute2DRenderer()) {
             if (m_ComputeBufferPtr) {
-                vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s", "Compute2D");
+                vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : Compute2D", m_RenderDocDebugName);
                 if (m_ComputeBufferPtr->Begin(vCmdBufferPtr)) {
                     ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
                     Compute(vCmdBufferPtr, vIterationNumber);
@@ -784,12 +783,12 @@ void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBufferPtr, const int& vIteratio
                 }
             }
         } else if (IsCompute3DRenderer()) {
-            vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s", "Compute3D");
+            vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : Compute3D", m_RenderDocDebugName);
             ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
             Compute(vCmdBufferPtr, vIterationNumber);
             ActionAfterDrawInCommandBuffer(vCmdBufferPtr);
         } else if (IsRtxRenderer()) {
-            vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s", "TraceRays");
+            vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : TraceRays", m_RenderDocDebugName);
             ActionBeforeDrawInCommandBuffer(vCmdBufferPtr);
             TraceRays(vCmdBufferPtr, vIterationNumber);
             ActionAfterDrawInCommandBuffer(vCmdBufferPtr);

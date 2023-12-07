@@ -6,7 +6,7 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>-0.0368443;0.2241;0</RotXYZ>
+			<RotXYZ>0.280488;0.285663;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
 			<Zoom>24.9515</Zoom>
@@ -25,7 +25,7 @@
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Model" type="MESH" pos="-308;-82" id="22484">
+					<node name="Model" type="MESH" pos="-558;-146" id="22484">
 						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="22488"/>
 						<mesh_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
@@ -42,12 +42,16 @@
 							<show_face_normal>false</show_face_normal>
 						</matcap_renderer>
 					</node>
-					<node name="Texture 2D" type="TEXTURE_2D" pos="-338;-2" id="27420">
-						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="27424"/>
-						<texture_2d_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\Jade_Light.png</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
-						</texture_2d_module>
+					<node name="Mesh Buffers" type="MESH_BUFFERS" pos="-414;-82" id="33793">
+						<slot place="INPUT" index="0" name="Model" type="MESH" id="33797"/>
+						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="33801"/>
+						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="33805"/>
+						<slot place="OUTPUT" index="1" name="Normal" type="TEXTURE_2D" id="33809"/>
+						<slot place="OUTPUT" index="2" name="Tangeant" type="TEXTURE_2D" id="33813"/>
+						<slot place="OUTPUT" index="3" name="BiTangeant" type="TEXTURE_2D" id="33817"/>
+						<slot place="OUTPUT" index="4" name="UV" type="TEXTURE_2D" id="33821"/>
+						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="33825"/>
+						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="33829"/>
 					</node>
 					<node name="Grid / Axis" type="GRID_AXIS" pos="-156;15" id="30372">
 						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="30376"/>
@@ -75,12 +79,15 @@
 				</nodes>
 				<links>
 					<link in="22484:22488" out="26104:26108"/>
-					<link in="27420:27424" out="26104:26112"/>
+					<link in="22484:22488" out="33793:33797"/>
 					<link in="26104:26120" out="30839:30842"/>
+					<link in="33793:33809" out="26104:26112"/>
 					<link in="30372:30380" out="30839:30849"/>
 				</links>
 				<outputs>
 					<output type="left" ids="30839:30845"/>
+					<output type="middle" ids="26104:26116"/>
+					<output type="right" ids="26104:26116"/>
 				</outputs>
 			</graph>
 		</scene>
