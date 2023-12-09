@@ -98,7 +98,8 @@ struct SlotStringStruct {
     std::string node_module_public_interface;
     std::string pass_public_interface;
     std::string include_slot;
-    std::string include_interface;
+    std::string node_module_include_interface;
+    std::string pass_include_interface;
     std::string cpp_node_func;
     std::string cpp_module_private_var;
     std::string cpp_module_func;
@@ -207,27 +208,33 @@ private:
 private:
     std::string GetPassInputCppFuncs(const SlotDico& vDico);
     std::string GetModuleInputCppFuncs(const SlotDico& vDico);
-    std::string GetNodeSlotsInputFuncs(const SlotDico& vDico);
+    std::string GetNodeInputFuncs(const SlotDico& vDico);
     std::string GetPassInputPrivateVars(const SlotDico& vDico);
-    std::string GetNodeSlotsInputHFuncs(const SlotDico& vDico);
-    std::string GetNodeSlotsInputCppFuncs(const SlotDico& vDico);
+    std::string GetNodeInputHFuncs(const SlotDico& vDico);
+    std::string GetNodeInputCppFuncs(const SlotDico& vDico);
     std::string GetModuleInputPrivateVars(const SlotDico& vDico);
+
     std::string GetPassInputPublicInterfaces(const SlotDico& vDico);
-    std::string GetNodeSlotsInputIncludesSlots(const SlotDico& vDico);
-    std::string GetNodeSlotsInputPublicInterfaces(const SlotDico& vDico);
-    std::string GetNodeSlotsInputIncludesInterfaces(const SlotDico& vDico);
+    std::string GetNodeModuleInputPublicInterfaces(const SlotDico& vDico);
+
+    std::string GetNodeInputIncludesSlots(const SlotDico& vDico);
+    std::string GetNodeModuleInputIncludesInterfaces(const SlotDico& vDico);
+    std::string GetPassInputIncludesInterfaces(const SlotDico& vDico);
 
     std::string GetPassOutputCppFuncs(const SlotDico& vDico);
     std::string GetModuleOutputCppFuncs(const SlotDico& vDico);
-    std::string GetNodeSlotsOutputFuncs(const SlotDico& vDico);
+    std::string GetNodeOutputFuncs(const SlotDico& vDico);
     std::string GetPassOutputPrivateVars(const SlotDico& vDico);
-    std::string GetNodeSlotsOutputHFuncs(const SlotDico& vDico);
+    std::string GetNodeOutputHFuncs(const SlotDico& vDico);
     std::string GetModuleOutputPrivateVars(const SlotDico& vDico);
-    std::string GetNodeSlotsOutputCppFuncs(const SlotDico& vDico);
+    std::string GetNodeOutputCppFuncs(const SlotDico& vDico);
+
     std::string GetPassOutputPublicInterfaces(const SlotDico& vDico);
-    std::string GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico);
-    std::string GetNodeSlotsOutputPublicInterfaces(const SlotDico& vDico);
-    std::string GetNodeSlotsOutputIncludesInterfaces(const SlotDico& vDico);
+    std::string GetNodeModuleOutputPublicInterfaces(const SlotDico& vDico);
+
+    std::string GetNodeOutputIncludesSlots(const SlotDico& vDico);
+    std::string GetNodeModuleOutputIncludesInterfaces(const SlotDico& vDico);
+    std::string GetPassOutputIncludesInterfaces(const SlotDico& vDico);
 
 public:
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;

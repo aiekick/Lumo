@@ -215,7 +215,7 @@ void BlurModule_Comp_2D_Pass::Compute_Blur_H(vk::CommandBuffer* vCmdBufferPtr) {
         vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
         vCmdBufferPtr->bindDescriptorSets(
             vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-        Dispatch(vCmdBufferPtr);
+        Dispatch(vCmdBufferPtr, "Blur_H");
     }
 }
 
@@ -226,7 +226,7 @@ void BlurModule_Comp_2D_Pass::Compute_Blur_V(vk::CommandBuffer* vCmdBufferPtr) {
         vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[1].m_Pipeline);
         vCmdBufferPtr->bindDescriptorSets(
             vk::PipelineBindPoint::eCompute, m_Pipelines[1].m_PipelineLayout, 0, m_DescriptorSets[1].m_DescriptorSet, nullptr);
-        Dispatch(vCmdBufferPtr);
+        Dispatch(vCmdBufferPtr, "Blur_V");
     }
 }
 

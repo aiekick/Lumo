@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>0.280488;0.285663;0</RotXYZ>
+			<RotXYZ>0.0699702;0.0755891;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>24.9515</Zoom>
+			<Zoom>33.3043</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -25,73 +25,122 @@
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Model" type="MESH" pos="-558;-146" id="22484">
+					<node name="Model" type="MESH" pos="-319;-25" id="22484">
 						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="22488"/>
 						<mesh_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
 					</node>
-					<node name="Matcap" type="MATCAP_RENDERER" pos="-176;-84" id="26104">
-						<slot place="INPUT" index="0" name="Model" type="MESH" id="26108"/>
-						<slot place="INPUT" index="1" name="Matcap" type="TEXTURE_2D" id="26112"/>
-						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="26116"/>
-						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="26120"/>
-						<matcap_renderer>
+					<node name="Post Processing" type="POST_PROCESSING" pos="0;-25" id="62933">
+						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="62936"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="62939"/>
+						<post_processing_module>
 							<can_we_render>true</can_we_render>
-							<show_face_normal>false</show_face_normal>
-						</matcap_renderer>
+							<bloom_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<radius>4</radius>
+								<gaussian_sigma_auto>true</gaussian_sigma_auto>
+								<gaussian_sigma>1</gaussian_sigma>
+								<gamma_correction>2.2</gamma_correction>
+								<exposure_correction>1</exposure_correction>
+								<high_freq_threshold>0.8;0.8;0.8</high_freq_threshold>
+								<enabled>0</enabled>
+							</bloom_pass>
+							<blur_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<radius_h>4</radius_h>
+								<radius_v>4</radius_v>
+								<disctinct_v_and_h>false</disctinct_v_and_h>
+								<gaussian_sigma>1</gaussian_sigma>
+								<gaussian_sigma_auto>true</gaussian_sigma_auto>
+								<use_h>true</use_h>
+								<use_v>true</use_v>
+								<enabled>0</enabled>
+							</blur_pass>
+							<sharpness_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<amount>1</amount>
+								<enabled>0</enabled>
+							</sharpness_pass>
+							<chromatic_aberrations_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<amount>1</amount>
+								<enabled>0</enabled>
+							</chromatic_aberrations_pass>
+							<dilation_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<shape>0</shape>
+								<size>5</size>
+								<separation>1</separation>
+								<threshold>0;1</threshold>
+								<brightcolor>1;1;1</brightcolor>
+								<enabled>1</enabled>
+							</dilation_pass>
+							<tone_mapping_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<algo>0</algo>
+								<aces>2.510;0.030;2.430;0.590;0.140</aces>
+								<filmic>0.004;6.200;0.500;1.700;0.060;2.200</filmic>
+								<lotted>1.600;0.977;8.000;0.180;0.267</lotted>
+								<reinhard2>1.600</reinhard2>
+								<uchimura>1.000;1.000;0.220;0.400;1.330;0.000</uchimura>
+								<uncharted2>0.150;0.500;0.100;0.200;0.020;0.300;11.200;2.000</uncharted2>
+								<unreal>0.154;1.019</unreal>
+								<enabled>0</enabled>
+							</tone_mapping_pass>
+							<vignette_pass>
+								<resize_by_event>true</resize_by_event>
+								<resize_by_hand>true</resize_by_hand>
+								<buffer_quality>1</buffer_quality>
+								<width>0.25</width>
+								<intensity>15</intensity>
+								<enabled>0</enabled>
+							</vignette_pass>
+						</post_processing_module>
 					</node>
-					<node name="Mesh Buffers" type="MESH_BUFFERS" pos="-414;-82" id="33793">
-						<slot place="INPUT" index="0" name="Model" type="MESH" id="33797"/>
-						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="33801"/>
-						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="33805"/>
-						<slot place="OUTPUT" index="1" name="Normal" type="TEXTURE_2D" id="33809"/>
-						<slot place="OUTPUT" index="2" name="Tangeant" type="TEXTURE_2D" id="33813"/>
-						<slot place="OUTPUT" index="3" name="BiTangeant" type="TEXTURE_2D" id="33817"/>
-						<slot place="OUTPUT" index="4" name="UV" type="TEXTURE_2D" id="33821"/>
-						<slot place="OUTPUT" index="5" name="Color" type="TEXTURE_2D" id="33825"/>
-						<slot place="OUTPUT" index="6" name="Depth" type="TEXTURE_2D" id="33829"/>
-					</node>
-					<node name="Grid / Axis" type="GRID_AXIS" pos="-156;15" id="30372">
-						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="30376"/>
-						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="30380"/>
-						<grid_module>
+					<node name="Model Renderer" type="MODEL_RENDERER" pos="-187;-34" id="60657">
+						<slot place="INPUT" index="0" name="Mesh" type="MESH" id="60660"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="60663"/>
+						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="60667"/>
+						<model_renderer_module>
 							<can_we_render>true</can_we_render>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<display_mode>3</display_mode>
 							<line_thickness>1</line_thickness>
-							<show_grid>true</show_grid>
-							<grid_size>7.5</grid_size>
-							<grid_count>20</grid_count>
-							<show_axis>true</show_axis>
-							<both_sides>false</both_sides>
-							<axis_size>5</axis_size>
-						</grid_module>
-					</node>
-					<node name="Scene Merger" type="SCENE_MERGER" pos="0;-44" id="30839">
-						<slot place="INPUT" index="0" name="" type="SHADER_PASS" id="30842"/>
-						<slot place="INPUT" index="1" name="" type="SHADER_PASS" id="30849"/>
-						<slot place="INPUT" index="2" name="" type="SHADER_PASS" id="30853"/>
-						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="30845"/>
-						<scene_merger_module>
-							<can_we_render>true</can_we_render>
-						</scene_merger_module>
+							<point_size>1</point_size>
+							<show_layer>1</show_layer>
+							<use_indices_restriction>false</use_indices_restriction>
+							<restricted_indices_count_to_draw>362016</restricted_indices_count_to_draw>
+						</model_renderer_module>
 					</node>
 				</nodes>
 				<links>
-					<link in="22484:22488" out="26104:26108"/>
-					<link in="22484:22488" out="33793:33797"/>
-					<link in="26104:26120" out="30839:30842"/>
-					<link in="33793:33809" out="26104:26112"/>
-					<link in="30372:30380" out="30839:30849"/>
+					<link in="22484:22488" out="60657:60660"/>
+					<link in="60657:60663" out="62933:62936"/>
 				</links>
 				<outputs>
-					<output type="left" ids="30839:30845"/>
-					<output type="middle" ids="26104:26116"/>
-					<output type="right" ids="26104:26116"/>
+					<output type="left" ids="62933:62939"/>
 				</outputs>
 			</graph>
 		</scene>
 		<plugins>
+			<PostProcessing>
+			</PostProcessing>
 		</plugins>
 	</project>
 </config>

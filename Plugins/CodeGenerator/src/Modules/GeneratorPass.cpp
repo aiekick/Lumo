@@ -37,30 +37,30 @@ void GeneratorNode::GeneratePasseClasses(const std::string& vPath, const SlotDic
 
     if (m_IsAnEffect) {
         path_path = vPath + "/Modules/" + m_CategoryName + "/Effects/Pass/";
-    } 
+    }
 
     if (!std::filesystem::exists(path_path))
         fs::create_directory(path_path);
 
-	std::string pass_renderer_display_type = GetRendererDisplayName();
-	std::string pass_class_name = m_ClassName + "Module_" + pass_renderer_display_type + "Pass";
-	std::string cpp_pass_file_name = path_path.string() + "/" + pass_class_name + ".cpp";
-	std::string h_pass_file_name = path_path.string() + "/" + pass_class_name + ".h";
+    std::string pass_renderer_display_type = GetRendererDisplayName();
+    std::string pass_class_name = m_ClassName + "Module_" + pass_renderer_display_type + "Pass";
+    std::string cpp_pass_file_name = path_path.string() + "/" + pass_class_name + ".cpp";
+    std::string h_pass_file_name = path_path.string() + "/" + pass_class_name + ".h";
 
-	std::string cpp_pass_file_code;
-	std::string h_pass_file_code;
+    std::string cpp_pass_file_code;
+    std::string h_pass_file_code;
 
-	cpp_pass_file_code += GetLicenceHeader();
-	h_pass_file_code += GetLicenceHeader();
-	cpp_pass_file_code += GetPVSStudioHeader();
+    cpp_pass_file_code += GetLicenceHeader();
+    h_pass_file_code += GetLicenceHeader();
+    cpp_pass_file_code += GetPVSStudioHeader();
 
-	// MODULE_XML_NAME							grayscott_module_sim
-	// MODULE_DISPLAY_NAME						Gray Scott
-	// MODULE_CATEGORY_NAME						Simulation
-	// MODULE_CLASS_NAME		
-	// PASS_CLASS_NAME
-	// MODULE_RENDERER_INIT_FUNC				InitCompute2D
-	// RENDERER_DISPLAY_TYPE (ex (Comp)			Comp
+    // MODULE_XML_NAME							grayscott_module_sim
+    // MODULE_DISPLAY_NAME						Gray Scott
+    // MODULE_CATEGORY_NAME						Simulation
+    // MODULE_CLASS_NAME
+    // PASS_CLASS_NAME
+    // MODULE_RENDERER_INIT_FUNC				InitCompute2D
+    // RENDERER_DISPLAY_TYPE (ex (Comp)			Comp
 
     cpp_pass_file_code +=
         u8R"(
@@ -95,9 +95,9 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 )";
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
-            cpp_pass_file_code +=
-                u8R"(
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        cpp_pass_file_code +=
+            u8R"(
 std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
 	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCore);
 	if (!res_ptr->InitPixel(vSize, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1)))";
@@ -126,7 +126,8 @@ std::shared_ptr<PASS_CLASS_NAME> PASS_CLASS_NAME::Create(const ct::uvec2& vSize,
 	auto res_ptr = std::make_shared<PASS_CLASS_NAME>(vVulkanCore);
 	if (!res_ptr->InitRtx(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {)";
     }
-cpp_pass_file_code += u8R"(
+    cpp_pass_file_code +=
+        u8R"(
 		res_ptr.reset();
 	}
 	return res_ptr;
@@ -138,58 +139,56 @@ cpp_pass_file_code += u8R"(
 
 PASS_CLASS_NAME::PASS_CLASS_NAME(GaiApi::VulkanCoreWeak vVulkanCore))";
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			cpp_pass_file_code += u8R"(
+    if (m_IsAnEffect) {
+        cpp_pass_file_code +=
+            u8R"(
+	: EffectPass(vVulkanCore))";
+    } else if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
+            cpp_pass_file_code +=
+                u8R"(
 	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL))";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			cpp_pass_file_code += ct::toStr(u8R"(
-	: MeshShaderPass<VertexStruct::%s>(vVulkanCore, MeshShaderPassType::PIXEL))", 
-				m_BaseTypes.m_VertexStructTypes[m_VertexStructTypesIndex].c_str());
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			cpp_pass_file_code += u8R"(
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+                   m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            cpp_pass_file_code += ct::toStr(
+                u8R"(
+	: MeshShaderPass<VertexStruct::%s>(vVulkanCore, MeshShaderPassType::PIXEL))",
+                m_BaseTypes.m_VertexStructTypes[m_VertexStructTypesIndex].c_str());
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX) {
+            cpp_pass_file_code +=
+                u8R"(
 	: VertexShaderPass(vVulkanCore))";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		cpp_pass_file_code += u8R"(
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        cpp_pass_file_code +=
+            u8R"(
 	: ShaderPass(vVulkanCore))";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		cpp_pass_file_code += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        cpp_pass_file_code +=
+            u8R"(
 	: ShaderPass(vVulkanCore))";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		cpp_pass_file_code += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        cpp_pass_file_code +=
+            u8R"(
 	: ShaderPass(vVulkanCore))";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		cpp_pass_file_code += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        cpp_pass_file_code +=
+            u8R"(
 	: RtxShaderPass(vVulkanCore))";
-	}
+    }
 
-	cpp_pass_file_code += u8R"( {)";
+    cpp_pass_file_code += u8R"( {)";
 
-	cpp_pass_file_code += u8R"(
+    cpp_pass_file_code +=
+        u8R"(
 	ZoneScoped;
 	SetRenderDocDebugName("RENDERER_DISPLAY_TYPE Pass : MODULE_DISPLAY_NAME", COMPUTE_SHADER_PASS_DEBUG_COLOR);)";
 
-	cpp_pass_file_code +=
+    cpp_pass_file_code +=
         u8R"(
 	m_DontUseShaderFilesOnDisk = true;)";
 
-	if (m_IsAnEffect) {
+    if (m_IsAnEffect) {
         cpp_pass_file_code +=
             u8R"(
 	*IsEffectEnabled() = true;)";
@@ -204,80 +203,77 @@ PASS_CLASS_NAME::~PASS_CLASS_NAME() {
 	Unit();
 }
 )";
-	if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		cpp_pass_file_code += u8R"(
+    if (m_RendererType == RENDERER_TYPE_RTX) {
+        cpp_pass_file_code +=
+            u8R"(
 void PASS_CLASS_NAME::ActionBeforeCompilation() {
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR, "main"), "main");
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR, "main"), "main");
 	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR, "main"), "main");
 }
 )";
-	}
+    }
 
-		cpp_pass_file_code += u8R"(
+    cpp_pass_file_code +=
+        u8R"(
 void PASS_CLASS_NAME::ActionBeforeInit() {
 	ZoneScoped;
 	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);)";
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		//if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			cpp_pass_file_code += u8R"(
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        // if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
+        {
+            cpp_pass_file_code +=
+                u8R"(
 	//SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList); // display Triangles
 	//m_LineWidth.x = 0.5f;	// min value
 	//m_LineWidth.y = 10.0f;	// max value
 	//m_LineWidth.z = 2.0f;	// default value
 	//m_LineWidth.w;			// value to change)";
-		}
-	}
+        }
+    }
 
-	if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer])
-	{
-		cpp_pass_file_code += u8R"(
+    if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_StorageBuffer]) {
+        cpp_pass_file_code +=
+            u8R"(
 	for (auto& info : m_StorageBuffers)	{
 		info = corePtr->getEmptyDescriptorBufferInfo();
 	})";
-	}
-	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer])
-	{
-		cpp_pass_file_code += u8R"(
+    } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TexelBuffer]) {
+        cpp_pass_file_code +=
+            u8R"(
 	for (auto& info : m_TexelBuffers) {
 		info = nullptr;
 	}
 	for (auto& info : m_TexelBufferViews) {
 		info = corePtr->getEmptyBufferView();
 	})";
-	}
-	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture])
-	{
-		cpp_pass_file_code += u8R"(
+    } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]) {
+        cpp_pass_file_code +=
+            u8R"(
 	for (auto& info : m_ImageInfos)	{
 		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 	})";
-	}
-	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
-	{
-		cpp_pass_file_code += u8R"(
+    } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube]) {
+        cpp_pass_file_code +=
+            u8R"(
 	for (auto& info : m_ImageCubeInfos)	{
 		info = corePtr->getEmptyTextureCubeDescriptorImageInfo();
 	})";
-	}
-	else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup])
-	{
-		cpp_pass_file_code += u8R"(
+    } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup]) {
+        cpp_pass_file_code +=
+            u8R"(
 	for (auto& infos : m_ImageGroups) {
 		for(auto& info : infos)
 		{
 			info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 		}
 	})";
-	}
+    }
 
-	cpp_pass_file_code +=
+    cpp_pass_file_code +=
         u8R"(
 }
 
@@ -294,22 +290,22 @@ bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
         cpp_pass_file_code +=
             u8R"(
 	change |= DrawResizeWidget();)";
-	}
+    }
 
-	if (m_IsAnEffect) {
+    if (m_IsAnEffect) {
         cpp_pass_file_code +=
             u8R"(
 	if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##PASS_CLASS_NAME", -1.0f, false, true, IsEffectEnabled())) {)";
-	} else {
+    } else {
         cpp_pass_file_code +=
             u8R"(
 	if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##PASS_CLASS_NAME", -1.0f, true, true, &m_CanWeRender)) {)";
-	}
-        
-	cpp_pass_file_code += m_UBOEditors.Get_Widgets_Header();
+    }
 
-	cpp_pass_file_code +=
-            u8R"(
+    cpp_pass_file_code += m_UBOEditors.Get_Widgets_Header();
+
+    cpp_pass_file_code +=
+        u8R"(
 	}
 	return change;
 }
@@ -329,10 +325,11 @@ bool PASS_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const 
 }
 )";
 
-	cpp_pass_file_code += GetPassInputCppFuncs(vDico);
-	cpp_pass_file_code += GetPassOutputCppFuncs(vDico);
+    cpp_pass_file_code += GetPassInputCppFuncs(vDico);
+    cpp_pass_file_code += GetPassOutputCppFuncs(vDico);
 
-	cpp_pass_file_code += u8R"(
+    cpp_pass_file_code +=
+        u8R"(
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -341,12 +338,12 @@ void PASS_CLASS_NAME::WasJustResized() {
 	ZoneScoped;
 }
 )";
-	cpp_pass_file_code += GetPassRendererFunctionHeader();
-	cpp_pass_file_code += m_UBOEditors.Get_Cpp_Functions_Imp(m_IsAnEffect);
+    cpp_pass_file_code += GetPassRendererFunctionHeader();
+    cpp_pass_file_code += m_UBOEditors.Get_Cpp_Functions_Imp(m_IsAnEffect);
 
-	if (m_UseASbo)
-	{
-		cpp_pass_file_code += u8R"(
+    if (m_UseASbo) {
+        cpp_pass_file_code +=
+            u8R"(
 bool PASS_CLASS_NAME::CreateSBO() {
 	ZoneScoped;
 	NeedNewSBOUpload();
@@ -364,11 +361,11 @@ void PASS_CLASS_NAME::DestroySBO() {
 	//m_SBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 }
 )";
-	}
+    }
 
-	if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		cpp_pass_file_code += u8R"(
+    if (m_RendererType == RENDERER_TYPE_RTX) {
+        cpp_pass_file_code +=
+            u8R"(
 bool PASS_CLASS_NAME::CanUpdateDescriptors() {
 	ZoneScoped;
 	if (!m_SceneAccelStructure.expired()) {
@@ -380,29 +377,33 @@ bool PASS_CLASS_NAME::CanUpdateDescriptors() {
 	return false;
 }
 )";
-	}
+    }
 
-	cpp_pass_file_code += u8R"(
+    cpp_pass_file_code +=
+        u8R"(
 bool PASS_CLASS_NAME::UpdateLayoutBindingInRessourceDescriptor() {
 	ZoneScoped;
 	bool res = true;)";
-	cpp_pass_file_code += GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
-	cpp_pass_file_code += u8R"(
+    cpp_pass_file_code += GetPassUpdateLayoutBindingInRessourceDescriptorHeader();
+    cpp_pass_file_code +=
+        u8R"(
 	return res;
 }
 
 bool PASS_CLASS_NAME::UpdateBufferInfoInRessourceDescriptor() {
 	ZoneScoped;
 	bool res = true;)";
-	cpp_pass_file_code += GetPassUpdateBufferInfoInRessourceDescriptorHeader();
-	cpp_pass_file_code += u8R"(
+    cpp_pass_file_code += GetPassUpdateBufferInfoInRessourceDescriptorHeader();
+    cpp_pass_file_code +=
+        u8R"(
 	return res;
 }
 )";
 
-	cpp_pass_file_code += GetPassShaderCode();
+    cpp_pass_file_code += GetPassShaderCode();
 
-	cpp_pass_file_code += u8R"(
+    cpp_pass_file_code +=
+        u8R"(
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
@@ -413,8 +414,9 @@ std::string PASS_CLASS_NAME::getXml(const std::string& vOffset, const std::strin
 	std::string str;
     str += vOffset + "<PASS_XML_NAME>\n";
 	str += ShaderPass::getXml(vOffset + "\t", vUserDatas);)";
-	cpp_pass_file_code += m_UBOEditors.Get_Cpp_GetXML(m_IsAnEffect);	
-	cpp_pass_file_code += u8R"(
+    cpp_pass_file_code += m_UBOEditors.Get_Cpp_GetXML(m_IsAnEffect);
+    cpp_pass_file_code +=
+        u8R"(
     str += vOffset + "</PASS_XML_NAME>\n";
 	return str;
 }
@@ -434,7 +436,8 @@ bool PASS_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
 	if (strParentName == "PASS_XML_NAME") {
 		ShaderPass::setFromXml(vElem, vParent, vUserDatas);)";
     cpp_pass_file_code += m_UBOEditors.Get_Cpp_SetXML(m_IsAnEffect);
-	cpp_pass_file_code += u8R"(
+    cpp_pass_file_code +=
+        u8R"(
 	}
 	return true;
 }
@@ -445,7 +448,8 @@ void PASS_CLASS_NAME::AfterNodeXmlLoading() {
 }
 )";
 
-	h_pass_file_code += u8R"(
+    h_pass_file_code +=
+        u8R"(
 #pragma once
 
 #include <set>
@@ -461,102 +465,90 @@ void PASS_CLASS_NAME::AfterNodeXmlLoading() {
 #include <LumoBackend/Base/BaseRenderer.h>
 )";
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			h_pass_file_code += u8R"(#include <LumoBackend/Base/QuadShaderPass.h>)";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			h_pass_file_code += u8R"(#include <LumoBackend/Base/MeshShaderPass.h>)";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			h_pass_file_code += u8R"(#include <LumoBackend/Base/VertexShaderPass.h>)";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		h_pass_file_code += u8R"(#include <LumoBackend/Base/ShaderPass.h>)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		h_pass_file_code += u8R"(#include <LumoBackend/Base/ShaderPass.h>)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		h_pass_file_code += u8R"(#include <LumoBackend/Base/ShaderPass.h>)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		h_pass_file_code += u8R"(#include <LumoBackend/Base/RtxShaderPass.h>)";
-	}
+    if (m_IsAnEffect) {
+        h_pass_file_code += u8R"(#include <LumoBackend/Base/EffectPass.h>)";
+    } else if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
+            h_pass_file_code += u8R"(#include <LumoBackend/Base/QuadShaderPass.h>)";
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+                   m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            h_pass_file_code += u8R"(#include <LumoBackend/Base/MeshShaderPass.h>)";
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX) {
+            h_pass_file_code += u8R"(#include <LumoBackend/Base/VertexShaderPass.h>)";
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        h_pass_file_code += u8R"(#include <LumoBackend/Base/ShaderPass.h>)";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        h_pass_file_code += u8R"(#include <LumoBackend/Base/ShaderPass.h>)";
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        h_pass_file_code += u8R"(#include <LumoBackend/Base/ShaderPass.h>)";
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        h_pass_file_code += u8R"(#include <LumoBackend/Base/RtxShaderPass.h>)";
+    }
 
-	h_pass_file_code += u8R"(
+    h_pass_file_code +=
+        u8R"(
 #include <Gaia/gaia.h>
-#include <Gaia/Resources/Texture2D.h>
 #include <Gaia/Core/VulkanCore.h>
+#include <Gaia/Gui/ImGuiTexture.h>
 #include <Gaia/Core/VulkanDevice.h>
 #include <Gaia/Shader/VulkanShader.h>
-#include <Gaia/Gui/ImGuiTexture.h>
+#include <Gaia/Resources/Texture2D.h>
 #include <Gaia/Resources/VulkanRessource.h>
 #include <Gaia/Resources/VulkanFrameBuffer.h>
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>)";
-	h_pass_file_code += GetNodeSlotsInputIncludesInterfaces(vDico);
-	h_pass_file_code += GetNodeSlotsOutputIncludesInterfaces(vDico);
-	h_pass_file_code += u8R"(
+    h_pass_file_code += GetPassInputIncludesInterfaces(vDico);
+    h_pass_file_code += GetPassOutputIncludesInterfaces(vDico);
+    h_pass_file_code +=
+        u8R"(
 
 class PASS_CLASS_NAME :)";
 
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			h_pass_file_code += u8R"(
+    if (m_IsAnEffect) {
+        h_pass_file_code += ct::toStr(
+            u8R"(
+	public EffectPass<%u>,)",
+            m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
+    } else if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
+            h_pass_file_code +=
+                u8R"(
 	public QuadShaderPass,)";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			h_pass_file_code += ct::toStr(u8R"(
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+                   m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            h_pass_file_code += ct::toStr(
+                u8R"(
 	public MeshShaderPass<VertexStruct::%s>,)",
-				m_BaseTypes.m_VertexStructTypes[m_VertexStructTypesIndex].c_str());
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			h_pass_file_code += u8R"(
+                m_BaseTypes.m_VertexStructTypes[m_VertexStructTypesIndex].c_str());
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX) {
+            h_pass_file_code +=
+                u8R"(
 	public VertexShaderPass,)";
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D)
-	{
-		h_pass_file_code += u8R"(
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D) {
+        h_pass_file_code +=
+            u8R"(
 	public ShaderPass,)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D)
-	{
-		h_pass_file_code += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
+        h_pass_file_code +=
+            u8R"(
 	public ShaderPass,)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		h_pass_file_code += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        h_pass_file_code +=
+            u8R"(
 	public ShaderPass,)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		h_pass_file_code += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        h_pass_file_code +=
+            u8R"(
 	public RtxShaderPass,)";
-	}
+    }
 
-	h_pass_file_code += GetPassInputPublicInterfaces(vDico);
-	h_pass_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
+    h_pass_file_code += GetPassInputPublicInterfaces(vDico);
+    h_pass_file_code += GetPassOutputPublicInterfaces(vDico);
 
-	h_pass_file_code +=
+    h_pass_file_code +=
         u8R"(
 	public NodeInterface
 {
@@ -583,71 +575,67 @@ public:)";
 	static std::shared_ptr<PASS_CLASS_NAME> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);)";
     }
 
-    h_pass_file_code += u8R"(
+    h_pass_file_code +=
+        u8R"(
 
 private:)";
 
     h_pass_file_code += GetPassInputPrivateVars(vDico);
     h_pass_file_code += GetPassOutputPrivateVars(vDico);
 
-	h_pass_file_code += m_UBOEditors.Get_Cpp_Header(m_IsAnEffect);
+    h_pass_file_code += m_UBOEditors.Get_Cpp_Header(m_IsAnEffect);
 
-	h_pass_file_code += u8R"(
+    h_pass_file_code +=
+        u8R"(
 
 public:
 	PASS_CLASS_NAME(GaiApi::VulkanCoreWeak vVulkanCore);
 	~PASS_CLASS_NAME() override;
 )";
 
-	if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		h_pass_file_code += u8R"(
+    if (m_RendererType == RENDERER_TYPE_RTX) {
+        h_pass_file_code +=
+            u8R"(
 	void ActionBeforeCompilation() override;)";
-	}
-	h_pass_file_code += u8R"(
+    }
+    h_pass_file_code +=
+        u8R"(
 	void ActionBeforeInit() override;
 	void WasJustResized() override;
 )";
-	
-	if (m_RendererType == RENDERER_TYPE_PIXEL_2D)
-	{
-		if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD)
-		{
-			// nothing because derived
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH || 
-			m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION)
-		{
-			h_pass_file_code += u8R"(
+
+    if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
+        if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
+            // nothing because derived
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_MESH ||
+                   m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_TESSELATION) {
+            h_pass_file_code +=
+                u8R"(
 	void DrawModel(vk::CommandBuffer * vCmdBufferPtr, const int& vIterationNumber) override;)";
-		}
-		else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX)
-		{
-			// nothing because derived
-		}
-	}
-	else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D ||
-		m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
-		m_RendererType == RENDERER_TYPE_COMPUTE_3D)
-	{
-		h_pass_file_code += u8R"(
+        } else if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_VERTEX) {
+            // nothing because derived
+        }
+    } else if (m_RendererType == RENDERER_TYPE_COMPUTE_1D || m_RendererType == RENDERER_TYPE_COMPUTE_2D ||
+               m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
+        h_pass_file_code +=
+            u8R"(
 	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;)";
-	}
-	else if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		// nothing because derived
-	}
-	
-	h_pass_file_code += u8R"(
+    } else if (m_RendererType == RENDERER_TYPE_RTX) {
+        // nothing because derived
+    }
+
+    h_pass_file_code +=
+        u8R"(
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 )";
 
-	h_pass_file_code += GetNodeSlotsInputHFuncs(vDico);
-	h_pass_file_code += GetNodeSlotsOutputHFuncs(vDico);
+    h_pass_file_code += GetNodeInputHFuncs(vDico);
+    h_pass_file_code += GetNodeOutputHFuncs(vDico);
 
-	h_pass_file_code += u8R"(
+    h_pass_file_code +=
+        u8R"(
 
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
@@ -655,56 +643,58 @@ public:
 
 protected:)";
 
-	h_pass_file_code += m_UBOEditors.Get_Cpp_Functions_Header();
+    h_pass_file_code += m_UBOEditors.Get_Cpp_Functions_Header();
 
-	if (m_UseASbo)
-	{
-		h_pass_file_code += u8R"(
+    if (m_UseASbo) {
+        h_pass_file_code +=
+            u8R"(
 	bool CreateSBO() override;
 	void UploadSBO() override;
 	void DestroySBO() override;
 )";
-	}
+    }
 
-	if (m_RendererType == RENDERER_TYPE_RTX)
-	{
-		h_pass_file_code += u8R"(
+    if (m_RendererType == RENDERER_TYPE_RTX) {
+        h_pass_file_code +=
+            u8R"(
 	bool CanUpdateDescriptors() override;)";
-	}
-	h_pass_file_code += u8R"(
+    }
+    h_pass_file_code +=
+        u8R"(
 	bool UpdateLayoutBindingInRessourceDescriptor() override;
 	bool UpdateBufferInfoInRessourceDescriptor() override;
 )";
 
-	h_pass_file_code += GetPassShaderHeader();
+    h_pass_file_code += GetPassShaderHeader();
 
-	h_pass_file_code += u8R"(
+    h_pass_file_code +=
+        u8R"(
 };)";
 
     ct::replaceString(cpp_pass_file_code, "PASS_XML_NAME", m_PassXmlName);
     ct::replaceString(h_pass_file_code, "PASS_XML_NAME", m_PassXmlName);
 
-	ct::replaceString(cpp_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
+    ct::replaceString(cpp_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
     ct::replaceString(h_pass_file_code, "MODULE_XML_NAME", m_ModuleXmlName);
 
-	ct::replaceString(cpp_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
-	ct::replaceString(h_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
+    ct::replaceString(cpp_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
+    ct::replaceString(h_pass_file_code, "MODULE_DISPLAY_NAME", m_ModuleDisplayName);
 
-	ct::replaceString(cpp_pass_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
-	ct::replaceString(h_pass_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
+    ct::replaceString(cpp_pass_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
+    ct::replaceString(h_pass_file_code, "MODULE_CATEGORY_NAME", m_CategoryName);
 
-	ct::replaceString(cpp_pass_file_code, "NODE_CLASS_NAME", pass_class_name);
-	ct::replaceString(h_pass_file_code, "NODE_CLASS_NAME", pass_class_name);
+    ct::replaceString(cpp_pass_file_code, "NODE_CLASS_NAME", pass_class_name);
+    ct::replaceString(h_pass_file_code, "NODE_CLASS_NAME", pass_class_name);
 
-	ct::replaceString(cpp_pass_file_code, "PASS_CLASS_NAME", pass_class_name);
-	ct::replaceString(h_pass_file_code, "PASS_CLASS_NAME", pass_class_name);
+    ct::replaceString(cpp_pass_file_code, "PASS_CLASS_NAME", pass_class_name);
+    ct::replaceString(h_pass_file_code, "PASS_CLASS_NAME", pass_class_name);
 
-	ct::replaceString(cpp_pass_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
-	ct::replaceString(h_pass_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
+    ct::replaceString(cpp_pass_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
+    ct::replaceString(h_pass_file_code, "MODULE_RENDERER_INIT_FUNC", m_ModuleRendererInitFunc);
 
-	ct::replaceString(cpp_pass_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
-	ct::replaceString(h_pass_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
+    ct::replaceString(cpp_pass_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
+    ct::replaceString(h_pass_file_code, "RENDERER_DISPLAY_TYPE", m_ModuleRendererDisplayType);
 
-	FileHelper::Instance()->SaveStringToFile(cpp_pass_file_code, cpp_pass_file_name);
-	FileHelper::Instance()->SaveStringToFile(h_pass_file_code, h_pass_file_name);
+    FileHelper::Instance()->SaveStringToFile(cpp_pass_file_code, cpp_pass_file_name);
+    FileHelper::Instance()->SaveStringToFile(h_pass_file_code, h_pass_file_name);
 }

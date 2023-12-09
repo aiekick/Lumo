@@ -1053,10 +1053,10 @@ const ct::uvec3& ShaderPass::GetDispatchSize() {
     return m_DispatchSize;
 }
 
-void ShaderPass::Dispatch(vk::CommandBuffer* vCmdBufferPtr) {
+void ShaderPass::Dispatch(vk::CommandBuffer* vCmdBufferPtr, const char* vDebugLabel) {
     ZoneScoped;
-    vkProfScopedPtrNoCmd(this, m_RenderDocDebugName, "%s", "Dispatch");
     if (vCmdBufferPtr) {
+        vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : Dispatch", vDebugLabel);
         vCmdBufferPtr->dispatch(m_DispatchSize.x, m_DispatchSize.y, m_DispatchSize.z);
     }
 }

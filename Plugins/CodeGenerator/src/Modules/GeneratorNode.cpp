@@ -129,10 +129,10 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath) {
         }
     }
 
-    cpp_node_file_code += GetNodeSlotsInputIncludesSlots(slotDico);
-    cpp_node_file_code += GetNodeSlotsOutputIncludesSlots(slotDico);
-    h_node_file_code += GetNodeSlotsInputIncludesInterfaces(slotDico);
-    h_node_file_code += GetNodeSlotsOutputIncludesInterfaces(slotDico);
+    cpp_node_file_code += GetNodeInputIncludesSlots(slotDico);
+    cpp_node_file_code += GetNodeOutputIncludesSlots(slotDico);
+    h_node_file_code += GetNodeModuleInputIncludesInterfaces(slotDico);
+    h_node_file_code += GetNodeModuleOutputIncludesInterfaces(slotDico);
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
         h_node_file_code +=
             u8R"(
@@ -143,8 +143,8 @@ void GeneratorNode::GenerateNodeClasses(const std::string& vPath) {
         u8R"(
 class MODULE_CLASS_NAME;
 class NODE_CLASS_NAME :)";
-    h_node_file_code += GetNodeSlotsInputPublicInterfaces(slotDico);
-    h_node_file_code += GetNodeSlotsOutputPublicInterfaces(slotDico);
+    h_node_file_code += GetNodeModuleInputPublicInterfaces(slotDico);
+    h_node_file_code += GetNodeModuleOutputPublicInterfaces(slotDico);
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
         h_node_file_code +=
             u8R"(
@@ -209,11 +209,11 @@ bool NODE_CLASS_NAME::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 	name = "NODE_DISPLAY_NAME";
 )";
 
-    cpp_node_file_code += GetNodeSlotsInputFuncs(slotDico);
+    cpp_node_file_code += GetNodeInputFuncs(slotDico);
     cpp_node_file_code +=
         u8R"(
 )";
-    cpp_node_file_code += GetNodeSlotsOutputFuncs(slotDico);
+    cpp_node_file_code += GetNodeOutputFuncs(slotDico);
     cpp_node_file_code +=
         u8R"(
 )";
@@ -436,8 +436,8 @@ void NODE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 )";
     }
 
-    cpp_node_file_code += GetNodeSlotsInputCppFuncs(slotDico);
-    cpp_node_file_code += GetNodeSlotsOutputCppFuncs(slotDico);
+    cpp_node_file_code += GetNodeInputCppFuncs(slotDico);
+    cpp_node_file_code += GetNodeOutputCppFuncs(slotDico);
     cpp_node_file_code +=
         u8R"(
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -610,11 +610,11 @@ public:
 )";
     }
 
-    h_node_file_code += GetNodeSlotsInputHFuncs(slotDico);
+    h_node_file_code += GetNodeInputHFuncs(slotDico);
     h_node_file_code +=
         u8R"(
 )";
-    h_node_file_code += GetNodeSlotsOutputHFuncs(slotDico);
+    h_node_file_code += GetNodeOutputHFuncs(slotDico);
     h_node_file_code +=
         u8R"(
 )";
@@ -1892,7 +1892,7 @@ SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot) {
     res.cpp_module_func = u8R"()";
     res.cpp_pass_func = u8R"()";
     res.h_func = u8R"()";
-    res.include_interface = u8R"()";
+    res.node_module_include_interface = res.pass_include_interface = u8R"()";
     res.include_slot = u8R"()";
     res.node_module_public_interface = u8R"()";
     res.pass_public_interface = u8R"()";
@@ -1910,7 +1910,7 @@ SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot) {
     res.cpp_module_func = u8R"()";
     res.cpp_pass_func = u8R"()";
     res.h_func = u8R"()";
-    res.include_interface = u8R"()";
+    res.node_module_include_interface = res.pass_include_interface = u8R"()";
     res.include_slot = u8R"()";
     res.node_module_public_interface = u8R"()";
     res.pass_public_interface = u8R"()";
@@ -2010,7 +2010,7 @@ void PASS_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStruc
         u8R"(
 	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/AccelStructureInputInterface.h>)";
 
@@ -2217,7 +2217,7 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetBufferAddressInfo()
 	vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() override;
 	vk::DescriptorBufferInfo* GetBufferAddressInfo() override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/AccelStructureOutputInterface.h>)";
 
@@ -2343,7 +2343,7 @@ void PASS_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
         u8R"(
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>)";
 
@@ -2454,7 +2454,7 @@ SceneLightGroupWeak PASS_CLASS_NAME::GetLightGroup()
         u8R"(
 	SceneLightGroupWeak GetLightGroup() override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/LightGroupOutputInterface.h>)";
 
@@ -2569,7 +2569,7 @@ void PASS_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
         u8R"(
 	void SetModel(SceneModelWeak vSceneModel) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/ModelInputInterface.h>)";
 
@@ -2680,7 +2680,7 @@ SceneModelWeak PASS_CLASS_NAME::GetModel()
         u8R"(
 	SceneModelWeak GetModel() override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>)";
 
@@ -2820,7 +2820,7 @@ void PASS_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
         u8R"(
 	void SetStorageBuffer(const uint32_t& vBindingPoint, vk::DescriptorBufferInfo* vStorageBuffer, uint32_t* vStorageBufferSize = nullptr) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/StorageBufferInputInterface.h>)";
 
@@ -2932,7 +2932,7 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
         u8R"(
 	vk::DescriptorBufferInfo* GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize = nullptr) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/StorageBufferOutputInterface.h>)";
 
@@ -3141,7 +3141,7 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 	void SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize = nullptr) override;
 	void SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize = nullptr) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/TexelBufferInputInterface.h>)";
 
@@ -3301,7 +3301,7 @@ vk::BufferView* PASS_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
 	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/TexelBufferOutputInterface.h>)";
 
@@ -3424,7 +3424,7 @@ void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
         u8R"(
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/TextureInputInterface.h>)";
 
@@ -3436,11 +3436,17 @@ void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
         u8R"(
 	public TextureInputInterface<0U>,)";
 
-    res.pass_public_interface = ct::toStr(
-        u8R"(
-	public TextureInputInterface<%u>,)",
-        m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
+    if (!m_IsAnEffect) {
+        res.pass_include_interface =
+            u8R"(
+#include <LumoBackend/Interfaces/TextureInputInterface.h>)";
 
+        res.pass_public_interface = ct::toStr(
+            u8R"(
+	public TextureInputInterface<%u>,)",
+            m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
+    }
+    
     res.node_slot_func += ct::toStr(
         u8R"(
 	AddInput(NodeSlotTextureInput::Create("%s", %u), false, %s);)",
@@ -3544,13 +3550,13 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 }
 )";
 
+    res.node_module_include_interface =
+        u8R"(
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>)";
+
     res.h_func =
         u8R"(
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;)";
-
-    res.include_interface =
-        u8R"(
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>)";
 
     res.include_slot =
         u8R"(
@@ -3560,10 +3566,16 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
         u8R"(
 	public TextureOutputInterface,)";
 
-    res.pass_public_interface =
-        u8R"(
-	public TextureOutputInterface,)";
+    if (!m_IsAnEffect) {
+        res.pass_include_interface =
+            u8R"(
+#include <LumoBackend/Interfaces/TextureOutputInterface.h>)";
 
+        res.pass_public_interface =
+            u8R"(
+	public TextureOutputInterface,)";
+    }
+    
     res.node_slot_func += ct::toStr(
         u8R"(
 	AddOutput(NodeSlotTextureOutput::Create("%s", %u), false, %s);)",
@@ -3684,7 +3696,7 @@ void PASS_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
         u8R"(
 	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/TextureCubeInputInterface.h>)";
 
@@ -3796,7 +3808,7 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetTextureCube(const uint32_t& vBindin
         u8R"(
 	vk::DescriptorImageInfo* GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/TextureCubeOutputInterface.h>)";
 
@@ -3932,7 +3944,7 @@ void PASS_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
         u8R"(
 	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes = nullptr) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>)";
 
@@ -4044,7 +4056,7 @@ DescriptorImageInfoVector* PASS_CLASS_NAME::GetDescriptorImageInfos(const uint32
         u8R"(
 	DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes = nullptr) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>)";
 
@@ -4141,7 +4153,7 @@ void MODULE_CLASS_NAME::SetShaderPasses(const uint32_t& vSlotID, SceneShaderPass
         u8R"(
 	void SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vSceneShaderPassWeak) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/ShaderPassInputInterface.h>)";
 
@@ -4221,7 +4233,7 @@ SceneShaderPassWeak MODULE_CLASS_NAME::GetShaderPasses(const uint32_t& vSlotID)
         u8R"(
 	SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/ShaderPassOutputInterface.h>)";
 
@@ -4355,7 +4367,7 @@ void PASS_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
         u8R"(
 	void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/VariableInputInterface.h>)";
 
@@ -4472,7 +4484,7 @@ SceneVariableWeak PASS_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
         u8R"(
 	SceneVariableWeak GetVariable(const uint32_t& vVarIndex) override;)";
 
-    res.include_interface =
+    res.node_module_include_interface = res.pass_include_interface =
         u8R"(
 #include <LumoBackend/Interfaces/VariableOutputInterface.h>)";
 
@@ -4600,7 +4612,7 @@ void PASS_CLASS_NAME::Set%s(const std::string& vName, %sWeak v%s)
 	void Set%s(const std::string& vName, %sWeak v%s) override;)",
         vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-    res.include_interface = ct::toStr(
+    res.node_module_include_interface = res.pass_include_interface = ct::toStr(
         u8R"(
 #include <LumoBackend/Interfaces/%sInputInterface.h>)",
         vSlot->slotType.c_str());
@@ -4729,7 +4741,7 @@ SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot) {
 	%sWeak Get%s(const std::string& vName) override;)",
         vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-    res.include_interface = ct::toStr(
+    res.node_module_include_interface = res.pass_include_interface = ct::toStr(
         u8R"(
 #include <LumoBackend/Interfaces/%sOutputInterface.h>)",
         vSlot->slotType.c_str());
@@ -4761,7 +4773,7 @@ SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot) {
 //// GENERATOR NODE SLOTS SUMMARY CODE ///////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GeneratorNode::GetNodeSlotsInputFuncs(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeInputFuncs(const SlotDico& vDico) {
     std::string res;
 
     std::set<BaseTypeEnum> _alreadyKnowTypes;
@@ -4798,7 +4810,7 @@ std::string GeneratorNode::GetNodeSlotsInputFuncs(const SlotDico& vDico) {
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputFuncs(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeOutputFuncs(const SlotDico& vDico) {
     std::string res;
 
     std::set<BaseTypeEnum> _alreadyKnowTypes;
@@ -4835,7 +4847,7 @@ std::string GeneratorNode::GetNodeSlotsOutputFuncs(const SlotDico& vDico) {
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputPublicInterfaces(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeModuleInputPublicInterfaces(const SlotDico& vDico) {
     std::string res;
 
     std::set<BaseTypeEnum> _alreadyKnowTypes;
@@ -4870,7 +4882,7 @@ std::string GeneratorNode::GetNodeSlotsInputPublicInterfaces(const SlotDico& vDi
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputPublicInterfaces(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeModuleOutputPublicInterfaces(const SlotDico& vDico) {
     std::string res;
 
     std::set<BaseTypeEnum> _alreadyKnowTypes;
@@ -4905,7 +4917,7 @@ std::string GeneratorNode::GetNodeSlotsOutputPublicInterfaces(const SlotDico& vD
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputIncludesSlots(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeInputIncludesSlots(const SlotDico& vDico) {
     std::string res;
 
     std::set<BaseTypeEnum> _alreadyKnowTypes;
@@ -4940,7 +4952,7 @@ std::string GeneratorNode::GetNodeSlotsInputIncludesSlots(const SlotDico& vDico)
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeOutputIncludesSlots(const SlotDico& vDico) {
     std::string res;
 
     std::set<BaseTypeEnum> _alreadyKnowTypes;
@@ -4975,11 +4987,9 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesSlots(const SlotDico& vDico
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputIncludesInterfaces(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeModuleInputIncludesInterfaces(const SlotDico& vDico) {
     std::string res;
-
     std::set<BaseTypeEnum> _alreadyKnowTypes;
-
     for (const auto& inputSlot : m_Inputs) {
         if (inputSlot.second) {
             auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
@@ -4989,13 +4999,12 @@ std::string GeneratorNode::GetNodeSlotsInputIncludesInterfaces(const SlotDico& v
                 if (typeString == "None") {
                     continue;
                 }
-
                 if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
                     if (vDico.find(type) != vDico.end()) {
                         if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
                             _alreadyKnowTypes.emplace(type);
 
-                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].include_interface;
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].node_module_include_interface;
                         } else {
                             CTOOL_DEBUG_BREAK;
                         }
@@ -5006,15 +5015,43 @@ std::string GeneratorNode::GetNodeSlotsInputIncludesInterfaces(const SlotDico& v
             }
         }
     }
-
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputIncludesInterfaces(const SlotDico& vDico) {
+std::string GeneratorNode::GetPassInputIncludesInterfaces(const SlotDico& vDico) {
     std::string res;
-
     std::set<BaseTypeEnum> _alreadyKnowTypes;
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
 
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].pass_include_interface;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
+    return res;
+}
+
+std::string GeneratorNode::GetNodeModuleOutputIncludesInterfaces(const SlotDico& vDico) {
+    std::string res;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
     for (const auto& outputSlot : m_Outputs) {
         if (outputSlot.second) {
             auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
@@ -5024,13 +5061,11 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesInterfaces(const SlotDico& 
                 if (typeString == "None") {
                     continue;
                 }
-
                 if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
                     if (vDico.find(type) != vDico.end()) {
                         if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
                             _alreadyKnowTypes.emplace(type);
-
-                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].include_interface;
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].node_module_include_interface;
                         } else {
                             CTOOL_DEBUG_BREAK;
                         }
@@ -5041,11 +5076,40 @@ std::string GeneratorNode::GetNodeSlotsOutputIncludesInterfaces(const SlotDico& 
             }
         }
     }
-
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputCppFuncs(const SlotDico& vDico) {
+std::string GeneratorNode::GetPassOutputIncludesInterfaces(const SlotDico& vDico) {
+    std::string res;
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].pass_include_interface;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
+    return res;
+}
+
+std::string GeneratorNode::GetNodeInputCppFuncs(const SlotDico& vDico) {
     std::string res;
 
     std::set<BaseTypeEnum> _alreadyKnowTypes;
@@ -5080,7 +5144,7 @@ std::string GeneratorNode::GetNodeSlotsInputCppFuncs(const SlotDico& vDico) {
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputCppFuncs(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeOutputCppFuncs(const SlotDico& vDico) {
     std::string res;
 
     std::set<BaseTypeEnum> _alreadyKnowTypes;
@@ -5115,7 +5179,7 @@ std::string GeneratorNode::GetNodeSlotsOutputCppFuncs(const SlotDico& vDico) {
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeInputHFuncs(const SlotDico& vDico) {
     std::string res;
 
     if (!m_Inputs.empty()) {
@@ -5162,7 +5226,7 @@ std::string GeneratorNode::GetNodeSlotsInputHFuncs(const SlotDico& vDico) {
     return res;
 }
 
-std::string GeneratorNode::GetNodeSlotsOutputHFuncs(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeOutputHFuncs(const SlotDico& vDico) {
     std::string res;
 
     if (!m_Outputs.empty()) {

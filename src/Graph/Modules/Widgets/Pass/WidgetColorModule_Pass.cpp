@@ -119,7 +119,7 @@ void WidgetColorModule_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int
 	{
 		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-		Dispatch(vCmdBufferPtr);
+        Dispatch(vCmdBufferPtr, "Compute");
 	}
 }
 

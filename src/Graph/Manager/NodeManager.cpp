@@ -318,7 +318,7 @@ void NodeManager::SelectNode(const BaseNodeWeak& vNode) {
 
 void NodeManager::SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton) {
     if (NodeManager::Instance()->m_RootNodePtr) {
-        GaiApi::vkProfiler::Instance()->Clear();
+        //GaiApi::vkProfiler::Instance()->Clear();
         if (vButton == ImGuiMouseButton_Left) {
             View3DPane::Instance()->SetOrUpdateOutput(vSlot);
         } else if (vButton == ImGuiMouseButton_Middle) {

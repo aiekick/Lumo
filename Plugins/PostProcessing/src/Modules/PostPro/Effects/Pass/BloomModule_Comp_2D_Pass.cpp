@@ -173,7 +173,7 @@ void BloomModule_Comp_2D_Pass::Compute_High_Freq_Thresholding(vk::CommandBuffer*
         vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
         vCmdBufferPtr->bindDescriptorSets(
             vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-        Dispatch(vCmdBufferPtr);
+        Dispatch(vCmdBufferPtr, "High_Freq_Thresholding");
     }
 }
 
@@ -182,7 +182,7 @@ void BloomModule_Comp_2D_Pass::Compute_Horizontal_Blur(vk::CommandBuffer* vCmdBu
         vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[1].m_Pipeline);
         vCmdBufferPtr->bindDescriptorSets(
             vk::PipelineBindPoint::eCompute, m_Pipelines[1].m_PipelineLayout, 0, m_DescriptorSets[1].m_DescriptorSet, nullptr);
-        Dispatch(vCmdBufferPtr);
+        Dispatch(vCmdBufferPtr, "Horizontal_Blur");
     }
 }
 
@@ -191,7 +191,7 @@ void BloomModule_Comp_2D_Pass::Compute_Vertical_Blur(vk::CommandBuffer* vCmdBuff
         vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[2].m_Pipeline);
         vCmdBufferPtr->bindDescriptorSets(
             vk::PipelineBindPoint::eCompute, m_Pipelines[2].m_PipelineLayout, 0, m_DescriptorSets[2].m_DescriptorSet, nullptr);
-        Dispatch(vCmdBufferPtr);
+        Dispatch(vCmdBufferPtr, "Vertical_Blur");
     }
 }
 
@@ -200,7 +200,7 @@ void BloomModule_Comp_2D_Pass::Compute_Gamma_Correction(vk::CommandBuffer* vCmdB
         vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[3].m_Pipeline);
         vCmdBufferPtr->bindDescriptorSets(
             vk::PipelineBindPoint::eCompute, m_Pipelines[3].m_PipelineLayout, 0, m_DescriptorSets[3].m_DescriptorSet, nullptr);
-        Dispatch(vCmdBufferPtr);
+        Dispatch(vCmdBufferPtr, "Gamma_Correction");
     }
 }
 

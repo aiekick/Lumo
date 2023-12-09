@@ -349,7 +349,7 @@ public:
     /// <summary>
     /// will execute vCmdBufferPtr->disaptch according to the defined dispatchsize
     /// </summary>
-    void Dispatch(vk::CommandBuffer* vCmdBufferPtr);
+    void Dispatch(vk::CommandBuffer* vCmdBufferPtr, const char* vDebugLabel);
 
     // Set Wigdet limits
     // vertex / count point to draw / count instances / etc..

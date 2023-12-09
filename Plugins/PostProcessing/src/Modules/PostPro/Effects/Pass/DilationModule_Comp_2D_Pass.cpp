@@ -172,7 +172,7 @@ void DilationModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, cons
                 vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
             for (uint32_t iter = 0; iter < m_CountIterations.w; iter++) {
-                Dispatch(vCmdBufferPtr);
+                Dispatch(vCmdBufferPtr, "Compute");
             }
         }
     }

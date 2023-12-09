@@ -568,8 +568,8 @@ void MODULE_CLASS_NAME::AfterNodeXmlLoading()
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 )";
-	h_module_file_code += GetNodeSlotsInputIncludesInterfaces(vDico);
-	h_module_file_code += GetNodeSlotsOutputIncludesInterfaces(vDico);
+	h_module_file_code += GetNodeModuleInputIncludesInterfaces(vDico);
+    h_module_file_code += GetNodeModuleOutputIncludesInterfaces(vDico);
 	h_module_file_code += u8R"(
 )";
 	if (m_GenerateAPass)
@@ -583,8 +583,7 @@ class MODULE_CLASS_NAME :)";
 	if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE)
 	{
 		h_module_file_code += u8R"(
-	public BaseRenderer,
-	)";
+	public BaseRenderer,)";
 	}
 	else
 	{
@@ -598,8 +597,8 @@ class MODULE_CLASS_NAME :)";
 	public TaskInterface,)";
 	}
 
-	h_module_file_code += GetNodeSlotsInputPublicInterfaces(vDico);
-	h_module_file_code += GetNodeSlotsOutputPublicInterfaces(vDico);
+	h_module_file_code += GetNodeModuleInputPublicInterfaces(vDico);
+    h_module_file_code += GetNodeModuleOutputPublicInterfaces(vDico);
 
 	h_module_file_code += u8R"(
 	public NodeInterface
@@ -614,7 +613,8 @@ private:
     h_module_file_code += GetModuleOutputPrivateVars(vDico);
 	if (!m_GenerateAPass)
 	{
-		h_module_file_code += u8R"(	GaiApi::VulkanCoreWeak m_VulkanCore;
+		h_module_file_code += u8R"(
+	GaiApi::VulkanCoreWeak m_VulkanCore;
 )";
 	}
 
@@ -669,8 +669,8 @@ public:
 )";
 	}
 
-	h_module_file_code += GetNodeSlotsInputHFuncs(vDico);
-	h_module_file_code += GetNodeSlotsOutputHFuncs(vDico);
+	h_module_file_code += GetNodeInputHFuncs(vDico);
+	h_module_file_code += GetNodeOutputHFuncs(vDico);
 	h_module_file_code += u8R"(
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
 	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
