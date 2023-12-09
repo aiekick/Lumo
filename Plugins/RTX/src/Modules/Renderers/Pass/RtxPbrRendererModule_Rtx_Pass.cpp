@@ -45,86 +45,79 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RtxPbrRendererModule_Rtx_Pass::RtxPbrRendererModule_Rtx_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: RtxShaderPass(vVulkanCore)
-{
-	ZoneScoped;
+RtxPbrRendererModule_Rtx_Pass::RtxPbrRendererModule_Rtx_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : RtxShaderPass(vVulkanCore) {
+    ZoneScoped;
 
-	SetRenderDocDebugName("Rtx Pass : Rtx Pbr Renderer", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+    SetRenderDocDebugName("Rtx Pass : Rtx Pbr Renderer", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+    // m_DontUseShaderFilesOnDisk = true;
 }
 
-RtxPbrRendererModule_Rtx_Pass::~RtxPbrRendererModule_Rtx_Pass()
-{
-	ZoneScoped;
+RtxPbrRendererModule_Rtx_Pass::~RtxPbrRendererModule_Rtx_Pass() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
-void RtxPbrRendererModule_Rtx_Pass::ActionBeforeCompilation()
-{
-	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR, "main"), "main");
-	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR, "main"), "main");
-	AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR, "main"), "main");
+void RtxPbrRendererModule_Rtx_Pass::ActionBeforeCompilation() {
+    AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eRaygenKHR, "main"), "main");
+    AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eMissKHR, "main"), "main");
+    AddShaderCode(CompilShaderCode(vk::ShaderStageFlagBits::eClosestHitKHR, "main"), "main");
 }
 
-void RtxPbrRendererModule_Rtx_Pass::ActionBeforeInit()
-{
-	ZoneScoped;
+void RtxPbrRendererModule_Rtx_Pass::ActionBeforeInit() {
+    ZoneScoped;
 
-	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+    // m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 }
 
-bool RtxPbrRendererModule_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RtxPbrRendererModule_Rtx_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	bool change = false;
+    bool change = false;
 
-	change |= DrawResizeWidget();
+    change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Diffuse Factor", &m_UBO_Chit.u_diffuse_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Metallic Factor", &m_UBO_Chit.u_metallic_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rugosity Factor", &m_UBO_Chit.u_rugosity_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Factor", &m_UBO_Chit.u_ao_factor, 0.000f, 1.0f, 1.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Light Intensity Factor", &m_UBO_Chit.u_light_intensity_factor, 0.0f, 200.0f, 100.0f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Shadow Strength", &m_UBO_Chit.u_shadow_strength, 0.000f, 1.000f, 0.5f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Diffuse Factor", &m_UBO_Chit.u_diffuse_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Metallic Factor", &m_UBO_Chit.u_metallic_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rugosity Factor", &m_UBO_Chit.u_rugosity_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Factor", &m_UBO_Chit.u_ao_factor, 0.000f, 1.0f, 1.000f, 0.0f, "%.3f");
+    change |=
+        ImGui::SliderFloatDefaultCompact(0.0f, "Light Intensity Factor", &m_UBO_Chit.u_light_intensity_factor, 0.0f, 200.0f, 100.0f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Shadow Strength", &m_UBO_Chit.u_shadow_strength, 0.000f, 1.000f, 0.5f, 0.0f, "%.3f");
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
+    if (change) {
+        NeedNewUBOUpload();
+    }
 
-	return change;
+    return change;
 }
 
-bool RtxPbrRendererModule_Rtx_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RtxPbrRendererModule_Rtx_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool RtxPbrRendererModule_Rtx_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RtxPbrRendererModule_Rtx_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
@@ -132,210 +125,182 @@ bool RtxPbrRendererModule_Rtx_Pass::DrawDialogsAndPopups(const uint32_t& vCurren
 //// ACCEL STRUCTURE INPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererModule_Rtx_Pass::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
-{	
-	ZoneScoped;
+void RtxPbrRendererModule_Rtx_Pass::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) {
+    ZoneScoped;
 
-	m_SceneAccelStructure = vSceneAccelStructure;
+    m_SceneAccelStructure = vSceneAccelStructure;
 
-	UpdateBufferInfoInRessourceDescriptor();
+    UpdateBufferInfoInRessourceDescriptor();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererModule_Rtx_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
-{	
-	ZoneScoped;
+void RtxPbrRendererModule_Rtx_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
+    ZoneScoped;
 
-	m_SceneLightGroup = vSceneLightGroup;
+    m_SceneLightGroup = vSceneLightGroup;
 
-	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
+    m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
-	auto lightGroupPtr = m_SceneLightGroup.lock();
-	if (lightGroupPtr && 
-		lightGroupPtr->GetBufferInfo())
-	{
-		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
-	}
+    auto lightGroupPtr = m_SceneLightGroup.lock();
+    if (lightGroupPtr && lightGroupPtr->GetBufferInfo()) {
+        m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
+    }
 
-	UpdateBufferInfoInRessourceDescriptor();
+    UpdateBufferInfoInRessourceDescriptor();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererModule_Rtx_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void RtxPbrRendererModule_Rtx_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if ((&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] < 1.0f)
-				{
-					(&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] = 1.0f;
+                if ((&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] < 1.0f) {
+                    (&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] = 1.0f;
 
-					NeedNewUBOUpload();
-				}
-			}
-			else
-			{
-				if ((&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] < 1.0f)
-				{
-					(&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] = 1.0f;
+                    NeedNewUBOUpload();
+                }
+            } else {
+                if ((&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] < 1.0f) {
+                    (&m_UBO_Chit.u_use_albedo_map)[vBindingPoint] = 1.0f;
 
-					NeedNewUBOUpload();
-				}
+                    NeedNewUBOUpload();
+                }
 
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* RtxPbrRendererModule_Rtx_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+vk::DescriptorImageInfo* RtxPbrRendererModule_Rtx_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+    if (m_ComputeBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_ComputeBufferPtr->GetOutputSize();
+        }
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererModule_Rtx_Pass::WasJustResized()
-{
-	ZoneScoped;
+void RtxPbrRendererModule_Rtx_Pass::WasJustResized() {
+    ZoneScoped;
 }
 
-bool RtxPbrRendererModule_Rtx_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool RtxPbrRendererModule_Rtx_Pass::CreateUBO() {
+    ZoneScoped;
 
-	m_UBO_Chit_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Chit), "RtxPbrRendererModule_Rtx_Pass");
-	m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Chit_Ptr)
-	{
-		m_UBO_Chit_BufferInfos.buffer = m_UBO_Chit_Ptr->buffer;
-		m_UBO_Chit_BufferInfos.range = sizeof(UBO_Chit);
-		m_UBO_Chit_BufferInfos.offset = 0;
-	}
+    m_UBO_Chit_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Chit), "RtxPbrRendererModule_Rtx_Pass");
+    m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBO_Chit_Ptr) {
+        m_UBO_Chit_BufferInfos.buffer = m_UBO_Chit_Ptr->buffer;
+        m_UBO_Chit_BufferInfos.range = sizeof(UBO_Chit);
+        m_UBO_Chit_BufferInfos.offset = 0;
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void RtxPbrRendererModule_Rtx_Pass::UploadUBO()
-{
-	ZoneScoped;
+void RtxPbrRendererModule_Rtx_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBO_Chit_Ptr, &m_UBO_Chit, sizeof(UBO_Chit));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Chit_Ptr, &m_UBO_Chit, sizeof(UBO_Chit));
 }
 
-void RtxPbrRendererModule_Rtx_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void RtxPbrRendererModule_Rtx_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBO_Chit_Ptr.reset();
-	m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBO_Chit_Ptr.reset();
+    m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool RtxPbrRendererModule_Rtx_Pass::CanUpdateDescriptors()
-{
-	ZoneScoped;
+bool RtxPbrRendererModule_Rtx_Pass::CanUpdateDescriptors() {
+    ZoneScoped;
 
-	if (!m_SceneAccelStructure.expired())
-	{
-		auto accelStructurePtr = m_SceneAccelStructure.lock();
-		if (accelStructurePtr)
-		{
-			return accelStructurePtr->IsOk();
-		}
-	}
+    if (!m_SceneAccelStructure.expired()) {
+        auto accelStructurePtr = m_SceneAccelStructure.lock();
+        if (accelStructurePtr) {
+            return accelStructurePtr->IsOk();
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool RtxPbrRendererModule_Rtx_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool RtxPbrRendererModule_Rtx_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR);
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR);
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
-	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
-	res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
-	res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR); // albedo
-	res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR); // ao
-	res &= AddOrSetLayoutDescriptor(8U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR); // longlat
-	
-	return res;
+    bool res = true;
+
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eRaygenKHR);
+    res &= AddOrSetLayoutDescriptor(
+        1U, vk::DescriptorType::eAccelerationStructureKHR, vk::ShaderStageFlagBits::eRaygenKHR | vk::ShaderStageFlagBits::eClosestHitKHR);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eRaygenKHR);
+    res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
+    res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
+    res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eClosestHitKHR);
+    res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR);  // albedo
+    res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR);  // ao
+    res &= AddOrSetLayoutDescriptor(8U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eClosestHitKHR);  // longlat
+
+    return res;
 }
 
-bool RtxPbrRendererModule_Rtx_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool RtxPbrRendererModule_Rtx_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
+    bool res = true;
 
-	if (res)
-	{
-		res = false;
+    if (res) {
+        res = false;
 
-		auto accelStructurePtr = m_SceneAccelStructure.lock();
-		if (accelStructurePtr &&
-			accelStructurePtr->GetTLASInfo() &&
-			accelStructurePtr->GetBufferAddressInfo())
-		{
-			res = true;
+        auto accelStructurePtr = m_SceneAccelStructure.lock();
+        if (accelStructurePtr && accelStructurePtr->GetTLASInfo() && accelStructurePtr->GetBufferAddressInfo()) {
+            res = true;
 
-			res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));
-			res &= AddOrSetWriteDescriptorNext(1U, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo());
-			res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera
-			res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo()); // model device address
-			res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
-			res &= AddOrSetWriteDescriptorBuffer(5U, vk::DescriptorType::eUniformBuffer, &m_UBO_Chit_BufferInfos);
-			res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // albedo
-			res &= AddOrSetWriteDescriptorImage(7U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]); // ao
-			res &= AddOrSetWriteDescriptorImage(8U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]); // longlat
-		}
-	}
+            res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));
+            res &= AddOrSetWriteDescriptorNext(1U, vk::DescriptorType::eAccelerationStructureKHR, accelStructurePtr->GetTLASInfo());
+            res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());  // camera
+            res &= AddOrSetWriteDescriptorBuffer(
+                3U, vk::DescriptorType::eStorageBuffer, accelStructurePtr->GetBufferAddressInfo());  // model device address
+            res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
+            res &= AddOrSetWriteDescriptorBuffer(5U, vk::DescriptorType::eUniformBuffer, &m_UBO_Chit_BufferInfos);
+            res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // albedo
+            res &= AddOrSetWriteDescriptorImage(7U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);  // ao
+            res &= AddOrSetWriteDescriptorImage(8U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]);  // longlat
+        }
+    }
 
-	return res;
+    return res;
 }
 
-std::string RtxPbrRendererModule_Rtx_Pass::GetHitPayLoadCode()
-{
-	return u8R"(
+std::string RtxPbrRendererModule_Rtx_Pass::GetHitPayLoadCode() {
+    return u8R"(
 struct hitPayload
 {
 	float sha;
@@ -346,24 +311,19 @@ struct hitPayload
 )";
 }
 
-std::string RtxPbrRendererModule_Rtx_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName)
-{
-	ZoneScoped;
+std::string RtxPbrRendererModule_Rtx_Pass::GetRayGenerationShaderCode(std::string& vOutShaderName) {
+    ZoneScoped;
 
-	vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_RGen";
-	return u8R"(
+    vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_RGen";
+    return u8R"(
 #version 460
 #extension GL_EXT_ray_tracing : enable
 
 layout(binding = 0, rgba32f) uniform writeonly image2D out_color;
 layout(binding = 1) uniform accelerationStructureEXT tlas;
-)"
-+ 
-CommonSystem::GetBufferObjectStructureHeader(2U) 
-+
-GetHitPayLoadCode()
-+
-u8R"(
+)" + CommonSystem::GetBufferObjectStructureHeader(2U) +
+           GetHitPayLoadCode() +
+           u8R"(
 layout(location = 0) rayPayloadEXT hitPayload prd;
 
 void main()
@@ -409,29 +369,24 @@ void main()
 )";
 }
 
-std::string RtxPbrRendererModule_Rtx_Pass::GetRayIntersectionShaderCode(std::string& vOutShaderName)
-{
-	ZoneScoped;
+std::string RtxPbrRendererModule_Rtx_Pass::GetRayIntersectionShaderCode(std::string& vOutShaderName) {
+    ZoneScoped;
 
-	vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Inter";
-	return u8R"(
+    vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Inter";
+    return u8R"(
 
 )";
 }
 
-std::string RtxPbrRendererModule_Rtx_Pass::GetRayMissShaderCode(std::string& vOutShaderName)
-{
-	ZoneScoped;
+std::string RtxPbrRendererModule_Rtx_Pass::GetRayMissShaderCode(std::string& vOutShaderName) {
+    ZoneScoped;
 
-	vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Miss";
-	return u8R"(
+    vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Miss";
+    return u8R"(
 #version 460
 #extension GL_EXT_ray_tracing : enable
-)"
-+
-GetHitPayLoadCode()
-+
-u8R"(
+)" + GetHitPayLoadCode() +
+           u8R"(
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
@@ -443,20 +398,18 @@ void main()
 )";
 }
 
-std::string RtxPbrRendererModule_Rtx_Pass::GetRayAnyHitShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Ahit";
-	return u8R"(
+std::string RtxPbrRendererModule_Rtx_Pass::GetRayAnyHitShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Ahit";
+    return u8R"(
 
 )";
 }
 
-std::string RtxPbrRendererModule_Rtx_Pass::GetRayClosestHitShaderCode(std::string& vOutShaderName)
-{
-	ZoneScoped;
+std::string RtxPbrRendererModule_Rtx_Pass::GetRayClosestHitShaderCode(std::string& vOutShaderName) {
+    ZoneScoped;
 
-	vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Chit";
-	return u8R"(
+    vOutShaderName = "RtxPbrRendererModule_Rtx_Pass_Chit";
+    return u8R"(
 #version 460
 #extension GL_EXT_ray_tracing : enable
 #extension GL_EXT_scalar_block_layout : enable
@@ -464,11 +417,8 @@ std::string RtxPbrRendererModule_Rtx_Pass::GetRayClosestHitShaderCode(std::strin
 
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
 #extension GL_EXT_buffer_reference2 : require
-)"
-+
-GetHitPayLoadCode()
-+
-u8R"(
+)" + GetHitPayLoadCode() +
+           u8R"(
 layout(location = 0) rayPayloadInEXT hitPayload prd;
 layout(location = 1) rayPayloadEXT bool isShadowed;
 
@@ -506,11 +456,8 @@ layout(binding = 3) buffer ModelAddresses
 { 
 	SceneMeshBuffers datas[]; 
 } sceneMeshBuffers;
-)"
-+
-SceneLightGroup::GetBufferObjectStructureHeader(4U)
-+
-u8R"(
+)" + SceneLightGroup::GetBufferObjectStructureHeader(4U) +
+           u8R"(
 layout(std140, binding = 5) uniform UBO_Chit
 {
 	float u_diffuse_factor;
@@ -708,65 +655,61 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string RtxPbrRendererModule_Rtx_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string RtxPbrRendererModule_Rtx_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
+    str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<diffuse_factor>" + ct::toStr(m_UBO_Chit.u_diffuse_factor) + "</diffuse_factor>\n";
-	str += vOffset + "<metallic_factor>" + ct::toStr(m_UBO_Chit.u_metallic_factor) + "</metallic_factor>\n";
-	str += vOffset + "<rugosity_factor>" + ct::toStr(m_UBO_Chit.u_rugosity_factor) + "</rugosity_factor>\n";
-	str += vOffset + "<ao_factor>" + ct::toStr(m_UBO_Chit.u_ao_factor) + "</ao_factor>\n";
-	str += vOffset + "<light_intensity_factor>" + ct::toStr(m_UBO_Chit.u_light_intensity_factor) + "</light_intensity_factor>\n";
-	str += vOffset + "<shadow_strength>" + ct::toStr(m_UBO_Chit.u_shadow_strength) + "</shadow_strength>\n";
-	
-	return str;
+    str += vOffset + "<diffuse_factor>" + ct::toStr(m_UBO_Chit.u_diffuse_factor) + "</diffuse_factor>\n";
+    str += vOffset + "<metallic_factor>" + ct::toStr(m_UBO_Chit.u_metallic_factor) + "</metallic_factor>\n";
+    str += vOffset + "<rugosity_factor>" + ct::toStr(m_UBO_Chit.u_rugosity_factor) + "</rugosity_factor>\n";
+    str += vOffset + "<ao_factor>" + ct::toStr(m_UBO_Chit.u_ao_factor) + "</ao_factor>\n";
+    str += vOffset + "<light_intensity_factor>" + ct::toStr(m_UBO_Chit.u_light_intensity_factor) + "</light_intensity_factor>\n";
+    str += vOffset + "<shadow_strength>" + ct::toStr(m_UBO_Chit.u_shadow_strength) + "</shadow_strength>\n";
+
+    return str;
 }
 
-bool RtxPbrRendererModule_Rtx_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RtxPbrRendererModule_Rtx_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "rtx_pbr_renderer_module")
-	{
-		if (strName == "diffuse_factor")
-			m_UBO_Chit.u_diffuse_factor = ct::fvariant(strValue).GetF();
-		else if (strName == "metallic_factor")
-			m_UBO_Chit.u_metallic_factor = ct::fvariant(strValue).GetF();
-		else if (strName == "rugosity_factor")
-			m_UBO_Chit.u_rugosity_factor = ct::fvariant(strValue).GetF();
-		else if (strName == "ao_factor")
-			m_UBO_Chit.u_ao_factor = ct::fvariant(strValue).GetF();
-		else if (strName == "light_intensity_factor")
-			m_UBO_Chit.u_light_intensity_factor = ct::fvariant(strValue).GetF();
-		else if (strName == "shadow_strength")
-			m_UBO_Chit.u_shadow_strength = ct::fvariant(strValue).GetF();
-	}
+    if (strParentName == "rtx_pbr_renderer_module") {
+        if (strName == "diffuse_factor")
+            m_UBO_Chit.u_diffuse_factor = ct::fvariant(strValue).GetF();
+        else if (strName == "metallic_factor")
+            m_UBO_Chit.u_metallic_factor = ct::fvariant(strValue).GetF();
+        else if (strName == "rugosity_factor")
+            m_UBO_Chit.u_rugosity_factor = ct::fvariant(strValue).GetF();
+        else if (strName == "ao_factor")
+            m_UBO_Chit.u_ao_factor = ct::fvariant(strValue).GetF();
+        else if (strName == "light_intensity_factor")
+            m_UBO_Chit.u_light_intensity_factor = ct::fvariant(strValue).GetF();
+        else if (strName == "shadow_strength")
+            m_UBO_Chit.u_shadow_strength = ct::fvariant(strValue).GetF();
+    }
 
-	return true;
+    return true;
 }
 
-void RtxPbrRendererModule_Rtx_Pass::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void RtxPbrRendererModule_Rtx_Pass::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	// code to do after end of the xml loading of this node
-	// by ex :
-	NeedNewUBOUpload();
+    // code to do after end of the xml loading of this node
+    // by ex :
+    NeedNewUBOUpload();
 }

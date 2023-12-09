@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -46,32 +44,29 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 class GrayScottModule_Comp_Pass;
-class GrayScottModule :
-	public BaseRenderer,
-	public TaskInterface,
-	public TextureInputInterface<2U>,
-	public TextureOutputInterface
-{
+class GrayScottModule : public BaseRenderer, public TaskInterface, public TextureInputInterface<2U>, public TextureOutputInterface {
 public:
-	static std::shared_ptr<GrayScottModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<GrayScottModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::weak_ptr<GrayScottModule> m_This;
-	std::shared_ptr<GrayScottModule_Comp_Pass> m_GrayScottModule_Comp_Pass_Ptr = nullptr;
+    std::weak_ptr<GrayScottModule> m_This;
+    std::shared_ptr<GrayScottModule_Comp_Pass> m_GrayScottModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	GrayScottModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~GrayScottModule() override;
+    GrayScottModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~GrayScottModule() override;
 
-	bool Init();
+    bool Init();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

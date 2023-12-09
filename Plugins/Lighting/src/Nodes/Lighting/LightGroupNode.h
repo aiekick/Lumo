@@ -21,33 +21,24 @@ limitations under the License.
 #include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
 
 class LightGroupModule;
-class LightGroupNode : 
-	public BaseNode,
-	public LightGroupOutputInterface
-{
+class LightGroupNode : public BaseNode, public LightGroupOutputInterface {
 public:
-	static std::shared_ptr<LightGroupNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<LightGroupNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<LightGroupModule> m_LightGroupModulePtr = nullptr;
+    std::shared_ptr<LightGroupModule> m_LightGroupModulePtr = nullptr;
 
 public:
-	LightGroupNode();
-	~LightGroupNode() override;
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-    bool DrawWidgets(const uint32_t& vCurrentFrame,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
+    LightGroupNode();
+    ~LightGroupNode() override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
     SceneLightGroupWeak GetLightGroup() override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

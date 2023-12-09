@@ -68,7 +68,7 @@ void ProjectFile::New(const std::string& vFilePathName) {
     // then load
     NodeManager::Instance()->FinalizeGraphLoading();
 
-    //Save();  // save tp fome
+    // Save();  // save tp fome
 }
 
 bool ProjectFile::Load() {
@@ -230,7 +230,7 @@ bool ProjectFile::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* 
         PluginManager::Instance()->setFromXml(vElem, vParent, "project");
     } else if (strParentName == "scene" && strName == "graph") {
         NodeManager::Instance()->setFromXml(vElem, vParent, "project");
-    } 
+    }
 
     return true;
 }

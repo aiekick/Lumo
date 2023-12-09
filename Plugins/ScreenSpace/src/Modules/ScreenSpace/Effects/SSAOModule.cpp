@@ -189,7 +189,7 @@ bool SSAOModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* v
     if (strParentName == "ssao_module") {
         if (strName == "can_we_render") {
             m_CanWeRender = ct::ivariant(strValue).GetB();
-        } 
+        }
     }
 
     if (m_SSAOModule_Comp_2D_Pass_Ptr) {

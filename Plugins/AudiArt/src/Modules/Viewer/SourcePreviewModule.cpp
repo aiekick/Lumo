@@ -46,103 +46,91 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SourcePreviewModule> SourcePreviewModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<SourcePreviewModule> SourcePreviewModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<SourcePreviewModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<SourcePreviewModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SourcePreviewModule::SourcePreviewModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: m_VulkanCore(vVulkanCore)
-{
-	ZoneScoped;
+SourcePreviewModule::SourcePreviewModule(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) {
+    ZoneScoped;
 }
 
-SourcePreviewModule::~SourcePreviewModule()
-{
-	ZoneScoped;
+SourcePreviewModule::~SourcePreviewModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SourcePreviewModule::Init()
-{
-	ZoneScoped;
+bool SourcePreviewModule::Init() {
+    ZoneScoped;
 
-	return true;
+    return true;
 }
 
-void SourcePreviewModule::Unit()
-{
-	ZoneScoped;
+void SourcePreviewModule::Unit() {
+    ZoneScoped;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SourcePreviewModule::ExecuteAllTime(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/)
-{
-	ZoneScoped;
+bool SourcePreviewModule::ExecuteAllTime(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/) {
+    ZoneScoped;
 
-	return true;
+    return true;
 }
 
-bool SourcePreviewModule::ExecuteWhenNeeded(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/)
-{
-	ZoneScoped;
+bool SourcePreviewModule::ExecuteWhenNeeded(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/) {
+    ZoneScoped;
 
-	return true;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SourcePreviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SourcePreviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
-bool SourcePreviewModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+bool SourcePreviewModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
 bool SourcePreviewModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
@@ -151,53 +139,46 @@ bool SourcePreviewModule::DrawDialogsAndPopups(
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SourcePreviewModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt)
-{	
-	ZoneScoped;
-
+void SourcePreviewModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+    ZoneScoped;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SourcePreviewModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string SourcePreviewModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<source_preview_module>\n";
+    str += vOffset + "<source_preview_module>\n";
 
-	str += vOffset + "</source_preview_module>\n";
+    str += vOffset + "</source_preview_module>\n";
 
-	return str;
+    return str;
 }
 
-bool SourcePreviewModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SourcePreviewModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "source_preview_module")
-	{
-	}
+    if (strParentName == "source_preview_module") {
+    }
 
-	return true;
+    return true;
 }
 
-void SourcePreviewModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
-
+void SourcePreviewModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 }

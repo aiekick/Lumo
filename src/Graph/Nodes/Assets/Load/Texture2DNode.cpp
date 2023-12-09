@@ -35,9 +35,12 @@ std::shared_ptr<Texture2DNode> Texture2DNode::Create(GaiApi::VulkanCoreWeak vVul
     return res;
 }
 
-Texture2DNode::Texture2DNode() : BaseNode() { m_NodeTypeString = "TEXTURE_2D"; }
+Texture2DNode::Texture2DNode() : BaseNode() {
+    m_NodeTypeString = "TEXTURE_2D";
+}
 
-Texture2DNode::~Texture2DNode() {}
+Texture2DNode::~Texture2DNode() {
+}
 
 bool Texture2DNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Texture 2D";
@@ -67,8 +70,7 @@ bool Texture2DNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
     return false;
 }
 
-bool Texture2DNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool Texture2DNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
@@ -110,8 +112,8 @@ std::string Texture2DNode::getXml(const std::string& vOffset, const std::string&
     if (!m_ChildNodes.empty()) {
         res += BaseNode::getXml(vOffset, vUserDatas);
     } else {
-        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(),
-                             m_NodeTypeString.c_str(), ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
         for (auto slot : m_Inputs) {
             res += slot.second->getXml(vOffset + "\t", vUserDatas);
@@ -131,8 +133,7 @@ std::string Texture2DNode::getXml(const std::string& vOffset, const std::string&
     return res;
 }
 
-bool Texture2DNode::setFromXml(
-    tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+bool Texture2DNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
     // The value of this child identifies the name of this element
     std::string strName;
     std::string strValue;

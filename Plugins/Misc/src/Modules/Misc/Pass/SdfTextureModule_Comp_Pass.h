@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -44,46 +42,46 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class SdfTextureModule_Comp_Pass :
-	public ShaderPass,
-	public NodeInterface,
-	
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface
-{
+class SdfTextureModule_Comp_Pass : public ShaderPass,
+                                   public NodeInterface,
+
+                                   public TextureInputInterface<1U>,
+                                   public TextureOutputInterface {
 protected:
-	struct PushConstants {
-		int32_t iteration_count = 0;
-	} m_PushConstants;
+    struct PushConstants {
+        int32_t iteration_count = 0;
+    } m_PushConstants;
 
 private:
-	// for avoid infinit loops in compute shader 
-	// (can be determined auto via max(size.x, size.y)				// to save
-	uint32_t m_MaxIterations = 0;
+    // for avoid infinit loops in compute shader
+    // (can be determined auto via max(size.x, size.y)				// to save
+    uint32_t m_MaxIterations = 0;
 
 public:
-	SdfTextureModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~SdfTextureModule_Comp_Pass() override;
-	void ActionBeforeInit();
-	void ActionBeforeCompilation();
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	bool CanUpdateDescriptors() override;
-	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
+    SdfTextureModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~SdfTextureModule_Comp_Pass() override;
+    void ActionBeforeInit();
+    void ActionBeforeCompilation();
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    bool CanUpdateDescriptors() override;
+    void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 
 protected:
-	void Compute_SdfTexture(vk::CommandBuffer* vCmdBufferPtr, const uint32_t& vIdx);
+    void Compute_SdfTexture(vk::CommandBuffer* vCmdBufferPtr, const uint32_t& vIdx);
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	bool CreateComputePipeline();
+    bool CreateComputePipeline();
 
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+    std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

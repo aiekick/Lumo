@@ -43,181 +43,156 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	
-	auto res = std::make_shared<DeferredRenderer>(vVulkanCore);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<DeferredRenderer> DeferredRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<DeferredRenderer>(vVulkanCore);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DeferredRenderer::DeferredRenderer(GaiApi::VulkanCoreWeak vVulkanCore)
-	: TaskRenderer(vVulkanCore)
-{
-	ZoneScoped;
+DeferredRenderer::DeferredRenderer(GaiApi::VulkanCoreWeak vVulkanCore) : TaskRenderer(vVulkanCore) {
+    ZoneScoped;
 
-	m_SceneShaderPassPtr = SceneShaderPass::Create();
+    m_SceneShaderPassPtr = SceneShaderPass::Create();
 }
 
-DeferredRenderer::~DeferredRenderer()
-{
-	Unit();
+DeferredRenderer::~DeferredRenderer() {
+    Unit();
 
-	m_SceneShaderPassPtr.reset();
+    m_SceneShaderPassPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DeferredRenderer::Init()
-{
-	ZoneScoped;
+bool DeferredRenderer::Init() {
+    ZoneScoped;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	m_Loaded = true;
+    m_Loaded = true;
 
-	if (TaskRenderer::InitPixel(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
+    if (TaskRenderer::InitPixel(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
 
-		m_DeferredRenderer_Quad_Pass_Ptr = std::make_shared<DeferredRenderer_Quad_Pass>(m_VulkanCore);
-		if (m_DeferredRenderer_Quad_Pass_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_ModelRendererModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_ModelRendererModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(true);
+        m_DeferredRenderer_Quad_Pass_Ptr = std::make_shared<DeferredRenderer_Quad_Pass>(m_VulkanCore);
+        if (m_DeferredRenderer_Quad_Pass_Ptr) {
+            // by default but can be changed via widget
+            // m_ModelRendererModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(false);
+            // m_ModelRendererModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
-			if (m_DeferredRenderer_Quad_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
-			{
-				AddGenericPass(m_DeferredRenderer_Quad_Pass_Ptr);
-				m_SceneShaderPassPtr->Add(m_DeferredRenderer_Quad_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+            if (m_DeferredRenderer_Quad_Pass_Ptr->InitPixel(
+                    map_size, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
+                AddGenericPass(m_DeferredRenderer_Quad_Pass_Ptr);
+                m_SceneShaderPassPtr->Add(m_DeferredRenderer_Quad_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DeferredRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool DeferredRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	TaskRenderer::Render("Deferred Renderer", vCmd);
+    TaskRenderer::Render("Deferred Renderer", vCmd);
 
-	return true;
+    return true;
 }
 
-bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool DeferredRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (IsTheGoodFrame(vCurrentFrame))
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Deferred Renderer", -1.0f, true, true, &m_CanWeRender))
-		{
-			if (m_DeferredRenderer_Quad_Pass_Ptr)
-			{
-				return m_DeferredRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
-		}
-	}
+    if (IsTheGoodFrame(vCurrentFrame)) {
+        if (ImGui::CollapsingHeader_CheckBox("Deferred Renderer", -1.0f, true, true, &m_CanWeRender)) {
+            if (m_DeferredRenderer_Quad_Pass_Ptr) {
+                return m_DeferredRenderer_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool DeferredRenderer::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool DeferredRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
 bool DeferredRenderer::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void DeferredRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+void DeferredRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void DeferredRenderer::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	if (m_DeferredRenderer_Quad_Pass_Ptr)
-	{
-		return m_DeferredRenderer_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+void DeferredRenderer::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    if (m_DeferredRenderer_Quad_Pass_Ptr) {
+        return m_DeferredRenderer_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
-vk::DescriptorImageInfo* DeferredRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_DeferredRenderer_Quad_Pass_Ptr)
-	{
-		return m_DeferredRenderer_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+vk::DescriptorImageInfo* DeferredRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_DeferredRenderer_Quad_Pass_Ptr) {
+        return m_DeferredRenderer_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak DeferredRenderer::GetShaderPasses(const uint32_t& vSlotID)
-{
-	return m_SceneShaderPassPtr;
+SceneShaderPassWeak DeferredRenderer::GetShaderPasses(const uint32_t& vSlotID) {
+    return m_SceneShaderPassPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string DeferredRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string DeferredRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	return str;
+    return str;
 }
 
-bool DeferredRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool DeferredRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	return true;
+    return true;
 }

@@ -18,10 +18,9 @@ limitations under the License.
 
 #include <SceneGraph/SceneAccelStructure.h>
 
-class AccelStructureOutputInterface
-{
+class AccelStructureOutputInterface {
 public:
-	virtual SceneAccelStructureWeak GetAccelStruct() = 0;
-	virtual vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() = 0;
-	virtual vk::DescriptorBufferInfo* GetBufferAddressInfo() = 0;
+    virtual SceneAccelStructureWeak GetAccelStruct() = 0;
+    virtual vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() = 0;
+    virtual vk::DescriptorBufferInfo* GetBufferAddressInfo() = 0;
 };

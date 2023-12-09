@@ -60,8 +60,7 @@ std::shared_ptr<ToneMapModule_Comp_2D_Pass> ToneMapModule_Comp_2D_Pass::Create(c
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ToneMapModule_Comp_2D_Pass::ToneMapModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore) 
-    : EffectPass(vVulkanCore) {
+ToneMapModule_Comp_2D_Pass::ToneMapModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : EffectPass(vVulkanCore) {
     SetRenderDocDebugName("Comp Pass : Tone Map", COMPUTE_SHADER_PASS_DEBUG_COLOR);
     m_DontUseShaderFilesOnDisk = true;
 }
@@ -583,7 +582,7 @@ bool ToneMapModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml
         } else if (strName == "algo") {
             m_UBOComp.u_tone_map_algo_idx = ct::ivariant(strValue).GetI();
         }
-    }    
+    }
 
     return true;
 }

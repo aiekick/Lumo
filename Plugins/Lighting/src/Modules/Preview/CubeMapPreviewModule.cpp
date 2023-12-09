@@ -49,243 +49,212 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<CubeMapPreviewModule> CubeMapPreviewModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<CubeMapPreviewModule> CubeMapPreviewModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<CubeMapPreviewModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+    auto res = std::make_shared<CubeMapPreviewModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CubeMapPreviewModule::CubeMapPreviewModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-	ZoneScoped;
+CubeMapPreviewModule::CubeMapPreviewModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
+    ZoneScoped;
 }
 
-CubeMapPreviewModule::~CubeMapPreviewModule()
-{
-	ZoneScoped;
+CubeMapPreviewModule::~CubeMapPreviewModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool CubeMapPreviewModule::Init()
-{
-	ZoneScoped;
+bool CubeMapPreviewModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	if (BaseRenderer::InitPixel(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
+    if (BaseRenderer::InitPixel(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
 
-		m_CubeMapPreview_Quad_Pass_Ptr = std::make_shared<CubeMapPreview_Quad_Pass>(m_VulkanCore);
-		if (m_CubeMapPreview_Quad_Pass_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_CubeMapPreview_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_CubeMapPreview_Quad_Pass_Ptr->AllowResizeByHandOrByInputs(true);
+        m_CubeMapPreview_Quad_Pass_Ptr = std::make_shared<CubeMapPreview_Quad_Pass>(m_VulkanCore);
+        if (m_CubeMapPreview_Quad_Pass_Ptr) {
+            // by default but can be changed via widget
+            // m_CubeMapPreview_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
+            // m_CubeMapPreview_Quad_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
-			if (m_CubeMapPreview_Quad_Pass_Ptr->InitPixel(map_size, 1U, false, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
-			{
-				AddGenericPass(m_CubeMapPreview_Quad_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+            if (m_CubeMapPreview_Quad_Pass_Ptr->InitPixel(
+                    map_size, 1U, false, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1)) {
+                AddGenericPass(m_CubeMapPreview_Quad_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool CubeMapPreviewModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool CubeMapPreviewModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("CubeMapPreview", vCmd);
+    BaseRenderer::Render("CubeMapPreview", vCmd);
 
-	return true;
+    return true;
 }
 
-bool CubeMapPreviewModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool CubeMapPreviewModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("CubeMapPreview", vCmd);
+    BaseRenderer::Render("CubeMapPreview", vCmd);
 
-	return true;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CubeMapPreviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool CubeMapPreviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("CubeMapPreview", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("CubeMapPreview", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			if (m_CubeMapPreview_Quad_Pass_Ptr)
-			{
-				change |= m_CubeMapPreview_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+            if (m_CubeMapPreview_Quad_Pass_Ptr) {
+                change |= m_CubeMapPreview_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool CubeMapPreviewModule::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
 
     return false;
 }
 
 bool CubeMapPreviewModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
 
     return false;
 }
 
-void CubeMapPreviewModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void CubeMapPreviewModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CubeMapPreviewModule::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void CubeMapPreviewModule::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_CubeMapPreview_Quad_Pass_Ptr)
-	{
-		m_CubeMapPreview_Quad_Pass_Ptr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
-	}
+    if (m_CubeMapPreview_Quad_Pass_Ptr) {
+        m_CubeMapPreview_Quad_Pass_Ptr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* CubeMapPreviewModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* CubeMapPreviewModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_CubeMapPreview_Quad_Pass_Ptr)
-	{
-		return m_CubeMapPreview_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_CubeMapPreview_Quad_Pass_Ptr) {
+        return m_CubeMapPreview_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CubeMapPreviewModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string CubeMapPreviewModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<cubemap_preview_module>\n";
+    str += vOffset + "<cubemap_preview_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_CubeMapPreview_Quad_Pass_Ptr)
-	{
-		str += m_CubeMapPreview_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_CubeMapPreview_Quad_Pass_Ptr) {
+        str += m_CubeMapPreview_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</cubemap_preview_module>\n";
+    str += vOffset + "</cubemap_preview_module>\n";
 
-	return str;
+    return str;
 }
 
-bool CubeMapPreviewModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool CubeMapPreviewModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "cubemap_preview_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+    if (strParentName == "cubemap_preview_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
 
-	if (m_CubeMapPreview_Quad_Pass_Ptr)
-	{
-		m_CubeMapPreview_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
+        if (m_CubeMapPreview_Quad_Pass_Ptr) {
+            m_CubeMapPreview_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+        }
+    }
 
-	}
-
-	return true;
+    return true;
 }

@@ -14,15 +14,12 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-
 #pragma once
 
 #include <set>
 #include <array>
 #include <string>
 #include <memory>
-
-
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
@@ -47,34 +44,31 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
 
-class TextureGroupExporterModule :
-	public NodeInterface,
-	public conf::ConfigAbstract,
-	public TextureGroupInputInterface<0U>,
-	public GuiInterface
-{
+class TextureGroupExporterModule : public NodeInterface, public conf::ConfigAbstract, public TextureGroupInputInterface<0U>, public GuiInterface {
 public:
-	static std::shared_ptr<TextureGroupExporterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<TextureGroupExporterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<TextureGroupExporterModule> m_This;
-	GaiApi::VulkanCoreWeak m_VulkanCore;
+    std::weak_ptr<TextureGroupExporterModule> m_This;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	TextureGroupExporterModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~TextureGroupExporterModule();
+    TextureGroupExporterModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~TextureGroupExporterModule();
 
-	bool Init();
-	void Unit();
+    bool Init();
+    void Unit();
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	// Interfaces Setters
-	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes = nullptr) override;
+    // Interfaces Setters
+    void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 };

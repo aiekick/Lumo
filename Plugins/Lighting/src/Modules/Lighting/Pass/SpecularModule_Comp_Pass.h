@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -44,40 +42,40 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
-class SpecularModule_Comp_Pass :
-	public ShaderPass,
-	
-	public LightGroupInputInterface,
-	public TextureInputInterface<2U>,
-	public TextureOutputInterface
-{
+class SpecularModule_Comp_Pass : public ShaderPass,
+
+                                 public LightGroupInputInterface,
+                                 public TextureInputInterface<2U>,
+                                 public TextureOutputInterface {
 private:
-	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	vk::DescriptorBufferInfo m_UBOComp_BufferInfo = vk::DescriptorBufferInfo { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	struct UBOComp {
-		alignas(4) float u_pow_coef = 8.0f;
-	} m_UBOComp;
+    VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
+    vk::DescriptorBufferInfo m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    struct UBOComp {
+        alignas(4) float u_pow_coef = 8.0f;
+    } m_UBOComp;
 
 public:
-	SpecularModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~SpecularModule_Comp_Pass() override;
+    SpecularModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~SpecularModule_Comp_Pass() override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
-	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
+    void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+    std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

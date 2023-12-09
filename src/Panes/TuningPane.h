@@ -27,27 +27,30 @@ limitations under the License.
 
 class BaseNode;
 class ProjectFile;
-class TuningPane : public AbstractPane, public NodeInterface
-{
+class TuningPane : public AbstractPane, public NodeInterface {
 public:
-	bool Init() override;
-	void Unit() override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void Select(BaseNodeWeak vObjet);
+    bool Init() override;
+    void Unit() override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawPanes(
+        const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void Select(BaseNodeWeak vObjet);
 
-public: // singleton
-	static std::shared_ptr<TuningPane> Instance()
-	{
-		static std::shared_ptr<TuningPane> _instance = std::make_shared<TuningPane>();
-		return _instance;
-	}
+public:  // singleton
+    static std::shared_ptr<TuningPane> Instance() {
+        static std::shared_ptr<TuningPane> _instance = std::make_shared<TuningPane>();
+        return _instance;
+    }
 
 public:
-	TuningPane(); // Prevent construction
-	TuningPane(const TuningPane&) = default; // Prevent construction by copying
-	TuningPane& operator =(const TuningPane&) { return *this; }; // Prevent assignment
-	~TuningPane(); // Prevent unwanted destruction;
+    TuningPane();                             // Prevent construction
+    TuningPane(const TuningPane&) = default;  // Prevent construction by copying
+    TuningPane& operator=(const TuningPane&) {
+        return *this;
+    };              // Prevent assignment
+    ~TuningPane();  // Prevent unwanted destruction;
 };

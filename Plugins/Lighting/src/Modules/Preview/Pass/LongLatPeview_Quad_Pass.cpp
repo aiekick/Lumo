@@ -47,47 +47,41 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-LongLatPeview_Quad_Pass::LongLatPeview_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
-{
-	SetRenderDocDebugName("Quad Pass : LongLat Peview", QUAD_SHADER_PASS_DEBUG_COLOR);
+LongLatPeview_Quad_Pass::LongLatPeview_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL) {
+    SetRenderDocDebugName("Quad Pass : LongLat Peview", QUAD_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-LongLatPeview_Quad_Pass::~LongLatPeview_Quad_Pass()
-{
-	Unit();
+LongLatPeview_Quad_Pass::~LongLatPeview_Quad_Pass() {
+    Unit();
 }
 
 void LongLatPeview_Quad_Pass::ActionBeforeInit() {
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 }
 
-bool LongLatPeview_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+bool LongLatPeview_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	ZoneScoped;
+    ZoneScoped;
 
-	bool change = false;
+    bool change = false;
 
-	//change |= DrawResizeWidget();
+    // change |= DrawResizeWidget();
 
-	if (change)
-	{
-		//NeedNewUBOUpload();
-		//NeedNewSBOUpload();
-	}
+    if (change) {
+        // NeedNewUBOUpload();
+        // NeedNewSBOUpload();
+    }
 
-	return change;
+    return change;
 }
 
 bool LongLatPeview_Quad_Pass::DrawOverlays(
@@ -109,146 +103,121 @@ bool LongLatPeview_Quad_Pass::DrawDialogsAndPopups(
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void LongLatPeview_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void LongLatPeview_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
-				}
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+                }
 
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if (vBindingPoint == 0U)
-				{
-					m_UBOFrag.u_use_longlat_map = 1.0f;
-					NeedNewUBOUpload();
-				}
+                if (vBindingPoint == 0U) {
+                    m_UBOFrag.u_use_longlat_map = 1.0f;
+                    NeedNewUBOUpload();
+                }
 
-
-			}
-			else
-			{
-				if (vBindingPoint == 0U)
-				{
-					m_UBOFrag.u_use_longlat_map = 0.0f;
-					NeedNewUBOUpload();
-				}
+            } else {
+                if (vBindingPoint == 0U) {
+                    m_UBOFrag.u_use_longlat_map = 0.0f;
+                    NeedNewUBOUpload();
+                }
 
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* LongLatPeview_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
-	if (m_FrameBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
-		}
+vk::DescriptorImageInfo* LongLatPeview_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+    if (m_FrameBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_FrameBufferPtr->GetOutputSize();
+        }
 
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
-	return nullptr;
+        return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
+    return nullptr;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void LongLatPeview_Quad_Pass::WasJustResized()
-{
-	ZoneScoped;
+void LongLatPeview_Quad_Pass::WasJustResized() {
+    ZoneScoped;
 }
 
-bool LongLatPeview_Quad_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool LongLatPeview_Quad_Pass::CreateUBO() {
+    ZoneScoped;
 
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "LongLatPeview_Quad_Pass");
-	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBOFragPtr)
-	{
-		m_UBO_Frag_BufferInfos.buffer = m_UBOFragPtr->buffer;
-		m_UBO_Frag_BufferInfos.range = sizeof(UBOFrag);
-		m_UBO_Frag_BufferInfos.offset = 0;
-	}
+    m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "LongLatPeview_Quad_Pass");
+    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBOFragPtr) {
+        m_UBO_Frag_BufferInfos.buffer = m_UBOFragPtr->buffer;
+        m_UBO_Frag_BufferInfos.range = sizeof(UBOFrag);
+        m_UBO_Frag_BufferInfos.offset = 0;
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void LongLatPeview_Quad_Pass::UploadUBO()
-{
-	ZoneScoped;
+void LongLatPeview_Quad_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+    VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void LongLatPeview_Quad_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void LongLatPeview_Quad_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOFragPtr.reset();
-	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBOFragPtr.reset();
+    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool LongLatPeview_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool LongLatPeview_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
+    return res;
 }
 
-bool LongLatPeview_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool LongLatPeview_Quad_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
-	res &= AddOrSetWriteDescriptorImage(1U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // longlat
-	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos); // ubo frag
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
+    res &= AddOrSetWriteDescriptorImage(1U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);   // longlat
+    res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);  // ubo frag
+    return res;
 }
-std::string LongLatPeview_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "LongLatPeview_Quad_Pass_Vertex";
+std::string LongLatPeview_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "LongLatPeview_Quad_Pass_Vertex";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec2 vertPosition;
 layout(location = 1) in vec2 vertUv;
 layout(location = 0) out vec3 v_rd;
-)"
-+
-CommonSystem::Instance()->GetBufferObjectStructureHeader(0U)
-+
-u8R"(
+)" + CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
+           u8R"(
 vec3 getRayDirection(vec2 uv)
 {
 	uv = uv * 2.0 - 1.0;
@@ -267,11 +236,10 @@ void main()
 )";
 }
 
-std::string LongLatPeview_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "LongLatPeview_Quad_Pass_Fragment";
+std::string LongLatPeview_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "LongLatPeview_Quad_Pass_Fragment";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
@@ -307,38 +275,35 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string LongLatPeview_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string LongLatPeview_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
-	//str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
-	
-	return str;
+    str += ShaderPass::getXml(vOffset, vUserDatas);
+    // str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
+
+    return str;
 }
 
-bool LongLatPeview_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool LongLatPeview_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "longlat_preview_module")
-	{
-		//if (strName == "mouse_radius")
-		//	m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
-	}
+    if (strParentName == "longlat_preview_module") {
+        // if (strName == "mouse_radius")
+        //	m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
+    }
 
-	return true;
+    return true;
 }

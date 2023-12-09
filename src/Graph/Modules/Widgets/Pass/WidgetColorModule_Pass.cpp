@@ -44,146 +44,129 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-WidgetColorModule_Pass::WidgetColorModule_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: ShaderPass(vVulkanCore)
-{
-	SetRenderDocDebugName("Comp Pass : Widget Color", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+WidgetColorModule_Pass::WidgetColorModule_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {
+    SetRenderDocDebugName("Comp Pass : Widget Color", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-WidgetColorModule_Pass::~WidgetColorModule_Pass()
-{
-	Unit();
+WidgetColorModule_Pass::~WidgetColorModule_Pass() {
+    Unit();
 }
 
-bool WidgetColorModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool WidgetColorModule_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (ImGui::ColorEdit4Default(0.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x))
-	{
-		NeedNewUBOUpload();
+    if (ImGui::ColorEdit4Default(0.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x)) {
+        NeedNewUBOUpload();
 
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
-bool WidgetColorModule_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool WidgetColorModule_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool WidgetColorModule_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool WidgetColorModule_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool WidgetColorModule_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool WidgetColorModule_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	/*if (ImGui::ColorPicker4DefaultForNode(100.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x))
-	{
-		NeedNewUBOUpload();
+    /*if (ImGui::ColorPicker4DefaultForNode(100.0f, "Color", &m_UBOComp.u_color.x, &m_DefaultColor.x))
+    {
+        NeedNewUBOUpload();
 
-		return true;
-	}*/
+        return true;
+    }*/
 
-	return false;
+    return false;
 }
 
-vk::DescriptorImageInfo* WidgetColorModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+vk::DescriptorImageInfo* WidgetColorModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_ComputeBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_ComputeBufferPtr->GetOutputSize();
+        }
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-void WidgetColorModule_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	if (vCmdBufferPtr)
-	{
-		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
-		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+void WidgetColorModule_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    if (vCmdBufferPtr) {
+        vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+        vCmdBufferPtr->bindDescriptorSets(
+            vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
         Dispatch(vCmdBufferPtr, "Compute");
-	}
+    }
 }
 
-bool WidgetColorModule_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool WidgetColorModule_Pass::CreateUBO() {
+    ZoneScoped;
 
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "WidgetColorModule_Pass");
-	if (m_UBOCompPtr->buffer)
-	{
-		m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{ m_UBOCompPtr->buffer, 0, sizeof(UBOComp) };
-	}
-	else
-	{
-		m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	}
+    m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "WidgetColorModule_Pass");
+    if (m_UBOCompPtr->buffer) {
+        m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{m_UBOCompPtr->buffer, 0, sizeof(UBOComp)};
+    } else {
+        m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void WidgetColorModule_Pass::UploadUBO()
-{
-	ZoneScoped;
+void WidgetColorModule_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+    VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
-void WidgetColorModule_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void WidgetColorModule_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOCompPtr.reset();
+    m_UBOCompPtr.reset();
 }
 
+bool WidgetColorModule_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-bool WidgetColorModule_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
-
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+    return res;
 }
 
-bool WidgetColorModule_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool WidgetColorModule_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorImage( 0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	res &= AddOrSetWriteDescriptorBuffer( 1U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfo);
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));  // output
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfo);
+    return res;
 }
 
-std::string WidgetColorModule_Pass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "WidgetColorModule_Pass";
+std::string WidgetColorModule_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "WidgetColorModule_Pass";
 
-	SetLocalGroupSize(1U);
+    SetLocalGroupSize(1U);
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -207,35 +190,32 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string WidgetColorModule_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
-{
-	std::string str;
+std::string WidgetColorModule_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/) {
+    std::string str;
 
-	str += vOffset + "<color>" + m_UBOComp.u_color.string() + "</color>\n";
-	
-	return str;
+    str += vOffset + "<color>" + m_UBOComp.u_color.string() + "</color>\n";
+
+    return str;
 }
 
-bool WidgetColorModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool WidgetColorModule_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "widget_color_module")
-	{
-		if (strName == "color")
-			m_UBOComp.u_color = ct::fvariant(strValue).GetV4();
+    if (strParentName == "widget_color_module") {
+        if (strName == "color")
+            m_UBOComp.u_color = ct::fvariant(strValue).GetV4();
 
-		NeedNewUBOUpload();
-	}
+        NeedNewUBOUpload();
+    }
 
-	return true;
+    return true;
 }

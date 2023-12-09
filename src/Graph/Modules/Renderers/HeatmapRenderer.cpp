@@ -40,197 +40,170 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	auto res = std::make_shared<HeatmapRenderer>(vVulkanCore);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<HeatmapRenderer> HeatmapRenderer::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<HeatmapRenderer>(vVulkanCore);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-HeatmapRenderer::HeatmapRenderer(GaiApi::VulkanCoreWeak vVulkanCore)
-	: TaskRenderer(vVulkanCore)
-{
-	ZoneScoped;
+HeatmapRenderer::HeatmapRenderer(GaiApi::VulkanCoreWeak vVulkanCore) : TaskRenderer(vVulkanCore) {
+    ZoneScoped;
 
-	m_SceneShaderPassPtr = SceneShaderPass::Create();
+    m_SceneShaderPassPtr = SceneShaderPass::Create();
 }
 
-HeatmapRenderer::~HeatmapRenderer()
-{
-	Unit();
+HeatmapRenderer::~HeatmapRenderer() {
+    Unit();
 
-	m_SceneShaderPassPtr.reset();
+    m_SceneShaderPassPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT ////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool HeatmapRenderer::Init()
-{
-	ZoneScoped;
+bool HeatmapRenderer::Init() {
+    ZoneScoped;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	m_Loaded = true;
+    m_Loaded = true;
 
-	if (TaskRenderer::InitPixel(map_size))
-	{
-		m_HeatmapRenderer_Mesh_Pass_Ptr = std::make_shared<HeatmapRenderer_Mesh_Pass>(m_VulkanCore);
-		if (m_HeatmapRenderer_Mesh_Pass_Ptr)
-		{
-			if (m_HeatmapRenderer_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
-			{
-				AddGenericPass(m_HeatmapRenderer_Mesh_Pass_Ptr);
-				m_SceneShaderPassPtr->Add(m_HeatmapRenderer_Mesh_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+    if (TaskRenderer::InitPixel(map_size)) {
+        m_HeatmapRenderer_Mesh_Pass_Ptr = std::make_shared<HeatmapRenderer_Mesh_Pass>(m_VulkanCore);
+        if (m_HeatmapRenderer_Mesh_Pass_Ptr) {
+            if (m_HeatmapRenderer_Mesh_Pass_Ptr->InitPixel(
+                    map_size, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
+                AddGenericPass(m_HeatmapRenderer_Mesh_Pass_Ptr);
+                m_SceneShaderPassPtr->Add(m_HeatmapRenderer_Mesh_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool HeatmapRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool HeatmapRenderer::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	TaskRenderer::Render("Heatmap Renderer", vCmd);
+    TaskRenderer::Render("Heatmap Renderer", vCmd);
 
-	return true;
+    return true;
 }
 
-void HeatmapRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+void HeatmapRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool HeatmapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (IsTheGoodFrame(vCurrentFrame))
-	{
-		if (ImGui::CollapsingHeader_CheckBox("HeatMap", -1.0f, true, true, &m_CanWeRender))
-		{
-			if (m_HeatmapRenderer_Mesh_Pass_Ptr)
-			{
-				return m_HeatmapRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
-		}
-	}
+    if (IsTheGoodFrame(vCurrentFrame)) {
+        if (ImGui::CollapsingHeader_CheckBox("HeatMap", -1.0f, true, true, &m_CanWeRender)) {
+            if (m_HeatmapRenderer_Mesh_Pass_Ptr) {
+                return m_HeatmapRenderer_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool HeatmapRenderer::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool HeatmapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
 bool HeatmapRenderer::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void HeatmapRenderer::SetModel(SceneModelWeak vSceneModel)
-{
-	ZoneScoped;
+void HeatmapRenderer::SetModel(SceneModelWeak vSceneModel) {
+    ZoneScoped;
 
-	if (m_HeatmapRenderer_Mesh_Pass_Ptr)
-	{
-		return m_HeatmapRenderer_Mesh_Pass_Ptr->SetModel(vSceneModel);
-	}
+    if (m_HeatmapRenderer_Mesh_Pass_Ptr) {
+        return m_HeatmapRenderer_Mesh_Pass_Ptr->SetModel(vSceneModel);
+    }
 }
 
-vk::DescriptorImageInfo* HeatmapRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_HeatmapRenderer_Mesh_Pass_Ptr)
-	{
-		return m_HeatmapRenderer_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+vk::DescriptorImageInfo* HeatmapRenderer::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_HeatmapRenderer_Mesh_Pass_Ptr) {
+        return m_HeatmapRenderer_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak HeatmapRenderer::GetShaderPasses(const uint32_t& vSlotID)
-{
-	return m_SceneShaderPassPtr;
+SceneShaderPassWeak HeatmapRenderer::GetShaderPasses(const uint32_t& vSlotID) {
+    return m_SceneShaderPassPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string HeatmapRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string HeatmapRenderer::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += vOffset + "<heatmap_renderer>\n";
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "<heatmap_renderer>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_HeatmapRenderer_Mesh_Pass_Ptr)
-	{
-		str += m_HeatmapRenderer_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_HeatmapRenderer_Mesh_Pass_Ptr) {
+        str += m_HeatmapRenderer_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</heatmap_renderer>\n";
+    str += vOffset + "</heatmap_renderer>\n";
 
-	return str;
+    return str;
 }
 
-bool HeatmapRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool HeatmapRenderer::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "heatmap_renderer")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-	}
+    if (strParentName == "heatmap_renderer") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+    }
 
-	if (m_HeatmapRenderer_Mesh_Pass_Ptr)
-	{
-		m_HeatmapRenderer_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_HeatmapRenderer_Mesh_Pass_Ptr) {
+        m_HeatmapRenderer_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }

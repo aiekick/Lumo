@@ -21,11 +21,10 @@ limitations under the License.
 #include <map>
 #include <string>
 
-class SceneAudiArtInputInterface
-{
+class SceneAudiArtInputInterface {
 protected:
-	std::map<std::string, SceneAudiArtWeak> m_SceneAudiArts;
+    std::map<std::string, SceneAudiArtWeak> m_SceneAudiArts;
 
 public:
-	virtual void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) = 0;
+    virtual void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) = 0;
 };

@@ -14,7 +14,6 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-
 #pragma once
 
 #include <set>
@@ -51,47 +50,47 @@ limitations under the License.
 #include <Interfaces/AccelStructureInputInterface.h>
 
 class RtxPbrRendererModule_Rtx_Pass;
-class RtxPbrRendererModule :
-	public NodeInterface,
-	public BaseRenderer,
-	public TaskInterface,
-	public AccelStructureInputInterface,
-	public LightGroupInputInterface,
-	public TextureInputInterface<0u>,
-	public TextureOutputInterface
-{
+class RtxPbrRendererModule : public NodeInterface,
+                             public BaseRenderer,
+                             public TaskInterface,
+                             public AccelStructureInputInterface,
+                             public LightGroupInputInterface,
+                             public TextureInputInterface<0u>,
+                             public TextureOutputInterface {
 public:
-	static std::shared_ptr<RtxPbrRendererModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<RtxPbrRendererModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<RtxPbrRendererModule> m_This;
+    std::weak_ptr<RtxPbrRendererModule> m_This;
 
-	std::shared_ptr<RtxPbrRendererModule_Rtx_Pass> m_RtxPbrRendererModule_Rtx_Pass_Ptr = nullptr;
+    std::shared_ptr<RtxPbrRendererModule_Rtx_Pass> m_RtxPbrRendererModule_Rtx_Pass_Ptr = nullptr;
 
 public:
-	RtxPbrRendererModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~RtxPbrRendererModule() override;
+    RtxPbrRendererModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~RtxPbrRendererModule() override;
 
-	bool Init();
+    bool Init();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
 
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 
-	// Interfaces Setters
-	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;
-	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    // Interfaces Setters
+    void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;
+    void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 };

@@ -47,8 +47,7 @@ SceneAccelStructurePtr SceneAccelStructure::Create(GaiApi::VulkanCoreWeak vVulka
 //// PUBLIC : BUILD / CLEAR //////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneAccelStructure::SceneAccelStructure(GaiApi::VulkanCoreWeak vVulkanCore)
-    : m_VulkanCore(vVulkanCore) {
+SceneAccelStructure::SceneAccelStructure(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) {
 }
 
 SceneAccelStructure::~SceneAccelStructure() {
@@ -81,8 +80,8 @@ bool SceneAccelStructure::BuildForModel(SceneModelWeak vSceneModelWeak) {
             vk::BufferUsageFlags bufferUsageFlags = vk::BufferUsageFlagBits::eStorageBuffer | vk::BufferUsageFlagBits::eShaderDeviceAddress;
 
             auto sizeInBytes = modelPtr->size() * sizeof(SceneMeshBuffers);
-            m_ModelAdressesPtr =
-                VulkanRessource::createStorageBufferObject(m_VulkanCore, sizeInBytes, bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU, "SceneAccelStructure");
+            m_ModelAdressesPtr = VulkanRessource::createStorageBufferObject(
+                m_VulkanCore, sizeInBytes, bufferUsageFlags, VMA_MEMORY_USAGE_CPU_TO_GPU, "SceneAccelStructure");
             if (m_ModelAdressesPtr) {
                 VulkanRessource::upload(m_VulkanCore, m_ModelAdressesPtr, modelBufferAddresses.data(), sizeInBytes);
 

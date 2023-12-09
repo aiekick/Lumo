@@ -47,161 +47,137 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SceneMergerModule> SceneMergerModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
-	auto res = std::make_shared<SceneMergerModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+std::shared_ptr<SceneMergerModule> SceneMergerModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
+    auto res = std::make_shared<SceneMergerModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneMergerModule::SceneMergerModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-	ZoneScoped;
+SceneMergerModule::SceneMergerModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
+    ZoneScoped;
 }
 
-SceneMergerModule::~SceneMergerModule()
-{
-	ZoneScoped;
+SceneMergerModule::~SceneMergerModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SceneMergerModule::Init()
-{
-	ZoneScoped;
+bool SceneMergerModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	if (BaseRenderer::InitPixel(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
+    if (BaseRenderer::InitPixel(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
 
-		AllowResizeOnResizeEvents(true);
-		AllowResizeByHandOrByInputs(true);
+        AllowResizeOnResizeEvents(true);
+        AllowResizeByHandOrByInputs(true);
 
-		m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCore);
-		if (m_FrameBufferPtr && m_FrameBufferPtr->Init(
-			map_size, 1U, true, true, 0.0f, false,
-			vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2))
-		{
-			m_Loaded = true;
-		}
-	}
+        m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCore);
+        if (m_FrameBufferPtr &&
+            m_FrameBufferPtr->Init(map_size, 1U, true, true, 0.0f, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
+            m_Loaded = true;
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SceneMergerModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool SceneMergerModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Scene Merger", vCmd);
+    BaseRenderer::Render("Scene Merger", vCmd);
 
-	return true;
+    return true;
 }
 
-bool SceneMergerModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool SceneMergerModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Scene Merger", vCmd);
+    BaseRenderer::Render("Scene Merger", vCmd);
 
-	return true;
+    return true;
 }
 
-void SceneMergerModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr)
-{
-	if (m_FrameBufferPtr &&
-		m_FrameBufferPtr->Begin(vCmdBufferPtr))
-	{
-		m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBufferPtr);
+void SceneMergerModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) {
+    if (m_FrameBufferPtr && m_FrameBufferPtr->Begin(vCmdBufferPtr)) {
+        m_FrameBufferPtr->ClearAttachmentsIfNeeded(vCmdBufferPtr);
 
-		for (auto pass : m_ShaderPasses)
-		{
-			auto pass_ptr = pass.lock();
-			if (pass_ptr && pass_ptr->StartDrawPass(vCmdBufferPtr))
-			{
-				pass_ptr->SetLastExecutedFrame(m_LastExecutedFrame); // for have widgets use
-				pass_ptr->DrawModel(vCmdBufferPtr, 1U);
-				pass_ptr->EndDrawPass(vCmdBufferPtr);
-			}
-		}
+        for (auto pass : m_ShaderPasses) {
+            auto pass_ptr = pass.lock();
+            if (pass_ptr && pass_ptr->StartDrawPass(vCmdBufferPtr)) {
+                pass_ptr->SetLastExecutedFrame(m_LastExecutedFrame);  // for have widgets use
+                pass_ptr->DrawModel(vCmdBufferPtr, 1U);
+                pass_ptr->EndDrawPass(vCmdBufferPtr);
+            }
+        }
 
-		m_FrameBufferPtr->End(vCmdBufferPtr);
-	}
+        m_FrameBufferPtr->End(vCmdBufferPtr);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SceneMergerModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SceneMergerModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Scene Merger##SceneMergerModule", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Scene Merger##SceneMergerModule", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
-}
-
-bool SceneMergerModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
     return false;
 }
 
-bool SceneMergerModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SceneMergerModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
+    return false;
+}
 
-	}
+bool SceneMergerModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
@@ -209,220 +185,182 @@ bool SceneMergerModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, cons
 //// PUBLIC / RESIZE ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SceneMergerModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void SceneMergerModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	if (IsResizeableByResizeEvent())
-	{
-		if (m_FrameBufferPtr)
-		{
-			m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
-		}
-	}
+    if (IsResizeableByResizeEvent()) {
+        if (m_FrameBufferPtr) {
+            m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
+        }
+    }
 }
 
-void SceneMergerModule::NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void SceneMergerModule::NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	if (IsResizeableByHand())
-	{
-		if (m_FrameBufferPtr)
-		{
-			m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
-		}
-	}
+    if (IsResizeableByHand()) {
+        if (m_FrameBufferPtr) {
+            m_FrameBufferPtr->NeedResize(vNewSize, vCountColorBuffers);
+        }
+    }
 }
 
-bool SceneMergerModule::ResizeIfNeeded()
-{
-	ZoneScoped;
+bool SceneMergerModule::ResizeIfNeeded() {
+    ZoneScoped;
 
-	if (IsResizeableByHand() ||
-		IsResizeableByResizeEvent())
-	{
-		if (m_FrameBufferPtr &&
-			m_FrameBufferPtr->ResizeIfNeeded())
-		{
-			auto output_size = m_FrameBufferPtr->GetOutputSize();
-			for (auto pass : m_ShaderPasses)
-			{
-				auto pass_ptr = pass.lock();
-				if (pass_ptr)
-				{
-					pass_ptr->UpdatePixel2DViewportSize(output_size);
-				}
-			}
+    if (IsResizeableByHand() || IsResizeableByResizeEvent()) {
+        if (m_FrameBufferPtr && m_FrameBufferPtr->ResizeIfNeeded()) {
+            auto output_size = m_FrameBufferPtr->GetOutputSize();
+            for (auto pass : m_ShaderPasses) {
+                auto pass_ptr = pass.lock();
+                if (pass_ptr) {
+                    pass_ptr->UpdatePixel2DViewportSize(output_size);
+                }
+            }
 
-			return true;
-		}
-	}
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SceneMergerModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void SceneMergerModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 }
 
-void SceneMergerModule::SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vShaderPasses)
-{
-	ZoneScoped;
+void SceneMergerModule::SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vShaderPasses) {
+    ZoneScoped;
 
-	if (m_FrameBufferPtr)
-	{
-		if (m_SceneShaderPassContainer.find(vSlotID) != m_SceneShaderPassContainer.end())
-		{
-			// il faut rediriger la pass vers son FBO natif
-			if (vShaderPasses.expired() && !m_SceneShaderPassContainer.at(vSlotID).expired())
-			{
-				auto scene_pass_ptr = m_SceneShaderPassContainer.at(vSlotID).lock();
-				if (scene_pass_ptr)
-				{
-					for (auto pass : *scene_pass_ptr)
-					{
-						auto pass_ptr = pass.lock();
-						if (pass_ptr)
-						{
-							pass_ptr->ReSetRenderPassToNative();
-						}
-					}
-				}
-			}
-		}
+    if (m_FrameBufferPtr) {
+        if (m_SceneShaderPassContainer.find(vSlotID) != m_SceneShaderPassContainer.end()) {
+            // il faut rediriger la pass vers son FBO natif
+            if (vShaderPasses.expired() && !m_SceneShaderPassContainer.at(vSlotID).expired()) {
+                auto scene_pass_ptr = m_SceneShaderPassContainer.at(vSlotID).lock();
+                if (scene_pass_ptr) {
+                    for (auto pass : *scene_pass_ptr) {
+                        auto pass_ptr = pass.lock();
+                        if (pass_ptr) {
+                            pass_ptr->ReSetRenderPassToNative();
+                        }
+                    }
+                }
+            }
+        }
 
-		m_JustDeletedSceneShaderPassSlots.clear();
+        m_JustDeletedSceneShaderPassSlots.clear();
 
-		// on ajoute ou remplace la passe, ici la passe peut etre vide
-		if (vShaderPasses.expired())
-		{
-			if (m_SceneShaderPassContainer.find(vSlotID) != m_SceneShaderPassContainer.end())
-			{
-				m_SceneShaderPassContainer.erase(vSlotID);
-				m_JustDeletedSceneShaderPassSlots.push_back(vSlotID);
-			}
-		}
-		else
-		{
-			m_SceneShaderPassContainer[vSlotID] = vShaderPasses;
-		}
+        // on ajoute ou remplace la passe, ici la passe peut etre vide
+        if (vShaderPasses.expired()) {
+            if (m_SceneShaderPassContainer.find(vSlotID) != m_SceneShaderPassContainer.end()) {
+                m_SceneShaderPassContainer.erase(vSlotID);
+                m_JustDeletedSceneShaderPassSlots.push_back(vSlotID);
+            }
+        } else {
+            m_SceneShaderPassContainer[vSlotID] = vShaderPasses;
+        }
 
-		// rebuilds shader_passes vector
-		BaseRenderer::m_ShaderPasses.clear();
+        // rebuilds shader_passes vector
+        BaseRenderer::m_ShaderPasses.clear();
 
-		// iterate over scene shader passes
-		// and add child passes to BaseRenderer::m_ShaderPasses
-		// but if many pass are the sam, we must have only one rendering for perf
-		std::set<ShaderPassPtr> m_unique_passes;
-		for (auto scene_pass : m_SceneShaderPassContainer)
-		{
-			auto scene_pass_ptr = scene_pass.second.lock();
-			if (scene_pass_ptr)
-			{
-				for (auto pass : *scene_pass_ptr)
-				{
-					auto pass_ptr = pass.lock();
-					if (pass_ptr && 
-						m_unique_passes.find(pass_ptr) == m_unique_passes.end()) // to be sure than no identic pass was inserted before
-					{
-						// add to set for "already exisiting" test
-						m_unique_passes.emplace(pass_ptr);
+        // iterate over scene shader passes
+        // and add child passes to BaseRenderer::m_ShaderPasses
+        // but if many pass are the sam, we must have only one rendering for perf
+        std::set<ShaderPassPtr> m_unique_passes;
+        for (auto scene_pass : m_SceneShaderPassContainer) {
+            auto scene_pass_ptr = scene_pass.second.lock();
+            if (scene_pass_ptr) {
+                for (auto pass : *scene_pass_ptr) {
+                    auto pass_ptr = pass.lock();
+                    if (pass_ptr && m_unique_passes.find(pass_ptr) == m_unique_passes.end())  // to be sure than no identic pass was inserted before
+                    {
+                        // add to set for "already exisiting" test
+                        m_unique_passes.emplace(pass_ptr);
 
-						// piloted pass, will rebuild the pass pipeline
-						pass_ptr->SetRenderPass(m_FrameBufferPtr->GetRenderPass());
+                        // piloted pass, will rebuild the pass pipeline
+                        pass_ptr->SetRenderPass(m_FrameBufferPtr->GetRenderPass());
 
-						// add the pass for this module
-						AddGenericPass(pass_ptr);
-					}
-				}
-			}
-		}
-	}
+                        // add the pass for this module
+                        AddGenericPass(pass_ptr);
+                    }
+                }
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SceneMergerModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+vk::DescriptorImageInfo* SceneMergerModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_FrameBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
-		}
+    if (m_FrameBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_FrameBufferPtr->GetOutputSize();
+        }
 
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-SceneShaderPassContainer& SceneMergerModule::GetSceneShaderPassContainerRef()
-{
-	ZoneScoped;
+SceneShaderPassContainer& SceneMergerModule::GetSceneShaderPassContainerRef() {
+    ZoneScoped;
 
-	return m_SceneShaderPassContainer;
+    return m_SceneShaderPassContainer;
 }
 
-const std::vector<uint32_t>& SceneMergerModule::GetJustDeletedSceneShaderPassSlots() const
-{
-	return m_JustDeletedSceneShaderPassSlots;
+const std::vector<uint32_t>& SceneMergerModule::GetJustDeletedSceneShaderPassSlots() const {
+    return m_JustDeletedSceneShaderPassSlots;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SceneMergerModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string SceneMergerModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<scene_merger_module>\n";
+    str += vOffset + "<scene_merger_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	str += vOffset + "</scene_merger_module>\n";
+    str += vOffset + "</scene_merger_module>\n";
 
-	return str;
+    return str;
 }
 
-bool SceneMergerModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SceneMergerModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "scene_merger_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-	}
+    if (strParentName == "scene_merger_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+    }
 
-	return true;
+    return true;
 }
 
-void SceneMergerModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void SceneMergerModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 }

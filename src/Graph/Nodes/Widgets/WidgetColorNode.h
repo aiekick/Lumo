@@ -22,36 +22,27 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class WidgetColorModule;
-class WidgetColorNode : 
-	public BaseNode, 
-	public TextureOutputInterface
-{
+class WidgetColorNode : public BaseNode, public TextureOutputInterface {
 public:
-	static std::shared_ptr<WidgetColorNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<WidgetColorNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<WidgetColorModule> m_WidgetColorModule = nullptr;
+    std::shared_ptr<WidgetColorModule> m_WidgetColorModule = nullptr;
 
 public:
-	WidgetColorNode();
-	~WidgetColorNode() override;
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
-	void Unit() override;
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	void DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;
-    bool DrawWidgets(const uint32_t& vCurrentFrame,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
+    WidgetColorNode();
+    ~WidgetColorNode() override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    void Unit() override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    void DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
     void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

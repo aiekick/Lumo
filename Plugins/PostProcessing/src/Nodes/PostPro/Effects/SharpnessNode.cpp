@@ -33,266 +33,241 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<SharpnessNode> SharpnessNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+std::shared_ptr<SharpnessNode> SharpnessNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	auto res = std::make_shared<SharpnessNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<SharpnessNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
-SharpnessNode::SharpnessNode() : BaseNode()
-{
-	ZoneScoped;
+SharpnessNode::SharpnessNode() : BaseNode() {
+    ZoneScoped;
 
-	m_NodeTypeString = "SHARPNESS";
+    m_NodeTypeString = "SHARPNESS";
 }
 
-SharpnessNode::~SharpnessNode()
-{
-	ZoneScoped;
+SharpnessNode::~SharpnessNode() {
+    ZoneScoped;
 
-	Unit();
-}		
+    Unit();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SharpnessNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+bool SharpnessNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	name = "Sharpness";
+    name = "Sharpness";
 
-	AddInput(NodeSlotTextureInput::Create("", 0), false, true);
+    AddInput(NodeSlotTextureInput::Create("", 0), false, true);
 
-	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_SharpnessModulePtr = SharpnessModule::Create(vVulkanCore, m_This);
-	if (m_SharpnessModulePtr)
-	{
-		res = true;
-	}
+    m_SharpnessModulePtr = SharpnessModule::Create(vVulkanCore, m_This);
+    if (m_SharpnessModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SharpnessNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool SharpnessNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
-	if (m_SharpnessModulePtr)
-	{
-		res = m_SharpnessModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-	}
+    // for update input texture buffer infos => avoid vk crash
+    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    if (m_SharpnessModulePtr) {
+        res = m_SharpnessModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    }
 
-	return res;
+    return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SharpnessNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	bool res = false;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_SharpnessModulePtr)	{
-		res = m_SharpnessModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
-	return res;
+bool SharpnessNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    bool res = false;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_SharpnessModulePtr) {
+        res = m_SharpnessModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
+    return res;
 }
 
-bool SharpnessNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SharpnessNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_LastExecutedFrame == vCurrentFrame) {
-		return m_SharpnessModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
-	}
-	return false;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        return m_SharpnessModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+    }
+    return false;
 }
 
-bool SharpnessNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_SharpnessModulePtr)	{
-		return m_SharpnessModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-	}
-	return false;
+bool SharpnessNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_SharpnessModulePtr) {
+        return m_SharpnessModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SharpnessNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+void SharpnessNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	if (vBaseNodeState && vBaseNodeState->debug_mode) {
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList) {
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used[%s]\nCell[%i, %i]",
-				(used ? "true" : "false"), cell.x, cell.y);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used[%s]\nCell[%i, %i]", (used ? "true" : "false"), cell.x, cell.y);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SharpnessNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void SharpnessNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	if (m_SharpnessModulePtr)	{
-		m_SharpnessModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-	}
+    if (m_SharpnessModulePtr) {
+        m_SharpnessModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    }
 
-	// on fait ca apres
-	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // on fait ca apres
+    BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SharpnessNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void SharpnessNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_SharpnessModulePtr)
-	{
-		m_SharpnessModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_SharpnessModulePtr) {
+        m_SharpnessModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* SharpnessNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* SharpnessNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_SharpnessModulePtr)
-	{
-		return m_SharpnessModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_SharpnessModulePtr) {
+        return m_SharpnessModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SharpnessNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+std::string SharpnessNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string res;
+    std::string res;
 
-	if (!m_ChildNodes.empty()) {
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	} else {
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs) {
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs) {
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_SharpnessModulePtr)	{
-			res += m_SharpnessModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_SharpnessModulePtr) {
+            res += m_SharpnessModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool SharpnessNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+bool SharpnessNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_SharpnessModulePtr)	{
-		m_SharpnessModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_SharpnessModulePtr) {
+        m_SharpnessModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	// continue recurse child exploring
-	return true;
+    // continue recurse child exploring
+    return true;
 }
 
-void SharpnessNode::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void SharpnessNode::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_SharpnessModulePtr)	{
-		m_SharpnessModulePtr->AfterNodeXmlLoading();
-	}
+    if (m_SharpnessModulePtr) {
+        m_SharpnessModulePtr->AfterNodeXmlLoading();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SharpnessNode::UpdateShaders(const std::set<std::string>& vFiles)
-{	
-	ZoneScoped;
+void SharpnessNode::UpdateShaders(const std::set<std::string>& vFiles) {
+    ZoneScoped;
 
-	if (m_SharpnessModulePtr)	{
-		m_SharpnessModulePtr->UpdateShaders(vFiles);
-	}
+    if (m_SharpnessModulePtr) {
+        m_SharpnessModulePtr->UpdateShaders(vFiles);
+    }
 }

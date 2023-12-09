@@ -18,12 +18,11 @@ limitations under the License.
 
 #include <SceneGraph/SceneAccelStructure.h>
 
-class AccelStructureInputInterface
-{
+class AccelStructureInputInterface {
 protected:
-	SceneAccelStructureWeak m_SceneAccelStructure;
+    SceneAccelStructureWeak m_SceneAccelStructure;
 
 public:
-	// set a model composed of many mesh
-	virtual void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) = 0;
+    // set a model composed of many mesh
+    virtual void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) = 0;
 };

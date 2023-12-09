@@ -21,51 +21,45 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class AudioTextureModule;
-class AudioTextureNode :
-	public SceneAudiArtInputInterface,
-	public TextureOutputInterface,
-	public ShaderUpdateInterface,
-	public BaseNode
-{
+class AudioTextureNode : public SceneAudiArtInputInterface, public TextureOutputInterface, public ShaderUpdateInterface, public BaseNode {
 public:
-	static std::shared_ptr<AudioTextureNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<AudioTextureNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<AudioTextureModule> m_AudioTextureModulePtr = nullptr;
+    std::shared_ptr<AudioTextureModule> m_AudioTextureModulePtr = nullptr;
 
 public:
-	AudioTextureNode();
-	~AudioTextureNode() override;
+    AudioTextureNode();
+    ~AudioTextureNode() override;
 
-	// Init / Unit
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    // Init / Unit
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
-	// Execute Task
-	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;
+    // Execute Task
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 
-	// Draw Widgets
+    // Draw Widgets
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 
-	// Resize
-	void NeedResizeByResizeEvent(ct::ivec2 * vNewSize, const uint32_t * vCountColorBuffers) override;
+    // Resize
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 
-	// Interfaces Setters
-	void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
+    // Interfaces Setters
+    void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
 
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Configuration
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 
-
-	// Configuration
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
-
-	// Shader Update
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
-
+    // Shader Update
+    void UpdateShaders(const std::set<std::string>& vFiles) override;
 };

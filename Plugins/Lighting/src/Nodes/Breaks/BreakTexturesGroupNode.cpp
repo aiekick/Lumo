@@ -50,7 +50,9 @@ BreakTexturesGroupNode::BreakTexturesGroupNode() : BaseNode() {
     m_OutputSlotsInternalMode = NODE_INTERNAL_MODE_Enum::NODE_INTERNAL_MODE_DYNAMIC;
 }
 
-BreakTexturesGroupNode::~BreakTexturesGroupNode() { Unit(); }
+BreakTexturesGroupNode::~BreakTexturesGroupNode() {
+    Unit();
+}
 
 bool BreakTexturesGroupNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Break Tex2D Group";
@@ -60,10 +62,10 @@ bool BreakTexturesGroupNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     return true;
 }
 
-void BreakTexturesGroupNode::Unit() {}
+void BreakTexturesGroupNode::Unit() {
+}
 
-bool BreakTexturesGroupNode::ExecuteAllTime(
-    const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+bool BreakTexturesGroupNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
@@ -72,8 +74,7 @@ bool BreakTexturesGroupNode::ExecuteAllTime(
     return true;
 }
 
-bool BreakTexturesGroupNode::DrawWidgets(
-    const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool BreakTexturesGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -96,15 +97,13 @@ bool BreakTexturesGroupNode::DrawDialogsAndPopups(
     return false;
 }
 
-void BreakTexturesGroupNode::TreatNotification(
-    const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot) {
+void BreakTexturesGroupNode::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot) {
     if (vEvent == GraphIsLoaded || vEvent == TextureGroupUpdateDone) {
         ReorganizeSlots();
     }
 }
 
-void BreakTexturesGroupNode::SetTextures(
-    const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) {
+void BreakTexturesGroupNode::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) {
     m_Textures.clear();
 
     if (vImageInfos) {
@@ -116,8 +115,7 @@ void BreakTexturesGroupNode::SetTextures(
     ReorganizeSlots();
 }
 
-vk::DescriptorImageInfo* BreakTexturesGroupNode::GetDescriptorImageInfo(
-    const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* BreakTexturesGroupNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
     if (vBindingPoint < (uint32_t)m_Textures.size()) {
         return &m_Textures[vBindingPoint];
     }
@@ -135,8 +133,8 @@ std::string BreakTexturesGroupNode::getXml(const std::string& vOffset, const std
     if (!m_ChildNodes.empty()) {
         res += BaseNode::getXml(vOffset, vUserDatas);
     } else {
-        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(),
-                             m_NodeTypeString.c_str(), ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
         for (auto slot : m_Inputs) {
             res += slot.second->getXml(vOffset + "\t", vUserDatas);
@@ -152,8 +150,7 @@ std::string BreakTexturesGroupNode::getXml(const std::string& vOffset, const std
     return res;
 }
 
-bool BreakTexturesGroupNode::setFromXml(
-    tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+bool BreakTexturesGroupNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
     // The value of this child identifies the name of this element
     std::string strName;
     std::string strValue;

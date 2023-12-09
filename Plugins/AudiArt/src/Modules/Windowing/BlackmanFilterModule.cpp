@@ -46,107 +46,95 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<BlackmanFilterModule> BlackmanFilterModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<BlackmanFilterModule> BlackmanFilterModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<BlackmanFilterModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<BlackmanFilterModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-BlackmanFilterModule::BlackmanFilterModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: m_VulkanCore(vVulkanCore)
-{
-	ZoneScoped;
+BlackmanFilterModule::BlackmanFilterModule(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) {
+    ZoneScoped;
 }
 
-BlackmanFilterModule::~BlackmanFilterModule()
-{
-	ZoneScoped;
+BlackmanFilterModule::~BlackmanFilterModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool BlackmanFilterModule::Init()
-{
-	ZoneScoped;
+bool BlackmanFilterModule::Init() {
+    ZoneScoped;
 
-	return true;
+    return true;
 }
 
-void BlackmanFilterModule::Unit()
-{
-	ZoneScoped;
+void BlackmanFilterModule::Unit() {
+    ZoneScoped;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool BlackmanFilterModule::ExecuteAllTime(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/)
-{
-	ZoneScoped;
+bool BlackmanFilterModule::ExecuteAllTime(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/) {
+    ZoneScoped;
 
-	return true;
+    return true;
 }
 
-bool BlackmanFilterModule::ExecuteWhenNeeded(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/)
-{
-	ZoneScoped;
+bool BlackmanFilterModule::ExecuteWhenNeeded(const uint32_t& /*vCurrentFrame*/, vk::CommandBuffer* /*vCmd*/, BaseNodeState* /*vBaseNodeState*/) {
+    ZoneScoped;
 
-	return true;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BlackmanFilterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool BlackmanFilterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
 
-	return false;
+    return false;
 }
 
 bool BlackmanFilterModule::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
 bool BlackmanFilterModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
@@ -155,63 +143,55 @@ bool BlackmanFilterModule::DrawDialogsAndPopups(
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BlackmanFilterModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt)
-{	
-	ZoneScoped;
-
+void BlackmanFilterModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+    ZoneScoped;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SCENEAUDIART OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneAudiArtWeak BlackmanFilterModule::GetSceneAudiArt(const std::string& vName)
-{	
-	ZoneScoped;
-	return SceneAudiArtWeak();
+SceneAudiArtWeak BlackmanFilterModule::GetSceneAudiArt(const std::string& vName) {
+    ZoneScoped;
+    return SceneAudiArtWeak();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string BlackmanFilterModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string BlackmanFilterModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<blackman_filter_module>\n";
+    str += vOffset + "<blackman_filter_module>\n";
 
-	str += vOffset + "</blackman_filter_module>\n";
+    str += vOffset + "</blackman_filter_module>\n";
 
-	return str;
+    return str;
 }
 
-bool BlackmanFilterModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool BlackmanFilterModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "blackman_filter_module")
-	{
-	}
+    if (strParentName == "blackman_filter_module") {
+    }
 
-	return true;
+    return true;
 }
 
-void BlackmanFilterModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
-
+void BlackmanFilterModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 }

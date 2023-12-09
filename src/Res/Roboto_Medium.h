@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-//Header Generated with https://github.com/aiekick/ImGuiFontStudio
-//Based on https://github.com/juliettef/IconFontCppHeaders
+// Header Generated with https://github.com/aiekick/ImGuiFontStudio
+// Based on https://github.com/juliettef/IconFontCppHeaders
 
 #pragma once
 

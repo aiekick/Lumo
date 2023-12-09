@@ -49,254 +49,220 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<RefractionModule> RefractionModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<RefractionModule> RefractionModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<RefractionModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+    auto res = std::make_shared<RefractionModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RefractionModule::RefractionModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-	ZoneScoped;
+RefractionModule::RefractionModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
+    ZoneScoped;
 }
 
-RefractionModule::~RefractionModule()
-{
-	ZoneScoped;
+RefractionModule::~RefractionModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool RefractionModule::Init()
-{
-	ZoneScoped;
+bool RefractionModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	if (BaseRenderer::InitPixel(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
+    if (BaseRenderer::InitPixel(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
 
-		m_Refraction_Quad_Pass_Ptr = std::make_shared<Refraction_Quad_Pass>(m_VulkanCore);
-		if (m_Refraction_Quad_Pass_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_Refraction_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_Refraction_Quad_Pass_Ptr->AllowResizeByHandOrByInputs(true);
+        m_Refraction_Quad_Pass_Ptr = std::make_shared<Refraction_Quad_Pass>(m_VulkanCore);
+        if (m_Refraction_Quad_Pass_Ptr) {
+            // by default but can be changed via widget
+            // m_Refraction_Quad_Pass_Ptr->AllowResizeOnResizeEvents(false);
+            // m_Refraction_Quad_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
-			if (m_Refraction_Quad_Pass_Ptr->InitPixel(map_size, 1U, false, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
-			{
-				AddGenericPass(m_Refraction_Quad_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+            if (m_Refraction_Quad_Pass_Ptr->InitPixel(
+                    map_size, 1U, false, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1)) {
+                AddGenericPass(m_Refraction_Quad_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool RefractionModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool RefractionModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Refraction", vCmd);
+    BaseRenderer::Render("Refraction", vCmd);
 
-	return true;
+    return true;
 }
 
-bool RefractionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool RefractionModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Refraction", vCmd);
+    BaseRenderer::Render("Refraction", vCmd);
 
-	return true;
+    return true;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RefractionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RefractionModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Refraction##RefractionModule", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Refraction##RefractionModule", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			if (m_Refraction_Quad_Pass_Ptr)
-			{
-				change |= m_Refraction_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+            if (m_Refraction_Quad_Pass_Ptr) {
+                change |= m_Refraction_Quad_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
-}
-
-bool RefractionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
     return false;
 }
 
-bool RefractionModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RefractionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void RefractionModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+bool RefractionModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
+    return false;
+}
+
+void RefractionModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
+
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RefractionModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void RefractionModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Refraction_Quad_Pass_Ptr)
-	{
-		m_Refraction_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_Refraction_Quad_Pass_Ptr) {
+        m_Refraction_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RefractionModule::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void RefractionModule::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Refraction_Quad_Pass_Ptr)
-	{
-		m_Refraction_Quad_Pass_Ptr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
-	}
+    if (m_Refraction_Quad_Pass_Ptr) {
+        m_Refraction_Quad_Pass_Ptr->SetTextureCube(vBindingPoint, vImageCubeInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* RefractionModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* RefractionModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_Refraction_Quad_Pass_Ptr)
-	{
-		return m_Refraction_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_Refraction_Quad_Pass_Ptr) {
+        return m_Refraction_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string RefractionModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string RefractionModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<reflection_module>\n";
+    str += vOffset + "<reflection_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_Refraction_Quad_Pass_Ptr)
-	{
-		str += m_Refraction_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_Refraction_Quad_Pass_Ptr) {
+        str += m_Refraction_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</reflection_module>\n";
+    str += vOffset + "</reflection_module>\n";
 
-	return str;
+    return str;
 }
 
-bool RefractionModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RefractionModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "reflection_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+    if (strParentName == "reflection_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
 
-	if (m_Refraction_Quad_Pass_Ptr)
-	{
-		m_Refraction_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
+        if (m_Refraction_Quad_Pass_Ptr) {
+            m_Refraction_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+        }
+    }
 
-	}
-
-	return true;
+    return true;
 }

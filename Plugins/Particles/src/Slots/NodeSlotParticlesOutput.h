@@ -23,29 +23,27 @@ class NodeSlotParticlesOutput;
 typedef std::weak_ptr<NodeSlotParticlesOutput> NodeSlotParticlesOutputWeak;
 typedef std::shared_ptr<NodeSlotParticlesOutput> NodeSlotParticlesOutputPtr;
 
-class NodeSlotParticlesOutput : 
-	public NodeSlotOutput
-{
+class NodeSlotParticlesOutput : public NodeSlotOutput {
 public:
-	static NodeSlotParticlesOutputPtr Create(NodeSlotParticlesOutput vSlot);
-	static NodeSlotParticlesOutputPtr Create(const std::string& vName);
-	static NodeSlotParticlesOutputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotParticlesOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotParticlesOutputPtr Create(NodeSlotParticlesOutput vSlot);
+    static NodeSlotParticlesOutputPtr Create(const std::string& vName);
+    static NodeSlotParticlesOutputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotParticlesOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotParticlesOutput();
-	explicit NodeSlotParticlesOutput(const std::string& vName);
-	explicit NodeSlotParticlesOutput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotParticlesOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotParticlesOutput();
+    explicit NodeSlotParticlesOutput();
+    explicit NodeSlotParticlesOutput(const std::string& vName);
+    explicit NodeSlotParticlesOutput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotParticlesOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotParticlesOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

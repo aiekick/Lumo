@@ -26,30 +26,29 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <LumoBackend/Graph/Library/LibraryCategory.h>
 
-class UserNodeLibrary
-{
+class UserNodeLibrary {
 private:
-	LibraryCategory m_RootLibraryCategory;
+    LibraryCategory m_RootLibraryCategory;
 
 public:
-	BaseNodeWeak ShowNewNodeMenu(
-		BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState);
-	void AnalyseRootDirectory();
+    BaseNodeWeak ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState);
+    void AnalyseRootDirectory();
 
 private:
-	BaseNodeWeak CreateNode(BaseNodeWeak vNodeGraph, const LibraryEntry& vLibraryEntry);
-	void AnalyseRootDirectoryRecurs(const char *name, int indent, LibraryCategory *vLibraryCategory);
+    BaseNodeWeak CreateNode(BaseNodeWeak vNodeGraph, const LibraryEntry &vLibraryEntry);
+    void AnalyseRootDirectoryRecurs(const char *name, int indent, LibraryCategory *vLibraryCategory);
 
-public: // singleton
-	static UserNodeLibrary *Instance()
-	{
-		static UserNodeLibrary _instance;
-		return &_instance;
-	}
+public:  // singleton
+    static UserNodeLibrary *Instance() {
+        static UserNodeLibrary _instance;
+        return &_instance;
+    }
 
 protected:
-	UserNodeLibrary(); // Prevent construction
-	UserNodeLibrary(const UserNodeLibrary&) = default; // Prevent construction by copying
-	UserNodeLibrary& operator =(const UserNodeLibrary&) { return *this; }; // Prevent assignment
-	~UserNodeLibrary() = default; // Prevent unwanted destruction
+    UserNodeLibrary();                                   // Prevent construction
+    UserNodeLibrary(const UserNodeLibrary &) = default;  // Prevent construction by copying
+    UserNodeLibrary &operator=(const UserNodeLibrary &) {
+        return *this;
+    };                             // Prevent assignment
+    ~UserNodeLibrary() = default;  // Prevent unwanted destruction
 };

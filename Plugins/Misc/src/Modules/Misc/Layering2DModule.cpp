@@ -46,194 +46,166 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<Layering2DModule> Layering2DModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	
-	auto res = std::make_shared<Layering2DModule>(vVulkanCore);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<Layering2DModule> Layering2DModule::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<Layering2DModule>(vVulkanCore);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Layering2DModule::Layering2DModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-
+Layering2DModule::Layering2DModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
 }
 
-Layering2DModule::~Layering2DModule()
-{
-	Unit();
+Layering2DModule::~Layering2DModule() {
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool Layering2DModule::Init()
-{
-	ZoneScoped;
+bool Layering2DModule::Init() {
+    ZoneScoped;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	if (BaseRenderer::InitCompute2D(map_size))
-	{
-		m_Layering2DModule_Comp_Pass_Ptr = std::make_shared<Layering2DModule_Comp_Pass>(m_VulkanCore);
-		if (m_Layering2DModule_Comp_Pass_Ptr)
-		{
-			// will be resized ot input size
-			m_Layering2DModule_Comp_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			m_Layering2DModule_Comp_Pass_Ptr->AllowResizeByHandOrByInputs(true);
+    if (BaseRenderer::InitCompute2D(map_size)) {
+        m_Layering2DModule_Comp_Pass_Ptr = std::make_shared<Layering2DModule_Comp_Pass>(m_VulkanCore);
+        if (m_Layering2DModule_Comp_Pass_Ptr) {
+            // will be resized ot input size
+            m_Layering2DModule_Comp_Pass_Ptr->AllowResizeOnResizeEvents(false);
+            m_Layering2DModule_Comp_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
-			if (m_Layering2DModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_Layering2DModule_Comp_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+            if (m_Layering2DModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
+                AddGenericPass(m_Layering2DModule_Comp_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool Layering2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool Layering2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("2D Layering", vCmd);
+    BaseRenderer::Render("2D Layering", vCmd);
 
-	return true;
+    return true;
 }
 
-bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("2D Layering", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("2D Layering", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			if (m_Layering2DModule_Comp_Pass_Ptr)
-			{
-				change |= m_Layering2DModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+            if (m_Layering2DModule_Comp_Pass_Ptr) {
+                change |= m_Layering2DModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
-}
-
-bool Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
-
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
     return false;
 }
 
-bool Layering2DModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void Layering2DModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+bool Layering2DModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
+    return false;
 }
 
-void Layering2DModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
-
-	if (m_Layering2DModule_Comp_Pass_Ptr)
-	{
-		m_Layering2DModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+void Layering2DModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-vk::DescriptorImageInfo* Layering2DModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+void Layering2DModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Layering2DModule_Comp_Pass_Ptr)
-	{
-		return m_Layering2DModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_Layering2DModule_Comp_Pass_Ptr) {
+        m_Layering2DModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
+}
 
-	return nullptr;
+vk::DescriptorImageInfo* Layering2DModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+
+    if (m_Layering2DModule_Comp_Pass_Ptr) {
+        return m_Layering2DModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
+
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string Layering2DModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string Layering2DModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += vOffset + "<layering_2d_module>\n";
+    str += vOffset + "<layering_2d_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_Layering2DModule_Comp_Pass_Ptr)
-	{
-		str += m_Layering2DModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_Layering2DModule_Comp_Pass_Ptr) {
+        str += m_Layering2DModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</layering_2d_module>\n";
+    str += vOffset + "</layering_2d_module>\n";
 
-	return str;
+    return str;
 }
 
-bool Layering2DModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool Layering2DModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "layering_2d_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-	}
+    if (strParentName == "layering_2d_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+    }
 
-	if (m_Layering2DModule_Comp_Pass_Ptr)
-	{
-		m_Layering2DModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_Layering2DModule_Comp_Pass_Ptr) {
+        m_Layering2DModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }

@@ -92,7 +92,8 @@ bool MeshEmitterNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& 
     return false;
 }
 
-bool MeshEmitterNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MeshEmitterNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -111,7 +112,8 @@ void MeshEmitterNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) 
         auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
         if (drawList) {
             char debugBuffer[255] = "\0";
-            snprintf(debugBuffer, 254, "Used(%s)\nCell(%i, %i)" /*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/, (used ? "true" : "false"), cell.x, cell.y /*, pos.x, pos.y, size.x, size.y*/);
+            snprintf(debugBuffer, 254, "Used(%s)\nCell(%i, %i)" /*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/, (used ? "true" : "false"), cell.x,
+                cell.y /*, pos.x, pos.y, size.x, size.y*/);
             ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
             drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
         }
@@ -146,7 +148,8 @@ std::string MeshEmitterNode::getXml(const std::string& vOffset, const std::strin
     if (!m_ChildNodes.empty()) {
         res += BaseNode::getXml(vOffset, vUserDatas);
     } else {
-        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(), ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)nodeID.Get());
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)nodeID.Get());
 
         for (auto slot : m_Inputs) {
             res += slot.second->getXml(vOffset + "\t", vUserDatas);

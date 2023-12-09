@@ -35,9 +35,12 @@ std::shared_ptr<MeshNode> MeshNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
     return res;
 }
 
-MeshNode::MeshNode() : BaseNode() { m_NodeTypeString = "MESH"; }
+MeshNode::MeshNode() : BaseNode() {
+    m_NodeTypeString = "MESH";
+}
 
-MeshNode::~MeshNode() {}
+MeshNode::~MeshNode() {
+}
 
 bool MeshNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Model";
@@ -62,16 +65,14 @@ bool MeshNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContext
     return false;
 }
 
-bool MeshNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MeshNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
-bool MeshNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MeshNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -106,8 +107,8 @@ std::string MeshNode::getXml(const std::string& vOffset, const std::string& vUse
     if (!m_ChildNodes.empty()) {
         res += BaseNode::getXml(vOffset, vUserDatas);
     } else {
-        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(),
-                             m_NodeTypeString.c_str(), ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
         for (auto slot : m_Inputs) {
             res += slot.second->getXml(vOffset + "\t", vUserDatas);

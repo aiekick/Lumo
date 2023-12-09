@@ -38,12 +38,14 @@ namespace fs = std::filesystem;
 ////// PluginInstance ////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-PluginInstance::PluginInstance() {}
+PluginInstance::PluginInstance() {
+}
 
-PluginInstance::~PluginInstance() { Unit(); }
+PluginInstance::~PluginInstance() {
+    Unit();
+}
 
-PluginReturnMsg PluginInstance::Init(
-    GaiApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName) {
+PluginReturnMsg PluginInstance::Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName) {
     m_Name = vName;
     m_Loader = dlloader::DLLoader<PluginInterface>(vFilePathName);
     m_Loader.DLOpenLib();
@@ -68,7 +70,9 @@ void PluginInstance::Unit() {
     m_Loader.DLCloseLib();
 }
 
-PluginInterfaceWeak PluginInstance::Get() { return m_PluginInstance; }
+PluginInterfaceWeak PluginInstance::Get() {
+    return m_PluginInstance;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 ////// PluginLoader //////////////////////////////////////////////////////////
@@ -86,7 +90,9 @@ static inline std::string GetDLLExtention() {
 #endif
 }
 
-void PluginManager::Clear() { m_Plugins.clear(); }
+void PluginManager::Clear() {
+    m_Plugins.clear();
+}
 
 void PluginManager::LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCore) {
     printf("-----------\n");
@@ -207,8 +213,7 @@ void PluginManager::m_LoadPlugin(const fs::directory_entry& vEntry, GaiApi::Vulk
         for (const auto& file : dir_iter) {
             m_LoadPlugin(file, vVulkanCore);
         }
-    }
-    else if (vEntry.is_regular_file()) {
+    } else if (vEntry.is_regular_file()) {
         auto file_name = vEntry.path().filename().string();
         if (file_name.find(PLUGIN_PREFIX) == 0U) {
             if (file_name.find(RuntimeType) != std::string::npos) {

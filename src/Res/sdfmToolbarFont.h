@@ -1,6 +1,6 @@
-//Header Generated with https://github.com/aiekick/ImGuiFontStudio
-//Based on https://github.com/juliettef/IconFontCppHeaders
-//for Language c++
+// Header Generated with https://github.com/aiekick/ImGuiFontStudio
+// Based on https://github.com/juliettef/IconFontCppHeaders
+// for Language c++
 
 #pragma once
 

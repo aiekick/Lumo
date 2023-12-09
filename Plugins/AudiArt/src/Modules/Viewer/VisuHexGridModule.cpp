@@ -48,243 +48,214 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<VisuHexGridModule> VisuHexGridModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<VisuHexGridModule> VisuHexGridModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<VisuHexGridModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<VisuHexGridModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VisuHexGridModule::VisuHexGridModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-	ZoneScoped;
+VisuHexGridModule::VisuHexGridModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
+    ZoneScoped;
 }
 
-VisuHexGridModule::~VisuHexGridModule()
-{
-	ZoneScoped;
+VisuHexGridModule::~VisuHexGridModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool VisuHexGridModule::Init()
-{
-	ZoneScoped;
+bool VisuHexGridModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	if (BaseRenderer::InitPixel(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
+    if (BaseRenderer::InitPixel(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
 
-		m_VisuHexGridModule_Vertex_Pass_Ptr = std::make_shared<VisuHexGridModule_Vertex_Pass>(m_VulkanCore);
-		if (m_VisuHexGridModule_Vertex_Pass_Ptr)
-		{
-			// by default but can be changed via widget
-			m_VisuHexGridModule_Vertex_Pass_Ptr->AllowResizeOnResizeEvents(true);
-			m_VisuHexGridModule_Vertex_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+        m_VisuHexGridModule_Vertex_Pass_Ptr = std::make_shared<VisuHexGridModule_Vertex_Pass>(m_VulkanCore);
+        if (m_VisuHexGridModule_Vertex_Pass_Ptr) {
+            // by default but can be changed via widget
+            m_VisuHexGridModule_Vertex_Pass_Ptr->AllowResizeOnResizeEvents(true);
+            m_VisuHexGridModule_Vertex_Pass_Ptr->AllowResizeByHandOrByInputs(false);
 
-			if (m_VisuHexGridModule_Vertex_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
-			{
-				AddGenericPass(m_VisuHexGridModule_Vertex_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+            if (m_VisuHexGridModule_Vertex_Pass_Ptr->InitPixel(
+                    map_size, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1)) {
+                AddGenericPass(m_VisuHexGridModule_Vertex_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool VisuHexGridModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool VisuHexGridModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Visu Hex Grid", vCmd);
+    BaseRenderer::Render("Visu Hex Grid", vCmd);
 
-	return true;
+    return true;
 }
 
-bool VisuHexGridModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool VisuHexGridModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Visu Hex Grid", vCmd);
+    BaseRenderer::Render("Visu Hex Grid", vCmd);
 
-	return true;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VisuHexGridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool VisuHexGridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Visu Hex Grid##VisuHexGridModule", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Visu Hex Grid##VisuHexGridModule", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			if (m_VisuHexGridModule_Vertex_Pass_Ptr)
-			{
-				change |= m_VisuHexGridModule_Vertex_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+            if (m_VisuHexGridModule_Vertex_Pass_Ptr) {
+                change |= m_VisuHexGridModule_Vertex_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool VisuHexGridModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+bool VisuHexGridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
 bool VisuHexGridModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
-void VisuHexGridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void VisuHexGridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void VisuHexGridModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void VisuHexGridModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_VisuHexGridModule_Vertex_Pass_Ptr)
-	{
-		m_VisuHexGridModule_Vertex_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_VisuHexGridModule_Vertex_Pass_Ptr) {
+        m_VisuHexGridModule_Vertex_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* VisuHexGridModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* VisuHexGridModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_VisuHexGridModule_Vertex_Pass_Ptr)
-	{
-		return m_VisuHexGridModule_Vertex_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_VisuHexGridModule_Vertex_Pass_Ptr) {
+        return m_VisuHexGridModule_Vertex_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string VisuHexGridModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string VisuHexGridModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<visu_hex_grid_module>\n";
+    str += vOffset + "<visu_hex_grid_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_VisuHexGridModule_Vertex_Pass_Ptr)
-	{
-		str += m_VisuHexGridModule_Vertex_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_VisuHexGridModule_Vertex_Pass_Ptr) {
+        str += m_VisuHexGridModule_Vertex_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</visu_hex_grid_module>\n";
+    str += vOffset + "</visu_hex_grid_module>\n";
 
-	return str;
+    return str;
 }
 
-bool VisuHexGridModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool VisuHexGridModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "visu_hex_grid_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+    if (strParentName == "visu_hex_grid_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
 
-		if (m_VisuHexGridModule_Vertex_Pass_Ptr)
-		{
-			m_VisuHexGridModule_Vertex_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
-	}
+        if (m_VisuHexGridModule_Vertex_Pass_Ptr) {
+            m_VisuHexGridModule_Vertex_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+        }
+    }
 
-	return true;
+    return true;
 }
 
-void VisuHexGridModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void VisuHexGridModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_VisuHexGridModule_Vertex_Pass_Ptr)
-	{
-		m_VisuHexGridModule_Vertex_Pass_Ptr->AfterNodeXmlLoading();
-	}
+    if (m_VisuHexGridModule_Vertex_Pass_Ptr) {
+        m_VisuHexGridModule_Vertex_Pass_Ptr->AfterNodeXmlLoading();
+    }
 }

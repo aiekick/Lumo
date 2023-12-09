@@ -38,54 +38,51 @@ typedef std::shared_ptr<PluginInstance> PluginInstancePtr;
 
 enum class PluginReturnMsg { LOADING_SUCCEED = 1, LOADING_FAILED = 0, NOT_A_PLUGIN = -1 };
 
-class PluginInstance
-{
+class PluginInstance {
 private:
-	dlloader::DLLoader<PluginInterface> m_Loader;
-	PluginInterfacePtr m_PluginInstance = nullptr;
-	std::string m_Name;
+    dlloader::DLLoader<PluginInterface> m_Loader;
+    PluginInterfacePtr m_PluginInstance = nullptr;
+    std::string m_Name;
 
 public:
-	PluginInstance();
-	~PluginInstance();
+    PluginInstance();
+    ~PluginInstance();
 
-	PluginReturnMsg Init(
-        GaiApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName);
-	void Unit();
+    PluginReturnMsg Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName);
+    void Unit();
 
-	PluginInterfaceWeak Get();
+    PluginInterfaceWeak Get();
 };
 
-class PluginManager : public conf::ConfigAbstract
-{
+class PluginManager : public conf::ConfigAbstract {
 private:
-	std::map<std::string, PluginInstancePtr> m_Plugins;
+    std::map<std::string, PluginInstancePtr> m_Plugins;
 
 public:
-	void LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCore);
-	std::vector<LibraryEntry> GetLibraryEntrys();
-	BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName);
-	std::vector<PluginPaneConfig> GetPluginsPanes();
-	void ResetImGuiID(int vWidgetId);
+    void LoadPlugins(GaiApi::VulkanCoreWeak vVulkanCore);
+    std::vector<LibraryEntry> GetLibraryEntrys();
+    BaseNodePtr CreatePluginNode(const std::string& vPluginNodeName);
+    std::vector<PluginPaneConfig> GetPluginsPanes();
+    void ResetImGuiID(int vWidgetId);
     void Clear();
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-    
 
 private:
     void m_LoadPlugin(const std::filesystem::directory_entry& vEntry, GaiApi::VulkanCoreWeak vVulkanCore);
     void m_DisplayLoadedPlugins();
 
 public:
-	static PluginManager* Instance()
-	{
-		static PluginManager _instance;
-		return &_instance;
-	}
+    static PluginManager* Instance() {
+        static PluginManager _instance;
+        return &_instance;
+    }
 
 protected:
-	PluginManager() = default; // Prevent construction
-	PluginManager(const PluginManager&) = default; // Prevent construction by copying
-	PluginManager& operator =(const PluginManager&) { return *this; }; // Prevent assignment
-	~PluginManager() = default; // Prevent unwanted destruction
+    PluginManager() = default;                      // Prevent construction
+    PluginManager(const PluginManager&) = default;  // Prevent construction by copying
+    PluginManager& operator=(const PluginManager&) {
+        return *this;
+    };                           // Prevent assignment
+    ~PluginManager() = default;  // Prevent unwanted destruction
 };

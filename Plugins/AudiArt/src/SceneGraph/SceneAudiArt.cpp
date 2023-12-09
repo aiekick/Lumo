@@ -31,34 +31,26 @@ limitations under the License.
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneAudiArtPtr SceneAudiArt::Create()
-{
-	auto res = std::make_shared<SceneAudiArt>();
-	res->m_This = res;
-	return res;
+SceneAudiArtPtr SceneAudiArt::Create() {
+    auto res = std::make_shared<SceneAudiArt>();
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// PUBLIC : BUILD / CLEAR //////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneAudiArt::SceneAudiArt()
-{
-
+SceneAudiArt::SceneAudiArt() {
 }
 
-SceneAudiArt::~SceneAudiArt()
-{
-	Clear();
+SceneAudiArt::~SceneAudiArt() {
+    Clear();
 }
 
-void SceneAudiArt::Clear()
-{
-
+void SceneAudiArt::Clear() {
 }
 
-bool SceneAudiArt::IsOk() const
-{
-	return true;
+bool SceneAudiArt::IsOk() const {
+    return true;
 }
-

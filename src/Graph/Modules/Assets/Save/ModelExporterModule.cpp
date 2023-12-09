@@ -234,7 +234,7 @@ void ModelExporterModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWe
             if (varPtr->GetType() == "WIDGET_BOOLEAN") {
                 if (vVarIndex == 0U) {
                     if (varPtr->GetDatas().m_Boolean) {
-                        m_StartAutoSave(); // start if true at least
+                        m_StartAutoSave();  // start if true at least
                         // the stop must be done by the user or if count frames are reached
                     }
                 }
@@ -352,7 +352,7 @@ void ModelExporterModule::m_SaveModel(const std::string& vFilePathName) {
                 for (size_t mesh_idx = 0U; mesh_idx < count_meshes; ++mesh_idx) {
                     auto meshPtr = modelPtr->at(mesh_idx).lock();
                     if (meshPtr) {
-                        // quand le mesh a été modifié dans le gpu, il faut l'extraire pour
+                        // quand le mesh a ï¿½tï¿½ modifiï¿½ dans le gpu, il faut l'extraire pour
                         // pouvoir le sauver vers un fichier
                         // normalement on a pas besoin de transform feedback pour faire ca
                         // avec vulkan.. a voir !?
@@ -483,7 +483,7 @@ void ModelExporterModule::m_SaveModel(const std::string& vFilePathName) {
                     }
                 }
 
-                // scene et tout les object créé dans scene
+                // scene et tout les object crï¿½ï¿½ dans scene
                 // seront detruit en quittant le scope
                 delete scene_ptr;
             }

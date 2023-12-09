@@ -68,7 +68,7 @@ ImGuiOverlay::~ImGuiOverlay() = default;
 bool ImGuiOverlay::Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, GaiApi::VulkanWindowWeak vVulkanWindowWeak) {
     ZoneScoped;
 
-    m_VulkanCoreWeak   = vVulkanCoreWeak;
+    m_VulkanCoreWeak = vVulkanCoreWeak;
     m_VulkanWindowWeak = vVulkanWindowWeak;
 
     auto corePtr = m_VulkanCoreWeak.lock();
@@ -79,8 +79,8 @@ bool ImGuiOverlay::Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, GaiApi::VulkanWi
         ImGuiIO& io = ImGui::GetIO();
         (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;  // Enable Docking
-        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable ViewPort
-        io.FontAllowUserScaling              = true;  // activate zoom feature with ctrl + mousewheel
+        // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable ViewPort
+        io.FontAllowUserScaling = true;               // activate zoom feature with ctrl + mousewheel
         io.ConfigWindowsMoveFromTitleBarOnly = true;  // can move windows only with titlebar
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
         io.ConfigViewportsNoDecoration = false;  // toujours mettre une frame au fenetre enfant
@@ -165,9 +165,9 @@ void ImGuiOverlay::end() {
 bool ImGuiOverlay::render() {
     ZoneScoped;
 
-    bool res     = false;
+    bool res = false;
 
-    auto corePtr   = m_VulkanCoreWeak.lock();
+    auto corePtr = m_VulkanCoreWeak.lock();
     if (corePtr) {
         auto devicePtr = corePtr->getFrameworkDevice().lock();
         if (devicePtr) {
@@ -175,7 +175,7 @@ bool ImGuiOverlay::render() {
             devicePtr->BeginDebugLabel(&cmd, "ImGui", IMGUI_RENDERER_DEBUG_COLOR);
 
             {
-                auto main_draw_datas         = ImGui::GetDrawData();
+                auto main_draw_datas = ImGui::GetDrawData();
                 const bool main_is_minimized = (main_draw_datas->DisplaySize.x <= 0.0f || main_draw_datas->DisplaySize.y <= 0.0f);
                 if (!main_is_minimized) {
                     if (corePtr && m_VulkanImGuiRendererPtr) {

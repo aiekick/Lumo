@@ -14,7 +14,6 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-
 #pragma once
 
 #include <set>
@@ -45,46 +44,39 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>
 
-class SubdivideModule :
-	public NodeInterface,
-	public conf::ConfigAbstract,
-	public ModelInputInterface,
-	public ModelOutputInterface,
-	public GuiInterface
-{
+class SubdivideModule : public NodeInterface,
+                        public conf::ConfigAbstract,
+                        public ModelInputInterface,
+                        public ModelOutputInterface,
+                        public GuiInterface {
 public:
-	static std::shared_ptr<SubdivideModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<SubdivideModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<SubdivideModule> m_This;
-	GaiApi::VulkanCoreWeak m_VulkanCore;
-	SceneModelWeak m_InputModel;
-	SceneModelPtr m_OutputModelPtr = nullptr;
+    std::weak_ptr<SubdivideModule> m_This;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
+    SceneModelWeak m_InputModel;
+    SceneModelPtr m_OutputModelPtr = nullptr;
 
 public:
-	SubdivideModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~SubdivideModule();
+    SubdivideModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~SubdivideModule();
 
-	bool Init();
-	void Unit();
+    bool Init();
+    void Unit();
 
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr,
-        const std::string& vUserDatas) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr,
-        const std::string& vUserDatas) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
 
-	// Interfaces Setters
-	void SetModel(SceneModelWeak vSceneModel) override;
+    // Interfaces Setters
+    void SetModel(SceneModelWeak vSceneModel) override;
 
-	// Interfaces Getters
-	SceneModelWeak GetModel() override;
+    // Interfaces Getters
+    SceneModelWeak GetModel() override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 };

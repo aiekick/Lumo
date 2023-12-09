@@ -41,7 +41,7 @@ public:
     int run(int argc, char** argv);
 
 public:
-    App()  = default;  // Prevent construction
+    App() = default;   // Prevent construction
     ~App() = default;  // Prevent unwanted destruction
 
 private:

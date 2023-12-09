@@ -48,276 +48,242 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<RtxPbrRendererModule> RtxPbrRendererModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<RtxPbrRendererModule> RtxPbrRendererModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<RtxPbrRendererModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<RtxPbrRendererModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-RtxPbrRendererModule::RtxPbrRendererModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-	ZoneScoped;
+RtxPbrRendererModule::RtxPbrRendererModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
+    ZoneScoped;
 }
 
-RtxPbrRendererModule::~RtxPbrRendererModule()
-{
-	ZoneScoped;
+RtxPbrRendererModule::~RtxPbrRendererModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool RtxPbrRendererModule::Init()
-{
-	ZoneScoped;
+bool RtxPbrRendererModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	if (BaseRenderer::InitRtx(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
+    if (BaseRenderer::InitRtx(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
 
-		m_RtxPbrRendererModule_Rtx_Pass_Ptr = std::make_shared<RtxPbrRendererModule_Rtx_Pass>(m_VulkanCore);
-		if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_RtxPbrRendererModule_Rtx_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_RtxPbrRendererModule_Rtx_Pass_Ptr->AllowResizeByHandOrByInputs(true);
+        m_RtxPbrRendererModule_Rtx_Pass_Ptr = std::make_shared<RtxPbrRendererModule_Rtx_Pass>(m_VulkanCore);
+        if (m_RtxPbrRendererModule_Rtx_Pass_Ptr) {
+            // by default but can be changed via widget
+            // m_RtxPbrRendererModule_Rtx_Pass_Ptr->AllowResizeOnResizeEvents(false);
+            // m_RtxPbrRendererModule_Rtx_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
-			if (m_RtxPbrRendererModule_Rtx_Pass_Ptr->InitRtx(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_RtxPbrRendererModule_Rtx_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+            if (m_RtxPbrRendererModule_Rtx_Pass_Ptr->InitRtx(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
+                AddGenericPass(m_RtxPbrRendererModule_Rtx_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool RtxPbrRendererModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool RtxPbrRendererModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Rtx Pbr Renderer", vCmd);
+    BaseRenderer::Render("Rtx Pbr Renderer", vCmd);
 
-	return true;
+    return true;
 }
 
-bool RtxPbrRendererModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool RtxPbrRendererModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Rtx Pbr Renderer", vCmd);
+    BaseRenderer::Render("Rtx Pbr Renderer", vCmd);
 
-	return true;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RtxPbrRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RtxPbrRendererModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Rtx Pbr Renderer##RtxPbrRendererModule", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Rtx Pbr Renderer##RtxPbrRendererModule", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
-			{
-				change |= m_RtxPbrRendererModule_Rtx_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+            if (m_RtxPbrRendererModule_Rtx_Pass_Ptr) {
+                change |= m_RtxPbrRendererModule_Rtx_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
-}
-
-bool RtxPbrRendererModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
-
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
     return false;
 }
 
-bool RtxPbrRendererModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+bool RtxPbrRendererModule::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void RtxPbrRendererModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+bool RtxPbrRendererModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
+    return false;
+}
+
+void RtxPbrRendererModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
+
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// ACCEL STRUCTURE INPUT ///////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererModule::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
-{	
-	ZoneScoped;
+void RtxPbrRendererModule::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
-	{
-		m_RtxPbrRendererModule_Rtx_Pass_Ptr->SetAccelStructure(vSceneAccelStructure);
-	}
+    if (m_RtxPbrRendererModule_Rtx_Pass_Ptr) {
+        m_RtxPbrRendererModule_Rtx_Pass_Ptr->SetAccelStructure(vSceneAccelStructure);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP INPUT ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
-{	
-	ZoneScoped;
+void RtxPbrRendererModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
-	{
-		m_RtxPbrRendererModule_Rtx_Pass_Ptr->SetLightGroup(vSceneLightGroup);
-	}
+    if (m_RtxPbrRendererModule_Rtx_Pass_Ptr) {
+        m_RtxPbrRendererModule_Rtx_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void RtxPbrRendererModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
-	{
-		m_RtxPbrRendererModule_Rtx_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_RtxPbrRendererModule_Rtx_Pass_Ptr) {
+        m_RtxPbrRendererModule_Rtx_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* RtxPbrRendererModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* RtxPbrRendererModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
-	{
-		return m_RtxPbrRendererModule_Rtx_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_RtxPbrRendererModule_Rtx_Pass_Ptr) {
+        return m_RtxPbrRendererModule_Rtx_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string RtxPbrRendererModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string RtxPbrRendererModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<rtx_pbr_renderer_module>\n";
+    str += vOffset + "<rtx_pbr_renderer_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
-	{
-		str += m_RtxPbrRendererModule_Rtx_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_RtxPbrRendererModule_Rtx_Pass_Ptr) {
+        str += m_RtxPbrRendererModule_Rtx_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</rtx_pbr_renderer_module>\n";
+    str += vOffset + "</rtx_pbr_renderer_module>\n";
 
-	return str;
+    return str;
 }
 
-bool RtxPbrRendererModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RtxPbrRendererModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "rtx_pbr_renderer_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+    if (strParentName == "rtx_pbr_renderer_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
 
-		if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
-		{
-			m_RtxPbrRendererModule_Rtx_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
-	}
+        if (m_RtxPbrRendererModule_Rtx_Pass_Ptr) {
+            m_RtxPbrRendererModule_Rtx_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+        }
+    }
 
-	return true;
+    return true;
 }
 
-void RtxPbrRendererModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void RtxPbrRendererModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModule_Rtx_Pass_Ptr)
-	{
-		m_RtxPbrRendererModule_Rtx_Pass_Ptr->AfterNodeXmlLoading();
-	}
+    if (m_RtxPbrRendererModule_Rtx_Pass_Ptr) {
+        m_RtxPbrRendererModule_Rtx_Pass_Ptr->AfterNodeXmlLoading();
+    }
 }

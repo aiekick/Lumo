@@ -47,87 +47,78 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<TextureGroupExporterModule> TextureGroupExporterModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<TextureGroupExporterModule> TextureGroupExporterModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<TextureGroupExporterModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<TextureGroupExporterModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	//to implement
-	CTOOL_DEBUG_BREAK;
+    // to implement
+    CTOOL_DEBUG_BREAK;
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-TextureGroupExporterModule::TextureGroupExporterModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: m_VulkanCore(vVulkanCore)
-{
-	ZoneScoped;
+TextureGroupExporterModule::TextureGroupExporterModule(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) {
+    ZoneScoped;
 }
 
-TextureGroupExporterModule::~TextureGroupExporterModule()
-{
-	ZoneScoped;
+TextureGroupExporterModule::~TextureGroupExporterModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool TextureGroupExporterModule::Init()
-{
-	ZoneScoped;
+bool TextureGroupExporterModule::Init() {
+    ZoneScoped;
 
-	return true;
+    return true;
 }
 
-void TextureGroupExporterModule::Unit()
-{
-	ZoneScoped;
+void TextureGroupExporterModule::Unit() {
+    ZoneScoped;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool TextureGroupExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool TextureGroupExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	return false;
+    return false;
 }
 
 bool TextureGroupExporterModule::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
 bool TextureGroupExporterModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
@@ -135,53 +126,46 @@ bool TextureGroupExporterModule::DrawDialogsAndPopups(
 //// TEXTURE GROUP SLOT INPUT ////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void TextureGroupExporterModule::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
-{	
-	ZoneScoped;
-
+void TextureGroupExporterModule::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) {
+    ZoneScoped;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string TextureGroupExporterModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string TextureGroupExporterModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<texture_group_exporter_module>\n";
+    str += vOffset + "<texture_group_exporter_module>\n";
 
-	str += vOffset + "</texture_group_exporter_module>\n";
+    str += vOffset + "</texture_group_exporter_module>\n";
 
-	return str;
+    return str;
 }
 
-bool TextureGroupExporterModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool TextureGroupExporterModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "texture_group_exporter_module")
-	{
-	}
+    if (strParentName == "texture_group_exporter_module") {
+    }
 
-	return true;
+    return true;
 }
 
-void TextureGroupExporterModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
-
+void TextureGroupExporterModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 }

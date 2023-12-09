@@ -46,213 +46,180 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<ModelShadowModule> ModelShadowModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	
-	auto res = std::make_shared<ModelShadowModule>(vVulkanCore);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<ModelShadowModule> ModelShadowModule::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<ModelShadowModule>(vVulkanCore);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ModelShadowModule::ModelShadowModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-
+ModelShadowModule::ModelShadowModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
 }
 
-ModelShadowModule::~ModelShadowModule()
-{
-	Unit();
+ModelShadowModule::~ModelShadowModule() {
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ModelShadowModule::Init()
-{
-	ZoneScoped;
+bool ModelShadowModule::Init() {
+    ZoneScoped;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	m_Loaded = true;
+    m_Loaded = true;
 
-	if (BaseRenderer::InitPixel(map_size))
-	{
-		m_ModelShadowModule_Quad_Pass_Ptr = std::make_shared<ModelShadowModule_Quad_Pass>(m_VulkanCore);
-		if (m_ModelShadowModule_Quad_Pass_Ptr)
-		{
-			if (m_ModelShadowModule_Quad_Pass_Ptr->InitPixel(map_size, 1U, false, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
-			{
-				AddGenericPass(m_ModelShadowModule_Quad_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+    if (BaseRenderer::InitPixel(map_size)) {
+        m_ModelShadowModule_Quad_Pass_Ptr = std::make_shared<ModelShadowModule_Quad_Pass>(m_VulkanCore);
+        if (m_ModelShadowModule_Quad_Pass_Ptr) {
+            if (m_ModelShadowModule_Quad_Pass_Ptr->InitPixel(
+                    map_size, 1U, false, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1)) {
+                AddGenericPass(m_ModelShadowModule_Quad_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool ModelShadowModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool ModelShadowModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Model Shadow Module");
+    BaseRenderer::Render("Model Shadow Module");
 
-	return true;
+    return true;
 }
 
-bool ModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool ModelShadowModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Shadow", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Shadow", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			for (auto pass : m_ShaderPasses)
-			{
-				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
-				if (passGuiPtr)
-				{
+            for (auto pass : m_ShaderPasses) {
+                auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
+                if (passGuiPtr) {
                     change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-				}
-			}
+                }
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool ModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool ModelShadowModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
 bool ModelShadowModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void ModelShadowModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+void ModelShadowModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void ModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
-{
-	ZoneScoped;
+void ModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
+    ZoneScoped;
 
-	if (m_ModelShadowModule_Quad_Pass_Ptr)
-	{
-		m_ModelShadowModule_Quad_Pass_Ptr->SetLightGroup(vSceneLightGroup);
-	}
+    if (m_ModelShadowModule_Quad_Pass_Ptr) {
+        m_ModelShadowModule_Quad_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+    }
 }
 
-void ModelShadowModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void ModelShadowModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_ModelShadowModule_Quad_Pass_Ptr)
-	{
-		return m_ModelShadowModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_ModelShadowModule_Quad_Pass_Ptr) {
+        return m_ModelShadowModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
-void ModelShadowModule::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
-{
-	if (m_ModelShadowModule_Quad_Pass_Ptr)
-	{
-		m_ModelShadowModule_Quad_Pass_Ptr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
-	}
+void ModelShadowModule::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) {
+    if (m_ModelShadowModule_Quad_Pass_Ptr) {
+        m_ModelShadowModule_Quad_Pass_Ptr->SetTextures(vBindingPoint, vImageInfos, vOutSizes);
+    }
 }
 
-vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_ModelShadowModule_Quad_Pass_Ptr)
-	{
-		return m_ModelShadowModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_ModelShadowModule_Quad_Pass_Ptr) {
+        return m_ModelShadowModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ModelShadowModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string ModelShadowModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += vOffset + "<model_shadow_module>\n";
+    str += vOffset + "<model_shadow_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_ModelShadowModule_Quad_Pass_Ptr)
-	{
-		str += m_ModelShadowModule_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_ModelShadowModule_Quad_Pass_Ptr) {
+        str += m_ModelShadowModule_Quad_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</model_shadow_module>\n";
+    str += vOffset + "</model_shadow_module>\n";
 
-	return str;
+    return str;
 }
 
-bool ModelShadowModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool ModelShadowModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "model_shadow_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-	}
+    if (strParentName == "model_shadow_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+    }
 
-	if (m_ModelShadowModule_Quad_Pass_Ptr)
-	{
-		m_ModelShadowModule_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_ModelShadowModule_Quad_Pass_Ptr) {
+        m_ModelShadowModule_Quad_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }

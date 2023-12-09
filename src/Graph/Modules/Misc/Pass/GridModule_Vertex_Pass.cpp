@@ -35,162 +35,143 @@ using namespace GaiApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GridModule_Vertex_Pass::GridModule_Vertex_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: VertexShaderPass(vVulkanCore)
-{
-	SetRenderDocDebugName("Vertex Pass 1 : Grid", VERTEX_SHADER_PASS_DEBUG_COLOR);
+GridModule_Vertex_Pass::GridModule_Vertex_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : VertexShaderPass(vVulkanCore) {
+    SetRenderDocDebugName("Vertex Pass 1 : Grid", VERTEX_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-GridModule_Vertex_Pass::~GridModule_Vertex_Pass()
-{
-	Unit();
+GridModule_Vertex_Pass::~GridModule_Vertex_Pass() {
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// PUBLIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-void GridModule_Vertex_Pass::ActionBeforeInit()
-{
-	SetPrimitveTopology(vk::PrimitiveTopology::eLineList);
-	m_LineWidth.x = 0.5f;	// min value
-	m_LineWidth.y = 10.0f;	// max value
-	m_LineWidth.z = 2.0f;	// default value
+void GridModule_Vertex_Pass::ActionBeforeInit() {
+    SetPrimitveTopology(vk::PrimitiveTopology::eLineList);
+    m_LineWidth.x = 0.5f;   // min value
+    m_LineWidth.y = 10.0f;  // max value
+    m_LineWidth.z = 2.0f;   // default value
 }
 
-bool GridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool GridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	ZoneScoped;
+    ZoneScoped;
 
-	bool change = false;
+    bool change = false;
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Line Thickness", &m_LineWidth.w, m_LineWidth.x, m_LineWidth.y, m_LineWidth.z);
-	change |= ImGui::CheckBoxFloatDefault("Show Grid", &m_UBOVert.showGrid, true);
-	if (m_UBOVert.showGrid > 0.5f)
-	{
-		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Grid Size", &m_UBOVert.gridSize, 0.0f, 10.0f, 1.0f, 0.1f);
-		change |= ImGui::SliderIntDefaultCompact(0.0f, "Grid Count", &m_UBOVert.gridCount, 0, 50, 10, 1);
-	}
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Line Thickness", &m_LineWidth.w, m_LineWidth.x, m_LineWidth.y, m_LineWidth.z);
+    change |= ImGui::CheckBoxFloatDefault("Show Grid", &m_UBOVert.showGrid, true);
+    if (m_UBOVert.showGrid > 0.5f) {
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "Grid Size", &m_UBOVert.gridSize, 0.0f, 10.0f, 1.0f, 0.1f);
+        change |= ImGui::SliderIntDefaultCompact(0.0f, "Grid Count", &m_UBOVert.gridCount, 0, 50, 10, 1);
+    }
 
-	change |= ImGui::CheckBoxFloatDefault("Show Axis", &m_UBOVert.showAxis, true);
-	if (m_UBOVert.showAxis > 0.5f)
-	{
-		change |= ImGui::CheckBoxFloatDefault("Both Sides", &m_UBOVert.bothSides, false);
-		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Axis Size", &m_UBOVert.axisSize, 0.0f, 10.0f, 5.0f, 0.1f);
-	}
+    change |= ImGui::CheckBoxFloatDefault("Show Axis", &m_UBOVert.showAxis, true);
+    if (m_UBOVert.showAxis > 0.5f) {
+        change |= ImGui::CheckBoxFloatDefault("Both Sides", &m_UBOVert.bothSides, false);
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "Axis Size", &m_UBOVert.axisSize, 0.0f, 10.0f, 5.0f, 0.1f);
+    }
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
+    if (change) {
+        NeedNewUBOUpload();
+    }
 
-	return change;
+    return change;
 }
 
-bool GridModule_Vertex_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
-    return false;
-
-}
-
-bool GridModule_Vertex_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool GridModule_Vertex_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
-
 }
 
-vk::DescriptorImageInfo* GridModule_Vertex_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+bool GridModule_Vertex_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    return false;
+}
 
-	if (m_FrameBufferPtr)
-	{
-		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
+vk::DescriptorImageInfo* GridModule_Vertex_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+    if (m_FrameBufferPtr) {
+        AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 
-	return nullptr;
+        return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
+
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////
 //// PRIVATE /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool GridModule_Vertex_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool GridModule_Vertex_Pass::CreateUBO() {
+    ZoneScoped;
 
-	m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert), "GridModule_Vertex_Pass");
-	if (m_UBOVertPtr)
-	{
-		m_DescriptorBufferInfo_Vert.buffer = m_UBOVertPtr->buffer;
-		m_DescriptorBufferInfo_Vert.range = sizeof(UBOVert);
-		m_DescriptorBufferInfo_Vert.offset = 0;
-	}
+    m_UBOVertPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOVert), "GridModule_Vertex_Pass");
+    if (m_UBOVertPtr) {
+        m_DescriptorBufferInfo_Vert.buffer = m_UBOVertPtr->buffer;
+        m_DescriptorBufferInfo_Vert.range = sizeof(UBOVert);
+        m_DescriptorBufferInfo_Vert.offset = 0;
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void GridModule_Vertex_Pass::UploadUBO()
-{
-	ZoneScoped;
+void GridModule_Vertex_Pass::UploadUBO() {
+    ZoneScoped;
 
-	m_CountVertexs =
-		4 * m_UBOVert.gridCount + 4 // grid
-		+ 6 // axis
-		;
-	VulkanRessource::upload(m_VulkanCore, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
+    m_CountVertexs = 4 * m_UBOVert.gridCount + 4  // grid
+                     + 6                          // axis
+        ;
+    VulkanRessource::upload(m_VulkanCore, m_UBOVertPtr, &m_UBOVert, sizeof(UBOVert));
 }
 
-void GridModule_Vertex_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void GridModule_Vertex_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOVertPtr.reset();
+    m_UBOVertPtr.reset();
 }
 
-bool GridModule_Vertex_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool GridModule_Vertex_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
+    return res;
 }
 
-bool GridModule_Vertex_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool GridModule_Vertex_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorBuffer( 0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
-	res &= AddOrSetWriteDescriptorBuffer( 1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Vert);
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Vert);
+    return res;
 }
 
-std::string GridModule_Vertex_Pass::GetVertexShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "GridModule_Vertex_Pass_Vertex";
+std::string GridModule_Vertex_Pass::GetVertexShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "GridModule_Vertex_Pass_Vertex";
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 vertColor;
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
-u8R"(
+)" + CommonSystem::GetBufferObjectStructureHeader(0U) +
+           u8R"(
 layout(std140, binding = 1) uniform UBOStruct {
 	float showGrid;
 	float gridSize;
@@ -242,11 +223,10 @@ void main()
 )";
 }
 
-std::string GridModule_Vertex_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "GridModule_Vertex_Pass_Fragment";
+std::string GridModule_Vertex_Pass::GetFragmentShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "GridModule_Vertex_Pass_Fragment";
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -264,53 +244,50 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GridModule_Vertex_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string GridModule_Vertex_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += vOffset + "<line_thickness>" + ct::toStr(m_LineWidth.w) + "</line_thickness>\n";
-	str += vOffset + "<show_grid>" + (m_UBOVert.showGrid > 0.5f ? "true" : "false") + "</show_grid>\n";
-	str += vOffset + "<grid_size>" + ct::toStr(m_UBOVert.gridSize) + "</grid_size>\n";
-	str += vOffset + "<grid_count>" + ct::toStr(m_UBOVert.gridCount ) + "</grid_count>\n";
-	str += vOffset + "<show_axis>" + (m_UBOVert.showAxis > 0.5f ? "true" : "false") + "</show_axis>\n";
-	str += vOffset + "<both_sides>" + (m_UBOVert.bothSides > 0.5f ? "true" : "false") + "</both_sides>\n";
-	str += vOffset + "<axis_size>" + ct::toStr(m_UBOVert.axisSize) + "</axis_size>\n";
+    str += vOffset + "<line_thickness>" + ct::toStr(m_LineWidth.w) + "</line_thickness>\n";
+    str += vOffset + "<show_grid>" + (m_UBOVert.showGrid > 0.5f ? "true" : "false") + "</show_grid>\n";
+    str += vOffset + "<grid_size>" + ct::toStr(m_UBOVert.gridSize) + "</grid_size>\n";
+    str += vOffset + "<grid_count>" + ct::toStr(m_UBOVert.gridCount) + "</grid_count>\n";
+    str += vOffset + "<show_axis>" + (m_UBOVert.showAxis > 0.5f ? "true" : "false") + "</show_axis>\n";
+    str += vOffset + "<both_sides>" + (m_UBOVert.bothSides > 0.5f ? "true" : "false") + "</both_sides>\n";
+    str += vOffset + "<axis_size>" + ct::toStr(m_UBOVert.axisSize) + "</axis_size>\n";
 
-	return str;
+    return str;
 }
 
-bool GridModule_Vertex_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool GridModule_Vertex_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "grid_module")
-	{
-		if (strName == "line_thickness")
-			m_LineWidth.w = ct::fvariant(strValue).GetF();
-		else if (strName == "show_grid")
-			m_UBOVert.showGrid = (ct::ivariant(strValue).GetB() ? 1.0f : 0.0f);
-		else if (strName == "grid_size")
-			m_UBOVert.gridSize = ct::fvariant(strValue).GetF();
-		else if (strName == "grid_count")
-			m_UBOVert.gridCount = ct::ivariant(strValue).GetI();
-		else if (strName == "show_axis")
-			m_UBOVert.showAxis = (ct::ivariant(strValue).GetB() ? 1.0f : 0.0f);
-		else if (strName == "both_sides")
-			m_UBOVert.bothSides = (ct::ivariant(strValue).GetB() ? 1.0f : 0.0f);
-		else if (strName == "axis_size")
-			m_UBOVert.axisSize = ct::fvariant(strValue).GetF();
+    if (strParentName == "grid_module") {
+        if (strName == "line_thickness")
+            m_LineWidth.w = ct::fvariant(strValue).GetF();
+        else if (strName == "show_grid")
+            m_UBOVert.showGrid = (ct::ivariant(strValue).GetB() ? 1.0f : 0.0f);
+        else if (strName == "grid_size")
+            m_UBOVert.gridSize = ct::fvariant(strValue).GetF();
+        else if (strName == "grid_count")
+            m_UBOVert.gridCount = ct::ivariant(strValue).GetI();
+        else if (strName == "show_axis")
+            m_UBOVert.showAxis = (ct::ivariant(strValue).GetB() ? 1.0f : 0.0f);
+        else if (strName == "both_sides")
+            m_UBOVert.bothSides = (ct::ivariant(strValue).GetB() ? 1.0f : 0.0f);
+        else if (strName == "axis_size")
+            m_UBOVert.axisSize = ct::fvariant(strValue).GetF();
 
-		NeedNewUBOUpload();
-	}
+        NeedNewUBOUpload();
+    }
 
-	return true;
+    return true;
 }

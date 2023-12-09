@@ -59,7 +59,7 @@ std::string DisplaySizeQuadPass::GetVertexShaderCode(std::string& vOutShaderName
         return m_VertexCode;
     }
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 

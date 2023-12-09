@@ -27,23 +27,22 @@ typedef std::weak_ptr<SceneAudiArt> SceneAudiArtWeak;
 // NotifyEvent : need to update the audio buffer
 #define SceneAudiArtUpdateDone "SceneAudiArtUpdateDone"
 
-class SceneAudiArt
-{
+class SceneAudiArt {
 public:
-	static SceneAudiArtPtr Create();
+    static SceneAudiArtPtr Create();
 
 private:
-	static constexpr size_t scFftSize = 512U;
-	static constexpr size_t scFullFftSize = scFftSize * 2U;
-	static constexpr size_t scMaxAverageSize = 50U;
+    static constexpr size_t scFftSize = 512U;
+    static constexpr size_t scFullFftSize = scFftSize * 2U;
+    static constexpr size_t scMaxAverageSize = 50U;
 
 private:
-	SceneAudiArtWeak m_This;
-	std::array<double, scFullFftSize> m_AudioBuffer = {};
+    SceneAudiArtWeak m_This;
+    std::array<double, scFullFftSize> m_AudioBuffer = {};
 
 public:
-	SceneAudiArt();
-	~SceneAudiArt();
-	void Clear();
-	bool IsOk() const;
+    SceneAudiArt();
+    ~SceneAudiArt();
+    void Clear();
+    bool IsOk() const;
 };

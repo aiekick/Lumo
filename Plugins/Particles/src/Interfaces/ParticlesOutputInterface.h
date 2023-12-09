@@ -18,9 +18,8 @@ limitations under the License.
 
 #include <SceneGraph/SceneParticles.h>
 
-class ParticlesOutputInterface
-{
+class ParticlesOutputInterface {
 public:
-	// return a model composed of many mesh
-	virtual SceneParticlesWeak GetParticles() = 0;
+    // return a model composed of many mesh
+    virtual SceneParticlesWeak GetParticles() = 0;
 };

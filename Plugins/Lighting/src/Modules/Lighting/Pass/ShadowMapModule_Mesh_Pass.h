@@ -22,7 +22,6 @@ limitations under the License.
 #include <memory>
 #include <ctools/ConfigAbstract.h>
 
-
 #include <Gaia/gaia.h>
 
 #include <ctools/cTools.h>
@@ -46,45 +45,45 @@ limitations under the License.
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
 
-class ShadowMapModule_Mesh_Pass :
-	public ShaderPass,
-	
-	public TextureGroupOutputInterface,
-	public ModelInputInterface,
-	public LightGroupInputInterface,
-	public LightGroupOutputInterface
-{
+class ShadowMapModule_Mesh_Pass : public ShaderPass,
+
+                                  public TextureGroupOutputInterface,
+                                  public ModelInputInterface,
+                                  public LightGroupInputInterface,
+                                  public LightGroupOutputInterface {
 protected:
-	struct PushConstants {
-		uint32_t light_id_to_use = 0U;
-	} m_PushConstants;
+    struct PushConstants {
+        uint32_t light_id_to_use = 0U;
+    } m_PushConstants;
 
 public:
-	ShadowMapModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~ShadowMapModule_Mesh_Pass() override;
+    ShadowMapModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~ShadowMapModule_Mesh_Pass() override;
 
-	void ActionBeforeInit() override;
-	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes) override;
-	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
-	SceneLightGroupWeak GetLightGroup() override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void ActionBeforeInit() override;
+    void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+    DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes) override;
+    void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
+    SceneLightGroupWeak GetLightGroup() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
-	void SetLightIdToUse(const uint32_t& vLightID);
+    void SetLightIdToUse(const uint32_t& vLightID);
 
 private:
-	void DestroyModel(const bool& vReleaseDatas = false) override;
+    void DestroyModel(const bool& vReleaseDatas = false) override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override; 
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	void SetInputStateBeforePipelineCreation() override;
+    void SetInputStateBeforePipelineCreation() override;
 
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+    std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+    std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 };

@@ -55,18 +55,16 @@ class DilationModule_Comp_2D_Pass;
 class SharpnessModule_Comp_2D_Pass;
 class ToneMapModule_Comp_2D_Pass;
 class VignetteModule_Comp_2D_Pass;
-class PostProcessingModule :
-	public NodeInterface,
-	public BaseRenderer,	
-	public TaskInterface,
-	public TextureInputInterface<1U>, // when no effect is enabled
-	public TextureOutputInterface
-{
+class PostProcessingModule : public NodeInterface,
+                             public BaseRenderer,
+                             public TaskInterface,
+                             public TextureInputInterface<1U>,  // when no effect is enabled
+                             public TextureOutputInterface {
 public:
-	static std::shared_ptr<PostProcessingModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<PostProcessingModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<PostProcessingModule> m_This;
+    std::weak_ptr<PostProcessingModule> m_This;
 
     std::shared_ptr<BloomModule_Comp_2D_Pass> m_BloomModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<BlurModule_Comp_2D_Pass> m_BlurModule_Comp_2D_Pass_Ptr = nullptr;
@@ -80,29 +78,31 @@ private:
     std::shared_ptr<TextureOutputInterface> m_LastPassPtr = nullptr;
 
 public:
-	PostProcessingModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~PostProcessingModule() override;
+    PostProcessingModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~PostProcessingModule() override;
 
-	bool Init();
+    bool Init();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 
-	// Interfaces Setters
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
+    // Interfaces Setters
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 
 protected:
     void UpdateDescriptorsBeforeCommandBuffer() override;

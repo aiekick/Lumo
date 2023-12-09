@@ -122,7 +122,8 @@ bool BlackmanFilterNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRec
     return false;
 }
 
-bool BlackmanFilterNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool BlackmanFilterNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -187,7 +188,8 @@ std::string BlackmanFilterNode::getXml(const std::string& vOffset, const std::st
     if (!m_ChildNodes.empty()) {
         res += BaseNode::getXml(vOffset, vUserDatas);
     } else {
-        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(), ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)nodeID.Get());
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)nodeID.Get());
 
         for (auto slot : m_Inputs) {
             res += slot.second->getXml(vOffset + "\t", vUserDatas);

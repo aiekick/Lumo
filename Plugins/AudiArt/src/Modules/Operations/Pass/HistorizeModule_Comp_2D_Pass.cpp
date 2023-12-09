@@ -45,74 +45,67 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-HistorizeModule_Comp_2D_Pass::HistorizeModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: ShaderPass(vVulkanCore)
-{
-	ZoneScoped;
+HistorizeModule_Comp_2D_Pass::HistorizeModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {
+    ZoneScoped;
 
-	SetRenderDocDebugName("Comp Pass : Historize", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+    SetRenderDocDebugName("Comp Pass : Historize", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+    // m_DontUseShaderFilesOnDisk = true;
 }
 
-HistorizeModule_Comp_2D_Pass::~HistorizeModule_Comp_2D_Pass()
-{
-	ZoneScoped;
+HistorizeModule_Comp_2D_Pass::~HistorizeModule_Comp_2D_Pass() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
-void HistorizeModule_Comp_2D_Pass::ActionBeforeInit()
-{
-	ZoneScoped;
+void HistorizeModule_Comp_2D_Pass::ActionBeforeInit() {
+    ZoneScoped;
 
-	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+    // m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 }
 
-bool HistorizeModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool HistorizeModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	bool change = false;
+    bool change = false;
 
-	change |= DrawResizeWidget();
+    change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name1", &m_UBO_Comp.u_Name1, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name1", &m_UBO_Comp.u_Name1, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
+    if (change) {
+        NeedNewUBOUpload();
+    }
 
-	return change;
+    return change;
 }
 
 bool HistorizeModule_Comp_2D_Pass::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
 bool HistorizeModule_Comp_2D_Pass::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
@@ -121,144 +114,117 @@ bool HistorizeModule_Comp_2D_Pass::DrawDialogsAndPopups(
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void HistorizeModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void HistorizeModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
-					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
-				}
+                    NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
+                }
 
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
-			}
-			else {
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
+            } else {
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* HistorizeModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+vk::DescriptorImageInfo* HistorizeModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+    if (m_ComputeBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_ComputeBufferPtr->GetOutputSize();
+        }
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HistorizeModule_Comp_2D_Pass::WasJustResized()
-{
-	ZoneScoped;
+void HistorizeModule_Comp_2D_Pass::WasJustResized() {
+    ZoneScoped;
 }
 
-void HistorizeModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber)
-{
-	if (vCmdBuffer)
-	{
-		vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
-		{
-			//VKFPScoped(*vCmdBuffer, "Historize", "Compute");
-
-			vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-
-			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
-			{
-				Dispatch(vCmdBuffer);
-			}
-		}
-	}
+void HistorizeModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) {
+    if (vCmdBuffer) {
+        vCmdBuffer->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+        vCmdBuffer->bindDescriptorSets(
+            vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+        Dispatch(vCmdBuffer, "Compute");
+    }
 }
 
+bool HistorizeModule_Comp_2D_Pass::CreateUBO() {
+    ZoneScoped;
 
-bool HistorizeModule_Comp_2D_Pass::CreateUBO()
-{
-	ZoneScoped;
+    m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Comp), "HistorizeModule_Comp_2D_Pass");
+    m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBO_Comp_Ptr) {
+        m_UBO_Comp_BufferInfos.buffer = m_UBO_Comp_Ptr->buffer;
+        m_UBO_Comp_BufferInfos.range = sizeof(UBO_Comp);
+        m_UBO_Comp_BufferInfos.offset = 0;
+    }
 
-	m_UBO_Comp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Comp), "HistorizeModule_Comp_2D_Pass");
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Comp_Ptr)
-	{
-		m_UBO_Comp_BufferInfos.buffer = m_UBO_Comp_Ptr->buffer;
-		m_UBO_Comp_BufferInfos.range = sizeof(UBO_Comp);
-		m_UBO_Comp_BufferInfos.offset = 0;
-	}
+    NeedNewUBOUpload();
 
-	NeedNewUBOUpload();
-
-	return true;
+    return true;
 }
 
-void HistorizeModule_Comp_2D_Pass::UploadUBO()
-{
-	ZoneScoped;
+void HistorizeModule_Comp_2D_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Comp_Ptr, &m_UBO_Comp, sizeof(UBO_Comp));
 }
 
-void HistorizeModule_Comp_2D_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void HistorizeModule_Comp_2D_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBO_Comp_Ptr.reset();
-	m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBO_Comp_Ptr.reset();
+    m_UBO_Comp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool HistorizeModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool HistorizeModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
 
-	return res;
+    return res;
 }
 
-bool HistorizeModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool HistorizeModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfos);
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, &m_UBO_Comp_BufferInfos);
+    res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));  // output
+
+    return res;
 }
 
-std::string HistorizeModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "HistorizeModule_Comp_2D_Pass_Compute";
+std::string HistorizeModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "HistorizeModule_Comp_2D_Pass_Compute";
 
-	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
+    SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -280,57 +246,52 @@ void main()
 	imageStore(colorBuffer, coords, color); 
 }
 )";
-		}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string HistorizeModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string HistorizeModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
+    str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<name1>" + ct::toStr(m_UBO_Comp.u_Name1) + "</name1>\n";
+    str += vOffset + "<name1>" + ct::toStr(m_UBO_Comp.u_Name1) + "</name1>\n";
 
-	return str;
+    return str;
 }
 
-bool HistorizeModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool HistorizeModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "historize_module")
-	{
+    if (strParentName == "historize_module") {
+        if (strName == "name1")
+            m_UBO_Comp.u_Name1 = ct::fvariant(strValue).GetF();
+    }
 
-		if (strName == "name1")
-			m_UBO_Comp.u_Name1 = ct::fvariant(strValue).GetF();
-	}
-
-	return true;
+    return true;
 }
 
-void HistorizeModule_Comp_2D_Pass::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void HistorizeModule_Comp_2D_Pass::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	// code to do after end of the xml loading of this node
-	// by ex :
-	NeedNewUBOUpload();
+    // code to do after end of the xml loading of this node
+    // by ex :
+    NeedNewUBOUpload();
 }

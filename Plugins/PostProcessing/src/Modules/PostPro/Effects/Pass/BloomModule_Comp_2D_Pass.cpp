@@ -306,7 +306,8 @@ bool BloomModule_Comp_2D_Pass::CreateSBO() {
     m_SBO_GaussianWeights.reset();
 
     const auto sizeInBytes = sizeof(float) * m_GaussianWeights.size();
-    m_SBO_GaussianWeights = VulkanRessource::createStorageBufferObject(m_VulkanCore, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU, "BloomModule_Comp_2D_Pass");
+    m_SBO_GaussianWeights = VulkanRessource::createStorageBufferObject(
+        m_VulkanCore, sizeInBytes, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU, "BloomModule_Comp_2D_Pass");
     if (m_SBO_GaussianWeights && m_SBO_GaussianWeights->buffer) {
         m_SBO_GaussianWeightsBufferInfo = vk::DescriptorBufferInfo{m_SBO_GaussianWeights->buffer, 0, sizeInBytes};
     } else {
@@ -636,7 +637,7 @@ bool BloomModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2:
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         }
     }
-    
+
     return true;
 }
 

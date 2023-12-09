@@ -14,15 +14,12 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-
 #pragma once
 
 #include <set>
 #include <array>
 #include <string>
 #include <memory>
-
-
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
@@ -51,52 +48,52 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
 class SceneMergerModule_Quad_Pass;
-class SceneMergerModule :
-	public NodeInterface,
-	public BaseRenderer,	
-	public TaskInterface,
-	public TextureInputInterface<0U>,
-	public ShaderPassInputInterface,
-	public TextureOutputInterface
-{
+class SceneMergerModule : public NodeInterface,
+                          public BaseRenderer,
+                          public TaskInterface,
+                          public TextureInputInterface<0U>,
+                          public ShaderPassInputInterface,
+                          public TextureOutputInterface {
 public:
-	static std::shared_ptr<SceneMergerModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<SceneMergerModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<SceneMergerModule> m_This;
-	FrameBufferPtr m_FrameBufferPtr = nullptr;
-	SceneShaderPassContainer m_SceneShaderPassContainer;
-	std::vector<uint32_t> m_JustDeletedSceneShaderPassSlots;
+    std::weak_ptr<SceneMergerModule> m_This;
+    FrameBufferPtr m_FrameBufferPtr = nullptr;
+    SceneShaderPassContainer m_SceneShaderPassContainer;
+    std::vector<uint32_t> m_JustDeletedSceneShaderPassSlots;
 
 public:
-	SceneMergerModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~SceneMergerModule() override;
+    SceneMergerModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~SceneMergerModule() override;
 
-	bool Init();
+    bool Init();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	void RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    void RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	bool ResizeIfNeeded() override;
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    bool ResizeIfNeeded() override;
 
-	// Interfaces Setters
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
-	void SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vShaderPasses) override;
+    // Interfaces Setters
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
+    void SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vShaderPasses) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	SceneShaderPassContainer& GetSceneShaderPassContainerRef();
-	const std::vector<uint32_t>& GetJustDeletedSceneShaderPassSlots() const;
+    SceneShaderPassContainer& GetSceneShaderPassContainerRef();
+    const std::vector<uint32_t>& GetJustDeletedSceneShaderPassSlots() const;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 };

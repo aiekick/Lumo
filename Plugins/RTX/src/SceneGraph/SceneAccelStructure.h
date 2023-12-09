@@ -27,38 +27,38 @@ class SceneAccelStructure;
 typedef std::shared_ptr<SceneAccelStructure> SceneAccelStructurePtr;
 typedef std::weak_ptr<SceneAccelStructure> SceneAccelStructureWeak;
 
-class SceneAccelStructure
-{
+class SceneAccelStructure {
 public:
-	static SceneAccelStructurePtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static SceneAccelStructurePtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	SceneAccelStructureWeak m_This;
-	GaiApi::VulkanCoreWeak m_VulkanCore;
-	std::vector<VulkanAccelStructObjectPtr> m_AccelStructure_Bottom_Ptrs;
-	VulkanAccelStructObjectPtr m_AccelStructure_Top_Ptr = nullptr;
-	vk::WriteDescriptorSetAccelerationStructureKHR m_AccelStructureTopDescriptorInfo;
-	VulkanBufferObjectPtr m_ModelAdressesPtr = nullptr;
-	vk::DescriptorBufferInfo m_ModelAdressesBufferInfo = { VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE };
+    SceneAccelStructureWeak m_This;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
+    std::vector<VulkanAccelStructObjectPtr> m_AccelStructure_Bottom_Ptrs;
+    VulkanAccelStructObjectPtr m_AccelStructure_Top_Ptr = nullptr;
+    vk::WriteDescriptorSetAccelerationStructureKHR m_AccelStructureTopDescriptorInfo;
+    VulkanBufferObjectPtr m_ModelAdressesPtr = nullptr;
+    vk::DescriptorBufferInfo m_ModelAdressesBufferInfo = {VK_NULL_HANDLE, 0U, VK_WHOLE_SIZE};
 
-	bool m_SuccessfullyBuilt = false;
+    bool m_SuccessfullyBuilt = false;
 
 public:
-	SceneAccelStructure(GaiApi::VulkanCoreWeak vVulkanCore);
-	~SceneAccelStructure();
-	void Clear();
-	bool BuildForModel(SceneModelWeak vSceneModelWeak);
-	bool IsOk() const { return m_SuccessfullyBuilt; }
-	vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo();
-	vk::DescriptorBufferInfo* GetBufferAddressInfo();
+    SceneAccelStructure(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~SceneAccelStructure();
+    void Clear();
+    bool BuildForModel(SceneModelWeak vSceneModelWeak);
+    bool IsOk() const {
+        return m_SuccessfullyBuilt;
+    }
+    vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo();
+    vk::DescriptorBufferInfo* GetBufferAddressInfo();
 
 private:
-	bool CreateBottomLevelAccelerationStructureForMesh(const SceneMeshWeak& vMesh);
-	void DestroyBottomLevelAccelerationStructureForMesh();
+    bool CreateBottomLevelAccelerationStructureForMesh(const SceneMeshWeak& vMesh);
+    void DestroyBottomLevelAccelerationStructureForMesh();
 
-	bool CreateTopLevelAccelerationStructure(const std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances);
-	void DestroyTopLevelAccelerationStructure();
+    bool CreateTopLevelAccelerationStructure(const std::vector<vk::AccelerationStructureInstanceKHR>& vBlasInstances);
+    void DestroyTopLevelAccelerationStructure();
 
-	vk::AccelerationStructureInstanceKHR CreateBlasInstance(const uint32_t& blas_id, glm::mat4& mat);
-
+    vk::AccelerationStructureInstanceKHR CreateBlasInstance(const uint32_t& blas_id, glm::mat4& mat);
 };

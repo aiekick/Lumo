@@ -33,19 +33,12 @@ public:
     Texture2DNode();
     ~Texture2DNode() override;
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
-    bool DrawWidgets(const uint32_t& vCurrentFrame,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    vk::DescriptorImageInfo* GetDescriptorImageInfo(
-        const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
     void DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;

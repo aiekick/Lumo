@@ -23,38 +23,28 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TaskInterface.h>
 
 class GridModule;
-class GridNode : 
-	public BaseNode,
-	public TextureOutputInterface,
-	public ShaderPassOutputInterface
-{
+class GridNode : public BaseNode, public TextureOutputInterface, public ShaderPassOutputInterface {
 public:
-	static std::shared_ptr<GridNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<GridNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<GridModule> m_GridModulePtr = nullptr;
+    std::shared_ptr<GridModule> m_GridModulePtr = nullptr;
 
 public:
-	GridNode();
-	~GridNode() override;
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
-	void Unit() override;
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-    bool DrawWidgets(const uint32_t& vCurrentFrame,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
+    GridNode();
+    ~GridNode() override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    void Unit() override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
     void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

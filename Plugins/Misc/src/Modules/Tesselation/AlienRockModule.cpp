@@ -48,238 +48,206 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<AlienRockModule> AlienRockModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<AlienRockModule> AlienRockModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<AlienRockModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<AlienRockModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-AlienRockModule::AlienRockModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-	ZoneScoped;
+AlienRockModule::AlienRockModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
+    ZoneScoped;
 }
 
-AlienRockModule::~AlienRockModule()
-{
-	ZoneScoped;
+AlienRockModule::~AlienRockModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool AlienRockModule::Init()
-{
-	ZoneScoped;
+bool AlienRockModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	if (BaseRenderer::InitPixel(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
+    if (BaseRenderer::InitPixel(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
 
-		m_AlienRockModule_Mesh_Pass_Ptr = std::make_shared<AlienRockModule_Mesh_Pass>(m_VulkanCore);
-		if (m_AlienRockModule_Mesh_Pass_Ptr)
-		{
-			// by default but can be changed via widget
-			m_AlienRockModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
-			m_AlienRockModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
+        m_AlienRockModule_Mesh_Pass_Ptr = std::make_shared<AlienRockModule_Mesh_Pass>(m_VulkanCore);
+        if (m_AlienRockModule_Mesh_Pass_Ptr) {
+            // by default but can be changed via widget
+            m_AlienRockModule_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
+            m_AlienRockModule_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
 
+            if (m_AlienRockModule_Mesh_Pass_Ptr->InitPixel(
+                    map_size, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1)) {
+                AddGenericPass(m_AlienRockModule_Mesh_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-			if (m_AlienRockModule_Mesh_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f,
-				false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e1))
-			{
-				AddGenericPass(m_AlienRockModule_Mesh_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
-
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool AlienRockModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool AlienRockModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Alien Rock", vCmd);
+    BaseRenderer::Render("Alien Rock", vCmd);
 
-	return true;
+    return true;
 }
 
-bool AlienRockModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool AlienRockModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Alien Rock", vCmd);
+    BaseRenderer::Render("Alien Rock", vCmd);
 
-	return true;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AlienRockModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool AlienRockModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Alien Rock##AlienRockModule", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Alien Rock##AlienRockModule", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			if (m_AlienRockModule_Mesh_Pass_Ptr)
-			{
-				change |= m_AlienRockModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+            if (m_AlienRockModule_Mesh_Pass_Ptr) {
+                change |= m_AlienRockModule_Mesh_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool AlienRockModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+bool AlienRockModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
 bool AlienRockModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void AlienRockModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void AlienRockModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* AlienRockModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* AlienRockModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_AlienRockModule_Mesh_Pass_Ptr)
-	{
-		return m_AlienRockModule_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_AlienRockModule_Mesh_Pass_Ptr) {
+        return m_AlienRockModule_Mesh_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string AlienRockModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string AlienRockModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<alien_rock_module>\n";
+    str += vOffset + "<alien_rock_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_AlienRockModule_Mesh_Pass_Ptr)
-	{
-		str += m_AlienRockModule_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_AlienRockModule_Mesh_Pass_Ptr) {
+        str += m_AlienRockModule_Mesh_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</alien_rock_module>\n";
+    str += vOffset + "</alien_rock_module>\n";
 
-	return str;
+    return str;
 }
 
-bool AlienRockModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool AlienRockModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "alien_rock_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+    if (strParentName == "alien_rock_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
 
-		if (m_AlienRockModule_Mesh_Pass_Ptr)
-		{
-			m_AlienRockModule_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
-	}
+        if (m_AlienRockModule_Mesh_Pass_Ptr) {
+            m_AlienRockModule_Mesh_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+        }
+    }
 
-	return true;
+    return true;
 }
 
-void AlienRockModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void AlienRockModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_AlienRockModule_Mesh_Pass_Ptr)
-	{
-		m_AlienRockModule_Mesh_Pass_Ptr->AfterNodeXmlLoading();
-	}
+    if (m_AlienRockModule_Mesh_Pass_Ptr) {
+        m_AlienRockModule_Mesh_Pass_Ptr->AfterNodeXmlLoading();
+    }
 }

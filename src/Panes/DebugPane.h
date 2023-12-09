@@ -29,30 +29,33 @@ limitations under the License.
 #include <map>
 
 class ProjectFile;
-class DebugPane : public AbstractPane, public NodeInterface
-{
+class DebugPane : public AbstractPane, public NodeInterface {
 private:
-	BaseNodeWeak m_NodeToDebug;
+    BaseNodeWeak m_NodeToDebug;
 
 public:
-	bool Init() override;
-	void Unit() override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void Select(BaseNodeWeak vObjet);
+    bool Init() override;
+    void Unit() override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawPanes(
+        const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void Select(BaseNodeWeak vObjet);
 
-public: // singleton
-	static std::shared_ptr<DebugPane> Instance()
-	{
-		static std::shared_ptr<DebugPane> _instance = std::make_shared<DebugPane>();
-		return _instance;
-	}
+public:  // singleton
+    static std::shared_ptr<DebugPane> Instance() {
+        static std::shared_ptr<DebugPane> _instance = std::make_shared<DebugPane>();
+        return _instance;
+    }
 
 public:
-	DebugPane(); // Prevent construction
-	DebugPane(const DebugPane&) = default; // Prevent construction by copying
-	DebugPane& operator =(const DebugPane&) { return *this; }; // Prevent assignment
-	~DebugPane(); // Prevent unwanted destruction};
+    DebugPane();                            // Prevent construction
+    DebugPane(const DebugPane&) = default;  // Prevent construction by copying
+    DebugPane& operator=(const DebugPane&) {
+        return *this;
+    };             // Prevent assignment
+    ~DebugPane();  // Prevent unwanted destruction};
 };

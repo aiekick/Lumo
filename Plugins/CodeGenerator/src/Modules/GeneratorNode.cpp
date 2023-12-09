@@ -798,7 +798,7 @@ void PASS_CLASS_NAME::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIter
 		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 		for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)	{
-			Dispatch(vCmdBufferPtr);
+			Dispatch(vCmdBufferPtr, __FUNCTION__);
 		}
 	}
 }
@@ -919,22 +919,24 @@ std::string GeneratorNode::GetPassUpdateBufferInfoInRessourceDescriptorHeader() 
         res += u8R"()";
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_2D) {
         res += ct::toStr(
-            "\n\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // "
+            "\n\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); "
+            "// "
             "output",
             bindingStartIndex++);
     } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
         res += u8R"()";
     } else if (m_RendererType == RENDERER_TYPE_RTX) {
         res += ct::toStr(
-            "\n\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // "
+            "\n\tres &= AddOrSetWriteDescriptorImage(%uU, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); "
+            "// "
             "output",
             bindingStartIndex++);
         res += ct::toStr(
             "\n\tres &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // camera",
             bindingStartIndex++);
-        res += ct::toStr(
-            "res &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights",
-            bindingStartIndex++);
+        res +=
+            ct::toStr("res &= AddOrSetWriteDescriptorBuffer(%uU, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr); // lights",
+                bindingStartIndex++);
         res += "\tauto accelStructurePtr = m_SceneAccelStructure.lock();\n";
         res += "\tif (accelStructurePtr && accelStructurePtr->GetTLASInfo() && accelStructurePtr->GetBufferAddressInfo()) {\n";
         res += ct::toStr(
@@ -956,7 +958,7 @@ std::string GeneratorNode::GetGlslHeader(const std::string& vStage, const bool& 
     uint32_t bindingStartIndex = 0U;
     if (m_UseCommonSystemUBO) {
         res += ct::toStr(
-"\")\n\
+            "\")\n\
 +\
 CommonSystem::Instance()->GetBufferObjectStructureHeader(%u)\
 +\
@@ -3446,7 +3448,7 @@ void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 	public TextureInputInterface<%u>,)",
             m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
     }
-    
+
     res.node_slot_func += ct::toStr(
         u8R"(
 	AddInput(NodeSlotTextureInput::Create("%s", %u), false, %s);)",
@@ -3575,7 +3577,7 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
             u8R"(
 	public TextureOutputInterface,)";
     }
-    
+
     res.node_slot_func += ct::toStr(
         u8R"(
 	AddOutput(NodeSlotTextureOutput::Create("%s", %u), false, %s);)",

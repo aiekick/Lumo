@@ -34,54 +34,54 @@ limitations under the License.
 #include <LumoBackend/Interfaces/MergedInterface.h>
 #include <Gaia/Gui/ImGuiTexture.h>
 
-class MatcapRenderer_Mesh_Pass :
-	public ShaderPass,
-	
-	public ModelInputInterface,
-	public TextureInputInterface<2U>,
-	public TextureOutputInterface
-{
+class MatcapRenderer_Mesh_Pass : public ShaderPass,
+
+                                 public ModelInputInterface,
+                                 public TextureInputInterface<2U>,
+                                 public TextureOutputInterface {
 private:
-	VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
+    VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
+    vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
 
-	struct UBOVert {
-		alignas(16) glm::mat4x4 transform = glm::mat4x4(1.0f);
-	} m_UBOVert;
+    struct UBOVert {
+        alignas(16) glm::mat4x4 transform = glm::mat4x4(1.0f);
+    } m_UBOVert;
 
-	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
+    VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
+    vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
-	struct UBOFrag {
-		alignas(4) float show_face_normal = 0.0f;
-	} m_UBOFrag;
+    struct UBOFrag {
+        alignas(4) float show_face_normal = 0.0f;
+    } m_UBOFrag;
 
 public:
-	MatcapRenderer_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~MatcapRenderer_Mesh_Pass() override;
-	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    MatcapRenderer_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~MatcapRenderer_Mesh_Pass() override;
+    void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 private:
-	void DestroyModel(const bool& vReleaseDatas = false) override;
+    void DestroyModel(const bool& vReleaseDatas = false) override;
 
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	void SetInputStateBeforePipelineCreation() override;
+    void SetInputStateBeforePipelineCreation() override;
 
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+    std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+    std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 };

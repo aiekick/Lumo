@@ -18,12 +18,11 @@ limitations under the License.
 
 #include <SceneGraph/SceneParticles.h>
 
-class ParticlesInputInterface
-{
+class ParticlesInputInterface {
 protected:
-	SceneParticlesWeak m_SceneParticles;
+    SceneParticlesWeak m_SceneParticles;
 
 public:
-	// set a model composed of many mesh
-	virtual void SetParticles(SceneParticlesWeak vSceneParticles) = 0;
+    // set a model composed of many mesh
+    virtual void SetParticles(SceneParticlesWeak vSceneParticles) = 0;
 };

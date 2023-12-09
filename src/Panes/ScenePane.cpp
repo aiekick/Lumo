@@ -23,7 +23,7 @@ limitations under the License.
 #include <ctools/FileHelper.h>
 #include <Project/ProjectFile.h>
 
-#include <cinttypes> // printf zu
+#include <cinttypes>  // printf zu
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -36,94 +36,80 @@ limitations under the License.
 ScenePane::ScenePane() = default;
 ScenePane::~ScenePane() = default;
 
-bool ScenePane::Init()
-{
-	ZoneScoped;
+bool ScenePane::Init() {
+    ZoneScoped;
 
-	return true;
+    return true;
 }
 
-void ScenePane::Unit()
-{
-	ZoneScoped;
+void ScenePane::Unit() {
+    ZoneScoped;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool ScenePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ScenePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	if (vInOutPaneShown & paneFlag)
-	{
-		static ImGuiWindowFlags flags =
-			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoBringToFrontOnFocus |
-			ImGuiWindowFlags_MenuBar;
-		if (ImGui::Begin<PaneFlags>(paneName.c_str(),
-			&vInOutPaneShown , paneFlag, flags))
-		{
+    if (vInOutPaneShown & paneFlag) {
+        static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
+        if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
-			auto win = ImGui::GetCurrentWindowRead();
-			if (win->Viewport->Idx != 0)
-				flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
-			else
-				flags = ImGuiWindowFlags_NoCollapse |
-				ImGuiWindowFlags_NoBringToFrontOnFocus |
-				ImGuiWindowFlags_MenuBar;
+            auto win = ImGui::GetCurrentWindowRead();
+            if (win->Viewport->Idx != 0)
+                flags |= ImGuiWindowFlags_NoResize;  // | ImGuiWindowFlags_NoTitleBar;
+            else
+                flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
 #endif
-			if (ProjectFile::Instance()->IsProjectLoaded())
-			{
-				//SourcePane_WidgetId = SceneManager::Instance()->DrawSceneTree(SourcePane_WidgetId);
-			}
-		}
+            if (ProjectFile::Instance()->IsProjectLoaded()) {
+                // SourcePane_WidgetId = SceneManager::Instance()->DrawSceneTree(SourcePane_WidgetId);
+            }
+        }
 
-		ImGui::End();
-	}
+        ImGui::End();
+    }
 
-	return false;
+    return false;
 }
 
-bool ScenePane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ScenePane::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	if (ProjectFile::Instance()->IsProjectLoaded())
-	{
-		/*
-		ImVec2 maxSize = MainFrame::Instance()->m_DisplaySize;
-		ImVec2 minSize = maxSize * 0.5f;
-		if (ImGuiFileDialog::Instance()->Display("OpenShaderCode",
-			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking,
-			minSize, maxSize))
-		{
-			if (ImGuiFileDialog::Instance()->IsOk())
-			{
-				std::string filePathName = ImGuiFileDialog::Instance()->GetFilepathName();
-				auto code = FileHelper::Instance()->LoadFileToString(filePathName);
-				SetCode(code);
-			}
+    if (ProjectFile::Instance()->IsProjectLoaded()) {
+        /*
+        ImVec2 maxSize = MainFrame::Instance()->m_DisplaySize;
+        ImVec2 minSize = maxSize * 0.5f;
+        if (ImGuiFileDialog::Instance()->Display("OpenShaderCode",
+            ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking,
+            minSize, maxSize))
+        {
+            if (ImGuiFileDialog::Instance()->IsOk())
+            {
+                std::string filePathName = ImGuiFileDialog::Instance()->GetFilepathName();
+                auto code = FileHelper::Instance()->LoadFileToString(filePathName);
+                SetCode(code);
+            }
 
-			ImGuiFileDialog::Instance()->Close();
-		}
-		*/
-	}
+            ImGuiFileDialog::Instance()->Close();
+        }
+        */
+    }
 
-	return false;
+    return false;
 }
 
-bool ScenePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	return false;
+bool ScenePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    return false;
 }
 
 bool ScenePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
-	UNUSED(vCurrentFrame);
-	UNUSED(vRect);
-	ImGui::SetCurrentContext(vContextPtr);
-	UNUSED(vUserDatas);
-	return false;
+    ZoneScoped;
+    UNUSED(vCurrentFrame);
+    UNUSED(vRect);
+    ImGui::SetCurrentContext(vContextPtr);
+    UNUSED(vUserDatas);
+    return false;
 }

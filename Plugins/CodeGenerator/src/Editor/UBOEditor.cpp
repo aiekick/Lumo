@@ -90,7 +90,7 @@ bool UBOItem::DrawItem(const std::string& vStage) {
         } break;
         default: break;
     }
-    
+
     ImGui::PopID();
 
     return change;
@@ -281,11 +281,11 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
     if (m_InputTypeIndex > 0 && m_InputTypeIndex < 4) {
         type = "f" + type;
     }
-    
+
     auto uniform_name = m_InputName.GetText();
     ct::replaceString(uniform_name, " ", "_");
 
-    if (m_WidgetIndex == 2) { // combo box
+    if (m_WidgetIndex == 2) {  // combo box
         auto arr = ct::splitStringToVector(value, ',');
         std::string array_string = "{ ";
         size_t idx = 0U;
@@ -317,7 +317,7 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
         static ct::fvec4 _default_value = 1.0f;
 		change |= ImGui::ColorEdit4Default(0.0f, "%s", &m_@UBO_NAME@.u_%s.x, &_default_value.x);)",
             uniform_name.c_str(), uniform_name.c_str());
-    } else if (m_WidgetIndex < 2) {  // 0:input, 1:slider 
+    } else if (m_WidgetIndex < 2) {  // 0:input, 1:slider
         if (type == "float") {
             float fv = ct::fvariant(value).GetF();
             res += ct::toStr(
@@ -400,7 +400,7 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
                 uniform_name.c_str(), m_InputValue_z.GetText(baseType).c_str(), widget.c_str(), uniform_name.c_str(), uniform_name.c_str(),
                 m_InputValue_w.GetText(baseType).c_str());
         }
-    } 
+    }
 
     return res;
 }
@@ -408,9 +408,13 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
 std::string UBOItem::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     UNUSED(vUserDatas);
     std::string str;
-    str += vOffset + ct::toStr("<UBOItem name=\"%s\" widgetIndex=\"%u\" typeIndex=\"%u\" vx=\"%s\" vy=\"%s\" vz=\"%s\" vw=\"%s\" CheckBoxDefault=\"%s\" ColorRGBDefault=\"%s\" ColorRGBADefault=\"%s\"/>\n", m_InputName.GetText().c_str(),
-                         m_WidgetIndex, m_InputTypeIndex, m_InputValue_x.GetText().c_str(), m_InputValue_y.GetText().c_str(), m_InputValue_z.GetText().c_str(), m_InputValue_w.GetText().c_str(),
-                         m_CheckBoxItem_DefaultValue ? "true" : "false", m_ColorRGBItem_DefaultValue.string().c_str(), m_ColorRGBAItem_DefaultValue.string().c_str());
+    str += vOffset + ct::toStr(
+                         "<UBOItem name=\"%s\" widgetIndex=\"%u\" typeIndex=\"%u\" vx=\"%s\" vy=\"%s\" vz=\"%s\" vw=\"%s\" CheckBoxDefault=\"%s\" "
+                         "ColorRGBDefault=\"%s\" ColorRGBADefault=\"%s\"/>\n",
+                         m_InputName.GetText().c_str(), m_WidgetIndex, m_InputTypeIndex, m_InputValue_x.GetText().c_str(),
+                         m_InputValue_y.GetText().c_str(), m_InputValue_z.GetText().c_str(), m_InputValue_w.GetText().c_str(),
+                         m_CheckBoxItem_DefaultValue ? "true" : "false", m_ColorRGBItem_DefaultValue.string().c_str(),
+                         m_ColorRGBAItem_DefaultValue.string().c_str());
     return str;
 }
 
@@ -527,9 +531,9 @@ std::string UBOEditor::Get_Widgets_Header(const std::string& vRendererType, cons
 
 std::string UBOEditor::Get_Cpp_WriteDescriptors(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex) {
     m_Stage = UBOEditors::m_StageArray[vRendererType][m_InputStageIndex];
-    std::string res = ct::toStr(
-        "\n\tres &= AddOrSetWriteDescriptorBuffer(%iU, vk::DescriptorType::eUniformBuffer, &m_@UBO_NAME@_BufferInfos); // @UBO_NAME@",
-        vUboBindingIndex);
+    std::string res =
+        ct::toStr("\n\tres &= AddOrSetWriteDescriptorBuffer(%iU, vk::DescriptorType::eUniformBuffer, &m_@UBO_NAME@_BufferInfos); // @UBO_NAME@",
+            vUboBindingIndex);
     ct::replaceString(res, "@UBO_NAME@", "UBO_" + (vUboIndex < 0 ? "" : ct::toStr(vUboIndex) + "_") + m_Stage);
     return res;
 }
@@ -656,7 +660,7 @@ layout(std140, binding = %i) uniform @UBO_NAME@ {)",
         u8R"(
 };
 )");
-    
+
     ct::replaceString(res, "@UBO_NAME@", "UBO_" + (vUboIndex < 0 ? "" : ct::toStr(vUboIndex) + "_") + m_Stage);
 
     return res;

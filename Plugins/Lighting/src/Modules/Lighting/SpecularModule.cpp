@@ -46,208 +46,177 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SpecularModule> SpecularModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	
-	auto res = std::make_shared<SpecularModule>(vVulkanCore);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<SpecularModule> SpecularModule::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<SpecularModule>(vVulkanCore);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SpecularModule::SpecularModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-
+SpecularModule::SpecularModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
 }
 
-SpecularModule::~SpecularModule()
-{
-	Unit();
+SpecularModule::~SpecularModule() {
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SpecularModule::Init()
-{
-	ZoneScoped;
+bool SpecularModule::Init() {
+    ZoneScoped;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	if (BaseRenderer::InitCompute2D(map_size))
-	{
-		m_SpecularModule_Comp_Pass_Ptr = std::make_shared<SpecularModule_Comp_Pass>(m_VulkanCore);
-		if (m_SpecularModule_Comp_Pass_Ptr)
-		{
-			if (m_SpecularModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_SpecularModule_Comp_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+    if (BaseRenderer::InitCompute2D(map_size)) {
+        m_SpecularModule_Comp_Pass_Ptr = std::make_shared<SpecularModule_Comp_Pass>(m_VulkanCore);
+        if (m_SpecularModule_Comp_Pass_Ptr) {
+            if (m_SpecularModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
+                AddGenericPass(m_SpecularModule_Comp_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SpecularModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool SpecularModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Specular", vCmd);
+    BaseRenderer::Render("Specular", vCmd);
 
-	return true;
+    return true;
 }
 
-bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool SpecularModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Specular", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Specular", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			for (auto pass : m_ShaderPasses)
-			{
-				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
-				if (passGuiPtr)
-				{
+            for (auto pass : m_ShaderPasses) {
+                auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
+                if (passGuiPtr) {
                     change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-				}
-			}
+                }
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool SpecularModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool SpecularModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame) {
+    if (m_LastExecutedFrame == vCurrentFrame) {
     }
     return false;
 }
 
-bool SpecularModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool SpecularModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void SpecularModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+void SpecularModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void SpecularModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void SpecularModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_SpecularModule_Comp_Pass_Ptr)
-	{
-		m_SpecularModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_SpecularModule_Comp_Pass_Ptr) {
+        m_SpecularModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
-vk::DescriptorImageInfo* SpecularModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+vk::DescriptorImageInfo* SpecularModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_SpecularModule_Comp_Pass_Ptr)
-	{
-		return m_SpecularModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_SpecularModule_Comp_Pass_Ptr) {
+        return m_SpecularModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-void SpecularModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
-{
-	if (m_SpecularModule_Comp_Pass_Ptr)
-	{
-		return m_SpecularModule_Comp_Pass_Ptr->SetLightGroup(vSceneLightGroup);
-	}
+void SpecularModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
+    if (m_SpecularModule_Comp_Pass_Ptr) {
+        return m_SpecularModule_Comp_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SpecularModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string SpecularModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += vOffset + "<specular_module>\n";
+    str += vOffset + "<specular_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	for (auto pass : m_ShaderPasses)
-	{
-		auto pass_ptr = pass.lock();
-		if (pass_ptr)
-		{
-			str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
-		}
-	}
+    for (auto pass : m_ShaderPasses) {
+        auto pass_ptr = pass.lock();
+        if (pass_ptr) {
+            str += pass_ptr->getXml(vOffset + "\t", vUserDatas);
+        }
+    }
 
-	str += vOffset + "</specular_module>\n";
+    str += vOffset + "</specular_module>\n";
 
-	return str;
+    return str;
 }
 
-bool SpecularModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool SpecularModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "specular_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-	}
+    if (strParentName == "specular_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+    }
 
-	for (auto pass : m_ShaderPasses)
-	{
-		auto pass_ptr = pass.lock();
-		if (pass_ptr)
-		{
-			pass_ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
-	}
+    for (auto pass : m_ShaderPasses) {
+        auto pass_ptr = pass.lock();
+        if (pass_ptr) {
+            pass_ptr->setFromXml(vElem, vParent, vUserDatas);
+        }
+    }
 
-	return true;
+    return true;
 }

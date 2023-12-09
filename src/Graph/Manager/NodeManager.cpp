@@ -34,7 +34,7 @@ limitations under the License.
 #include <Panes/TuningPane.h>
 #include <Panes/View2DPane.h>
 #include <Panes/View3DPane.h>
- 
+
 #include <Graph/Factory/NodeFactory.h>
 #include <Graph/Library/UserNodeLibrary.h>
 
@@ -49,12 +49,11 @@ NodeManager::NodeManager() = default;
 //// INIT / UNIT ///////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+bool NodeManager::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	m_RootNodePtr = BaseNode::Create(vVulkanCore);
-	if (m_RootNodePtr) {
+    m_RootNodePtr = BaseNode::Create(vVulkanCore);
+    if (m_RootNodePtr) {
         m_RootNodePtr->name = "LumoGraph";
         m_RootNodePtr->m_NodeTypeString = "Graph";
         m_RootNodePtr->SetSelectNodeCallback(std::bind(&NodeManager::SelectNode, this, _1));
@@ -63,248 +62,223 @@ bool NodeManager::Init(GaiApi::VulkanCoreWeak vVulkanCore)
         m_RootNodePtr->SetNewNodeMenuCallback(std::bind(&UserNodeLibrary::ShowNewNodeMenu, UserNodeLibrary::Instance(), _1, _2));
         NodeSlot::sSlotGraphOutputMouseLeftColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
         NodeSlot::sSlotGraphOutputMouseMiddleColor = ImVec4(0.2f, 0.9f, 0.2f, 1.0f);
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
-void NodeManager::Unit()
-{
-	ZoneScoped; 
+void NodeManager::Unit() {
+    ZoneScoped;
 
-	m_RootNodePtr.reset();
+    m_RootNodePtr.reset();
 }
 
-void NodeManager::Clear()
-{
-	m_RootNodePtr->ClearGraph();
+void NodeManager::Clear() {
+    m_RootNodePtr->ClearGraph();
 }
 
-void NodeManager::PrepareToLoadGraph()
-{
-	nd::SetCurrentEditor(
-		m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext);
+void NodeManager::PrepareToLoadGraph() {
+    nd::SetCurrentEditor(m_RootNodePtr->m_BaseNodeState.m_NodeGraphContext);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// TASK //////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	bool res = false;
+bool NodeManager::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    bool res = false;
 
-	m_RootNodePtr->m_BaseNodeState.m_CurrentFrame = vCurrentFrame;
-	m_RootNodePtr->m_BaseNodeState.m_Context = ImGui::GetCurrentContext();
-    
-	// double left click on a ouput slot texture or pass
-	auto rootNode3DPtr = m_RootNodePtr->m_GraphRoot3DNode.lock();
-	if (rootNode3DPtr)
-	{
+    m_RootNodePtr->m_BaseNodeState.m_CurrentFrame = vCurrentFrame;
+    m_RootNodePtr->m_BaseNodeState.m_Context = ImGui::GetCurrentContext();
+
+    // double left click on a ouput slot texture or pass
+    auto rootNode3DPtr = m_RootNodePtr->m_GraphRoot3DNode.lock();
+    if (rootNode3DPtr) {
         vkProfScopedNoCmd("Graph 3D", "%s", "Graph 3D");
-		res |= rootNode3DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
-	}
+        res |= rootNode3DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
+    }
 
     // double middle click on a ouput slot texture or pass
-	auto rootNode2DPtr = m_RootNodePtr->m_GraphRoot2DNode.lock();
-	if (rootNode2DPtr) {
+    auto rootNode2DPtr = m_RootNodePtr->m_GraphRoot2DNode.lock();
+    if (rootNode2DPtr) {
         vkProfScopedNoCmd("Graph 2D", "%s", "Graph 2D");
-		res |= rootNode2DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
-	}
+        res |= rootNode2DPtr->Execute(vCurrentFrame, vCmd, &m_RootNodePtr->m_BaseNodeState);
+    }
 
-	return res;
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// IMGUI /////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool NodeManager::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	ZoneScoped;
+    ZoneScoped;
 
-	bool change = false;
+    bool change = false;
 
-	CommonSystem::Instance()->DrawImGui();
+    CommonSystem::Instance()->DrawImGui();
 
-	for (auto eff : m_RootNodePtr->m_ChildNodes)
-	{
-		auto nodePtr = eff.second;
-		if (nodePtr)
-		{
-			if (ImGui::CollapsingHeader(nodePtr->name.c_str()))
-			{
-				change |= nodePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
-		}
-	}
+    for (auto eff : m_RootNodePtr->m_ChildNodes) {
+        auto nodePtr = eff.second;
+        if (nodePtr) {
+            if (ImGui::CollapsingHeader(nodePtr->name.c_str())) {
+                change |= nodePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
+        }
+    }
 
-	return change;
+    return change;
 }
 
-bool NodeManager::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool NodeManager::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	bool change = false;
+    bool change = false;
 
-	ImGuizmo::SetDrawlist(ImGui::GetCurrentWindow()->DrawList);
-	ImGuizmo::SetRect(vRect.Min.x, vRect.Min.y, vRect.GetWidth(), vRect.GetHeight());
+    ImGuizmo::SetDrawlist(ImGui::GetCurrentWindow()->DrawList);
+    ImGuizmo::SetRect(vRect.Min.x, vRect.Min.y, vRect.GetWidth(), vRect.GetHeight());
 
-	for (auto eff : m_RootNodePtr->m_ChildNodes)
-	{
-		auto nodePtr = eff.second;
-		if (nodePtr)
-		{
-			change |= nodePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
-		}
-	}
+    for (auto eff : m_RootNodePtr->m_ChildNodes) {
+        auto nodePtr = eff.second;
+        if (nodePtr) {
+            change |= nodePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+        }
+    }
 
-	return change;
+    return change;
 }
 
-bool NodeManager::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool NodeManager::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	bool change = false;
+    bool change = false;
 
-	for (auto eff : m_RootNodePtr->m_ChildNodes)
-	{
-		auto nodePtr = eff.second;
-		if (nodePtr)
-		{
-			change |= nodePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-		}
-	}
+    for (auto eff : m_RootNodePtr->m_ChildNodes) {
+        auto nodePtr = eff.second;
+        if (nodePtr) {
+            change |= nodePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+        }
+    }
 
-	return change;
+    return change;
 }
 
-void NodeManager::FinalizeGraphLoading()
-{
-	m_RootNodePtr->FinalizeGraphLoading();
+void NodeManager::FinalizeGraphLoading() {
+    m_RootNodePtr->FinalizeGraphLoading();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// LOAD //////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NodeManager::LoadNodeFromXML(
-	BaseNodeWeak vBaseNodeWeak, 
-	tinyxml2::XMLElement* vElem,
-	tinyxml2::XMLElement* vParent,
-	const std::string& vNodeName,
-	const std::string& vNodeType,
-	const ct::fvec2& vPos,
-	const size_t& vNodeId)
-{
-	ZoneScoped;
+bool NodeManager::LoadNodeFromXML(BaseNodeWeak vBaseNodeWeak,
+    tinyxml2::XMLElement* vElem,
+    tinyxml2::XMLElement* vParent,
+    const std::string& vNodeName,
+    const std::string& vNodeType,
+    const ct::fvec2& vPos,
+    const size_t& vNodeId) {
+    ZoneScoped;
 
-	bool continueXMLParsing = true;
+    bool continueXMLParsing = true;
 
-	if (m_RootNodePtr)
-	{
-		BaseNodePtr nodePtr = NodeFactory::CreateNode(vBaseNodeWeak, vNodeType);
+    if (m_RootNodePtr) {
+        BaseNodePtr nodePtr = NodeFactory::CreateNode(vBaseNodeWeak, vNodeType);
 
-		if (!nodePtr) // maybe a plugin
-		{
-			nodePtr = PluginManager::Instance()->CreatePluginNode(vNodeType);
-		}
+        if (!nodePtr)  // maybe a plugin
+        {
+            nodePtr = PluginManager::Instance()->CreatePluginNode(vNodeType);
+        }
 
-		if (nodePtr)
-		{
+        if (nodePtr) {
             nodePtr->m_RootNode = m_RootNodePtr;
 
-			if (!vNodeName.empty())
-				nodePtr->name = vNodeName;
-			nodePtr->pos = ImVec2(vPos.x, vPos.y);
-			nodePtr->nodeID = vNodeId;
-			
-			/*if (vNodeType == "OUTPUT_3D")
-			{
-				m_RootNodePtr->m_Output3DNode = nodePtr;
-			}
-			
-			if (vNodeType == "OUTPUT_2D")
-			{
-				m_RootNodePtr->m_Output2DNode = nodePtr;
-			}*/
+            if (!vNodeName.empty())
+                nodePtr->name = vNodeName;
+            nodePtr->pos = ImVec2(vPos.x, vPos.y);
+            nodePtr->nodeID = vNodeId;
 
-			m_RootNodePtr->AddChildNode(nodePtr);
+            /*if (vNodeType == "OUTPUT_3D")
+            {
+                m_RootNodePtr->m_Output3DNode = nodePtr;
+            }
 
-			nodePtr->BeforeNodeXmlLoading();
+            if (vNodeType == "OUTPUT_2D")
+            {
+                m_RootNodePtr->m_Output2DNode = nodePtr;
+            }*/
 
-			nodePtr->RecursParsingConfigChilds(vElem);
-			nd::SetNodePosition(vNodeId, nodePtr->pos);
+            m_RootNodePtr->AddChildNode(nodePtr);
 
-			// pour eviter que des slots aient le meme id qu'un nodePtr
-			BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)vNodeId);
+            nodePtr->BeforeNodeXmlLoading();
 
-			nodePtr->AfterNodeXmlLoading();
+            nodePtr->RecursParsingConfigChilds(vElem);
+            nd::SetNodePosition(vNodeId, nodePtr->pos);
 
-			continueXMLParsing = true;
-		}
-	}
+            // pour eviter que des slots aient le meme id qu'un nodePtr
+            BaseNode::freeNodeId = ct::maxi<uint32_t>(BaseNode::freeNodeId, (uint32_t)vNodeId);
 
-	return continueXMLParsing;
+            nodePtr->AfterNodeXmlLoading();
+
+            continueXMLParsing = true;
+        }
+    }
+
+    return continueXMLParsing;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// Update Shaders //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NodeManager::UpdateShaders(const std::set<std::string>& vFiles) const
-{
-	for (auto node : m_RootNodePtr->m_ChildNodes)
-	{
-		if (node.second)
-		{
-			auto otherShaderUpdateNodePtr = dynamic_pointer_cast<ShaderUpdateInterface>(node.second);
-			if (otherShaderUpdateNodePtr)
-			{
-				otherShaderUpdateNodePtr->UpdateShaders(vFiles);
-			}
-		}
-	}
+void NodeManager::UpdateShaders(const std::set<std::string>& vFiles) const {
+    for (auto node : m_RootNodePtr->m_ChildNodes) {
+        if (node.second) {
+            auto otherShaderUpdateNodePtr = dynamic_pointer_cast<ShaderUpdateInterface>(node.second);
+            if (otherShaderUpdateNodePtr) {
+                otherShaderUpdateNodePtr->UpdateShaders(vFiles);
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LOAD / SAVE GRAPH ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string NodeManager::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-    if (m_RootNodePtr && !m_RootNodePtr->m_ChildNodes.empty())
-	{
-		return m_RootNodePtr->getXml(vOffset, vUserDatas);
-	}
+std::string NodeManager::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    if (m_RootNodePtr && !m_RootNodePtr->m_ChildNodes.empty()) {
+        return m_RootNodePtr->getXml(vOffset, vUserDatas);
+    }
 
-	return "";
+    return "";
 }
 
-bool NodeManager::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool NodeManager::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (m_RootNodePtr)
-	{
-		m_RootNodePtr->RecursParsingConfig(vElem, vParent, vUserDatas);
-	}
+    if (m_RootNodePtr) {
+        m_RootNodePtr->RecursParsingConfig(vElem, vParent, vUserDatas);
+    }
 
-	return false;
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +292,7 @@ void NodeManager::SelectNode(const BaseNodeWeak& vNode) {
 
 void NodeManager::SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton) {
     if (NodeManager::Instance()->m_RootNodePtr) {
-        //GaiApi::vkProfiler::Instance()->Clear();
+        // GaiApi::vkProfiler::Instance()->Clear();
         if (vButton == ImGuiMouseButton_Left) {
             View3DPane::Instance()->SetOrUpdateOutput(vSlot);
         } else if (vButton == ImGuiMouseButton_Middle) {

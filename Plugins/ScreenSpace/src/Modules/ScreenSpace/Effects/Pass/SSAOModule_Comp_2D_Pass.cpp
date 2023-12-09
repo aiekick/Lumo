@@ -69,14 +69,9 @@ void SSAOModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const in
     if (vCmdBufferPtr) {
         vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
         {
-            // VKFPScoped(*vCmdBufferPtr, "SSAO", "Compute");
-
             vCmdBufferPtr->bindDescriptorSets(
                 vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-
-            for (uint32_t iter = 0; iter < m_CountIterations.w; iter++) {
-                Dispatch(vCmdBufferPtr);
-            }
+            Dispatch(vCmdBufferPtr, "Compute");
         }
     }
 }

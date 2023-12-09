@@ -48,7 +48,9 @@ std::shared_ptr<GridModule> GridModule::Create(GaiApi::VulkanCoreWeak vVulkanCor
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GridModule::GridModule(GaiApi::VulkanCoreWeak vVulkanCore) : TaskRenderer(vVulkanCore) { m_SceneShaderPassPtr = SceneShaderPass::Create(); }
+GridModule::GridModule(GaiApi::VulkanCoreWeak vVulkanCore) : TaskRenderer(vVulkanCore) {
+    m_SceneShaderPassPtr = SceneShaderPass::Create();
+}
 
 GridModule::~GridModule() {
     Unit();
@@ -70,7 +72,8 @@ bool GridModule::Init() {
     if (TaskRenderer::InitPixel(map_size)) {
         m_GridModule_Vertex_Pass_Ptr = std::make_shared<GridModule_Vertex_Pass>(m_VulkanCore);
         if (m_GridModule_Vertex_Pass_Ptr) {
-            if (m_GridModule_Vertex_Pass_Ptr->InitPixel(map_size, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
+            if (m_GridModule_Vertex_Pass_Ptr->InitPixel(
+                    map_size, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
                 AddGenericPass(m_GridModule_Vertex_Pass_Ptr);
                 m_SceneShaderPassPtr->Add(m_GridModule_Vertex_Pass_Ptr);
                 m_Loaded = true;
@@ -93,7 +96,9 @@ bool GridModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
     return true;
 }
 
-void GridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) { TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers); }
+void GridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+}
 
 bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
@@ -121,7 +126,8 @@ bool GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
     return false;
 }
 
-bool GridModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool GridModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -138,7 +144,9 @@ vk::DescriptorImageInfo* GridModule::GetDescriptorImageInfo(const uint32_t& vBin
     return nullptr;
 }
 
-SceneShaderPassWeak GridModule::GetShaderPasses(const uint32_t& vSlotID) { return m_SceneShaderPassPtr; }
+SceneShaderPassWeak GridModule::GetShaderPasses(const uint32_t& vSlotID) {
+    return m_SceneShaderPassPtr;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////

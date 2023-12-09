@@ -18,44 +18,32 @@ limitations under the License.
 #include <LumoBackend/Graph/Base/BaseNode.h>
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 class TextureExporterModule;
-class TextureExporterNode :
-	public TextureInputInterface<0U>,
-	public BaseNode
-{
+class TextureExporterNode : public TextureInputInterface<0U>, public BaseNode {
 public:
-	static std::shared_ptr<TextureExporterNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<TextureExporterNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<TextureExporterModule> m_TextureExporterModulePtr = nullptr;
+    std::shared_ptr<TextureExporterModule> m_TextureExporterModulePtr = nullptr;
 
 public:
-	TextureExporterNode();
-	~TextureExporterNode() override;
+    TextureExporterNode();
+    ~TextureExporterNode() override;
 
-	// Init / Unit
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    // Init / Unit
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
-	// Draw Widgets
-    bool DrawWidgets(const uint32_t& vCurrentFrame,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
+    // Draw Widgets
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
     void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	// Interfaces Setters
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
+    // Interfaces Setters
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
 
-
-
-	// Configuration
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
-
+    // Configuration
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 };

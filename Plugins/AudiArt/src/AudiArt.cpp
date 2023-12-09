@@ -28,9 +28,13 @@ extern "C"  // needed for avoid renaming of funcs by the compiler
 #define PLUGIN_PREFIX
 #endif
 
-PLUGIN_PREFIX AudiArt* allocator() { return new AudiArt(); }
+PLUGIN_PREFIX AudiArt* allocator() {
+    return new AudiArt();
+}
 
-PLUGIN_PREFIX void deleter(AudiArt* ptr) { delete ptr; }
+PLUGIN_PREFIX void deleter(AudiArt* ptr) {
+    delete ptr;
+}
 }
 #endif  // USE_PLUGIN_STATIC_LINKING
 
@@ -45,17 +49,29 @@ void AudiArt::ActionAfterInit() {
     NodeSlot::sGetSlotColors()->AddSlotColor("SCENEAUDIART", ImVec4(0.2f, 0.6f, 0.4f, 1.0f));
 }
 
-uint32_t AudiArt::GetVersionMajor() const { return AudiArt_MinorNumber; }
+uint32_t AudiArt::GetVersionMajor() const {
+    return AudiArt_MinorNumber;
+}
 
-uint32_t AudiArt::GetVersionMinor() const { return AudiArt_MajorNumber; }
+uint32_t AudiArt::GetVersionMinor() const {
+    return AudiArt_MajorNumber;
+}
 
-uint32_t AudiArt::GetVersionBuild() const { return AudiArt_BuildNumber; }
+uint32_t AudiArt::GetVersionBuild() const {
+    return AudiArt_BuildNumber;
+}
 
-std::string AudiArt::GetName() const { return "AudiArt"; }
+std::string AudiArt::GetName() const {
+    return "AudiArt";
+}
 
-std::string AudiArt::GetVersion() const { return AudiArt_BuildId; }
+std::string AudiArt::GetVersion() const {
+    return AudiArt_BuildId;
+}
 
-std::string AudiArt::GetDescription() const { return "Audio Art plugin"; }
+std::string AudiArt::GetDescription() const {
+    return "Audio Art plugin";
+}
 
 std::vector<std::string> AudiArt::GetNodes() const {
     return {

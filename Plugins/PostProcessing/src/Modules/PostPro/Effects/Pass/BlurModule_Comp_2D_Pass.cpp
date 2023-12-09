@@ -240,15 +240,15 @@ void BlurModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const in
         if (m_UseBlurH) {
             Compute_Blur_H(vCmdBufferPtr);
 
-            vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
-                vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+            vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader,
+                vk::DependencyFlags(), vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
         }
 
         if (m_UseBlurV) {
             Compute_Blur_V(vCmdBufferPtr);
 
-            vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
-                vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+            vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader,
+                vk::DependencyFlags(), vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
         }
     }
 }
@@ -556,11 +556,11 @@ bool BlurModule_Comp_2D_Pass::CreateComputePipeline() {
     m_Pipelines[1].m_PipelineLayout = m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
         vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[1].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
 
-    auto cs_H = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
-        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["H"][0].m_SPIRV);
+    auto cs_H =
+        GaiApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["H"][0].m_SPIRV);
 
-    auto cs_V = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
-        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["V"][0].m_SPIRV);
+    auto cs_V =
+        GaiApi::VulkanCore::sVulkanShader->CreateShaderModule((VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["V"][0].m_SPIRV);
 
     m_ShaderCreateInfos = {vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_H, "H"),
         vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_V, "V")};
@@ -642,7 +642,7 @@ bool BlurModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::
             m_UBOComp.u_enabled = ct::fvariant(strValue).GetF();
             *IsEffectEnabled() = m_UBOComp.u_enabled;
         }
-    }    
+    }
 
     return true;
 }

@@ -64,7 +64,7 @@ int App::run(int /*argc*/, char** argv) {
 #endif
 
     FileHelper::Instance()->CreateDirectoryIfNotExist("shaders");
-    
+
     m_InitMessaging();
 
     MainBackend::Instance()->run();
@@ -73,16 +73,11 @@ int App::run(int /*argc*/, char** argv) {
 }
 
 void App::m_InitMessaging() {
-    Messaging::Instance()->AddCategory(
-        MESSAGING_CODE_INFOS, "Infos(s)", MESSAGING_LABEL_INFOS, ImVec4(0.0f, 0.8f, 0.0f, 1.0f));
-    Messaging::Instance()->AddCategory(
-        MESSAGING_CODE_WARNINGS, "Warnings(s)", MESSAGING_LABEL_WARNINGS, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
-    Messaging::Instance()->AddCategory(
-        MESSAGING_CODE_ERRORS, "Errors(s)", MESSAGING_LABEL_ERRORS, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
-    Messaging::Instance()->AddCategory(
-        MESSAGING_TYPE_VKLAYER, "Vk Layer(s)", MESSAGING_LABEL_VKLAYER, ImVec4(0.8f, 0.0f, 0.4f, 1.0f));
-    Messaging::Instance()->AddCategory(
-        MESSAGING_TYPE_DEBUG, "Debug(s)", MESSAGING_LABEL_DEBUG, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(MESSAGING_CODE_INFOS, "Infos(s)", MESSAGING_LABEL_INFOS, ImVec4(0.0f, 0.8f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(MESSAGING_CODE_WARNINGS, "Warnings(s)", MESSAGING_LABEL_WARNINGS, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(MESSAGING_CODE_ERRORS, "Errors(s)", MESSAGING_LABEL_ERRORS, ImVec4(0.8f, 0.0f, 0.0f, 1.0f));
+    Messaging::Instance()->AddCategory(MESSAGING_TYPE_VKLAYER, "Vk Layer(s)", MESSAGING_LABEL_VKLAYER, ImVec4(0.8f, 0.0f, 0.4f, 1.0f));
+    Messaging::Instance()->AddCategory(MESSAGING_TYPE_DEBUG, "Debug(s)", MESSAGING_LABEL_DEBUG, ImVec4(0.8f, 0.8f, 0.0f, 1.0f));
 
     Messaging::Instance()->SetLayoutManager(LayoutManager::Instance());
     Logger::sStandardLogFunction = [this](const int& vType, const std::string& vMessage) {

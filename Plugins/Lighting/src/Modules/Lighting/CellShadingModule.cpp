@@ -46,198 +46,168 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<CellShadingModule> CellShadingModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	
-	auto res = std::make_shared<CellShadingModule>(vVulkanCore);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<CellShadingModule> CellShadingModule::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<CellShadingModule>(vVulkanCore);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CellShadingModule::CellShadingModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-
+CellShadingModule::CellShadingModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
 }
 
-CellShadingModule::~CellShadingModule()
-{
-	Unit();
+CellShadingModule::~CellShadingModule() {
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool CellShadingModule::Init()
-{
-	ZoneScoped;
+bool CellShadingModule::Init() {
+    ZoneScoped;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	if (BaseRenderer::InitCompute2D(map_size))
-	{
-		m_CellShadingModule_Comp_Pass_Ptr = std::make_shared<CellShadingModule_Comp_Pass>(m_VulkanCore);
-		if (m_CellShadingModule_Comp_Pass_Ptr)
-		{
-			if (m_CellShadingModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_CellShadingModule_Comp_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+    if (BaseRenderer::InitCompute2D(map_size)) {
+        m_CellShadingModule_Comp_Pass_Ptr = std::make_shared<CellShadingModule_Comp_Pass>(m_VulkanCore);
+        if (m_CellShadingModule_Comp_Pass_Ptr) {
+            if (m_CellShadingModule_Comp_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
+                AddGenericPass(m_CellShadingModule_Comp_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool CellShadingModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool CellShadingModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("CellShading", vCmd);
+    BaseRenderer::Render("CellShading", vCmd);
 
-	return true;
+    return true;
 }
 
-bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool CellShadingModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("CellShading", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("CellShading", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			if (m_CellShadingModule_Comp_Pass_Ptr)
-			{
-				change |= m_CellShadingModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+            if (m_CellShadingModule_Comp_Pass_Ptr) {
+                change |= m_CellShadingModule_Comp_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
-}
-
-bool CellShadingModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
-
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
     return false;
 }
 
-bool CellShadingModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool CellShadingModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void CellShadingModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+bool CellShadingModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
+    return false;
 }
 
-void CellShadingModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
-
-	if (m_CellShadingModule_Comp_Pass_Ptr)
-	{
-		m_CellShadingModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+void CellShadingModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-vk::DescriptorImageInfo* CellShadingModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+void CellShadingModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_CellShadingModule_Comp_Pass_Ptr)
-	{
-		return m_CellShadingModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
-
-	return nullptr;
+    if (m_CellShadingModule_Comp_Pass_Ptr) {
+        m_CellShadingModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
-void CellShadingModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
-{
-	if (m_CellShadingModule_Comp_Pass_Ptr)
-	{
-		return m_CellShadingModule_Comp_Pass_Ptr->SetLightGroup(vSceneLightGroup);
-	}
+vk::DescriptorImageInfo* CellShadingModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+
+    if (m_CellShadingModule_Comp_Pass_Ptr) {
+        return m_CellShadingModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
+
+    return nullptr;
+}
+
+void CellShadingModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
+    if (m_CellShadingModule_Comp_Pass_Ptr) {
+        return m_CellShadingModule_Comp_Pass_Ptr->SetLightGroup(vSceneLightGroup);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CellShadingModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string CellShadingModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += vOffset + "<cell_shading_module>\n";
+    str += vOffset + "<cell_shading_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_CellShadingModule_Comp_Pass_Ptr)
-	{
-		str += m_CellShadingModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_CellShadingModule_Comp_Pass_Ptr) {
+        str += m_CellShadingModule_Comp_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</cell_shading_module>\n";
+    str += vOffset + "</cell_shading_module>\n";
 
-	return str;
+    return str;
 }
 
-bool CellShadingModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool CellShadingModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "cell_shading_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-	}
+    if (strParentName == "cell_shading_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+    }
 
-	if (m_CellShadingModule_Comp_Pass_Ptr)
-	{
-		m_CellShadingModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_CellShadingModule_Comp_Pass_Ptr) {
+        m_CellShadingModule_Comp_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }

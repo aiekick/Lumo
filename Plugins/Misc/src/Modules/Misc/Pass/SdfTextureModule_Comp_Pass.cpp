@@ -44,287 +44,246 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SdfTextureModule_Comp_Pass::SdfTextureModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: ShaderPass(vVulkanCore)
-{
-	SetRenderDocDebugName("Comp Pass : SdfTexture", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+SdfTextureModule_Comp_Pass::SdfTextureModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {
+    SetRenderDocDebugName("Comp Pass : SdfTexture", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+    // m_DontUseShaderFilesOnDisk = true;
 }
 
-SdfTextureModule_Comp_Pass::~SdfTextureModule_Comp_Pass()
-{
-	Unit();
+SdfTextureModule_Comp_Pass::~SdfTextureModule_Comp_Pass() {
+    Unit();
 }
 
-void SdfTextureModule_Comp_Pass::ActionBeforeInit()
-{
-	ZoneScoped;
+void SdfTextureModule_Comp_Pass::ActionBeforeInit() {
+    ZoneScoped;
 
-	m_Pipelines.resize(4U);
-	m_DescriptorSets.resize(4U);
+    m_Pipelines.resize(4U);
+    m_DescriptorSets.resize(4U);
 
-	vk::PushConstantRange push_constant;
-	push_constant.offset = 0;
-	push_constant.size = sizeof(PushConstants);
-	push_constant.stageFlags = vk::ShaderStageFlagBits::eCompute;
+    vk::PushConstantRange push_constant;
+    push_constant.offset = 0;
+    push_constant.size = sizeof(PushConstants);
+    push_constant.stageFlags = vk::ShaderStageFlagBits::eCompute;
 
-	SetPushConstantRange(push_constant);
+    SetPushConstantRange(push_constant);
 }
 
-void SdfTextureModule_Comp_Pass::ActionBeforeCompilation()
-{
-	ZoneScoped;
+void SdfTextureModule_Comp_Pass::ActionBeforeCompilation() {
+    ZoneScoped;
 
-	ClearShaderEntryPoints();
-	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "Init");
-	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "DistancePassH");
-	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "DistancePassV");
-	AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "DisplaySDF");
+    ClearShaderEntryPoints();
+    AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "Init");
+    AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "DistancePassH");
+    AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "DistancePassV");
+    AddShaderEntryPoints(vk::ShaderStageFlagBits::eCompute, "DisplaySDF");
 }
 
-bool SdfTextureModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SdfTextureModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
-
-	if (ImGui::CollapsingHeader("SdfTexture", ImGuiTreeNodeFlags_DefaultOpen))
-	{
-		return false;
-	}
-
-	return false;
-}
-
-bool SdfTextureModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr);
+    assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
-    return false;
 
+    if (ImGui::CollapsingHeader("SdfTexture", ImGuiTreeNodeFlags_DefaultOpen)) {
+        return false;
+    }
+
+    return false;
 }
 
-bool SdfTextureModule_Comp_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr);
+bool SdfTextureModule_Comp_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-void SdfTextureModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+bool SdfTextureModule_Comp_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    return false;
+}
 
-	if (m_Loaded)
-	{
-		if (vBinding < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBinding] = *vTextureSize;
-					SetDispatchSize2D(ct::uvec2((uint32_t)vTextureSize->x, (uint32_t)vTextureSize->y));
-					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
-				}
-				else
-				{
-					m_ImageInfosSize[vBinding] = ct::fvec2();
-				}
+void SdfTextureModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-				m_ImageInfos[vBinding] = *vImageInfo;
-			}
-			else {
+    if (m_Loaded) {
+        if (vBinding < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBinding] = *vTextureSize;
+                    SetDispatchSize2D(ct::uvec2((uint32_t)vTextureSize->x, (uint32_t)vTextureSize->y));
+                    NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
+                } else {
+                    m_ImageInfosSize[vBinding] = ct::fvec2();
+                }
+
+                m_ImageInfos[vBinding] = *vImageInfo;
+            } else {
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				SetDispatchSize2D(0);
-				m_ImageInfosSize[vBinding] = ct::fvec2();
-				m_ImageInfos[vBinding] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                SetDispatchSize2D(0);
+                m_ImageInfosSize[vBinding] = ct::fvec2();
+                m_ImageInfos[vBinding] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
-vk::DescriptorImageInfo* SdfTextureModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+vk::DescriptorImageInfo* SdfTextureModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+    if (m_ComputeBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_ComputeBufferPtr->GetOutputSize();
+        }
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-bool SdfTextureModule_Comp_Pass::CanUpdateDescriptors()
-{
-	ZoneScoped;
+bool SdfTextureModule_Comp_Pass::CanUpdateDescriptors() {
+    ZoneScoped;
 
-	return (m_ComputeBufferPtr != nullptr);
+    return (m_ComputeBufferPtr != nullptr);
 }
 
-void SdfTextureModule_Comp_Pass::Compute_SdfTexture(vk::CommandBuffer* vCmdBufferPtr, const uint32_t& vIdx)
-{
-	ZoneScoped;
+void SdfTextureModule_Comp_Pass::Compute_SdfTexture(vk::CommandBuffer* vCmdBufferPtr, const uint32_t& vIdx) {
+    ZoneScoped;
 
-	if (vCmdBufferPtr && !GetDispatchSize().emptyOR())
-	{
+    if (vCmdBufferPtr && !GetDispatchSize().emptyOR()) {
 #ifdef _MSC_VER
 #undef MemoryBarrier
-#endif 
-		if (vIdx == 0U || vIdx == 3U)
-		{
-			vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_Pipeline);
-			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_PipelineLayout, 0, m_DescriptorSets[vIdx].m_DescriptorSet, nullptr);
-			vCmdBufferPtr->pushConstants(m_Pipelines[vIdx].m_PipelineLayout,
-				vk::ShaderStageFlagBits::eCompute,
-				0, sizeof(PushConstants), &m_PushConstants);
-			Dispatch(vCmdBufferPtr);
-		}
-		else
-		{
-			for (uint32_t idx = 0; idx < m_MaxIterations; ++idx)
-			{
-				m_PushConstants.iteration_count = idx;
+#endif
+        if (vIdx == 0U || vIdx == 3U) {
+            vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_Pipeline);
+            vCmdBufferPtr->bindDescriptorSets(
+                vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_PipelineLayout, 0, m_DescriptorSets[vIdx].m_DescriptorSet, nullptr);
+            vCmdBufferPtr->pushConstants(
+                m_Pipelines[vIdx].m_PipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, sizeof(PushConstants), &m_PushConstants);
+            Dispatch(vCmdBufferPtr, "Compute");
+        } else {
+            for (uint32_t idx = 0; idx < m_MaxIterations; ++idx) {
+                m_PushConstants.iteration_count = idx;
 
-				vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_Pipeline);
-				vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_PipelineLayout, 0, m_DescriptorSets[vIdx].m_DescriptorSet, nullptr);
-				vCmdBufferPtr->pushConstants(m_Pipelines[vIdx].m_PipelineLayout,
-					vk::ShaderStageFlagBits::eCompute,
-					0, sizeof(PushConstants), &m_PushConstants);
-				Dispatch(vCmdBufferPtr);
-			}
-		}
-	}
+                vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_Pipeline);
+                vCmdBufferPtr->bindDescriptorSets(
+                    vk::PipelineBindPoint::eCompute, m_Pipelines[vIdx].m_PipelineLayout, 0, m_DescriptorSets[vIdx].m_DescriptorSet, nullptr);
+                vCmdBufferPtr->pushConstants(
+                    m_Pipelines[vIdx].m_PipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, sizeof(PushConstants), &m_PushConstants);
+                Dispatch(vCmdBufferPtr, ct::toStr(" Iter %u : Compute", idx).c_str());
+            }
+        }
+    }
 }
 
-void SdfTextureModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	ZoneScoped;
+void SdfTextureModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    ZoneScoped;
 
-	if (vCmdBufferPtr)
-	{
-		// Init
-		Compute_SdfTexture(vCmdBufferPtr, 0U);
-		vCmdBufferPtr->pipelineBarrier(
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::DependencyFlags(),
-			vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead),
-			nullptr, nullptr);
+    if (vCmdBufferPtr) {
+        // Init
+        Compute_SdfTexture(vCmdBufferPtr, 0U);
+        vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+            vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
 
-		// DistancePassH
-		m_MaxIterations = (uint32_t)m_ImageInfosSize[0].x;
-		Compute_SdfTexture(vCmdBufferPtr, 1U);
-		vCmdBufferPtr->pipelineBarrier(
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::DependencyFlags(),
-			vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead),
-			nullptr, nullptr);
-		
-		// DistancePassV
-		m_MaxIterations = (uint32_t)m_ImageInfosSize[0].y;
-		Compute_SdfTexture(vCmdBufferPtr, 2U);
-		vCmdBufferPtr->pipelineBarrier(
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::DependencyFlags(),
-			vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead),
-			nullptr, nullptr);
-		
-		// DisplaySDF
-		Compute_SdfTexture(vCmdBufferPtr, 3U);
-		vCmdBufferPtr->pipelineBarrier(
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::PipelineStageFlagBits::eComputeShader,
-			vk::DependencyFlags(),
-			vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead),
-			nullptr, nullptr);
-	}
+        // DistancePassH
+        m_MaxIterations = (uint32_t)m_ImageInfosSize[0].x;
+        Compute_SdfTexture(vCmdBufferPtr, 1U);
+        vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+            vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+
+        // DistancePassV
+        m_MaxIterations = (uint32_t)m_ImageInfosSize[0].y;
+        Compute_SdfTexture(vCmdBufferPtr, 2U);
+        vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+            vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+
+        // DisplaySDF
+        Compute_SdfTexture(vCmdBufferPtr, 3U);
+        vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+            vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+    }
 }
 
-bool SdfTextureModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool SdfTextureModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	if (m_ComputeBufferPtr)
-	{
-		bool res = true;
+    if (m_ComputeBufferPtr) {
+        bool res = true;
 
-		// Init
-		res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 0U);
-		res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 0U);
+        // Init
+        res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 0U);
+        res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 0U);
 
-		// DistancePassH
-		res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 1U);
-		res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 1U);
+        // DistancePassH
+        res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 1U);
+        res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 1U);
 
-		// DistancePassV
-		res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 2U);
-		res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 2U);
+        // DistancePassV
+        res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 2U);
+        res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 2U);
 
-		// DisplaySDF
-		res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 3U);
-		res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 3U);
+        // DisplaySDF
+        res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute, 1U, 3U);
+        res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute, 1U, 3U);
 
-		return res;
-	}
+        return res;
+    }
 
-	return false;
+    return false;
 }
 
-bool SdfTextureModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool SdfTextureModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	if (m_ComputeBufferPtr)
-	{
-		//ClearWriteDescriptors();
+    if (m_ComputeBufferPtr) {
+        // ClearWriteDescriptors();
 
-		bool res = true;
-		
-		// Init
-		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 0U); // output
-		res &= AddOrSetWriteDescriptorImage(1U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, 0U); // image to sdfize
-		
-		// DistancePassH
-		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 1U); // output
-		res &= AddOrSetWriteDescriptorImage(1U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 1U); // image to sdfize H
-		
-		// DistancePassV
-		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 2U); // output
-		res &= AddOrSetWriteDescriptorImage(1U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 2U); // image to sdfize V
-		
-		// DisplaySDF
-		res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 3U); // output
-		res &= AddOrSetWriteDescriptorImage(1U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 3U); // image to sdfize V
-		
-		return res;
-	}
+        bool res = true;
 
-	return false;
+        // Init
+        res &= AddOrSetWriteDescriptorImage(
+            0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 0U);       // output
+        res &= AddOrSetWriteDescriptorImage(1U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0], 1U, 0U);  // image to sdfize
+
+        // DistancePassH
+        res &= AddOrSetWriteDescriptorImage(
+            0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 1U);  // output
+        res &= AddOrSetWriteDescriptorImage(
+            1U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 1U);  // image to sdfize H
+
+        // DistancePassV
+        res &= AddOrSetWriteDescriptorImage(
+            0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 2U);  // output
+        res &= AddOrSetWriteDescriptorImage(
+            1U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 2U);  // image to sdfize V
+
+        // DisplaySDF
+        res &= AddOrSetWriteDescriptorImage(
+            0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U), 1U, 3U);  // output
+        res &= AddOrSetWriteDescriptorImage(
+            1U, vk::DescriptorType::eCombinedImageSampler, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(1U), 1U, 3U);  // image to sdfize V
+
+        return res;
+    }
+
+    return false;
 }
 
-std::string SdfTextureModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	ZoneScoped;
+std::string SdfTextureModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+    ZoneScoped;
 
-	vOutShaderName = "SdfTextureModule_Compute_Pass";
+    vOutShaderName = "SdfTextureModule_Compute_Pass";
 
-	SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
+    SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
@@ -407,142 +366,107 @@ void DisplaySDF()
 //// PRIVATE / PIPELINE ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SdfTextureModule_Comp_Pass::CreateComputePipeline()
-{
-	ZoneScoped;
+bool SdfTextureModule_Comp_Pass::CreateComputePipeline() {
+    ZoneScoped;
 
-	if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute].empty()) return false;
-	if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["Init"][0].m_SPIRV.empty()) return false;
-	if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassH"][0].m_SPIRV.empty()) return false;
-	if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassV"][0].m_SPIRV.empty()) return false;
-	if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DisplaySDF"][0].m_SPIRV.empty()) return false;
+    if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute].empty())
+        return false;
+    if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["Init"][0].m_SPIRV.empty())
+        return false;
+    if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassH"][0].m_SPIRV.empty())
+        return false;
+    if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassV"][0].m_SPIRV.empty())
+        return false;
+    if (m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DisplaySDF"][0].m_SPIRV.empty())
+        return false;
 
-	std::vector<vk::PushConstantRange> push_constants;
-	if (m_Internal_PushConstants.size)
-	{
-		push_constants.push_back(m_Internal_PushConstants);
-	}
+    std::vector<vk::PushConstantRange> push_constants;
+    if (m_Internal_PushConstants.size) {
+        push_constants.push_back(m_Internal_PushConstants);
+    }
 
-	m_Pipelines[0].m_PipelineLayout =
-		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
-			vk::PipelineLayoutCreateFlags(),
-			1, &m_DescriptorSets[0].m_DescriptorSetLayout,
-			(uint32_t)push_constants.size(), push_constants.data()
-		)); 
+    m_Pipelines[0].m_PipelineLayout = m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
+        vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[0].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
 
-	m_Pipelines[1].m_PipelineLayout =
-		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
-			vk::PipelineLayoutCreateFlags(),
-			1, &m_DescriptorSets[1].m_DescriptorSetLayout,
-			(uint32_t)push_constants.size(), push_constants.data()
-		));
+    m_Pipelines[1].m_PipelineLayout = m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
+        vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[1].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
 
-	m_Pipelines[2].m_PipelineLayout =
-		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
-			vk::PipelineLayoutCreateFlags(),
-			1, &m_DescriptorSets[2].m_DescriptorSetLayout,
-			(uint32_t)push_constants.size(), push_constants.data()
-		));
+    m_Pipelines[2].m_PipelineLayout = m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
+        vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[2].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
 
-	m_Pipelines[3].m_PipelineLayout =
-		m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
-			vk::PipelineLayoutCreateFlags(),
-			1, &m_DescriptorSets[3].m_DescriptorSetLayout,
-			(uint32_t)push_constants.size(), push_constants.data()
-		));
+    m_Pipelines[3].m_PipelineLayout = m_Device.createPipelineLayout(vk::PipelineLayoutCreateInfo(
+        vk::PipelineLayoutCreateFlags(), 1, &m_DescriptorSets[3].m_DescriptorSetLayout, (uint32_t)push_constants.size(), push_constants.data()));
 
-	auto cs_I = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
-		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["Init"][0].m_SPIRV);
+    auto cs_I = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
+        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["Init"][0].m_SPIRV);
 
-	auto cs_H = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
-		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassH"][0].m_SPIRV);
-	
-	auto cs_V = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
-		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassV"][0].m_SPIRV);
+    auto cs_H = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
+        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassH"][0].m_SPIRV);
 
-	auto cs_S = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
-		(VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DisplaySDF"][0].m_SPIRV);
+    auto cs_V = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
+        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DistancePassV"][0].m_SPIRV);
 
+    auto cs_S = GaiApi::VulkanCore::sVulkanShader->CreateShaderModule(
+        (VkDevice)m_Device, m_ShaderCodes[vk::ShaderStageFlagBits::eCompute]["DisplaySDF"][0].m_SPIRV);
 
-	m_ShaderCreateInfos = {
-	   vk::PipelineShaderStageCreateInfo(
-		   vk::PipelineShaderStageCreateFlags(),
-		   vk::ShaderStageFlagBits::eCompute,
-		   cs_I, "Init"
-	   ),
-	   vk::PipelineShaderStageCreateInfo(
-		   vk::PipelineShaderStageCreateFlags(),
-		   vk::ShaderStageFlagBits::eCompute,
-		   cs_H, "DistancePassH"
-	   ),
-	   vk::PipelineShaderStageCreateInfo(
-		   vk::PipelineShaderStageCreateFlags(),
-		   vk::ShaderStageFlagBits::eCompute,
-		   cs_V, "DistancePassV"
-	   ),
-	   vk::PipelineShaderStageCreateInfo(
-		   vk::PipelineShaderStageCreateFlags(),
-		   vk::ShaderStageFlagBits::eCompute,
-		   cs_S, "DisplaySDF"
-	   )
-	};
+    m_ShaderCreateInfos = {vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_I, "Init"),
+        vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_H, "DistancePassH"),
+        vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_V, "DistancePassV"),
+        vk::PipelineShaderStageCreateInfo(vk::PipelineShaderStageCreateFlags(), vk::ShaderStageFlagBits::eCompute, cs_S, "DisplaySDF")};
 
-	vk::ComputePipelineCreateInfo computePipeInfo_I = vk::ComputePipelineCreateInfo()
-		.setStage(m_ShaderCreateInfos[0]).setLayout(m_Pipelines[0].m_PipelineLayout);
-	m_Pipelines[0].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_I).value;
+    vk::ComputePipelineCreateInfo computePipeInfo_I =
+        vk::ComputePipelineCreateInfo().setStage(m_ShaderCreateInfos[0]).setLayout(m_Pipelines[0].m_PipelineLayout);
+    m_Pipelines[0].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_I).value;
 
-	vk::ComputePipelineCreateInfo computePipeInfo_H = vk::ComputePipelineCreateInfo()
-		.setStage(m_ShaderCreateInfos[1]).setLayout(m_Pipelines[1].m_PipelineLayout);
-	m_Pipelines[1].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_H).value;
-	
-	vk::ComputePipelineCreateInfo computePipeInfo_V = vk::ComputePipelineCreateInfo()
-		.setStage(m_ShaderCreateInfos[2]).setLayout(m_Pipelines[2].m_PipelineLayout);
-	m_Pipelines[2].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_V).value;
+    vk::ComputePipelineCreateInfo computePipeInfo_H =
+        vk::ComputePipelineCreateInfo().setStage(m_ShaderCreateInfos[1]).setLayout(m_Pipelines[1].m_PipelineLayout);
+    m_Pipelines[1].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_H).value;
 
-	vk::ComputePipelineCreateInfo computePipeInfo_S = vk::ComputePipelineCreateInfo()
-		.setStage(m_ShaderCreateInfos[3]).setLayout(m_Pipelines[3].m_PipelineLayout);
-	m_Pipelines[3].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_S).value;
+    vk::ComputePipelineCreateInfo computePipeInfo_V =
+        vk::ComputePipelineCreateInfo().setStage(m_ShaderCreateInfos[2]).setLayout(m_Pipelines[2].m_PipelineLayout);
+    m_Pipelines[2].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_V).value;
 
-	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_I);
-	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_H);
-	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_V);
-	GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_S);
+    vk::ComputePipelineCreateInfo computePipeInfo_S =
+        vk::ComputePipelineCreateInfo().setStage(m_ShaderCreateInfos[3]).setLayout(m_Pipelines[3].m_PipelineLayout);
+    m_Pipelines[3].m_Pipeline = m_Device.createComputePipeline(nullptr, computePipeInfo_S).value;
 
-	return true;
+    GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_I);
+    GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_H);
+    GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_V);
+    GaiApi::VulkanCore::sVulkanShader->DestroyShaderModule((VkDevice)m_Device, cs_S);
+
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SdfTextureModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
-{
-	ZoneScoped;
+std::string SdfTextureModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/) {
+    ZoneScoped;
 
-	std::string str;
-	
-	return str;
+    std::string str;
+
+    return str;
 }
 
-bool SdfTextureModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
-{
-	ZoneScoped;
+bool SdfTextureModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	return true;
+    return true;
 }
 
-void SdfTextureModule_Comp_Pass::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void SdfTextureModule_Comp_Pass::AfterNodeXmlLoading() {
+    ZoneScoped;
 }

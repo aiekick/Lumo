@@ -14,7 +14,6 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-
 #pragma once
 
 #include <set>
@@ -49,42 +48,42 @@ limitations under the License.
 #include <Interfaces/SceneAudiArtInputInterface.h>
 #include <Interfaces/SceneAudiArtOutputInterface.h>
 
-class BlackmanFilterModule :
-	public NodeInterface,
-	public conf::ConfigAbstract,
-	public TaskInterface,
-	public SceneAudiArtInputInterface,
-	public SceneAudiArtOutputInterface,
-	public GuiInterface
-{
+class BlackmanFilterModule : public NodeInterface,
+                             public conf::ConfigAbstract,
+                             public TaskInterface,
+                             public SceneAudiArtInputInterface,
+                             public SceneAudiArtOutputInterface,
+                             public GuiInterface {
 public:
-	static std::shared_ptr<BlackmanFilterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<BlackmanFilterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<BlackmanFilterModule> m_This;
-	GaiApi::VulkanCoreWeak m_VulkanCore;
+    std::weak_ptr<BlackmanFilterModule> m_This;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	BlackmanFilterModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~BlackmanFilterModule();
+    BlackmanFilterModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~BlackmanFilterModule();
 
-	bool Init();
-	void Unit();
+    bool Init();
+    void Unit();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	// Interfaces Setters
-	void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
+    // Interfaces Setters
+    void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
 
-	// Interfaces Getters
-	SceneAudiArtWeak GetSceneAudiArt(const std::string& vName) override;
+    // Interfaces Getters
+    SceneAudiArtWeak GetSceneAudiArt(const std::string& vName) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 };

@@ -67,7 +67,9 @@ std::shared_ptr<PlanetModule> PlanetModule::Create(GaiApi::VulkanCoreWeak vVulka
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PlanetModule::PlanetModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) { ZoneScoped; }
+PlanetModule::PlanetModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
+    ZoneScoped;
+}
 
 PlanetModule::~PlanetModule() {
     ZoneScoped;
@@ -89,14 +91,16 @@ bool PlanetModule::Init() {
     if (BaseRenderer::InitPixel(map_size)) {
         // SetExecutionWhenNeededOnly(true);
         m_FrameBufferPtr = FrameBuffer::Create(m_VulkanCore);
-        if (m_FrameBufferPtr && m_FrameBufferPtr->Init(map_size, 3U, true, true, 0.0f, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
+        if (m_FrameBufferPtr &&
+            m_FrameBufferPtr->Init(map_size, 3U, true, true, 0.0f, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
             // ground pass
             m_PlanetModule_Ground_Mesh_Pass_Ptr = std::make_shared<PlanetModule_Ground_Mesh_Pass>(m_VulkanCore);
             if (m_PlanetModule_Ground_Mesh_Pass_Ptr) {
                 m_PlanetModule_Ground_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
                 m_PlanetModule_Ground_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
 
-                if (m_PlanetModule_Ground_Mesh_Pass_Ptr->InitPixelWithoutFBO(map_size, 3U, true, m_FrameBufferPtr->GetRenderPass(), vk::SampleCountFlagBits::e2)) {
+                if (m_PlanetModule_Ground_Mesh_Pass_Ptr->InitPixelWithoutFBO(
+                        map_size, 3U, true, m_FrameBufferPtr->GetRenderPass(), vk::SampleCountFlagBits::e2)) {
                     // m_PlanetModule_Ground_Mesh_Pass_Ptr->SetFrameBuffer(m_FrameBufferPtr);
                     AddGenericPass(m_PlanetModule_Ground_Mesh_Pass_Ptr);
                 } else {
@@ -110,7 +114,8 @@ bool PlanetModule::Init() {
                 m_PlanetModule_Water_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
                 m_PlanetModule_Water_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
 
-                if (m_PlanetModule_Water_Mesh_Pass_Ptr->InitPixelWithoutFBO(map_size, 3U, true, m_FrameBufferPtr->GetRenderPass(), vk::SampleCountFlagBits::e2)) {
+                if (m_PlanetModule_Water_Mesh_Pass_Ptr->InitPixelWithoutFBO(
+                        map_size, 3U, true, m_FrameBufferPtr->GetRenderPass(), vk::SampleCountFlagBits::e2)) {
                     // m_PlanetModule_Water_Mesh_Pass_Ptr->SetFrameBuffer(m_FrameBufferPtr);
                     AddGenericPass(m_PlanetModule_Water_Mesh_Pass_Ptr);
                 } else {
@@ -125,7 +130,8 @@ bool PlanetModule::Init() {
                 m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->AllowResizeOnResizeEvents(true);
                 m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->AllowResizeByHandOrByInputs(false);
 
-                if (m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->InitPixelWithoutFBO(map_size, 3U, true, m_FrameBufferPtr->GetRenderPass(), vk::SampleCountFlagBits::e2))
+                if (m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->InitPixelWithoutFBO(map_size, 3U, true, m_FrameBufferPtr->GetRenderPass(),
+            vk::SampleCountFlagBits::e2))
                 {
                     m_PlanetModule_Atmosphere_Mesh_Pass_Ptr->SetFrameBuffer(m_FrameBufferPtr);
                     AddGenericPass(m_PlanetModule_Atmosphere_Mesh_Pass_Ptr);
@@ -245,7 +251,8 @@ bool PlanetModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRe
     return false;
 }
 
-bool PlanetModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool PlanetModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);

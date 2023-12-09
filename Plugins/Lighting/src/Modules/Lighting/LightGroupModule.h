@@ -36,41 +36,41 @@ class LightGroupModule;
 typedef std::shared_ptr<LightGroupModule> LightGroupModulePtr;
 typedef std::weak_ptr<LightGroupModule> LightGroupModuleWeak;
 
-class LightGroupModule :
-	public conf::ConfigAbstract,
-	public NodeInterface,
-	public GuiInterface,
-	public LightGroupOutputInterface,
-	public TaskInterface
-{
+class LightGroupModule : public conf::ConfigAbstract,
+                         public NodeInterface,
+                         public GuiInterface,
+                         public LightGroupOutputInterface,
+                         public TaskInterface {
 public:
-	static LightGroupModulePtr Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static LightGroupModulePtr Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	LightGroupModuleWeak m_This;
-	SceneLightGroupPtr m_SceneLightGroupPtr = nullptr;
-	GaiApi::VulkanCoreWeak m_VulkanCore;
+    LightGroupModuleWeak m_This;
+    SceneLightGroupPtr m_SceneLightGroupPtr = nullptr;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
 
-private: // imgui
-	ct::fvec4 m_DefaultLightGroupColor = 1.0f;
-	// becasue by default there is one light
-	// and we must avoid adding a new one for nothing during xml parsing
-	// the second time, we check this var, adding a new light is ok
-	bool m_FirstXmlLightGroup = true;
-
-public:
-	LightGroupModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~LightGroupModule();
-
-	bool Init();
-	void Unit();
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	SceneLightGroupWeak GetLightGroup() override;
+private:  // imgui
+    ct::fvec4 m_DefaultLightGroupColor = 1.0f;
+    // becasue by default there is one light
+    // and we must avoid adding a new one for nothing during xml parsing
+    // the second time, we check this var, adding a new light is ok
+    bool m_FirstXmlLightGroup = true;
 
 public:
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    LightGroupModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~LightGroupModule();
+
+    bool Init();
+    void Unit();
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    SceneLightGroupWeak GetLightGroup() override;
+
+public:
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

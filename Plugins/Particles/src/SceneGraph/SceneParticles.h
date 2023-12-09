@@ -57,88 +57,85 @@ Before the emission we must reset :
 
 */
 
-class SceneParticles
-{
+class SceneParticles {
 public:
-	struct ParticleStruct
-	{
-		ct::fvec4 pos3_mass1;		// xyz::pos, w:mass
-		ct::fvec4 dir3_speed1;		// xyz:dirextion, w:speed
-		ct::fvec4 color4;			// rgba:color
-		ct::fvec2 life1_max_life1;	// x:life, y:max_life
-	};
+    struct ParticleStruct {
+        ct::fvec4 pos3_mass1;       // xyz::pos, w:mass
+        ct::fvec4 dir3_speed1;      // xyz:dirextion, w:speed
+        ct::fvec4 color4;           // rgba:color
+        ct::fvec2 life1_max_life1;  // x:life, y:max_life
+    };
 
-	struct CounterStruct
-	{
-		uint32_t alive_particles_count = 0U;
-		uint32_t pending_emission_count = 0U;
-	};
+    struct CounterStruct {
+        uint32_t alive_particles_count = 0U;
+        uint32_t pending_emission_count = 0U;
+    };
 
 public:
-	static SceneParticlesPtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
-	static std::string GetParticlesDatasBufferHeader(const uint32_t& vStartBindingPoint);
-	static std::string GetParticlesVertexInputBufferHeader();
-	static std::string GetAliveParticlesIndexBufferHeader(const uint32_t& vStartBindingPoint);
-	static std::string GetCounterBufferHeader(const uint32_t& vStartBindingPoint);
-	static VertexStruct::PipelineVertexInputState GetInputStateBeforePipelineCreation();
-	static std::string GetDrawIndirectCommandHeader(const uint32_t& vStartBindingPoint);
+    static SceneParticlesPtr Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::string GetParticlesDatasBufferHeader(const uint32_t& vStartBindingPoint);
+    static std::string GetParticlesVertexInputBufferHeader();
+    static std::string GetAliveParticlesIndexBufferHeader(const uint32_t& vStartBindingPoint);
+    static std::string GetCounterBufferHeader(const uint32_t& vStartBindingPoint);
+    static VertexStruct::PipelineVertexInputState GetInputStateBeforePipelineCreation();
+    static std::string GetDrawIndirectCommandHeader(const uint32_t& vStartBindingPoint);
 
 private:
-	SceneParticlesWeak m_This;
-	GaiApi::VulkanCoreWeak m_VulkanCore;
-	vk::DescriptorBufferInfo m_EmptyDescriptorBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    SceneParticlesWeak m_This;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
+    vk::DescriptorBufferInfo m_EmptyDescriptorBufferInfo = {VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
-	CounterStruct m_Counters;
-	VkDrawIndexedIndirectCommand m_IndexedIndirectCommand;
+    CounterStruct m_Counters;
+    VkDrawIndexedIndirectCommand m_IndexedIndirectCommand;
 
-	GpuOnlyStorageBufferPtr m_ParticlesDatasBufferPtr = nullptr;
-	GpuOnlyStorageBufferPtr m_AliveParticlesIndexBufferPtr = nullptr;
-	GpuOnlyStorageBufferPtr m_CountersBufferPtr = nullptr;
-	GpuOnlyStorageBufferPtr m_DrawArraysIndirectCommandBufferPtr = nullptr;
+    GpuOnlyStorageBufferPtr m_ParticlesDatasBufferPtr = nullptr;
+    GpuOnlyStorageBufferPtr m_AliveParticlesIndexBufferPtr = nullptr;
+    GpuOnlyStorageBufferPtr m_CountersBufferPtr = nullptr;
+    GpuOnlyStorageBufferPtr m_DrawArraysIndirectCommandBufferPtr = nullptr;
 
 public:
-	SceneParticles(GaiApi::VulkanCoreWeak vVulkanCore);
-	~SceneParticles();
+    SceneParticles(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~SceneParticles();
 
-	bool IsOk();
+    bool IsOk();
 
-	bool Build(const uint32_t& vPaticlesMaxCount);
+    bool Build(const uint32_t& vPaticlesMaxCount);
 
-	void DestroyBuffers();
+    void DestroyBuffers();
 
-	vk::DescriptorBufferInfo* GetParticlesDatasBufferInfo();
-	vk::DescriptorBufferInfo* GetAliveParticlesIndexBufferInfo();
-	vk::DescriptorBufferInfo* GetCountersBufferInfo(); 
-	vk::DescriptorBufferInfo* GetDrawIndirectCommandBufferInfo();
+    vk::DescriptorBufferInfo* GetParticlesDatasBufferInfo();
+    vk::DescriptorBufferInfo* GetAliveParticlesIndexBufferInfo();
+    vk::DescriptorBufferInfo* GetCountersBufferInfo();
+    vk::DescriptorBufferInfo* GetDrawIndirectCommandBufferInfo();
 
-	vk::Buffer* GetDrawIndirectCommandBuffer();
+    vk::Buffer* GetDrawIndirectCommandBuffer();
 
-	/// <summary>
-	/// will return the buffer (compatible vertex input for render)
-	/// and the particle count to render
-	/// </summary>
-	/// <returns></returns>
-	vk::Buffer* GetParticlesVertexInputBuffer();
+    /// <summary>
+    /// will return the buffer (compatible vertex input for render)
+    /// and the particle count to render
+    /// </summary>
+    /// <returns></returns>
+    vk::Buffer* GetParticlesVertexInputBuffer();
 
-	/// <summary>
-	/// will return the buffer (compatible index input for render)
-	/// and the particle count to render
-	/// </summary>
-	/// <returns></returns>
-	vk::Buffer* GetAliveParticlesIndexInputBuffer();
+    /// <summary>
+    /// will return the buffer (compatible index input for render)
+    /// and the particle count to render
+    /// </summary>
+    /// <returns></returns>
+    vk::Buffer* GetAliveParticlesIndexInputBuffer();
 
-	/// <summary>
-	/// will return counters from the gpu to cpu
-	/// </summary>
-	/// <returns></returns>
-	CounterStruct* GetCountersFromGPU();
+    /// <summary>
+    /// will return counters from the gpu to cpu
+    /// </summary>
+    /// <returns></returns>
+    CounterStruct* GetCountersFromGPU();
 
-	/// <summary>
-	/// will return counters from the gpu to cpu
-	/// </summary>
-	/// <returns></returns>
-	VkDrawIndexedIndirectCommand* GetDrawIndirectCommandFromGPU();
+    /// <summary>
+    /// will return counters from the gpu to cpu
+    /// </summary>
+    /// <returns></returns>
+    VkDrawIndexedIndirectCommand* GetDrawIndirectCommandFromGPU();
 
 private:
-	void Destroy();
+    void Destroy();
 };

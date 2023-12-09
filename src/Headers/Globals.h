@@ -10,11 +10,11 @@ typedef std::weak_ptr<MainBackend> MainBackendWeak;
 
 class MainFrontend;
 typedef std::shared_ptr<MainFrontend> MainFrontendPtr;
-typedef std::weak_ptr<MainFrontend>   MainFrontendWeak;
+typedef std::weak_ptr<MainFrontend> MainFrontendWeak;
 
 class ImGuiOverlay;
 typedef std::shared_ptr<ImGuiOverlay> ImGuiOverlayPtr;
-typedef std::weak_ptr<ImGuiOverlay>   ImGuiOverlayWeak;
+typedef std::weak_ptr<ImGuiOverlay> ImGuiOverlayWeak;
 
 // Colors for Debug Pass Name in RenderDoc
 #define QUAD_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.6f, 0.8f, 0.9f, 0.5f)

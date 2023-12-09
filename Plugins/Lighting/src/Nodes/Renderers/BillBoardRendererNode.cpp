@@ -36,100 +36,90 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<BillBoardRendererNode> BillBoardRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+std::shared_ptr<BillBoardRendererNode> BillBoardRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	auto res = std::make_shared<BillBoardRendererNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<BillBoardRendererNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
-BillBoardRendererNode::BillBoardRendererNode() : BaseNode()
-{
-	ZoneScoped;
+BillBoardRendererNode::BillBoardRendererNode() : BaseNode() {
+    ZoneScoped;
 
-	m_NodeTypeString = "BILLBOARD_RENDERER";
+    m_NodeTypeString = "BILLBOARD_RENDERER";
 }
 
-BillBoardRendererNode::~BillBoardRendererNode()
-{
-	ZoneScoped;
+BillBoardRendererNode::~BillBoardRendererNode() {
+    ZoneScoped;
 
-	Unit();
-}		
+    Unit();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BillBoardRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+bool BillBoardRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	name = "BillBoard Renderer";
-	AddInput(NodeSlotModelInput::Create("Mesh"), false, false);
-	AddInput(NodeSlotTextureInput::Create("Texture", 0), false, false);
+    name = "BillBoard Renderer";
+    AddInput(NodeSlotModelInput::Create("Mesh"), false, false);
+    AddInput(NodeSlotTextureInput::Create("Texture", 0), false, false);
 
-	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
-	AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
+    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
-	m_BillBoardRendererModulePtr = BillBoardRendererModule::Create(vVulkanCore, m_This);
-	if (m_BillBoardRendererModulePtr)
-	{
-		res = true;
-	}
+    m_BillBoardRendererModulePtr = BillBoardRendererModule::Create(vVulkanCore, m_This);
+    if (m_BillBoardRendererModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BillBoardRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool BillBoardRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
-	if (m_BillBoardRendererModulePtr)
-	{
-		res = m_BillBoardRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-	}
+    // for update input texture buffer infos => avoid vk crash
+    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    if (m_BillBoardRendererModulePtr) {
+        res = m_BillBoardRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    }
 
-	return res;
+    return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BillBoardRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool BillBoardRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_BillBoardRendererModulePtr)
-	{
-		res = m_BillBoardRendererModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+    if (m_BillBoardRendererModulePtr) {
+        res = m_BillBoardRendererModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return res;
+    return res;
 }
 
 bool BillBoardRendererNode::DrawOverlays(
@@ -142,14 +132,13 @@ bool BillBoardRendererNode::DrawOverlays(
 
 bool BillBoardRendererNode::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_BillBoardRendererModulePtr)
-	{
-		return m_BillBoardRendererModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    if (m_BillBoardRendererModulePtr) {
+        return m_BillBoardRendererModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
     return false;
 }
@@ -158,189 +147,158 @@ bool BillBoardRendererNode::DrawDialogsAndPopups(
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BillBoardRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+void BillBoardRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used[%s]\nCell[%i, %i]",
-				(used ? "true" : "false"), cell.x, cell.y);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used[%s]\nCell[%i, %i]", (used ? "true" : "false"), cell.x, cell.y);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BillBoardRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void BillBoardRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	if (m_BillBoardRendererModulePtr)
-	{
-		m_BillBoardRendererModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-	}
+    if (m_BillBoardRendererModulePtr) {
+        m_BillBoardRendererModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    }
 
-	// on fait ca apres
-	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // on fait ca apres
+    BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BillBoardRendererNode::SetModel(SceneModelWeak vSceneModel)
-{	
-	ZoneScoped;
+void BillBoardRendererNode::SetModel(SceneModelWeak vSceneModel) {
+    ZoneScoped;
 
-	if (m_BillBoardRendererModulePtr)
-	{
-		m_BillBoardRendererModulePtr->SetModel(vSceneModel);
-	}
+    if (m_BillBoardRendererModulePtr) {
+        m_BillBoardRendererModulePtr->SetModel(vSceneModel);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BillBoardRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void BillBoardRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_BillBoardRendererModulePtr)
-	{
-		m_BillBoardRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_BillBoardRendererModulePtr) {
+        m_BillBoardRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* BillBoardRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* BillBoardRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_BillBoardRendererModulePtr)
-	{
-		return m_BillBoardRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_BillBoardRendererModulePtr) {
+        return m_BillBoardRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak BillBoardRendererNode::GetShaderPasses(const uint32_t& vSlotID)
-{
-	if (m_BillBoardRendererModulePtr)
-	{
-		return m_BillBoardRendererModulePtr->GetShaderPasses(vSlotID);
-	}
+SceneShaderPassWeak BillBoardRendererNode::GetShaderPasses(const uint32_t& vSlotID) {
+    if (m_BillBoardRendererModulePtr) {
+        return m_BillBoardRendererModulePtr->GetShaderPasses(vSlotID);
+    }
 
-	return SceneShaderPassWeak();
+    return SceneShaderPassWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string BillBoardRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+std::string BillBoardRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string res;
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_BillBoardRendererModulePtr)
-		{
-			res += m_BillBoardRendererModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_BillBoardRendererModulePtr) {
+            res += m_BillBoardRendererModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool BillBoardRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+bool BillBoardRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_BillBoardRendererModulePtr)
-	{
-		m_BillBoardRendererModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_BillBoardRendererModulePtr) {
+        m_BillBoardRendererModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	// continue recurse child exploring
-	return true;
+    // continue recurse child exploring
+    return true;
 }
 
-void BillBoardRendererNode::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void BillBoardRendererNode::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_BillBoardRendererModulePtr)
-	{
-		m_BillBoardRendererModulePtr->AfterNodeXmlLoading();
-	}
+    if (m_BillBoardRendererModulePtr) {
+        m_BillBoardRendererModulePtr->AfterNodeXmlLoading();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BillBoardRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
-{	
-	ZoneScoped;
+void BillBoardRendererNode::UpdateShaders(const std::set<std::string>& vFiles) {
+    ZoneScoped;
 
-	if (m_BillBoardRendererModulePtr)
-	{
-		m_BillBoardRendererModulePtr->UpdateShaders(vFiles);
-	}
+    if (m_BillBoardRendererModulePtr) {
+        m_BillBoardRendererModulePtr->UpdateShaders(vFiles);
+    }
 }

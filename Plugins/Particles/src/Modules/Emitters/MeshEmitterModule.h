@@ -47,33 +47,33 @@ limitations under the License.
 #include <Interfaces/ParticlesOutputInterface.h>
 
 class MeshEmitterModule_Comp_Pass;
-class MeshEmitterModule :
-	public BaseRenderer,
-	public TaskInterface,
-	public NodeInterface,
-	public ModelInputInterface,
-	public ParticlesOutputInterface
-{
+class MeshEmitterModule : public BaseRenderer,
+                          public TaskInterface,
+                          public NodeInterface,
+                          public ModelInputInterface,
+                          public ParticlesOutputInterface {
 public:
-	static std::shared_ptr<MeshEmitterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<MeshEmitterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<MeshEmitterModule> m_This;
-	std::shared_ptr<MeshEmitterModule_Comp_Pass> m_MeshEmitterModule_Comp_Pass_Ptr = nullptr;
+    std::weak_ptr<MeshEmitterModule> m_This;
+    std::shared_ptr<MeshEmitterModule_Comp_Pass> m_MeshEmitterModule_Comp_Pass_Ptr = nullptr;
 
 public:
-	MeshEmitterModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~MeshEmitterModule() override;
+    MeshEmitterModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~MeshEmitterModule() override;
 
-	bool Init();
+    bool Init();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	SceneParticlesWeak GetParticles() override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+    SceneParticlesWeak GetParticles() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <Gaia/gaia.h>
 
 #include <ctools/cTools.h>
@@ -50,51 +48,51 @@ limitations under the License.
 
 class ShadowMapModule;
 
-class DeferredRenderer_Quad_Pass :
-	public QuadShaderPass,
-	
-	public TextureInputInterface<9U>,
-	public TextureOutputInterface
-{
+class DeferredRenderer_Quad_Pass : public QuadShaderPass,
+
+                                   public TextureInputInterface<9U>,
+                                   public TextureOutputInterface {
 private:
-	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
+    VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
+    vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
-	struct UBOFrag {
-		alignas(4) float use_sampler_position = 0.0f;		// position
-		alignas(4) float use_sampler_normal = 0.0f;			// normal
-		alignas(4) float use_sampler_albedo = 0.0f;			// albedo
-		alignas(4) float use_sampler_diffuse = 0.0f;		// diffuse
-		alignas(4) float use_sampler_specular = 0.0f;		// specular
-		alignas(4) float use_sampler_attenuation = 0.0f;	// attenuation
-		alignas(4) float use_sampler_mask = 0.0f;			// mask
-		alignas(4) float use_sampler_ssao = 0.0f;			// ao
-		alignas(4) float use_sampler_shadow = 0.0f;			// shadow
-	} m_UBOFrag;
+    struct UBOFrag {
+        alignas(4) float use_sampler_position = 0.0f;     // position
+        alignas(4) float use_sampler_normal = 0.0f;       // normal
+        alignas(4) float use_sampler_albedo = 0.0f;       // albedo
+        alignas(4) float use_sampler_diffuse = 0.0f;      // diffuse
+        alignas(4) float use_sampler_specular = 0.0f;     // specular
+        alignas(4) float use_sampler_attenuation = 0.0f;  // attenuation
+        alignas(4) float use_sampler_mask = 0.0f;         // mask
+        alignas(4) float use_sampler_ssao = 0.0f;         // ao
+        alignas(4) float use_sampler_shadow = 0.0f;       // shadow
+    } m_UBOFrag;
 
-	std::string m_VertexShaderCode;
-	std::string m_FragmentShaderCode;
+    std::string m_VertexShaderCode;
+    std::string m_FragmentShaderCode;
 
 public:
-	DeferredRenderer_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~DeferredRenderer_Quad_Pass() override;
+    DeferredRenderer_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~DeferredRenderer_Quad_Pass() override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
 private:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+    std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+    std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 };

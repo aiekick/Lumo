@@ -45,80 +45,73 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-VisuHexGridModule_Vertex_Pass::VisuHexGridModule_Vertex_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: VertexShaderPass(vVulkanCore)
-{
-	ZoneScoped;
+VisuHexGridModule_Vertex_Pass::VisuHexGridModule_Vertex_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : VertexShaderPass(vVulkanCore) {
+    ZoneScoped;
 
-	SetRenderDocDebugName("Vertex Pass : Visu Hex Grid", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+    SetRenderDocDebugName("Vertex Pass : Visu Hex Grid", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+    // m_DontUseShaderFilesOnDisk = true;
 }
 
-VisuHexGridModule_Vertex_Pass::~VisuHexGridModule_Vertex_Pass()
-{
-	ZoneScoped;
+VisuHexGridModule_Vertex_Pass::~VisuHexGridModule_Vertex_Pass() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
-void VisuHexGridModule_Vertex_Pass::ActionBeforeInit()
-{
-	ZoneScoped;
+void VisuHexGridModule_Vertex_Pass::ActionBeforeInit() {
+    ZoneScoped;
 
-	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+    // m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
-	//SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList); // display Triangles
-	//m_LineWidth.x = 0.5f;	// min value
-	//m_LineWidth.y = 10.0f;	// max value
-	//m_LineWidth.z = 2.0f;	// default value
-	//m_LineWidth.w;			// value to change
+    // SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList); // display Triangles
+    // m_LineWidth.x = 0.5f;	// min value
+    // m_LineWidth.y = 10.0f;	// max value
+    // m_LineWidth.z = 2.0f;	// default value
+    // m_LineWidth.w;			// value to change
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 }
 
-bool VisuHexGridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool VisuHexGridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	bool change = false;
+    bool change = false;
 
-	change |= DrawResizeWidget();
+    change |= DrawResizeWidget();
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name1", &m_UBO_Frag.u_Name1, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name2", &m_UBO_Vert.u_Name2, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name1", &m_UBO_Frag.u_Name1, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Name2", &m_UBO_Vert.u_Name2, 0.000f, 0.000f, 0.000f, 0.0f, "%.3f");
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
+    if (change) {
+        NeedNewUBOUpload();
+    }
 
-	return change;
+    return change;
 }
 
 bool VisuHexGridModule_Vertex_Pass::DrawOverlays(
     const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
 bool VisuHexGridModule_Vertex_Pass::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
@@ -127,138 +120,119 @@ bool VisuHexGridModule_Vertex_Pass::DrawDialogsAndPopups(
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void VisuHexGridModule_Vertex_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void VisuHexGridModule_Vertex_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
-					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
-				}
+                    NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
+                }
 
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
-			}
-			else {
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
+            } else {
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* VisuHexGridModule_Vertex_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* VisuHexGridModule_Vertex_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_FrameBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
-		}
+    if (m_FrameBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_FrameBufferPtr->GetOutputSize();
+        }
 
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void VisuHexGridModule_Vertex_Pass::WasJustResized()
-{
-	ZoneScoped;
+void VisuHexGridModule_Vertex_Pass::WasJustResized() {
+    ZoneScoped;
 }
 
+bool VisuHexGridModule_Vertex_Pass::CreateUBO() {
+    ZoneScoped;
 
-bool VisuHexGridModule_Vertex_Pass::CreateUBO()
-{
-	ZoneScoped;
+    m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "VisuHexGridModule_Vertex_Pass");
+    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBO_Frag_Ptr) {
+        m_UBO_Frag_BufferInfos.buffer = m_UBO_Frag_Ptr->buffer;
+        m_UBO_Frag_BufferInfos.range = sizeof(UBO_Frag);
+        m_UBO_Frag_BufferInfos.offset = 0;
+    }
 
-	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "VisuHexGridModule_Vertex_Pass");
-	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Frag_Ptr)
-	{
-		m_UBO_Frag_BufferInfos.buffer = m_UBO_Frag_Ptr->buffer;
-		m_UBO_Frag_BufferInfos.range = sizeof(UBO_Frag);
-		m_UBO_Frag_BufferInfos.offset = 0;
-	}
+    m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "VisuHexGridModule_Vertex_Pass");
+    m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBO_Vert_Ptr) {
+        m_UBO_Vert_BufferInfos.buffer = m_UBO_Vert_Ptr->buffer;
+        m_UBO_Vert_BufferInfos.range = sizeof(UBO_Vert);
+        m_UBO_Vert_BufferInfos.offset = 0;
+    }
 
-	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "VisuHexGridModule_Vertex_Pass");
-	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Vert_Ptr)
-	{
-		m_UBO_Vert_BufferInfos.buffer = m_UBO_Vert_Ptr->buffer;
-		m_UBO_Vert_BufferInfos.range = sizeof(UBO_Vert);
-		m_UBO_Vert_BufferInfos.offset = 0;
-	}
+    NeedNewUBOUpload();
 
-	NeedNewUBOUpload();
-
-	return true;
+    return true;
 }
 
-void VisuHexGridModule_Vertex_Pass::UploadUBO()
-{
-	ZoneScoped;
+void VisuHexGridModule_Vertex_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
-	VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
 }
 
-void VisuHexGridModule_Vertex_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void VisuHexGridModule_Vertex_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBO_Frag_Ptr.reset();
-	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBO_Frag_Ptr.reset();
+    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
-	m_UBO_Vert_Ptr.reset();
-	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBO_Vert_Ptr.reset();
+    m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool VisuHexGridModule_Vertex_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool VisuHexGridModule_Vertex_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
 
-	return res;
+    return res;
 }
 
-bool VisuHexGridModule_Vertex_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool VisuHexGridModule_Vertex_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Vert_BufferInfos);
-	
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Vert_BufferInfos);
+
+    return res;
 }
 
-std::string VisuHexGridModule_Vertex_Pass::GetVertexShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "VisuHexGridModule_Vertex_Pass_Vertex";
+std::string VisuHexGridModule_Vertex_Pass::GetVertexShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "VisuHexGridModule_Vertex_Pass_Vertex";
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -269,9 +243,8 @@ layout(std140, binding = 1) uniform UBO_Vert
 	float u_Name2;
 };
 
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
-u8R"(
+)" + CommonSystem::GetBufferObjectStructureHeader(0U) +
+           u8R"(
 layout(std140, binding = 1) uniform UBOStruct {
 	
 	float axisSize;
@@ -289,13 +262,12 @@ void main()
 	else gl_Position = cam * vec4(0,0,0,1);
 	vertColor = vec4(1,1,1,1);
 )";
-		}
+}
 
-std::string VisuHexGridModule_Vertex_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "VisuHexGridModule_Vertex_Pass_Fragment";
+std::string VisuHexGridModule_Vertex_Pass::GetFragmentShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "VisuHexGridModule_Vertex_Pass_Fragment";
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -312,60 +284,55 @@ void main()
 	fragColor = vertColor; 
 }
 )";
-		}
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string VisuHexGridModule_Vertex_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string VisuHexGridModule_Vertex_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
+    str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<name1>" + ct::toStr(m_UBO_Frag.u_Name1) + "</name1>\n";
-	str += vOffset + "<name2>" + ct::toStr(m_UBO_Vert.u_Name2) + "</name2>\n";
+    str += vOffset + "<name1>" + ct::toStr(m_UBO_Frag.u_Name1) + "</name1>\n";
+    str += vOffset + "<name2>" + ct::toStr(m_UBO_Vert.u_Name2) + "</name2>\n";
 
-	return str;
+    return str;
 }
 
-bool VisuHexGridModule_Vertex_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool VisuHexGridModule_Vertex_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "visu_hex_grid_module")
-	{
+    if (strParentName == "visu_hex_grid_module") {
+        if (strName == "name1")
+            m_UBO_Frag.u_Name1 = ct::fvariant(strValue).GetF();
+        else if (strName == "name2")
+            m_UBO_Vert.u_Name2 = ct::fvariant(strValue).GetF();
+    }
 
-		if (strName == "name1")
-			m_UBO_Frag.u_Name1 = ct::fvariant(strValue).GetF();
-		else if (strName == "name2")
-			m_UBO_Vert.u_Name2 = ct::fvariant(strValue).GetF();
-	}
-
-	return true;
+    return true;
 }
 
-void VisuHexGridModule_Vertex_Pass::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void VisuHexGridModule_Vertex_Pass::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	// code to do after end of the xml loading of this node
-	// by ex :
-	NeedNewUBOUpload();
+    // code to do after end of the xml loading of this node
+    // by ex :
+    NeedNewUBOUpload();
 }

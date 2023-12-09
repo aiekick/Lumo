@@ -99,7 +99,8 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(
                 ImGui::SameLine();
                 if (ImGui::ContrastedButton("Delete the Slot")) {
                     nodePtr->DestroySlotOfAnyMap(vNodeSlot);
-                    vChange = true;                }
+                    vChange = true;
+                }
 
                 if (m_SlotDisplayNameInputText.DisplayInputText(vSize.x, "Slot Name :", "New Slot")) {
                     slotPtr->name = m_SlotDisplayNameInputText.GetText();

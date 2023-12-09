@@ -26,28 +26,40 @@
 #ifndef TINYEXPR_H
 #define TINYEXPR_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-
 typedef struct te_expr {
     int type;
-    union {double value; const double *bound; const void *function;};
+    union {
+        double value;
+        const double *bound;
+        const void *function;
+    };
     void *parameters[1];
 } te_expr;
-
 
 enum {
     TE_VARIABLE = 0,
 
-    TE_FUNCTION0 = 8, TE_FUNCTION1, TE_FUNCTION2, TE_FUNCTION3,
-    TE_FUNCTION4, TE_FUNCTION5, TE_FUNCTION6, TE_FUNCTION7,
+    TE_FUNCTION0 = 8,
+    TE_FUNCTION1,
+    TE_FUNCTION2,
+    TE_FUNCTION3,
+    TE_FUNCTION4,
+    TE_FUNCTION5,
+    TE_FUNCTION6,
+    TE_FUNCTION7,
 
-    TE_CLOSURE0 = 16, TE_CLOSURE1, TE_CLOSURE2, TE_CLOSURE3,
-    TE_CLOSURE4, TE_CLOSURE5, TE_CLOSURE6, TE_CLOSURE7,
+    TE_CLOSURE0 = 16,
+    TE_CLOSURE1,
+    TE_CLOSURE2,
+    TE_CLOSURE3,
+    TE_CLOSURE4,
+    TE_CLOSURE5,
+    TE_CLOSURE6,
+    TE_CLOSURE7,
 
     TE_FLAG_PURE = 32
 };
@@ -58,8 +70,6 @@ typedef struct te_variable {
     int type;
     void *context;
 } te_variable;
-
-
 
 /* Parses the input expression, evaluates it, and frees it. */
 /* Returns NaN on error. */
@@ -78,7 +88,6 @@ void te_print(const te_expr *n);
 /* Frees the expression. */
 /* This is safe to call on NULL pointers. */
 void te_free(te_expr *n);
-
 
 #ifdef __cplusplus
 }

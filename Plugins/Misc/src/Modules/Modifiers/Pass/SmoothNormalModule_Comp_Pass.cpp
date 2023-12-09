@@ -36,228 +36,196 @@ using namespace GaiApi;
 //// SSAO FIRST PASS : AO ////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SmoothNormalModule_Comp_Pass::SmoothNormalModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: ShaderPass(vVulkanCore)
-{
-	SetRenderDocDebugName("Comp Pass : Smooth Normal", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+SmoothNormalModule_Comp_Pass::SmoothNormalModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {
+    SetRenderDocDebugName("Comp Pass : Smooth Normal", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-SmoothNormalModule_Comp_Pass::~SmoothNormalModule_Comp_Pass()
-{
-	Unit();
+SmoothNormalModule_Comp_Pass::~SmoothNormalModule_Comp_Pass() {
+    Unit();
 }
 
-void SmoothNormalModule_Comp_Pass::ActionBeforeInit()
-{
-	vk::PushConstantRange push_constant;
-	push_constant.offset = 0;
-	push_constant.size = sizeof(PushConstants);
-	push_constant.stageFlags = vk::ShaderStageFlagBits::eCompute;
+void SmoothNormalModule_Comp_Pass::ActionBeforeInit() {
+    vk::PushConstantRange push_constant;
+    push_constant.offset = 0;
+    push_constant.size = sizeof(PushConstants);
+    push_constant.stageFlags = vk::ShaderStageFlagBits::eCompute;
 
-	SetPushConstantRange(push_constant);
+    SetPushConstantRange(push_constant);
 }
 
-bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool SmoothNormalModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	ImGui::Header("Infos");
+    ImGui::Header("Infos");
 
-	auto modelPtr = m_SceneModel.lock();
-	if (modelPtr)
-	{
-		for (auto meshPtr : *modelPtr)
-		{
-			ImGui::Text("Mesh Vertice Count : %u", (uint32_t)meshPtr->GetVerticesCount());
-			if (meshPtr->HasIndices())
-			{
-				ImGui::Text("Mesh Indice Count : %u", (uint32_t)meshPtr->GetIndicesCount());
-			}
+    auto modelPtr = m_SceneModel.lock();
+    if (modelPtr) {
+        for (auto meshPtr : *modelPtr) {
+            ImGui::Text("Mesh Vertice Count : %u", (uint32_t)meshPtr->GetVerticesCount());
+            if (meshPtr->HasIndices()) {
+                ImGui::Text("Mesh Indice Count : %u", (uint32_t)meshPtr->GetIndicesCount());
+            }
 
-			ImGui::Header("Attibutes");
+            ImGui::Header("Attibutes");
 
-			ImGui::Text("[%s] Normals", meshPtr->HasNormals() ? "x" : " ");
-			ImGui::Text("[%s] Tangeants", meshPtr->HasTangeants() ? "x" : " ");
-			ImGui::Text("[%s] BiTangeants", meshPtr->HasBiTangeants() ? "x" : " ");
-			ImGui::Text("[%s] TextureCoords", meshPtr->HasTextureCoords() ? "x" : " ");
-			ImGui::Text("[%s] VertexColors", meshPtr->HasVertexColors() ? "x" : " ");
-			ImGui::Text("[%s] Indices", meshPtr->HasIndices() ? "x" : " ");
-		}
-	}
+            ImGui::Text("[%s] Normals", meshPtr->HasNormals() ? "x" : " ");
+            ImGui::Text("[%s] Tangeants", meshPtr->HasTangeants() ? "x" : " ");
+            ImGui::Text("[%s] BiTangeants", meshPtr->HasBiTangeants() ? "x" : " ");
+            ImGui::Text("[%s] TextureCoords", meshPtr->HasTextureCoords() ? "x" : " ");
+            ImGui::Text("[%s] VertexColors", meshPtr->HasVertexColors() ? "x" : " ");
+            ImGui::Text("[%s] Indices", meshPtr->HasIndices() ? "x" : " ");
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool SmoothNormalModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+bool SmoothNormalModule_Comp_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
 bool SmoothNormalModule_Comp_Pass::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	if (!m_Loaded) return;
-	if (!m_IsShaderCompiled) return;
+void SmoothNormalModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    if (!m_Loaded)
+        return;
+    if (!m_IsShaderCompiled)
+        return;
 
-	if (vCmdBufferPtr)
-	{
-		auto modelPtr = m_SceneModel.lock();
-		if (modelPtr)
-		{
-			for (auto meshPtr : *modelPtr)
-			{
-				m_InputMesh = meshPtr;
-				NeedNewModelUpdate();
-				UpdateModel(true);
-				UpdateRessourceDescriptor();
+    if (vCmdBufferPtr) {
+        auto modelPtr = m_SceneModel.lock();
+        if (modelPtr) {
+            for (auto meshPtr : *modelPtr) {
+                m_InputMesh = meshPtr;
+                NeedNewModelUpdate();
+                UpdateModel(true);
+                UpdateRessourceDescriptor();
 
-				vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+                vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 
-				vCmdBufferPtr->pipelineBarrier(
-					vk::PipelineStageFlagBits::eVertexInput,
-					vk::PipelineStageFlagBits::eComputeShader,
-					vk::DependencyFlags(),
-					nullptr,
-					nullptr,
-					nullptr);
+                vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eVertexInput, vk::PipelineStageFlagBits::eComputeShader,
+                    vk::DependencyFlags(), nullptr, nullptr, nullptr);
 
-				// le dispatch c'est les indices sur 3
-				SetDispatchSize1D(meshPtr->GetIndicesCount() / 3U);
-				ComputePass(vCmdBufferPtr, 0U); // add vertex normals
+                // le dispatch c'est les indices sur 3
+                SetDispatchSize1D(meshPtr->GetIndicesCount() / 3U);
+                ComputePass(vCmdBufferPtr, 0U);  // add vertex normals
 
-				// le dispatch c'est le nombre de vertexs
-				SetDispatchSize1D(meshPtr->GetVerticesCount());
-				ComputePass(vCmdBufferPtr, 1U); // normalize vertex normals
+                // le dispatch c'est le nombre de vertexs
+                SetDispatchSize1D(meshPtr->GetVerticesCount());
+                ComputePass(vCmdBufferPtr, 1U);  // normalize vertex normals
 
-				vCmdBufferPtr->pipelineBarrier(
-					vk::PipelineStageFlagBits::eComputeShader,
-					vk::PipelineStageFlagBits::eVertexInput,
-					vk::DependencyFlags(),
-					nullptr,
-					nullptr,
-					nullptr);
-			}
-		}
-	}
+                vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eVertexInput,
+                    vk::DependencyFlags(), nullptr, nullptr, nullptr);
+            }
+        }
+    }
 }
 
-void SmoothNormalModule_Comp_Pass::ComputePass(vk::CommandBuffer* vCmd, const uint32_t& vPassNumber)
-{
-	vCmd->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+void SmoothNormalModule_Comp_Pass::ComputePass(vk::CommandBuffer* vCmd, const uint32_t& vPassNumber) {
+    vCmd->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
 
-	m_PushConstants.pass_number = vPassNumber;
-	vCmd->pushConstants(m_Pipelines[0].m_PipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, sizeof(PushConstants), &m_PushConstants);
+    m_PushConstants.pass_number = vPassNumber;
+    vCmd->pushConstants(m_Pipelines[0].m_PipelineLayout, vk::ShaderStageFlagBits::eCompute, 0, sizeof(PushConstants), &m_PushConstants);
 
-	Dispatch(vCmd);
+    Dispatch(vCmd, ct::toStr("Iter %u : Compute", vPassNumber).c_str());
 }
 
-void SmoothNormalModule_Comp_Pass::SetModel(SceneModelWeak vSceneModel)
-{
-	ZoneScoped;
+void SmoothNormalModule_Comp_Pass::SetModel(SceneModelWeak vSceneModel) {
+    ZoneScoped;
 
-	m_SceneModel = vSceneModel;
+    m_SceneModel = vSceneModel;
 
-	NeedNewModelUpdate();
+    NeedNewModelUpdate();
 }
 
-SceneModelWeak SmoothNormalModule_Comp_Pass::GetModel()
-{
-	ZoneScoped;
+SceneModelWeak SmoothNormalModule_Comp_Pass::GetModel() {
+    ZoneScoped;
 
-	return m_SceneModel;
+    return m_SceneModel;
 }
 
-bool SmoothNormalModule_Comp_Pass::BuildModel()
-{
-	auto meshPtr = m_InputMesh.lock();
-	if (meshPtr)
-	{
-		m_SBO_Normals_Compute_Helper.reset();
+bool SmoothNormalModule_Comp_Pass::BuildModel() {
+    auto meshPtr = m_InputMesh.lock();
+    if (meshPtr) {
+        m_SBO_Normals_Compute_Helper.reset();
 
-		m_NormalDatas.clear();
-		m_NormalDatas.resize(meshPtr->GetVerticesCount() * 3U);
-		const auto sizeInBytes = sizeof(int) * m_NormalDatas.size();
-		memset(m_NormalDatas.data(), 0U, sizeInBytes);
-        m_SBO_Normals_Compute_Helper = VulkanRessource::createGPUOnlyStorageBufferObject(m_VulkanCore, m_NormalDatas.data(), sizeInBytes, "SmoothNormalModule_Comp_Pass");
-		if (m_SBO_Normals_Compute_Helper->buffer)
-		{
-			m_SBO_Normals_Compute_Helper_BufferInfos = vk::DescriptorBufferInfo{ m_SBO_Normals_Compute_Helper->buffer, 0, sizeInBytes };
-		}
-		else
-		{
-			m_SBO_Normals_Compute_Helper_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-		}
-	}
+        m_NormalDatas.clear();
+        m_NormalDatas.resize(meshPtr->GetVerticesCount() * 3U);
+        const auto sizeInBytes = sizeof(int) * m_NormalDatas.size();
+        memset(m_NormalDatas.data(), 0U, sizeInBytes);
+        m_SBO_Normals_Compute_Helper =
+            VulkanRessource::createGPUOnlyStorageBufferObject(m_VulkanCore, m_NormalDatas.data(), sizeInBytes, "SmoothNormalModule_Comp_Pass");
+        if (m_SBO_Normals_Compute_Helper->buffer) {
+            m_SBO_Normals_Compute_Helper_BufferInfos = vk::DescriptorBufferInfo{m_SBO_Normals_Compute_Helper->buffer, 0, sizeInBytes};
+        } else {
+            m_SBO_Normals_Compute_Helper_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+        }
+    }
 
-	return true;
+    return true;
 }
 
-void SmoothNormalModule_Comp_Pass::DestroyModel(const bool& vReleaseDatas)
-{
-	m_NormalDatas.clear();
-	m_SBO_Normals_Compute_Helper.reset();
-	m_SBO_Normals_Compute_Helper_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+void SmoothNormalModule_Comp_Pass::DestroyModel(const bool& vReleaseDatas) {
+    m_NormalDatas.clear();
+    m_SBO_Normals_Compute_Helper.reset();
+    m_SBO_Normals_Compute_Helper_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool SmoothNormalModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool SmoothNormalModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eCompute);
+    return res;
 }
 
-bool SmoothNormalModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool SmoothNormalModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
+    bool res = true;
 
-	auto inputMeshPtr = m_InputMesh.lock();
-	if (inputMeshPtr && inputMeshPtr->GetVerticesBufferInfo()->range > 0U)
-	{
-		// VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, inputMeshPtr->GetVerticesBufferInfo());
-		// VertexStruct::I1
-		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, inputMeshPtr->GetIndicesBufferInfo());
-		// Normals
-		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, &m_SBO_Normals_Compute_Helper_BufferInfos);
-	}
-	else {
+    auto inputMeshPtr = m_InputMesh.lock();
+    if (inputMeshPtr && inputMeshPtr->GetVerticesBufferInfo()->range > 0U) {
+        // VertexStruct::P3_N3_TA3_BTA3_T2_C4
+        res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, inputMeshPtr->GetVerticesBufferInfo());
+        // VertexStruct::I1
+        res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, inputMeshPtr->GetIndicesBufferInfo());
+        // Normals
+        res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, &m_SBO_Normals_Compute_Helper_BufferInfos);
+    } else {
         auto corePtr = m_VulkanCore.lock();
         assert(corePtr != nullptr);
 
-		// empty version, almost empty because his size is thr size of 1 VertexStruct::P3_N3_TA3_BTA3_T2_C4
-		res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, corePtr->getEmptyDescriptorBufferInfo());
-		// empty version, almost empty because his size is thr size of 1 VertexStruct::I1
-		res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, corePtr->getEmptyDescriptorBufferInfo());
-		// empty version, almost empty because his size is thr size of 1 uvec3
-		res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, corePtr->getEmptyDescriptorBufferInfo());
-	}
+        // empty version, almost empty because his size is thr size of 1 VertexStruct::P3_N3_TA3_BTA3_T2_C4
+        res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eStorageBuffer, corePtr->getEmptyDescriptorBufferInfo());
+        // empty version, almost empty because his size is thr size of 1 VertexStruct::I1
+        res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eStorageBuffer, corePtr->getEmptyDescriptorBufferInfo());
+        // empty version, almost empty because his size is thr size of 1 uvec3
+        res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eStorageBuffer, corePtr->getEmptyDescriptorBufferInfo());
+    }
 
-	return res;
+    return res;
 }
 
-std::string SmoothNormalModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "SmoothNormalModule_Comp_Pass";
+std::string SmoothNormalModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "SmoothNormalModule_Comp_Pass";
 
-	SetLocalGroupSize(1U);
+    SetLocalGroupSize(1U);
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -371,25 +339,23 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SmoothNormalModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
-{
-	std::string str;
+std::string SmoothNormalModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/) {
+    std::string str;
 
-	return str;
+    return str;
 }
 
-bool SmoothNormalModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
-{
-	// The value of this child identifies the name of this element
-	/*std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool SmoothNormalModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/) {
+    // The value of this child identifies the name of this element
+    /*std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();*/
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();*/
 
-	return true;
+    return true;
 }

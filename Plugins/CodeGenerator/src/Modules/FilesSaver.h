@@ -22,11 +22,9 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <Modules/GeneratorNode.h>
 
-class FilesSaver
-{
-public: // to save
-
-	std::string m_GenerationRootPath;
+class FilesSaver {
+public:  // to save
+    std::string m_GenerationRootPath;
 
 public:
     void GenerateGraphFiles(const GeneratorNodeWeak& vRootNode, const std::string& vRootPath);
@@ -35,10 +33,8 @@ private:
     void CustomSceneGraphItem(const std::string& vRootPath, const std::string& vSceneGraphItemName);
 
 public:
-	static FilesSaver* Instance()
-	{
-		static FilesSaver _instance;
-		return &_instance;
-	}
+    static FilesSaver* Instance() {
+        static FilesSaver _instance;
+        return &_instance;
+    }
 };
-

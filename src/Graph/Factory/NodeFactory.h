@@ -18,8 +18,7 @@ limitations under the License.
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
 
-class NodeFactory
-{
+class NodeFactory {
 public:
-	static BaseNodePtr CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType);
+    static BaseNodePtr CreateNode(BaseNodeWeak vNodeGraph, const std::string& vNodeType);
 };

@@ -47,260 +47,223 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Reflection_Quad_Pass::Reflection_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
-{
-	SetRenderDocDebugName("Quad Pass : Reflection", QUAD_SHADER_PASS_DEBUG_COLOR);
+Reflection_Quad_Pass::Reflection_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL) {
+    SetRenderDocDebugName("Quad Pass : Reflection", QUAD_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-Reflection_Quad_Pass::~Reflection_Quad_Pass()
-{
-	Unit();
+Reflection_Quad_Pass::~Reflection_Quad_Pass() {
+    Unit();
 }
 
 void Reflection_Quad_Pass::ActionBeforeInit() {
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 
-	for (auto& info : m_ImageCubeInfos)
-	{
-		info = *corePtr->getEmptyTextureCubeDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageCubeInfos) {
+        info = *corePtr->getEmptyTextureCubeDescriptorImageInfo();
+    }
 }
 
-bool Reflection_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+bool Reflection_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	ZoneScoped;
-
-	bool change = false;
-
-	//change |= DrawResizeWidget();
-
-	if (change)
-	{
-		//NeedNewUBOUpload();
-		//NeedNewSBOUpload();
-	}
-
-	return change;
-}
-
-bool Reflection_Quad_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+
+    bool change = false;
+
+    // change |= DrawResizeWidget();
+
+    if (change) {
+        // NeedNewUBOUpload();
+        // NeedNewSBOUpload();
+    }
+
+    return change;
+}
+
+bool Reflection_Quad_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool Reflection_Quad_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool Reflection_Quad_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void Reflection_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void Reflection_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
-					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
-				}
+                    NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
+                }
 
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if ((&m_UBOFrag.u_use_normal_map)[vBindingPoint] < 1.0f)
-				{
-					(&m_UBOFrag.u_use_normal_map)[vBindingPoint] = 1.0f;
-					NeedNewUBOUpload();
-				}
-			}
-			else
-			{
-				if ((&m_UBOFrag.u_use_normal_map)[vBindingPoint] > 0.0f)
-				{
-					(&m_UBOFrag.u_use_normal_map)[vBindingPoint] = 0.0f;
-					NeedNewUBOUpload();
-				}
+                if ((&m_UBOFrag.u_use_normal_map)[vBindingPoint] < 1.0f) {
+                    (&m_UBOFrag.u_use_normal_map)[vBindingPoint] = 1.0f;
+                    NeedNewUBOUpload();
+                }
+            } else {
+                if ((&m_UBOFrag.u_use_normal_map)[vBindingPoint] > 0.0f) {
+                    (&m_UBOFrag.u_use_normal_map)[vBindingPoint] = 0.0f;
+                    NeedNewUBOUpload();
+                }
 
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void Reflection_Quad_Pass::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void Reflection_Quad_Pass::SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageCubeInfos.size())
-		{
-			if (vImageCubeInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageCubeInfosSize[vBindingPoint] = *vTextureSize;
-				}
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageCubeInfos.size()) {
+            if (vImageCubeInfo) {
+                if (vTextureSize) {
+                    m_ImageCubeInfosSize[vBindingPoint] = *vTextureSize;
+                }
 
-				m_ImageCubeInfos[vBindingPoint] = *vImageCubeInfo;
+                m_ImageCubeInfos[vBindingPoint] = *vImageCubeInfo;
 
-				if (m_UBOFrag.u_use_cubemap_map < 1.0f)
-				{
-					m_UBOFrag.u_use_cubemap_map = 1.0f;
-					NeedNewUBOUpload();
-				}
-			}
-			else
-			{
-				if (m_UBOFrag.u_use_cubemap_map > 0.0f)
-				{
-					m_UBOFrag.u_use_cubemap_map = 0.0f;
-					NeedNewUBOUpload();
-				}
+                if (m_UBOFrag.u_use_cubemap_map < 1.0f) {
+                    m_UBOFrag.u_use_cubemap_map = 1.0f;
+                    NeedNewUBOUpload();
+                }
+            } else {
+                if (m_UBOFrag.u_use_cubemap_map > 0.0f) {
+                    m_UBOFrag.u_use_cubemap_map = 0.0f;
+                    NeedNewUBOUpload();
+                }
 
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageCubeInfos[vBindingPoint] = *corePtr->getEmptyTextureCubeDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageCubeInfos[vBindingPoint] = *corePtr->getEmptyTextureCubeDescriptorImageInfo();
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* Reflection_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* Reflection_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_FrameBufferPtr)
-	{
-		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
+    if (m_FrameBufferPtr) {
+        AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Reflection_Quad_Pass::WasJustResized()
-{
-	ZoneScoped;
+void Reflection_Quad_Pass::WasJustResized() {
+    ZoneScoped;
 }
 
-bool Reflection_Quad_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool Reflection_Quad_Pass::CreateUBO() {
+    ZoneScoped;
 
-	m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "Reflection_Quad_Pass");
-	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBOFragPtr)
-	{
-		m_UBO_Frag_BufferInfos.buffer = m_UBOFragPtr->buffer;
-		m_UBO_Frag_BufferInfos.range = sizeof(UBOFrag);
-		m_UBO_Frag_BufferInfos.offset = 0;
-	}
+    m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOFrag), "Reflection_Quad_Pass");
+    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBOFragPtr) {
+        m_UBO_Frag_BufferInfos.buffer = m_UBOFragPtr->buffer;
+        m_UBO_Frag_BufferInfos.range = sizeof(UBOFrag);
+        m_UBO_Frag_BufferInfos.offset = 0;
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void Reflection_Quad_Pass::UploadUBO()
-{
-	ZoneScoped;
+void Reflection_Quad_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+    VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void Reflection_Quad_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void Reflection_Quad_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOFragPtr.reset();
-	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBOFragPtr.reset();
+    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool Reflection_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool Reflection_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);			// camera
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);		// ubo frag
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);	// Nor
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);	// LongLat
-	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);	// CubeMap
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);           // camera
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);         // ubo frag
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);  // Nor
+    res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);  // LongLat
+    res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);  // CubeMap
+    return res;
 }
 
-bool Reflection_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool Reflection_Quad_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());	// camera
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);						// ubo frag
-	res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);						// Pos
-	res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);						// LongLat
-	res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler, &m_ImageCubeInfos[0]);					// CubeMap
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());  // camera
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);                    // ubo frag
+    res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);                     // Pos
+    res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);                     // LongLat
+    res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler, &m_ImageCubeInfos[0]);                 // CubeMap
+    return res;
 }
 
-std::string Reflection_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "Reflection_Quad_Pass_Vertex";
+std::string Reflection_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "Reflection_Quad_Pass_Vertex";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec2 vertPosition;
 layout(location = 1) in vec2 vertUv;
 layout(location = 0) out vec2 v_uv;
 layout(location = 1) out vec3 v_rd;
-)"
-+
-CommonSystem::Instance()->GetBufferObjectStructureHeader(0U)
-+
-u8R"(
+)" + CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
+           u8R"(
 vec3 getRayDirection(vec2 uv)
 {
 	uv = uv * 2.0 - 1.0;
@@ -321,11 +284,10 @@ void main()
 )";
 }
 
-std::string Reflection_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "Reflection_Quad_Pass_Fragment";
+std::string Reflection_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "Reflection_Quad_Pass_Fragment";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
@@ -384,38 +346,35 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string Reflection_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string Reflection_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
-	//str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
-	
-	return str;
+    str += ShaderPass::getXml(vOffset, vUserDatas);
+    // str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
+
+    return str;
 }
 
-bool Reflection_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool Reflection_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "reflection_module")
-	{
-		//if (strName == "mouse_radius")
-		//	m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
-	}
+    if (strParentName == "reflection_module") {
+        // if (strName == "mouse_radius")
+        //	m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
+    }
 
-	return true;
+    return true;
 }

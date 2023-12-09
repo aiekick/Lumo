@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -44,59 +42,49 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
-class Layering2DModule_Comp_Pass :
-	public ShaderPass,
-	
-	public TextureInputInterface<2U>,
-	public TextureOutputInterface
-{
-private:
-	std::vector<std::string> m_MethodNames =
-	{ 
-		"r", 
-		"g", 
-		"b", 
-		"a", 
-		"length(rg)", 
-		"length(rgb)" , 
-		"length(rga)" , 
-		"median(rgb)"
-	};
+class Layering2DModule_Comp_Pass : public ShaderPass,
 
-	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	vk::DescriptorBufferInfo m_UBOComp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	struct UBOComp {
-		alignas(4) int32_t method = 0;
-		alignas(4) float smoothness = 0.5f;
-		alignas(4) float use_input_color_buffer = 0.0f;
-		alignas(4) uint32_t layer_count = 50U;
-		alignas(4) float step_scale = 0.005f;
-		alignas(4) float center_offset_step = 2.0f;
-		alignas(8) ct::ivec2 image_size;
-		alignas(8) ct::ivec2 center_offset;
-	} m_UBOComp;
+                                   public TextureInputInterface<2U>,
+                                   public TextureOutputInterface {
+private:
+    std::vector<std::string> m_MethodNames = {"r", "g", "b", "a", "length(rg)", "length(rgb)", "length(rga)", "median(rgb)"};
+
+    VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
+    vk::DescriptorBufferInfo m_UBOComp_BufferInfos = {VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    struct UBOComp {
+        alignas(4) int32_t method = 0;
+        alignas(4) float smoothness = 0.5f;
+        alignas(4) float use_input_color_buffer = 0.0f;
+        alignas(4) uint32_t layer_count = 50U;
+        alignas(4) float step_scale = 0.005f;
+        alignas(4) float center_offset_step = 2.0f;
+        alignas(8) ct::ivec2 image_size;
+        alignas(8) ct::ivec2 center_offset;
+    } m_UBOComp;
 
 public:
-	Layering2DModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~Layering2DModule_Comp_Pass() override;
+    Layering2DModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~Layering2DModule_Comp_Pass() override;
 
-	void WasJustResized() override;
-	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void WasJustResized() override;
+    void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+    std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

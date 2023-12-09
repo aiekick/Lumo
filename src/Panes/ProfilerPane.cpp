@@ -88,7 +88,7 @@ bool ProfilerPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPan
             GaiApi::vkProfiler::Instance()->DrawFlamGraphNoWin();
         }
 
-        //MainFrame::sAnyWindowsHovered |= ImGui::IsWindowHovered();
+        // MainFrame::sAnyWindowsHovered |= ImGui::IsWindowHovered();
 
         ImGui::End();
 

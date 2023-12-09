@@ -36,9 +36,13 @@ extern "C"  // needed for avoid renaming of funcs by the compiler
 #define PLUGIN_PREFIX
 #endif
 
-PLUGIN_PREFIX CodeGenerator* allocator() { return new CodeGenerator(); }
+PLUGIN_PREFIX CodeGenerator* allocator() {
+    return new CodeGenerator();
+}
 
-PLUGIN_PREFIX void deleter(CodeGenerator* ptr) { delete ptr; }
+PLUGIN_PREFIX void deleter(CodeGenerator* ptr) {
+    delete ptr;
+}
 }
 
 CodeGenerator::CodeGenerator() {
@@ -64,29 +68,49 @@ void CodeGenerator::Unit() {
     m_NodeGraphPtr.reset();
 }
 
-bool CodeGenerator::AuthorizeLoading() { return true; }
+bool CodeGenerator::AuthorizeLoading() {
+    return true;
+}
 
-void CodeGenerator::ActionAfterInit() { 
+void CodeGenerator::ActionAfterInit() {
     CodeGeneratorPane::Instance()->setVulkanCore(m_VulkanCoreWeak);
 }
 
-uint32_t CodeGenerator::GetVersionMajor() const { return CodeGenerator_MinorNumber; }
+uint32_t CodeGenerator::GetVersionMajor() const {
+    return CodeGenerator_MinorNumber;
+}
 
-uint32_t CodeGenerator::GetVersionMinor() const { return CodeGenerator_MajorNumber; }
+uint32_t CodeGenerator::GetVersionMinor() const {
+    return CodeGenerator_MajorNumber;
+}
 
-uint32_t CodeGenerator::GetVersionBuild() const { return CodeGenerator_BuildNumber; }
+uint32_t CodeGenerator::GetVersionBuild() const {
+    return CodeGenerator_BuildNumber;
+}
 
-std::string CodeGenerator::GetName() const { return "CodeGenerator"; }
+std::string CodeGenerator::GetName() const {
+    return "CodeGenerator";
+}
 
-std::string CodeGenerator::GetVersion() const { return CodeGenerator_BuildId; }
+std::string CodeGenerator::GetVersion() const {
+    return CodeGenerator_BuildId;
+}
 
-std::string CodeGenerator::GetDescription() const { return "Nodes Code Generator plugin for developpers"; }
+std::string CodeGenerator::GetDescription() const {
+    return "Nodes Code Generator plugin for developpers";
+}
 
-std::vector<std::string> CodeGenerator::GetNodes() const { return {}; }
+std::vector<std::string> CodeGenerator::GetNodes() const {
+    return {};
+}
 
-std::vector<LibraryEntry> CodeGenerator::GetLibrary() const { return {}; }
+std::vector<LibraryEntry> CodeGenerator::GetLibrary() const {
+    return {};
+}
 
-BaseNodePtr CodeGenerator::CreatePluginNode(const std::string& vPluginNodeName) { return nullptr; }
+BaseNodePtr CodeGenerator::CreatePluginNode(const std::string& vPluginNodeName) {
+    return nullptr;
+}
 
 std::vector<PluginPaneConfig> CodeGenerator::GetPanes() const {
     std::vector<PluginPaneConfig> res;

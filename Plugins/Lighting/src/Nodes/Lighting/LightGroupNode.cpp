@@ -26,71 +26,60 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<LightGroupNode> LightGroupNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	auto res = std::make_shared<LightGroupNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<LightGroupNode> LightGroupNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<LightGroupNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
+    return res;
 }
 
-LightGroupNode::LightGroupNode() : BaseNode()
-{
-	m_NodeTypeString = "LIGHT_GROUP";
+LightGroupNode::LightGroupNode() : BaseNode() {
+    m_NodeTypeString = "LIGHT_GROUP";
 }
 
-LightGroupNode::~LightGroupNode()
-{
-
+LightGroupNode::~LightGroupNode() {
 }
 
-bool LightGroupNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	name = "Lights";
+bool LightGroupNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    name = "Lights";
 
-	AddOutput(NodeSlotLightGroupOutput::Create("Output"), true, true);
+    AddOutput(NodeSlotLightGroupOutput::Create("Output"), true, true);
 
-	bool res = false;
-	m_LightGroupModulePtr = LightGroupModule::Create(vVulkanCore, m_This);
-	if (m_LightGroupModulePtr)
-	{
-		res = true;
-	}
+    bool res = false;
+    m_LightGroupModulePtr = LightGroupModule::Create(vVulkanCore, m_This);
+    if (m_LightGroupModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
-bool LightGroupNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	if (m_LightGroupModulePtr)
-	{
-		return m_LightGroupModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-	}
+bool LightGroupNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    if (m_LightGroupModulePtr) {
+        return m_LightGroupModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    }
 
-	return false;
+    return false;
 }
 
-bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LightGroupModulePtr)
-	{
-		return m_LightGroupModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+    if (m_LightGroupModulePtr) {
+        return m_LightGroupModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return false;
+    return false;
 }
 
-bool LightGroupNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool LightGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LightGroupModulePtr)
-	{
+    if (m_LightGroupModulePtr) {
         return m_LightGroupModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
     }
     return false;
@@ -109,76 +98,62 @@ bool LightGroupNode::DrawDialogsAndPopups(
     return false;
 }
 
-SceneLightGroupWeak LightGroupNode::GetLightGroup()
-{
-	if (m_LightGroupModulePtr)
-	{
-		return m_LightGroupModulePtr->GetLightGroup();
-	}
+SceneLightGroupWeak LightGroupNode::GetLightGroup() {
+    if (m_LightGroupModulePtr) {
+        return m_LightGroupModulePtr->GetLightGroup();
+    }
 
-	return SceneLightGroupWeak();
+    return SceneLightGroupWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string LightGroupNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string res;
+std::string LightGroupNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_LightGroupModulePtr)
-		{
-			res += m_LightGroupModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_LightGroupModulePtr) {
+            res += m_LightGroupModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool LightGroupNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool LightGroupNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_LightGroupModulePtr)
-	{
-		m_LightGroupModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_LightGroupModulePtr) {
+        m_LightGroupModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }

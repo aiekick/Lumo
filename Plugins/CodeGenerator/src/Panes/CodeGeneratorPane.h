@@ -30,8 +30,8 @@ limitations under the License.
 #include <ctools/ConfigAbstract.h>
 
 class ProjectFile;
-class CodeGeneratorPane : public PluginPane,      //
-                          public NodeInterface,     //
+class CodeGeneratorPane : public PluginPane,     //
+                          public NodeInterface,  //
                           public conf::ConfigAbstract {
 private:
     GaiApi::VulkanCoreWeak m_VulkanCore;
@@ -51,28 +51,22 @@ private:
     std::vector<ImWidgets::InputText> m_CustomTypeInputTexts;
 
 public:
-	bool Init() override;
+    bool Init() override;
     void Unit() override;
-    bool DrawWidgets(const uint32_t& vCurrentFrame,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawPanes(const uint32_t& vCurrentFrame,
-        PaneFlags& vInOutPaneShown,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawPanes(
+        const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
     void SetNodeGraph(GeneratorNodeWeak vNodeGraph);
     void Select(BaseNodeWeak vObjet);
-    std::vector<ImWidgets::InputText> GetCustomTypeInputTexts() { return m_CustomTypeInputTexts; }
+    std::vector<ImWidgets::InputText> GetCustomTypeInputTexts() {
+        return m_CustomTypeInputTexts;
+    }
     void setVulkanCore(GaiApi::VulkanCoreWeak vVulkanCoreWeak);
-    
+
 private:
     void DrawContent();
     void DrawGraph();
@@ -84,18 +78,25 @@ private:
 public:  // configuration
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-    bool LoadNodeFromXML(BaseNodeWeak vBaseNodeWeak, tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vNodeName, const std::string& vNodeType, const ct::fvec2& vPos, const size_t& vNodeId);
+    bool LoadNodeFromXML(BaseNodeWeak vBaseNodeWeak,
+        tinyxml2::XMLElement* vElem,
+        tinyxml2::XMLElement* vParent,
+        const std::string& vNodeName,
+        const std::string& vNodeType,
+        const ct::fvec2& vPos,
+        const size_t& vNodeId);
 
-public: // singleton
-	static std::shared_ptr<CodeGeneratorPane> Instance()
-	{
-		static std::shared_ptr<CodeGeneratorPane> _instance = std::make_shared<CodeGeneratorPane>();
-		return _instance;
-	}
+public:  // singleton
+    static std::shared_ptr<CodeGeneratorPane> Instance() {
+        static std::shared_ptr<CodeGeneratorPane> _instance = std::make_shared<CodeGeneratorPane>();
+        return _instance;
+    }
 
 public:
-	CodeGeneratorPane(); // Prevent construction
-	CodeGeneratorPane(const CodeGeneratorPane&) = default; // Prevent construction by copying
-	CodeGeneratorPane& operator =(const CodeGeneratorPane&) { return *this; }; // Prevent assignment
-	~CodeGeneratorPane(); // Prevent unwanted destruction};
+    CodeGeneratorPane();                                    // Prevent construction
+    CodeGeneratorPane(const CodeGeneratorPane&) = default;  // Prevent construction by copying
+    CodeGeneratorPane& operator=(const CodeGeneratorPane&) {
+        return *this;
+    };                     // Prevent assignment
+    ~CodeGeneratorPane();  // Prevent unwanted destruction};
 };

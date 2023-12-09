@@ -23,32 +23,27 @@ class NodeSlotSceneAudiArtInput;
 typedef std::weak_ptr<NodeSlotSceneAudiArtInput> NodeSlotSceneAudiArtInputWeak;
 typedef std::shared_ptr<NodeSlotSceneAudiArtInput> NodeSlotSceneAudiArtInputPtr;
 
-class NodeSlotSceneAudiArtInput : 
-	public NodeSlotInput
-{
+class NodeSlotSceneAudiArtInput : public NodeSlotInput {
 public:
-	static NodeSlotSceneAudiArtInputPtr Create(NodeSlotSceneAudiArtInput vSlot);
-	static NodeSlotSceneAudiArtInputPtr Create(const std::string& vName);
-	static NodeSlotSceneAudiArtInputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotSceneAudiArtInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotSceneAudiArtInputPtr Create(NodeSlotSceneAudiArtInput vSlot);
+    static NodeSlotSceneAudiArtInputPtr Create(const std::string& vName);
+    static NodeSlotSceneAudiArtInputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotSceneAudiArtInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotSceneAudiArtInput();
-	explicit NodeSlotSceneAudiArtInput(const std::string& vName);
-	explicit NodeSlotSceneAudiArtInput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotSceneAudiArtInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotSceneAudiArtInput();
+    explicit NodeSlotSceneAudiArtInput();
+    explicit NodeSlotSceneAudiArtInput(const std::string& vName);
+    explicit NodeSlotSceneAudiArtInput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotSceneAudiArtInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotSceneAudiArtInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		NotifyEvent vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(NotifyEvent vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

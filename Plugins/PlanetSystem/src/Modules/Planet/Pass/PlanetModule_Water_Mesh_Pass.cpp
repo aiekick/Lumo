@@ -45,7 +45,8 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PlanetModule_Water_Mesh_Pass::PlanetModule_Water_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : MeshShaderPass<VertexStruct::P3_N3_C4>(vVulkanCore, MeshShaderPassType::PIXEL) {
+PlanetModule_Water_Mesh_Pass::PlanetModule_Water_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
+    : MeshShaderPass<VertexStruct::P3_N3_C4>(vVulkanCore, MeshShaderPassType::PIXEL) {
     ZoneScoped;
 
     SetRenderDocDebugName("Mesh Pass : Planet Water", MESH_SHADER_PASS_DEBUG_COLOR);
@@ -106,11 +107,13 @@ bool PlanetModule_Water_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, Im
             /*if (m_PrimitiveTopologiesIndex == 1 ||
                 m_PrimitiveTopologiesIndex == 2)
             {
-                need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Line Thickness", &m_LineWidth.w, m_LineWidth.x, m_LineWidth.y, m_LineWidth.z);
+                need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Line Thickness", &m_LineWidth.w, m_LineWidth.x, m_LineWidth.y,
+            m_LineWidth.z);
             }
             else if (m_PrimitiveTopologiesIndex == 0)
             {
-                need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "point_size", &m_UBO_Vert.u_point_size, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
+                need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "point_size", &m_UBO_Vert.u_point_size, 0.000f, 2.000f, 1.000f, 0.0f,
+            "%.3f");
             }*/
         }
 
@@ -122,7 +125,8 @@ bool PlanetModule_Water_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, Im
         if (!m_Vertices.m_Array.empty() && !m_Indices.m_Array.empty()) {
             need_ubos_update |= ImGui::CheckBoxBoolDefault("Use Indices Restriction##water", &m_UseIndiceRestriction, false);
             if (m_UseIndiceRestriction) {
-                need_ubos_update |= ImGui::SliderUIntDefaultCompact(0.0f, "count indices##water", &m_RestrictedIndicesCountToDraw, 0, (uint32_t)m_Indices.m_Array.size(), (uint32_t)m_Indices.m_Array.size());
+                need_ubos_update |= ImGui::SliderUIntDefaultCompact(0.0f, "count indices##water", &m_RestrictedIndicesCountToDraw, 0,
+                    (uint32_t)m_Indices.m_Array.size(), (uint32_t)m_Indices.m_Array.size());
             }
         }
 
@@ -137,8 +141,10 @@ bool PlanetModule_Water_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, Im
 
     if (ImGui::CollapsingHeader("Water : Mesh Tesselation")) {
         need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Radius##water", &m_UBO_Tess_Eval.u_radius, 0.0f, 10.0f, 1.0f);
-        need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Tesselation leve##water", &m_UBO_Tess_Ctrl.u_tesselation_level, 0.0f, 100.0f, 1.0f);
-        need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Displacement Factor##water", &m_UBO_Tess_Eval.u_displace_factor, 0.0f, 2.0f, 1.0f);
+        need_ubos_update |=
+            ImGui::SliderFloatDefaultCompact(0.0f, "Tesselation leve##water", &m_UBO_Tess_Ctrl.u_tesselation_level, 0.0f, 100.0f, 1.0f);
+        need_ubos_update |=
+            ImGui::SliderFloatDefaultCompact(0.0f, "Displacement Factor##water", &m_UBO_Tess_Eval.u_displace_factor, 0.0f, 2.0f, 1.0f);
         need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Normal Precision##water", &m_UBO_Tess_Eval.u_normal_prec, 0.0f, 0.1f, 0.01f);
     }
 
@@ -153,14 +159,16 @@ bool PlanetModule_Water_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, Im
     return need_ubos_update || need_model_update;
 }
 
-bool PlanetModule_Water_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool PlanetModule_Water_Mesh_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool PlanetModule_Water_Mesh_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool PlanetModule_Water_Mesh_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -222,7 +230,9 @@ vk::DescriptorImageInfo* PlanetModule_Water_Mesh_Pass::GetDescriptorImageInfo(co
 //// PUBLIC ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void PlanetModule_Water_Mesh_Pass::WasJustResized() { ZoneScoped; }
+void PlanetModule_Water_Mesh_Pass::WasJustResized() {
+    ZoneScoped;
+}
 
 void PlanetModule_Water_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) {
     ZoneScoped;
@@ -235,7 +245,8 @@ void PlanetModule_Water_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBuffer, cons
         {
             // VKFPScoped(*vCmdBuffer, "Model Renderer", "DrawModel");
 
-            vCmdBuffer->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+            vCmdBuffer->bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
             vk::DeviceSize offsets = 0;
             vCmdBuffer->bindVertexBuffers(0, m_Vertices.m_Buffer->buffer, offsets);
 
@@ -274,7 +285,8 @@ void PlanetModule_Water_Mesh_Pass::CreateCube() {
             0---------1
     */
 
-    static std::vector<uint32_t> cube_faces = {0, 1, 2, 0, 2, 3, 1, 5, 6, 1, 6, 2, 5, 4, 7, 5, 7, 6, 4, 0, 3, 4, 3, 7, 3, 2, 6, 3, 6, 7, 4, 5, 1, 4, 1, 0};
+    static std::vector<uint32_t> cube_faces = {
+        0, 1, 2, 0, 2, 3, 1, 5, 6, 1, 6, 2, 5, 4, 7, 5, 7, 6, 4, 0, 3, 4, 3, 7, 3, 2, 6, 3, 6, 7, 4, 5, 1, 4, 1, 0};
 
     assert(cube_points.size() == 8);
     assert(cube_faces.size() == 36);
@@ -302,7 +314,8 @@ void PlanetModule_Water_Mesh_Pass::CreateCube() {
     BuildMesh();
 }
 
-size_t PlanetModule_Water_Mesh_Pass::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, std::vector<VertexStruct::P3_N3_C4>& vVertices, CacheDB& vCache) {
+size_t PlanetModule_Water_Mesh_Pass::GetMiddlePoint_Plane(
+    const size_t& p1, const size_t& p2, std::vector<VertexStruct::P3_N3_C4>& vVertices, CacheDB& vCache) {
     if (p1 == p2) {
         CTOOL_DEBUG_BREAK;
     }
@@ -339,7 +352,8 @@ void PlanetModule_Water_Mesh_Pass::CalcNormal(VertexStruct::P3_N3_C4& v0, Vertex
     v2.n += nor;
 }
 
-void PlanetModule_Water_Mesh_Pass::Subdivide(const size_t& vSubdivLevel, std::vector<VertexStruct::P3_N3_C4>& vVertices, std::vector<TriFace>& vFaces) {
+void PlanetModule_Water_Mesh_Pass::Subdivide(
+    const size_t& vSubdivLevel, std::vector<VertexStruct::P3_N3_C4>& vVertices, std::vector<TriFace>& vFaces) {
     if (vSubdivLevel > 0) {
         CacheDB middlePointIndexCache;
 
@@ -477,14 +491,17 @@ bool PlanetModule_Water_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor() {
 
     bool res = true;
 
-    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eTessellationEvaluation);  // common system UBO
-    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);                                                     // vertex UBO
-    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eTessellationControl);                                        // tesselation control UBO
-    res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eTessellationEvaluation);                                     // tesselation evaluation UBO
-    res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);                                                   // fragment UBO
-    res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eTessellationEvaluation);                              // height
-    res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);                                            // normal
-    res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);                                            // color
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer,
+        vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eTessellationEvaluation);                   // common system UBO
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);  // vertex UBO
+    res &=
+        AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eTessellationControl);  // tesselation control UBO
+    res &= AddOrSetLayoutDescriptor(
+        3U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eTessellationEvaluation);                // tesselation evaluation UBO
+    res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);  // fragment UBO
+    res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eTessellationEvaluation);  // height
+    res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);                // normal
+    res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);                // color
 
     return res;
 }
@@ -496,12 +513,12 @@ bool PlanetModule_Water_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor() {
 
     res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());  // common system UBO
     res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Vert_BufferInfos);                    // vertex UBO
-    res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Tess_Ctrl_BufferInfos);               // tesselation control UBO
-    res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBO_Tess_Eval_BufferInfos);               // tesselation evaluation UBO
-    res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);                    // fragment UBO
-    res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);                     // height
-    res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);                     // normal
-    res &= AddOrSetWriteDescriptorImage(7U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]);                     // color
+    res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Tess_Ctrl_BufferInfos);  // tesselation control UBO
+    res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBO_Tess_Eval_BufferInfos);  // tesselation evaluation UBO
+    res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);       // fragment UBO
+    res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);        // height
+    res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);        // normal
+    res &= AddOrSetWriteDescriptorImage(7U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]);        // color
 
     return res;
 }

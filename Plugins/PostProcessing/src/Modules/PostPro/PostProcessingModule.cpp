@@ -143,7 +143,7 @@ bool PostProcessingModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::
 }
 
 void PostProcessingModule::UpdateDescriptorsBeforeCommandBuffer() {
-    // will connect active effects is there is at least two active effects 
+    // will connect active effects is there is at least two active effects
     m_FirstPassPtr = nullptr;
     m_LastPassPtr = nullptr;
     std::shared_ptr<TextureOutputInterface> _lastActivePassPtr = nullptr;
@@ -174,7 +174,7 @@ void PostProcessingModule::UpdateDescriptorsBeforeCommandBuffer() {
 
 void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) {
     // 1) BLOOM
-    if (m_BloomModule_Comp_2D_Pass_Ptr->IsEffectEnabled() && //
+    if (m_BloomModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_BloomModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_BloomModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
         vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
@@ -182,7 +182,7 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
     }
 
     // 2) BLUR
-    if (m_BlurModule_Comp_2D_Pass_Ptr->IsEffectEnabled() && //
+    if (m_BlurModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_BlurModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_BlurModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
         vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
@@ -190,7 +190,7 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
     }
 
     // 3) SHARPNESS
-    if (m_SharpnessModule_Comp_2D_Pass_Ptr->IsEffectEnabled() && //
+    if (m_SharpnessModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_SharpnessModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_SharpnessModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
         vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
@@ -198,7 +198,7 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
     }
 
     // 4) CHROMATIC ABERRATION
-    if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->IsEffectEnabled() && //
+    if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
         vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
@@ -206,7 +206,7 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
     }
 
     // 5) DILATION
-    if (m_DilationModule_Comp_2D_Pass_Ptr->IsEffectEnabled() && //
+    if (m_DilationModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_DilationModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_DilationModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
         vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
@@ -214,7 +214,7 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
     }
 
     // 6) TONE MAPPING
-    if (m_ToneMapModule_Comp_2D_Pass_Ptr->IsEffectEnabled() && //
+    if (m_ToneMapModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_ToneMapModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_ToneMapModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
         vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
@@ -222,7 +222,7 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
     }
 
     // 7) VIGNETTE
-    if (m_VignetteModule_Comp_2D_Pass_Ptr->IsEffectEnabled() && //
+    if (m_VignetteModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_VignetteModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_VignetteModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
         vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
@@ -304,7 +304,7 @@ void PostProcessingModule::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
         // will set the color to the input of the first active effect
         if (m_FirstPassPtr != nullptr) {
             m_FirstPassPtr->SetTexture(0U, vImageInfo, vTextureSize);
-        } 
+        }
         // in case there is no enabled effects
         if (vBindingPoint == 0 && vImageInfo != nullptr) {
             m_ImageInfos[0] = *vImageInfo;
@@ -322,7 +322,7 @@ vk::DescriptorImageInfo* PostProcessingModule::GetDescriptorImageInfo(const uint
     // will get the output of the last active effect
     if (m_LastPassPtr != nullptr) {
         return m_LastPassPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-    } else if (vBindingPoint == 0) { // no enabled effect, this module is passing
+    } else if (vBindingPoint == 0) {  // no enabled effect, this module is passing
         return &m_ImageInfos[0];
     }
 

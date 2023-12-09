@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -44,57 +42,56 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 
+class MathModule_Quad_Pass : public QuadShaderPass,
 
-class MathModule_Quad_Pass :
-	public QuadShaderPass,
-	
-	public TextureInputInterface<3U>,
-	public TextureOutputInterface,
-	public NodeInterface
-{
+                             public TextureInputInterface<3U>,
+                             public TextureOutputInterface,
+                             public NodeInterface {
 private:
-	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
-	vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
+    VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
+    vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;
 
-	struct UBOFrag {
-		alignas(4) int32_t u_Function_index = 0;
-		alignas(4) float u_use_input_0 = 0.0f;
-		alignas(4) float u_use_input_1 = 0.0f;
-		alignas(4) float u_use_input_2 = 0.0f;
-	} m_UBOFrag;
+    struct UBOFrag {
+        alignas(4) int32_t u_Function_index = 0;
+        alignas(4) float u_use_input_0 = 0.0f;
+        alignas(4) float u_use_input_1 = 0.0f;
+        alignas(4) float u_use_input_2 = 0.0f;
+    } m_UBOFrag;
 
-	typedef std::tuple<std::string, uint32_t, std::string, std::string, std::string> MathModuleEntry;
+    typedef std::tuple<std::string, uint32_t, std::string, std::string, std::string> MathModuleEntry;
 
-	std::vector<MathModuleEntry> m_Functions;
+    std::vector<MathModuleEntry> m_Functions;
 
 public:
-	MathModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~MathModule_Quad_Pass() override;
+    MathModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~MathModule_Quad_Pass() override;
 
-	void ActionBeforeInit() override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void ActionBeforeInit() override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
-	bool DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr) override;
-	uint32_t GetComponentCount();
-	std::string GetInputName(const uint32_t& vIdx);
+    bool DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr) override;
+    uint32_t GetComponentCount();
+    std::string GetInputName(const uint32_t& vIdx);
 
 protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+    std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+    std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 
-	bool DrawCombo(const float vWidth);
-	void ResizeToMaxOfTexturesIfNeeded();
+    bool DrawCombo(const float vWidth);
+    void ResizeToMaxOfTexturesIfNeeded();
 };

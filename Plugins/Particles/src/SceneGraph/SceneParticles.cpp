@@ -72,8 +72,6 @@ VertexStruct::PipelineVertexInputState SceneParticles::GetInputStateBeforePipeli
     inputState.binding.stride = sizeof(ParticleStruct);
     inputState.binding.inputRate = vk::VertexInputRate::eVertex;
 
-    uint32_t offset = 0;
-
     // xyz::pos, w:mass
     // xyz:direction, w:speed
     // rgba:color
@@ -117,7 +115,8 @@ VertexStruct::PipelineVertexInputState SceneParticles::GetInputStateBeforePipeli
         attrib.offset = offsetof(ParticleStruct, life1_max_life1);
     }
 
-    inputState.state = vk::PipelineVertexInputStateCreateInfo(vk::PipelineVertexInputStateCreateFlags(), 1, &inputState.binding, static_cast<uint32_t>(inputState.attributes.size()), inputState.attributes.data());
+    inputState.state = vk::PipelineVertexInputStateCreateInfo(vk::PipelineVertexInputStateCreateFlags(), 1, &inputState.binding,
+        static_cast<uint32_t>(inputState.attributes.size()), inputState.attributes.data());
 
     return inputState;
 }
@@ -171,22 +170,32 @@ SceneParticles::SceneParticles(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCor
     m_DrawArraysIndirectCommandBufferPtr = GpuOnlyStorageBuffer::Create(m_VulkanCore);
 }
 
-SceneParticles::~SceneParticles() { Destroy(); }
+SceneParticles::~SceneParticles() {
+    Destroy();
+}
 
 ///////////////////////////////////////////////////////
 //// SBO //////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool SceneParticles::IsOk() { return (m_ParticlesDatasBufferPtr != nullptr) && (m_AliveParticlesIndexBufferPtr != nullptr) && (m_CountersBufferPtr != nullptr) && (m_DrawArraysIndirectCommandBufferPtr != nullptr); }
+bool SceneParticles::IsOk() {
+    return (m_ParticlesDatasBufferPtr != nullptr) && (m_AliveParticlesIndexBufferPtr != nullptr) && (m_CountersBufferPtr != nullptr) &&
+           (m_DrawArraysIndirectCommandBufferPtr != nullptr);
+}
 
 bool SceneParticles::Build(const uint32_t& vPaticlesMaxCount) {
     if (vPaticlesMaxCount) {
-        if (m_ParticlesDatasBufferPtr && m_ParticlesDatasBufferPtr->CreateBuffer(sizeof(ParticleStruct), vPaticlesMaxCount, VMA_MEMORY_USAGE_GPU_ONLY, vk::BufferUsageFlagBits::eVertexBuffer)) {
-            if (m_AliveParticlesIndexBufferPtr && m_AliveParticlesIndexBufferPtr->CreateBuffer(sizeof(uint32_t), vPaticlesMaxCount, VMA_MEMORY_USAGE_GPU_ONLY, vk::BufferUsageFlagBits::eIndexBuffer)) {
+        if (m_ParticlesDatasBufferPtr && m_ParticlesDatasBufferPtr->CreateBuffer(sizeof(ParticleStruct), vPaticlesMaxCount, VMA_MEMORY_USAGE_GPU_ONLY,
+                                             vk::BufferUsageFlagBits::eVertexBuffer)) {
+            if (m_AliveParticlesIndexBufferPtr && m_AliveParticlesIndexBufferPtr->CreateBuffer(sizeof(uint32_t), vPaticlesMaxCount,
+                                                      VMA_MEMORY_USAGE_GPU_ONLY, vk::BufferUsageFlagBits::eIndexBuffer)) {
                 // for this one we will need to get on cpu side the counters for render the next frame of the simulator
                 // for limit the rendering to the alive particles only
-                if (m_CountersBufferPtr && m_CountersBufferPtr->CreateBuffer(sizeof(CounterStruct), 1U, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU)) {
-                    if (m_DrawArraysIndirectCommandBufferPtr && m_DrawArraysIndirectCommandBufferPtr->CreateBuffer(sizeof(VkDrawIndexedIndirectCommand), 1U, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU, vk::BufferUsageFlagBits::eIndirectBuffer)) {
+                if (m_CountersBufferPtr &&
+                    m_CountersBufferPtr->CreateBuffer(sizeof(CounterStruct), 1U, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU)) {
+                    if (m_DrawArraysIndirectCommandBufferPtr &&
+                        m_DrawArraysIndirectCommandBufferPtr->CreateBuffer(sizeof(VkDrawIndexedIndirectCommand), 1U,
+                            VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_TO_CPU, vk::BufferUsageFlagBits::eIndirectBuffer)) {
                         return true;
                     }
                 }

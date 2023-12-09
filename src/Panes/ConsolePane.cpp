@@ -6,7 +6,7 @@
 #include <ctools/FileHelper.h>
 #include <imgui_internal.h>
 #include <Frontend/MainFrontend.h>
-#include <cinttypes> // printf zu
+#include <cinttypes>  // printf zu
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -19,19 +19,15 @@
 static int SourcePane_WidgetId = 0;
 
 ConsolePane::ConsolePane() = default;
-ConsolePane::~ConsolePane()
-{
-	Unit();
+ConsolePane::~ConsolePane() {
+    Unit();
 }
 
-bool ConsolePane::Init()
-{
-	return true;
+bool ConsolePane::Init() {
+    return true;
 }
 
-void ConsolePane::Unit()
-{
-
+void ConsolePane::Unit() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -45,22 +41,15 @@ bool ConsolePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPane
     UNUSED(vUserDatas);
     bool change = false;
 
-	if (vInOutPaneShown & paneFlag)
-	{
-		static ImGuiWindowFlags flags =
-			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoBringToFrontOnFocus |
-			ImGuiWindowFlags_MenuBar;
-        if (ImGui::Begin<PaneFlags>(paneName.c_str(),
-			&vInOutPaneShown , paneFlag, flags)) {
+    if (vInOutPaneShown & paneFlag) {
+        static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
+        if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
-			auto win = ImGui::GetCurrentWindowRead();
-			if (win->Viewport->Idx != 0)
-				flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
-			else
-				flags =	ImGuiWindowFlags_NoCollapse |
-				ImGuiWindowFlags_NoBringToFrontOnFocus |
-				ImGuiWindowFlags_MenuBar;
+            auto win = ImGui::GetCurrentWindowRead();
+            if (win->Viewport->Idx != 0)
+                flags |= ImGuiWindowFlags_NoResize;  // | ImGuiWindowFlags_NoTitleBar;
+            else
+                flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
 #endif
             if (ImGui::BeginMenuBar()) {
 #ifdef WIN32
@@ -72,12 +61,12 @@ bool ConsolePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPane
             }
 
             Messaging::Instance()->DrawConsolePane();
-		}
+        }
 
-		ImGui::End();
-	}
+        ImGui::End();
+    }
 
-	return change;
+    return change;
 }
 
 bool ConsolePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
@@ -89,7 +78,8 @@ bool ConsolePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRec
     return false;
 }
 
-bool ConsolePane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ConsolePane::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vMaxSize);
@@ -103,5 +93,5 @@ bool ConsolePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
     UNUSED(vCurrentFrame);
     ImGui::SetCurrentContext(vContextPtr);
     UNUSED(vUserDatas);
-	return false;
+    return false;
 }

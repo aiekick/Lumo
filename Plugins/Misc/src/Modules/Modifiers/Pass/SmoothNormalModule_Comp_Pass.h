@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -43,47 +41,44 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>
 
-class SmoothNormalModule_Comp_Pass : 
-	public ShaderPass,
-	public ModelInputInterface,
-	public ModelOutputInterface
-{
+class SmoothNormalModule_Comp_Pass : public ShaderPass, public ModelInputInterface, public ModelOutputInterface {
 private:
-	SceneMeshWeak m_InputMesh;
+    SceneMeshWeak m_InputMesh;
 
-	VulkanBufferObjectPtr m_SBO_Normals_Compute_Helper = nullptr;
-	vk::DescriptorBufferInfo m_SBO_Normals_Compute_Helper_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    VulkanBufferObjectPtr m_SBO_Normals_Compute_Helper = nullptr;
+    vk::DescriptorBufferInfo m_SBO_Normals_Compute_Helper_BufferInfos = {VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
-	std::vector<int> m_NormalDatas; // 3 components
+    std::vector<int> m_NormalDatas;  // 3 components
 
-	struct PushConstants {
-		uint32_t pass_number;
-	} m_PushConstants;
+    struct PushConstants {
+        uint32_t pass_number;
+    } m_PushConstants;
 
 public:
-	SmoothNormalModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~SmoothNormalModule_Comp_Pass() override;
+    SmoothNormalModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~SmoothNormalModule_Comp_Pass() override;
 
-	void ActionBeforeInit();
-	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	SceneModelWeak GetModel() override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void ActionBeforeInit();
+    void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+    SceneModelWeak GetModel() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
-	bool BuildModel() override;
-	void DestroyModel(const bool& vReleaseDatas = false) override;
+    bool BuildModel() override;
+    void DestroyModel(const bool& vReleaseDatas = false) override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+    std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 
 private:
-	void ComputePass(vk::CommandBuffer* vCmd, const uint32_t& vPassNumber);
-
+    void ComputePass(vk::CommandBuffer* vCmd, const uint32_t& vPassNumber);
 };

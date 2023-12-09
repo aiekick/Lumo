@@ -47,8 +47,7 @@ using namespace GaiApi;
 ///// STATIC /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SSReflectionModule_Comp_2D_Pass> SSReflectionModule_Comp_2D_Pass::Create(
-    const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+std::shared_ptr<SSReflectionModule_Comp_2D_Pass> SSReflectionModule_Comp_2D_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
     auto res_ptr = std::make_shared<SSReflectionModule_Comp_2D_Pass>(vVulkanCore);
     if (!res_ptr->InitCompute2D(vSize, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
         res_ptr.reset();
@@ -63,7 +62,7 @@ std::shared_ptr<SSReflectionModule_Comp_2D_Pass> SSReflectionModule_Comp_2D_Pass
 SSReflectionModule_Comp_2D_Pass::SSReflectionModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : EffectPass(vVulkanCore) {
     ZoneScoped;
     SetRenderDocDebugName("Comp Pass : SS Reflection", COMPUTE_SHADER_PASS_DEBUG_COLOR);
-    //m_DontUseShaderFilesOnDisk = true;
+    // m_DontUseShaderFilesOnDisk = true;
 }
 
 SSReflectionModule_Comp_2D_Pass::~SSReflectionModule_Comp_2D_Pass() {
@@ -128,7 +127,8 @@ void SSReflectionModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, 
                 if (vTextureSize) {
                     m_ImageInfosSize[vBindingPoint] = *vTextureSize;
                     if (*IsEffectEnabled()) {
-                        NeedResizeByHandIfChanged(m_ImageInfosSize[0]);  // the output is the size of the inputpos and nor must have the same size, but noise no
+                        NeedResizeByHandIfChanged(
+                            m_ImageInfosSize[0]);  // the output is the size of the inputpos and nor must have the same size, but noise no
                     }
                 }
                 m_ImageInfos[vBindingPoint] = *vImageInfo;
@@ -177,9 +177,7 @@ void SSReflectionModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, 
         vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
         vCmdBufferPtr->bindDescriptorSets(
             vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-        for (uint32_t iter = 0; iter < m_CountIterations.w; iter++) {
-            Dispatch(vCmdBufferPtr);
-        }
+        Dispatch(vCmdBufferPtr, "Compute");
     }
 }
 
@@ -243,11 +241,8 @@ std::string SSReflectionModule_Comp_2D_Pass::GetComputeShaderCode(std::string& v
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
-)" 
-+ 
-CommonSystem::Instance()->GetBufferObjectStructureHeader(0U)
-+
-u8R"(
+)" + CommonSystem::Instance()->GetBufferObjectStructureHeader(0U) +
+           u8R"(
 layout(std140, binding = 1) uniform UBO_Comp {
 	float u_max_distance; // default is 8
 	float u_resolution; // default is 0.3

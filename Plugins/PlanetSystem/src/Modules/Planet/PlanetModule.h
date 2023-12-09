@@ -51,51 +51,51 @@ limitations under the License.
 class PlanetModule_Water_Mesh_Pass;
 class PlanetModule_Ground_Mesh_Pass;
 class PlanetModule_Atmosphere_Mesh_Pass;
-class PlanetModule :
-	public NodeInterface,
-	public BaseRenderer,	
-	public TaskInterface,
-	public TextureInputInterface<0U>,
-	public TextureOutputInterface
-{
+class PlanetModule : public NodeInterface,
+                     public BaseRenderer,
+                     public TaskInterface,
+                     public TextureInputInterface<0U>,
+                     public TextureOutputInterface {
 public:
-	static std::shared_ptr<PlanetModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<PlanetModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<PlanetModule> m_This;
-	std::shared_ptr<PlanetModule_Ground_Mesh_Pass> m_PlanetModule_Ground_Mesh_Pass_Ptr = nullptr;
-	std::shared_ptr<PlanetModule_Atmosphere_Mesh_Pass> m_PlanetModule_Atmosphere_Mesh_Pass_Ptr = nullptr;
-	std::shared_ptr<PlanetModule_Water_Mesh_Pass> m_PlanetModule_Water_Mesh_Pass_Ptr = nullptr;
-	FrameBufferPtr m_FrameBufferPtr = nullptr;
+    std::weak_ptr<PlanetModule> m_This;
+    std::shared_ptr<PlanetModule_Ground_Mesh_Pass> m_PlanetModule_Ground_Mesh_Pass_Ptr = nullptr;
+    std::shared_ptr<PlanetModule_Atmosphere_Mesh_Pass> m_PlanetModule_Atmosphere_Mesh_Pass_Ptr = nullptr;
+    std::shared_ptr<PlanetModule_Water_Mesh_Pass> m_PlanetModule_Water_Mesh_Pass_Ptr = nullptr;
+    FrameBufferPtr m_FrameBufferPtr = nullptr;
 
 public:
-	PlanetModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~PlanetModule() override;
+    PlanetModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~PlanetModule() override;
 
-	bool Init();
+    bool Init();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	void RenderShaderPasses(vk::CommandBuffer* vCmdBuffer) override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    void RenderShaderPasses(vk::CommandBuffer* vCmdBuffer) override;
 
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	bool ResizeIfNeeded() override;
+    void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    bool ResizeIfNeeded() override;
 
-	// Interfaces Setters
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
+    // Interfaces Setters
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 
 private:
-	void CreateCube();
+    void CreateCube();
 };

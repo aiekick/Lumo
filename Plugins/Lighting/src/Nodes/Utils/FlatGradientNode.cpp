@@ -35,104 +35,93 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<FlatGradientNode> FlatGradientNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+std::shared_ptr<FlatGradientNode> FlatGradientNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	auto res = std::make_shared<FlatGradientNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<FlatGradientNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
-FlatGradientNode::FlatGradientNode() : BaseNode()
-{
-	ZoneScoped;
+FlatGradientNode::FlatGradientNode() : BaseNode() {
+    ZoneScoped;
 
-	m_NodeTypeString = "FLAT_GRADIENT";
+    m_NodeTypeString = "FLAT_GRADIENT";
 }
 
-FlatGradientNode::~FlatGradientNode()
-{
-	ZoneScoped;
+FlatGradientNode::~FlatGradientNode() {
+    ZoneScoped;
 
-	Unit();
-}		
+    Unit();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool FlatGradientNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+bool FlatGradientNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	name = "Flat Gradient";
-	AddInput(NodeSlotTextureInput::Create("Start", 0), false, false);
-	AddInput(NodeSlotTextureInput::Create("End", 1), false, false);
-	//AddInput(NodeSlotVariableInput::Create("Count", "WIDGET_UINT", 0), false, false);
+    name = "Flat Gradient";
+    AddInput(NodeSlotTextureInput::Create("Start", 0), false, false);
+    AddInput(NodeSlotTextureInput::Create("End", 1), false, false);
+    // AddInput(NodeSlotVariableInput::Create("Count", "WIDGET_UINT", 0), false, false);
 
-	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_FlatGradientModulePtr = FlatGradientModule::Create(vVulkanCore, m_This);
-	if (m_FlatGradientModulePtr)
-	{
-		res = true;
-	}
+    m_FlatGradientModulePtr = FlatGradientModule::Create(vVulkanCore, m_This);
+    if (m_FlatGradientModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool FlatGradientNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool FlatGradientNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
-	if (m_FlatGradientModulePtr)
-	{
-		res = m_FlatGradientModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-	}
+    // for update input texture buffer infos => avoid vk crash
+    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    if (m_FlatGradientModulePtr) {
+        res = m_FlatGradientModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    }
 
-	return res;
+    return res;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool FlatGradientNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool FlatGradientNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_FlatGradientModulePtr)
-	{
-		res = m_FlatGradientModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+    if (m_FlatGradientModulePtr) {
+        res = m_FlatGradientModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return res;
+    return res;
 }
 
-bool FlatGradientNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool FlatGradientNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -141,13 +130,12 @@ bool FlatGradientNode::DrawOverlays(
 
 bool FlatGradientNode::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_FlatGradientModulePtr)
-	{
+    if (m_FlatGradientModulePtr) {
         return m_FlatGradientModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
 
@@ -158,175 +146,146 @@ bool FlatGradientNode::DrawDialogsAndPopups(
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+void FlatGradientNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used[%s]\nCell[%i, %i]",
-				(used ? "true" : "false"), cell.x, cell.y);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used[%s]\nCell[%i, %i]", (used ? "true" : "false"), cell.x, cell.y);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void FlatGradientNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	if (m_FlatGradientModulePtr)
-	{
-		m_FlatGradientModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-	}
+    if (m_FlatGradientModulePtr) {
+        m_FlatGradientModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    }
 
-	// on fait ca apres
-	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // on fait ca apres
+    BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void FlatGradientNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_FlatGradientModulePtr)
-	{
-		m_FlatGradientModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_FlatGradientModulePtr) {
+        m_FlatGradientModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
-{	
-	ZoneScoped;
+void FlatGradientNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+    ZoneScoped;
 
-	if (m_FlatGradientModulePtr)
-	{
-		m_FlatGradientModulePtr->SetVariable(vVarIndex, vSceneVariable);
-	}
+    if (m_FlatGradientModulePtr) {
+        m_FlatGradientModulePtr->SetVariable(vVarIndex, vSceneVariable);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* FlatGradientNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* FlatGradientNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_FlatGradientModulePtr)
-	{
-		return m_FlatGradientModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_FlatGradientModulePtr) {
+        return m_FlatGradientModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string FlatGradientNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+std::string FlatGradientNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string res;
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_FlatGradientModulePtr)
-		{
-			res += m_FlatGradientModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_FlatGradientModulePtr) {
+            res += m_FlatGradientModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool FlatGradientNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+bool FlatGradientNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_FlatGradientModulePtr)
-	{
-		m_FlatGradientModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_FlatGradientModulePtr) {
+        m_FlatGradientModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	// continue recurse child exploring
-	return true;
+    // continue recurse child exploring
+    return true;
 }
 
-void FlatGradientNode::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void FlatGradientNode::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_FlatGradientModulePtr)
-	{
-		m_FlatGradientModulePtr->AfterNodeXmlLoading();
-	}
+    if (m_FlatGradientModulePtr) {
+        m_FlatGradientModulePtr->AfterNodeXmlLoading();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientNode::UpdateShaders(const std::set<std::string>& vFiles)
-{	
-	ZoneScoped;
+void FlatGradientNode::UpdateShaders(const std::set<std::string>& vFiles) {
+    ZoneScoped;
 
-	if (m_FlatGradientModulePtr)
-	{
-		m_FlatGradientModulePtr->UpdateShaders(vFiles);
-	}
+    if (m_FlatGradientModulePtr) {
+        m_FlatGradientModulePtr->UpdateShaders(vFiles);
+    }
 }

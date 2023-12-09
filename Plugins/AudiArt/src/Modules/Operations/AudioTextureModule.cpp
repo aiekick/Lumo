@@ -48,242 +48,213 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<AudioTextureModule> AudioTextureModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<AudioTextureModule> AudioTextureModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<AudioTextureModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<AudioTextureModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-AudioTextureModule::AudioTextureModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-	ZoneScoped;
+AudioTextureModule::AudioTextureModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
+    ZoneScoped;
 }
 
-AudioTextureModule::~AudioTextureModule()
-{
-	ZoneScoped;
+AudioTextureModule::~AudioTextureModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool AudioTextureModule::Init()
-{
-	ZoneScoped;
+bool AudioTextureModule::Init() {
+    ZoneScoped;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	ct::uvec2 map_size = 512;
+    ct::uvec2 map_size = 512;
 
-	if (BaseRenderer::InitCompute2D(map_size))
-	{
-		//SetExecutionWhenNeededOnly(true);
+    if (BaseRenderer::InitCompute2D(map_size)) {
+        // SetExecutionWhenNeededOnly(true);
 
-		m_AudioTextureModule_Comp_2D_Pass_Ptr = std::make_shared<AudioTextureModule_Comp_2D_Pass>(m_VulkanCore);
-		if (m_AudioTextureModule_Comp_2D_Pass_Ptr)
-		{
-			// by default but can be changed via widget
-			//m_AudioTextureModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
-			//m_AudioTextureModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(true);
+        m_AudioTextureModule_Comp_2D_Pass_Ptr = std::make_shared<AudioTextureModule_Comp_2D_Pass>(m_VulkanCore);
+        if (m_AudioTextureModule_Comp_2D_Pass_Ptr) {
+            // by default but can be changed via widget
+            // m_AudioTextureModule_Comp_2D_Pass_Ptr->AllowResizeOnResizeEvents(false);
+            // m_AudioTextureModule_Comp_2D_Pass_Ptr->AllowResizeByHandOrByInputs(true);
 
-			if (m_AudioTextureModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_AudioTextureModule_Comp_2D_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+            if (m_AudioTextureModule_Comp_2D_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
+                AddGenericPass(m_AudioTextureModule_Comp_2D_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool AudioTextureModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool AudioTextureModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Audio Texture", vCmd);
+    BaseRenderer::Render("Audio Texture", vCmd);
 
-	return true;
+    return true;
 }
 
-bool AudioTextureModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool AudioTextureModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Audio Texture", vCmd);
+    BaseRenderer::Render("Audio Texture", vCmd);
 
-	return true;
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AudioTextureModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool AudioTextureModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Audio Texture##AudioTextureModule", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Audio Texture##AudioTextureModule", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			if (m_AudioTextureModule_Comp_2D_Pass_Ptr)
-			{
-				change |= m_AudioTextureModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+            if (m_AudioTextureModule_Comp_2D_Pass_Ptr) {
+                change |= m_AudioTextureModule_Comp_2D_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool AudioTextureModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+bool AudioTextureModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
 bool AudioTextureModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
-void AudioTextureModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void AudioTextureModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	// do some code
-	
-	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // do some code
+
+    BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void AudioTextureModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt)
-{	
-	ZoneScoped;
+void AudioTextureModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+    ZoneScoped;
 
-	if (m_AudioTextureModule_Comp_2D_Pass_Ptr)
-	{
-		m_AudioTextureModule_Comp_2D_Pass_Ptr->SetSceneAudiArt(vName, vSceneAudiArt);
-	}
+    if (m_AudioTextureModule_Comp_2D_Pass_Ptr) {
+        m_AudioTextureModule_Comp_2D_Pass_Ptr->SetSceneAudiArt(vName, vSceneAudiArt);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* AudioTextureModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* AudioTextureModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_AudioTextureModule_Comp_2D_Pass_Ptr)
-	{
-		return m_AudioTextureModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_AudioTextureModule_Comp_2D_Pass_Ptr) {
+        return m_AudioTextureModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string AudioTextureModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string AudioTextureModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<audio_texture_module>\n";
+    str += vOffset + "<audio_texture_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_AudioTextureModule_Comp_2D_Pass_Ptr)
-	{
-		str += m_AudioTextureModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_AudioTextureModule_Comp_2D_Pass_Ptr) {
+        str += m_AudioTextureModule_Comp_2D_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</audio_texture_module>\n";
+    str += vOffset + "</audio_texture_module>\n";
 
-	return str;
+    return str;
 }
 
-bool AudioTextureModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool AudioTextureModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "audio_texture_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
+    if (strParentName == "audio_texture_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
 
-		if (m_AudioTextureModule_Comp_2D_Pass_Ptr)
-		{
-			m_AudioTextureModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-		}
-	}
+        if (m_AudioTextureModule_Comp_2D_Pass_Ptr) {
+            m_AudioTextureModule_Comp_2D_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+        }
+    }
 
-	return true;
+    return true;
 }
 
-void AudioTextureModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void AudioTextureModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_AudioTextureModule_Comp_2D_Pass_Ptr)
-	{
-		m_AudioTextureModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
-	}
+    if (m_AudioTextureModule_Comp_2D_Pass_Ptr) {
+        m_AudioTextureModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    }
 }

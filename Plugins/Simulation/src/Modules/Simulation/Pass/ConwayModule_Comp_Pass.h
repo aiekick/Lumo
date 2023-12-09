@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -44,45 +42,43 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
-class ConwayModule_Comp_Pass :
-	public ShaderPass,	
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface
-{
+class ConwayModule_Comp_Pass : public ShaderPass, public TextureInputInterface<1U>, public TextureOutputInterface {
 private:
-	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	vk::DescriptorBufferInfo m_UBOComp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	struct UBOComp {
-		alignas(4) float mouse_radius = 10.0f;
-		alignas(4) float mouse_inversion = 0.0f;
-		alignas(4) float reset_substances = 0.0f;
-		alignas(4) float motion_blur_coef = 0.95f;
-		alignas(4) float use_noise_input = 0.0f;
-		alignas(8) ct::ivec2 image_size = 0;
-	} m_UBOComp;
+    VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
+    vk::DescriptorBufferInfo m_UBOComp_BufferInfos = {VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    struct UBOComp {
+        alignas(4) float mouse_radius = 10.0f;
+        alignas(4) float mouse_inversion = 0.0f;
+        alignas(4) float reset_substances = 0.0f;
+        alignas(4) float motion_blur_coef = 0.95f;
+        alignas(4) float use_noise_input = 0.0f;
+        alignas(8) ct::ivec2 image_size = 0;
+    } m_UBOComp;
 
 public:
-	ConwayModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~ConwayModule_Comp_Pass() override;
+    ConwayModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~ConwayModule_Comp_Pass() override;
 
-	void ActionBeforeInit() override;
-	void WasJustResized() override;
-	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void ActionBeforeInit() override;
+    void WasJustResized() override;
+    void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+    std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

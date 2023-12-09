@@ -52,7 +52,9 @@ std::shared_ptr<PrimitiveModule> PrimitiveModule::Create(GaiApi::VulkanCoreWeak 
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PrimitiveModule::PrimitiveModule(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) { ZoneScoped; }
+PrimitiveModule::PrimitiveModule(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) {
+    ZoneScoped;
+}
 
 PrimitiveModule::~PrimitiveModule() {
     ZoneScoped;
@@ -122,7 +124,8 @@ bool PrimitiveModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& 
     return false;
 }
 
-bool PrimitiveModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool PrimitiveModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -266,7 +269,7 @@ bool PrimitiveModule::prDrawWidgets() {
             case PRIMITIVE_TYPE_UV_SPHERE: {
             } break;
             case PRIMITIVE_TYPE_TORUS: {
-                // tofix : desactivé pour le moment vu que ca amrche pas
+                // tofix : desactivï¿½ pour le moment vu que ca amrche pas
                 // change |= ImGui::CheckBoxBoolDefault("Generate UV's", &m_TorusParams.m_GenerateUVS, true);
                 change |= ImGui::SliderIntDefaultCompact(0.0f, "Major Segments", &m_TorusParams.m_MajorSegments, 3U, 256U, 48U);
                 change |= ImGui::SliderIntDefaultCompact(0.0f, "Minor Segments", &m_TorusParams.m_MinorSegments, 2U, 256U, 12U);
@@ -354,7 +357,8 @@ void PrimitiveModule::CreateCube() {
 
         std::vector<ct::fvec2> cube_uvs = {ct::fvec2(0, 0), ct::fvec2(1, 0), ct::fvec2(1, 1), ct::fvec2(0, 1)};
 
-        std::vector<ct::fvec3> cube_normals = {ct::fvec3(0, 1, 0), ct::fvec3(0, -1, 0), ct::fvec3(1, 0, 0), ct::fvec3(-1, 0, 0), ct::fvec3(0, 0, 1), ct::fvec3(0, 0, -1)};
+        std::vector<ct::fvec3> cube_normals = {
+            ct::fvec3(0, 1, 0), ct::fvec3(0, -1, 0), ct::fvec3(1, 0, 0), ct::fvec3(-1, 0, 0), ct::fvec3(0, 0, 1), ct::fvec3(0, 0, -1)};
 
         assert(cube_normals.size() == 6);
         assert(cube_points.size() == 24);
@@ -393,7 +397,8 @@ void PrimitiveModule::CreateCube() {
           0---------1
         */
 
-        std::vector<uint32_t> cube_faces = {0, 1, 2, 0, 2, 3, 1, 5, 6, 1, 6, 2, 5, 4, 7, 5, 7, 6, 4, 0, 3, 4, 3, 7, 3, 2, 6, 3, 6, 7, 4, 5, 1, 4, 1, 0};
+        std::vector<uint32_t> cube_faces = {
+            0, 1, 2, 0, 2, 3, 1, 5, 6, 1, 6, 2, 5, 4, 7, 5, 7, 6, 4, 0, 3, 4, 3, 7, 3, 2, 6, 3, 6, 7, 4, 5, 1, 4, 1, 0};
 
         assert(cube_points.size() == 8);
         assert(cube_faces.size() == 36);
@@ -533,9 +538,13 @@ size_t PrimitiveModule::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2,
     return i;
 }
 
-void PrimitiveModule::CreateFibonacciBall() { BuildMesh(); }
+void PrimitiveModule::CreateFibonacciBall() {
+    BuildMesh();
+}
 
-void PrimitiveModule::CreateUVSphere() { BuildMesh(); }
+void PrimitiveModule::CreateUVSphere() {
+    BuildMesh();
+}
 
 void PrimitiveModule::CreateTorus() {
     if (m_TorusParams.m_Mode.index == TORUS_MODE_MAJOR_MINOR) {
@@ -546,7 +555,8 @@ void PrimitiveModule::CreateTorus() {
         m_TorusParams.m_MajorRadius = m_TorusParams.m_InteriorRadius + m_TorusParams.m_MinorRadius;
     }
 
-    CreateTorusMesh(m_TorusParams.m_MajorRadius, m_TorusParams.m_MinorRadius, m_TorusParams.m_MajorSegments, m_TorusParams.m_MinorSegments, m_TorusParams.m_SectionAngle * DEGTORAD, m_TorusParams.m_SectionTwist);
+    CreateTorusMesh(m_TorusParams.m_MajorRadius, m_TorusParams.m_MinorRadius, m_TorusParams.m_MajorSegments, m_TorusParams.m_MinorSegments,
+        m_TorusParams.m_SectionAngle * DEGTORAD, m_TorusParams.m_SectionTwist);
 
     if (m_TorusParams.m_GenerateUVS && m_TorusParams.m_MinorSegments) {
         if (m_TorusParams.m_SectionTwist % m_TorusParams.m_MinorSegments == 0) {
@@ -559,7 +569,12 @@ void PrimitiveModule::CreateTorus() {
     BuildMesh();
 }
 
-void PrimitiveModule::CreateTorusMesh(const float& vMajorRadius, const float& vMinorRadius, const int32_t& vMajorSegments, const int32_t& vMinorSegments, const float& vSectionAngle, const int32_t& vSectionTwist) {
+void PrimitiveModule::CreateTorusMesh(const float& vMajorRadius,
+    const float& vMinorRadius,
+    const int32_t& vMajorSegments,
+    const int32_t& vMinorSegments,
+    const float& vSectionAngle,
+    const int32_t& vSectionTwist) {
     const float pi_2 = _pi * 2.0f;
     const float majorSegFactor = 1.0f / (float)vMajorSegments;
     const float minorSegFactor = 1.0f / (float)vMinorSegments;
@@ -573,14 +588,14 @@ void PrimitiveModule::CreateTorusMesh(const float& vMajorRadius, const float& vM
         const float major_twist_angle = major_index * twist_step_angle;
 
         for (uint32_t minor_index = 0; minor_index < (uint32_t)vMinorSegments; ++minor_index) {
-            const float angle = pi_2 * minor_index * minorSegFactor + vSectionAngle + major_twist_angle;
+            const float angle2 = pi_2 * minor_index * minorSegFactor + vSectionAngle + major_twist_angle;
 
             // transform a point so the last coord of the vec4 must be 1
-            const auto vertex = rotation_matrix * glm::vec4(vMajorRadius + (cos(angle) * vMinorRadius), sin(angle) * vMinorRadius, 0.0, 1);
+            const auto vertex = rotation_matrix * glm::vec4(vMajorRadius + (cos(angle2) * vMinorRadius), sin(angle2) * vMinorRadius, 0.0, 1);
 
             m_Vertices.emplace_back(ct::fvec3(vertex.x, vertex.y, vertex.z));
 
-            if (vMinorSegments > 2 && minor_index + 1 == vMinorSegments) {
+            if (vMinorSegments > 2 && (int32_t)(minor_index + 1U) == vMinorSegments) {
                 face_indexs[1] = major_index * vMinorSegments;
                 face_indexs[2] = face_indexs[0] + vMinorSegments;
                 face_indexs[3] = face_indexs[1] + vMinorSegments;
@@ -723,13 +738,16 @@ void PrimitiveModule::Subdivide(const size_t& vSubdivLevel, std::vector<Vertice>
                         a = GetMiddlePoint_Icosaedre(face.v0, face.v1, subVertices, middlePointIndexCache, m_IcosaedreParams.m_Radius);
                         b = GetMiddlePoint_Icosaedre(face.v1, face.v2, subVertices, middlePointIndexCache, m_IcosaedreParams.m_Radius);
                         c = GetMiddlePoint_Icosaedre(face.v2, face.v0, subVertices, middlePointIndexCache, m_IcosaedreParams.m_Radius);
-                    } else if (m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE || m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_CUBE) {
+                    } else if (m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE ||
+                               m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_CUBE) {
                         a = GetMiddlePoint_Plane(face.v0, face.v1, subVertices, middlePointIndexCache);
                         b = GetMiddlePoint_Plane(face.v1, face.v2, subVertices, middlePointIndexCache);
                         c = GetMiddlePoint_Plane(face.v2, face.v0, subVertices, middlePointIndexCache);
                     }
 
-                    if (m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_ICO_SPHERE || m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE || m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_CUBE) {
+                    if (m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_ICO_SPHERE ||
+                        m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_PLANE ||
+                        m_PrimitiveTypeIndex == PrimitiveTypeEnum::PRIMITIVE_TYPE_CUBE) {
                         subFaces.emplace_back(face.v0, a, c);
                         subFaces.emplace_back(face.v1, b, a);
                         subFaces.emplace_back(face.v2, c, b);

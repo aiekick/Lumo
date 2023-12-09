@@ -23,29 +23,27 @@ class NodeSlotAccelStructureOutput;
 typedef std::weak_ptr<NodeSlotAccelStructureOutput> NodeSlotAccelStructureOutputWeak;
 typedef std::shared_ptr<NodeSlotAccelStructureOutput> NodeSlotAccelStructureOutputPtr;
 
-class NodeSlotAccelStructureOutput : 
-	public NodeSlotOutput
-{
+class NodeSlotAccelStructureOutput : public NodeSlotOutput {
 public:
-	static NodeSlotAccelStructureOutputPtr Create(NodeSlotAccelStructureOutput vSlot);
-	static NodeSlotAccelStructureOutputPtr Create(const std::string& vName);
-	static NodeSlotAccelStructureOutputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotAccelStructureOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotAccelStructureOutputPtr Create(NodeSlotAccelStructureOutput vSlot);
+    static NodeSlotAccelStructureOutputPtr Create(const std::string& vName);
+    static NodeSlotAccelStructureOutputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotAccelStructureOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotAccelStructureOutput();
-	explicit NodeSlotAccelStructureOutput(const std::string& vName);
-	explicit NodeSlotAccelStructureOutput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotAccelStructureOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotAccelStructureOutput();
+    explicit NodeSlotAccelStructureOutput();
+    explicit NodeSlotAccelStructureOutput(const std::string& vName);
+    explicit NodeSlotAccelStructureOutput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotAccelStructureOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotAccelStructureOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

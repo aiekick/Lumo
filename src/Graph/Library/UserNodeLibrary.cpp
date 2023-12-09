@@ -49,10 +49,9 @@ limitations under the License.
 //// CUSTOM MENU /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void UserNodeLibrary::AnalyseRootDirectory()
-{
-	// internals
-	
+void UserNodeLibrary::AnalyseRootDirectory() {
+    // internals
+
     // Assets
     m_RootLibraryCategory.AddCustom("Assets/Load", "3D Model", "MESH");
     m_RootLibraryCategory.AddCustom("Assets/Load", "2D Texture", "TEXTURE_2D");
@@ -61,8 +60,8 @@ void UserNodeLibrary::AnalyseRootDirectory()
     // Exporters
     m_RootLibraryCategory.AddCustom("Assets/Save", "3D Model", "MODEL_EXPORTER");
     m_RootLibraryCategory.AddCustom("Assets/Save", "2D Texture", "TEXTURE_2D_EXPORTER");
-	
-	// Misc
+
+    // Misc
     m_RootLibraryCategory.AddCustom("", "Scene Merger", "SCENE_MERGER");
     m_RootLibraryCategory.AddCustom("Scene", "Grid / Axis", "GRID_AXIS");
 
@@ -72,7 +71,7 @@ void UserNodeLibrary::AnalyseRootDirectory()
     m_RootLibraryCategory.AddCustom("Renderers", "Matcap", "MATCAP_RENDERER");
     m_RootLibraryCategory.AddCustom("Renderers", "Model", "MODEL_RENDERER");
 
-	// Variables
+    // Variables
     m_RootLibraryCategory.AddCustom("Widgets", "Boolean", "WIDGET_BOOLEAN");
     m_RootLibraryCategory.AddCustom("Widgets", "Color", "WIDGET_COLOR");
 
@@ -80,15 +79,14 @@ void UserNodeLibrary::AnalyseRootDirectory()
     m_RootLibraryCategory.AddCustom("Utils", "Math", "MATH");
     m_RootLibraryCategory.AddCustom("Model", "Model Buffers", "MESH_BUFFERS");
 
-	// shader nodes
+    // shader nodes
     AnalyseRootDirectoryRecurs(LIBRARY_EFECT_ROOT_PATH, 0, &m_RootLibraryCategory);
-    
-	// plugin nodes
-	auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();
-	for (auto entry : pluginEntrys)
-	{
-		m_RootLibraryCategory.AddLibraryEntry(entry);
-	}
+
+    // plugin nodes
+    auto pluginEntrys = PluginManager::Instance()->GetLibraryEntrys();
+    for (auto entry : pluginEntrys) {
+        m_RootLibraryCategory.AddLibraryEntry(entry);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,132 +99,116 @@ UserNodeLibrary::UserNodeLibrary() = default;
 //// MENU ////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState)
-{
-	if (vNodeGraph.expired()) return BaseNodeWeak();
-	
-	BaseNodeWeak createdNode;
+BaseNodeWeak UserNodeLibrary::ShowNewNodeMenu(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState) {
+    if (vNodeGraph.expired())
+        return BaseNodeWeak();
 
-	ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
+    BaseNodeWeak createdNode;
 
-	if (ImGui::BeginPopup("CreateNewNode"))
-	{
-		auto entry = m_RootLibraryCategory.ShowContent(vNodeGraph, vBaseNodeState, 0);
-		if (!entry.first.empty())
-		{
-			createdNode = CreateNode(vNodeGraph, entry);
-			auto createdNodePtr = createdNode.lock();
-			if (createdNodePtr)
-			{
+    ImGui::SetNextWindowViewport(ImGui::GetWindowViewport()->ID);
+
+    if (ImGui::BeginPopup("CreateNewNode")) {
+        auto entry = m_RootLibraryCategory.ShowContent(vNodeGraph, vBaseNodeState, 0);
+        if (!entry.first.empty()) {
+            createdNode = CreateNode(vNodeGraph, entry);
+            auto createdNodePtr = createdNode.lock();
+            if (createdNodePtr) {
                 createdNodePtr->m_RootNode = vNodeGraph;
-				createdNodePtr->TreatNotification(GraphIsLoaded);
-			}
-		}
+                createdNodePtr->TreatNotification(GraphIsLoaded);
+            }
+        }
 
-		ImGui::EndPopup();
-	}
-	else
-	{
-		auto graphPtr = vNodeGraph.lock();
-		if (graphPtr)
-		{
-			graphPtr->m_CreateNewNode = false;
-		}
-	}
+        ImGui::EndPopup();
+    } else {
+        auto graphPtr = vNodeGraph.lock();
+        if (graphPtr) {
+            graphPtr->m_CreateNewNode = false;
+        }
+    }
 
-	if (!createdNode.expired())
-	{
-		auto nodePtr = createdNode.lock();
-		auto graphPtr = vNodeGraph.lock();
-		if (nodePtr && graphPtr)
-		{
-			nd::SetNodePosition(nodePtr->nodeID, graphPtr->m_OpenPopupPosition);
-		}
-	}
+    if (!createdNode.expired()) {
+        auto nodePtr = createdNode.lock();
+        auto graphPtr = vNodeGraph.lock();
+        if (nodePtr && graphPtr) {
+            nd::SetNodePosition(nodePtr->nodeID, graphPtr->m_OpenPopupPosition);
+        }
+    }
 
-	return createdNode;
+    return createdNode;
 }
 
-BaseNodeWeak UserNodeLibrary::CreateNode(BaseNodeWeak vNodeGraph, const LibraryEntry& vLibraryEntry)
-{
-	if (vNodeGraph.expired()) return BaseNodeWeak();
-	if (vLibraryEntry.first.empty()) return BaseNodeWeak();
+BaseNodeWeak UserNodeLibrary::CreateNode(BaseNodeWeak vNodeGraph, const LibraryEntry &vLibraryEntry) {
+    if (vNodeGraph.expired())
+        return BaseNodeWeak();
+    if (vLibraryEntry.first.empty())
+        return BaseNodeWeak();
 
-	BaseNodePtr nodePtr = nullptr;
+    BaseNodePtr nodePtr = nullptr;
 
-	if (vLibraryEntry.first == "internal")
-	{
-		if (vLibraryEntry.second.type == LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_INTERNAL)
-		{
-			nodePtr = NodeFactory::CreateNode(vNodeGraph, vLibraryEntry.second.nodeType);
-		}
-	}
-	else if (vLibraryEntry.first == "plugins")
-	{
-		if (vLibraryEntry.second.type == LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN)
-		{
-			nodePtr = PluginManager::Instance()->CreatePluginNode(vLibraryEntry.second.nodeType);
-		}
-	}
+    if (vLibraryEntry.first == "internal") {
+        if (vLibraryEntry.second.type == LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_INTERNAL) {
+            nodePtr = NodeFactory::CreateNode(vNodeGraph, vLibraryEntry.second.nodeType);
+        }
+    } else if (vLibraryEntry.first == "plugins") {
+        if (vLibraryEntry.second.type == LibraryItem::LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_PLUGIN) {
+            nodePtr = PluginManager::Instance()->CreatePluginNode(vLibraryEntry.second.nodeType);
+        }
+    }
 
-	if (nodePtr)
-	{
-		auto graphPtr = vNodeGraph.lock();
-		if (graphPtr)
-		{
-			/*if (vLibraryEntry.second.nodeType == "OUTPUT_3D")
-			{
-				graphPtr->m_Output3DNode = nodePtr;
-			}
-			else if (vLibraryEntry.second.nodeType == "OUTPUT_2D")
-			{
-				graphPtr->m_Output2DNode = nodePtr;
-			}*/
+    if (nodePtr) {
+        auto graphPtr = vNodeGraph.lock();
+        if (graphPtr) {
+            /*if (vLibraryEntry.second.nodeType == "OUTPUT_3D")
+            {
+                graphPtr->m_Output3DNode = nodePtr;
+            }
+            else if (vLibraryEntry.second.nodeType == "OUTPUT_2D")
+            {
+                graphPtr->m_Output2DNode = nodePtr;
+            }*/
 
-			graphPtr->AddChildNode(nodePtr);
+            graphPtr->AddChildNode(nodePtr);
 
-			return nodePtr;
-		}
-	}
+            return nodePtr;
+        }
+    }
 
-	return BaseNodeWeak();
+    return BaseNodeWeak();
 }
 
-void UserNodeLibrary::AnalyseRootDirectoryRecurs(const char *vRootPath, int vIndent, LibraryCategory *vLibraryCategory)
-{
-	if (!vLibraryCategory) return;
+void UserNodeLibrary::AnalyseRootDirectoryRecurs(const char *vRootPath, int vIndent, LibraryCategory *vLibraryCategory) {
+    if (!vLibraryCategory)
+        return;
 
-	DIR *dir = opendir(vRootPath);
-	struct dirent *entry;
+    DIR *dir = opendir(vRootPath);
+    struct dirent *entry;
 
-	if (!dir)
-		return;
+    if (!dir)
+        return;
 
-	while ((entry = readdir(dir)) != nullptr) 
-	{
-		char path[1024];
-		
-		if (entry->d_type == DT_DIR) // Directory
-		{
-			if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-				continue;
-			snprintf(path, sizeof(path), "%s/%s", vRootPath, entry->d_name);
+    while ((entry = readdir(dir)) != nullptr) {
+        char path[1024];
 
-			printf("%*s[%s]\n", vIndent, "", entry->d_name);
-			
-			auto cat = vLibraryCategory->AddCategory(entry->d_name);
+        if (entry->d_type == DT_DIR)  // Directory
+        {
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+                continue;
+            snprintf(path, sizeof(path), "%s/%s", vRootPath, entry->d_name);
 
-			AnalyseRootDirectoryRecurs(path, vIndent + 2, cat);
-		}
-		else if (entry->d_type == DT_REG) // File
-		{
-			snprintf(path, sizeof(path), "%s/%s", vRootPath, entry->d_name);
-			
-			vLibraryCategory->AddShader(entry->d_name, path);
-			
-			printf("%*s- %s\n", vIndent, "", entry->d_name);
-		}
-	}
+            printf("%*s[%s]\n", vIndent, "", entry->d_name);
 
-	closedir(dir);
+            auto cat = vLibraryCategory->AddCategory(entry->d_name);
+
+            AnalyseRootDirectoryRecurs(path, vIndent + 2, cat);
+        } else if (entry->d_type == DT_REG)  // File
+        {
+            snprintf(path, sizeof(path), "%s/%s", vRootPath, entry->d_name);
+
+            vLibraryCategory->AddShader(entry->d_name, path);
+
+            printf("%*s- %s\n", vIndent, "", entry->d_name);
+        }
+    }
+
+    closedir(dir);
 }

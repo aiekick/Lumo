@@ -25,44 +25,35 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class ModelShadowModule;
-class ModelShadowNode : 
-	public BaseNode,
-	public TextureInputInterface<0U>,
-	public TextureGroupInputInterface<0U>,
-	public TextureOutputInterface,
-	public LightGroupInputInterface,
-	public ShaderUpdateInterface
-{
+class ModelShadowNode : public BaseNode,
+                        public TextureInputInterface<0U>,
+                        public TextureGroupInputInterface<0U>,
+                        public TextureOutputInterface,
+                        public LightGroupInputInterface,
+                        public ShaderUpdateInterface {
 public:
-	static std::shared_ptr<ModelShadowNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<ModelShadowNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<ModelShadowModule> m_ModelShadowModulePtr = nullptr;
+    std::shared_ptr<ModelShadowModule> m_ModelShadowModulePtr = nullptr;
 
 public:
-	ModelShadowNode();
-	~ModelShadowNode() override;
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
-	void Unit() override;
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-    bool DrawWidgets(const uint32_t& vCurrentFrame,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    void SetTexture(
-        const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
+    ModelShadowNode();
+    ~ModelShadowNode() override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    void Unit() override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void UpdateShaders(const std::set<std::string>& vFiles) override;
 };

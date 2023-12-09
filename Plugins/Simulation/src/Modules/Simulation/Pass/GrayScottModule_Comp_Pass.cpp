@@ -44,110 +44,107 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-GrayScottModule_Comp_Pass::GrayScottModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: ShaderPass(vVulkanCore)
-{
-	SetRenderDocDebugName("Comp Pass : GrayScott", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+GrayScottModule_Comp_Pass::GrayScottModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {
+    SetRenderDocDebugName("Comp Pass : GrayScott", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-GrayScottModule_Comp_Pass::~GrayScottModule_Comp_Pass()
-{
-	Unit();
+GrayScottModule_Comp_Pass::~GrayScottModule_Comp_Pass() {
+    Unit();
 }
 
-void GrayScottModule_Comp_Pass::ActionBeforeInit()
-{
-	m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+void GrayScottModule_Comp_Pass::ActionBeforeInit() {
+    m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
-	AddGrayScottConfig("Custom##GrayScottModule_Comp_Pass", 0.0f, 0.0f, 0.0f, 0.0f);
-	AddGrayScottConfig("Default##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.026f, 0.051f);
-	AddGrayScottConfig("Solitons##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.03f, 0.062f);
-	AddGrayScottConfig("Pulsating solitons##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.025f, 0.06f);
-	AddGrayScottConfig("Worms##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.078f, 0.061f);
-	AddGrayScottConfig("Mazes##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.029f, 0.057f);
-	AddGrayScottConfig("Holes##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.039f, 0.058f);
-	AddGrayScottConfig("Chaos and holes##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.034f, 0.056f);
-	AddGrayScottConfig("Moving spots##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.014f, 0.054f);
-	AddGrayScottConfig("Spots and loops##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.018f, 0.051f);
-	AddGrayScottConfig("Waves##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.014f, 0.045f);
-	AddGrayScottConfig("The U-Skate world##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.062f, 0.061f);
-	AddGrayScottConfig("Herisson##GrayScottModule_Comp_Pass", 0.403f, 0.068f, 0.014f, 0.045f);
+    AddGrayScottConfig("Custom##GrayScottModule_Comp_Pass", 0.0f, 0.0f, 0.0f, 0.0f);
+    AddGrayScottConfig("Default##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.026f, 0.051f);
+    AddGrayScottConfig("Solitons##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.03f, 0.062f);
+    AddGrayScottConfig("Pulsating solitons##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.025f, 0.06f);
+    AddGrayScottConfig("Worms##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.078f, 0.061f);
+    AddGrayScottConfig("Mazes##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.029f, 0.057f);
+    AddGrayScottConfig("Holes##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.039f, 0.058f);
+    AddGrayScottConfig("Chaos and holes##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.034f, 0.056f);
+    AddGrayScottConfig("Moving spots##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.014f, 0.054f);
+    AddGrayScottConfig("Spots and loops##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.018f, 0.051f);
+    AddGrayScottConfig("Waves##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.014f, 0.045f);
+    AddGrayScottConfig("The U-Skate world##GrayScottModule_Comp_Pass", 0.210f, 0.105f, 0.062f, 0.061f);
+    AddGrayScottConfig("Herisson##GrayScottModule_Comp_Pass", 0.403f, 0.068f, 0.014f, 0.045f);
 }
 
-bool GrayScottModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool GrayScottModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	ZoneScoped;
+    ZoneScoped;
 
-	ImGui::SetCurrentContext(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	const float aw = ImGui::GetContentRegionAvail().x;
+    const float aw = ImGui::GetContentRegionAvail().x;
 
-	bool change = false;
+    bool change = false;
 
-	change |= DrawResizeWidget();
+    change |= DrawResizeWidget();
 
-	ImGui::Header("Pass Iterations##GrayScottModule_Comp_Pass");
+    ImGui::Header("Pass Iterations##GrayScottModule_Comp_Pass");
 
-	change |= ImGui::SliderUIntDefaultCompact(aw, "Iterations##GrayScottModule_Comp_Pass", &m_CountIterations.w, m_CountIterations.x, m_CountIterations.y, m_CountIterations.z);
+    change |= ImGui::SliderUIntDefaultCompact(
+        aw, "Iterations##GrayScottModule_Comp_Pass", &m_CountIterations.w, m_CountIterations.x, m_CountIterations.y, m_CountIterations.z);
 
-	ImGui::Header("Mouse##GrayScottModule_Comp_Pass");
+    ImGui::Header("Mouse##GrayScottModule_Comp_Pass");
 
-	change |= ImGui::SliderFloatDefaultCompact(aw, "Mouse Radius##GrayScottModule_Comp_Pass", &m_UBOComp.mouse_radius, 0.0f, 100.0f, 10.0f);
-	if (ImGui::RadioButtonLabeled(aw, "Mouse Inversion##GrayScottModule_Comp_Pass", m_UBOComp.mouse_inversion > 0.5f, false))
-	{
-		m_UBOComp.mouse_inversion = (m_UBOComp.mouse_inversion > 0.5f) ? 0.0f : 1.0f;
-		change = true;
-	}
+    change |= ImGui::SliderFloatDefaultCompact(aw, "Mouse Radius##GrayScottModule_Comp_Pass", &m_UBOComp.mouse_radius, 0.0f, 100.0f, 10.0f);
+    if (ImGui::RadioButtonLabeled(aw, "Mouse Inversion##GrayScottModule_Comp_Pass", m_UBOComp.mouse_inversion > 0.5f, false)) {
+        m_UBOComp.mouse_inversion = (m_UBOComp.mouse_inversion > 0.5f) ? 0.0f : 1.0f;
+        change = true;
+    }
 
-	ImGui::Header("GrayScott##GrayScottModule_Comp_Pass");
+    ImGui::Header("GrayScott##GrayScottModule_Comp_Pass");
 
-	if (ImGui::ContrastedButton("Fast Diffusion Config##GrayScottModule_Comp_Pass", nullptr, nullptr, aw))
-	{
-		m_UBOComp.grayscott_diffusion_u = 0.0f;
-		m_UBOComp.grayscott_diffusion_v = 1.0f;
-		m_SelectedGrayScottConfig = 0;
-		m_UBOComp.grayscott_feed = 0.026f;
-		m_UBOComp.grayscott_kill = 0.030f;
-		change = true;
-	}
+    if (ImGui::ContrastedButton("Fast Diffusion Config##GrayScottModule_Comp_Pass", nullptr, nullptr, aw)) {
+        m_UBOComp.grayscott_diffusion_u = 0.0f;
+        m_UBOComp.grayscott_diffusion_v = 1.0f;
+        m_SelectedGrayScottConfig = 0;
+        m_UBOComp.grayscott_feed = 0.026f;
+        m_UBOComp.grayscott_kill = 0.030f;
+        change = true;
+    }
 
-	change |= ImGui::SliderFloatDefaultCompact(aw, "GrayScott Diffusion u##GrayScottModule_Comp_Pass", &m_UBOComp.grayscott_diffusion_u, 0.0f, 1.0f, 0.2097f);
-	change |= ImGui::SliderFloatDefaultCompact(aw, "GrayScott Diffusion v##GrayScottModule_Comp_Pass", &m_UBOComp.grayscott_diffusion_v, 0.0f, 1.0f, 0.105f);
+    change |= ImGui::SliderFloatDefaultCompact(
+        aw, "GrayScott Diffusion u##GrayScottModule_Comp_Pass", &m_UBOComp.grayscott_diffusion_u, 0.0f, 1.0f, 0.2097f);
+    change |= ImGui::SliderFloatDefaultCompact(
+        aw, "GrayScott Diffusion v##GrayScottModule_Comp_Pass", &m_UBOComp.grayscott_diffusion_v, 0.0f, 1.0f, 0.105f);
 
-	if (ImGui::ContrastedComboVectorDefault(aw, "Configs##GrayScottModule_Comp_Pass", &m_SelectedGrayScottConfig, m_GrayScottConfigNames, 0))
-	{
-		if (m_SelectedGrayScottConfig)
-		{
-			auto fv = m_GrayScottConfigs[m_SelectedGrayScottConfig];
-			if (fv.x > 0.0f) { m_UBOComp.grayscott_diffusion_u = fv.x; }
-			if (fv.y > 0.0f) { m_UBOComp.grayscott_diffusion_v = fv.y; }
-			m_UBOComp.grayscott_feed = fv.z;
-			m_UBOComp.grayscott_kill = fv.w;
-			change = true;
-		}
-	}
+    if (ImGui::ContrastedComboVectorDefault(aw, "Configs##GrayScottModule_Comp_Pass", &m_SelectedGrayScottConfig, m_GrayScottConfigNames, 0)) {
+        if (m_SelectedGrayScottConfig) {
+            auto fv = m_GrayScottConfigs[m_SelectedGrayScottConfig];
+            if (fv.x > 0.0f) {
+                m_UBOComp.grayscott_diffusion_u = fv.x;
+            }
+            if (fv.y > 0.0f) {
+                m_UBOComp.grayscott_diffusion_v = fv.y;
+            }
+            m_UBOComp.grayscott_feed = fv.z;
+            m_UBOComp.grayscott_kill = fv.w;
+            change = true;
+        }
+    }
 
-	change |= ImGui::SliderFloatDefaultCompact(aw, "GrayScott Feed##GrayScottModule_Comp_Pass", &m_UBOComp.grayscott_feed, 0.0f, 0.2f, 0.026f);
-	change |= ImGui::SliderFloatDefaultCompact(aw, "GrayScott Kill##GrayScottModule_Comp_Pass", &m_UBOComp.grayscott_kill, 0.0f, 0.2f, 0.051f);
+    change |= ImGui::SliderFloatDefaultCompact(aw, "GrayScott Feed##GrayScottModule_Comp_Pass", &m_UBOComp.grayscott_feed, 0.0f, 0.2f, 0.026f);
+    change |= ImGui::SliderFloatDefaultCompact(aw, "GrayScott Kill##GrayScottModule_Comp_Pass", &m_UBOComp.grayscott_kill, 0.0f, 0.2f, 0.051f);
 
-	ImGui::Header("Clear##GrayScottModule_Comp_Pass");
+    ImGui::Header("Clear##GrayScottModule_Comp_Pass");
 
-	if (ImGui::ContrastedButton("Reset Substances##GrayScottModule_Comp_Pass", nullptr, nullptr, aw))
-	{
-		m_UBOComp.reset_substances = 1.0f;
-		change = true;
-	}
+    if (ImGui::ContrastedButton("Reset Substances##GrayScottModule_Comp_Pass", nullptr, nullptr, aw)) {
+        m_UBOComp.reset_substances = 1.0f;
+        change = true;
+    }
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
+    if (change) {
+        NeedNewUBOUpload();
+    }
 
-	return change;
+    return change;
 }
 
 bool GrayScottModule_Comp_Pass::DrawOverlays(
@@ -166,188 +163,160 @@ bool GrayScottModule_Comp_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void GrayScottModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void GrayScottModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
-				}
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+                }
 
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
-			}
-			else {
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
+            } else {
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
-vk::DescriptorImageInfo* GrayScottModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+vk::DescriptorImageInfo* GrayScottModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_ComputeBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_ComputeBufferPtr->GetOutputSize();
+        }
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE / GRAYSCOTT ///////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GrayScottModule_Comp_Pass::ClearGrayScottConfigs()
-{
-	ZoneScoped;
+void GrayScottModule_Comp_Pass::ClearGrayScottConfigs() {
+    ZoneScoped;
 
-	m_GrayScottConfigNames.clear();
-	m_GrayScottConfigs.clear();
-	m_SelectedGrayScottConfig = 0; // default is custom
+    m_GrayScottConfigNames.clear();
+    m_GrayScottConfigs.clear();
+    m_SelectedGrayScottConfig = 0;  // default is custom
 }
 
-void GrayScottModule_Comp_Pass::AddGrayScottConfig(const std::string& vConfigName, const float& vDiffXValue, const float& vDiffYValue, const float& vFeedValue, const float& vKillValue)
-{
-	ZoneScoped;
+void GrayScottModule_Comp_Pass::AddGrayScottConfig(
+    const std::string& vConfigName, const float& vDiffXValue, const float& vDiffYValue, const float& vFeedValue, const float& vKillValue) {
+    ZoneScoped;
 
-	m_GrayScottConfigNames.push_back(vConfigName);
-	m_GrayScottConfigs.push_back(ct::fvec4(vDiffXValue, vDiffYValue, vFeedValue, vKillValue));
+    m_GrayScottConfigNames.push_back(vConfigName);
+    m_GrayScottConfigs.push_back(ct::fvec4(vDiffXValue, vDiffYValue, vFeedValue, vKillValue));
 }
 
-void GrayScottModule_Comp_Pass::WasJustResized()
-{
-	ZoneScoped;
+void GrayScottModule_Comp_Pass::WasJustResized() {
+    ZoneScoped;
 
-	if (m_UBOComp.image_size.x != m_OutputSize.x ||
-		m_UBOComp.image_size.y != m_OutputSize.y)
-	{
-		m_UBOComp.image_size = m_OutputSize;
+    if (m_UBOComp.image_size.x != m_OutputSize.x || m_UBOComp.image_size.y != m_OutputSize.y) {
+        m_UBOComp.image_size = m_OutputSize;
 
-		NeedNewUBOUpload();
-	}
+        NeedNewUBOUpload();
+    }
 }
 
-void GrayScottModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	if (vCmdBufferPtr)
-	{
-		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+void GrayScottModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    if (vCmdBufferPtr) {
+        vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 
-		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+        vCmdBufferPtr->bindDescriptorSets(
+            vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+        Dispatch(vCmdBufferPtr, "Compute");
 
-		for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
-		{
-			Dispatch(vCmdBufferPtr);
-		}
+        // ca c'est les bouton et ca doit etre un one shot
+        // donc on fait ca pour le reset et re provoquer un update
+        if (m_UBOComp.reset_substances > 0.5f) {
+            m_UBOComp.reset_substances = 0.0f;
 
-		// ca c'est les bouton et ca doit etre un one shot 
-		// donc on fait ca pour le reset et re provoquer un update
-		if (m_UBOComp.reset_substances > 0.5f)
-		{
-			m_UBOComp.reset_substances = 0.0f;
-
-			NeedNewUBOUpload();
-		}
-	}
+            NeedNewUBOUpload();
+        }
+    }
 }
 
-bool GrayScottModule_Comp_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool GrayScottModule_Comp_Pass::CreateUBO() {
+    ZoneScoped;
 
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "GrayScottModule_Comp_Pass");
-	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBOCompPtr)
-	{
-		m_UBOComp_BufferInfos.buffer = m_UBOCompPtr->buffer;
-		m_UBOComp_BufferInfos.range = sizeof(UBOComp);
-		m_UBOComp_BufferInfos.offset = 0;
-	}
+    m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "GrayScottModule_Comp_Pass");
+    m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBOCompPtr) {
+        m_UBOComp_BufferInfos.buffer = m_UBOCompPtr->buffer;
+        m_UBOComp_BufferInfos.range = sizeof(UBOComp);
+        m_UBOComp_BufferInfos.offset = 0;
+    }
 
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void GrayScottModule_Comp_Pass::UploadUBO()
-{
-	ZoneScoped;
+void GrayScottModule_Comp_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+    VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
-void GrayScottModule_Comp_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void GrayScottModule_Comp_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOCompPtr.reset();
-	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBOCompPtr.reset();
+    m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool GrayScottModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool GrayScottModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+    return res;
 }
 
-bool GrayScottModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool GrayScottModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // common system
-	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
-	res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // input 0
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));  // output
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());          // common system
+    res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
+    res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // input 0
+    return res;
 }
 
-std::string GrayScottModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "GrayScottModule_Comp_Pass";
+std::string GrayScottModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "GrayScottModule_Comp_Pass";
 
-	// with 8 i have some slow down maybe due the fact than i read an write from same image2D
-	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
+    // with 8 i have some slow down maybe due the fact than i read an write from same image2D
+    SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 layout(binding = 0, rgba32f) uniform image2D outColor;
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(1U) +
-u8R"(
+)" + CommonSystem::GetBufferObjectStructureHeader(1U) +
+           u8R"(
 layout(std140, binding = 2) uniform UBO_Comp
 {
 	float mouse_radius;
@@ -431,59 +400,56 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string GrayScottModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string GrayScottModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
-	str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
-	str += vOffset + "<mouse_inversion>" + ct::toStr(m_UBOComp.mouse_inversion) + "</mouse_inversion>\n";
-	str += vOffset + "<grayscott_diffusion_u>" + ct::toStr(m_UBOComp.grayscott_diffusion_u) + "</grayscott_diffusion_u>\n";
-	str += vOffset + "<grayscott_diffusion_v>" + ct::toStr(m_UBOComp.grayscott_diffusion_v) + "</grayscott_diffusion_v>\n";
-	str += vOffset + "<grayscott_feed>" + ct::toStr(m_UBOComp.grayscott_feed) + "</grayscott_feed>\n";
-	str += vOffset + "<grayscott_kill>" + ct::toStr(m_UBOComp.grayscott_kill) + "</grayscott_kill>\n";
-	str += vOffset + "<iterations_count>" + ct::toStr(m_CountIterations.w) + "</iterations_count>\n";
-	str += vOffset + "<simulation_config>" + ct::toStr(m_SelectedGrayScottConfig) + "</simulation_config>\n";
+    str += ShaderPass::getXml(vOffset, vUserDatas);
+    str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
+    str += vOffset + "<mouse_inversion>" + ct::toStr(m_UBOComp.mouse_inversion) + "</mouse_inversion>\n";
+    str += vOffset + "<grayscott_diffusion_u>" + ct::toStr(m_UBOComp.grayscott_diffusion_u) + "</grayscott_diffusion_u>\n";
+    str += vOffset + "<grayscott_diffusion_v>" + ct::toStr(m_UBOComp.grayscott_diffusion_v) + "</grayscott_diffusion_v>\n";
+    str += vOffset + "<grayscott_feed>" + ct::toStr(m_UBOComp.grayscott_feed) + "</grayscott_feed>\n";
+    str += vOffset + "<grayscott_kill>" + ct::toStr(m_UBOComp.grayscott_kill) + "</grayscott_kill>\n";
+    str += vOffset + "<iterations_count>" + ct::toStr(m_CountIterations.w) + "</iterations_count>\n";
+    str += vOffset + "<simulation_config>" + ct::toStr(m_SelectedGrayScottConfig) + "</simulation_config>\n";
 
-	return str;
+    return str;
 }
 
-bool GrayScottModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool GrayScottModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "gray_scott_sim")
-	{
-		if (strName == "mouse_radius")
-			m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
-		else if (strName == "mouse_inversion")
-			m_UBOComp.mouse_inversion = ct::fvariant(strValue).GetF();
-		else if (strName == "grayscott_diffusion_u")
-			m_UBOComp.grayscott_diffusion_u = ct::fvariant(strValue).GetF();
-		else if (strName == "grayscott_diffusion_v")
-			m_UBOComp.grayscott_diffusion_v = ct::fvariant(strValue).GetF();
-		else if (strName == "grayscott_feed")
-			m_UBOComp.grayscott_feed = ct::fvariant(strValue).GetF();
-		else if (strName == "grayscott_kill")
-			m_UBOComp.grayscott_kill = ct::fvariant(strValue).GetF();
-		else if (strName == "iterations_count")
-			m_CountIterations.w = ct::uvariant(strValue).GetU();
-		else if (strName == "simulation_config")
-			m_SelectedGrayScottConfig = ct::ivariant(strValue).GetI();
-	}
+    if (strParentName == "gray_scott_sim") {
+        if (strName == "mouse_radius")
+            m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
+        else if (strName == "mouse_inversion")
+            m_UBOComp.mouse_inversion = ct::fvariant(strValue).GetF();
+        else if (strName == "grayscott_diffusion_u")
+            m_UBOComp.grayscott_diffusion_u = ct::fvariant(strValue).GetF();
+        else if (strName == "grayscott_diffusion_v")
+            m_UBOComp.grayscott_diffusion_v = ct::fvariant(strValue).GetF();
+        else if (strName == "grayscott_feed")
+            m_UBOComp.grayscott_feed = ct::fvariant(strValue).GetF();
+        else if (strName == "grayscott_kill")
+            m_UBOComp.grayscott_kill = ct::fvariant(strValue).GetF();
+        else if (strName == "iterations_count")
+            m_CountIterations.w = ct::uvariant(strValue).GetU();
+        else if (strName == "simulation_config")
+            m_SelectedGrayScottConfig = ct::ivariant(strValue).GetI();
+    }
 
-	return true;
+    return true;
 }

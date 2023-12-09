@@ -19,49 +19,37 @@ limitations under the License.
 #include <LumoBackend/Interfaces/VariableInputInterface.h>
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>
 class ParametricCurveDiffModule;
-class ParametricCurveDiffNode :
-	public VariableInputInterface<0U>,
-	public ModelOutputInterface,
-	public BaseNode
-{
+class ParametricCurveDiffNode : public VariableInputInterface<0U>, public ModelOutputInterface, public BaseNode {
 public:
-	static std::shared_ptr<ParametricCurveDiffNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<ParametricCurveDiffNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<ParametricCurveDiffModule> m_ParametricCurveDiffModulePtr = nullptr;
+    std::shared_ptr<ParametricCurveDiffModule> m_ParametricCurveDiffModulePtr = nullptr;
 
 public:
-	ParametricCurveDiffNode();
-	~ParametricCurveDiffNode() override;
+    ParametricCurveDiffNode();
+    ~ParametricCurveDiffNode() override;
 
-	// Init / Unit
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    // Init / Unit
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
-	// Draw Widgets
+    // Draw Widgets
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr,
-        const std::string& vUserDatas) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr,
-        const std::string& vUserDatas) override;
-	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	// Interfaces Setters
-	void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+    void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+    // Interfaces Setters
+    void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;
 
+    // Interfaces Getters
+    SceneModelWeak GetModel() override;
 
-	// Interfaces Getters
-	SceneModelWeak GetModel() override;
+    // Input / Ouput slot widgets
+    void DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;
 
-
-	// Input / Ouput slot widgets
-	void DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) override;
-
-	// Configuration
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
-
+    // Configuration
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 };

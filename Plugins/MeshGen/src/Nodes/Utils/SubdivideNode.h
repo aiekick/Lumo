@@ -19,46 +19,34 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>
 class SubdivideModule;
-class SubdivideNode :
-	public ModelInputInterface,
-	public ModelOutputInterface,
-	public BaseNode
-{
+class SubdivideNode : public ModelInputInterface, public ModelOutputInterface, public BaseNode {
 public:
-	static std::shared_ptr<SubdivideNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<SubdivideNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<SubdivideModule> m_SubdivideModulePtr = nullptr;
+    std::shared_ptr<SubdivideModule> m_SubdivideModulePtr = nullptr;
 
 public:
-	SubdivideNode();
-	~SubdivideNode() override;
+    SubdivideNode();
+    ~SubdivideNode() override;
 
-	// Init / Unit
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    // Init / Unit
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
-	// Draw Widgets
+    // Draw Widgets
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr,
-        const std::string& vUserDatas) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr,
-        const std::string& vUserDatas) override;
-	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	// Interfaces Setters
-	void SetModel(SceneModelWeak vSceneModel) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+    void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+    // Interfaces Setters
+    void SetModel(SceneModelWeak vSceneModel) override;
 
+    // Interfaces Getters
+    SceneModelWeak GetModel() override;
 
-	// Interfaces Getters
-	SceneModelWeak GetModel() override;
-
-
-	// Configuration
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
-
+    // Configuration
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 };

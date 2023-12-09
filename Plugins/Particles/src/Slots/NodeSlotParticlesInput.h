@@ -23,35 +23,30 @@ class NodeSlotParticlesInput;
 typedef std::weak_ptr<NodeSlotParticlesInput> NodeSlotParticlesInputWeak;
 typedef std::shared_ptr<NodeSlotParticlesInput> NodeSlotParticlesInputPtr;
 
-class NodeSlotParticlesInput : 
-	public NodeSlotInput
-{
+class NodeSlotParticlesInput : public NodeSlotInput {
 public:
-	static NodeSlotParticlesInputPtr Create(NodeSlotParticlesInput vSlot);
-	static NodeSlotParticlesInputPtr Create(const std::string& vName);
-	static NodeSlotParticlesInputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotParticlesInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotParticlesInputPtr Create(NodeSlotParticlesInput vSlot);
+    static NodeSlotParticlesInputPtr Create(const std::string& vName);
+    static NodeSlotParticlesInputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotParticlesInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotParticlesInput();
-	explicit NodeSlotParticlesInput(const std::string& vName);
-	explicit NodeSlotParticlesInput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotParticlesInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotParticlesInput();
+    explicit NodeSlotParticlesInput();
+    explicit NodeSlotParticlesInput(const std::string& vName);
+    explicit NodeSlotParticlesInput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotParticlesInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotParticlesInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		NotifyEvent vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(NotifyEvent vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

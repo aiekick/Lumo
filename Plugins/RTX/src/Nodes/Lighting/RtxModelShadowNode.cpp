@@ -30,73 +30,63 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<RtxModelShadowNode> RtxModelShadowNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	auto res = std::make_shared<RtxModelShadowNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<RtxModelShadowNode> RtxModelShadowNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<RtxModelShadowNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
+    return res;
 }
 
-RtxModelShadowNode::RtxModelShadowNode() : BaseNode()
-{
-	m_NodeTypeString = "RTX_MODEL_SHADOW";
+RtxModelShadowNode::RtxModelShadowNode() : BaseNode() {
+    m_NodeTypeString = "RTX_MODEL_SHADOW";
 }
 
-RtxModelShadowNode::~RtxModelShadowNode()
-{
-	Unit();
+RtxModelShadowNode::~RtxModelShadowNode() {
+    Unit();
 }
 
-bool RtxModelShadowNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	name = "Rtx Model Shadow";
+bool RtxModelShadowNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    name = "Rtx Model Shadow";
 
-	AddInput(NodeSlotAccelStructureInput::Create("BVH"), true, false);
-	AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
-	AddOutput(NodeSlotTextureOutput::Create("", 0U), true, true);
+    AddInput(NodeSlotAccelStructureInput::Create("BVH"), true, false);
+    AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
+    AddOutput(NodeSlotTextureOutput::Create("", 0U), true, true);
 
-	bool res = false;
+    bool res = false;
 
-	m_RtxModelShadowModulePtr = RtxModelShadowModule::Create(vVulkanCore);
-	if (m_RtxModelShadowModulePtr)
-	{
-		res = true;
-	}
+    m_RtxModelShadowModulePtr = RtxModelShadowModule::Create(vVulkanCore);
+    if (m_RtxModelShadowModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
-void RtxModelShadowNode::Unit()
-{
-	m_RtxModelShadowModulePtr.reset();
+void RtxModelShadowNode::Unit() {
+    m_RtxModelShadowModulePtr.reset();
 }
 
-bool RtxModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+bool RtxModelShadowNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-	if (m_RtxModelShadowModulePtr)
-	{
-		return m_RtxModelShadowModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-	}
+    if (m_RtxModelShadowModulePtr) {
+        return m_RtxModelShadowModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    }
 
-	return false;
+    return false;
 }
 
-bool RtxModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool RtxModelShadowNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_RtxModelShadowModulePtr)
-	{
-		return m_RtxModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+    if (m_RtxModelShadowModulePtr) {
+        return m_RtxModelShadowModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return false;
+    return false;
 }
 
 bool RtxModelShadowNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
@@ -111,139 +101,113 @@ bool RtxModelShadowNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRec
     return false;
 }
 
-bool RtxModelShadowNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool RtxModelShadowNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_RtxModelShadowModulePtr)
-	{
-		return m_RtxModelShadowModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-	}
+    if (m_RtxModelShadowModulePtr) {
+        return m_RtxModelShadowModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    }
     return false;
 }
 
-void RtxModelShadowNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used(%s)\nCell(%i, %i)"/*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/,
-				(used ? "true" : "false"), cell.x, cell.y/*, pos.x, pos.y, size.x, size.y*/);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+void RtxModelShadowNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used(%s)\nCell(%i, %i)" /*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/, (used ? "true" : "false"), cell.x,
+                cell.y /*, pos.x, pos.y, size.x, size.y*/);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 
-void RtxModelShadowNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	if (m_RtxModelShadowModulePtr)
-	{
-		m_RtxModelShadowModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-	}
+void RtxModelShadowNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    if (m_RtxModelShadowModulePtr) {
+        m_RtxModelShadowModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    }
 
-	// on fait ca apres
-	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // on fait ca apres
+    BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-vk::DescriptorImageInfo* RtxModelShadowNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_RtxModelShadowModulePtr)
-	{
-		return m_RtxModelShadowModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+vk::DescriptorImageInfo* RtxModelShadowNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_RtxModelShadowModulePtr) {
+        return m_RtxModelShadowModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-void RtxModelShadowNode::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
-{
-	if (m_RtxModelShadowModulePtr)
-	{
-		m_RtxModelShadowModulePtr->SetAccelStructure(vSceneAccelStructure);
-	}
+void RtxModelShadowNode::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) {
+    if (m_RtxModelShadowModulePtr) {
+        m_RtxModelShadowModulePtr->SetAccelStructure(vSceneAccelStructure);
+    }
 }
 
-void RtxModelShadowNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
-{
-	if (m_RtxModelShadowModulePtr)
-	{
-		m_RtxModelShadowModulePtr->SetLightGroup(vSceneLightGroup);
-	}
+void RtxModelShadowNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
+    if (m_RtxModelShadowModulePtr) {
+        m_RtxModelShadowModulePtr->SetLightGroup(vSceneLightGroup);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string RtxModelShadowNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string res;
+std::string RtxModelShadowNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)nodeID.Get());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
-			
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_RtxModelShadowModulePtr)
-		{
-			res += m_RtxModelShadowModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        if (m_RtxModelShadowModulePtr) {
+            res += m_RtxModelShadowModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-	return res;
+        res += vOffset + "</node>\n";
+    }
+
+    return res;
 }
 
-bool RtxModelShadowNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool RtxModelShadowNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_RtxModelShadowModulePtr)
-	{
-		m_RtxModelShadowModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_RtxModelShadowModulePtr) {
+        m_RtxModelShadowModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }
 
-void RtxModelShadowNode::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	if (m_RtxModelShadowModulePtr)
-	{
-		m_RtxModelShadowModulePtr->UpdateShaders(vFiles);
-	}
+void RtxModelShadowNode::UpdateShaders(const std::set<std::string>& vFiles) {
+    if (m_RtxModelShadowModulePtr) {
+        m_RtxModelShadowModulePtr->UpdateShaders(vFiles);
+    }
 }

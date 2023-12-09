@@ -26,90 +26,80 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricCurveNode> ParametricCurveNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+std::shared_ptr<ParametricCurveNode> ParametricCurveNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	auto res = std::make_shared<ParametricCurveNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<ParametricCurveNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
-ParametricCurveNode::ParametricCurveNode() : BaseNode()
-{
-	ZoneScoped;
+ParametricCurveNode::ParametricCurveNode() : BaseNode() {
+    ZoneScoped;
 
-	m_NodeTypeString = "PARAMETRIC_CURVE";
+    m_NodeTypeString = "PARAMETRIC_CURVE";
 }
 
-ParametricCurveNode::~ParametricCurveNode()
-{
-	ZoneScoped;
+ParametricCurveNode::~ParametricCurveNode() {
+    ZoneScoped;
 
-	Unit();
-}		
+    Unit();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+bool ParametricCurveNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	name = "Parametric Curve";
-	AddInput(NodeSlotVariableInput::Create("Close", "WIDGET_BOOLEAN", 0), false, false);
+    name = "Parametric Curve";
+    AddInput(NodeSlotVariableInput::Create("Close", "WIDGET_BOOLEAN", 0), false, false);
 
-	AddOutput(NodeSlotModelOutput::Create("Curve"), false, false);
+    AddOutput(NodeSlotModelOutput::Create("Curve"), false, false);
 
-	m_ParametricCurveModulePtr = ParametricCurveModule::Create(vVulkanCore, m_This);
-	if (m_ParametricCurveModulePtr)
-	{
-		res = true;
-	}
+    m_ParametricCurveModulePtr = ParametricCurveModule::Create(vVulkanCore, m_This);
+    if (m_ParametricCurveModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_ParametricCurveModulePtr)
-	{
-		return m_ParametricCurveModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+bool ParametricCurveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_ParametricCurveModulePtr) {
+        return m_ParametricCurveModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return false;
+    return false;
 }
 
-bool ParametricCurveNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ParametricCurveNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool ParametricCurveNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_ParametricCurveModulePtr)
-	{
+bool ParametricCurveNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_ParametricCurveModulePtr) {
         return m_ParametricCurveModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
     return false;
@@ -119,147 +109,121 @@ bool ParametricCurveNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, co
 //// DRAW SLOTS WIDGET ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricCurveNode::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
-{
-	ZoneScoped;
+void ParametricCurveNode::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) {
+    ZoneScoped;
 
-	auto slotPtr = vSlot.lock();
-	if (slotPtr && slotPtr->showWidget)
-	{
-		if (m_ParametricCurveModulePtr)
-		{
-			//m_ParametricCurveModulePtr->DrawTexture(50);
-		}
-	}
+    auto slotPtr = vSlot.lock();
+    if (slotPtr && slotPtr->showWidget) {
+        if (m_ParametricCurveModulePtr) {
+            // m_ParametricCurveModulePtr->DrawTexture(50);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricCurveNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+void ParametricCurveNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used[%s]\nCell[%i, %i]",
-				(used ? "true" : "false"), cell.x, cell.y);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used[%s]\nCell[%i, %i]", (used ? "true" : "false"), cell.x, cell.y);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricCurveNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
-{	
-	ZoneScoped;
+void ParametricCurveNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+    ZoneScoped;
 
-	if (m_ParametricCurveModulePtr)
-	{
-		m_ParametricCurveModulePtr->SetVariable(vVarIndex, vSceneVariable);
-	}
+    if (m_ParametricCurveModulePtr) {
+        m_ParametricCurveModulePtr->SetVariable(vVarIndex, vSceneVariable);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneModelWeak ParametricCurveNode::GetModel()
-{	
-	ZoneScoped;
+SceneModelWeak ParametricCurveNode::GetModel() {
+    ZoneScoped;
 
-	if (m_ParametricCurveModulePtr)
-	{
-		return m_ParametricCurveModulePtr->GetModel();
-	}
+    if (m_ParametricCurveModulePtr) {
+        return m_ParametricCurveModulePtr->GetModel();
+    }
 
-	return SceneModelWeak();
+    return SceneModelWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ParametricCurveNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+std::string ParametricCurveNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string res;
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_ParametricCurveModulePtr)
-		{
-			res += m_ParametricCurveModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_ParametricCurveModulePtr) {
+            res += m_ParametricCurveModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool ParametricCurveNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+bool ParametricCurveNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_ParametricCurveModulePtr)
-	{
-		m_ParametricCurveModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_ParametricCurveModulePtr) {
+        m_ParametricCurveModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	// continue recurse child exploring
-	return true;
+    // continue recurse child exploring
+    return true;
 }
 
-void ParametricCurveNode::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void ParametricCurveNode::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_ParametricCurveModulePtr)
-	{
-		m_ParametricCurveModulePtr->AfterNodeXmlLoading();
-	}
+    if (m_ParametricCurveModulePtr) {
+        m_ParametricCurveModulePtr->AfterNodeXmlLoading();
+    }
 }

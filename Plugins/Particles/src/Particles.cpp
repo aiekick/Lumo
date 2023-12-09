@@ -26,9 +26,13 @@ extern "C"  // needed for avoid renaming of funcs by the compiler
 #define PLUGIN_PREFIX
 #endif
 
-PLUGIN_PREFIX Particles* allocator() { return new Particles(); }
+PLUGIN_PREFIX Particles* allocator() {
+    return new Particles();
+}
 
-PLUGIN_PREFIX void deleter(Particles* ptr) { delete ptr; }
+PLUGIN_PREFIX void deleter(Particles* ptr) {
+    delete ptr;
+}
 }
 #endif  // USE_PLUGIN_STATIC_LINKING
 
@@ -39,19 +43,33 @@ Particles::Particles() {
 #endif
 }
 
-void Particles::ActionAfterInit() { NodeSlot::sGetSlotColors()->AddSlotColor("PARTICLES", ImVec4(0.2f, 0.5f, 0.8f, 1.0f)); }
+void Particles::ActionAfterInit() {
+    NodeSlot::sGetSlotColors()->AddSlotColor("PARTICLES", ImVec4(0.2f, 0.5f, 0.8f, 1.0f));
+}
 
-uint32_t Particles::GetVersionMajor() const { return Particles_MinorNumber; }
+uint32_t Particles::GetVersionMajor() const {
+    return Particles_MinorNumber;
+}
 
-uint32_t Particles::GetVersionMinor() const { return Particles_MajorNumber; }
+uint32_t Particles::GetVersionMinor() const {
+    return Particles_MajorNumber;
+}
 
-uint32_t Particles::GetVersionBuild() const { return Particles_BuildNumber; }
+uint32_t Particles::GetVersionBuild() const {
+    return Particles_BuildNumber;
+}
 
-std::string Particles::GetName() const { return "Particles"; }
+std::string Particles::GetName() const {
+    return "Particles";
+}
 
-std::string Particles::GetVersion() const { return Particles_BuildId; }
+std::string Particles::GetVersion() const {
+    return Particles_BuildId;
+}
 
-std::string Particles::GetDescription() const { return "Particles system plugin"; }
+std::string Particles::GetDescription() const {
+    return "Particles system plugin";
+}
 
 std::vector<std::string> Particles::GetNodes() const {
     return {
@@ -90,7 +108,9 @@ BaseNodePtr Particles::CreatePluginNode(const std::string& vPluginNodeName) {
     return nullptr;
 }
 
-std::vector<PluginPaneConfig> Particles::GetPanes() const { return {}; }
+std::vector<PluginPaneConfig> Particles::GetPanes() const {
+    return {};
+}
 
 int Particles::ResetImGuiID(const int& vWidgetId) {
     auto ids = ImGui::CustomStyle::pushId;

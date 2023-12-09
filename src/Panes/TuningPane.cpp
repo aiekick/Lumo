@@ -32,7 +32,7 @@ limitations under the License.
 
 #include <LumoBackend/Systems/CommonSystem.h>
 
-#include <cinttypes> // printf zu
+#include <cinttypes>  // printf zu
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -46,9 +46,7 @@ limitations under the License.
 //// CONSTRUCTORS /////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-TuningPane::TuningPane()
-{
-
+TuningPane::TuningPane() {
 }
 
 TuningPane::~TuningPane() = default;
@@ -57,100 +55,85 @@ TuningPane::~TuningPane() = default;
 //// INIT/UNIT ////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool TuningPane::Init()
-{
-	ZoneScoped;
+bool TuningPane::Init() {
+    ZoneScoped;
 
-	return true;
+    return true;
 }
 
-void TuningPane::Unit()
-{
-	ZoneScoped;
+void TuningPane::Unit() {
+    ZoneScoped;
 
-	SetParentNode();
+    SetParentNode();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool TuningPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool TuningPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	bool change = false;
+    bool change = false;
 
-	if (vInOutPaneShown & paneFlag)
-	{
-		static ImGuiWindowFlags flags =
-			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoBringToFrontOnFocus |
-			ImGuiWindowFlags_MenuBar;
-		if (ImGui::Begin<PaneFlags>(paneName.c_str(),
-			&vInOutPaneShown , paneFlag, flags))
-		{
+    if (vInOutPaneShown & paneFlag) {
+        static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
+        if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
-			auto win = ImGui::GetCurrentWindowRead();
-			if (win->Viewport->Idx != 0)
-				flags |= ImGuiWindowFlags_NoResize;// | ImGuiWindowFlags_NoTitleBar;
-			else
-				flags = ImGuiWindowFlags_NoCollapse |
-				ImGuiWindowFlags_NoBringToFrontOnFocus |
-				ImGuiWindowFlags_MenuBar;
+            auto win = ImGui::GetCurrentWindowRead();
+            if (win->Viewport->Idx != 0)
+                flags |= ImGuiWindowFlags_NoResize;  // | ImGuiWindowFlags_NoTitleBar;
+            else
+                flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
 #endif
-			if (ProjectFile::Instance()->IsProjectLoaded())
-			{
-				change = DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
-		}
+            if (ProjectFile::Instance()->IsProjectLoaded()) {
+                change = DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
+        }
 
-		ImGui::End();
-	}
+        ImGui::End();
+    }
 
-	return change;
+    return change;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// DIALOGS //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool TuningPane::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool TuningPane::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	return false;
+    return false;
 }
 
-bool TuningPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	bool change = false;
+bool TuningPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    bool change = false;
 
-	change |= CommonSystem::Instance()->DrawImGui();
+    change |= CommonSystem::Instance()->DrawImGui();
 
-	auto ptr = GetParentNode().lock();
-	if (ptr)
-	{
-		change |= ptr->DrawWidgets(vCurrentFrame, ImGui::GetCurrentContext(), vUserDatas);
-	}
+    auto ptr = GetParentNode().lock();
+    if (ptr) {
+        change |= ptr->DrawWidgets(vCurrentFrame, ImGui::GetCurrentContext(), vUserDatas);
+    }
 
-	return change;
+    return change;
 }
 
 bool TuningPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
-	UNUSED(vCurrentFrame);
-	UNUSED(vRect);
-	ImGui::SetCurrentContext(vContextPtr);
-	UNUSED(vUserDatas);
-	return false;
+    ZoneScoped;
+    UNUSED(vCurrentFrame);
+    UNUSED(vRect);
+    ImGui::SetCurrentContext(vContextPtr);
+    UNUSED(vUserDatas);
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
 //// SELECTOR /////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-void TuningPane::Select(BaseNodeWeak vObjet)
-{
-	SetParentNode(vObjet);
+void TuningPane::Select(BaseNodeWeak vObjet) {
+    SetParentNode(vObjet);
 }

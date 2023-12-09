@@ -27,54 +27,53 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Utils/Mesh/VertexStruct.h>
 
-class MeshModule : 
-	public conf::ConfigAbstract, 
-	public NodeInterface,
-	public ModelOutputInterface,
-	public GuiInterface
-{
+class MeshModule : public conf::ConfigAbstract, public NodeInterface, public ModelOutputInterface, public GuiInterface {
 public:
-	static std::shared_ptr<MeshModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<MeshModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<MeshModule> m_This;
-	GaiApi::VulkanCoreWeak m_VulkanCore;
+    std::weak_ptr<MeshModule> m_This;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
 
-	std::string m_FilePathName;
-	std::string m_FilePath;
-	std::string m_FileName;
+    std::string m_FilePathName;
+    std::string m_FilePath;
+    std::string m_FileName;
 
-	bool m_Loaded = false;
-	bool m_NeedResize = false;
-	bool m_CanWeRender = true;
-	bool m_JustReseted = false;
-	bool m_UseDepth = false;
-	bool m_NeedToClear = false;
-	bool m_NeedModelUpdate = false;
+    bool m_Loaded = false;
+    bool m_NeedResize = false;
+    bool m_CanWeRender = true;
+    bool m_JustReseted = false;
+    bool m_UseDepth = false;
+    bool m_NeedToClear = false;
+    bool m_NeedModelUpdate = false;
 
-	SceneModelPtr m_SceneModelPtr = nullptr;
+    SceneModelPtr m_SceneModelPtr = nullptr;
 
-	std::string unique_OpenMeshFileDialog_id;
+    std::string unique_OpenMeshFileDialog_id;
 
 public:
-	MeshModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	virtual ~MeshModule();
+    MeshModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    virtual ~MeshModule();
 
-	bool Init();
-	void Unit();
+    bool Init();
+    void Unit();
 
-	std::string GetFileName() { return m_FileName; }
+    std::string GetFileName() {
+        return m_FileName;
+    }
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	SceneModelWeak GetModel() override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    SceneModelWeak GetModel() override;
 
 private:
-	void LoadMesh(const std::string& vFilePathName);
-	void MeshLoadingFinished();
+    void LoadMesh(const std::string& vFilePathName);
+    void MeshLoadingFinished();
 
 public:
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

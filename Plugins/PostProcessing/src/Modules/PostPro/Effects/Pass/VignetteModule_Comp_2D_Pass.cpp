@@ -89,7 +89,7 @@ bool VignetteModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImG
     bool change = false;
 
     if (ImGui::CollapsingHeader_CheckBox("Vignette##VignetteModule", -1.0f, false, true, IsEffectEnabled())) {
-        //change |= DrawResizeWidget();
+        // change |= DrawResizeWidget();
         change |= ImGui::SliderFloatDefaultCompact(0.0f, "Width", &m_UBOComp.u_Width, 0.000f, 0.500f, 0.250f, 0.0f, "%.3f");
         change |= ImGui::SliderFloatDefaultCompact(0.0f, "Intensity", &m_UBOComp.u_Intensity, 0.000f, 30.000f, 15.000f, 0.0f, "%.3f");
 

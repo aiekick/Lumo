@@ -48,126 +48,117 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 
 AlienRockModule_Mesh_Pass::AlienRockModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: MeshShaderPass<VertexStruct::P3_N3_C4>(vVulkanCore, MeshShaderPassType::PIXEL)
-{
-	ZoneScoped;
+    : MeshShaderPass<VertexStruct::P3_N3_C4>(vVulkanCore, MeshShaderPassType::PIXEL) {
+    ZoneScoped;
 
-	SetRenderDocDebugName("Mesh Pass : Planet Ground", MESH_SHADER_PASS_DEBUG_COLOR);
+    SetRenderDocDebugName("Mesh Pass : Planet Ground", MESH_SHADER_PASS_DEBUG_COLOR);
 
-	//m_DontUseShaderFilesOnDisk = true;
+    // m_DontUseShaderFilesOnDisk = true;
 }
 
-AlienRockModule_Mesh_Pass::~AlienRockModule_Mesh_Pass()
-{
-	ZoneScoped;
+AlienRockModule_Mesh_Pass::~AlienRockModule_Mesh_Pass() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
-void AlienRockModule_Mesh_Pass::ActionBeforeInit()
-{
-	ZoneScoped;
+void AlienRockModule_Mesh_Pass::ActionBeforeInit() {
+    ZoneScoped;
 
-	//m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+    // m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
-	SetDynamicallyChangePrimitiveTopology(true);
-	SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList);
-	m_PrimitiveTopologiesIndex = (int32_t)vk::PrimitiveTopology::eTriangleList;
-	m_LineWidth.x = 0.5f;	// min value
-	m_LineWidth.y = 10.0f;	// max value
-	m_LineWidth.z = 2.0f;	// default value
-	m_LineWidth.w; // value to change
+    SetDynamicallyChangePrimitiveTopology(true);
+    SetPrimitveTopology(vk::PrimitiveTopology::eTriangleList);
+    m_PrimitiveTopologiesIndex = (int32_t)vk::PrimitiveTopology::eTriangleList;
+    m_LineWidth.x = 0.5f;   // min value
+    m_LineWidth.y = 10.0f;  // max value
+    m_LineWidth.z = 2.0f;   // default value
+    m_LineWidth.w;          // value to change
 
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 }
 
-bool AlienRockModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool AlienRockModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr);
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	bool need_ubos_update = false;
-	bool need_model_update = false;
+    bool need_ubos_update = false;
+    bool need_model_update = false;
 
-	//need_ubos_update |= DrawResizeWidget();
+    // need_ubos_update |= DrawResizeWidget();
 
-	if (ImGui::CollapsingHeader("Ground : Mesh Analyze"))
-	{
-		need_ubos_update |= ImGui::CheckBoxIntDefault("Use debug##ground", &m_UBO_Frag.u_use_debug, 0);
-		if (m_UBO_Frag.u_use_debug)
-		{
-			// because tesselated
-			/*if (ImGui::ContrastedComboVectorDefault(0.0f, "Display Mode", &m_PrimitiveTopologiesIndex, m_PrimitiveTopologies, 0))
-			{
-				ChangeDynamicPrimitiveTopology((vk::PrimitiveTopology)m_PrimitiveTopologiesIndex, true);
-			}*/
+    if (ImGui::CollapsingHeader("Ground : Mesh Analyze")) {
+        need_ubos_update |= ImGui::CheckBoxIntDefault("Use debug##ground", &m_UBO_Frag.u_use_debug, 0);
+        if (m_UBO_Frag.u_use_debug) {
+            // because tesselated
+            /*if (ImGui::ContrastedComboVectorDefault(0.0f, "Display Mode", &m_PrimitiveTopologiesIndex, m_PrimitiveTopologies, 0))
+            {
+                ChangeDynamicPrimitiveTopology((vk::PrimitiveTopology)m_PrimitiveTopologiesIndex, true);
+            }*/
 
-			need_ubos_update |= ImGui::ContrastedComboVectorDefault(0.0f, "Channel##ground", &m_UBO_Frag.u_show_layer, m_Channels, 0);
+            need_ubos_update |= ImGui::ContrastedComboVectorDefault(0.0f, "Channel##ground", &m_UBO_Frag.u_show_layer, m_Channels, 0);
 
-			// because tesselated
-			/*if (m_PrimitiveTopologiesIndex == 1 ||
-				m_PrimitiveTopologiesIndex == 2)
-			{
-				need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Line Thickness", &m_LineWidth.w, m_LineWidth.x, m_LineWidth.y, m_LineWidth.z);
-			}
-			else if (m_PrimitiveTopologiesIndex == 0)
-			{
-				need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "point_size", &m_UBO_Vert.u_point_size, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
-			}*/
-		}
+            // because tesselated
+            /*if (m_PrimitiveTopologiesIndex == 1 ||
+                m_PrimitiveTopologiesIndex == 2)
+            {
+                need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Line Thickness", &m_LineWidth.w, m_LineWidth.x, m_LineWidth.y,
+            m_LineWidth.z);
+            }
+            else if (m_PrimitiveTopologiesIndex == 0)
+            {
+                need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "point_size", &m_UBO_Vert.u_point_size, 0.000f, 2.000f, 1.000f, 0.0f,
+            "%.3f");
+            }*/
+        }
 
-		if (m_PrimitiveTopologiesIndex > 2) // "Triangle List" or "Triangle Strip" or "Triangle Fan"
-		{
-			need_ubos_update |= ImGui::CheckBoxIntDefault("Show Shaded Wireframe##ground", &m_UBO_Frag.u_show_shaded_wireframe, 0);
-		}
+        if (m_PrimitiveTopologiesIndex > 2)  // "Triangle List" or "Triangle Strip" or "Triangle Fan"
+        {
+            need_ubos_update |= ImGui::CheckBoxIntDefault("Show Shaded Wireframe##ground", &m_UBO_Frag.u_show_shaded_wireframe, 0);
+        }
 
-		if (!m_Vertices.m_Array.empty() && !m_Indices.m_Array.empty())
-		{
-			need_ubos_update |= ImGui::CheckBoxBoolDefault("Use Indices Restriction##ground", &m_UseIndiceRestriction, false);
-			if (m_UseIndiceRestriction)
-			{
-				need_ubos_update |= ImGui::SliderUIntDefaultCompact(0.0f, "count indices##ground", &m_RestrictedIndicesCountToDraw, 0, (uint32_t)m_Indices.m_Array.size(), (uint32_t)m_Indices.m_Array.size());
-			}
-		}
+        if (!m_Vertices.m_Array.empty() && !m_Indices.m_Array.empty()) {
+            need_ubos_update |= ImGui::CheckBoxBoolDefault("Use Indices Restriction##ground", &m_UseIndiceRestriction, false);
+            if (m_UseIndiceRestriction) {
+                need_ubos_update |= ImGui::SliderUIntDefaultCompact(0.0f, "count indices##ground", &m_RestrictedIndicesCountToDraw, 0,
+                    (uint32_t)m_Indices.m_Array.size(), (uint32_t)m_Indices.m_Array.size());
+            }
+        }
 
-		if (need_model_update)
-		{
-			CreateCube();
-		}
-	}
+        if (need_model_update) {
+            CreateCube();
+        }
+    }
 
-	if (ImGui::CollapsingHeader("Ground : Mesh Control"))
-	{
-		need_model_update |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level##ground", &m_SubdivisionLevel, 0U, 5U, 0U);
-	}
+    if (ImGui::CollapsingHeader("Ground : Mesh Control")) {
+        need_model_update |= ImGui::SliderUIntDefaultCompact(0.0f, "Subdivision Level##ground", &m_SubdivisionLevel, 0U, 5U, 0U);
+    }
 
-	if (ImGui::CollapsingHeader("Ground : Mesh Tesselation"))
-	{
-		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Radius##ground", &m_UBO_Tess_Eval.u_radius, 0.0f, 10.0f, 1.0f);
-		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Tesselation level##ground", &m_UBO_Tess_Ctrl.u_tesselation_level, 0.0f, 100.0f, 1.0f);
-		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Displacement Factor##ground", &m_UBO_Tess_Eval.u_displace_factor, 0.0f, 2.0f, 1.0f);
-		need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Normal Precision##ground", &m_UBO_Tess_Eval.u_normal_prec, 0.0f, 0.1f, 0.01f);
-	}
+    if (ImGui::CollapsingHeader("Ground : Mesh Tesselation")) {
+        need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Radius##ground", &m_UBO_Tess_Eval.u_radius, 0.0f, 10.0f, 1.0f);
+        need_ubos_update |=
+            ImGui::SliderFloatDefaultCompact(0.0f, "Tesselation level##ground", &m_UBO_Tess_Ctrl.u_tesselation_level, 0.0f, 100.0f, 1.0f);
+        need_ubos_update |=
+            ImGui::SliderFloatDefaultCompact(0.0f, "Displacement Factor##ground", &m_UBO_Tess_Eval.u_displace_factor, 0.0f, 2.0f, 1.0f);
+        need_ubos_update |= ImGui::SliderFloatDefaultCompact(0.0f, "Normal Precision##ground", &m_UBO_Tess_Eval.u_normal_prec, 0.0f, 0.1f, 0.01f);
+    }
 
-	if (need_ubos_update)
-	{
-		NeedNewUBOUpload();
-	}
+    if (need_ubos_update) {
+        NeedNewUBOUpload();
+    }
 
-	if (need_model_update)
-	{
-		CreateCube();
-	}
+    if (need_model_update) {
+        CreateCube();
+    }
 
-	return need_ubos_update || need_model_update;
+    return need_ubos_update || need_model_update;
 }
 
 bool AlienRockModule_Mesh_Pass::DrawOverlays(
@@ -190,398 +181,351 @@ bool AlienRockModule_Mesh_Pass::DrawDialogsAndPopups(
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void AlienRockModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void AlienRockModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
-					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
-				}
+                    NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
+                }
 
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				EnableTextureUse(vBindingPoint, 0U, m_UBO_Tess_Eval.u_use_height_map);
-				EnableTextureUse(vBindingPoint, 1U, m_UBO_Frag.u_use_normal_map);
-				EnableTextureUse(vBindingPoint, 2U, m_UBO_Frag.u_use_color_map);
-			}
-			else {
+                EnableTextureUse(vBindingPoint, 0U, m_UBO_Tess_Eval.u_use_height_map);
+                EnableTextureUse(vBindingPoint, 1U, m_UBO_Frag.u_use_normal_map);
+                EnableTextureUse(vBindingPoint, 2U, m_UBO_Frag.u_use_color_map);
+            } else {
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 
-				DisableTextureUse(vBindingPoint, 0U, m_UBO_Tess_Eval.u_use_height_map);
-				DisableTextureUse(vBindingPoint, 1U, m_UBO_Frag.u_use_normal_map);
-				DisableTextureUse(vBindingPoint, 2U, m_UBO_Frag.u_use_color_map);
-			}
-		}
-	}
+                DisableTextureUse(vBindingPoint, 0U, m_UBO_Tess_Eval.u_use_height_map);
+                DisableTextureUse(vBindingPoint, 1U, m_UBO_Frag.u_use_normal_map);
+                DisableTextureUse(vBindingPoint, 2U, m_UBO_Frag.u_use_color_map);
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* AlienRockModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+vk::DescriptorImageInfo* AlienRockModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_FrameBufferPtr)
-	{
-		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
+    if (m_FrameBufferPtr) {
+        AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PUBLIC ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AlienRockModule_Mesh_Pass::WasJustResized()
-{
-	ZoneScoped;
+void AlienRockModule_Mesh_Pass::WasJustResized() {
+    ZoneScoped;
 }
 
-void AlienRockModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	ZoneScoped;
+void AlienRockModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    ZoneScoped;
 
-	if (!m_Loaded) return;
+    if (!m_Loaded)
+        return;
 
-	if (vCmdBufferPtr && m_Vertices.m_Count)
-	{
-		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
-		{
-			//VKFPScoped(*vCmdBufferPtr, "Model Renderer", "DrawModel");
+    if (vCmdBufferPtr && m_Vertices.m_Count) {
+        vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
+        {
+            // VKFPScoped(*vCmdBufferPtr, "Model Renderer", "DrawModel");
 
-			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics,
-				m_Pipelines[0].m_PipelineLayout, 0,
-				m_DescriptorSets[0].m_DescriptorSet, nullptr);
-			vk::DeviceSize offsets = 0;
-			vCmdBufferPtr->bindVertexBuffers(0, m_Vertices.m_Buffer->buffer, offsets);
+            vCmdBufferPtr->bindDescriptorSets(
+                vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+            vk::DeviceSize offsets = 0;
+            vCmdBufferPtr->bindVertexBuffers(0, m_Vertices.m_Buffer->buffer, offsets);
 
-			if (m_Indices.m_Count)
-			{
-				vCmdBufferPtr->bindIndexBuffer(m_Indices.m_Buffer->buffer, 0, vk::IndexType::eUint32);
-				if (m_UseIndiceRestriction)
-				{
-					vCmdBufferPtr->drawIndexed(m_RestrictedIndicesCountToDraw, 1, 0, 0, 0);
-				}
-				else
-				{
-					vCmdBufferPtr->drawIndexed(m_Indices.m_Count, m_CountInstances.w, 0, 0, 0);
-				}
-			}
-			else
-			{
-				vCmdBufferPtr->draw(m_Vertices.m_Count, m_CountInstances.w, 0, 0);
-			}
-		}
-	}
+            if (m_Indices.m_Count) {
+                vCmdBufferPtr->bindIndexBuffer(m_Indices.m_Buffer->buffer, 0, vk::IndexType::eUint32);
+                if (m_UseIndiceRestriction) {
+                    vCmdBufferPtr->drawIndexed(m_RestrictedIndicesCountToDraw, 1, 0, 0, 0);
+                } else {
+                    vCmdBufferPtr->drawIndexed(m_Indices.m_Count, m_CountInstances.w, 0, 0, 0);
+                }
+            } else {
+                vCmdBufferPtr->draw(m_Vertices.m_Count, m_CountInstances.w, 0, 0);
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void AlienRockModule_Mesh_Pass::CreateCube()
-{
-	static std::vector<ct::fvec3> cube_points = {
-		ct::fvec3(-1,1,-1), ct::fvec3(1,1,-1), ct::fvec3(1,1,1), ct::fvec3(-1,1,1),     // top
-		ct::fvec3(-1,-1,-1), ct::fvec3(1,-1,-1), ct::fvec3(1,-1,1), ct::fvec3(-1,-1,1)	// bottom
-	};
+void AlienRockModule_Mesh_Pass::CreateCube() {
+    static std::vector<ct::fvec3> cube_points = {
+        ct::fvec3(-1, 1, -1), ct::fvec3(1, 1, -1), ct::fvec3(1, 1, 1), ct::fvec3(-1, 1, 1),     // top
+        ct::fvec3(-1, -1, -1), ct::fvec3(1, -1, -1), ct::fvec3(1, -1, 1), ct::fvec3(-1, -1, 1)  // bottom
+    };
 
-	/*
-			   7---------6
-			  /|        /|
-			 / |       / |
-			3---------2  |
-			|  4------|--5
-			| /       | /
-			|/        |/
-			0---------1
-	*/
+    /*
+               7---------6
+              /|        /|
+             / |       / |
+            3---------2  |
+            |  4------|--5
+            | /       | /
+            |/        |/
+            0---------1
+    */
 
-	static std::vector<uint32_t> cube_faces = {
-		0,1,2,0,2,3,
-		1,5,6,1,6,2,
-		5,4,7,5,7,6,
-		4,0,3,4,3,7,
-		3,2,6,3,6,7,
-		4,5,1,4,1,0
-	};
+    static std::vector<uint32_t> cube_faces = {
+        0, 1, 2, 0, 2, 3, 1, 5, 6, 1, 6, 2, 5, 4, 7, 5, 7, 6, 4, 0, 3, 4, 3, 7, 3, 2, 6, 3, 6, 7, 4, 5, 1, 4, 1, 0};
 
-	assert(cube_points.size() == 8);
-	assert(cube_faces.size() == 36);
+    assert(cube_points.size() == 8);
+    assert(cube_faces.size() == 36);
 
-	m_Indices.m_Array.clear();
-	m_Vertices.m_Array.clear();
-	m_Vertices.m_Array.reserve(cube_points.size());
+    m_Indices.m_Array.clear();
+    m_Vertices.m_Array.clear();
+    m_Vertices.m_Array.reserve(cube_points.size());
 
-	m_TriFaces.clear();
-	m_TriFaces.reserve(cube_faces.size() * 3);
+    m_TriFaces.clear();
+    m_TriFaces.reserve(cube_faces.size() * 3);
 
-	for (size_t point_idx = 0; point_idx < cube_points.size(); ++point_idx)
-	{
-		const auto& point = cube_points.at(point_idx);
-		const ct::fvec3& normal = point.GetNormalized();
+    for (size_t point_idx = 0; point_idx < cube_points.size(); ++point_idx) {
+        const auto& point = cube_points.at(point_idx);
+        const ct::fvec3& normal = point.GetNormalized();
 
-		m_Vertices.m_Array.emplace_back(
-			point,
-			normal);
-	}
+        m_Vertices.m_Array.emplace_back(point, normal);
+    }
 
-	for (size_t face_idx = 0; face_idx < cube_faces.size(); face_idx += 3)
-	{
-		m_TriFaces.emplace_back(
-			cube_faces.at(face_idx + 2),
-			cube_faces.at(face_idx + 1),
-			cube_faces.at(face_idx + 0));
-	}
+    for (size_t face_idx = 0; face_idx < cube_faces.size(); face_idx += 3) {
+        m_TriFaces.emplace_back(cube_faces.at(face_idx + 2), cube_faces.at(face_idx + 1), cube_faces.at(face_idx + 0));
+    }
 
-	Subdivide(m_SubdivisionLevel, m_Vertices.m_Array, m_TriFaces);
+    Subdivide(m_SubdivisionLevel, m_Vertices.m_Array, m_TriFaces);
 
-	BuildMesh();
+    BuildMesh();
 }
 
-size_t AlienRockModule_Mesh_Pass::GetMiddlePoint_Plane(const size_t& p1, const size_t& p2, std::vector<VertexStruct::P3_N3_C4>& vVertices, CacheDB& vCache)
-{
-	if (p1 == p2)
-	{
-		CTOOL_DEBUG_BREAK;
-	}
+size_t AlienRockModule_Mesh_Pass::GetMiddlePoint_Plane(
+    const size_t& p1, const size_t& p2, std::vector<VertexStruct::P3_N3_C4>& vVertices, CacheDB& vCache) {
+    if (p1 == p2) {
+        CTOOL_DEBUG_BREAK;
+    }
 
-	std::tuple<size_t, size_t> _block(ct::mini(p1, p2), ct::maxi(p1, p2));
+    std::tuple<size_t, size_t> _block(ct::mini(p1, p2), ct::maxi(p1, p2));
 
-	if (vCache.find(_block) != vCache.end())
-	{
-		return vCache.at(_block);
-	}
+    if (vCache.find(_block) != vCache.end()) {
+        return vCache.at(_block);
+    }
 
-	// not in cache, calculate it
-	const auto& pt1 = vVertices.at(p1);
-	const auto& pt2 = vVertices.at(p2);
-	const auto& middle_point = (pt1.p + pt2.p) * 0.5f;
-	const auto& middle_normal = middle_point.GetNormalized();
+    // not in cache, calculate it
+    const auto& pt1 = vVertices.at(p1);
+    const auto& pt2 = vVertices.at(p2);
+    const auto& middle_point = (pt1.p + pt2.p) * 0.5f;
+    const auto& middle_normal = middle_point.GetNormalized();
 
-	// add vertex makes sure point is on unit sphere
-	size_t i = vVertices.size();
-	vVertices.emplace_back(middle_point, middle_normal);
+    // add vertex makes sure point is on unit sphere
+    size_t i = vVertices.size();
+    vVertices.emplace_back(middle_point, middle_normal);
 
-	// store it, return index
-	vCache[_block] = i;
+    // store it, return index
+    vCache[_block] = i;
 
-	return i;
+    return i;
 }
 
-void AlienRockModule_Mesh_Pass::CalcNormal(VertexStruct::P3_N3_C4& v0, VertexStruct::P3_N3_C4& v1, VertexStruct::P3_N3_C4& v2)
-{
-	const ct::fvec3 vec0 = (v2.p - v0.p).GetNormalized();
-	const ct::fvec3 vec1 = (v1.p - v0.p).GetNormalized();
-	const ct::fvec3 nor = cCross(vec1, vec0).GetNormalized();
+void AlienRockModule_Mesh_Pass::CalcNormal(VertexStruct::P3_N3_C4& v0, VertexStruct::P3_N3_C4& v1, VertexStruct::P3_N3_C4& v2) {
+    const ct::fvec3 vec0 = (v2.p - v0.p).GetNormalized();
+    const ct::fvec3 vec1 = (v1.p - v0.p).GetNormalized();
+    const ct::fvec3 nor = cCross(vec1, vec0).GetNormalized();
 
-	v0.n += nor; v1.n += nor; v2.n += nor;
+    v0.n += nor;
+    v1.n += nor;
+    v2.n += nor;
 }
 
-void AlienRockModule_Mesh_Pass::Subdivide(const size_t& vSubdivLevel, std::vector<VertexStruct::P3_N3_C4>& vVertices, std::vector<TriFace>& vFaces)
-{
-	if (vSubdivLevel > 0)
-	{
-		CacheDB middlePointIndexCache;
+void AlienRockModule_Mesh_Pass::Subdivide(const size_t& vSubdivLevel, std::vector<VertexStruct::P3_N3_C4>& vVertices, std::vector<TriFace>& vFaces) {
+    if (vSubdivLevel > 0) {
+        CacheDB middlePointIndexCache;
 
-		// refine triangles
-		try
-		{
-			for (int i = 0; i < vSubdivLevel; ++i)
-			{
-				size_t a = 0, b = 0, c = 0;
+        // refine triangles
+        try {
+            for (int i = 0; i < vSubdivLevel; ++i) {
+                size_t a = 0, b = 0, c = 0;
 
-				std::vector<TriFace> subFaces;
-				std::vector<VertexStruct::P3_N3_C4> subVertices = m_Vertices.m_Array;
+                std::vector<TriFace> subFaces;
+                std::vector<VertexStruct::P3_N3_C4> subVertices = m_Vertices.m_Array;
 
-				for (auto& face : m_TriFaces)
-				{
-					a = GetMiddlePoint_Plane(face.v0, face.v1, subVertices, middlePointIndexCache);
-					b = GetMiddlePoint_Plane(face.v1, face.v2, subVertices, middlePointIndexCache);
-					c = GetMiddlePoint_Plane(face.v2, face.v0, subVertices, middlePointIndexCache);
+                for (auto& face : m_TriFaces) {
+                    a = GetMiddlePoint_Plane(face.v0, face.v1, subVertices, middlePointIndexCache);
+                    b = GetMiddlePoint_Plane(face.v1, face.v2, subVertices, middlePointIndexCache);
+                    c = GetMiddlePoint_Plane(face.v2, face.v0, subVertices, middlePointIndexCache);
 
-					subFaces.emplace_back(face.v0, a, c);
-					subFaces.emplace_back(face.v1, b, a);
-					subFaces.emplace_back(face.v2, c, b);
-					subFaces.emplace_back(a, b, c);
-				}
+                    subFaces.emplace_back(face.v0, a, c);
+                    subFaces.emplace_back(face.v1, b, a);
+                    subFaces.emplace_back(face.v2, c, b);
+                    subFaces.emplace_back(a, b, c);
+                }
 
-				m_TriFaces = subFaces;
-				m_Vertices.m_Array = subVertices;
-			}
-		}
-		catch (std::exception& ex)
-		{
-			LogVarError("error %s", std::string(ex.what()).c_str());
-		}
-	}
+                m_TriFaces = subFaces;
+                m_Vertices.m_Array = subVertices;
+            }
+        } catch (std::exception& ex) {
+            LogVarError("error %s", std::string(ex.what()).c_str());
+        }
+    }
 }
 
-void AlienRockModule_Mesh_Pass::BuildMesh()
-{
-	if (!m_Vertices.m_Array.empty())
-	{
-		if (!m_TriFaces.empty())
-		{
-			m_Indices.m_Array.clear();
+void AlienRockModule_Mesh_Pass::BuildMesh() {
+    if (!m_Vertices.m_Array.empty()) {
+        if (!m_TriFaces.empty()) {
+            m_Indices.m_Array.clear();
 
-			m_Indices.m_Array.reserve(m_TriFaces.size() * 3U); // 6 => 1 triangle so 3 indices
-			for (auto& f : m_TriFaces)
-			{
-				m_Indices.m_Array.push_back(VertexStruct::I1(f.v0));
-				m_Indices.m_Array.push_back(VertexStruct::I1(f.v1));
-				m_Indices.m_Array.push_back(VertexStruct::I1(f.v2));
-			}
-		}
+            m_Indices.m_Array.reserve(m_TriFaces.size() * 3U);  // 6 => 1 triangle so 3 indices
+            for (auto& f : m_TriFaces) {
+                m_Indices.m_Array.push_back(VertexStruct::I1(f.v0));
+                m_Indices.m_Array.push_back(VertexStruct::I1(f.v1));
+                m_Indices.m_Array.push_back(VertexStruct::I1(f.v2));
+            }
+        }
 
-		for (auto& v : m_Vertices.m_Array)
-		{
-			// arrange p for better spacing in case of sphere
-			// https://mathproofs.blogspot.com/2005/07/mapping-cube-to-sphere.html
-			const auto p2 = v.p * v.p;
-			v.p.x *= sqrtf(1.0f - (p2.y + p2.z) * 0.5f + (p2.y * p2.z) * 0.33333f);
-			v.p.y *= sqrtf(1.0f - (p2.z + p2.x) * 0.5f + (p2.z * p2.x) * 0.33333f);
-			v.p.z *= sqrtf(1.0f - (p2.x + p2.y) * 0.5f + (p2.x * p2.y) * 0.33333f);
+        for (auto& v : m_Vertices.m_Array) {
+            // arrange p for better spacing in case of sphere
+            // https://mathproofs.blogspot.com/2005/07/mapping-cube-to-sphere.html
+            const auto p2 = v.p * v.p;
+            v.p.x *= sqrtf(1.0f - (p2.y + p2.z) * 0.5f + (p2.y * p2.z) * 0.33333f);
+            v.p.y *= sqrtf(1.0f - (p2.z + p2.x) * 0.5f + (p2.z * p2.x) * 0.33333f);
+            v.p.z *= sqrtf(1.0f - (p2.x + p2.y) * 0.5f + (p2.x * p2.y) * 0.33333f);
 
-			// normal of p
-			v.n = v.p.GetNormalized(); // compute simple normal in case of sphere
+            // normal of p
+            v.n = v.p.GetNormalized();  // compute simple normal in case of sphere
 
-			// normalize of p * radius => cube to sphere
-			v.p = v.n * m_UBO_Tess_Eval.u_radius; // transform to sphere
-		}
+            // normalize of p * radius => cube to sphere
+            v.p = v.n * m_UBO_Tess_Eval.u_radius;  // transform to sphere
+        }
 
-		Build();
-	}
+        Build();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PROTECTED /////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool AlienRockModule_Mesh_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool AlienRockModule_Mesh_Pass::CreateUBO() {
+    ZoneScoped;
 
-	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "AlienRockModule_Mesh_Pass");
-	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Vert_Ptr) {
-		m_UBO_Vert_BufferInfos.buffer = m_UBO_Vert_Ptr->buffer;
-		m_UBO_Vert_BufferInfos.range = sizeof(UBO_Vert);
-		m_UBO_Vert_BufferInfos.offset = 0;
-	}
+    m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "AlienRockModule_Mesh_Pass");
+    m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBO_Vert_Ptr) {
+        m_UBO_Vert_BufferInfos.buffer = m_UBO_Vert_Ptr->buffer;
+        m_UBO_Vert_BufferInfos.range = sizeof(UBO_Vert);
+        m_UBO_Vert_BufferInfos.offset = 0;
+    }
 
-	m_UBO_Tess_Ctrl_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Tess_Ctrl), "AlienRockModule_Mesh_Pass");
-	m_UBO_Tess_Ctrl_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Tess_Ctrl_Ptr) {
-		m_UBO_Tess_Ctrl_BufferInfos.buffer = m_UBO_Tess_Ctrl_Ptr->buffer;
-		m_UBO_Tess_Ctrl_BufferInfos.range = sizeof(UBO_Tess_Ctrl);
-		m_UBO_Tess_Ctrl_BufferInfos.offset = 0;
-	}
+    m_UBO_Tess_Ctrl_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Tess_Ctrl), "AlienRockModule_Mesh_Pass");
+    m_UBO_Tess_Ctrl_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBO_Tess_Ctrl_Ptr) {
+        m_UBO_Tess_Ctrl_BufferInfos.buffer = m_UBO_Tess_Ctrl_Ptr->buffer;
+        m_UBO_Tess_Ctrl_BufferInfos.range = sizeof(UBO_Tess_Ctrl);
+        m_UBO_Tess_Ctrl_BufferInfos.offset = 0;
+    }
 
-	m_UBO_Tess_Eval_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Tess_Eval), "AlienRockModule_Mesh_Pass");
-	m_UBO_Tess_Eval_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Tess_Eval_Ptr) {
-		m_UBO_Tess_Eval_BufferInfos.buffer = m_UBO_Tess_Eval_Ptr->buffer;
-		m_UBO_Tess_Eval_BufferInfos.range = sizeof(UBO_Tess_Eval);
-		m_UBO_Tess_Eval_BufferInfos.offset = 0;
-	}
+    m_UBO_Tess_Eval_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Tess_Eval), "AlienRockModule_Mesh_Pass");
+    m_UBO_Tess_Eval_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBO_Tess_Eval_Ptr) {
+        m_UBO_Tess_Eval_BufferInfos.buffer = m_UBO_Tess_Eval_Ptr->buffer;
+        m_UBO_Tess_Eval_BufferInfos.range = sizeof(UBO_Tess_Eval);
+        m_UBO_Tess_Eval_BufferInfos.offset = 0;
+    }
 
-	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "AlienRockModule_Mesh_Pass");
-	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBO_Frag_Ptr) {
-		m_UBO_Frag_BufferInfos.buffer = m_UBO_Frag_Ptr->buffer;
-		m_UBO_Frag_BufferInfos.range = sizeof(UBO_Frag);
-		m_UBO_Frag_BufferInfos.offset = 0;
-	}
+    m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "AlienRockModule_Mesh_Pass");
+    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBO_Frag_Ptr) {
+        m_UBO_Frag_BufferInfos.buffer = m_UBO_Frag_Ptr->buffer;
+        m_UBO_Frag_BufferInfos.range = sizeof(UBO_Frag);
+        m_UBO_Frag_BufferInfos.offset = 0;
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void AlienRockModule_Mesh_Pass::UploadUBO()
-{
-	ZoneScoped;
+void AlienRockModule_Mesh_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
-	VulkanRessource::upload(m_VulkanCore, m_UBO_Tess_Ctrl_Ptr, &m_UBO_Tess_Ctrl, sizeof(UBO_Tess_Ctrl));
-	VulkanRessource::upload(m_VulkanCore, m_UBO_Tess_Eval_Ptr, &m_UBO_Tess_Eval, sizeof(UBO_Tess_Eval));
-	VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Tess_Ctrl_Ptr, &m_UBO_Tess_Ctrl, sizeof(UBO_Tess_Ctrl));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Tess_Eval_Ptr, &m_UBO_Tess_Eval, sizeof(UBO_Tess_Eval));
+    VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
 }
 
-void AlienRockModule_Mesh_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void AlienRockModule_Mesh_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBO_Frag_Ptr.reset();
-	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBO_Frag_Ptr.reset();
+    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
-	m_UBO_Tess_Ctrl_Ptr.reset();
-	m_UBO_Tess_Ctrl_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBO_Tess_Ctrl_Ptr.reset();
+    m_UBO_Tess_Ctrl_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
-	m_UBO_Tess_Eval_Ptr.reset();
-	m_UBO_Tess_Eval_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBO_Tess_Eval_Ptr.reset();
+    m_UBO_Tess_Eval_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
-	m_UBO_Vert_Ptr.reset();
-	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBO_Vert_Ptr.reset();
+    m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool AlienRockModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool AlienRockModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
+    bool res = true;
 
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eTessellationEvaluation); // common system UBO
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex); // vertex UBO
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eTessellationControl); // tesselation control UBO
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eTessellationEvaluation); // tesselation evaluation UBO
-	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment); // fragment UBO
-	res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eTessellationEvaluation); // height
-	res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment); // normal
-	res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment); // color
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer,
+        vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eTessellationEvaluation);                   // common system UBO
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);  // vertex UBO
+    res &=
+        AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eTessellationControl);  // tesselation control UBO
+    res &= AddOrSetLayoutDescriptor(
+        3U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eTessellationEvaluation);                // tesselation evaluation UBO
+    res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);  // fragment UBO
+    res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eTessellationEvaluation);  // height
+    res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);                // normal
+    res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);                // color
 
-	return res;
+    return res;
 }
 
-bool AlienRockModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool AlienRockModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
+    bool res = true;
 
-	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // common system UBO
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Vert_BufferInfos); // vertex UBO
-	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Tess_Ctrl_BufferInfos); // tesselation control UBO
-	res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBO_Tess_Eval_BufferInfos); // tesselation evaluation UBO
-	res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos); // fragment UBO
-	res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // height
-	res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]); // normal
-	res &= AddOrSetWriteDescriptorImage(7U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]); // color
+    res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());  // common system UBO
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Vert_BufferInfos);                    // vertex UBO
+    res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Tess_Ctrl_BufferInfos);  // tesselation control UBO
+    res &= AddOrSetWriteDescriptorBuffer(3U, vk::DescriptorType::eUniformBuffer, &m_UBO_Tess_Eval_BufferInfos);  // tesselation evaluation UBO
+    res &= AddOrSetWriteDescriptorBuffer(4U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);       // fragment UBO
+    res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);        // height
+    res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);        // normal
+    res &= AddOrSetWriteDescriptorImage(7U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]);        // color
 
-	return res;
+    return res;
 }
 
-std::string AlienRockModule_Mesh_Pass::GetCommonCode()
-{
-	return u8R"(
+std::string AlienRockModule_Mesh_Pass::GetCommonCode() {
+    return u8R"(
 vec2 get_uv_from_sphere(vec3 p)
 {
 	p = normalize(p);
@@ -598,11 +542,10 @@ vec2 get_uv_from_sphere(vec3 p)
 )";
 }
 
-std::string AlienRockModule_Mesh_Pass::GetVertexShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "AlienRockModule_Mesh_Pass_Vertex";
+std::string AlienRockModule_Mesh_Pass::GetVertexShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "AlienRockModule_Mesh_Pass_Vertex";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec3 aPosition;
@@ -612,9 +555,8 @@ layout(location = 2) in vec4 aColor;
 layout(location = 0) out vec3 v_position;
 layout(location = 1) out vec3 v_normal;
 layout(location = 2) out vec4 v_color;
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
-u8R"(
+)" + CommonSystem::GetBufferObjectStructureHeader(0U) +
+           u8R"(
 
 layout(std140, binding = 1) uniform UBO_Vert
 {
@@ -634,11 +576,10 @@ void main()
 )";
 }
 
-std::string AlienRockModule_Mesh_Pass::GetTesselationControlShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "AlienRockModule_Mesh_Pass_Tesselation_Control";
+std::string AlienRockModule_Mesh_Pass::GetTesselationControlShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "AlienRockModule_Mesh_Pass_Tesselation_Control";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 // define the number of CPs in the output patch
@@ -676,11 +617,10 @@ void main()
 )";
 }
 
-std::string AlienRockModule_Mesh_Pass::GetTesselationEvaluationShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "AlienRockModule_Mesh_Pass_Tesselation_Evaluation";
+std::string AlienRockModule_Mesh_Pass::GetTesselationEvaluationShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "AlienRockModule_Mesh_Pass_Tesselation_Evaluation";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(triangles, equal_spacing, ccw) in;
@@ -691,9 +631,8 @@ layout(location = 0) out vec3 v_position;
 layout(location = 1) out vec3 v_normal;
 layout(location = 2) out vec4 v_color;
 
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
-u8R"(
+)" + CommonSystem::GetBufferObjectStructureHeader(0U) +
+           u8R"(
 
 layout(std140, binding = 3) uniform UBO_Tess_Eval
 {
@@ -705,9 +644,8 @@ layout(std140, binding = 3) uniform UBO_Tess_Eval
 
 layout(binding = 5) uniform sampler2D u_tex_height;
 
-)"
-+ GetCommonCode() +
-u8R"(
+)" + GetCommonCode() +
+           u8R"(
 
 vec2 interpolateV2(vec2 v0, vec2 v1, vec2 v2) {
     return gl_TessCoord.x * v0 + gl_TessCoord.y * v1 + gl_TessCoord.z * v2;
@@ -752,11 +690,10 @@ void main()
 )";
 }
 
-std::string AlienRockModule_Mesh_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "AlienRockModule_Mesh_Pass_Fragment";
+std::string AlienRockModule_Mesh_Pass::GetFragmentShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "AlienRockModule_Mesh_Pass_Fragment";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragPosition;
@@ -779,9 +716,8 @@ layout(std140, binding = 4) uniform UBO_Frag
 layout(binding = 6) uniform sampler2D u_tex_normal;
 layout(binding = 7) uniform sampler2D u_tex_color;
 
-)"
-+ GetCommonCode() +
-u8R"(
+)" + GetCommonCode() +
+           u8R"(
 
 void init_color()
 {
@@ -860,85 +796,81 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string AlienRockModule_Mesh_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string AlienRockModule_Mesh_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
+    str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<planet_module_ground_pass>\n";
-	str += vOffset + "\t<use_debug>" + ct::toStr(m_UBO_Frag.u_use_debug) + "</use_debug>\n";
-	str += vOffset + "\t<display_mode>" + ct::toStr(m_PrimitiveTopologiesIndex) + "</display_mode>\n";
-	str += vOffset + "\t<line_thickness>" + ct::toStr(m_LineWidth.w) + "</line_thickness>\n";
-	str += vOffset + "\t<point_size>" + ct::toStr(m_UBO_Vert.u_point_size) + "</point_size>\n";
-	str += vOffset + "\t<show_layer>" + ct::toStr(m_UBO_Frag.u_show_layer) + "</show_layer>\n";
-	str += vOffset + "\t<use_indices_restriction>" + (m_UseIndiceRestriction ? "true" : "false") + "</use_indices_restriction>\n";
-	str += vOffset + "\t<restricted_indices_count_to_draw>" + ct::toStr(m_RestrictedIndicesCountToDraw) + "</restricted_indices_count_to_draw>\n";
-	str += vOffset + "\t<radius>" + ct::toStr(m_UBO_Tess_Eval.u_radius) + "</radius>\n";
-	str += vOffset + "\t<subdivision_level>" + ct::toStr(m_SubdivisionLevel) + "</subdivision_level>\n";
-	str += vOffset + "\t<tesselation_level>" + ct::toStr(m_UBO_Tess_Ctrl.u_tesselation_level) + "</tesselation_level>\n";
-	str += vOffset + "\t<displace_factor>" + ct::toStr(m_UBO_Tess_Eval.u_displace_factor) + "</displace_factor>\n";
-	str += vOffset + "\t<normal_prec>" + ct::toStr(m_UBO_Tess_Eval.u_normal_prec) + "</normal_prec>\n";
-	str += vOffset + "</planet_module_ground_pass>\n";
+    str += vOffset + "<planet_module_ground_pass>\n";
+    str += vOffset + "\t<use_debug>" + ct::toStr(m_UBO_Frag.u_use_debug) + "</use_debug>\n";
+    str += vOffset + "\t<display_mode>" + ct::toStr(m_PrimitiveTopologiesIndex) + "</display_mode>\n";
+    str += vOffset + "\t<line_thickness>" + ct::toStr(m_LineWidth.w) + "</line_thickness>\n";
+    str += vOffset + "\t<point_size>" + ct::toStr(m_UBO_Vert.u_point_size) + "</point_size>\n";
+    str += vOffset + "\t<show_layer>" + ct::toStr(m_UBO_Frag.u_show_layer) + "</show_layer>\n";
+    str += vOffset + "\t<use_indices_restriction>" + (m_UseIndiceRestriction ? "true" : "false") + "</use_indices_restriction>\n";
+    str += vOffset + "\t<restricted_indices_count_to_draw>" + ct::toStr(m_RestrictedIndicesCountToDraw) + "</restricted_indices_count_to_draw>\n";
+    str += vOffset + "\t<radius>" + ct::toStr(m_UBO_Tess_Eval.u_radius) + "</radius>\n";
+    str += vOffset + "\t<subdivision_level>" + ct::toStr(m_SubdivisionLevel) + "</subdivision_level>\n";
+    str += vOffset + "\t<tesselation_level>" + ct::toStr(m_UBO_Tess_Ctrl.u_tesselation_level) + "</tesselation_level>\n";
+    str += vOffset + "\t<displace_factor>" + ct::toStr(m_UBO_Tess_Eval.u_displace_factor) + "</displace_factor>\n";
+    str += vOffset + "\t<normal_prec>" + ct::toStr(m_UBO_Tess_Eval.u_normal_prec) + "</normal_prec>\n";
+    str += vOffset + "</planet_module_ground_pass>\n";
 
-	return str;
+    return str;
 }
 
-bool AlienRockModule_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool AlienRockModule_Mesh_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "planet_module_ground_pass")
-	{
-		if (strName == "use_debug")
-			m_UBO_Frag.u_use_debug = ct::ivariant(strValue).GetI();
-		else if (strName == "display_mode")
-			m_PrimitiveTopologiesIndex = ct::ivariant(strValue).GetI();
-		else if (strName == "line_thickness")
-			m_LineWidth.w = ct::fvariant(strValue).GetF();
-		else if (strName == "point_size")
-			m_UBO_Vert.u_point_size = ct::fvariant(strValue).GetF();
-		else if (strName == "show_layer")
-			m_UBO_Frag.u_show_layer = ct::ivariant(strValue).GetI();
-		else if (strName == "use_indices_restriction")
-			m_UseIndiceRestriction = ct::ivariant(strValue).GetB();
-		else if (strName == "restricted_indices_count_to_draw")
-			m_RestrictedIndicesCountToDraw = ct::ivariant(strValue).GetU();
-		else if (strName == "radius")
-			m_UBO_Tess_Eval.u_radius = ct::fvariant(strValue).GetF();
-		else if (strName == "subdivision_level")
-			m_SubdivisionLevel = ct::ivariant(strValue).GetU();
-		else if (strName == "tesselation_level")
-			m_UBO_Tess_Ctrl.u_tesselation_level = ct::fvariant(strValue).GetF();
-		else if (strName == "displace_factor")
-			m_UBO_Tess_Eval.u_displace_factor = ct::fvariant(strValue).GetF();
-		else if (strName == "normal_prec")
-			m_UBO_Tess_Eval.u_normal_prec = ct::fvariant(strValue).GetF();
-	}
+    if (strParentName == "planet_module_ground_pass") {
+        if (strName == "use_debug")
+            m_UBO_Frag.u_use_debug = ct::ivariant(strValue).GetI();
+        else if (strName == "display_mode")
+            m_PrimitiveTopologiesIndex = ct::ivariant(strValue).GetI();
+        else if (strName == "line_thickness")
+            m_LineWidth.w = ct::fvariant(strValue).GetF();
+        else if (strName == "point_size")
+            m_UBO_Vert.u_point_size = ct::fvariant(strValue).GetF();
+        else if (strName == "show_layer")
+            m_UBO_Frag.u_show_layer = ct::ivariant(strValue).GetI();
+        else if (strName == "use_indices_restriction")
+            m_UseIndiceRestriction = ct::ivariant(strValue).GetB();
+        else if (strName == "restricted_indices_count_to_draw")
+            m_RestrictedIndicesCountToDraw = ct::ivariant(strValue).GetU();
+        else if (strName == "radius")
+            m_UBO_Tess_Eval.u_radius = ct::fvariant(strValue).GetF();
+        else if (strName == "subdivision_level")
+            m_SubdivisionLevel = ct::ivariant(strValue).GetU();
+        else if (strName == "tesselation_level")
+            m_UBO_Tess_Ctrl.u_tesselation_level = ct::fvariant(strValue).GetF();
+        else if (strName == "displace_factor")
+            m_UBO_Tess_Eval.u_displace_factor = ct::fvariant(strValue).GetF();
+        else if (strName == "normal_prec")
+            m_UBO_Tess_Eval.u_normal_prec = ct::fvariant(strValue).GetF();
+    }
 
-	return true;
+    return true;
 }
 
-void AlienRockModule_Mesh_Pass::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void AlienRockModule_Mesh_Pass::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	ChangeDynamicPrimitiveTopology((vk::PrimitiveTopology)m_PrimitiveTopologiesIndex, true);
-	CreateCube();
-	NeedNewUBOUpload();
+    ChangeDynamicPrimitiveTopology((vk::PrimitiveTopology)m_PrimitiveTopologiesIndex, true);
+    CreateCube();
+    NeedNewUBOUpload();
 }

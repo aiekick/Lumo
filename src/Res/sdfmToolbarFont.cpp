@@ -1,6 +1,6 @@
 #include "sdfmToolbarFont.h"
 
-static const char SDFMT_compressed_data_base85[6680+1] = 
+static const char SDFMT_compressed_data_base85[6680 + 1] =
     "7])#######S3#ca'/###O@?>#+lQS%Ql#v#X^@iFLnx%nK=%##=-&##ZSV=B*/NYG3KEe-]br-$GQshF?[]Y#^SSk+8=bw'fFu0FhE9##tIkA#04@m/)e@UCO6IS#;hG<-87T;-QF%U."
     "KY)W7RgG<-=^rS%MZIkEX>8NDjg'##%u(##bgD0FZr][Npk###S]'##hkGkOP&###dpv0hodPirgZl'A#ea1#J,Y:v>Lc>#JNit-].=GMM%g+Mc[@`aT.>_8:Ld--KMU;$]wu=PKGqW."
     "jc($#g3+V.%####(;#s-Pi[+M+DgV-tPJ=#IAuu#62cp&O=?5/N1X#GwPj)#A:h2qmQS5q:q+6qJKu6qdV[8q&6/Pq_$+xq6#thqNsDsq*qm$r07m/r:6s8r#X7`rh1IOr3kKYrn.V$s"
@@ -49,4 +49,3 @@ static const char SDFMT_compressed_data_base85[6680+1] =
     "v_ECIb4>@'8]k$'2sq$'=e*_ImjVm07`I'I:F4,H(xXVCdY5m'bZwM1JAnw'p+qP'>&w5/O8-vG./jx&0d,hFE.ddG&PeFHoiDtBQfRV1:bk(Irh)pD[<X0MejEN061=GHf@9oD>HnrL"
     "6)h>$6ZxUCiL^kEGpcfG^mJ3B1u3GHB7VEHk#/>Bt@vgF8T(5/V#DcHX6_t1(x#kE$^pgF#xLN1>x7+HE_WI-aA8$gb`ubH3Gv-GgG6&FhAD='9Y</DJ[.<-$QN32[A7DIsqx;H(WKSD"
     ".&KKF`.ubFrGv@&/or*HAURfGw>BNB98rU1oF]>-_'Z<UK&;qL:#nKF?06kC4x3,HUBffGvS2='5I]20K=_oDfwi-##m8Atin2#`";
-

@@ -46,35 +46,31 @@ limitations under the License.
 
 class SSAOModule_Comp_2D_Pass;
 class BlurModule_Comp_2D_Pass;
-class SSAOModule :
-	public BaseRenderer,
-	public NodeInterface,
-	public TaskInterface,
-	public TextureInputInterface<0U>,
-	public TextureOutputInterface
-{
+class SSAOModule : public BaseRenderer, public NodeInterface, public TaskInterface, public TextureInputInterface<0U>, public TextureOutputInterface {
 public:
-	static std::shared_ptr<SSAOModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<SSAOModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::weak_ptr<SSAOModule> m_This;
+    std::weak_ptr<SSAOModule> m_This;
 
-	std::shared_ptr<SSAOModule_Comp_2D_Pass> m_SSAOModule_Comp_2D_Pass_Ptr = nullptr;
+    std::shared_ptr<SSAOModule_Comp_2D_Pass> m_SSAOModule_Comp_2D_Pass_Ptr = nullptr;
 
 public:
-	SSAOModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~SSAOModule() override;
+    SSAOModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~SSAOModule() override;
 
-	bool Init();
+    bool Init();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
     void AfterNodeXmlLoading() override;
 };

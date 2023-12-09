@@ -22,64 +22,56 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class SceneMergerModule;
-class SceneMergerNode :
-	public TextureInputInterface<0U>,
-	public ShaderPassInputInterface,
-	public TextureOutputInterface,
-	public ShaderUpdateInterface,
-	public BaseNode
-{
+class SceneMergerNode : public TextureInputInterface<0U>,
+                        public ShaderPassInputInterface,
+                        public TextureOutputInterface,
+                        public ShaderUpdateInterface,
+                        public BaseNode {
 public:
-	static std::shared_ptr<SceneMergerNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<SceneMergerNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<SceneMergerModule> m_SceneMergerModulePtr = nullptr;
+    std::shared_ptr<SceneMergerModule> m_SceneMergerModulePtr = nullptr;
 
 public:
-	SceneMergerNode();
-	~SceneMergerNode() override;
+    SceneMergerNode();
+    ~SceneMergerNode() override;
 
-	// Init / Unit
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    // Init / Unit
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
-	// Execute Task
-	bool ExecuteAllTime(const uint32_t & vCurrentFrame, vk::CommandBuffer * vCmd = nullptr, BaseNodeState * vBaseNodeState = nullptr) override;
+    // Execute Task
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 
-	// Draw Widgets
-    bool DrawWidgets(const uint32_t& vCurrentFrame,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr = nullptr,
-        const std::string& vUserDatas = {}) override;
+    // Draw Widgets
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
     void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 
-	// Resize
-	void NeedResizeByResizeEvent(ct::ivec2 * vNewSize, const uint32_t * vCountColorBuffers) override;
+    // Resize
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 
-	// Interfaces Setters
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
-	void SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vShaderPasses) override;
+    // Interfaces Setters
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
+    void SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vShaderPasses) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	// Configuration
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    // Configuration
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
-	NodeSlotWeak AddPreDefinedInput(const NodeSlot& vNodeSlot) override;
-	void BeforeNodeXmlLoading() override;
-	void AfterNodeXmlLoading() override;
+    NodeSlotWeak AddPreDefinedInput(const NodeSlot& vNodeSlot) override;
+    void BeforeNodeXmlLoading() override;
+    void AfterNodeXmlLoading() override;
 
-	// Shader Update
-	void UpdateShaders(const std::set<std::string>& vFiles) override;
+    // Shader Update
+    void UpdateShaders(const std::set<std::string>& vFiles) override;
 
-	// INPUTS UPDATE
-	void ReorganizeSlots(const std::vector<uint32_t>& vSlotsToErase);
+    // INPUTS UPDATE
+    void ReorganizeSlots(const std::vector<uint32_t>& vSlotsToErase);
 };

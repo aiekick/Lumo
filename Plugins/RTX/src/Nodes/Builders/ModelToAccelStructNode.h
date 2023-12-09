@@ -25,31 +25,27 @@ limitations under the License.
 #include <Interfaces/AccelStructureOutputInterface.h>
 
 class ModelToAccelStructModule;
-class ModelToAccelStructNode : 
-	public BaseNode, 
-	public ModelInputInterface,
-	public AccelStructureOutputInterface
-{
+class ModelToAccelStructNode : public BaseNode, public ModelInputInterface, public AccelStructureOutputInterface {
 public:
-	static std::shared_ptr<ModelToAccelStructNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<ModelToAccelStructNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	SceneAccelStructurePtr m_SceneAccelStructurePtr = nullptr;
+    SceneAccelStructurePtr m_SceneAccelStructurePtr = nullptr;
 
 public:
-	ModelToAccelStructNode();
-	~ModelToAccelStructNode() override;
+    ModelToAccelStructNode();
+    ~ModelToAccelStructNode() override;
 
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
-	void Unit() override;
-	
-	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
-	
-	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	SceneAccelStructureWeak GetAccelStruct() override;
-	vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() override;
-	vk::DescriptorBufferInfo* GetBufferAddressInfo() override;
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
+    void Unit() override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
+
+    void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+    SceneAccelStructureWeak GetAccelStruct() override;
+    vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() override;
+    vk::DescriptorBufferInfo* GetBufferAddressInfo() override;
+
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 };

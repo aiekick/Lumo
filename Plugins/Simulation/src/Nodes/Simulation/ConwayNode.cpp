@@ -27,211 +27,176 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<ConwayNode> ConwayNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	auto res = std::make_shared<ConwayNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<ConwayNode> ConwayNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<ConwayNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
+    return res;
 }
 
-ConwayNode::ConwayNode() : BaseNode()
-{
-	m_NodeTypeString = "2D_SIMULATION_CONWAY";
+ConwayNode::ConwayNode() : BaseNode() {
+    m_NodeTypeString = "2D_SIMULATION_CONWAY";
 }
 
-ConwayNode::~ConwayNode()
-{
-	Unit();
+ConwayNode::~ConwayNode() {
+    Unit();
 }
 
-bool ConwayNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	name = "Conway";
+bool ConwayNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    name = "Conway";
 
-	//on desctive pour le moment, le shader le gere, mais on s'en sert pas pour le moment
-	AddInput(NodeSlotTextureInput::Create("Noise", 0U), true, false);
-	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    // on desctive pour le moment, le shader le gere, mais on s'en sert pas pour le moment
+    AddInput(NodeSlotTextureInput::Create("Noise", 0U), true, false);
+    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
-	bool res = false;
+    bool res = false;
 
-	m_ConwayModulePtr = ConwayModule::Create(vVulkanCore);
-	if (m_ConwayModulePtr)
-	{
-		res = true;
-	}
+    m_ConwayModulePtr = ConwayModule::Create(vVulkanCore);
+    if (m_ConwayModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
-bool ConwayNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	bool res = false;
+bool ConwayNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    bool res = false;
 
-	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    // for update input texture buffer infos => avoid vk crash
+    UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
-	if (m_ConwayModulePtr)
-	{
-		res = m_ConwayModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    if (m_ConwayModulePtr) {
+        res = m_ConwayModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 
-		//SendFrontNotification(TextureUpdateDone);
-	}
+        // SendFrontNotification(TextureUpdateDone);
+    }
 
-	return res;
+    return res;
 }
 
-bool ConwayNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool ConwayNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_ConwayModulePtr)
-	{
-		return m_ConwayModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+    if (m_ConwayModulePtr) {
+        return m_ConwayModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return false;
+    return false;
 }
 
-bool ConwayNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ConwayNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
     return false;
 }
 
-bool ConwayNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool ConwayNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_ConwayModulePtr)
-	{
+    if (m_ConwayModulePtr) {
         return m_ConwayModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
 
     return false;
 }
 
-void ConwayNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used(%s)\nCell(%i, %i)",
-				(used ? "true" : "false"), cell.x, cell.y);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+void ConwayNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used(%s)\nCell(%i, %i)", (used ? "true" : "false"), cell.x, cell.y);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 
-void ConwayNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	if (m_ConwayModulePtr)
-	{
-		m_ConwayModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-	}
+void ConwayNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    if (m_ConwayModulePtr) {
+        m_ConwayModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    }
 
-	// on fait ca apres
-	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // on fait ca apres
+    BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void ConwayNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	if (m_ConwayModulePtr)
-	{
-		m_ConwayModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+void ConwayNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    if (m_ConwayModulePtr) {
+        m_ConwayModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
-vk::DescriptorImageInfo* ConwayNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_ConwayModulePtr)
-	{
-		return m_ConwayModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+vk::DescriptorImageInfo* ConwayNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_ConwayModulePtr) {
+        return m_ConwayModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ConwayNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string res;
+std::string ConwayNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_ConwayModulePtr)
-		{
-			res += m_ConwayModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_ConwayModulePtr) {
+            res += m_ConwayModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool ConwayNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool ConwayNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_ConwayModulePtr)
-	{
-		m_ConwayModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_ConwayModulePtr) {
+        m_ConwayModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }
 
-void ConwayNode::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	if (m_ConwayModulePtr)
-	{
-		m_ConwayModulePtr->UpdateShaders(vFiles);
-	}
+void ConwayNode::UpdateShaders(const std::set<std::string>& vFiles) {
+    if (m_ConwayModulePtr) {
+        m_ConwayModulePtr->UpdateShaders(vFiles);
+    }
 }

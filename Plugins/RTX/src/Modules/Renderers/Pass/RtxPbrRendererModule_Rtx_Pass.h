@@ -45,66 +45,66 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class RtxPbrRendererModule_Rtx_Pass :
-	public RtxShaderPass,
-	public AccelStructureInputInterface,
-	public LightGroupInputInterface,
-	public TextureInputInterface<3u>,
-	public TextureOutputInterface,
-	public NodeInterface
-{
+class RtxPbrRendererModule_Rtx_Pass : public RtxShaderPass,
+                                      public AccelStructureInputInterface,
+                                      public LightGroupInputInterface,
+                                      public TextureInputInterface<3u>,
+                                      public TextureOutputInterface,
+                                      public NodeInterface {
 private:
-	struct UBO_Chit {
-		alignas(4) float u_diffuse_factor = 1.0f;
-		alignas(4) float u_metallic_factor = 1.0f;
-		alignas(4) float u_rugosity_factor = 1.0f;
-		alignas(4) float u_ao_factor = 1.0f;
-		alignas(4) float u_use_albedo_map = 0.0f;
-		alignas(4) float u_use_ao_map = 0.0f;
-		alignas(4) float u_use_longlat_map = 0.0f;
-		alignas(4) float u_light_intensity_factor = 100.0f;
-		alignas(4) float u_shadow_strength = 0.5f;
-	} m_UBO_Chit;
-	VulkanBufferObjectPtr m_UBO_Chit_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    struct UBO_Chit {
+        alignas(4) float u_diffuse_factor = 1.0f;
+        alignas(4) float u_metallic_factor = 1.0f;
+        alignas(4) float u_rugosity_factor = 1.0f;
+        alignas(4) float u_ao_factor = 1.0f;
+        alignas(4) float u_use_albedo_map = 0.0f;
+        alignas(4) float u_use_ao_map = 0.0f;
+        alignas(4) float u_use_longlat_map = 0.0f;
+        alignas(4) float u_light_intensity_factor = 100.0f;
+        alignas(4) float u_shadow_strength = 0.5f;
+    } m_UBO_Chit;
+    VulkanBufferObjectPtr m_UBO_Chit_Ptr = nullptr;
+    vk::DescriptorBufferInfo m_UBO_Chit_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 
 public:
-	RtxPbrRendererModule_Rtx_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~RtxPbrRendererModule_Rtx_Pass() override;
+    RtxPbrRendererModule_Rtx_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~RtxPbrRendererModule_Rtx_Pass() override;
 
-	void ActionBeforeCompilation() override;
-	void ActionBeforeInit() override;
-	void WasJustResized() override;
+    void ActionBeforeCompilation() override;
+    void ActionBeforeInit() override;
+    void WasJustResized() override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
 
-	// Interfaces Setters
-	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;
-	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    // Interfaces Setters
+    void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;
+    void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 
 protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
 
-	bool CanUpdateDescriptors() override;
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool CanUpdateDescriptors() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetHitPayLoadCode();
-	std::string GetRayGenerationShaderCode(std::string& vOutShaderName) override;
-	std::string GetRayIntersectionShaderCode(std::string& vOutShaderName) override;
-	std::string GetRayMissShaderCode(std::string& vOutShaderName) override;
-	std::string GetRayAnyHitShaderCode(std::string& vOutShaderName) override;
-	std::string GetRayClosestHitShaderCode(std::string& vOutShaderName) override;
+    std::string GetHitPayLoadCode();
+    std::string GetRayGenerationShaderCode(std::string& vOutShaderName) override;
+    std::string GetRayIntersectionShaderCode(std::string& vOutShaderName) override;
+    std::string GetRayMissShaderCode(std::string& vOutShaderName) override;
+    std::string GetRayAnyHitShaderCode(std::string& vOutShaderName) override;
+    std::string GetRayClosestHitShaderCode(std::string& vOutShaderName) override;
 };

@@ -47,79 +47,70 @@ using namespace GaiApi;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-CurlModule_Comp_2D_Pass::CurlModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: ShaderPass(vVulkanCore)
-{
-	ZoneScoped;
+CurlModule_Comp_2D_Pass::CurlModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {
+    ZoneScoped;
 
-	SetRenderDocDebugName("Comp Pass : Curl", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+    SetRenderDocDebugName("Comp Pass : Curl", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-CurlModule_Comp_2D_Pass::~CurlModule_Comp_2D_Pass()
-{
-	ZoneScoped;
+CurlModule_Comp_2D_Pass::~CurlModule_Comp_2D_Pass() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
-void CurlModule_Comp_2D_Pass::ActionBeforeInit()
-{
-	ZoneScoped;
+void CurlModule_Comp_2D_Pass::ActionBeforeInit() {
+    ZoneScoped;
 
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 }
 
-bool CurlModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool CurlModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (ImGui::CollapsingHeader("Curl", ImGuiTreeNodeFlags_DefaultOpen))
-	{
-		bool change = false;
+    if (ImGui::CollapsingHeader("Curl", ImGuiTreeNodeFlags_DefaultOpen)) {
+        bool change = false;
 
-		if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			change |= ImGui::ContrastedComboVectorDefault(0.0f, "Method", &m_UBOComp.method, m_MethodNames, 0);
-			change |= ImGui::CheckBoxFloatDefault("Discard Zero values", &m_UBOComp.u_discard_zero, false);
+        if (ImGui::CollapsingHeader("Controls", ImGuiTreeNodeFlags_DefaultOpen)) {
+            change |= ImGui::ContrastedComboVectorDefault(0.0f, "Method", &m_UBOComp.method, m_MethodNames, 0);
+            change |= ImGui::CheckBoxFloatDefault("Discard Zero values", &m_UBOComp.u_discard_zero, false);
 
-			if (change)
-			{
-				NeedNewUBOUpload();
-			}
-		}
+            if (change) {
+                NeedNewUBOUpload();
+            }
+        }
 
-		return change;
-	}
+        return change;
+    }
 
-	return false;
+    return false;
 }
 
-bool CurlModule_Comp_2D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool CurlModule_Comp_2D_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
 bool CurlModule_Comp_2D_Pass::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
@@ -127,147 +118,124 @@ bool CurlModule_Comp_2D_Pass::DrawDialogsAndPopups(
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CurlModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{	
-	ZoneScoped;
+void CurlModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
-					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
-				}
+                    NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
+                }
 
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
-			}
-			else {
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
+            } else {
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* CurlModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+vk::DescriptorImageInfo* CurlModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
+    if (m_ComputeBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_ComputeBufferPtr->GetOutputSize();
+        }
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CurlModule_Comp_2D_Pass::WasJustResized()
-{
-	ZoneScoped;
+void CurlModule_Comp_2D_Pass::WasJustResized() {
+    ZoneScoped;
 }
 
-void CurlModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	if (vCmdBufferPtr)
-	{
-		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
-		{
-			//VKFPScoped(*vCmdBufferPtr, "Curl", "Compute");
+void CurlModule_Comp_2D_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    if (vCmdBufferPtr) {
+        vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+        {
+            // VKFPScoped(*vCmdBufferPtr, "Curl", "Compute");
 
-			vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-
-			for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
-			{
-				Dispatch(vCmdBufferPtr);
-			}
-		}
-	}
+            vCmdBufferPtr->bindDescriptorSets(
+                vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+            Dispatch(vCmdBufferPtr, "Compute");
+        }
+    }
 }
 
+bool CurlModule_Comp_2D_Pass::CreateUBO() {
+    ZoneScoped;
 
-bool CurlModule_Comp_2D_Pass::CreateUBO()
-{
-	ZoneScoped;
+    m_UBOComp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Comp), "CurlModule_Comp_2D_Pass");
+    m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBOComp_Ptr) {
+        m_UBOComp_BufferInfos.buffer = m_UBOComp_Ptr->buffer;
+        m_UBOComp_BufferInfos.range = sizeof(UBO_Comp);
+        m_UBOComp_BufferInfos.offset = 0;
+    }
 
-	m_UBOComp_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Comp), "CurlModule_Comp_2D_Pass");
-	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBOComp_Ptr)
-	{
-		m_UBOComp_BufferInfos.buffer = m_UBOComp_Ptr->buffer;
-		m_UBOComp_BufferInfos.range = sizeof(UBO_Comp);
-		m_UBOComp_BufferInfos.offset = 0;
-	}
+    NeedNewUBOUpload();
 
-	NeedNewUBOUpload();
-
-	return true;
+    return true;
 }
 
-void CurlModule_Comp_2D_Pass::UploadUBO()
-{
-	ZoneScoped;
+void CurlModule_Comp_2D_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBOComp_Ptr, &m_UBOComp, sizeof(UBO_Comp));
+    VulkanRessource::upload(m_VulkanCore, m_UBOComp_Ptr, &m_UBOComp, sizeof(UBO_Comp));
 }
 
-void CurlModule_Comp_2D_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void CurlModule_Comp_2D_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOComp_Ptr.reset();
-	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBOComp_Ptr.reset();
+    m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool CurlModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool CurlModule_Comp_2D_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
 
-	return res;
+    return res;
 }
 
-bool CurlModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool CurlModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
-	res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // ssao
+    bool res = true;
+    res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));  // output
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
+    res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // ssao
 
-	return res;
+    return res;
 }
 
-std::string CurlModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "CurlModule_Comp_2D_Pass_Compute";
+std::string CurlModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "CurlModule_Comp_2D_Pass_Compute";
 
-	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
+    SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -345,53 +313,49 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CurlModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string CurlModule_Comp_2D_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
+    str += ShaderPass::getXml(vOffset, vUserDatas);
 
-	str += vOffset + "<method>" + ct::toStr(m_UBOComp.method) + "</method>\n";
-	str += vOffset + "<discard_zeros>" + ct::toStr(m_UBOComp.u_discard_zero) + "</discard_zeros>\n";
+    str += vOffset + "<method>" + ct::toStr(m_UBOComp.method) + "</method>\n";
+    str += vOffset + "<discard_zeros>" + ct::toStr(m_UBOComp.u_discard_zero) + "</discard_zeros>\n";
 
-	return str;
+    return str;
 }
 
-bool CurlModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool CurlModule_Comp_2D_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "rotational_module")
-	{
-		if (strName == "method")
-			m_UBOComp.method = ct::ivariant(strValue).GetI();
-		else if (strName == "discard_zeros")
-			m_UBOComp.u_discard_zero = ct::ivariant(strValue).GetB();
-	}
+    if (strParentName == "rotational_module") {
+        if (strName == "method")
+            m_UBOComp.method = ct::ivariant(strValue).GetI();
+        else if (strName == "discard_zeros")
+            m_UBOComp.u_discard_zero = ct::ivariant(strValue).GetB();
+    }
 
-	return true;
+    return true;
 }
 
-void CurlModule_Comp_2D_Pass::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void CurlModule_Comp_2D_Pass::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	// code to do after end of the xml loading of this node
-	// by ex :
-	NeedNewUBOUpload();
+    // code to do after end of the xml loading of this node
+    // by ex :
+    NeedNewUBOUpload();
 }

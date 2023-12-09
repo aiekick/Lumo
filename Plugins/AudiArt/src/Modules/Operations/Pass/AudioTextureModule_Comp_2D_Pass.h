@@ -43,41 +43,36 @@ limitations under the License.
 #include <Interfaces/SceneAudiArtInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class AudioTextureModule_Comp_2D_Pass :
-	public ShaderPass,
-	public SceneAudiArtInputInterface,
-	public TextureOutputInterface,
-	public NodeInterface
-{
+class AudioTextureModule_Comp_2D_Pass : public ShaderPass, public SceneAudiArtInputInterface, public TextureOutputInterface, public NodeInterface {
 private:
-
 public:
-	AudioTextureModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~AudioTextureModule_Comp_2D_Pass() override;
+    AudioTextureModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~AudioTextureModule_Comp_2D_Pass() override;
 
-	void ActionBeforeInit() override;
-	void WasJustResized() override;
+    void ActionBeforeInit() override;
+    void WasJustResized() override;
 
-	void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
-	
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void Compute(vk::CommandBuffer* vCmdBuffer, const int& vIterationNumber) override;
 
-	// Interfaces Setters
-	void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Setters
+    void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
 
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 
 protected:
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+    std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

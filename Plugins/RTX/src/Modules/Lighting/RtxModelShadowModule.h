@@ -54,32 +54,32 @@ limitations under the License.
 #include <Interfaces/AccelStructureInputInterface.h>
 
 class ModelShadow_Rtx_Pass;
-class RtxModelShadowModule : 
-	public BaseRenderer,
-	public TaskInterface,
-	public TextureOutputInterface,
-	public LightGroupInputInterface,
-	public AccelStructureInputInterface
-{
+class RtxModelShadowModule : public BaseRenderer,
+                             public TaskInterface,
+                             public TextureOutputInterface,
+                             public LightGroupInputInterface,
+                             public AccelStructureInputInterface {
 public:
-	static std::shared_ptr<RtxModelShadowModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<RtxModelShadowModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<ModelShadow_Rtx_Pass> m_ModelShadow_Rtx_Pass_Ptr = nullptr;
+    std::shared_ptr<ModelShadow_Rtx_Pass> m_ModelShadow_Rtx_Pass_Ptr = nullptr;
 
 public:
-	RtxModelShadowModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~RtxModelShadowModule() override;
+    RtxModelShadowModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~RtxModelShadowModule() override;
 
-	bool Init();
+    bool Init();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;
-	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = "") override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;
+    void SetLightGroup(SceneLightGroupWeak vSceneLightGroup = SceneLightGroupWeak()) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

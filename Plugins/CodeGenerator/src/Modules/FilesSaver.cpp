@@ -26,50 +26,46 @@ namespace fs = std::filesystem;
 
 void FilesSaver::GenerateGraphFiles(const GeneratorNodeWeak& vRootNode, const std::string& vRootPath) {
     auto ptr = vRootNode.lock();
-    if (ptr)
-	{
-		m_GenerationRootPath = vRootPath;
+    if (ptr) {
+        m_GenerationRootPath = vRootPath;
 
-		for (auto node : ptr->m_ChildNodes)
-		{
-			if (node.second)
-			{
-				auto genNodePtr = std::dynamic_pointer_cast<GeneratorNode>(node.second);
-				if (genNodePtr)
-				{
-					genNodePtr->GenerateNodeClasses(m_GenerationRootPath);
-				}
-			}
-		}
+        for (auto node : ptr->m_ChildNodes) {
+            if (node.second) {
+                auto genNodePtr = std::dynamic_pointer_cast<GeneratorNode>(node.second);
+                if (genNodePtr) {
+                    genNodePtr->GenerateNodeClasses(m_GenerationRootPath);
+                }
+            }
+        }
 
-		auto custom_types = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
-		for (auto custom_type_name : custom_types)
-		{
+        auto custom_types = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
+        for (auto custom_type_name : custom_types) {
             CustomSceneGraphItem(vRootPath, custom_type_name.GetText());
-		}
-	}
+        }
+    }
 }
 
 void FilesSaver::CustomSceneGraphItem(const std::string& vRootPath, const std::string& vSceneGraphItemName) {
-	fs::path scene_graph_path = vRootPath + "/SceneGraph/";
-	if (!std::filesystem::exists(scene_graph_path))
-		fs::create_directory(scene_graph_path);
+    fs::path scene_graph_path = vRootPath + "/SceneGraph/";
+    if (!std::filesystem::exists(scene_graph_path))
+        fs::create_directory(scene_graph_path);
 
-	std::string maj_scene_graph_item_name = ct::toUpper(vSceneGraphItemName);
+    std::string maj_scene_graph_item_name = ct::toUpper(vSceneGraphItemName);
 
-	//////////////////////////////////////
-	//// SCENEGRAPH //////////////////////
-	//////////////////////////////////////
+    //////////////////////////////////////
+    //// SCENEGRAPH //////////////////////
+    //////////////////////////////////////
 
-	std::string scene_graph_cpp_file_name = scene_graph_path.string() + vSceneGraphItemName + ".cpp";
-	std::string scene_graph_cpp_file_code = GeneratorNode::GetLicenceHeader();
+    std::string scene_graph_cpp_file_name = scene_graph_path.string() + vSceneGraphItemName + ".cpp";
+    std::string scene_graph_cpp_file_code = GeneratorNode::GetLicenceHeader();
 
-	std::string scene_graph_h_file_name = scene_graph_path.string() + vSceneGraphItemName + ".h";
-	std::string scene_graph_h_file_code = GeneratorNode::GetLicenceHeader();
+    std::string scene_graph_h_file_name = scene_graph_path.string() + vSceneGraphItemName + ".h";
+    std::string scene_graph_h_file_code = GeneratorNode::GetLicenceHeader();
 
-	scene_graph_cpp_file_code += GeneratorNode::GetPVSStudioHeader();
+    scene_graph_cpp_file_code += GeneratorNode::GetPVSStudioHeader();
 
-	scene_graph_cpp_file_code += u8R"(
+    scene_graph_cpp_file_code +=
+        u8R"(
 
 #include <SceneGraph/%s.h>
 
@@ -109,11 +105,12 @@ bool %s::IsOk() const
 }
 
 )";
-	ct::replaceString(scene_graph_cpp_file_code, "%s", vSceneGraphItemName);
-	ct::replaceString(scene_graph_cpp_file_code, "%S", maj_scene_graph_item_name);
-	FileHelper::Instance()->SaveStringToFile(scene_graph_cpp_file_code, scene_graph_cpp_file_name);
+    ct::replaceString(scene_graph_cpp_file_code, "%s", vSceneGraphItemName);
+    ct::replaceString(scene_graph_cpp_file_code, "%S", maj_scene_graph_item_name);
+    FileHelper::Instance()->SaveStringToFile(scene_graph_cpp_file_code, scene_graph_cpp_file_name);
 
-	scene_graph_h_file_code += u8R"(
+    scene_graph_h_file_code +=
+        u8R"(
 
 #pragma once
 
@@ -142,25 +139,26 @@ public:
 	bool IsOk() const;
 };
 )";
-	ct::replaceString(scene_graph_h_file_code, "%s", vSceneGraphItemName);
-	ct::replaceString(scene_graph_h_file_code, "%S", maj_scene_graph_item_name);
-	FileHelper::Instance()->SaveStringToFile(scene_graph_h_file_code, scene_graph_h_file_name);
+    ct::replaceString(scene_graph_h_file_code, "%s", vSceneGraphItemName);
+    ct::replaceString(scene_graph_h_file_code, "%S", maj_scene_graph_item_name);
+    FileHelper::Instance()->SaveStringToFile(scene_graph_h_file_code, scene_graph_h_file_name);
 
-	//////////////////////////////////////
-	//// INTERFACES //////////////////////
-	//////////////////////////////////////
+    //////////////////////////////////////
+    //// INTERFACES //////////////////////
+    //////////////////////////////////////
 
-	fs::path scene_interface_path = vRootPath + "/Interfaces/";
-	if (!std::filesystem::exists(scene_interface_path))
-		fs::create_directory(scene_interface_path);
+    fs::path scene_interface_path = vRootPath + "/Interfaces/";
+    if (!std::filesystem::exists(scene_interface_path))
+        fs::create_directory(scene_interface_path);
 
-	std::string scene_input_interface_h_file_name = scene_interface_path.string() + vSceneGraphItemName + "InputInterface.h";
-	std::string scene_input_interface_h_file_code = GeneratorNode::GetLicenceHeader();
-	
-	std::string scene_output_interface_h_file_name = scene_interface_path.string() + vSceneGraphItemName + "OutputInterface.h";
-	std::string scene_output_interface_h_file_code = GeneratorNode::GetLicenceHeader();
+    std::string scene_input_interface_h_file_name = scene_interface_path.string() + vSceneGraphItemName + "InputInterface.h";
+    std::string scene_input_interface_h_file_code = GeneratorNode::GetLicenceHeader();
 
-	scene_input_interface_h_file_code += u8R"(
+    std::string scene_output_interface_h_file_name = scene_interface_path.string() + vSceneGraphItemName + "OutputInterface.h";
+    std::string scene_output_interface_h_file_code = GeneratorNode::GetLicenceHeader();
+
+    scene_input_interface_h_file_code +=
+        u8R"(
 #pragma once
 
 #include <SceneGraph/%s.h>
@@ -177,11 +175,12 @@ public:
 	virtual void Set%s(const std::string& vName, %sWeak v%s) = 0;
 };
 )";
-	ct::replaceString(scene_input_interface_h_file_code, "%s", vSceneGraphItemName);
-	ct::replaceString(scene_input_interface_h_file_code, "%S", maj_scene_graph_item_name);
-	FileHelper::Instance()->SaveStringToFile(scene_input_interface_h_file_code, scene_input_interface_h_file_name);
+    ct::replaceString(scene_input_interface_h_file_code, "%s", vSceneGraphItemName);
+    ct::replaceString(scene_input_interface_h_file_code, "%S", maj_scene_graph_item_name);
+    FileHelper::Instance()->SaveStringToFile(scene_input_interface_h_file_code, scene_input_interface_h_file_name);
 
-	scene_output_interface_h_file_code += u8R"(
+    scene_output_interface_h_file_code +=
+        u8R"(
 #pragma once
 
 #include <SceneGraph/%s.h>
@@ -193,26 +192,27 @@ public:
 	virtual %sWeak Get%s(const std::string& vName) = 0;
 };
 )";
-	ct::replaceString(scene_output_interface_h_file_code, "%s", vSceneGraphItemName);
-	ct::replaceString(scene_output_interface_h_file_code, "%S", maj_scene_graph_item_name);
-	FileHelper::Instance()->SaveStringToFile(scene_output_interface_h_file_code, scene_output_interface_h_file_name);
+    ct::replaceString(scene_output_interface_h_file_code, "%s", vSceneGraphItemName);
+    ct::replaceString(scene_output_interface_h_file_code, "%S", maj_scene_graph_item_name);
+    FileHelper::Instance()->SaveStringToFile(scene_output_interface_h_file_code, scene_output_interface_h_file_name);
 
-	//////////////////////////////////////
-	//// SLOTS ///////////////////////////
-	//////////////////////////////////////
+    //////////////////////////////////////
+    //// SLOTS ///////////////////////////
+    //////////////////////////////////////
 
-	fs::path scene_slot_path = vRootPath + "/Slots/";
-	if (!std::filesystem::exists(scene_slot_path))
-		fs::create_directory(scene_slot_path);
+    fs::path scene_slot_path = vRootPath + "/Slots/";
+    if (!std::filesystem::exists(scene_slot_path))
+        fs::create_directory(scene_slot_path);
 
-	std::string scene_input_slot_cpp_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Input.cpp";
-	std::string scene_input_slot_h_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Input.h";
-	
-	std::string scene_output_slot_cpp_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Output.cpp";
-	std::string scene_output_slot_h_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Output.h";
-	
-	std::string scene_input_slot_cpp_file_code = GeneratorNode::GetLicenceHeader() + GeneratorNode::GetPVSStudioHeader();
-	scene_input_slot_cpp_file_code += u8R"(
+    std::string scene_input_slot_cpp_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Input.cpp";
+    std::string scene_input_slot_h_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Input.h";
+
+    std::string scene_output_slot_cpp_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Output.cpp";
+    std::string scene_output_slot_h_file_name = scene_slot_path.string() + "NodeSlot" + vSceneGraphItemName + "Output.h";
+
+    std::string scene_input_slot_cpp_file_code = GeneratorNode::GetLicenceHeader() + GeneratorNode::GetPVSStudioHeader();
+    scene_input_slot_cpp_file_code +=
+        u8R"(
 #include "NodeSlot%sInput.h"
 
 #include <utility>
@@ -301,8 +301,8 @@ void NodeSlot%sInput::Init()
 void NodeSlot%sInput::Unit()
 {
 	// ici pas besoin du assert sur le m_This 
-	// car NodeSlot%sInput peut etre isntancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+	// car NodeSlot%sInput peut etre isntanciï¿½ ï¿½ l'ancienne en copie local donc sans shared_ptr
+	// donc pour gagner du temps on va checker le this, si expirï¿½ on va pas plus loins
 	if (!m_This.expired())
 	{
 		if (!parentNode.expired())
@@ -394,12 +394,13 @@ void NodeSlot%sInput::DrawDebugInfos()
 	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }
 )";
-	ct::replaceString(scene_input_slot_cpp_file_code, "%s", vSceneGraphItemName);
-	ct::replaceString(scene_input_slot_cpp_file_code, "%S", maj_scene_graph_item_name);
-	FileHelper::Instance()->SaveStringToFile(scene_input_slot_cpp_file_code, scene_input_slot_cpp_file_name);
+    ct::replaceString(scene_input_slot_cpp_file_code, "%s", vSceneGraphItemName);
+    ct::replaceString(scene_input_slot_cpp_file_code, "%S", maj_scene_graph_item_name);
+    FileHelper::Instance()->SaveStringToFile(scene_input_slot_cpp_file_code, scene_input_slot_cpp_file_name);
 
-	std::string scene_input_slot_h_file_code = GeneratorNode::GetLicenceHeader();
-	scene_input_slot_h_file_code += u8R"(
+    std::string scene_input_slot_h_file_code = GeneratorNode::GetLicenceHeader();
+    scene_input_slot_h_file_code +=
+        u8R"(
 #pragma once
 
 #include <LumoBackend/Graph/Graph.h>
@@ -439,12 +440,13 @@ public:
 	void DrawDebugInfos();
 };
 )";
-	ct::replaceString(scene_input_slot_h_file_code, "%s", vSceneGraphItemName);
-	ct::replaceString(scene_input_slot_h_file_code, "%S", maj_scene_graph_item_name);
-	FileHelper::Instance()->SaveStringToFile(scene_input_slot_h_file_code, scene_input_slot_h_file_name);
+    ct::replaceString(scene_input_slot_h_file_code, "%s", vSceneGraphItemName);
+    ct::replaceString(scene_input_slot_h_file_code, "%S", maj_scene_graph_item_name);
+    FileHelper::Instance()->SaveStringToFile(scene_input_slot_h_file_code, scene_input_slot_h_file_name);
 
-	std::string scene_output_slot_cpp_file_code = GeneratorNode::GetLicenceHeader() + GeneratorNode::GetPVSStudioHeader();
-	scene_output_slot_cpp_file_code += u8R"(
+    std::string scene_output_slot_cpp_file_code = GeneratorNode::GetLicenceHeader() + GeneratorNode::GetPVSStudioHeader();
+    scene_output_slot_cpp_file_code +=
+        u8R"(
 #include "NodeSlot%sOutput.h"
 
 #include <utility>
@@ -531,8 +533,8 @@ void NodeSlot%sOutput::Init()
 void NodeSlot%sOutput::Unit()
 {
 	// ici pas besoin du assert sur le m_This 
-	// car NodeSlot%sOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+	// car NodeSlot%sOutput peut etre instanciï¿½ ï¿½ l'ancienne en copie local donc sans shared_ptr
+	// donc pour gagner du temps on va checker le this, si expirï¿½ on va pas plus loins
 	if (!m_This.expired())
 	{
 		if (!parentNode.expired())
@@ -570,12 +572,13 @@ void NodeSlot%sOutput::DrawDebugInfos()
 	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }
 )";
-	ct::replaceString(scene_output_slot_cpp_file_code, "%s", vSceneGraphItemName);
-	ct::replaceString(scene_output_slot_cpp_file_code, "%S", maj_scene_graph_item_name);
-	FileHelper::Instance()->SaveStringToFile(scene_output_slot_cpp_file_code, scene_output_slot_cpp_file_name);
+    ct::replaceString(scene_output_slot_cpp_file_code, "%s", vSceneGraphItemName);
+    ct::replaceString(scene_output_slot_cpp_file_code, "%S", maj_scene_graph_item_name);
+    FileHelper::Instance()->SaveStringToFile(scene_output_slot_cpp_file_code, scene_output_slot_cpp_file_name);
 
-	std::string scene_output_slot_h_file_code = GeneratorNode::GetLicenceHeader();
-	scene_output_slot_h_file_code += u8R"(
+    std::string scene_output_slot_h_file_code = GeneratorNode::GetLicenceHeader();
+    scene_output_slot_h_file_code +=
+        u8R"(
 #pragma once
 
 #include <LumoBackend/Graph/Graph.h>
@@ -610,7 +613,7 @@ public:
 };
 
 )";
-	ct::replaceString(scene_output_slot_h_file_code, "%s", vSceneGraphItemName);
-	ct::replaceString(scene_output_slot_h_file_code, "%S", maj_scene_graph_item_name);
-	FileHelper::Instance()->SaveStringToFile(scene_output_slot_h_file_code, scene_output_slot_h_file_name);
+    ct::replaceString(scene_output_slot_h_file_code, "%s", vSceneGraphItemName);
+    ct::replaceString(scene_output_slot_h_file_code, "%S", maj_scene_graph_item_name);
+    FileHelper::Instance()->SaveStringToFile(scene_output_slot_h_file_code, scene_output_slot_h_file_name);
 }

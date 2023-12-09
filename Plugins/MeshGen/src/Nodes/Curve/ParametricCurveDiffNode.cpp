@@ -26,77 +26,68 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<ParametricCurveDiffNode> ParametricCurveDiffNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+std::shared_ptr<ParametricCurveDiffNode> ParametricCurveDiffNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	auto res = std::make_shared<ParametricCurveDiffNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<ParametricCurveDiffNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
-ParametricCurveDiffNode::ParametricCurveDiffNode() : BaseNode()
-{
-	ZoneScoped;
+ParametricCurveDiffNode::ParametricCurveDiffNode() : BaseNode() {
+    ZoneScoped;
 
-	m_NodeTypeString = "PARAMETRIC_CURVE_DIFF";
+    m_NodeTypeString = "PARAMETRIC_CURVE_DIFF";
 }
 
-ParametricCurveDiffNode::~ParametricCurveDiffNode()
-{
-	ZoneScoped;
+ParametricCurveDiffNode::~ParametricCurveDiffNode() {
+    ZoneScoped;
 
-	Unit();
-}		
+    Unit();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveDiffNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+bool ParametricCurveDiffNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	name = "Parametric Curve Diff";
-	AddInput(NodeSlotVariableInput::Create("Close", "WIDGET_BOOLEAN", 0), false, false);
+    name = "Parametric Curve Diff";
+    AddInput(NodeSlotVariableInput::Create("Close", "WIDGET_BOOLEAN", 0), false, false);
 
-	AddOutput(NodeSlotModelOutput::Create("Curve"), false, false);
+    AddOutput(NodeSlotModelOutput::Create("Curve"), false, false);
 
-	m_ParametricCurveDiffModulePtr = ParametricCurveDiffModule::Create(vVulkanCore, m_This);
-	if (m_ParametricCurveDiffModulePtr)
-	{
-		res = true;
-	}
+    m_ParametricCurveDiffModulePtr = ParametricCurveDiffModule::Create(vVulkanCore, m_This);
+    if (m_ParametricCurveDiffModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveDiffNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	bool res = false;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_ParametricCurveDiffModulePtr)
-	{
+bool ParametricCurveDiffNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_ParametricCurveDiffModulePtr) {
         return m_ParametricCurveDiffModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
-	return false;
+    }
+    return false;
 }
 
 bool ParametricCurveDiffNode::DrawOverlays(
-	const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -105,161 +96,134 @@ bool ParametricCurveDiffNode::DrawOverlays(
 
 bool ParametricCurveDiffNode::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	if (m_ParametricCurveDiffModulePtr)
-	{
-		return m_ParametricCurveDiffModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-	}
-	return false;
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    if (m_ParametricCurveDiffModulePtr) {
+        return m_ParametricCurveDiffModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    }
+    return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW SLOTS WIDGET ///////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricCurveDiffNode::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
-{
-	ZoneScoped;
+void ParametricCurveDiffNode::DrawInputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) {
+    ZoneScoped;
 
-	auto slotPtr = vSlot.lock();
-	if (slotPtr && slotPtr->showWidget)
-	{
-		if (m_ParametricCurveDiffModulePtr)
-		{
-			//m_ParametricCurveDiffModulePtr->DrawTexture(50);
-		}
-	}
+    auto slotPtr = vSlot.lock();
+    if (slotPtr && slotPtr->showWidget) {
+        if (m_ParametricCurveDiffModulePtr) {
+            // m_ParametricCurveDiffModulePtr->DrawTexture(50);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricCurveDiffNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+void ParametricCurveDiffNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used[%s]\nCell[%i, %i]",
-				(used ? "true" : "false"), cell.x, cell.y);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used[%s]\nCell[%i, %i]", (used ? "true" : "false"), cell.x, cell.y);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricCurveDiffNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
-{	
-	ZoneScoped;
+void ParametricCurveDiffNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+    ZoneScoped;
 
-	if (m_ParametricCurveDiffModulePtr)
-	{
-		m_ParametricCurveDiffModulePtr->SetVariable(vVarIndex, vSceneVariable);
-	}
+    if (m_ParametricCurveDiffModulePtr) {
+        m_ParametricCurveDiffModulePtr->SetVariable(vVarIndex, vSceneVariable);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneModelWeak ParametricCurveDiffNode::GetModel()
-{	
-	ZoneScoped;
+SceneModelWeak ParametricCurveDiffNode::GetModel() {
+    ZoneScoped;
 
-	if (m_ParametricCurveDiffModulePtr)
-	{
-		return m_ParametricCurveDiffModulePtr->GetModel();
-	}
+    if (m_ParametricCurveDiffModulePtr) {
+        return m_ParametricCurveDiffModulePtr->GetModel();
+    }
 
-	return SceneModelWeak();
+    return SceneModelWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ParametricCurveDiffNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+std::string ParametricCurveDiffNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string res;
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_ParametricCurveDiffModulePtr)
-		{
-			res += m_ParametricCurveDiffModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_ParametricCurveDiffModulePtr) {
+            res += m_ParametricCurveDiffModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool ParametricCurveDiffNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+bool ParametricCurveDiffNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_ParametricCurveDiffModulePtr)
-	{
-		m_ParametricCurveDiffModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_ParametricCurveDiffModulePtr) {
+        m_ParametricCurveDiffModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	// continue recurse child exploring
-	return true;
+    // continue recurse child exploring
+    return true;
 }
 
-void ParametricCurveDiffNode::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void ParametricCurveDiffNode::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_ParametricCurveDiffModulePtr)
-	{
-		m_ParametricCurveDiffModulePtr->AfterNodeXmlLoading();
-	}
+    if (m_ParametricCurveDiffModulePtr) {
+        m_ParametricCurveDiffModulePtr->AfterNodeXmlLoading();
+    }
 }

@@ -43,70 +43,66 @@ using namespace GaiApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-PBRRenderer_Quad_Pass::PBRRenderer_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
-{
-	SetRenderDocDebugName("Quad Pass 1 : PBR", QUAD_SHADER_PASS_DEBUG_COLOR);
+PBRRenderer_Quad_Pass::PBRRenderer_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL) {
+    SetRenderDocDebugName("Quad Pass 1 : PBR", QUAD_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-PBRRenderer_Quad_Pass::~PBRRenderer_Quad_Pass()
-{
-	Unit();
+PBRRenderer_Quad_Pass::~PBRRenderer_Quad_Pass() {
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool PBRRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool PBRRenderer_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	bool change = false;
+    bool change = false;
 
-	ImGui::Header("Maps");
-	
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Diffuse Factor", &m_UBOFrag.u_diffuse_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Metallic Factor", &m_UBOFrag.u_metallic_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rugosity Factor", &m_UBOFrag.u_rugosity_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Factor", &m_UBOFrag.u_ao_factor, 0.000f, 1.0f, 1.000f, 0.0f, "%.3f");
-	
-	ImGui::Header("Lights");
-	
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Light Intensity Factor", &m_UBOFrag.u_light_intensity_factor, 0.0f, 200.0f, 100.0f, 0.0f, "%.3f");
+    ImGui::Header("Maps");
 
-	ImGui::Header("Shadow");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Diffuse Factor", &m_UBOFrag.u_diffuse_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Metallic Factor", &m_UBOFrag.u_metallic_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Rugosity Factor", &m_UBOFrag.u_rugosity_factor, 0.0f, 1.0f, 1.0f, 0.0f, "%.3f");
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "AO Factor", &m_UBOFrag.u_ao_factor, 0.000f, 1.0f, 1.000f, 0.0f, "%.3f");
 
-	change |= ImGui::SliderFloatDefaultCompact(0.0f, "Shadow Strength", &m_UBOFrag.u_shadow_strength, 0.000f, 1.000f, 0.5f, 0.0f, "%.3f");
-	change |= ImGui::CheckBoxFloatDefault("Use PCF Filtering", &m_UBOFrag.u_use_pcf, true);
-	if (m_UBOFrag.u_use_pcf > 0.5f)
-	{
-		ImGui::Indent();
-		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOFrag.u_bias, 0.0f, 0.02f, 0.01f);
-		change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_poisson_scale, 1.0f, 10000.0f, 2000.0f);
-		ImGui::Unindent();
-	}
+    ImGui::Header("Lights");
 
-	/*
-	DrawInputTexture(m_VulkanCore, "Position", 0U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Normal", 1U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Albedo", 2U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Diffuse", 3U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Specular", 4U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Attenuation", 5U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Mask", 6U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "Ao", 7U, m_OutputRatio);
-	DrawInputTexture(m_VulkanCore, "shadow", 8U, m_OutputRatio);
-	*/
+    change |=
+        ImGui::SliderFloatDefaultCompact(0.0f, "Light Intensity Factor", &m_UBOFrag.u_light_intensity_factor, 0.0f, 200.0f, 100.0f, 0.0f, "%.3f");
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
+    ImGui::Header("Shadow");
 
-	return false;
+    change |= ImGui::SliderFloatDefaultCompact(0.0f, "Shadow Strength", &m_UBOFrag.u_shadow_strength, 0.000f, 1.000f, 0.5f, 0.0f, "%.3f");
+    change |= ImGui::CheckBoxFloatDefault("Use PCF Filtering", &m_UBOFrag.u_use_pcf, true);
+    if (m_UBOFrag.u_use_pcf > 0.5f) {
+        ImGui::Indent();
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "Bias", &m_UBOFrag.u_bias, 0.0f, 0.02f, 0.01f);
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "Noise Scale", &m_UBOFrag.u_poisson_scale, 1.0f, 10000.0f, 2000.0f);
+        ImGui::Unindent();
+    }
+
+    /*
+    DrawInputTexture(m_VulkanCore, "Position", 0U, m_OutputRatio);
+    DrawInputTexture(m_VulkanCore, "Normal", 1U, m_OutputRatio);
+    DrawInputTexture(m_VulkanCore, "Albedo", 2U, m_OutputRatio);
+    DrawInputTexture(m_VulkanCore, "Diffuse", 3U, m_OutputRatio);
+    DrawInputTexture(m_VulkanCore, "Specular", 4U, m_OutputRatio);
+    DrawInputTexture(m_VulkanCore, "Attenuation", 5U, m_OutputRatio);
+    DrawInputTexture(m_VulkanCore, "Mask", 6U, m_OutputRatio);
+    DrawInputTexture(m_VulkanCore, "Ao", 7U, m_OutputRatio);
+    DrawInputTexture(m_VulkanCore, "shadow", 8U, m_OutputRatio);
+    */
+
+    if (change) {
+        NeedNewUBOUpload();
+    }
+
+    return false;
 }
 
 bool PBRRenderer_Quad_Pass::DrawOverlays(
@@ -125,249 +121,216 @@ bool PBRRenderer_Quad_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void PBRRenderer_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void PBRRenderer_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if ((&m_UBOFrag.use_sampler_position)[vBindingPoint] < 1.0f)
-				{
-					(&m_UBOFrag.use_sampler_position)[vBindingPoint] = 1.0f;
-					NeedNewUBOUpload();
-				}
-			}
-			else
-			{
-				if ((&m_UBOFrag.use_sampler_position)[vBindingPoint] > 0.0f)
-				{
-					(&m_UBOFrag.use_sampler_position)[vBindingPoint] = 0.0f;
-					NeedNewUBOUpload();
-				}
+                if ((&m_UBOFrag.use_sampler_position)[vBindingPoint] < 1.0f) {
+                    (&m_UBOFrag.use_sampler_position)[vBindingPoint] = 1.0f;
+                    NeedNewUBOUpload();
+                }
+            } else {
+                if ((&m_UBOFrag.use_sampler_position)[vBindingPoint] > 0.0f) {
+                    (&m_UBOFrag.use_sampler_position)[vBindingPoint] = 0.0f;
+                    NeedNewUBOUpload();
+                }
 
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
-vk::DescriptorImageInfo* PBRRenderer_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_FrameBufferPtr)
-	{
-		AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
+vk::DescriptorImageInfo* PBRRenderer_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_FrameBufferPtr) {
+        AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-void PBRRenderer_Quad_Pass::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes)
-{
-	ZoneScoped;
+void PBRRenderer_Quad_Pass::SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint == 0U)
-		{
-			if (vImageInfos &&
-				vImageInfos->size() == m_ImageGroupInfos.size())
-			{
-				for (size_t i = 0U; i < vImageInfos->size(); ++i)
-				{
-					m_ImageGroupInfos[i] = vImageInfos->at(i);
-				}
+    if (m_Loaded) {
+        if (vBindingPoint == 0U) {
+            if (vImageInfos && vImageInfos->size() == m_ImageGroupInfos.size()) {
+                for (size_t i = 0U; i < vImageInfos->size(); ++i) {
+                    m_ImageGroupInfos[i] = vImageInfos->at(i);
+                }
 
-				if (m_UBOFrag.use_sampler_position < 1.0f)
-				{
-					m_UBOFrag.use_sampler_shadow_maps = 1.0f;
+                if (m_UBOFrag.use_sampler_position < 1.0f) {
+                    m_UBOFrag.use_sampler_shadow_maps = 1.0f;
 
-					NeedNewUBOUpload();
-				}
-			}
-			else {
+                    NeedNewUBOUpload();
+                }
+            } else {
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				for (auto& info : m_ImageGroupInfos)
-				{
-					info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-				}
+                for (auto& info : m_ImageGroupInfos) {
+                    info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+                }
 
-				if (m_UBOFrag.use_sampler_position > 0.0f)
-				{
-					m_UBOFrag.use_sampler_position = 0.0f;
+                if (m_UBOFrag.use_sampler_position > 0.0f) {
+                    m_UBOFrag.use_sampler_position = 0.0f;
 
-					NeedNewUBOUpload();
-				}
-			}
-		}
-	}
+                    NeedNewUBOUpload();
+                }
+            }
+        }
+    }
 }
 
-void PBRRenderer_Quad_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
-{
-	m_SceneLightGroup = vSceneLightGroup;
+void PBRRenderer_Quad_Pass::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
+    m_SceneLightGroup = vSceneLightGroup;
 
-	m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
+    m_SceneLightGroupDescriptorInfoPtr = &m_SceneEmptyLightGroupDescriptorInfo;
 
-	auto lightGroupPtr = m_SceneLightGroup.lock();
-	if (lightGroupPtr &&
-		lightGroupPtr->GetBufferInfo())
-	{
-		m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
-	}
+    auto lightGroupPtr = m_SceneLightGroup.lock();
+    if (lightGroupPtr && lightGroupPtr->GetBufferInfo()) {
+        m_SceneLightGroupDescriptorInfoPtr = lightGroupPtr->GetBufferInfo();
+    }
 
-	UpdateBufferInfoInRessourceDescriptor();
+    UpdateBufferInfoInRessourceDescriptor();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string PBRRenderer_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string PBRRenderer_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += vOffset + "<bias>" + ct::toStr(m_UBOFrag.u_bias) + "</bias>\n";
-	str += vOffset + "<strength>" + ct::toStr(m_UBOFrag.u_shadow_strength) + "</strength>\n";
-	str += vOffset + "<noise_scale>" + ct::toStr(m_UBOFrag.u_poisson_scale) + "</noise_scale>\n";
-	str += vOffset + "<use_pcf>" + (m_UBOFrag.u_use_pcf > 0.5f ? "true" : "false") + "</use_pcf>\n";
+    str += vOffset + "<bias>" + ct::toStr(m_UBOFrag.u_bias) + "</bias>\n";
+    str += vOffset + "<strength>" + ct::toStr(m_UBOFrag.u_shadow_strength) + "</strength>\n";
+    str += vOffset + "<noise_scale>" + ct::toStr(m_UBOFrag.u_poisson_scale) + "</noise_scale>\n";
+    str += vOffset + "<use_pcf>" + (m_UBOFrag.u_use_pcf > 0.5f ? "true" : "false") + "</use_pcf>\n";
 
-	return str;
+    return str;
 }
 
-bool PBRRenderer_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool PBRRenderer_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "pbr_renderer_module")
-	{
-		if (strName == "bias")
-			m_UBOFrag.u_bias = ct::fvariant(strValue).GetF();
-		else if (strName == "strength")
-			m_UBOFrag.u_shadow_strength = ct::fvariant(strValue).GetF();
-		else if (strName == "noise_scale")
-			m_UBOFrag.u_poisson_scale = ct::fvariant(strValue).GetF();
-		else if (strName == "use_pcf")
-			m_UBOFrag.u_use_pcf = ct::ivariant(strValue).GetB() ? 1.0f : 0.0f;
+    if (strParentName == "pbr_renderer_module") {
+        if (strName == "bias")
+            m_UBOFrag.u_bias = ct::fvariant(strValue).GetF();
+        else if (strName == "strength")
+            m_UBOFrag.u_shadow_strength = ct::fvariant(strValue).GetF();
+        else if (strName == "noise_scale")
+            m_UBOFrag.u_poisson_scale = ct::fvariant(strValue).GetF();
+        else if (strName == "use_pcf")
+            m_UBOFrag.u_use_pcf = ct::ivariant(strValue).GetB() ? 1.0f : 0.0f;
 
-		NeedNewUBOUpload();
-	}
+        NeedNewUBOUpload();
+    }
 
-	return true;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PBRRenderer_Quad_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool PBRRenderer_Quad_Pass::CreateUBO() {
+    ZoneScoped;
 
-	auto size_in_bytes = sizeof(UBOFrag);
+    auto size_in_bytes = sizeof(UBOFrag);
     m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes, "PBRRenderer_Quad_Pass");
-	m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
-	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
-	m_DescriptorBufferInfo_Frag.offset = 0;
+    m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
+    m_DescriptorBufferInfo_Frag.range = size_in_bytes;
+    m_DescriptorBufferInfo_Frag.offset = 0;
 
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 
-	for (auto& info : m_ImageGroupInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageGroupInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void PBRRenderer_Quad_Pass::UploadUBO()
-{
-	ZoneScoped;
+void PBRRenderer_Quad_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+    VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void PBRRenderer_Quad_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void PBRRenderer_Quad_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOFragPtr.reset();
+    m_UBOFragPtr.reset();
 }
 
-bool PBRRenderer_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool PBRRenderer_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment);
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(4U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(5U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(6U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(7U, vk::DescriptorType::eStorageBuffer, vk::ShaderStageFlagBits::eFragment);
 
-	// the shadow maps
-	res &= AddOrSetLayoutDescriptor(8U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, (uint32_t)m_ImageGroupInfos.size());
+    // the shadow maps
+    res &= AddOrSetLayoutDescriptor(
+        8U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment, (uint32_t)m_ImageGroupInfos.size());
 
-	return res;
+    return res;
 }
 
-bool PBRRenderer_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool PBRRenderer_Quad_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Frag);
-	res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // position
-	res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]); // normal
-	res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]); // albedo
-	res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[3]); // mask
-	res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[4]); // ssaao
-	res &= AddOrSetWriteDescriptorBuffer(7U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
+    bool res = true;
+    res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Frag);
+    res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // position
+    res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);  // normal
+    res &= AddOrSetWriteDescriptorImage(4U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[2]);  // albedo
+    res &= AddOrSetWriteDescriptorImage(5U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[3]);  // mask
+    res &= AddOrSetWriteDescriptorImage(6U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[4]);  // ssaao
+    res &= AddOrSetWriteDescriptorBuffer(7U, vk::DescriptorType::eStorageBuffer, m_SceneLightGroupDescriptorInfoPtr);
 
-	// the shadow maps
-	res &= AddOrSetWriteDescriptorImage( 8U, vk::DescriptorType::eCombinedImageSampler, m_ImageGroupInfos.data(), (uint32_t)m_ImageGroupInfos.size());
+    // the shadow maps
+    res &= AddOrSetWriteDescriptorImage(8U, vk::DescriptorType::eCombinedImageSampler, m_ImageGroupInfos.data(), (uint32_t)m_ImageGroupInfos.size());
 
-	return res;
+    return res;
 }
 
-std::string PBRRenderer_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "PBRRenderer_Quad_Pass_Vertex";
+std::string PBRRenderer_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "PBRRenderer_Quad_Pass_Vertex";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec2 vertPosition;
@@ -382,18 +345,16 @@ void main()
 )";
 }
 
-std::string PBRRenderer_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "PBRRenderer_Quad_Pass_Fragment";
+std::string PBRRenderer_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "PBRRenderer_Quad_Pass_Fragment";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragColor;
 layout(location = 0) in vec2 v_uv;
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
-u8R"(
+)" + CommonSystem::GetBufferObjectStructureHeader(0U) +
+           u8R"(
 layout (std140, binding = 1) uniform UBO_Frag 
 { 
 	float u_light_intensity_factor;
@@ -418,11 +379,8 @@ layout(binding = 3) uniform sampler2D normal_map_sampler;
 layout(binding = 4) uniform sampler2D albedo_map_sampler;
 layout(binding = 5) uniform sampler2D mask_map_sampler;
 layout(binding = 6) uniform sampler2D ao_map_sampler;
-)"
-+
-SceneLightGroup::GetBufferObjectStructureHeader(7U)
-+
-u8R"(
+)" + SceneLightGroup::GetBufferObjectStructureHeader(7U) +
+           u8R"(
 layout(std430, binding = 7) readonly buffer SBO_LightGroup
 {
 	uint lightsCount;

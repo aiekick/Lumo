@@ -9,17 +9,16 @@ class GeneratorNodeSlotOutput;
 typedef std::weak_ptr<GeneratorNodeSlotOutput> GeneratorNodeSlotOutputWeak;
 typedef std::shared_ptr<GeneratorNodeSlotOutput> GeneratorNodeSlotOutputPtr;
 
-class GeneratorNodeSlotOutput : public NodeSlotOutput, public GeneratorNodeSlotDatas
-{
+class GeneratorNodeSlotOutput : public NodeSlotOutput, public GeneratorNodeSlotDatas {
 public:
-	static GeneratorNodeSlotOutputPtr Create();
-	static GeneratorNodeSlotOutputPtr Create(const std::string& vName);
+    static GeneratorNodeSlotOutputPtr Create();
+    static GeneratorNodeSlotOutputPtr Create(const std::string& vName);
 
 public:
-	explicit GeneratorNodeSlotOutput();
-	explicit GeneratorNodeSlotOutput(const std::string& vName);
+    explicit GeneratorNodeSlotOutput();
+    explicit GeneratorNodeSlotOutput(const std::string& vName);
 
 public:
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

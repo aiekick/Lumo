@@ -113,7 +113,7 @@ bool ScreenSpaceModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Com
 }
 
 void ScreenSpaceModule::UpdateDescriptorsBeforeCommandBuffer() {
-    // will connect active effects is there is at least two active effects 
+    // will connect active effects is there is at least two active effects
     m_FirstPassPtr = nullptr;
     m_LastPassPtr = nullptr;
     std::shared_ptr<TextureOutputInterface> _lastActivePassPtr = nullptr;
@@ -144,7 +144,7 @@ void ScreenSpaceModule::UpdateDescriptorsBeforeCommandBuffer() {
 
 void ScreenSpaceModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) {
     // 1) SSR
-    if (m_SSReflectionModule_Comp_2D_Pass_Ptr->IsEffectEnabled() && //
+    if (m_SSReflectionModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_SSReflectionModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
         vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
@@ -152,7 +152,7 @@ void ScreenSpaceModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) {
     }
 
     // 2) SSAO
-    if (m_SSAOModule_Comp_2D_Pass_Ptr->IsEffectEnabled() && //
+    if (m_SSAOModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_SSAOModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_SSAOModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
         vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
@@ -183,8 +183,7 @@ bool ScreenSpaceModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
     return false;
 }
 
-bool ScreenSpaceModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ScreenSpaceModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -234,7 +233,7 @@ void ScreenSpaceModule::SetTexture(const uint32_t& vBindingPoint, vk::Descriptor
         // will set the color to the input of the first active effect
         if (m_FirstPassPtr != nullptr) {
             m_FirstPassPtr->SetTexture(0U, vImageInfo, vTextureSize);
-        } 
+        }
         // in case there is no enabled effects
         if (vBindingPoint == 0 && vImageInfo != nullptr) {
             m_ImageInfos[0] = *vImageInfo;
@@ -262,7 +261,7 @@ vk::DescriptorImageInfo* ScreenSpaceModule::GetDescriptorImageInfo(const uint32_
     // will get the output of the last active effect
     if (m_LastPassPtr != nullptr) {
         return m_LastPassPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-    } else if (vBindingPoint == 0) { // no enabled effect, this module is passing
+    } else if (vBindingPoint == 0) {  // no enabled effect, this module is passing
         return &m_ImageInfos[0];
     }
 

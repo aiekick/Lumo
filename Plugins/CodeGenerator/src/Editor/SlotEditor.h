@@ -5,20 +5,20 @@
 #include <ImGuiPack.h>
 #include <Modules/GeneratorNode.h>
 
-class SlotEditor
-{
+class SlotEditor {
 private:
-	BaseTypes m_BaseTypes;
-	std::string m_SelectedType;
-	int m_InputType = 0U;
-	int m_InputSubType = 0U;
-	std::string m_SelectedSubType = "";
-	int m_SelectedSubTypeIndex = -1;
-	ImWidgets::InputText m_SlotDisplayNameInputText;
+    BaseTypes m_BaseTypes;
+    std::string m_SelectedType;
+    int m_InputType = 0U;
+    int m_InputSubType = 0U;
+    std::string m_SelectedSubType = "";
+    int m_SelectedSubTypeIndex = -1;
+    ImWidgets::InputText m_SlotDisplayNameInputText;
 
 public:
-	void SelectSlot(NodeSlotWeak vNodeSlot);
-	NodeSlotWeak DrawSlotCreationPane(const ImVec2& vSize, BaseNodeWeak vNode, NodeSlotWeak vNodeSlot, const NodeSlot::PlaceEnum& vPlace, bool& vChange);
+    void SelectSlot(NodeSlotWeak vNodeSlot);
+    NodeSlotWeak DrawSlotCreationPane(
+        const ImVec2& vSize, BaseNodeWeak vNode, NodeSlotWeak vNodeSlot, const NodeSlot::PlaceEnum& vPlace, bool& vChange);
 
 private:
     NodeSlotWeak ChangeInputSlotType(

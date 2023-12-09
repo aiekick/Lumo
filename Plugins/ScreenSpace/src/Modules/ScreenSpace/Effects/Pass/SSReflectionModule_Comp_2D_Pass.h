@@ -43,9 +43,7 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class SSReflectionModule_Comp_2D_Pass :   
-    public EffectPass<4U>,
-    public NodeInterface {
+class SSReflectionModule_Comp_2D_Pass : public EffectPass<4U>, public NodeInterface {
 public:
     static std::shared_ptr<SSReflectionModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);
 

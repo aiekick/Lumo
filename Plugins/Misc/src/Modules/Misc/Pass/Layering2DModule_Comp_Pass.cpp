@@ -44,224 +44,192 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-Layering2DModule_Comp_Pass::Layering2DModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: ShaderPass(vVulkanCore)
-{
-	SetRenderDocDebugName("Comp Pass : 2D Layering", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+Layering2DModule_Comp_Pass::Layering2DModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {
+    SetRenderDocDebugName("Comp Pass : 2D Layering", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-Layering2DModule_Comp_Pass::~Layering2DModule_Comp_Pass()
-{
-	Unit();
+Layering2DModule_Comp_Pass::~Layering2DModule_Comp_Pass() {
+    Unit();
 }
 
-bool Layering2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool Layering2DModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	ZoneScoped;
+    ZoneScoped;
 
-	ImGui::SetCurrentContext(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	const float aw = ImGui::GetContentRegionAvail().x;
+    const float aw = ImGui::GetContentRegionAvail().x;
 
-	bool change = false;
+    bool change = false;
 
-	change |= ImGui::ContrastedComboVectorDefault(aw, "Value method", &m_UBOComp.method, m_MethodNames, 0);
+    change |= ImGui::ContrastedComboVectorDefault(aw, "Value method", &m_UBOComp.method, m_MethodNames, 0);
 
-	change |= ImGui::SliderFloatDefaultCompact(aw, "Value smoothness", &m_UBOComp.smoothness, -1.0f, 1.0f, 0.5f);
+    change |= ImGui::SliderFloatDefaultCompact(aw, "Value smoothness", &m_UBOComp.smoothness, -1.0f, 1.0f, 0.5f);
 
-	change |= ImGui::SliderUIntDefaultCompact(aw, "Layers count ", &m_UBOComp.layer_count, 1U, 200U, 50U);
+    change |= ImGui::SliderUIntDefaultCompact(aw, "Layers count ", &m_UBOComp.layer_count, 1U, 200U, 50U);
 
-	change |= ImGui::SliderFloatDefaultCompact(aw, "Layers step scale", &m_UBOComp.step_scale, 0.0f, 0.1f, 0.005f);
+    change |= ImGui::SliderFloatDefaultCompact(aw, "Layers step scale", &m_UBOComp.step_scale, 0.0f, 0.1f, 0.005f);
 
-	// hidden for the moment because need a slot for define the center and need so to ass some new type of nodes
-	//change |= ImGui::SliderFloatDefaultCompact(aw, "Center offset step", &m_UBOComp.center_offset_step, 0.0f, 50.0f, 2.0f);
+    // hidden for the moment because need a slot for define the center and need so to ass some new type of nodes
+    // change |= ImGui::SliderFloatDefaultCompact(aw, "Center offset step", &m_UBOComp.center_offset_step, 0.0f, 50.0f, 2.0f);
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
+    if (change) {
+        NeedNewUBOUpload();
+    }
 
-	return change;
+    return change;
 }
 
-bool Layering2DModule_Comp_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool Layering2DModule_Comp_Pass::DrawOverlays(
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
-
 }
 
-bool Layering2DModule_Comp_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool Layering2DModule_Comp_Pass::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
-
 }
 
-void Layering2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void Layering2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vTextureSize)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vTextureSize) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
 
-					NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
-				}
-			}
+                    NeedResizeByHandIfChanged(m_ImageInfosSize[0]);
+                }
+            }
 
-			if (vImageInfo)
-			{
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
+            if (vImageInfo) {
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if (vBindingPoint == 1U)
-				{
-					m_UBOComp.use_input_color_buffer = 1.0f;
-				}
-			}
-			else
-			{
-				if (vBindingPoint == 1U)
-				{
-					m_UBOComp.use_input_color_buffer = 0.0f;
-				}
+                if (vBindingPoint == 1U) {
+                    m_UBOComp.use_input_color_buffer = 1.0f;
+                }
+            } else {
+                if (vBindingPoint == 1U) {
+                    m_UBOComp.use_input_color_buffer = 0.0f;
+                }
 
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
-vk::DescriptorImageInfo* Layering2DModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+vk::DescriptorImageInfo* Layering2DModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_ComputeBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_ComputeBufferPtr->GetOutputSize();
+        }
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE ///////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Layering2DModule_Comp_Pass::WasJustResized()
-{
-	ZoneScoped;
+void Layering2DModule_Comp_Pass::WasJustResized() {
+    ZoneScoped;
 
-	if (m_ComputeBufferPtr)
-	{
-		m_UBOComp.image_size = m_ComputeBufferPtr->GetOutputSize();
+    if (m_ComputeBufferPtr) {
+        m_UBOComp.image_size = m_ComputeBufferPtr->GetOutputSize();
 
-		NeedNewUBOUpload();
-	}
+        NeedNewUBOUpload();
+    }
 }
 
-void Layering2DModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	if (vCmdBufferPtr)
-	{
-		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
-
-		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-
-		Dispatch(vCmdBufferPtr);
-	}
+void Layering2DModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    if (vCmdBufferPtr) {
+        vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+        vCmdBufferPtr->bindDescriptorSets(
+            vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+        Dispatch(vCmdBufferPtr, "Compute");
+    }
 }
 
-bool Layering2DModule_Comp_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool Layering2DModule_Comp_Pass::CreateUBO() {
+    ZoneScoped;
 
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "Layering2DModule_Comp_Pass");
-	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBOCompPtr)
-	{
-		m_UBOComp_BufferInfos.buffer = m_UBOCompPtr->buffer;
-		m_UBOComp_BufferInfos.range = sizeof(UBOComp);
-		m_UBOComp_BufferInfos.offset = 0;
-	}
+    m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "Layering2DModule_Comp_Pass");
+    m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBOCompPtr) {
+        m_UBOComp_BufferInfos.buffer = m_UBOCompPtr->buffer;
+        m_UBOComp_BufferInfos.range = sizeof(UBOComp);
+        m_UBOComp_BufferInfos.offset = 0;
+    }
 
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void Layering2DModule_Comp_Pass::UploadUBO()
-{
-	ZoneScoped;
+void Layering2DModule_Comp_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+    VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
-void Layering2DModule_Comp_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void Layering2DModule_Comp_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOCompPtr.reset();
-	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBOCompPtr.reset();
+    m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool Layering2DModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool Layering2DModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+    return res;
 }
 
-bool Layering2DModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool Layering2DModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
-	res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // input
-	res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]); // color
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));  // output
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
+    res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // input
+    res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[1]);  // color
+    return res;
 }
 
-std::string Layering2DModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "Layering2DModule_Comp_Pass";
+std::string Layering2DModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "Layering2DModule_Comp_Pass";
 
-	SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
+    SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -369,44 +337,41 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string Layering2DModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/)
-{
-	std::string str;
+std::string Layering2DModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/) {
+    std::string str;
 
-	str += vOffset + "<method>" + ct::toStr(m_UBOComp.method) + "</method>\n";
-	str += vOffset + "<smoothness>" + ct::toStr(m_UBOComp.smoothness) + "</smoothness>\n";
-	str += vOffset + "<layer_count>" + ct::toStr(m_UBOComp.layer_count) + "</layer_count>\n";
-	str += vOffset + "<step_scale>" + ct::toStr(m_UBOComp.step_scale) + "</step_scale>\n";
+    str += vOffset + "<method>" + ct::toStr(m_UBOComp.method) + "</method>\n";
+    str += vOffset + "<smoothness>" + ct::toStr(m_UBOComp.smoothness) + "</smoothness>\n";
+    str += vOffset + "<layer_count>" + ct::toStr(m_UBOComp.layer_count) + "</layer_count>\n";
+    str += vOffset + "<step_scale>" + ct::toStr(m_UBOComp.step_scale) + "</step_scale>\n";
 
-	return str;
+    return str;
 }
 
-bool Layering2DModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/)
-{
-	ZoneScoped;
+bool Layering2DModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& /*vUserDatas*/) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "layering_2d_module")
-	{
-		if (strName == "method")
-			m_UBOComp.method = ct::ivariant(strValue).GetI();
-		else if (strName == "smoothness")
-			m_UBOComp.smoothness = ct::fvariant(strValue).GetF();
-		else if (strName == "layer_count")
-			m_UBOComp.layer_count = ct::uvariant(strValue).GetU();
-		else if (strName == "step_scale")
-			m_UBOComp.step_scale = ct::fvariant(strValue).GetF();
-	}
+    if (strParentName == "layering_2d_module") {
+        if (strName == "method")
+            m_UBOComp.method = ct::ivariant(strValue).GetI();
+        else if (strName == "smoothness")
+            m_UBOComp.smoothness = ct::fvariant(strValue).GetF();
+        else if (strName == "layer_count")
+            m_UBOComp.layer_count = ct::uvariant(strValue).GetU();
+        else if (strName == "step_scale")
+            m_UBOComp.step_scale = ct::fvariant(strValue).GetF();
+    }
 
-	return true;
+    return true;
 }

@@ -21,7 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
 #include <Gaia/gaia.h>
 
 #include <ctools/cTools.h>
@@ -45,57 +44,47 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
-class GradientModule_Comp_2D_Pass :
-	public ShaderPass,
-	public NodeInterface,
-	
-	public TextureInputInterface<1U>,
-	public TextureOutputInterface
-{
-private:
-	std::vector<std::string> m_MethodNames =
-	{ 
-		"r", 
-		"g", 
-		"b", 
-		"a", 
-		"length(rg)", 
-		"length(rgb)" , 
-		"length(rga)" , 
-		"median(rgb)"
-	};
+class GradientModule_Comp_2D_Pass : public ShaderPass,
+                                    public NodeInterface,
 
-	VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
-	vk::DescriptorBufferInfo m_UBOComp_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	struct UBOComp {
-		alignas(4) int32_t method = 0;
-		alignas(4) float smoothness = 0.5f;
-		alignas(8) ct::ivec2 image_size = 0;
-	} m_UBOComp;
+                                    public TextureInputInterface<1U>,
+                                    public TextureOutputInterface {
+private:
+    std::vector<std::string> m_MethodNames = {"r", "g", "b", "a", "length(rg)", "length(rgb)", "length(rga)", "median(rgb)"};
+
+    VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
+    vk::DescriptorBufferInfo m_UBOComp_BufferInfos = {VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    struct UBOComp {
+        alignas(4) int32_t method = 0;
+        alignas(4) float smoothness = 0.5f;
+        alignas(8) ct::ivec2 image_size = 0;
+    } m_UBOComp;
 
 public:
-	GradientModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~GradientModule_Comp_2D_Pass() override;
+    GradientModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~GradientModule_Comp_2D_Pass() override;
 
-	void WasJustResized() override;
-	void ActionBeforeInit() override;
-	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
-	void AfterNodeXmlLoading() override;
+    void WasJustResized() override;
+    void ActionBeforeInit() override;
+    void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    void AfterNodeXmlLoading() override;
 
 protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+    std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

@@ -28,48 +28,47 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class Texture2DModule : 
-	public conf::ConfigAbstract,
-    public GuiInterface,
-	public NodeInterface,
-	public TextureOutputInterface
-{
+class Texture2DModule : public conf::ConfigAbstract, public GuiInterface, public NodeInterface, public TextureOutputInterface {
 public:
-	static std::shared_ptr<Texture2DModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<Texture2DModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<Texture2DModule> m_This;
-	std::string m_FilePathName;
-	std::string m_FilePath;
-	std::string m_FileName;
-	std::string unique_OpenPictureFileDialog_id;
-	Texture2DPtr m_Texture2DPtr = nullptr;
-	ImGuiTexture m_ImGuiTexture;
-	GaiApi::VulkanCoreWeak m_VulkanCore;
+    std::weak_ptr<Texture2DModule> m_This;
+    std::string m_FilePathName;
+    std::string m_FilePath;
+    std::string m_FileName;
+    std::string unique_OpenPictureFileDialog_id;
+    Texture2DPtr m_Texture2DPtr = nullptr;
+    ImGuiTexture m_ImGuiTexture;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
 
 public:
-	Texture2DModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~Texture2DModule();
+    Texture2DModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~Texture2DModule();
 
-	bool Init();
-	void Unit();
+    bool Init();
+    void Unit();
 
-	std::string GetFileName() { return m_FileName; }
+    std::string GetFileName() {
+        return m_FileName;
+    }
 
-	void NeedResize(ct::ivec2* vNewSize);
+    void NeedResize(ct::ivec2* vNewSize);
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	void DrawTexture(ct::ivec2 vMaxSize);
+    void DrawTexture(ct::ivec2 vMaxSize);
 
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
 private:
-	void LoadTexture2D(const std::string& vFilePathName);
+    void LoadTexture2D(const std::string& vFilePathName);
 
 public:
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

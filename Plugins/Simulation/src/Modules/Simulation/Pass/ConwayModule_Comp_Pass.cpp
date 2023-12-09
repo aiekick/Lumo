@@ -44,69 +44,63 @@ using namespace GaiApi;
 //// SSAO SECOND PASS : BLUR /////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-ConwayModule_Comp_Pass::ConwayModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: ShaderPass(vVulkanCore)
-{
-	SetRenderDocDebugName("Comp Pass : Conway", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+ConwayModule_Comp_Pass::ConwayModule_Comp_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {
+    SetRenderDocDebugName("Comp Pass : Conway", COMPUTE_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-ConwayModule_Comp_Pass::~ConwayModule_Comp_Pass()
-{
-	Unit();
+ConwayModule_Comp_Pass::~ConwayModule_Comp_Pass() {
+    Unit();
 }
 
-void ConwayModule_Comp_Pass::ActionBeforeInit()
-{
-	m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
+void ConwayModule_Comp_Pass::ActionBeforeInit() {
+    m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 }
 
-bool ConwayModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool ConwayModule_Comp_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	ZoneScoped;
+    ZoneScoped;
 
-	ImGui::SetCurrentContext(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	const float aw = ImGui::GetContentRegionAvail().x;
+    const float aw = ImGui::GetContentRegionAvail().x;
 
-	bool change = false;
+    bool change = false;
 
-	change |= DrawResizeWidget();
+    change |= DrawResizeWidget();
 
-	ImGui::Header("Pass Iterations##ConwayModule_Comp_Pass");
+    ImGui::Header("Pass Iterations##ConwayModule_Comp_Pass");
 
-	change |= ImGui::SliderUIntDefaultCompact(aw, "Iterations##ConwayModule_Comp_Pass", &m_CountIterations.w, m_CountIterations.x, m_CountIterations.y, m_CountIterations.z);
+    change |= ImGui::SliderUIntDefaultCompact(
+        aw, "Iterations##ConwayModule_Comp_Pass", &m_CountIterations.w, m_CountIterations.x, m_CountIterations.y, m_CountIterations.z);
 
-	ImGui::Header("Mouse##ConwayModule_Comp_Pass");
+    ImGui::Header("Mouse##ConwayModule_Comp_Pass");
 
-	change |= ImGui::SliderFloatDefaultCompact(aw, "Mouse Radius##ConwayModule_Comp_Pass", &m_UBOComp.mouse_radius, 0.0f, 100.0f, 10.0f);
-	if (ImGui::RadioButtonLabeled(aw, "Mouse Inversion##ConwayModule_Comp_Pass", m_UBOComp.mouse_inversion > 0.5f, false))
-	{
-		m_UBOComp.mouse_inversion = (m_UBOComp.mouse_inversion > 0.5f) ? 0.0f : 1.0f;
-		change = true;
-	}
+    change |= ImGui::SliderFloatDefaultCompact(aw, "Mouse Radius##ConwayModule_Comp_Pass", &m_UBOComp.mouse_radius, 0.0f, 100.0f, 10.0f);
+    if (ImGui::RadioButtonLabeled(aw, "Mouse Inversion##ConwayModule_Comp_Pass", m_UBOComp.mouse_inversion > 0.5f, false)) {
+        m_UBOComp.mouse_inversion = (m_UBOComp.mouse_inversion > 0.5f) ? 0.0f : 1.0f;
+        change = true;
+    }
 
-	ImGui::Header("Motion Blur##ConwayModule_Comp_Pass");
+    ImGui::Header("Motion Blur##ConwayModule_Comp_Pass");
 
-	change |= ImGui::SliderFloatDefaultCompact(aw, "Coef##ConwayModule_Comp_Pass", &m_UBOComp.motion_blur_coef, 0.0f, 1.0f, 0.95f);
-	
-	ImGui::Header("Clear##ConwayModule_Comp_Pass");
+    change |= ImGui::SliderFloatDefaultCompact(aw, "Coef##ConwayModule_Comp_Pass", &m_UBOComp.motion_blur_coef, 0.0f, 1.0f, 0.95f);
 
-	if (ImGui::ContrastedButton("Reset Substances##ConwayModule_Comp_Pass", nullptr, nullptr, aw))
-	{
-		m_UBOComp.reset_substances = 1.0f;
-		change = true;
-	}
+    ImGui::Header("Clear##ConwayModule_Comp_Pass");
 
-	if (change)
-	{
-		NeedNewUBOUpload();
-	}
+    if (ImGui::ContrastedButton("Reset Substances##ConwayModule_Comp_Pass", nullptr, nullptr, aw)) {
+        m_UBOComp.reset_substances = 1.0f;
+        change = true;
+    }
 
-	return change;
+    if (change) {
+        NeedNewUBOUpload();
+    }
+
+    return change;
 }
 
 bool ConwayModule_Comp_Pass::DrawOverlays(
@@ -125,175 +119,148 @@ bool ConwayModule_Comp_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void ConwayModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void ConwayModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				if (vTextureSize)
-				{
-					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
-				}
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                if (vTextureSize) {
+                    m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+                }
 
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				m_UBOComp.use_noise_input = 1.0f;
-			}
-			else {
+                m_UBOComp.use_noise_input = 1.0f;
+            } else {
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
 
-				m_UBOComp.use_noise_input = 0.0f;
-			}
-		}
-	}
+                m_UBOComp.use_noise_input = 0.0f;
+            }
+        }
+    }
 }
 
-vk::DescriptorImageInfo* ConwayModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_ComputeBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_ComputeBufferPtr->GetOutputSize();
-		}
+vk::DescriptorImageInfo* ConwayModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_ComputeBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_ComputeBufferPtr->GetOutputSize();
+        }
 
-		return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// PRIVATE / CONWAY //////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ConwayModule_Comp_Pass::WasJustResized()
-{
-	ZoneScoped;
+void ConwayModule_Comp_Pass::WasJustResized() {
+    ZoneScoped;
 
-	if (m_UBOComp.image_size.x != m_OutputSize.x ||
-		m_UBOComp.image_size.y != m_OutputSize.y)
-	{
-		m_UBOComp.image_size = m_OutputSize;
+    if (m_UBOComp.image_size.x != m_OutputSize.x || m_UBOComp.image_size.y != m_OutputSize.y) {
+        m_UBOComp.image_size = m_OutputSize;
 
-		NeedNewUBOUpload();
-	}
+        NeedNewUBOUpload();
+    }
 }
 
-void ConwayModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber)
-{
-	if (vCmdBufferPtr)
-	{
-		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
+void ConwayModule_Comp_Pass::Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
+    if (vCmdBufferPtr) {
+        vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_Pipeline);
 
-		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+        vCmdBufferPtr->bindDescriptorSets(
+            vk::PipelineBindPoint::eCompute, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+        Dispatch(vCmdBufferPtr, "Compute");
 
-		for (uint32_t iter = 0; iter < m_CountIterations.w; iter++)
-		{
-			Dispatch(vCmdBufferPtr);
-		}
+        // ca c'est les bouton et ca doit etre un one shot
+        // donc on fait ca pour le reset et re provoquer un update
+        if (m_UBOComp.reset_substances > 0.5f) {
+            m_UBOComp.reset_substances = 0.0f;
 
-		// ca c'est les bouton et ca doit etre un one shot 
-		// donc on fait ca pour le reset et re provoquer un update
-		if (m_UBOComp.reset_substances > 0.5f)
-		{
-			m_UBOComp.reset_substances = 0.0f;
-
-			NeedNewUBOUpload();
-		}
-	}
+            NeedNewUBOUpload();
+        }
+    }
 }
 
-bool ConwayModule_Comp_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool ConwayModule_Comp_Pass::CreateUBO() {
+    ZoneScoped;
 
-	m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "ConwayModule_Comp_Pass");
-	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	if (m_UBOCompPtr)
-	{
-		m_UBOComp_BufferInfos.buffer = m_UBOCompPtr->buffer;
-		m_UBOComp_BufferInfos.range = sizeof(UBOComp);
-		m_UBOComp_BufferInfos.offset = 0;
-	}
+    m_UBOCompPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBOComp), "ConwayModule_Comp_Pass");
+    m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    if (m_UBOCompPtr) {
+        m_UBOComp_BufferInfos.buffer = m_UBOCompPtr->buffer;
+        m_UBOComp_BufferInfos.range = sizeof(UBOComp);
+        m_UBOComp_BufferInfos.offset = 0;
+    }
 
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void ConwayModule_Comp_Pass::UploadUBO()
-{
-	ZoneScoped;
+void ConwayModule_Comp_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
+    VulkanRessource::upload(m_VulkanCore, m_UBOCompPtr, &m_UBOComp, sizeof(UBOComp));
 }
 
-void ConwayModule_Comp_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void ConwayModule_Comp_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOCompPtr.reset();
-	m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+    m_UBOCompPtr.reset();
+    m_UBOComp_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
 }
 
-bool ConwayModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool ConwayModule_Comp_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
-	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eStorageImage, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eCompute);
+    res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eCompute);
+    return res;
 }
 
-bool ConwayModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool ConwayModule_Comp_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U)); // output
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // common system
-	res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
-	res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // input 0
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorImage(0U, vk::DescriptorType::eStorageImage, m_ComputeBufferPtr->GetFrontDescriptorImageInfo(0U));  // output
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());          // common system
+    res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBOComp_BufferInfos);
+    res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // input 0
+    return res;
 }
 
-std::string ConwayModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "ConwayModule_Comp_Pass";
+std::string ConwayModule_Comp_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "ConwayModule_Comp_Pass";
 
-	// with 8 i have some slow down maybe due the fact than i read an write from same image2D
-	SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
+    // with 8 i have some slow down maybe due the fact than i read an write from same image2D
+    SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
 
 layout(binding = 0, rgba32f) uniform image2D outColor;
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(1U) +
-u8R"(
+)" + CommonSystem::GetBufferObjectStructureHeader(1U) +
+           u8R"(
 layout(std140, binding = 2) uniform UBO_Comp
 {
 	float mouse_radius;
@@ -395,45 +362,42 @@ void main()
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ConwayModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string ConwayModule_Comp_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += ShaderPass::getXml(vOffset, vUserDatas);
-	str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
-	str += vOffset + "<mouse_inversion>" + ct::toStr(m_UBOComp.mouse_inversion) + "</mouse_inversion>\n";
-	str += vOffset + "<motion_blur_coef>" + ct::toStr(m_UBOComp.motion_blur_coef) + "</motion_blur_coef>\n";
-	str += vOffset + "<iterations_count>" + ct::toStr(m_CountIterations.w) + "</iterations_count>\n";
+    str += ShaderPass::getXml(vOffset, vUserDatas);
+    str += vOffset + "<mouse_radius>" + ct::toStr(m_UBOComp.mouse_radius) + "</mouse_radius>\n";
+    str += vOffset + "<mouse_inversion>" + ct::toStr(m_UBOComp.mouse_inversion) + "</mouse_inversion>\n";
+    str += vOffset + "<motion_blur_coef>" + ct::toStr(m_UBOComp.motion_blur_coef) + "</motion_blur_coef>\n";
+    str += vOffset + "<iterations_count>" + ct::toStr(m_CountIterations.w) + "</iterations_count>\n";
 
-	return str;
+    return str;
 }
 
-bool ConwayModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool ConwayModule_Comp_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	ShaderPass::setFromXml(vElem, vParent, vUserDatas);
+    ShaderPass::setFromXml(vElem, vParent, vUserDatas);
 
-	if (strParentName == "conway_sim")
-	{
-		if (strName == "mouse_radius")
-			m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
-		else if (strName == "mouse_inversion")
-			m_UBOComp.mouse_inversion = ct::fvariant(strValue).GetF();
-		else if (strName == "motion_blur_coef")
-			m_UBOComp.motion_blur_coef = ct::fvariant(strValue).GetF();
-	}
+    if (strParentName == "conway_sim") {
+        if (strName == "mouse_radius")
+            m_UBOComp.mouse_radius = ct::fvariant(strValue).GetF();
+        else if (strName == "mouse_inversion")
+            m_UBOComp.mouse_inversion = ct::fvariant(strValue).GetF();
+        else if (strName == "motion_blur_coef")
+            m_UBOComp.motion_blur_coef = ct::fvariant(strValue).GetF();
+    }
 
-	return true;
+    return true;
 }

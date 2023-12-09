@@ -715,8 +715,7 @@ void MainBackend::m_UnitFilesTracker() {
 bool MainBackend::m_CreateVulkanCore() {
     GaiApi::VulkanCore::sVulkanShader = VulkanShader::Create();
     if (GaiApi::VulkanCore::sVulkanShader != nullptr) {
-        m_VulkanCorePtr =
-            GaiApi::VulkanCore::Create(MainBackend::Instance()->getWindow(), Lumo_Prefix, 1, Lumo_Prefix " Engine", 1, true, USE_RTX);
+        m_VulkanCorePtr = GaiApi::VulkanCore::Create(MainBackend::Instance()->getWindow(), Lumo_Prefix, 1, Lumo_Prefix " Engine", 1, true, USE_RTX);
         return (m_VulkanCorePtr != nullptr);
     }
     return false;

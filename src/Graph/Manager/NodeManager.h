@@ -24,61 +24,58 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 
-class NodeManager : 
-	public GuiInterface, 
-	public conf::ConfigAbstract,
-	public TaskInterface
-{
+class NodeManager : public GuiInterface, public conf::ConfigAbstract, public TaskInterface {
 public:
-	BaseNodePtr m_RootNodePtr = nullptr;
-	// we must clear the graph after the rendering
-	bool m_NeedToClearTheGraph = false;
+    BaseNodePtr m_RootNodePtr = nullptr;
+    // we must clear the graph after the rendering
+    bool m_NeedToClearTheGraph = false;
 
 public:
-	// init / unit
-	bool Init(GaiApi::VulkanCoreWeak vVulkanCore);
-	void Unit();
-	
-	void Clear();
+    // init / unit
+    bool Init(GaiApi::VulkanCoreWeak vVulkanCore);
+    void Unit();
 
-	void PrepareToLoadGraph();
+    void Clear();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    void PrepareToLoadGraph();
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
-	
-	void FinalizeGraphLoading();
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
 
-	bool LoadNodeFromXML(
-		BaseNodeWeak vNodeGraphWeak,
-		tinyxml2::XMLElement* vElem, 
-		tinyxml2::XMLElement* vParent,
-		const std::string& vNodeName,
-		const std::string& vNodeType,
-		const ct::fvec2& vPos,
-		const size_t& vNodeId);
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
 
-	void UpdateShaders(const std::set<std::string>& vFiles) const;
+    void FinalizeGraphLoading();
 
-	void SelectNode(const BaseNodeWeak& vNode);
-	void SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton);
+    bool LoadNodeFromXML(BaseNodeWeak vNodeGraphWeak,
+        tinyxml2::XMLElement* vElem,
+        tinyxml2::XMLElement* vParent,
+        const std::string& vNodeName,
+        const std::string& vNodeType,
+        const ct::fvec2& vPos,
+        const size_t& vNodeId);
+
+    void UpdateShaders(const std::set<std::string>& vFiles) const;
+
+    void SelectNode(const BaseNodeWeak& vNode);
+    void SelectNodeForGraphOutput(const NodeSlotWeak& vSlot, const ImGuiMouseButton& vButton);
 
 public:
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
-public: // singleton
-	static NodeManager *Instance()
-	{
-		static NodeManager _instance;
-		return &_instance;
-	}
+public:  // singleton
+    static NodeManager* Instance() {
+        static NodeManager _instance;
+        return &_instance;
+    }
 
 protected:
-	NodeManager(); // Prevent construction
-	NodeManager(const NodeManager&) = default; // Prevent construction by copying
-	NodeManager& operator =(const NodeManager&) { return *this; }; // Prevent assignment
-	~NodeManager() = default; // Prevent unwanted destruction
+    NodeManager();                              // Prevent construction
+    NodeManager(const NodeManager&) = default;  // Prevent construction by copying
+    NodeManager& operator=(const NodeManager&) {
+        return *this;
+    };                         // Prevent assignment
+    ~NodeManager() = default;  // Prevent unwanted destruction
 };

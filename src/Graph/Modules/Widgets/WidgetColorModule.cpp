@@ -46,58 +46,48 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<WidgetColorModule> WidgetColorModule::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	auto res = std::make_shared<WidgetColorModule>(vVulkanCore);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<WidgetColorModule> WidgetColorModule::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<WidgetColorModule>(vVulkanCore);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-WidgetColorModule::WidgetColorModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-
+WidgetColorModule::WidgetColorModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
 }
 
-WidgetColorModule::~WidgetColorModule()
-{
-	Unit();
+WidgetColorModule::~WidgetColorModule() {
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool WidgetColorModule::Init()
-{
-	ZoneScoped;
+bool WidgetColorModule::Init() {
+    ZoneScoped;
 
-	ct::uvec2 map_size = 1;
+    ct::uvec2 map_size = 1;
 
-	m_Loaded = false;
+    m_Loaded = false;
 
-	if (BaseRenderer::InitCompute2D(map_size))
-	{
-		m_WidgetColorModule_Pass_Ptr = std::make_shared<WidgetColorModule_Pass>(m_VulkanCore);
-		if (m_WidgetColorModule_Pass_Ptr)
-		{
-			if (m_WidgetColorModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat))
-			{
-				AddGenericPass(m_WidgetColorModule_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+    if (BaseRenderer::InitCompute2D(map_size)) {
+        m_WidgetColorModule_Pass_Ptr = std::make_shared<WidgetColorModule_Pass>(m_VulkanCore);
+        if (m_WidgetColorModule_Pass_Ptr) {
+            if (m_WidgetColorModule_Pass_Ptr->InitCompute2D(map_size, 1U, false, vk::Format::eR32G32B32A32Sfloat)) {
+                AddGenericPass(m_WidgetColorModule_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
@@ -107,132 +97,118 @@ bool WidgetColorModule::Init()
 // todo : to put the rendering in when needed, so when the suer chnage the color only
 // so use ExecuteWhenNeeded
 
-bool WidgetColorModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool WidgetColorModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("WidgetColor", vCmd);
+    BaseRenderer::Render("WidgetColor", vCmd);
 
-	return true;
+    return true;
 }
 
-bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	//if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Widget Color", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    // if (m_LastExecutedFrame == vCurrentFrame)
+    {
+        if (ImGui::CollapsingHeader_CheckBox("Widget Color", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			if (m_WidgetColorModule_Pass_Ptr)
-			{
-				change |= m_WidgetColorModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-			}
+            if (m_WidgetColorModule_Pass_Ptr) {
+                change |= m_WidgetColorModule_Pass_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
+    return false;
 }
 
-bool WidgetColorModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool WidgetColorModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
 bool WidgetColorModule::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-bool WidgetColorModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool WidgetColorModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
     bool change = false;
 
-	//if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (m_WidgetColorModule_Pass_Ptr)
-		{
-			change |= m_WidgetColorModule_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContextPtr);
-		}
+    // if (m_LastExecutedFrame == vCurrentFrame)
+    {
+        if (m_WidgetColorModule_Pass_Ptr) {
+            change |= m_WidgetColorModule_Pass_Ptr->DrawNodeWidget(vCurrentFrame, vContextPtr);
+        }
     }
 
     return change;
 }
 
-vk::DescriptorImageInfo* WidgetColorModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+vk::DescriptorImageInfo* WidgetColorModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_WidgetColorModule_Pass_Ptr)
-	{
-		return m_WidgetColorModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_WidgetColorModule_Pass_Ptr) {
+        return m_WidgetColorModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string WidgetColorModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string WidgetColorModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	str += vOffset + "<widget_color_module>\n";
+    str += vOffset + "<widget_color_module>\n";
 
-	str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
+    str += vOffset + "\t<can_we_render>" + (m_CanWeRender ? "true" : "false") + "</can_we_render>\n";
 
-	if (m_WidgetColorModule_Pass_Ptr)
-	{
-		str += m_WidgetColorModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
-	}
+    if (m_WidgetColorModule_Pass_Ptr) {
+        str += m_WidgetColorModule_Pass_Ptr->getXml(vOffset + "\t", vUserDatas);
+    }
 
-	str += vOffset + "</widget_color_module>\n";
+    str += vOffset + "</widget_color_module>\n";
 
-	return str;
+    return str;
 }
 
-bool WidgetColorModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool WidgetColorModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "widget_color_module")
-	{
-		if (strName == "can_we_render")
-			m_CanWeRender = ct::ivariant(strValue).GetB();
-	}
+    if (strParentName == "widget_color_module") {
+        if (strName == "can_we_render")
+            m_CanWeRender = ct::ivariant(strValue).GetB();
+    }
 
-	if (m_WidgetColorModule_Pass_Ptr)
-	{
-		m_WidgetColorModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_WidgetColorModule_Pass_Ptr) {
+        m_WidgetColorModule_Pass_Ptr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }

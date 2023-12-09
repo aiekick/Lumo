@@ -27,73 +27,63 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<SdfTextureNode> SdfTextureNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	auto res = std::make_shared<SdfTextureNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<SdfTextureNode> SdfTextureNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<SdfTextureNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
+    return res;
 }
 
-SdfTextureNode::SdfTextureNode() : BaseNode()
-{
-	m_NodeTypeString = "SDF_TEXTURE";
+SdfTextureNode::SdfTextureNode() : BaseNode() {
+    m_NodeTypeString = "SDF_TEXTURE";
 }
 
-SdfTextureNode::~SdfTextureNode()
-{
-	Unit();
+SdfTextureNode::~SdfTextureNode() {
+    Unit();
 }
 
-bool SdfTextureNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	name = "SdfTexture";
+bool SdfTextureNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    name = "SdfTexture";
 
-	AddInput(NodeSlotTextureInput::Create("Input", 0U), true, true);
-	AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTextureInput::Create("Input", 0U), true, true);
+    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
 
-	bool res = false;
+    bool res = false;
 
-	m_SdfTextureModulePtr = SdfTextureModule::Create(vVulkanCore);
-	if (m_SdfTextureModulePtr)
-	{
-		res = true;
-	}
+    m_SdfTextureModulePtr = SdfTextureModule::Create(vVulkanCore);
+    if (m_SdfTextureModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
-bool SdfTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+bool SdfTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    // for update input texture buffer infos => avoid vk crash
+    UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
-	if (m_SdfTextureModulePtr)
-	{
-		return m_SdfTextureModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-	}
-	return false;
+    if (m_SdfTextureModulePtr) {
+        return m_SdfTextureModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    }
+    return false;
 }
 
-bool SdfTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool SdfTextureNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_SdfTextureModulePtr)
-	{
-		return m_SdfTextureModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+    if (m_SdfTextureModulePtr) {
+        return m_SdfTextureModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return false;
+    return false;
 }
 
-bool SdfTextureNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool SdfTextureNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -102,137 +92,111 @@ bool SdfTextureNode::DrawOverlays(
 
 bool SdfTextureNode::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_SdfTextureModulePtr)
-	{
+    if (m_SdfTextureModulePtr) {
         return m_SdfTextureModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
     }
     return false;
 }
 
-void SdfTextureNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used(%s)\nCell(%i, %i)"/*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/,
-				(used ? "true" : "false"), cell.x, cell.y/*, pos.x, pos.y, size.x, size.y*/);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+void SdfTextureNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used(%s)\nCell(%i, %i)" /*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/, (used ? "true" : "false"), cell.x,
+                cell.y /*, pos.x, pos.y, size.x, size.y*/);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 
-void SdfTextureNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	if (m_SdfTextureModulePtr)
-	{
-		m_SdfTextureModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-	}
+void SdfTextureNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    if (m_SdfTextureModulePtr) {
+        m_SdfTextureModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    }
 
-	// on fait ca apres
-	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // on fait ca apres
+    BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void SdfTextureNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	if (m_SdfTextureModulePtr)
-	{
-		m_SdfTextureModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+void SdfTextureNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    if (m_SdfTextureModulePtr) {
+        m_SdfTextureModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
-vk::DescriptorImageInfo* SdfTextureNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_SdfTextureModulePtr)
-	{
-		return m_SdfTextureModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+vk::DescriptorImageInfo* SdfTextureNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_SdfTextureModulePtr) {
+        return m_SdfTextureModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SdfTextureNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string res;
+std::string SdfTextureNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_SdfTextureModulePtr)
-		{
-			res += m_SdfTextureModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_SdfTextureModulePtr) {
+            res += m_SdfTextureModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool SdfTextureNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool SdfTextureNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_SdfTextureModulePtr)
-	{
-		m_SdfTextureModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_SdfTextureModulePtr) {
+        m_SdfTextureModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }
 
-void SdfTextureNode::AfterNodeXmlLoading()
-{
-	if (m_SdfTextureModulePtr)
-	{
-		m_SdfTextureModulePtr->AfterNodeXmlLoading();
-	}
+void SdfTextureNode::AfterNodeXmlLoading() {
+    if (m_SdfTextureModulePtr) {
+        m_SdfTextureModulePtr->AfterNodeXmlLoading();
+    }
 }
 
-void SdfTextureNode::UpdateShaders(const std::set<std::string>& vFiles)
-{
-	if (m_SdfTextureModulePtr)
-	{
-		m_SdfTextureModulePtr->UpdateShaders(vFiles);
-	}
+void SdfTextureNode::UpdateShaders(const std::set<std::string>& vFiles) {
+    if (m_SdfTextureModulePtr) {
+        m_SdfTextureModulePtr->UpdateShaders(vFiles);
+    }
 }

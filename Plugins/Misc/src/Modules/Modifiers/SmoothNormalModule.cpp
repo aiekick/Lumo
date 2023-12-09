@@ -47,182 +47,154 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SmoothNormalModule> SmoothNormalModule::Create(
-	GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	
-	auto res = std::make_shared<SmoothNormalModule>(vVulkanCore);
-	res->m_This = res;
-	res->SetParentNode(vParentNode);
-	if (!res->Init())
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<SmoothNormalModule> SmoothNormalModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    auto res = std::make_shared<SmoothNormalModule>(vVulkanCore);
+    res->m_This = res;
+    res->SetParentNode(vParentNode);
+    if (!res->Init()) {
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SmoothNormalModule::SmoothNormalModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: BaseRenderer(vVulkanCore)
-{
-
+SmoothNormalModule::SmoothNormalModule(GaiApi::VulkanCoreWeak vVulkanCore) : BaseRenderer(vVulkanCore) {
 }
 
-SmoothNormalModule::~SmoothNormalModule()
-{
-	Unit();
+SmoothNormalModule::~SmoothNormalModule() {
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SmoothNormalModule::Init()
-{
-	ZoneScoped;
+bool SmoothNormalModule::Init() {
+    ZoneScoped;
 
-	ct::uvec3 map_size = 1;
+    ct::uvec3 map_size = 1;
 
-	m_Loaded = true;
+    m_Loaded = true;
 
-	// one time update
-	// will be executed when the mesh will be updated
-	SetExecutionWhenNeededOnly(true);
+    // one time update
+    // will be executed when the mesh will be updated
+    SetExecutionWhenNeededOnly(true);
 
-	if (BaseRenderer::InitCompute3D(map_size))
-	{
-		m_SmoothNormalModule_Comp_Pass_Ptr = std::make_shared<SmoothNormalModule_Comp_Pass>(m_VulkanCore);
-		if (m_SmoothNormalModule_Comp_Pass_Ptr)
-		{
-			if (m_SmoothNormalModule_Comp_Pass_Ptr->InitCompute3D(map_size))
-			{
-				AddGenericPass(m_SmoothNormalModule_Comp_Pass_Ptr);
-				m_Loaded = true;
-			}
-		}
-	}
+    if (BaseRenderer::InitCompute3D(map_size)) {
+        m_SmoothNormalModule_Comp_Pass_Ptr = std::make_shared<SmoothNormalModule_Comp_Pass>(m_VulkanCore);
+        if (m_SmoothNormalModule_Comp_Pass_Ptr) {
+            if (m_SmoothNormalModule_Comp_Pass_Ptr->InitCompute3D(map_size)) {
+                AddGenericPass(m_SmoothNormalModule_Comp_Pass_Ptr);
+                m_Loaded = true;
+            }
+        }
+    }
 
-	return m_Loaded;
+    return m_Loaded;
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SmoothNormalModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool SmoothNormalModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseRenderer::Render("Smooth Normal when mesh update", vCmd);
+    BaseRenderer::Render("Smooth Normal when mesh update", vCmd);
 
-	// mesh was updated, we notify the parent here
-	// becasue this execution is event based
-	auto parentNodePtr = GetParentNode().lock();
-	if (parentNodePtr)
-	{
-		parentNodePtr->SendFrontNotification(ModelUpdateDone);
-	}
+    // mesh was updated, we notify the parent here
+    // becasue this execution is event based
+    auto parentNodePtr = GetParentNode().lock();
+    if (parentNodePtr) {
+        parentNodePtr->SendFrontNotification(ModelUpdateDone);
+    }
 
-	m_LastExecutedFrame = vCurrentFrame;
+    m_LastExecutedFrame = vCurrentFrame;
 
-	return true;
+    return true;
 }
 
-bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool SmoothNormalModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-		if (ImGui::CollapsingHeader_CheckBox("Smooth Normal when mesh update", -1.0f, true, true, &m_CanWeRender))
-		{
-			bool change = false;
+    if (m_LastExecutedFrame == vCurrentFrame) {
+        if (ImGui::CollapsingHeader_CheckBox("Smooth Normal when mesh update", -1.0f, true, true, &m_CanWeRender)) {
+            bool change = false;
 
-			ImGui::Header("Computation");
+            ImGui::Header("Computation");
 
-			if (ImGui::ContrastedButton("Force Update"))
-			{
-				NeedNewExecution();
-			}
+            if (ImGui::ContrastedButton("Force Update")) {
+                NeedNewExecution();
+            }
 
-			for (auto pass : m_ShaderPasses)
-			{
-				auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
-				if (passGuiPtr)
-				{
+            for (auto pass : m_ShaderPasses) {
+                auto passGuiPtr = dynamic_pointer_cast<GuiInterface>(pass.lock());
+                if (passGuiPtr) {
                     change |= passGuiPtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-				}
-			}
+                }
+            }
 
-			return change;
-		}
-	}
+            return change;
+        }
+    }
 
-	return false;
-}
-
-bool SmoothNormalModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
-
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
     return false;
 }
 
-bool SmoothNormalModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool SmoothNormalModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{
-
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
     return false;
 }
 
-void SmoothNormalModule::SetModel(SceneModelWeak vSceneModel)
-{
-	if (m_SmoothNormalModule_Comp_Pass_Ptr)
-	{
-		m_SmoothNormalModule_Comp_Pass_Ptr->SetModel(vSceneModel);
+bool SmoothNormalModule::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-		NeedNewExecution(); // just updated so need a normal smoothing
-	}
+    if (m_LastExecutedFrame == vCurrentFrame) {
+    }
+    return false;
 }
 
-SceneModelWeak SmoothNormalModule::GetModel()
-{
-	if (m_SmoothNormalModule_Comp_Pass_Ptr)
-	{
-		return m_SmoothNormalModule_Comp_Pass_Ptr->GetModel();
-	}
+void SmoothNormalModule::SetModel(SceneModelWeak vSceneModel) {
+    if (m_SmoothNormalModule_Comp_Pass_Ptr) {
+        m_SmoothNormalModule_Comp_Pass_Ptr->SetModel(vSceneModel);
 
-	return SceneModelWeak();
+        NeedNewExecution();  // just updated so need a normal smoothing
+    }
+}
+
+SceneModelWeak SmoothNormalModule::GetModel() {
+    if (m_SmoothNormalModule_Comp_Pass_Ptr) {
+        return m_SmoothNormalModule_Comp_Pass_Ptr->GetModel();
+    }
+
+    return SceneModelWeak();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SmoothNormalModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string SmoothNormalModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	return str;
+    return str;
 }
 
-bool SmoothNormalModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool SmoothNormalModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	return true;
+    return true;
 }

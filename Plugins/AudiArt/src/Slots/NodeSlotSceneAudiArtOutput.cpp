@@ -29,115 +29,94 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotSceneAudiArtOutputPtr NodeSlotSceneAudiArtOutput::Create(NodeSlotSceneAudiArtOutput vSlot)
-{
-	auto res = std::make_shared<NodeSlotSceneAudiArtOutput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotSceneAudiArtOutputPtr NodeSlotSceneAudiArtOutput::Create(NodeSlotSceneAudiArtOutput vSlot) {
+    auto res = std::make_shared<NodeSlotSceneAudiArtOutput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotSceneAudiArtOutputPtr NodeSlotSceneAudiArtOutput::Create(const std::string& vName)
-{
-	auto res = std::make_shared<NodeSlotSceneAudiArtOutput>(vName);
-	res->m_This = res;
-	return res;
+NodeSlotSceneAudiArtOutputPtr NodeSlotSceneAudiArtOutput::Create(const std::string& vName) {
+    auto res = std::make_shared<NodeSlotSceneAudiArtOutput>(vName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotSceneAudiArtOutputPtr NodeSlotSceneAudiArtOutput::Create(const std::string& vName, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotSceneAudiArtOutput>(vName, vHideName);
-	res->m_This = res;
-	return res;
+NodeSlotSceneAudiArtOutputPtr NodeSlotSceneAudiArtOutput::Create(const std::string& vName, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotSceneAudiArtOutput>(vName, vHideName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotSceneAudiArtOutputPtr NodeSlotSceneAudiArtOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotSceneAudiArtOutput>(vName, vHideName, vShowWidget);
-	res->m_This = res;
-	return res;
+NodeSlotSceneAudiArtOutputPtr NodeSlotSceneAudiArtOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotSceneAudiArtOutput>(vName, vHideName, vShowWidget);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// PUBIC CLASS /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotSceneAudiArtOutput::NodeSlotSceneAudiArtOutput()
-	: NodeSlotOutput("", "SCENEAUDIART")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotSceneAudiArtOutput::NodeSlotSceneAudiArtOutput() : NodeSlotOutput("", "SCENEAUDIART") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
-NodeSlotSceneAudiArtOutput::NodeSlotSceneAudiArtOutput(const std::string& vName)
-	: NodeSlotOutput(vName, "SCENEAUDIART")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotSceneAudiArtOutput::NodeSlotSceneAudiArtOutput(const std::string& vName) : NodeSlotOutput(vName, "SCENEAUDIART") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotSceneAudiArtOutput::NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName)
-	: NodeSlotOutput(vName, "SCENEAUDIART", vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "SCENEAUDIART", vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotSceneAudiArtOutput::NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, "SCENEAUDIART", vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "SCENEAUDIART", vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotSceneAudiArtOutput::~NodeSlotSceneAudiArtOutput() = default;
 
-void NodeSlotSceneAudiArtOutput::Init()
-{
-	
+void NodeSlotSceneAudiArtOutput::Init() {
 }
 
-void NodeSlotSceneAudiArtOutput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotSceneAudiArtOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotSceneAudiArtOutput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotSceneAudiArtOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotSceneAudiArtOutput::SendFrontNotification(const NotifyEvent& vEvent)
-{
-	if (vEvent == SceneAudiArtUpdateDone)
-	{
-		SendNotification(slotType, vEvent);
-	}
+void NodeSlotSceneAudiArtOutput::SendFrontNotification(const NotifyEvent& vEvent) {
+    if (vEvent == SceneAudiArtUpdateDone) {
+        SendNotification(slotType, vEvent);
+    }
 }
 
-void NodeSlotSceneAudiArtOutput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot SceneAudiArt", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotSceneAudiArtOutput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot SceneAudiArt", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

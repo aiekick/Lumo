@@ -23,27 +23,24 @@ class NodeSlotSceneAudiArtOutput;
 typedef std::weak_ptr<NodeSlotSceneAudiArtOutput> NodeSlotSceneAudiArtOutputWeak;
 typedef std::shared_ptr<NodeSlotSceneAudiArtOutput> NodeSlotSceneAudiArtOutputPtr;
 
-class NodeSlotSceneAudiArtOutput : 
-	public NodeSlotOutput
-{
+class NodeSlotSceneAudiArtOutput : public NodeSlotOutput {
 public:
-	static NodeSlotSceneAudiArtOutputPtr Create(NodeSlotSceneAudiArtOutput vSlot);
-	static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName);
-	static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotSceneAudiArtOutputPtr Create(NodeSlotSceneAudiArtOutput vSlot);
+    static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName);
+    static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotSceneAudiArtOutput();
-	explicit NodeSlotSceneAudiArtOutput(const std::string& vName);
-	explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotSceneAudiArtOutput();
+    explicit NodeSlotSceneAudiArtOutput();
+    explicit NodeSlotSceneAudiArtOutput(const std::string& vName);
+    explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotSceneAudiArtOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };
-

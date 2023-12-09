@@ -14,7 +14,6 @@ See the License for the specific language governing permissionsand
 limitations under the License.
 */
 
-
 #pragma once
 
 #include <set>
@@ -47,82 +46,70 @@ limitations under the License.
 
 #include <tinyexpr/tinyexpr.h>
 
-class ParametricSurfaceUVModule :
-	public NodeInterface,
-	public conf::ConfigAbstract,
-	public VariableInputInterface<0U>,
-	public ModelOutputInterface,
-	public GuiInterface
-{
+class ParametricSurfaceUVModule : public NodeInterface,
+                                  public conf::ConfigAbstract,
+                                  public VariableInputInterface<0U>,
+                                  public ModelOutputInterface,
+                                  public GuiInterface {
 private:
-	static constexpr size_t s_EXPR_MAX_LEN = 1024;
+    static constexpr size_t s_EXPR_MAX_LEN = 1024;
 
 public:
-	static std::shared_ptr<ParametricSurfaceUVModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
+    static std::shared_ptr<ParametricSurfaceUVModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
 private:
-	std::weak_ptr<ParametricSurfaceUVModule> m_This;
-	GaiApi::VulkanCoreWeak m_VulkanCore;
-	SceneModelPtr m_SceneModelPtr = nullptr;
+    std::weak_ptr<ParametricSurfaceUVModule> m_This;
+    GaiApi::VulkanCoreWeak m_VulkanCore;
+    SceneModelPtr m_SceneModelPtr = nullptr;
 
-private: // curve
-	int m_Err_x = 0, m_Err_y = 0, m_Err_z = 0;
-	char m_ExprX[s_EXPR_MAX_LEN + 1] = "u - 1.5";
-	char m_ExprY[s_EXPR_MAX_LEN + 1] = "v - 1.5";
-	char m_ExprZ[s_EXPR_MAX_LEN + 1] = "0";
-	double m_Start_U = 0.0;
-	double m_End_U = 3.0;
-	double m_Step_U = 0.5;
-	double m_Start_V = 0.0;
-	double m_End_V = 3.0;
-	double m_Step_V = 0.5;
-	std::map<std::string, double> m_VarNameValues;
-	std::vector<te_variable> m_Vars;
-	char m_VarToAddBuffer[s_EXPR_MAX_LEN + 1] = "";
-	bool m_CloseU = false;
-	bool m_CloseV = false;
-	ct::dvec3 m_CenterPoint;
+private:  // curve
+    int m_Err_x = 0, m_Err_y = 0, m_Err_z = 0;
+    char m_ExprX[s_EXPR_MAX_LEN + 1] = "u - 1.5";
+    char m_ExprY[s_EXPR_MAX_LEN + 1] = "v - 1.5";
+    char m_ExprZ[s_EXPR_MAX_LEN + 1] = "0";
+    double m_Start_U = 0.0;
+    double m_End_U = 3.0;
+    double m_Step_U = 0.5;
+    double m_Start_V = 0.0;
+    double m_End_V = 3.0;
+    double m_Step_V = 0.5;
+    std::map<std::string, double> m_VarNameValues;
+    std::vector<te_variable> m_Vars;
+    char m_VarToAddBuffer[s_EXPR_MAX_LEN + 1] = "";
+    bool m_CloseU = false;
+    bool m_CloseV = false;
+    ct::dvec3 m_CenterPoint;
 
 public:
-	ParametricSurfaceUVModule(GaiApi::VulkanCoreWeak vVulkanCore);
-	~ParametricSurfaceUVModule();
+    ParametricSurfaceUVModule(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~ParametricSurfaceUVModule();
 
-	bool Init();
-	void Unit();
+    bool Init();
+    void Unit();
 
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame,
-        const ImRect& vRect,
-        ImGuiContext* vContextPtr,
-        const std::string& vUserDatas) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame,
-        const ImVec2& vMaxSize,
-        ImGuiContext* vContextPtr,
-        const std::string& vUserDatas) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
 
-	// Interfaces Setters
-	void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;
+    // Interfaces Setters
+    void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;
 
-	// Interfaces Getters
-	SceneModelWeak GetModel() override;
+    // Interfaces Getters
+    SceneModelWeak GetModel() override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
-	void AfterNodeXmlLoading() override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    void AfterNodeXmlLoading() override;
 
 private:
-	void prDrawWidgets();
-	void prUpdateMesh();
+    void prDrawWidgets();
+    void prUpdateMesh();
 
-	void prAddVar(const std::string& vName, const double& vValue);
-	void prDelVar(const std::string& vName);
+    void prAddVar(const std::string& vName, const double& vValue);
+    void prDelVar(const std::string& vName);
 
-	bool prDrawInputExpr(
-		const char* vLabel,
-		const char* vBufferLabel,
-		char* vBuffer,
-		size_t vBufferSize,
-		const int& vError,
-		const char* vDdefaultValue);
-	bool prDrawVars();
+    bool prDrawInputExpr(
+        const char* vLabel, const char* vBufferLabel, char* vBuffer, size_t vBufferSize, const int& vError, const char* vDdefaultValue);
+    bool prDrawVars();
 };

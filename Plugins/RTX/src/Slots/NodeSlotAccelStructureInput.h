@@ -23,35 +23,30 @@ class NodeSlotAccelStructureInput;
 typedef std::weak_ptr<NodeSlotAccelStructureInput> NodeSlotAccelStructureInputWeak;
 typedef std::shared_ptr<NodeSlotAccelStructureInput> NodeSlotAccelStructureInputPtr;
 
-class NodeSlotAccelStructureInput : 
-	public NodeSlotInput
-{
+class NodeSlotAccelStructureInput : public NodeSlotInput {
 public:
-	static NodeSlotAccelStructureInputPtr Create(NodeSlotAccelStructureInput vSlot);
-	static NodeSlotAccelStructureInputPtr Create(const std::string& vName);
-	static NodeSlotAccelStructureInputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotAccelStructureInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotAccelStructureInputPtr Create(NodeSlotAccelStructureInput vSlot);
+    static NodeSlotAccelStructureInputPtr Create(const std::string& vName);
+    static NodeSlotAccelStructureInputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotAccelStructureInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotAccelStructureInput();
-	explicit NodeSlotAccelStructureInput(const std::string& vName);
-	explicit NodeSlotAccelStructureInput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotAccelStructureInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotAccelStructureInput();
+    explicit NodeSlotAccelStructureInput();
+    explicit NodeSlotAccelStructureInput(const std::string& vName);
+    explicit NodeSlotAccelStructureInput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotAccelStructureInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotAccelStructureInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		NotifyEvent vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(NotifyEvent vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

@@ -34,36 +34,36 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ShaderPassOutputInterface.h>
 
 class HeatmapRenderer_Mesh_Pass;
-class HeatmapRenderer :
-	public TaskRenderer,
-	public NodeInterface,
-		
-	public ModelInputInterface,
-	public TextureOutputInterface,
-	public ShaderPassOutputInterface
-{
+class HeatmapRenderer : public TaskRenderer,
+                        public NodeInterface,
+
+                        public ModelInputInterface,
+                        public TextureOutputInterface,
+                        public ShaderPassOutputInterface {
 public:
-	static std::shared_ptr<HeatmapRenderer> Create(GaiApi::VulkanCoreWeak vVulkanCore);
+    static std::shared_ptr<HeatmapRenderer> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	std::shared_ptr<HeatmapRenderer_Mesh_Pass> m_HeatmapRenderer_Mesh_Pass_Ptr = nullptr;
-	SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
+    std::shared_ptr<HeatmapRenderer_Mesh_Pass> m_HeatmapRenderer_Mesh_Pass_Ptr = nullptr;
+    SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;
 
 public:
-	HeatmapRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
-	~HeatmapRenderer() override;
+    HeatmapRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~HeatmapRenderer() override;
 
-	bool Init();
+    bool Init();
 
-	bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;
-	void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
-	SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) override;
+    bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;
+    void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };

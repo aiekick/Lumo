@@ -26,81 +26,69 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-std::shared_ptr<WidgetColorNode> WidgetColorNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	auto res = std::make_shared<WidgetColorNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
-	return res;
+std::shared_ptr<WidgetColorNode> WidgetColorNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<WidgetColorNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
+    return res;
 }
 
-WidgetColorNode::WidgetColorNode() : BaseNode()
-{
-	m_NodeTypeString = "WIDGET_COLOR";
+WidgetColorNode::WidgetColorNode() : BaseNode() {
+    m_NodeTypeString = "WIDGET_COLOR";
 }
 
-WidgetColorNode::~WidgetColorNode()
-{
-	Unit();
+WidgetColorNode::~WidgetColorNode() {
+    Unit();
 }
 
-bool WidgetColorNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	name = "Widget Color";
+bool WidgetColorNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    name = "Widget Color";
 
-	auto slotPtr = NodeSlotTextureOutput::Create("Color", 0U);
-	if (slotPtr)
-	{
-		slotPtr->showWidget = true;
-		AddOutput(slotPtr, true, true);
-	}
+    auto slotPtr = NodeSlotTextureOutput::Create("Color", 0U);
+    if (slotPtr) {
+        slotPtr->showWidget = true;
+        AddOutput(slotPtr, true, true);
+    }
 
-	m_WidgetColorModule = WidgetColorModule::Create(vVulkanCore);
-	if (m_WidgetColorModule)
-	{
-		return true;
-	}
+    m_WidgetColorModule = WidgetColorModule::Create(vVulkanCore);
+    if (m_WidgetColorModule) {
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
-void WidgetColorNode::Unit()
-{
-	m_WidgetColorModule.reset();
+void WidgetColorNode::Unit() {
+    m_WidgetColorModule.reset();
 }
 
-bool WidgetColorNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+bool WidgetColorNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-	if (m_WidgetColorModule)
-	{
-		auto res = m_WidgetColorModule->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    if (m_WidgetColorModule) {
+        auto res = m_WidgetColorModule->Execute(vCurrentFrame, vCmd, vBaseNodeState);
 
-		SendFrontNotification(TextureUpdateDone);
+        SendFrontNotification(TextureUpdateDone);
 
-		return res;
-	}
-	return false;
+        return res;
+    }
+    return false;
 }
 
-bool WidgetColorNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool WidgetColorNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_WidgetColorModule)
-	{
-		return m_WidgetColorModule->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+    if (m_WidgetColorModule) {
+        return m_WidgetColorModule->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return false;
+    return false;
 }
 
-bool WidgetColorNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool WidgetColorNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
@@ -108,117 +96,95 @@ bool WidgetColorNode::DrawOverlays(
 
 bool WidgetColorNode::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_WidgetColorModule)
-	{
+    if (m_WidgetColorModule) {
         return m_WidgetColorModule->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-	}
+    }
     return false;
 }
 
-void WidgetColorNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used(%s)\nCell(%i, %i)"/*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/,
-				(used ? "true" : "false"), cell.x, cell.y/*, pos.x, pos.y, size.x, size.y*/);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+void WidgetColorNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used(%s)\nCell(%i, %i)" /*\nPos(%.1f, %.1f)\nSize(%.1f, %.1f)*/, (used ? "true" : "false"), cell.x,
+                cell.y /*, pos.x, pos.y, size.x, size.y*/);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 
-vk::DescriptorImageInfo* WidgetColorNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	if (m_WidgetColorModule)
-	{
-		return m_WidgetColorModule->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+vk::DescriptorImageInfo* WidgetColorNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    if (m_WidgetColorModule) {
+        return m_WidgetColorModule->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-void WidgetColorNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot)
-{
-	if (vBaseNodeState)
-	{
-		auto slotPtr = vSlot.lock();
-		if (slotPtr)
-		{
-			if (m_WidgetColorModule)
-			{
-				m_WidgetColorModule->DrawNodeWidget(vBaseNodeState->m_CurrentFrame, ImGui::GetCurrentContext());
-			}
-		}
-	}
+void WidgetColorNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak vSlot) {
+    if (vBaseNodeState) {
+        auto slotPtr = vSlot.lock();
+        if (slotPtr) {
+            if (m_WidgetColorModule) {
+                m_WidgetColorModule->DrawNodeWidget(vBaseNodeState->m_CurrentFrame, ImGui::GetCurrentContext());
+            }
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string WidgetColorNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string res;
+std::string WidgetColorNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)GetNodeID());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
-			
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_WidgetColorModule)
-		{
-			res += m_WidgetColorModule->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        if (m_WidgetColorModule) {
+            res += m_WidgetColorModule->getXml(vOffset + "\t", vUserDatas);
+        }
 
-	return res;
+        res += vOffset + "</node>\n";
+    }
+
+    return res;
 }
 
-bool WidgetColorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool WidgetColorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_WidgetColorModule)
-	{
-		m_WidgetColorModule->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_WidgetColorModule) {
+        m_WidgetColorModule->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	return true;
+    return true;
 }

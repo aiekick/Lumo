@@ -21,8 +21,6 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-
-
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
 
@@ -43,50 +41,50 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureCubeInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class Reflection_Quad_Pass :
-	public QuadShaderPass,
-	public TextureInputInterface<2>,
-	public TextureCubeInputInterface<1>,
-	public TextureOutputInterface
-{
+class Reflection_Quad_Pass : public QuadShaderPass,
+                             public TextureInputInterface<2>,
+                             public TextureCubeInputInterface<1>,
+                             public TextureOutputInterface {
 private:
-	VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
-	vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
-	struct UBOFrag {
-		alignas(4) float u_use_normal_map = 0.0f; // tex2D 0
-		alignas(4) float u_use_longlat_map = 0.0f; // tex2D 1
-		alignas(4) float u_use_cubemap_map = 0.0f; // cubemap 0
-	} m_UBOFrag;
+    VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
+    vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = {VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
+    struct UBOFrag {
+        alignas(4) float u_use_normal_map = 0.0f;   // tex2D 0
+        alignas(4) float u_use_longlat_map = 0.0f;  // tex2D 1
+        alignas(4) float u_use_cubemap_map = 0.0f;  // cubemap 0
+    } m_UBOFrag;
 
 public:
-	Reflection_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~Reflection_Quad_Pass() override;
+    Reflection_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~Reflection_Quad_Pass() override;
 
-	void ActionBeforeInit() override;
-	void WasJustResized() override;
+    void ActionBeforeInit() override;
+    void WasJustResized() override;
 
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	// Interfaces Setters
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
-	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;
+    // Interfaces Setters
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
+    void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+    std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+    std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 };

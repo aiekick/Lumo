@@ -41,50 +41,50 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TextureInputInterface.h>
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>
 
-class VignetteModule_Comp_2D_Pass : 
-    public EffectPass<1U>,
-	public NodeInterface {
+class VignetteModule_Comp_2D_Pass : public EffectPass<1U>, public NodeInterface {
 public:
     static std::shared_ptr<VignetteModule_Comp_2D_Pass> Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore);
 
 private:
-	struct UBO_1_Comp {
-		alignas(4) float u_Width = 0.25f;
+    struct UBO_1_Comp {
+        alignas(4) float u_Width = 0.25f;
         alignas(4) float u_Intensity = 15.0f;
         alignas(4) float u_enabled = 1.0f;
-	} m_UBOComp;
-	VulkanBufferObjectPtr m_UBOComp_Ptr = nullptr;
-	vk::DescriptorBufferInfo m_UBOComp_BufferInfos;
+    } m_UBOComp;
+    VulkanBufferObjectPtr m_UBOComp_Ptr = nullptr;
+    vk::DescriptorBufferInfo m_UBOComp_BufferInfos;
 
 public:
-	VignetteModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-	~VignetteModule_Comp_2D_Pass() override;
+    VignetteModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
+    ~VignetteModule_Comp_2D_Pass() override;
 
-	void ActionBeforeInit() override;
-	void WasJustResized() override;
+    void ActionBeforeInit() override;
+    void WasJustResized() override;
 
-	void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	// Interfaces Setters
-	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
+    // Interfaces Setters
+    void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;
 
-	// Interfaces Getters
-	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    // Interfaces Getters
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
     void AfterNodeXmlLoading() override;
 
 protected:
-	bool CreateUBO() override;
-	void UploadUBO() override;
-	void DestroyUBO() override;
+    bool CreateUBO() override;
+    void UploadUBO() override;
+    void DestroyUBO() override;
 
-	bool UpdateLayoutBindingInRessourceDescriptor() override;
-	bool UpdateBufferInfoInRessourceDescriptor() override;
+    bool UpdateLayoutBindingInRessourceDescriptor() override;
+    bool UpdateBufferInfoInRessourceDescriptor() override;
 
-	std::string GetComputeShaderCode(std::string& vOutShaderName) override;
+    std::string GetComputeShaderCode(std::string& vOutShaderName) override;
 };

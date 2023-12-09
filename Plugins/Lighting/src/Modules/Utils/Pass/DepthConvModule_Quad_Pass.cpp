@@ -43,30 +43,27 @@ using namespace GaiApi;
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-DepthConvModule_Quad_Pass::DepthConvModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL)
-{
-	SetRenderDocDebugName("Quad Pass 1 : Depth Conversion", QUAD_SHADER_PASS_DEBUG_COLOR);
+DepthConvModule_Quad_Pass::DepthConvModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore) : QuadShaderPass(vVulkanCore, MeshShaderPassType::PIXEL) {
+    SetRenderDocDebugName("Quad Pass 1 : Depth Conversion", QUAD_SHADER_PASS_DEBUG_COLOR);
 
-	m_DontUseShaderFilesOnDisk = true;
+    m_DontUseShaderFilesOnDisk = true;
 }
 
-DepthConvModule_Quad_Pass::~DepthConvModule_Quad_Pass()
-{
-	Unit();
+DepthConvModule_Quad_Pass::~DepthConvModule_Quad_Pass() {
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// OVERRIDES ///////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool DepthConvModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	assert(vContextPtr); ImGui::SetCurrentContext(vContextPtr);
+bool DepthConvModule_Quad_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	DrawInputTexture(m_VulkanCore, "Input Depth", 0U, m_OutputRatio);
+    DrawInputTexture(m_VulkanCore, "Input Depth", 0U, m_OutputRatio);
 
-	return false;
+    return false;
 }
 
 bool DepthConvModule_Quad_Pass::DrawOverlays(
@@ -85,153 +82,133 @@ bool DepthConvModule_Quad_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void DepthConvModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void DepthConvModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_Loaded)
-	{
-		if (vBindingPoint < m_ImageInfos.size())
-		{
-			if (vImageInfo)
-			{
-				m_ImageInfos[vBindingPoint] = *vImageInfo;
+    if (m_Loaded) {
+        if (vBindingPoint < m_ImageInfos.size()) {
+            if (vImageInfo) {
+                m_ImageInfos[vBindingPoint] = *vImageInfo;
 
-				if ((&m_UBOFrag.use_sampler_dep)[vBindingPoint] < 1.0f)
-				{
-					(&m_UBOFrag.use_sampler_dep)[vBindingPoint] = 1.0f;
-					NeedNewUBOUpload();
-				}
-			}
-			else
-			{
-				if ((&m_UBOFrag.use_sampler_dep)[vBindingPoint] > 0.0f)
-				{
-					(&m_UBOFrag.use_sampler_dep)[vBindingPoint] = 0.0f;
-					NeedNewUBOUpload();
-				}
+                if ((&m_UBOFrag.use_sampler_dep)[vBindingPoint] < 1.0f) {
+                    (&m_UBOFrag.use_sampler_dep)[vBindingPoint] = 1.0f;
+                    NeedNewUBOUpload();
+                }
+            } else {
+                if ((&m_UBOFrag.use_sampler_dep)[vBindingPoint] > 0.0f) {
+                    (&m_UBOFrag.use_sampler_dep)[vBindingPoint] = 0.0f;
+                    NeedNewUBOUpload();
+                }
 
                 auto corePtr = m_VulkanCore.lock();
                 assert(corePtr != nullptr);
 
-				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-			}
-		}
-	}
+                m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+            }
+        }
+    }
 }
 
-vk::DescriptorImageInfo* DepthConvModule_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{
-	ZoneScoped;
+vk::DescriptorImageInfo* DepthConvModule_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_FrameBufferPtr)
-	{
-		if (vOutSize)
-		{
-			*vOutSize = m_FrameBufferPtr->GetOutputSize();
-		}
+    if (m_FrameBufferPtr) {
+        if (vOutSize) {
+            *vOutSize = m_FrameBufferPtr->GetOutputSize();
+        }
 
-		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-	}
+        return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string DepthConvModule_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	std::string str;
+std::string DepthConvModule_Quad_Pass::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    std::string str;
 
-	return str;
+    return str;
 }
 
-bool DepthConvModule_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+bool DepthConvModule_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	return true;
+    return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool DepthConvModule_Quad_Pass::CreateUBO()
-{
-	ZoneScoped;
+bool DepthConvModule_Quad_Pass::CreateUBO() {
+    ZoneScoped;
 
-	auto size_in_bytes = sizeof(UBOFrag);
+    auto size_in_bytes = sizeof(UBOFrag);
     m_UBOFragPtr = VulkanRessource::createUniformBufferObject(m_VulkanCore, size_in_bytes, "DepthConvModule_Quad_Pass");
-	m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
-	m_DescriptorBufferInfo_Frag.range = size_in_bytes;
-	m_DescriptorBufferInfo_Frag.offset = 0;
+    m_DescriptorBufferInfo_Frag.buffer = m_UBOFragPtr->buffer;
+    m_DescriptorBufferInfo_Frag.range = size_in_bytes;
+    m_DescriptorBufferInfo_Frag.offset = 0;
 
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	for (auto& info : m_ImageInfos)
-	{
-		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
-	}
+    for (auto& info : m_ImageInfos) {
+        info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+    }
 
-	NeedNewUBOUpload();
+    NeedNewUBOUpload();
 
-	return true;
+    return true;
 }
 
-void DepthConvModule_Quad_Pass::UploadUBO()
-{
-	ZoneScoped;
+void DepthConvModule_Quad_Pass::UploadUBO() {
+    ZoneScoped;
 
-	VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
+    VulkanRessource::upload(m_VulkanCore, m_UBOFragPtr, &m_UBOFrag, sizeof(UBOFrag));
 }
 
-void DepthConvModule_Quad_Pass::DestroyUBO()
-{
-	ZoneScoped;
+void DepthConvModule_Quad_Pass::DestroyUBO() {
+    ZoneScoped;
 
-	m_UBOFragPtr.reset();
+    m_UBOFragPtr.reset();
 }
 
-bool DepthConvModule_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor()
-{
-	ZoneScoped;
+bool DepthConvModule_Quad_Pass::UpdateLayoutBindingInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
-	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
-	return res;
+    bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
+    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment);
+    return res;
 }
 
-bool DepthConvModule_Quad_Pass::UpdateBufferInfoInRessourceDescriptor()
-{
-	ZoneScoped;
+bool DepthConvModule_Quad_Pass::UpdateBufferInfoInRessourceDescriptor() {
+    ZoneScoped;
 
-	bool res = true;
-	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
-	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Frag);
-	res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]); // depth
-	return res;
+    bool res = true;
+    res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
+    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_DescriptorBufferInfo_Frag);
+    res &= AddOrSetWriteDescriptorImage(2U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0]);  // depth
+    return res;
 }
 
-std::string DepthConvModule_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "DepthConvModule_Quad_Pass_Vertex";
+std::string DepthConvModule_Quad_Pass::GetVertexShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "DepthConvModule_Quad_Pass_Vertex";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) in vec2 vertPosition;
@@ -246,19 +223,17 @@ void main()
 )";
 }
 
-std::string DepthConvModule_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName)
-{
-	vOutShaderName = "DepthConvModule_Quad_Pass_Fragment";
+std::string DepthConvModule_Quad_Pass::GetFragmentShaderCode(std::string& vOutShaderName) {
+    vOutShaderName = "DepthConvModule_Quad_Pass_Fragment";
 
-	return u8R"(#version 450
+    return u8R"(#version 450
 #extension GL_ARB_separate_shader_objects : enable
 
 layout(location = 0) out vec4 fragPos;
 layout(location = 1) out vec4 fragNor;
 layout(location = 0) in vec2 v_uv;
-)"
-+ CommonSystem::GetBufferObjectStructureHeader(0U) +
-u8R"(
+)" + CommonSystem::GetBufferObjectStructureHeader(0U) +
+           u8R"(
 layout (std140, binding = 1) uniform UBO_Vert 
 { 
 	float use_sampler_dep;

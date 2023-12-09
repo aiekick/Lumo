@@ -227,7 +227,7 @@ bool VignetteModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElemen
     if (strParentName == "vignette_module") {
         if (strName == "can_we_render") {
             m_CanWeRender = ct::ivariant(strValue).GetB();
-        } 
+        }
     }
 
     if (m_VignetteModule_Comp_2D_Pass_Ptr) {

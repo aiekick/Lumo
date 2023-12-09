@@ -28,73 +28,63 @@ using namespace GaiApi;
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-std::shared_ptr<SubdivideModule> SubdivideModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode)
-{
-	ZoneScoped;
+std::shared_ptr<SubdivideModule> SubdivideModule::Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode) {
+    ZoneScoped;
 
-	
-	auto res = std::make_shared<SubdivideModule>(vVulkanCore);
-	res->SetParentNode(vParentNode);
-	res->m_This = res;
-	if (!res->Init())
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<SubdivideModule>(vVulkanCore);
+    res->SetParentNode(vParentNode);
+    res->m_This = res;
+    if (!res->Init()) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SubdivideModule::SubdivideModule(GaiApi::VulkanCoreWeak vVulkanCore)
-	: m_VulkanCore(vVulkanCore)
-{
-	ZoneScoped;
+SubdivideModule::SubdivideModule(GaiApi::VulkanCoreWeak vVulkanCore) : m_VulkanCore(vVulkanCore) {
+    ZoneScoped;
 }
 
-SubdivideModule::~SubdivideModule()
-{
-	ZoneScoped;
+SubdivideModule::~SubdivideModule() {
+    ZoneScoped;
 
-	Unit();
+    Unit();
 }
 
 //////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-bool SubdivideModule::Init()
-{
-	ZoneScoped;
+bool SubdivideModule::Init() {
+    ZoneScoped;
 
-	m_OutputModelPtr = SceneModel::Create();
+    m_OutputModelPtr = SceneModel::Create();
 
-	return true;
+    return true;
 }
 
-void SubdivideModule::Unit()
-{
-	ZoneScoped;
+void SubdivideModule::Unit() {
+    ZoneScoped;
 
-	m_OutputModelPtr.reset();
+    m_OutputModelPtr.reset();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SubdivideModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-	return false;
+bool SubdivideModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
+    return false;
 }
 
-bool SubdivideModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool SubdivideModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -113,64 +103,57 @@ bool SubdivideModule::DrawDialogsAndPopups(
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SubdivideModule::SetModel(SceneModelWeak vSceneModel)
-{	
-	ZoneScoped;
+void SubdivideModule::SetModel(SceneModelWeak vSceneModel) {
+    ZoneScoped;
 
-	m_InputModel = vSceneModel;
+    m_InputModel = vSceneModel;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL OUTPUT ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneModelWeak SubdivideModule::GetModel()
-{	
-	ZoneScoped;
-	return m_OutputModelPtr;
+SceneModelWeak SubdivideModule::GetModel() {
+    ZoneScoped;
+    return m_OutputModelPtr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string SubdivideModule::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
-	ZoneScoped;
+std::string SubdivideModule::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string str;
+    std::string str;
 
-	str += vOffset + "<subdivide_module>\n";
+    str += vOffset + "<subdivide_module>\n";
 
-	str += vOffset + "</subdivide_module>\n";
+    str += vOffset + "</subdivide_module>\n";
 
-	return str;
+    return str;
 }
 
-bool SubdivideModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool SubdivideModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	if (strParentName == "subdivide_module")
-	{
-	}
+    if (strParentName == "subdivide_module") {
+    }
 
-	return true;
+    return true;
 }
 
-void SubdivideModule::AfterNodeXmlLoading()
-{
-	ZoneScoped;
-
+void SubdivideModule::AfterNodeXmlLoading() {
+    ZoneScoped;
 }

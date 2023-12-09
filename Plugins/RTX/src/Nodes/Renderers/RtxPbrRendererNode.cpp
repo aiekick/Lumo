@@ -36,104 +36,94 @@ limitations under the License.
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<RtxPbrRendererNode> RtxPbrRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+std::shared_ptr<RtxPbrRendererNode> RtxPbrRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	auto res = std::make_shared<RtxPbrRendererNode>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
+    auto res = std::make_shared<RtxPbrRendererNode>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
 
-	return res;
+    return res;
 }
 
-RtxPbrRendererNode::RtxPbrRendererNode() : BaseNode()
-{
-	ZoneScoped;
+RtxPbrRendererNode::RtxPbrRendererNode() : BaseNode() {
+    ZoneScoped;
 
-	m_NodeTypeString = "RTX_PBR_RENDERER";
+    m_NodeTypeString = "RTX_PBR_RENDERER";
 }
 
-RtxPbrRendererNode::~RtxPbrRendererNode()
-{
-	ZoneScoped;
+RtxPbrRendererNode::~RtxPbrRendererNode() {
+    ZoneScoped;
 
-	Unit();
-}		
+    Unit();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RtxPbrRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+bool RtxPbrRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	name = "Rtx Pbr Renderer";
+    name = "Rtx Pbr Renderer";
 
-	AddInput(NodeSlotAccelStructureInput::Create("BVH"), false, false);
-	AddInput(NodeSlotLightGroupInput::Create("Lights"), false, false);
-	AddInput(NodeSlotTextureInput::Create("Albedo", 0U), false, false);
-	AddInput(NodeSlotTextureInput::Create("AO", 1U), false, false);
-	AddInput(NodeSlotTextureInput::Create("LongLat", 2U), false, false);
-	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddInput(NodeSlotAccelStructureInput::Create("BVH"), false, false);
+    AddInput(NodeSlotLightGroupInput::Create("Lights"), false, false);
+    AddInput(NodeSlotTextureInput::Create("Albedo", 0U), false, false);
+    AddInput(NodeSlotTextureInput::Create("AO", 1U), false, false);
+    AddInput(NodeSlotTextureInput::Create("LongLat", 2U), false, false);
+    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
 
-	m_RtxPbrRendererModulePtr = RtxPbrRendererModule::Create(vVulkanCore, m_This);
-	if (m_RtxPbrRendererModulePtr)
-	{
-		res = true;
-	}
+    m_RtxPbrRendererModulePtr = RtxPbrRendererModule::Create(vVulkanCore, m_This);
+    if (m_RtxPbrRendererModulePtr) {
+        res = true;
+    }
 
-	return res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RtxPbrRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+bool RtxPbrRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    // for update input texture buffer infos => avoid vk crash
+    UpdateTextureInputDescriptorImageInfos(m_Inputs);
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		return m_RtxPbrRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        return m_RtxPbrRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+    }
 
-	return false;
+    return false;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool RtxPbrRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
-	ZoneScoped;
+bool RtxPbrRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	bool res = false;
+    bool res = false;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		res = m_RtxPbrRendererModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        res = m_RtxPbrRendererModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+    }
 
-	return res;
+    return res;
 }
 
-bool RtxPbrRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr , const std::string& vUserDatas ) {
+bool RtxPbrRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -145,16 +135,16 @@ bool RtxPbrRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRec
     return false;
 }
 
-bool RtxPbrRendererNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-	ZoneScoped;
+bool RtxPbrRendererNode::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
+    assert(vContextPtr);
+    ImGui::SetCurrentContext(vContextPtr);
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		return m_RtxPbrRendererModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        return m_RtxPbrRendererModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    }
     return false;
 }
 
@@ -162,189 +152,158 @@ bool RtxPbrRendererNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, con
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
-{
-	ZoneScoped;
+void RtxPbrRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
+    ZoneScoped;
 
-	if (vBaseNodeState && vBaseNodeState->debug_mode)
-	{
-		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-		if (drawList)
-		{
-			char debugBuffer[255] = "\0";
-			snprintf(debugBuffer, 254,
-				"Used[%s]\nCell[%i, %i]",
-				(used ? "true" : "false"), cell.x, cell.y);
-			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-		}
-	}
+    if (vBaseNodeState && vBaseNodeState->debug_mode) {
+        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+        if (drawList) {
+            char debugBuffer[255] = "\0";
+            snprintf(debugBuffer, 254, "Used[%s]\nCell[%i, %i]", (used ? "true" : "false"), cell.x, cell.y);
+            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+        }
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
-	ZoneScoped;
+void RtxPbrRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		m_RtxPbrRendererModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        m_RtxPbrRendererModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    }
 
-	// on fait ca apres
-	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+    // on fait ca apres
+    BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// ACCEL STRUCTURE SLOT INPUT //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererNode::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure)
-{	
-	ZoneScoped;
+void RtxPbrRendererNode::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		m_RtxPbrRendererModulePtr->SetAccelStructure(vSceneAccelStructure);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        m_RtxPbrRendererModulePtr->SetAccelStructure(vSceneAccelStructure);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// LIGHT GROUP SLOT INPUT //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
-{	
-	ZoneScoped;
+void RtxPbrRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		m_RtxPbrRendererModulePtr->SetLightGroup(vSceneLightGroup);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        m_RtxPbrRendererModulePtr->SetLightGroup(vSceneLightGroup);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize)
-{
-	ZoneScoped;
+void RtxPbrRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		m_RtxPbrRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        m_RtxPbrRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* RtxPbrRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize)
-{	
-	ZoneScoped;
+vk::DescriptorImageInfo* RtxPbrRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		return m_RtxPbrRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        return m_RtxPbrRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string RtxPbrRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+std::string RtxPbrRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	std::string res;
+    std::string res;
 
-	if (!m_ChildNodes.empty())
-	{
-		res += BaseNode::getXml(vOffset, vUserDatas);
-	}
-	else
-	{
-		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
-			name.c_str(),
-			m_NodeTypeString.c_str(),
-			ct::fvec2(pos.x, pos.y).string().c_str(),
-			(uint32_t)nodeID.Get());
+    if (!m_ChildNodes.empty()) {
+        res += BaseNode::getXml(vOffset, vUserDatas);
+    } else {
+        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
+                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)nodeID.Get());
 
-		for (auto slot : m_Inputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Inputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		for (auto slot : m_Outputs)
-		{
-			res += slot.second->getXml(vOffset + "\t", vUserDatas);
-		}
+        for (auto slot : m_Outputs) {
+            res += slot.second->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		if (m_RtxPbrRendererModulePtr)
-		{
-			res += m_RtxPbrRendererModulePtr->getXml(vOffset + "\t", vUserDatas);
-		}
+        if (m_RtxPbrRendererModulePtr) {
+            res += m_RtxPbrRendererModulePtr->getXml(vOffset + "\t", vUserDatas);
+        }
 
-		res += vOffset + "</node>\n";
-	}
+        res += vOffset + "</node>\n";
+    }
 
-	return res;
+    return res;
 }
 
-bool RtxPbrRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{	
-	ZoneScoped;
+bool RtxPbrRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
+    ZoneScoped;
 
-	// The value of this child identifies the name of this element
-	std::string strName;
-	std::string strValue;
-	std::string strParentName;
+    // The value of this child identifies the name of this element
+    std::string strName;
+    std::string strValue;
+    std::string strParentName;
 
-	strName = vElem->Value();
-	if (vElem->GetText())
-		strValue = vElem->GetText();
-	if (vParent != nullptr)
-		strParentName = vParent->Value();
+    strName = vElem->Value();
+    if (vElem->GetText())
+        strValue = vElem->GetText();
+    if (vParent != nullptr)
+        strParentName = vParent->Value();
 
-	BaseNode::setFromXml(vElem, vParent, vUserDatas);
+    BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		m_RtxPbrRendererModulePtr->setFromXml(vElem, vParent, vUserDatas);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        m_RtxPbrRendererModulePtr->setFromXml(vElem, vParent, vUserDatas);
+    }
 
-	// continue recurse child exploring
-	return true;
+    // continue recurse child exploring
+    return true;
 }
 
-void RtxPbrRendererNode::AfterNodeXmlLoading()
-{
-	ZoneScoped;
+void RtxPbrRendererNode::AfterNodeXmlLoading() {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		m_RtxPbrRendererModulePtr->AfterNodeXmlLoading();
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        m_RtxPbrRendererModulePtr->AfterNodeXmlLoading();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
-{	
-	ZoneScoped;
+void RtxPbrRendererNode::UpdateShaders(const std::set<std::string>& vFiles) {
+    ZoneScoped;
 
-	if (m_RtxPbrRendererModulePtr)
-	{
-		m_RtxPbrRendererModulePtr->UpdateShaders(vFiles);
-	}
+    if (m_RtxPbrRendererModulePtr) {
+        m_RtxPbrRendererModulePtr->UpdateShaders(vFiles);
+    }
 }
