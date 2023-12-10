@@ -1,0 +1,36 @@
+name: Linux Plugin Landscape
+
+on: 
+  push:
+    branches:
+    - master
+    paths:
+    - 'Plugins/Landscape/**'    
+
+jobs:
+  build_Linux_Plugin_Landscape:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        ref: master
+    - name: checkout submodules
+      run : git submodule update --init --recursive 
+    - name: Prepare Vulkan SDK
+      uses: humbletim/setup-vulkan-sdk@v1.2.0
+      with:
+        vulkan-query-version: 1.3.224.1
+        vulkan-components: Vulkan-Headers, Vulkan-Loader
+        vulkan-use-cache: true
+    - name: Install Requirement for Glfw3
+      run : sudo apt-get update && sudo apt-get install libgl1-mesa-dev libx11-dev libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev libasound2-dev libomp-dev
+    - name: configure
+      run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DPLUGIN_ENABLE_LANDSCAPE=ON
+    - name: build
+      run: cmake --build build --config Release -t Landscape
+    - name: upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Plugin Landscape
+        path: "bin/plugins/*Landscape*"
+        
