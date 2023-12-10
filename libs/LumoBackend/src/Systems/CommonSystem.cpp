@@ -839,12 +839,12 @@ layout(std140, binding = %i) uniform UBO_CommonSystem {
         u8R"(
 float LinearizeDepth(float vDepth) {
 	return vDepth;
-	//return (cam_near * cam_far) / (cam_far + cam_near - vDepth * (cam_far - cam_near));
+    //return (cam_near * cam_far) / (cam_far + cam_near - vDepth * (cam_far - cam_near));
 }
 
 float DeLinearizeDepth(float vDepth) {
 	return vDepth;
-	//return (cam_near + cam_far) * vDepth - cam_far * cam_near / (cam_near - cam_far) * vDepth;
+	//return (cam_near * cam_far) * vDepth - cam_far * cam_near / (cam_near - cam_far) * vDepth;
 }
 )";
     return res;

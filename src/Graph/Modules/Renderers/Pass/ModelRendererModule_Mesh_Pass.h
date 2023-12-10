@@ -89,7 +89,7 @@ private:
 
     int32_t m_PrimitiveTopologiesIndex = 3;  // Triangle Fan
 	struct UBO_Vert {
-		alignas(4) float u_point_size = 0.0f;
+		alignas(4) float u_point_size = 1.0f;
 	} m_UBO_Vert;
 	VulkanBufferObjectPtr m_UBO_Vert_Ptr = nullptr;
 	vk::DescriptorBufferInfo m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };

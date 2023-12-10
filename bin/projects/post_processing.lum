@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>0.08659;0.36668;0</RotXYZ>
+			<RotXYZ>-0.0494636;-0.0940865;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>22.1076</Zoom>
+			<Zoom>20.8576</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -45,7 +45,7 @@
 							<display_mode>3</display_mode>
 							<line_thickness>1</line_thickness>
 							<point_size>0</point_size>
-							<show_layer>0</show_layer>
+							<show_layer>1</show_layer>
 							<use_indices_restriction>false</use_indices_restriction>
 							<restricted_indices_count_to_draw>362016</restricted_indices_count_to_draw>
 						</model_renderer_module>

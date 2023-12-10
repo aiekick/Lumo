@@ -525,17 +525,13 @@ bool PlanetModule_Ground_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor() {
 
 std::string PlanetModule_Ground_Mesh_Pass::GetCommonCode() {
     return u8R"(
-vec2 get_uv_from_sphere(vec3 p)
-{
+vec2 get_uv_from_sphere(vec3 p) {
 	p = normalize(p);
-
 	float lon = atan(p.x, p.z);
 	float lat = asin(-p.y);
-
 	const float one_on_pi = 1.0 / 3.14159;
 	float u = (lon * one_on_pi + 1.0) * 0.5;
 	float v = lat * one_on_pi + 0.5;
-
 	return vec2(u, v);
 }
 )";
@@ -557,19 +553,15 @@ layout(location = 2) out vec4 v_color;
 )" + CommonSystem::GetBufferObjectStructureHeader(0U) +
            u8R"(
 
-layout(std140, binding = 1) uniform UBO_Vert
-{
+layout(std140, binding = 1) uniform UBO_Vert {
 	float u_point_size;
 };
 
-void main() 
-{
+void main() {
 	gl_PointSize = u_point_size;
-
 	v_position = aPosition;
 	v_normal = aNormal;
 	v_color = aColor;
-
 	gl_Position = cam * vec4(aPosition, 1.0);
 }
 )";

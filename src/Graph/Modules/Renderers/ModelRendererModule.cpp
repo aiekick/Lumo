@@ -112,7 +112,7 @@ bool ModelRendererModule::Init()
 bool ModelRendererModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
 {
 	ZoneScoped;
-		BaseRenderer::Render("Model Renderer", vCmd);
+	BaseRenderer::Render("Model Renderer", vCmd);
 	return true;
 }
 

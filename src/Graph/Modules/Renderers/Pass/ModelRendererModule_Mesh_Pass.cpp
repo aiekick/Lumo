@@ -330,17 +330,14 @@ layout(std140, binding = 1) uniform UBO_Vert {
 	float u_point_size;
 };
 
-void main() 
-{
+void main() {
 	gl_PointSize = u_point_size;
-
 	vertPosition = aPosition;
 	vertNormal = aNormal;
 	vertTangent = aTangent;
 	vertBiTangent = aBiTangent;
 	vertUv = aUv;
 	vertColor = aColor;
-
 	gl_Position = cam * vec4(aPosition, 1.0);
 }
 )";
@@ -360,20 +357,19 @@ layout(location = 2) in vec3 vertTangent;
 layout(location = 3) in vec3 vertBiTangent;
 layout(location = 4) in vec2 vertUv;
 layout(location = 5) in vec4 vertColor;
-
+)" 
++ 
+CommonSystem::Instance()->GetBufferObjectStructureHeader(0) 
++
+u8R"(
 layout(std140, binding = 2) uniform UBO_Frag {
 	int u_show_layer;
 	int u_show_shaded_wireframe;
 	float use_sampler_mask;
 };
 layout(binding = 3) uniform sampler2D mask_map_sampler;
-)" 
-+ 
-CommonSystem::Instance()->GetBufferObjectStructureHeader(-1) // -1 will not have UBO header, just depth functions
-+
-u8R"(
-void main() 
-{
+
+void main() {
 	fragColor = vec4(0);
 
 	switch(u_show_layer)
