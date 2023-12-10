@@ -91,7 +91,7 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 
 [ba_plugin_landsca_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Landscape.yml?branch=master
 [ci_plugin_landsca_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Landscape.yml
-[ba_plugin_landsca_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Landscapeyml?branch=master
+[ba_plugin_landsca_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Landscape.yml?branch=master
 [ci_plugin_landsca_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Landscape.yml
 
 [ba_plugin_lightin_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Lighting.yml?branch=master
