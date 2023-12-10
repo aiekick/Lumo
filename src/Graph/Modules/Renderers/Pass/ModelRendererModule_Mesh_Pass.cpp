@@ -343,11 +343,12 @@ layout(location = 3) in vec3 vertBiTangent;
 layout(location = 4) in vec2 vertUv;
 layout(location = 5) in vec4 vertColor;
 
-layout(std140, binding = 2) uniform UBO_Frag
-{
+layout(std140, binding = 2) uniform UBO_Frag {
 	int u_show_layer;
 	int u_show_shaded_wireframe;
+	float use_sampler_mask;
 };
+layout(binding = 3) uniform sampler2D mask_map_sampler;
 
 void main() 
 {
@@ -373,6 +374,9 @@ void main()
 	case 5: // vertex color
 		fragColor = vertColor;
 		break;
+	case 6: // depth
+		fragColor = vec4(LinearizeDepth(gl_FragCoord.z / gl_FragCoord.w));
+		break;
 	}
 
 	if (u_show_shaded_wireframe == 1 &&
@@ -385,9 +389,11 @@ void main()
 	{
 		fragColor.a = 1.0;
 	}
-	else
-	{
-		//discard;
+	
+	if (use_sampler_mask > 0.5)	{
+		if (texture(mask_map_sampler, vertUv).r < 0.5)	{
+			discard;
+		}
 	}
 }
 )";

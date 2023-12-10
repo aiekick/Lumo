@@ -60,7 +60,15 @@ private:
     };
     int32_t m_PrimitiveTopologiesIndex = 5;  // Triangle Fan
 
-    std::vector<std::string> m_Channels = {"Position", "Normal", "Tangeant", "Bi-Tangeant", "Uv", "Color"};
+    std::vector<std::string> m_Channels = {
+		"Position", 
+		"Normal", 
+		"Tangeant", 
+		"Bi-Tangeant", 
+		"Uv", 
+		"Color", 
+		"Depth",
+	};
 
     struct UBO_Vert {
         alignas(4) float u_point_size = 1.0f;
@@ -72,6 +80,7 @@ private:
     struct UBO_Frag {
         alignas(4) int32_t u_show_layer = 0;
         alignas(4) int32_t u_show_shaded_wireframe = 0;
+        alignas(4) float use_sampler_mask = 0.0f;
     } m_UBO_Frag;
 
     VulkanBufferObjectPtr m_UBO_Frag_Ptr = nullptr;
