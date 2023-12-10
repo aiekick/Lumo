@@ -311,7 +311,7 @@ Landscape generation
 
 | Published | Open Source | Free | status |
 | - | - | - | - |
-| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
+| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) |
 
 ### Nodes: 
 
@@ -333,7 +333,7 @@ Landscape generation
 
 | Published | Open Source | Free | status |
 | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/50) |
 
 ### Nodes: 
 
