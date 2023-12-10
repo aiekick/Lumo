@@ -746,27 +746,6 @@ Sdf to Mesh Generation
 
 <details>
 
-<summary>Smoke Plugin :</summary>
-
-### Description : 
-
-Smoke Rendering like Embergen
-
-### Status : 
-
-| Published | Open Source | Free | status |
-| - | - | - | - |
-| :x: | :x: | :x: | ![img](https://progress-bar.dev/0) |
-
-### Nodes: 
-
-| Published | Node | status |
-| - | - | - |
-
-</details>
-
-<details>
-
 <summary>SoGLSL Plugin :</summary>
 
 ### Description : 
