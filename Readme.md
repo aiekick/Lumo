@@ -67,6 +67,7 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 | Lumo                   | [![Build Status][ba_applic_lumoapp_win]][ci_applic_lumoapp_win] | [![Build Status][ba_applic_lumoapp_lin]][ci_applic_lumoapp_lin] | - |
 | Plugin AudiArt         | [![Build Status][ba_plugin_audiart_win]][ci_plugin_audiart_win] | [![Build Status][ba_plugin_audiart_lin]][ci_plugin_audiart_lin] | - |
 | Plugin CodeGenerator   | [![Build Status][ba_plugin_codegen_win]][ci_plugin_codegen_win] | [![Build Status][ba_plugin_codegen_lin]][ci_plugin_codegen_lin] | - |
+| Plugin Landscape       | [![Build Status][ba_plugin_landsca_win]][ci_plugin_landsca_win] | [![Build Status][ba_plugin_landsca_lin]][ci_plugin_landsca_lin] | - |
 | Plugin Lighting        | [![Build Status][ba_plugin_lightin_win]][ci_plugin_lightin_win] | [![Build Status][ba_plugin_lightin_lin]][ci_plugin_lightin_lin] | - |
 | Plugin MeshGen         | [![Build Status][ba_plugin_meshgen_win]][ci_plugin_meshgen_win] | [![Build Status][ba_plugin_meshgen_lin]][ci_plugin_meshgen_lin] | - |
 | Plugin Misc            | [![Build Status][ba_plugin_miscxxx_win]][ci_plugin_miscxxx_win] | [![Build Status][ba_plugin_miscxxx_lin]][ci_plugin_miscxxx_lin] | - |
@@ -86,6 +87,11 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 [ci_plugin_audiart_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Audiart.yml
 [ba_plugin_audiart_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Audiart.yml?branch=master
 [ci_plugin_audiart_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Audiart.yml
+
+[ba_plugin_landsca_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Landscape.yml?branch=master
+[ci_plugin_landsca_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Landscape.yml
+[ba_plugin_landsca_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Landscapeyml?branch=master
+[ci_plugin_landsca_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Landscape.yml
 
 [ba_plugin_lightin_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Lighting.yml?branch=master
 [ci_plugin_lightin_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Lighting.yml
@@ -305,7 +311,7 @@ Landscape generation
 
 | Published | Open Source | Free | status |
 | - | - | - | - |
-| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
+| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
 
 ### Nodes: 
 
