@@ -76,6 +76,7 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 | Plugin Post Processing | [![Build Status][ba_plugin_postpro_win]][ci_plugin_postpro_win] | [![Build Status][ba_plugin_postpro_lin]][ci_plugin_postpro_lin] | - |
 | Plugin Screen Space    | [![Build Status][ba_plugin_screspa_win]][ci_plugin_screspa_win] | [![Build Status][ba_plugin_screspa_lin]][ci_plugin_screspa_lin] | - |
 | Plugin Simulation      | [![Build Status][ba_plugin_simulat_win]][ci_plugin_simulat_win] | [![Build Status][ba_plugin_simulat_lin]][ci_plugin_simulat_lin] | - |
+| Plugin Smoke           | [![Build Status][ba_plugin_smoke___win]][ci_plugin_smoke___win] | [![Build Status][ba_plugin_smoke___lin]][ci_plugin_smoke___lin] | - |
 | Plugin RTX             | [![Build Status][ba_plugin_rtxxxxx_win]][ci_plugin_rtxxxxx_win] | [![Build Status][ba_plugin_rtxxxxx_lin]][ci_plugin_rtxxxxx_lin] | - |
 
 [ba_applic_lumoapp_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Lumo.yml?branch=master
@@ -137,6 +138,11 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 [ci_plugin_simulat_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Simulation.yml
 [ba_plugin_simulat_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Simulation.yml?branch=master
 [ci_plugin_simulat_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Simulation.yml
+
+[ba_plugin_smoke___win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_Smoke.yml?branch=master
+[ci_plugin_smoke___win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Smoke.yml
+[ba_plugin_smoke___lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_Smoke.yml?branch=master
+[ci_plugin_smoke___lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Smoke.yml
 
 [ba_plugin_rtxxxxx_win]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Win_Plugin_RTX.yml?branch=master
 [ci_plugin_rtxxxxx_win]: https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_RTX.yml
@@ -641,6 +647,30 @@ Many nodes of Simulation
 | :heavy_check_mark:  | Differential Operators / Laplacian Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Simulation / GrayScott Node | ![img](https://progress-bar.dev/100) |
 | :heavy_check_mark:  | Simulation / Conway Node (Game of Life) | ![img](https://progress-bar.dev/100) |
+
+</details>
+
+<details>
+
+<summary>Smoke Plugin :</summary>
+
+### Description : 
+
+GPU Smoke nodes
+
+### Status : 
+
+[![Win Smoke](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Smoke.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Smoke.yml)
+[![Linux Smoke](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Smoke.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Smoke.yml)
+
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :x: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/0) |
+
+### Nodes: 
+
+| Published | Node | status |
+| - | - | - |
 
 </details>
 
