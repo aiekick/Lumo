@@ -631,8 +631,8 @@ public:
 	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 )";
 
-    h_pass_file_code += GetNodeInputHFuncs(vDico);
-    h_pass_file_code += GetNodeOutputHFuncs(vDico);
+    h_pass_file_code += GetPassInputHFuncs(vDico);
+    h_pass_file_code += GetPassOutputHFuncs(vDico);
 
     h_pass_file_code +=
         u8R"(

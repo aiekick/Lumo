@@ -57,7 +57,7 @@ with a unique UBO who will be linked every where
 */
 class LUMO_BACKEND_API CommonSystem : public conf::ConfigAbstract, public CameraInterface, public BufferObjectInterface {
 public:
-    static std::string GetBufferObjectStructureHeader(const uint32_t& vBindingPoint);
+    static std::string GetBufferObjectStructureHeader(const int32_t& vBindingPoint);
 
 public:  // params to be serialized
     glm::vec2 camSize;

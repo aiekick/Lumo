@@ -814,10 +814,12 @@ void CommonSystem::DestroyBufferObject() {
     m_BufferObjectPtr.reset();
 }
 
-std::string CommonSystem::GetBufferObjectStructureHeader(const uint32_t& vBindingPoint) {
-    return ct::toStr(
-        u8R"(
-layout(std140, binding = %u) uniform UBO_CommonSystem {
+std::string CommonSystem::GetBufferObjectStructureHeader(const int32_t& vBindingPoint) {
+    std::string res;
+
+    if (vBindingPoint > -1) {
+        res = ct::toStr(u8R"(
+layout(std140, binding = %i) uniform UBO_CommonSystem {
 	mat4 cam;			// the MVP matrix
 	mat4 model;			// the model matrix
 	mat4 view;			// the view matrix
@@ -830,8 +832,11 @@ layout(std140, binding = %u) uniform UBO_CommonSystem {
 	vec2 viewportSize;	// the viewportSize
 	float cam_near;		// the cam near
 	float cam_far;		// the cam far
-};
+};)", vBindingPoint);
+    }
 
+    res +=
+        u8R"(
 float LinearizeDepth(float vDepth) {
 	return vDepth;
 	//return (cam_near * cam_far) / (cam_far + cam_near - vDepth * (cam_far - cam_near));
@@ -841,8 +846,8 @@ float DeLinearizeDepth(float vDepth) {
 	return vDepth;
 	//return (cam_near + cam_far) * vDepth - cam_far * cam_near / (cam_near - cam_far) * vDepth;
 }
-)",
-        vBindingPoint);
+)";
+    return res;
 }
 
 ///////////////////////////////////////////////////////

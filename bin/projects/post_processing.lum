@@ -6,7 +6,7 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>0.309222;0.136297;0</RotXYZ>
+			<RotXYZ>0.08659;0.36668;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
 			<Zoom>22.1076</Zoom>
@@ -25,172 +25,37 @@
 					<scale>1</scale>
 				</canvas>
 				<nodes>
-					<node name="Model" type="MESH" pos="-632;-25" id="22484">
+					<node name="Model" type="MESH" pos="-132;-25" id="22484">
 						<slot place="OUTPUT" index="0" name="Output" type="MESH" id="22488"/>
 						<mesh_module>
 							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\meshs\beethoven.gltf</file_path_name>
 							<file_path>C:\Gamedev\gitlab\Lumo\bin\meshs</file_path>
 						</mesh_module>
 					</node>
-					<node name="Post Processing" type="POST_PROCESSING" pos="0;-25" id="62933">
-						<slot place="INPUT" index="0" name="Color" type="TEXTURE_2D" id="62936"/>
-						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="62939"/>
-						<post_processing_module>
+					<node name="Model Renderer" type="MODEL_RENDERER" pos="0;-34" id="149677">
+						<slot place="INPUT" index="0" name="Model" type="MESH" id="149680"/>
+						<slot place="INPUT" index="1" name="Mask" type="TEXTURE_2D" id="149683"/>
+						<slot place="OUTPUT" index="0" name="" type="TEXTURE_2D" id="149686"/>
+						<slot place="OUTPUT" index="1" name="" type="SHADER_PASS" id="149689"/>
+						<model_renderer_module>
 							<can_we_render>true</can_we_render>
-							<bloom_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<radius>4</radius>
-								<gaussian_sigma_auto>true</gaussian_sigma_auto>
-								<gaussian_sigma>1</gaussian_sigma>
-								<gamma_correction>2.2</gamma_correction>
-								<exposure_correction>1</exposure_correction>
-								<high_freq_threshold>0.8;0.8;0.8</high_freq_threshold>
-								<enabled>0</enabled>
-							</bloom_pass>
-							<blur_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<radius_h>10</radius_h>
-								<radius_v>10</radius_v>
-								<disctinct_v_and_h>false</disctinct_v_and_h>
-								<gaussian_sigma>1</gaussian_sigma>
-								<gaussian_sigma_auto>true</gaussian_sigma_auto>
-								<use_h>true</use_h>
-								<use_v>true</use_v>
-								<enabled>0</enabled>
-							</blur_pass>
-							<sharpness_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<amount>1</amount>
-								<enabled>0</enabled>
-							</sharpness_pass>
-							<chromatic_aberrations_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<amount>1</amount>
-								<enabled>0</enabled>
-							</chromatic_aberrations_pass>
-							<heat_map_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<enabled>0</enabled>
-								<min>0</min>
-								<max>1</max>
-							<component>1</component>
-							<color_levels>
-								<color>0.32;0;0.32;1</color>
-								<color>0;0;1;1</color>
-								<color>0;1;0;1</color>
-								<color>1;1;0;1</color>
-								<color>1;0.6;0;1</color>
-								<color>1;0;0;1</color>
-							</color_levels>
-							</heat_map_pass>
-							<dilation_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<shape>0</shape>
-								<size>5</size>
-								<separation>1</separation>
-								<threshold>0;1</threshold>
-								<brightcolor>1;1;1</brightcolor>
-								<enabled>0</enabled>
-							</dilation_pass>
-							<tone_mapping_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<algo>0</algo>
-								<aces>2.510;0.030;2.430;0.590;0.140</aces>
-								<filmic>0.004;6.200;0.500;1.700;0.060;2.200</filmic>
-								<lotted>1.600;0.977;8.000;0.180;0.267</lotted>
-								<reinhard2>1.600</reinhard2>
-								<uchimura>1.000;1.000;0.220;0.400;1.330;0.000</uchimura>
-								<uncharted2>0.150;0.500;0.100;0.200;0.020;0.300;11.200;2.000</uncharted2>
-								<unreal>0.154;1.019</unreal>
-								<enabled>0</enabled>
-							</tone_mapping_pass>
-							<vignette_pass>
-								<resize_by_event>true</resize_by_event>
-								<resize_by_hand>true</resize_by_hand>
-								<buffer_quality>1</buffer_quality>
-								<width>0.25</width>
-								<intensity>15</intensity>
-								<enabled>0</enabled>
-							</vignette_pass>
-						</post_processing_module>
-					</node>
-					<node name="Mesh Sim" type="COMPUTE_MESH_SIM" pos="-500;-149" id="72839">
-						<slot place="INPUT" index="0" name="Model" type="MESH" id="72842"/>
-						<slot place="OUTPUT" index="0" name="Model" type="MESH" id="72845"/>
-						<slot place="OUTPUT" index="1" name="Just Painted" type="WIDGET_BOOLEAN" id="72848"/>
-						<compute_mesh_sim>
-							<can_we_render>true</can_we_render>
-							<mouse_radius>0.05</mouse_radius>
-							<mouse_inversion>0</mouse_inversion>
-							<grayscott_diffusion_u>0</grayscott_diffusion_u>
-							<grayscott_diffusion_v>1</grayscott_diffusion_v>
-							<grayscott_feed>0.026</grayscott_feed>
-							<grayscott_kill>0.03</grayscott_kill>
-							<displacement>0.2</displacement>
-							<iterations_count>1</iterations_count>
-							<simulation_config>0</simulation_config>
-						</compute_mesh_sim>
-					</node>
-					<node name="Mesh Sim" type="MESH_SIM_RENDERER" pos="-256;-63" id="80743">
-						<slot place="INPUT" index="0" name="Model" type="MESH" id="80747"/>
-						<slot place="INPUT" index="1" name="Substance R" type="TEXTURE_2D" id="80751"/>
-						<slot place="INPUT" index="2" name="Substance G" type="TEXTURE_2D" id="80755"/>
-						<slot place="INPUT" index="3" name="Discard" type="WIDGET_BOOLEAN" id="80759"/>
-						<slot place="INPUT" index="4" name="Inversion" type="WIDGET_BOOLEAN" id="80763"/>
-						<slot place="OUTPUT" index="0" name="Position" type="TEXTURE_2D" id="80767"/>
-						<slot place="OUTPUT" index="1" name="Normal" type="TEXTURE_2D" id="80771"/>
-						<slot place="OUTPUT" index="2" name="Color" type="TEXTURE_2D" id="80775"/>
-						<slot place="OUTPUT" index="3" name="Depth" type="TEXTURE_2D" id="80779"/>
-						<slot place="OUTPUT" index="4" name="Mask" type="TEXTURE_2D" id="80783"/>
-						<mesh_sim_renderer>
-							<can_we_render>true</can_we_render>
-							<displace>0</displace>
-							<show_wire_frame>false</show_wire_frame>
+							<resize_by_event>true</resize_by_event>
+							<resize_by_hand>true</resize_by_hand>
+							<buffer_quality>1</buffer_quality>
+							<display_mode>3</display_mode>
+							<line_thickness>1</line_thickness>
+							<point_size>0</point_size>
 							<show_layer>0</show_layer>
-							<substance_strength>3</substance_strength>
-							<show_face_normal>false</show_face_normal>
-							<discard_values>false</discard_values>
-							<inversion>false</inversion>
-						</mesh_sim_renderer>
-					</node>
-					<node name="Texture 2D" type="TEXTURE_2D" pos="-419;-50" id="85163">
-						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="85167"/>
-						<texture_2d_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\00ZBrush_RedWax.png</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
-						</texture_2d_module>
-					</node>
-					<node name="Texture 2D" type="TEXTURE_2D" pos="-419;64" id="87871">
-						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="87875"/>
-						<texture_2d_module>
-							<file_path_name>C:\Gamedev\gitlab\Lumo\bin\matcap\droplet_01.png</file_path_name>
-							<file_path>C:\Gamedev\gitlab\Lumo\bin\matcap</file_path>
-						</texture_2d_module>
+							<use_indices_restriction>false</use_indices_restriction>
+							<restricted_indices_count_to_draw>362016</restricted_indices_count_to_draw>
+						</model_renderer_module>
 					</node>
 				</nodes>
 				<links>
-					<link in="22484:22488" out="72839:72842"/>
-					<link in="85163:85167" out="80743:80751"/>
-					<link in="72839:72845" out="80743:80747"/>
-					<link in="80743:80755" out="87871:87875"/>
-					<link in="80743:80775" out="62933:62936"/>
+					<link in="22484:22488" out="149677:149680"/>
 				</links>
 				<outputs>
-					<output type="left" ids="62933:62939"/>
+					<output type="left" ids="149677:149686"/>
 				</outputs>
 			</graph>
 		</scene>
@@ -202,50 +67,12 @@
 			<CodeGenerator>
 				<custom_types>
 				</custom_types>
-				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\PostProcessing\src</root_path>
+				<root_path>C:\Gamedev\gitlab\Lumo\src\Graph</root_path>
 				<scene>
-					<graph>
-						<canvas>
-							<offset>0;0</offset>
-							<scale>1</scale>
-						</canvas>
-						<nodes>
-							<node name="Heat Map" type="NONE" pos="0;0" id="138348">
-								<slot index="0" name="Color" type="TEXTURE_2D" place="INPUT" id="138351" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="138354" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<generation>
-									<class_name>HeatMap</class_name>
-									<category_name>PostPro</category_name>
-									<node_creation_name>HEAT_MAP</node_creation_name>
-									<node_display_name>Heat Map</node_display_name>
-									<generate_module>true</generate_module>
-									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Heat Map</module_display_name>
-									<module_xml_name>heat_map_module</module_xml_name>
-									<module_xml_simple_name>heat_map_pass</module_xml_simple_name>
-									<pass_specialization_type>Quad</pass_specialization_type>
-									<pass_use_ubo>true</pass_use_ubo>
-									<pass_use_sbo>false</pass_use_sbo>
-									<node_is_a_task>true</node_is_a_task>
-									<node_is_an_effect>true</node_is_an_effect>
-									<vertex_struct_type>0</vertex_struct_type>
-									<use_common_system_ubo>false</use_common_system_ubo>
-								</generation>
-								<UBOS renderer="Compute 2D">
-									<UBO stage="0">
-									</UBO>
-								</UBOS>
-							</node>
-						</nodes>
-						<links>
-						</links>
-						<outputs>
-							<output type="left" ids="62933:62939"/>
-						</outputs>
-					</graph>
 				</scene>
 			</CodeGenerator>
+			<Landscape>
+			</Landscape>
 			<Lighting>
 			</Lighting>
 			<MeshGen>
@@ -268,6 +95,8 @@
 			</SdfMesher>
 			<Simulation>
 			</Simulation>
+			<Smoke>
+			</Smoke>
 		</plugins>
 	</project>
 </config>

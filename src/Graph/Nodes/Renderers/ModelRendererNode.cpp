@@ -20,11 +20,11 @@ limitations under the License.
 #include "ModelRendererNode.h"
 #include <Graph/Modules/Renderers/ModelRendererModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
 #ifdef PROFILER_INCLUDE
-#include <Gaia/gaia.h>
 #include PROFILER_INCLUDE
 #endif
 #ifndef ZoneScoped
@@ -32,264 +32,297 @@ limitations under the License.
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////
-//// STATIC'S ////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////
-
-std::shared_ptr<ModelRendererNode> ModelRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
-    ZoneScoped;
-
-    auto res = std::make_shared<ModelRendererNode>();
-    res->m_This = res;
-    if (!res->Init(vVulkanCore)) {
-        res.reset();
-    }
-
-    return res;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////
 //// CTOR / DTOR /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-ModelRendererNode::ModelRendererNode() : BaseNode() {
-    ZoneScoped;
+std::shared_ptr<ModelRendererNode> ModelRendererNode::Create(GaiApi::VulkanCoreWeak vVulkanCore)
+{
+	ZoneScoped;
 
-    m_NodeTypeString = "MODEL_RENDERER";
+	auto res = std::make_shared<ModelRendererNode>();
+	res->m_This = res;
+	if (!res->Init(vVulkanCore))
+	{
+		res.reset();
+	}
+
+	return res;
 }
 
-ModelRendererNode::~ModelRendererNode() {
-    ZoneScoped;
+ModelRendererNode::ModelRendererNode() : BaseNode()
+{
+	ZoneScoped;
 
-    Unit();
+	m_NodeTypeString = "MODEL_RENDERER";
 }
+
+ModelRendererNode::~ModelRendererNode()
+{
+	ZoneScoped;
+
+	Unit();
+}		
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// INIT / UNIT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
-    ZoneScoped;
+bool ModelRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
+{
+	ZoneScoped;
 
-    bool res = false;
+	bool res = false;
 
-    name = "Model Renderer";
+	name = "Model Renderer";
 
-    AddInput(NodeSlotModelInput::Create("Mesh"), false, false);
+	AddInput(NodeSlotModelInput::Create("Model"), false, false);
+	AddInput(NodeSlotTextureInput::Create("Mask", 1), false, false);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
-    AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
+	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+	AddOutput(NodeSlotShaderPassOutput::Create(""), false, true);
 
-    m_ModelRendererModulePtr = ModelRendererModule::Create(vVulkanCore, m_This);
-    if (m_ModelRendererModulePtr) {
-        res = true;
-    }
+	m_ModelRendererModulePtr = ModelRendererModule::Create(vVulkanCore, m_This);
+	if (m_ModelRendererModulePtr)
+	{
+		res = true;
+	}
 
-    return res;
+	return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TASK EXECUTE ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState) {
-    ZoneScoped;
+bool ModelRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd, BaseNodeState* vBaseNodeState)
+{
+	ZoneScoped;
 
-    bool res = false;
+	bool res = false;
 
-    BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
+	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
-    if (m_ModelRendererModulePtr) {
-        res = m_ModelRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
-    }
+	// for update input texture buffer infos => avoid vk crash
+	UpdateTextureInputDescriptorImageInfos(m_Inputs);
+	if (m_ModelRendererModulePtr)
+	{
+		res = m_ModelRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
+	}
 
-    return res;
+	return res;
 }
-
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-    ZoneScoped;
-
-    bool res = false;
-
-    assert(vContextPtr);
-    ImGui::SetCurrentContext(vContextPtr);
-
-    if (m_ModelRendererModulePtr) {
-        res = m_ModelRendererModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-    }
-
-    return res;
+bool ModelRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+{
+	ZoneScoped;
+	bool res = false;
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+	if (m_ModelRendererModulePtr)	{
+		res = m_ModelRendererModulePtr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+	}
+	return res;
 }
 
-bool ModelRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-    assert(vContextPtr);
-    ImGui::SetCurrentContext(vContextPtr);
+bool ModelRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+{
+	ZoneScoped;
 
-    return false;
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+	if (m_LastExecutedFrame == vCurrentFrame) {
+		return m_ModelRendererModulePtr->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
+	}
+	return false;
 }
 
-bool ModelRendererNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-    ZoneScoped;
-
-    assert(vContextPtr);
-    ImGui::SetCurrentContext(vContextPtr);
-
-    if (m_ModelRendererModulePtr) {
-        return m_ModelRendererModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
-    }
-    return false;
+bool ModelRendererNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+{
+	ZoneScoped;
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+	if (m_ModelRendererModulePtr)	{
+		return m_ModelRendererModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+	}
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// DRAW NODE ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
-    ZoneScoped;
+void ModelRendererNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState)
+{
+	ZoneScoped;
 
-    if (vBaseNodeState && vBaseNodeState->debug_mode) {
-        auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
-        if (drawList) {
-            char debugBuffer[255] = "\0";
-            snprintf(debugBuffer, 254, "Used[%s]\nCell[%i, %i]", (used ? "true" : "false"), cell.x, cell.y);
-            ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
-            drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
-        }
-    }
+	if (vBaseNodeState && vBaseNodeState->debug_mode) {
+		auto drawList = nd::GetNodeBackgroundDrawList(nodeID);
+		if (drawList) {
+			char debugBuffer[255] = "\0";
+			snprintf(debugBuffer, 254,
+				"Used[%s]\nCell[%i, %i]",
+				(used ? "true" : "false"), cell.x, cell.y);
+			ImVec2 txtSize = ImGui::CalcTextSize(debugBuffer);
+			drawList->AddText(pos - ImVec2(0, txtSize.y), ImGui::GetColorU32(ImGuiCol_Text), debugBuffer);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// RESIZE //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
-    ZoneScoped;
+void ModelRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
+{
+	ZoneScoped;
 
-    if (m_ModelRendererModulePtr) {
-        m_ModelRendererModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
-    }
+	if (m_ModelRendererModulePtr)	{
+		m_ModelRendererModulePtr->NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	}
 
-    // on fait ca apres
-    BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
+	// on fait ca apres
+	BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelRendererNode::SetModel(SceneModelWeak vSceneModel) {
-    ZoneScoped;
+void ModelRendererNode::SetModel(SceneModelWeak vSceneModel)
+{	
+	ZoneScoped;
 
-    if (m_ModelRendererModulePtr) {
-        m_ModelRendererModulePtr->SetModel(vSceneModel);
-    }
+	if (m_ModelRendererModulePtr)
+	{
+		m_ModelRendererModulePtr->SetModel(vSceneModel);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void ModelRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {	
+	ZoneScoped;
+
+	if (m_ModelRendererModulePtr)	{
+		m_ModelRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ModelRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
-    ZoneScoped;
+vk::DescriptorImageInfo* ModelRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
+	ZoneScoped;
 
-    if (m_ModelRendererModulePtr) {
-        return m_ModelRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
-    }
+	if (m_ModelRendererModulePtr)	{
+		return m_ModelRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak ModelRendererNode::GetShaderPasses(const uint32_t& vSlotID) {
-    ZoneScoped;
+SceneShaderPassWeak ModelRendererNode::GetShaderPasses(const uint32_t& vSlotID)
+{	
+	ZoneScoped;
 
-    if (m_ModelRendererModulePtr) {
-        return m_ModelRendererModulePtr->GetShaderPasses(vSlotID);
-    }
+	if (m_ModelRendererModulePtr)
+	{
+		return m_ModelRendererModulePtr->GetShaderPasses(vSlotID);
+	}
 
-    return SceneShaderPassWeak();
+	return {};
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string ModelRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
-    ZoneScoped;
+std::string ModelRendererNode::getXml(const std::string& vOffset, const std::string& vUserDatas)
+{	
+	ZoneScoped;
 
-    std::string res;
+	std::string res;
 
-    if (!m_ChildNodes.empty()) {
-        res += BaseNode::getXml(vOffset, vUserDatas);
-    } else {
-        res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n", name.c_str(), m_NodeTypeString.c_str(),
-                             ct::fvec2(pos.x, pos.y).string().c_str(), (uint32_t)GetNodeID());
+	if (!m_ChildNodes.empty()) {
+		res += BaseNode::getXml(vOffset, vUserDatas);
+	} else {
+		res += vOffset + ct::toStr("<node name=\"%s\" type=\"%s\" pos=\"%s\" id=\"%u\">\n",
+			name.c_str(),
+			m_NodeTypeString.c_str(),
+			ct::fvec2(pos.x, pos.y).string().c_str(),
+			(uint32_t)GetNodeID());
 
-        for (auto slot : m_Inputs) {
-            res += slot.second->getXml(vOffset + "\t", vUserDatas);
-        }
+		for (auto slot : m_Inputs) {
+			res += slot.second->getXml(vOffset + "\t", vUserDatas);
+		}
 
-        for (auto slot : m_Outputs) {
-            res += slot.second->getXml(vOffset + "\t", vUserDatas);
-        }
+		for (auto slot : m_Outputs) {
+			res += slot.second->getXml(vOffset + "\t", vUserDatas);
+		}
 
-        if (m_ModelRendererModulePtr) {
-            res += m_ModelRendererModulePtr->getXml(vOffset + "\t", vUserDatas);
-        }
+		if (m_ModelRendererModulePtr)	{
+			res += m_ModelRendererModulePtr->getXml(vOffset + "\t", vUserDatas);
+		}
 
-        res += vOffset + "</node>\n";
-    }
+		res += vOffset + "</node>\n";
+	}
 
-    return res;
+	return res;
 }
 
-bool ModelRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
-    ZoneScoped;
+bool ModelRendererNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
+{	
+	ZoneScoped;
 
-    // The value of this child identifies the name of this element
-    std::string strName;
-    std::string strValue;
-    std::string strParentName;
+	// The value of this child identifies the name of this element
+	std::string strName;
+	std::string strValue;
+	std::string strParentName;
 
-    strName = vElem->Value();
-    if (vElem->GetText())
-        strValue = vElem->GetText();
-    if (vParent != nullptr)
-        strParentName = vParent->Value();
+	strName = vElem->Value();
+	if (vElem->GetText())
+		strValue = vElem->GetText();
+	if (vParent != nullptr)
+		strParentName = vParent->Value();
 
-    BaseNode::setFromXml(vElem, vParent, vUserDatas);
+	BaseNode::setFromXml(vElem, vParent, vUserDatas);
 
-    if (m_ModelRendererModulePtr) {
-        m_ModelRendererModulePtr->setFromXml(vElem, vParent, vUserDatas);
-    }
+	if (m_ModelRendererModulePtr)	{
+		m_ModelRendererModulePtr->setFromXml(vElem, vParent, vUserDatas);
+	}
 
-    // continue recurse child exploring
-    return true;
+	// continue recurse child exploring
+	return true;
 }
 
-void ModelRendererNode::AfterNodeXmlLoading() {
-    ZoneScoped;
+void ModelRendererNode::AfterNodeXmlLoading()
+{
+	ZoneScoped;
 
-    if (m_ModelRendererModulePtr) {
-        m_ModelRendererModulePtr->AfterNodeXmlLoading();
-    }
+	if (m_ModelRendererModulePtr)	{
+		m_ModelRendererModulePtr->AfterNodeXmlLoading();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// SHADER UPDATE ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelRendererNode::UpdateShaders(const std::set<std::string>& vFiles) {
-    ZoneScoped;
+void ModelRendererNode::UpdateShaders(const std::set<std::string>& vFiles)
+{	
+	ZoneScoped;
 
-    if (m_ModelRendererModulePtr) {
-        m_ModelRendererModulePtr->UpdateShaders(vFiles);
-    }
+	if (m_ModelRendererModulePtr)	{
+		m_ModelRendererModulePtr->UpdateShaders(vFiles);
+	}
 }

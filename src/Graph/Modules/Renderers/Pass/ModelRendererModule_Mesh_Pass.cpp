@@ -21,12 +21,10 @@ limitations under the License.
 
 #include <cinttypes>
 #include <functional>
-
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
-#include <ImWidgets.h>
+#include <ImGuiPack.h>
 #include <LumoBackend/Systems/CommonSystem.h>
-
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Shader/VulkanShader.h>
 #include <Gaia/Core/VulkanSubmitter.h>
@@ -36,34 +34,45 @@ limitations under the License.
 using namespace GaiApi;
 
 #ifdef PROFILER_INCLUDE
-#include <Gaia/gaia.h>
 #include PROFILER_INCLUDE
 #endif
 #ifndef ZoneScoped
 #define ZoneScoped
 #endif
+#ifndef VKFPScoped
+#define VKFPScoped
+#endif
 
 //////////////////////////////////////////////////////////////
+///// STATIC /////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
+
+std::shared_ptr<ModelRendererModule_Mesh_Pass> ModelRendererModule_Mesh_Pass::Create(const ct::uvec2& vSize, GaiApi::VulkanCoreWeak vVulkanCore) {
+	auto res_ptr = std::make_shared<ModelRendererModule_Mesh_Pass>(vVulkanCore);
+	if (!res_ptr->InitPixel(vSize, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
+		res_ptr.reset();
+	}
+	return res_ptr;
+}
+
+//////////////////////////////////////////////////////////////
+///// CTOR / DTOR ////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
 ModelRendererModule_Mesh_Pass::ModelRendererModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore)
-    : MeshShaderPass<VertexStruct::P3_N3_TA3_BTA3_T2_C4>(vVulkanCore, MeshShaderPassType::PIXEL) {
-    ZoneScoped;
-
-    SetRenderDocDebugName("Mesh Pass : Model Renderer", MESH_SHADER_PASS_DEBUG_COLOR);
-
-    m_DontUseShaderFilesOnDisk = true;
+	: MeshShaderPass<VertexStruct::P3_N3_TA3_BTA3_T2_C4>(vVulkanCore, MeshShaderPassType::PIXEL) {
+	ZoneScoped;
+	SetRenderDocDebugName("Mesh Pass : Model Renderer", COMPUTE_SHADER_PASS_DEBUG_COLOR);
+	m_DontUseShaderFilesOnDisk = true;
 }
 
 ModelRendererModule_Mesh_Pass::~ModelRendererModule_Mesh_Pass() {
-    ZoneScoped;
-
-    Unit();
+	ZoneScoped;
+	Unit();
 }
 
 void ModelRendererModule_Mesh_Pass::ActionBeforeInit() {
-    ZoneScoped;
+	ZoneScoped;
 
     // m_CountIterations = ct::uvec4(0U, 10U, 1U, 1U);
 
@@ -74,6 +83,12 @@ void ModelRendererModule_Mesh_Pass::ActionBeforeInit() {
     m_LineWidth.y = 10.0f;  // max value
     m_LineWidth.z = 2.0f;   // default value
     m_LineWidth.w;          // value to change
+
+	auto corePtr = m_VulkanCore.lock();
+    assert(corePtr != nullptr);
+	for (auto& info : m_ImageInfos)	{
+		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+	}
 }
 
 bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
@@ -88,7 +103,7 @@ bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 
     ImGui::Separator();
 
-    if (ImGui::ContrastedComboVectorDefault(0.0f, "Display Mode", &m_PrimitiveTopologiesIndex, m_PrimitiveTopologies, 0)) {
+    if (ImGui::ContrastedComboVectorDefault(0.0f, "Display Mode", &m_PrimitiveTopologiesIndex, m_PrimitiveTopologies, 3)) {
         ChangeDynamicPrimitiveTopology((vk::PrimitiveTopology)m_PrimitiveTopologiesIndex, true);
     }
 
@@ -97,11 +112,8 @@ bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
     if (m_PrimitiveTopologiesIndex == 1 || m_PrimitiveTopologiesIndex == 2) {
         change |= ImGui::SliderFloatDefaultCompact(0.0f, "Line Thickness", &m_LineWidth.w, m_LineWidth.x, m_LineWidth.y, m_LineWidth.z);
     } else if (m_PrimitiveTopologiesIndex == 0) {
-        change |= ImGui::SliderFloatDefaultCompact(0.0f, "point_size", &m_UBO_Vert.u_point_size, 0.000f, 2.000f, 1.000f, 0.0f, "%.3f");
-    }
-
-    if (m_PrimitiveTopologiesIndex > 2)  // "Triangle List" or "Triangle Strip" or "Triangle Fan"
-    {
+        change |= ImGui::SliderFloatDefaultCompact(0.0f, "point_size", &m_UBO_Vert.u_point_size, 0.0f, 10.0f, 1.0f);
+    } else if (m_PrimitiveTopologiesIndex > 2) { // "Triangle List" or "Triangle Strip" or "Triangle Fan"
         change |= ImGui::CheckBoxIntDefault("Show Shaded Wireframe", &m_UBO_Frag.u_show_shaded_wireframe, 0);
     }
 
@@ -120,34 +132,32 @@ bool ModelRendererModule_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
     if (change) {
         NeedNewUBOUpload();
     }
-
     return change;
 }
 
-bool ModelRendererModule_Mesh_Pass::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-    ZoneScoped;
-    assert(vContextPtr);
-    ImGui::SetCurrentContext(vContextPtr);
-    return false;
+bool ModelRendererModule_Mesh_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	ZoneScoped;
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+	return false;
 }
 
-bool ModelRendererModule_Mesh_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
-    ZoneScoped;
-    assert(vContextPtr);
-    ImGui::SetCurrentContext(vContextPtr);
-    return false;
+bool ModelRendererModule_Mesh_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+	ZoneScoped;
+	assert(vContextPtr); 
+	ImGui::SetCurrentContext(vContextPtr);
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelRendererModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel) {
-    ZoneScoped;
+void ModelRendererModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
+{	
+	ZoneScoped;
 
-    m_SceneModel = vSceneModel;
+	m_SceneModel = vSceneModel;
 
     auto modelPtr = m_SceneModel.lock();
     if (modelPtr && !modelPtr->empty()) {
@@ -163,19 +173,41 @@ void ModelRendererModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+//// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+void ModelRendererModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {	
+	ZoneScoped;
+	if (m_Loaded) {
+		if (vBindingPoint < m_ImageInfos.size()) {
+			if (vImageInfo) {
+				if (vTextureSize) {
+					m_ImageInfosSize[vBindingPoint] = *vTextureSize;
+					NeedResizeByHandIfChanged(m_ImageInfosSize[vBindingPoint]);
+				}
+                m_UBO_Frag.u_use_sampler_mask = 1.0f;
+				m_ImageInfos[vBindingPoint] = *vImageInfo;
+            } else {
+                m_UBO_Frag.u_use_sampler_mask = 0.0f;
+                auto corePtr = m_VulkanCore.lock();
+                assert(corePtr != nullptr);
+				m_ImageInfos[vBindingPoint] = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+			}
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ModelRendererModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
-    ZoneScoped;
-
-    if (m_FrameBufferPtr) {
+vk::DescriptorImageInfo* ModelRendererModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
+	ZoneScoped;
+	if (m_FrameBufferPtr) {
         AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
-
-        return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
-    }
-
-    return nullptr;
+		return m_FrameBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);
+	}
+	return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -183,107 +215,91 @@ vk::DescriptorImageInfo* ModelRendererModule_Mesh_Pass::GetDescriptorImageInfo(c
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void ModelRendererModule_Mesh_Pass::WasJustResized() {
-    ZoneScoped;
+	ZoneScoped;
 }
 
 void ModelRendererModule_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
     ZoneScoped;
-
     if (!m_Loaded)
         return;
-
     if (vCmdBufferPtr) {
         auto modelPtr = m_SceneModel.lock();
         if (!modelPtr || modelPtr->empty())
             return;
-
         vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
-        {
-            // VKFPScoped(*vCmdBufferPtr, "Model Renderer", "DrawModel");
-
-            vCmdBufferPtr->bindDescriptorSets(
-                vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-
-            for (auto meshPtr : *modelPtr) {
-                if (meshPtr) {
-                    vk::DeviceSize offsets = 0;
-                    vCmdBufferPtr->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
-
-                    if (meshPtr->GetIndicesCount()) {
-                        vCmdBufferPtr->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
-                        if (m_UseIndiceRestriction) {
-                            vCmdBufferPtr->drawIndexed(m_RestrictedIndicesCountToDraw, 1, 0, 0, 0);
-                        } else {
-                            vCmdBufferPtr->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
-                        }
+        vCmdBufferPtr->bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+        for (auto meshPtr : *modelPtr) {
+            if (meshPtr) {
+                vk::DeviceSize offsets = 0;
+                vCmdBufferPtr->bindVertexBuffers(0, meshPtr->GetVerticesBuffer(), offsets);
+                if (meshPtr->GetIndicesCount()) {
+                    vCmdBufferPtr->bindIndexBuffer(meshPtr->GetIndicesBuffer(), 0, vk::IndexType::eUint32);
+                    if (m_UseIndiceRestriction) {
+                        vCmdBufferPtr->drawIndexed(m_RestrictedIndicesCountToDraw, 1, 0, 0, 0);
                     } else {
-                        vCmdBufferPtr->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
+                        vCmdBufferPtr->drawIndexed(meshPtr->GetIndicesCount(), 1, 0, 0, 0);
                     }
+                } else {
+                    vCmdBufferPtr->draw(meshPtr->GetVerticesCount(), 1, 0, 0);
                 }
             }
         }
-    }
+	}
 }
 
+
 bool ModelRendererModule_Mesh_Pass::CreateUBO() {
-    ZoneScoped;
-
-    m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "ModelRendererModule_Mesh_Pass");
-    m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
-    if (m_UBO_Vert_Ptr) {
-        m_UBO_Vert_BufferInfos.buffer = m_UBO_Vert_Ptr->buffer;
-        m_UBO_Vert_BufferInfos.range = sizeof(UBO_Vert);
-        m_UBO_Vert_BufferInfos.offset = 0;
-    }
-
-    m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "ModelRendererModule_Mesh_Pass");
-    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
-    if (m_UBO_Frag_Ptr) {
-        m_UBO_Frag_BufferInfos.buffer = m_UBO_Frag_Ptr->buffer;
-        m_UBO_Frag_BufferInfos.range = sizeof(UBO_Frag);
-        m_UBO_Frag_BufferInfos.offset = 0;
-    }
-
-    NeedNewUBOUpload();
-
-    return true;
+	ZoneScoped;
+	m_UBO_Frag_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Frag), "ModelRendererModule_Mesh_Pass");
+	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	if (m_UBO_Frag_Ptr) {
+		m_UBO_Frag_BufferInfos.buffer = m_UBO_Frag_Ptr->buffer;
+		m_UBO_Frag_BufferInfos.range = sizeof(UBO_Frag);
+		m_UBO_Frag_BufferInfos.offset = 0;
+	}
+	m_UBO_Vert_Ptr = VulkanRessource::createUniformBufferObject(m_VulkanCore, sizeof(UBO_Vert), "ModelRendererModule_Mesh_Pass");
+	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	if (m_UBO_Vert_Ptr) {
+		m_UBO_Vert_BufferInfos.buffer = m_UBO_Vert_Ptr->buffer;
+		m_UBO_Vert_BufferInfos.range = sizeof(UBO_Vert);
+		m_UBO_Vert_BufferInfos.offset = 0;
+	}
+	NeedNewUBOUpload();
+	return true;
 }
 
 void ModelRendererModule_Mesh_Pass::UploadUBO() {
-    ZoneScoped;
-
-    VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
-    VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
+	ZoneScoped;
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Frag_Ptr, &m_UBO_Frag, sizeof(UBO_Frag));
+	VulkanRessource::upload(m_VulkanCore, m_UBO_Vert_Ptr, &m_UBO_Vert, sizeof(UBO_Vert));
 }
 
 void ModelRendererModule_Mesh_Pass::DestroyUBO() {
-    ZoneScoped;
-
-    m_UBO_Vert_Ptr.reset();
-    m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
-
-    m_UBO_Frag_Ptr.reset();
-    m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};
-}
+	ZoneScoped;
+	m_UBO_Frag_Ptr.reset();
+	m_UBO_Frag_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
+	m_UBO_Vert_Ptr.reset();
+	m_UBO_Vert_BufferInfos = vk::DescriptorBufferInfo{ VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };}
 
 bool ModelRendererModule_Mesh_Pass::UpdateLayoutBindingInRessourceDescriptor() {
-    ZoneScoped;
-
-    bool res = true;
-    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
-    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex);
-    res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment);
-    return res;
+	ZoneScoped;
+	bool res = true;
+    res &= AddOrSetLayoutDescriptor(0U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex); // common system
+    res &= AddOrSetLayoutDescriptor(1U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex); // UBO_Vert
+	res &= AddOrSetLayoutDescriptor(2U, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eFragment); // UBO_Frag
+	res &= AddOrSetLayoutDescriptor(3U, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment); // sampler input
+	return res;
 }
 
 bool ModelRendererModule_Mesh_Pass::UpdateBufferInfoInRessourceDescriptor() {
-    ZoneScoped;
-
-    bool res = true;
-    res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo());
-    res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Vert_BufferInfos);
-    res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos);
-    return res;
+	ZoneScoped;
+	bool res = true;
+	res &= AddOrSetWriteDescriptorBuffer(0U, vk::DescriptorType::eUniformBuffer, CommonSystem::Instance()->GetBufferInfo()); // common system
+	res &= AddOrSetWriteDescriptorBuffer(1U, vk::DescriptorType::eUniformBuffer, &m_UBO_Vert_BufferInfos); // UBO_Vert
+    res &= AddOrSetWriteDescriptorBuffer(2U, vk::DescriptorType::eUniformBuffer, &m_UBO_Frag_BufferInfos); // UBO_Frag
+	res &= AddOrSetWriteDescriptorImage(3U, vk::DescriptorType::eCombinedImageSampler, &m_ImageInfos[0U]); // sampler input
+	return res;
 }
 
 std::string ModelRendererModule_Mesh_Pass::GetVertexShaderCode(std::string& vOutShaderName) {
@@ -305,10 +321,12 @@ layout(location = 2) out vec3 vertTangent;
 layout(location = 3) out vec3 vertBiTangent;
 layout(location = 4) out vec2 vertUv;
 layout(location = 5) out vec4 vertColor;
-)" + CommonSystem::GetBufferObjectStructureHeader(0U) +
-           u8R"(
-layout(std140, binding = 1) uniform UBO_Vert
-{
+)"
++
+CommonSystem::Instance()->GetBufferObjectStructureHeader(0)
++
+u8R"(
+layout(std140, binding = 1) uniform UBO_Vert {
 	float u_point_size;
 };
 
@@ -349,7 +367,11 @@ layout(std140, binding = 2) uniform UBO_Frag {
 	float use_sampler_mask;
 };
 layout(binding = 3) uniform sampler2D mask_map_sampler;
-
+)" 
++ 
+CommonSystem::Instance()->GetBufferObjectStructureHeader(-1) // -1 will not have UBO header, just depth functions
++
+u8R"(
 void main() 
 {
 	fragColor = vec4(0);
@@ -380,18 +402,16 @@ void main()
 	}
 
 	if (u_show_shaded_wireframe == 1 &&
-		bitCount(gl_SampleMaskIn[0]) < 2)
-	{
+		bitCount(gl_SampleMaskIn[0]) < 2) {
 		fragColor.rgb = 1.0 - fragColor.rgb;
 	}
 
-	if (dot(fragColor.xyz, fragColor.xyz) > 0.0)
-	{
+	if (dot(fragColor.xyz, fragColor.xyz) > 0.0) {
 		fragColor.a = 1.0;
 	}
 	
 	if (use_sampler_mask > 0.5)	{
-		if (texture(mask_map_sampler, vertUv).r < 0.5)	{
+		if (texture(mask_map_sampler, vertUv).r < 0.5) {
 			discard;
 		}
 	}

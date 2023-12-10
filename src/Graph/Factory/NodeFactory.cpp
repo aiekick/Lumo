@@ -27,8 +27,6 @@ limitations under the License.
 #include <Graph/Nodes/Misc/SceneMergerNode.h>
 
 #include <Graph/Nodes/Renderers/MatcapRendererNode.h>
-#include <Graph/Nodes/Renderers/ChannelRendererNode.h>
-#include <Graph/Nodes/Renderers/HeatmapRendererNode.h>
 #include <Graph/Nodes/Renderers/ModelRendererNode.h>
 
 #include <Graph/Nodes/Widgets/VariableNode.h>
@@ -66,11 +64,7 @@ BaseNodePtr NodeFactory::CreateNode(BaseNodeWeak vNodeGraph, const std::string& 
             }
 
             // renderers
-            else if (vNodeType == "CHANNEL_RENDERER") {
-                return ChannelRendererNode::Create(corePtr);
-            } else if (vNodeType == "HEATMAP_RENDERER") {
-                return HeatmapRendererNode::Create(corePtr);
-            } else if (vNodeType == "MATCAP_RENDERER") {
+            else if (vNodeType == "MATCAP_RENDERER") {
                 return MatcapRendererNode::Create(corePtr);
             } else if (vNodeType == "MODEL_RENDERER") {
                 return ModelRendererNode::Create(corePtr);

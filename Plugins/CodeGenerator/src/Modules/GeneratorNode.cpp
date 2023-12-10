@@ -610,11 +610,11 @@ public:
 )";
     }
 
-    h_node_file_code += GetNodeInputHFuncs(slotDico);
+    h_node_file_code += GetNodeModuleInputHFuncs(slotDico);
     h_node_file_code +=
         u8R"(
 )";
-    h_node_file_code += GetNodeOutputHFuncs(slotDico);
+    h_node_file_code += GetNodeModuleOutputHFuncs(slotDico);
     h_node_file_code +=
         u8R"(
 )";
@@ -1807,7 +1807,7 @@ SlotDico GeneratorNode::GetSlotDico() {
                     case BaseTypeEnum::BASE_TYPE_TextureGroup:  // TextureGroup
                         res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureGroupInput(inputSlot.second));
                         break;
-                    case BaseTypeEnum::BASE_TYPE_ShaderPass:  // TextureGroup
+                    case BaseTypeEnum::BASE_TYPE_ShaderPass:  // ShaderPass
                         res[BASE_TYPE_ShaderPass][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotShaderPassInput(inputSlot.second));
                         break;
                     case BaseTypeEnum::BASE_TYPE_Variable:  // Variable
@@ -1868,7 +1868,7 @@ SlotDico GeneratorNode::GetSlotDico() {
                     case BaseTypeEnum::BASE_TYPE_TextureGroup:  // TextureGroup
                         res[BASE_TYPE_TextureGroup][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureGroupOutput(outputSlot.second));
                         break;
-                    case BaseTypeEnum::BASE_TYPE_ShaderPass:  // TextureGroup
+                    case BaseTypeEnum::BASE_TYPE_ShaderPass:  // ShaderPass
                         res[BASE_TYPE_ShaderPass][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotShaderPassOutput(outputSlot.second));
                         break;
                     case BaseTypeEnum::BASE_TYPE_Variable:  // Variable
@@ -1893,7 +1893,7 @@ SlotStringStruct GeneratorNode::GetSlotNoneInput(NodeSlotInputPtr vSlot) {
     res.cpp_node_func = u8R"()";
     res.cpp_module_func = u8R"()";
     res.cpp_pass_func = u8R"()";
-    res.h_func = u8R"()";
+    res.h_node_module_func = res.h_pass_func = u8R"()";
     res.node_module_include_interface = res.pass_include_interface = u8R"()";
     res.include_slot = u8R"()";
     res.node_module_public_interface = u8R"()";
@@ -1911,7 +1911,7 @@ SlotStringStruct GeneratorNode::GetSlotNoneOutput(NodeSlotOutputPtr vSlot) {
     res.cpp_node_func = u8R"()";
     res.cpp_module_func = u8R"()";
     res.cpp_pass_func = u8R"()";
-    res.h_func = u8R"()";
+    res.h_node_module_func = res.h_pass_func = u8R"()";
     res.node_module_include_interface = res.pass_include_interface = u8R"()";
     res.include_slot = u8R"()";
     res.node_module_public_interface = u8R"()";
@@ -2008,7 +2008,7 @@ void PASS_CLASS_NAME::SetAccelStructure(SceneAccelStructureWeak vSceneAccelStruc
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetAccelStructure(SceneAccelStructureWeak vSceneAccelStructure) override;)";
 
@@ -2213,7 +2213,7 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetBufferAddressInfo()
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	SceneAccelStructureWeak GetAccelStruct() override;
 	vk::WriteDescriptorSetAccelerationStructureKHR* GetTLASInfo() override;
@@ -2341,7 +2341,7 @@ void PASS_CLASS_NAME::SetLightGroup(SceneLightGroupWeak vSceneLightGroup)
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetLightGroup(SceneLightGroupWeak vSceneLightGroup) override;)";
 
@@ -2452,7 +2452,7 @@ SceneLightGroupWeak PASS_CLASS_NAME::GetLightGroup()
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	SceneLightGroupWeak GetLightGroup() override;)";
 
@@ -2567,7 +2567,7 @@ void PASS_CLASS_NAME::SetModel(SceneModelWeak vSceneModel)
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetModel(SceneModelWeak vSceneModel) override;)";
 
@@ -2678,7 +2678,7 @@ SceneModelWeak PASS_CLASS_NAME::GetModel()
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	SceneModelWeak GetModel() override;)";
 
@@ -2818,7 +2818,7 @@ void PASS_CLASS_NAME::SetStorageBuffer(const uint32_t& vBindingPoint, vk::Descri
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetStorageBuffer(const uint32_t& vBindingPoint, vk::DescriptorBufferInfo* vStorageBuffer, uint32_t* vStorageBufferSize = nullptr) override;)";
 
@@ -2930,7 +2930,7 @@ vk::DescriptorBufferInfo* PASS_CLASS_NAME::GetStorageBuffer(const uint32_t& vBin
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	vk::DescriptorBufferInfo* GetStorageBuffer(const uint32_t& vBindingPoint, uint32_t* vOutSize = nullptr) override;)";
 
@@ -3138,7 +3138,7 @@ void NODE_CLASS_NAME::SetTexelBufferView(const uint32_t& vBindingPoint, vk::Buff
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetTexelBuffer(const uint32_t& vBindingPoint, vk::Buffer* vTexelBuffer, ct::uvec2* vTexelBufferSize = nullptr) override;
 	void SetTexelBufferView(const uint32_t& vBindingPoint, vk::BufferView* vTexelBufferView, ct::uvec2* vTexelBufferSize = nullptr) override;)";
@@ -3298,7 +3298,7 @@ vk::BufferView* PASS_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	vk::Buffer* GetTexelBuffer(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;
 	vk::BufferView* GetTexelBufferView(const uint32_t& vBindingPoint, ct::uvec2* vOutSize = nullptr) override;)";
@@ -3422,7 +3422,7 @@ void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize = nullptr) override;)";
 
@@ -3556,7 +3556,7 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
         u8R"(
 #include <LumoBackend/Interfaces/TextureOutputInterface.h>)";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;)";
 
@@ -3694,7 +3694,7 @@ void PASS_CLASS_NAME::SetTextureCube(const uint32_t& vBindingPoint, vk::Descript
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetTextureCube(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageCubeInfo, ct::fvec2* vTextureSize = nullptr) override;)";
 
@@ -3806,7 +3806,7 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetTextureCube(const uint32_t& vBindin
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	vk::DescriptorImageInfo* GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;)";
 
@@ -3942,7 +3942,7 @@ void PASS_CLASS_NAME::SetTextures(const uint32_t& vBindingPoint, DescriptorImage
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetTextures(const uint32_t& vBindingPoint, DescriptorImageInfoVector* vImageInfos, fvec2Vector* vOutSizes = nullptr) override;)";
 
@@ -4054,7 +4054,7 @@ DescriptorImageInfoVector* PASS_CLASS_NAME::GetDescriptorImageInfos(const uint32
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	DescriptorImageInfoVector* GetDescriptorImageInfos(const uint32_t& vBindingPoint, fvec2Vector* vOutSizes = nullptr) override;)";
 
@@ -4151,7 +4151,7 @@ void MODULE_CLASS_NAME::SetShaderPasses(const uint32_t& vSlotID, SceneShaderPass
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetShaderPasses(const uint32_t& vSlotID, SceneShaderPassWeak vSceneShaderPassWeak) override;)";
 
@@ -4169,7 +4169,7 @@ void MODULE_CLASS_NAME::SetShaderPasses(const uint32_t& vSlotID, SceneShaderPass
 
     res.pass_public_interface = ct::toStr(
         u8R"(
-	public ShaderPassInputInterface,)",
+	public ShaderPassInputInterface<%u>,)",
         m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureGroup]);
 
     res.node_slot_func += ct::toStr(
@@ -4201,8 +4201,7 @@ SceneShaderPassWeak NODE_CLASS_NAME::GetShaderPasses(const uint32_t& vSlotID)
         res.cpp_node_func +=
             u8R"(
 
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
+	if (m_MODULE_CLASS_NAMEPtr)	{
 		return m_MODULE_CLASS_NAMEPtr->GetShaderPasses(vSlotID);
 	}
 )";
@@ -4224,18 +4223,17 @@ SceneShaderPassWeak NODE_CLASS_NAME::GetShaderPasses(const uint32_t& vSlotID)
 //// SHADER PASS SLOT OUTPUT /////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneShaderPassWeak MODULE_CLASS_NAME::GetShaderPasses(const uint32_t& vSlotID)
-{	
+SceneShaderPassWeak MODULE_CLASS_NAME::GetShaderPasses(const uint32_t& vSlotID) {	
 	ZoneScoped;
 	return m_SceneShaderPassPtr;
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = 
         u8R"(
 	SceneShaderPassWeak GetShaderPasses(const uint32_t& vSlotID) override;)";
 
-    res.node_module_include_interface = res.pass_include_interface =
+    res.node_module_include_interface = 
         u8R"(
 #include <LumoBackend/Interfaces/ShaderPassOutputInterface.h>)";
 
@@ -4250,10 +4248,6 @@ SceneShaderPassWeak MODULE_CLASS_NAME::GetShaderPasses(const uint32_t& vSlotID)
     res.cpp_module_private_var =
         u8R"(
     SceneShaderPassPtr m_SceneShaderPassPtr = nullptr;)";
-
-    res.cpp_module_func =
-        u8R"(
-	public ShaderPassOutputInterface,)";
 
     res.node_slot_func += ct::toStr(
         u8R"(
@@ -4365,7 +4359,7 @@ void PASS_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;)";
 
@@ -4482,7 +4476,7 @@ SceneVariableWeak PASS_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 }
 )";
 
-    res.h_func =
+    res.h_node_module_func = res.h_pass_func =
         u8R"(
 	SceneVariableWeak GetVariable(const uint32_t& vVarIndex) override;)";
 
@@ -4609,7 +4603,7 @@ void PASS_CLASS_NAME::Set%s(const std::string& vName, %sWeak v%s)
         ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(),
         vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-    res.h_func = ct::toStr(
+    res.h_node_module_func = res.h_pass_func = ct::toStr(
         u8R"(
 	void Set%s(const std::string& vName, %sWeak v%s) override;)",
         vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
@@ -4738,7 +4732,7 @@ SlotStringStruct GeneratorNode::GetSlotCustomOutput(NodeSlotOutputPtr vSlot) {
 )",
         ct::toUpper(vSlot->slotType).c_str(), comment.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str(), vSlot->slotType.c_str());
 
-    res.h_func = ct::toStr(
+    res.h_node_module_func = res.h_pass_func = ct::toStr(
         u8R"(
 	%sWeak Get%s(const std::string& vName) override;)",
         vSlot->slotType.c_str(), vSlot->slotType.c_str());
@@ -5181,7 +5175,7 @@ std::string GeneratorNode::GetNodeOutputCppFuncs(const SlotDico& vDico) {
     return res;
 }
 
-std::string GeneratorNode::GetNodeInputHFuncs(const SlotDico& vDico) {
+std::string GeneratorNode::GetNodeModuleInputHFuncs(const SlotDico& vDico) {
     std::string res;
 
     if (!m_Inputs.empty()) {
@@ -5206,8 +5200,7 @@ std::string GeneratorNode::GetNodeInputHFuncs(const SlotDico& vDico) {
                     if (vDico.find(type) != vDico.end()) {
                         if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
                             _alreadyKnowTypes.emplace(type);
-
-                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].h_func;
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].h_node_module_func;
                         } else {
                             CTOOL_DEBUG_BREAK;
                         }
@@ -5228,7 +5221,53 @@ std::string GeneratorNode::GetNodeInputHFuncs(const SlotDico& vDico) {
     return res;
 }
 
-std::string GeneratorNode::GetNodeOutputHFuncs(const SlotDico& vDico) {
+std::string GeneratorNode::GetPassInputHFuncs(const SlotDico& vDico) {
+    std::string res;
+
+    if (!m_Inputs.empty()) {
+        res +=
+            u8R"(
+	// Interfaces Setters)";
+    }
+
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
+
+    for (const auto& inputSlot : m_Inputs) {
+        if (inputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(inputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
+
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::INPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::INPUT)[0].h_pass_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!m_Inputs.empty()) {
+        res +=
+            u8R"(
+)";
+    }
+
+    return res;
+}
+
+std::string GeneratorNode::GetNodeModuleOutputHFuncs(const SlotDico& vDico) {
     std::string res;
 
     if (!m_Outputs.empty()) {
@@ -5254,7 +5293,54 @@ std::string GeneratorNode::GetNodeOutputHFuncs(const SlotDico& vDico) {
                         if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
                             _alreadyKnowTypes.emplace(type);
 
-                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].h_func;
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].h_node_module_func;
+                        } else {
+                            CTOOL_DEBUG_BREAK;
+                        }
+                    } else {
+                        CTOOL_DEBUG_BREAK;
+                    }
+                }
+            }
+        }
+    }
+
+    if (!m_Outputs.empty()) {
+        res +=
+            u8R"(
+)";
+    }
+
+    return res;
+}
+
+std::string GeneratorNode::GetPassOutputHFuncs(const SlotDico& vDico) {
+    std::string res;
+
+    if (!m_Outputs.empty()) {
+        res +=
+            u8R"(
+	// Interfaces Getters)";
+    }
+
+    std::set<BaseTypeEnum> _alreadyKnowTypes;
+
+    for (const auto& outputSlot : m_Outputs) {
+        if (outputSlot.second) {
+            auto slotDatasPtr = std::dynamic_pointer_cast<GeneratorNodeSlotDatas>(outputSlot.second);
+            if (slotDatasPtr) {
+                BaseTypeEnum type = (BaseTypeEnum)slotDatasPtr->editorSlotTypeIndex;
+                auto typeString = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
+                if (typeString == "None") {
+                    continue;
+                }
+
+                if (_alreadyKnowTypes.find(type) == _alreadyKnowTypes.end()) {
+                    if (vDico.find(type) != vDico.end()) {
+                        if (vDico.at(type).find(NodeSlot::PlaceEnum::OUTPUT) != vDico.at(type).end()) {
+                            _alreadyKnowTypes.emplace(type);
+
+                            res += vDico.at(type).at(NodeSlot::PlaceEnum::OUTPUT)[0].h_pass_func;
                         } else {
                             CTOOL_DEBUG_BREAK;
                         }

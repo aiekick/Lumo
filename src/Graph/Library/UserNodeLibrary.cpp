@@ -66,8 +66,6 @@ void UserNodeLibrary::AnalyseRootDirectory() {
     m_RootLibraryCategory.AddCustom("Scene", "Grid / Axis", "GRID_AXIS");
 
     // Renderers
-    m_RootLibraryCategory.AddCustom("Renderers", "Channels", "CHANNEL_RENDERER");
-    m_RootLibraryCategory.AddCustom("Renderers", "Heatmap", "HEATMAP_RENDERER");
     m_RootLibraryCategory.AddCustom("Renderers", "Matcap", "MATCAP_RENDERER");
     m_RootLibraryCategory.AddCustom("Renderers", "Model", "MODEL_RENDERER");
 

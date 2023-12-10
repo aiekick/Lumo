@@ -38,7 +38,6 @@ limitations under the License.
 class MatcapRenderer_Mesh_Pass;
 class MatcapRenderer : public TaskRenderer,
                        public NodeInterface,
-
                        public ModelInputInterface,
                        public TextureInputInterface<0U>,
                        public TextureOutputInterface,

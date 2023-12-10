@@ -676,8 +676,8 @@ public:
 )";
     }
 
-    h_module_file_code += GetNodeInputHFuncs(vDico);
-    h_module_file_code += GetNodeOutputHFuncs(vDico);
+    h_module_file_code += GetNodeModuleInputHFuncs(vDico);
+    h_module_file_code += GetNodeModuleOutputHFuncs(vDico);
     h_module_file_code +=
         u8R"(
 	std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

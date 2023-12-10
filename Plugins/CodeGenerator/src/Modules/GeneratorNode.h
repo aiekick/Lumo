@@ -105,7 +105,8 @@ struct SlotStringStruct {
     std::string cpp_module_func;
     std::string cpp_pass_private_var;
     std::string cpp_pass_func;
-    std::string h_func;
+    std::string h_node_module_func;
+    std::string h_pass_func;
 };
 typedef std::map<BaseTypeEnum, std::map<NodeSlot::PlaceEnum, std::vector<SlotStringStruct>>> SlotDico;
 
@@ -210,7 +211,10 @@ private:
     std::string GetModuleInputCppFuncs(const SlotDico& vDico);
     std::string GetNodeInputFuncs(const SlotDico& vDico);
     std::string GetPassInputPrivateVars(const SlotDico& vDico);
-    std::string GetNodeInputHFuncs(const SlotDico& vDico);
+    
+    std::string GetNodeModuleInputHFuncs(const SlotDico& vDico);
+    std::string GetPassInputHFuncs(const SlotDico& vDico);
+
     std::string GetNodeInputCppFuncs(const SlotDico& vDico);
     std::string GetModuleInputPrivateVars(const SlotDico& vDico);
 
@@ -225,7 +229,10 @@ private:
     std::string GetModuleOutputCppFuncs(const SlotDico& vDico);
     std::string GetNodeOutputFuncs(const SlotDico& vDico);
     std::string GetPassOutputPrivateVars(const SlotDico& vDico);
-    std::string GetNodeOutputHFuncs(const SlotDico& vDico);
+
+    std::string GetNodeModuleOutputHFuncs(const SlotDico& vDico);
+    std::string GetPassOutputHFuncs(const SlotDico& vDico);
+
     std::string GetModuleOutputPrivateVars(const SlotDico& vDico);
     std::string GetNodeOutputCppFuncs(const SlotDico& vDico);
 
