@@ -16,6 +16,7 @@
 #include <Nodes/PostPro/Effects/BloomNode.h>
 #include <Nodes/PostPro/Effects/ChromaticAberrationsNode.h>
 #include <Nodes/PostPro/Effects/DilationNode.h>
+#include <Nodes/PostPro/Effects/HeatMapNode.h>
 #include <Nodes/PostPro/Effects/SharpnessNode.h>
 #include <Nodes/PostPro/Effects/ToneMapNode.h>
 #include <Nodes/PostPro/Effects/VignetteNode.h>
@@ -100,6 +101,7 @@ std::vector<LibraryEntry> PostProcessing::GetLibrary() const {
     res.push_back(AddLibraryEntry("PostPro/Effects", "Blur", "BLUR"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Chromatic Aberrations", "CHROMATIC_ABERRATIONS"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Dilation", "DILATION"));
+    res.push_back(AddLibraryEntry("PostPro/Effects", "Heat Map", "HEAT_MAP"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Sharpness", "SHARPNESS"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Tone Map", "TONE_MAP"));
     res.push_back(AddLibraryEntry("PostPro/Effects", "Vignette", "VIGNETTE"));
@@ -120,6 +122,8 @@ BaseNodePtr PostProcessing::CreatePluginNode(const std::string& vPluginNodeName)
         return ChromaticAberrationsNode::Create(vkPostProcessingPtr);
     } else if (vPluginNodeName == "DILATION") {
         return DilationNode::Create(vkPostProcessingPtr);
+    } else if (vPluginNodeName == "HEAT_MAP") {
+        return HeatMapNode::Create(vkPostProcessingPtr);
     } else if (vPluginNodeName == "SHARPNESS") {
         return SharpnessNode::Create(vkPostProcessingPtr);
     } else if (vPluginNodeName == "TONE_MAP") {

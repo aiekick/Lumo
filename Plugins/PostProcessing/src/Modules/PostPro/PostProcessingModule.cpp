@@ -37,6 +37,7 @@ limitations under the License.
 #include <Modules/PostPro/Effects/Pass/BlurModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/ChromaticAberrationsModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/DilationModule_Comp_2D_Pass.h>
+#include <Modules/PostPro/Effects/Pass/HeatMapModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/SharpnessModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/ToneMapModule_Comp_2D_Pass.h>
 #include <Modules/PostPro/Effects/Pass/VignetteModule_Comp_2D_Pass.h>
@@ -101,20 +102,25 @@ bool PostProcessingModule::Init() {
                         m_DilationModule_Comp_2D_Pass_Ptr = DilationModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
                         if (m_DilationModule_Comp_2D_Pass_Ptr) {
                             m_DilationModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-                            m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
-                            if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
-                                m_ToneMapModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-                                m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
-                                if (m_VignetteModule_Comp_2D_Pass_Ptr) {
-                                    m_VignetteModule_Comp_2D_Pass_Ptr->EnableEffect(false);
-                                    AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);                 // 1) BLOOM
-                                    AddGenericPass(m_BlurModule_Comp_2D_Pass_Ptr);                  // 2) BLUR
-                                    AddGenericPass(m_SharpnessModule_Comp_2D_Pass_Ptr);             // 3) SHARPNESS
-                                    AddGenericPass(m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr);  // 4) CHROMATIC ABERRATION
-                                    AddGenericPass(m_DilationModule_Comp_2D_Pass_Ptr);              // 5) DILATION
-                                    AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);               // 6) TONE MAPPING
-                                    AddGenericPass(m_VignetteModule_Comp_2D_Pass_Ptr);              // 7) VIGNETTE
-                                    m_Loaded = true;
+                            m_HeatMapModule_Comp_2D_Pass_Ptr = HeatMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
+                            if (m_HeatMapModule_Comp_2D_Pass_Ptr) {
+                                m_HeatMapModule_Comp_2D_Pass_Ptr->EnableEffect(false);
+                                m_ToneMapModule_Comp_2D_Pass_Ptr = ToneMapModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
+                                if (m_ToneMapModule_Comp_2D_Pass_Ptr) {
+                                    m_ToneMapModule_Comp_2D_Pass_Ptr->EnableEffect(false);
+                                    m_VignetteModule_Comp_2D_Pass_Ptr = VignetteModule_Comp_2D_Pass::Create(map_size, m_VulkanCore);
+                                    if (m_VignetteModule_Comp_2D_Pass_Ptr) {
+                                        m_VignetteModule_Comp_2D_Pass_Ptr->EnableEffect(false);
+                                        AddGenericPass(m_BloomModule_Comp_2D_Pass_Ptr);                 // 1) BLOOM
+                                        AddGenericPass(m_BlurModule_Comp_2D_Pass_Ptr);                  // 2) BLUR
+                                        AddGenericPass(m_SharpnessModule_Comp_2D_Pass_Ptr);             // 3) SHARPNESS
+                                        AddGenericPass(m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr);  // 4) CHROMATIC ABERRATION
+                                        AddGenericPass(m_HeatMapModule_Comp_2D_Pass_Ptr);               // 5) HEAT MAP
+                                        AddGenericPass(m_DilationModule_Comp_2D_Pass_Ptr);              // 6) DILATION
+                                        AddGenericPass(m_ToneMapModule_Comp_2D_Pass_Ptr);               // 7) TONE MAPPING
+                                        AddGenericPass(m_VignetteModule_Comp_2D_Pass_Ptr);              // 8) VIGNETTE
+                                        m_Loaded = true;
+                                    }
                                 }
                             }
                         }
@@ -213,7 +219,15 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
             vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
     }
 
-    // 6) TONE MAPPING
+    // 6) HEAT MAP
+    if (m_HeatMapModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
+        *m_HeatMapModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
+        m_HeatMapModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
+        vCmdBufferPtr->pipelineBarrier(vk::PipelineStageFlagBits::eComputeShader, vk::PipelineStageFlagBits::eComputeShader, vk::DependencyFlags(),
+            vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
+    }
+
+    // 7) TONE MAPPING
     if (m_ToneMapModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_ToneMapModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_ToneMapModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
@@ -221,7 +235,7 @@ void PostProcessingModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) 
             vk::MemoryBarrier(vk::AccessFlagBits::eShaderWrite, vk::AccessFlagBits::eShaderRead), nullptr, nullptr);
     }
 
-    // 7) VIGNETTE
+    // 8) VIGNETTE
     if (m_VignetteModule_Comp_2D_Pass_Ptr->IsEffectEnabled() &&  //
         *m_VignetteModule_Comp_2D_Pass_Ptr->IsEffectEnabled()) {
         m_VignetteModule_Comp_2D_Pass_Ptr->DrawPass(vCmdBufferPtr);
@@ -378,8 +392,9 @@ void PostProcessingModule::AfterNodeXmlLoading() {
     ZoneScoped;
     m_BloomModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_BlurModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
-    m_DilationModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    m_HeatMapModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
+    m_DilationModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_SharpnessModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_ToneMapModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
     m_VignetteModule_Comp_2D_Pass_Ptr->AfterNodeXmlLoading();
