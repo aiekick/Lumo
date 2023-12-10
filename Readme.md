@@ -292,6 +292,30 @@ then with one operation, generate base cades for :
 
 <details>
 
+<summary>Landscape Plugin :</summary>
+
+### Description : 
+
+Landscape generation
+
+### Status : 
+
+[![Win Landscape](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Landscape.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Win_Plugin_Landscape.yml) 
+[![Linux Landscape](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Landscape.yml/badge.svg)](https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_Landscape.yml)
+
+| Published | Open Source | Free | status |
+| - | - | - | - |
+| :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: | ![img](https://progress-bar.dev/10) |
+
+### Nodes: 
+
+| Published | Node | status |
+| - | - | - |
+
+</details>
+
+<details>
+
 <summary>Lighting Plugin :</summary>
 
 ### Description : 
