@@ -541,6 +541,7 @@ There is a summary nodes for all effects
 | :x:  | Postpro / Effects / Color Corrector Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Postpro / Effects / Depth of Field Node | ![img](https://progress-bar.dev/0) |
 | :heavy_check_mark:  | Postpro / Effects / Dilation Node | ![img](https://progress-bar.dev/100) |
+| :heavy_check_mark:  | Postpro / Effects / Heat Map Node | ![img](https://progress-bar.dev/100) |
 | :x:  | Postpro / Effects / Fog Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Postpro / Effects / Grain Node | ![img](https://progress-bar.dev/0) |
 | :x:  | Postpro / Effects / LUT Node | ![img](https://progress-bar.dev/0) |
