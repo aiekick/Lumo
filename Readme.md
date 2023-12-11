@@ -149,58 +149,6 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 [ba_plugin_rtxxxxx_lin]: https://img.shields.io/github/actions/workflow/status/aiekick/Lumo/Linux_Plugin_RTX.yml?branch=master
 [ci_plugin_rtxxxxx_lin]: https://github.com/aiekick/Lumo/actions/workflows/Linux_Plugin_RTX.yml
 
-# Tech's to implement :
-
-| Published | Feature | status |
-| - | - | - |
-| :x:  | Geometry Shader | ![img](https://progress-bar.dev/60) |
-| :heavy_check_mark:  | Tesselation Shader | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Compute Shader | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Vulkan Framework | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Mesh Use | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Mesh Texturing | ![img](https://progress-bar.dev/50) |
-| :heavy_check_mark:  | Plugin system | ![img](https://progress-bar.dev/100) |
-| :x:  | Sdf Merging | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Node Graph | ![img](https://progress-bar.dev/100) |
-| :x:  | Sub Node Graph | ![img](https://progress-bar.dev/0) |
-| :x:  | Instancing | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | SkyBox (Cubemap, LongLat) | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Cell Shading | ![img](https://progress-bar.dev/100) |
-| :x:  | PBR Shading | ![img](https://progress-bar.dev/20) |
-| :heavy_check_mark:  | Shadow Mapping | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Deferred Rendering | ![img](https://progress-bar.dev/100) |
-| :x:  | GLTF Rendering | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | RTX Rendering | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | RTX : Raygen Shader | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | RTX : Any hit Shader | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | RTX : Closest hit Shader | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | RTX : Miss Shader | ![img](https://progress-bar.dev/100) |
-| :x:  | RTX : Intersection Shader | ![img](https://progress-bar.dev/00) |
-| :x:  | RTX : Callable Shader | ![img](https://progress-bar.dev/0) |
-| :x:  | Normal Mapping | ![img](https://progress-bar.dev/0) |
-| :x:  | Parallax Mapping | ![img](https://progress-bar.dev/0) |
-| :x:  | Alpha Mapping | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Environment Mapping | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Light Directionnal | ![img](https://progress-bar.dev/100) |
-| :x:  | Light Point | ![img](https://progress-bar.dev/0) |
-| :x:  | Light Spot | ![img](https://progress-bar.dev/0) |
-| :x:  | Light Area | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Bloom | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | SSAO | ![img](https://progress-bar.dev/100) |
-| :x:  | SSS | ![img](https://progress-bar.dev/50) |
-| :x:  | SSR (Reflection) | ![img](https://progress-bar.dev/80) |
-| :x:  | SSR (Refraction) | ![img](https://progress-bar.dev/0) |
-| :x:  | VR | ![img](https://progress-bar.dev/20) |
-| :x:  | Particles System | ![img](https://progress-bar.dev/50) |
-| :x:  | Depth of field | ![img](https://progress-bar.dev/0) |
-| :heavy_check_mark:  | Dilation | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Blur | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Bloom | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Chromatic Aberration | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Sharpen | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Tone Mapping | ![img](https://progress-bar.dev/100) |
-| :heavy_check_mark:  | Vignette | ![img](https://progress-bar.dev/100) |
-
 # Lumo Native Nodes :
 
 <details>
@@ -214,8 +162,6 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 | Assets/Saver | Texture Exporter | ![img](https://progress-bar.dev/100) | Export texture to file |
 | Assets/Misc | Grid | ![img](https://progress-bar.dev/100) | - |
 | Assets/Misc | Scene Merger | ![img](https://progress-bar.dev/100) | Meerge many node in the same FBO target |
-| Assets/Renderer | Channel Renderer | ![img](https://progress-bar.dev/100) | can display channels of each model (pos, nor, tan, btan, col) |
-| Assets/Renderer | HeatMap Renderer | ![img](https://progress-bar.dev/100) | HeatMap of the color channel |
 | Assets/Renderer | MatCap Renderer | ![img](https://progress-bar.dev/100) | Render a matcap on the model |
 | Assets/Renderer | Model Renderer | ![img](https://progress-bar.dev/100) | - |
 | Assets/Utils | Math | ![img](https://progress-bar.dev/100) | - |

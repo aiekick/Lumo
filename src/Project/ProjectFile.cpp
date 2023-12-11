@@ -129,7 +129,7 @@ bool ProjectFile::SaveAs(const std::string& vFilePathName) {
     std::string filePathName = FileHelper::Instance()->SimplifyFilePath(vFilePathName);
     auto ps = FileHelper::Instance()->ParsePathFileName(filePathName);
     if (ps.isOk) {
-        m_ProjectFilePathName = FileHelper::Instance()->ComposePath(ps.path, ps.name, "blt");
+        m_ProjectFilePathName = FileHelper::Instance()->ComposePath(ps.path, ps.name, "lum");
         m_ProjectFilePath = ps.path;
         m_NeverSaved = false;
         return Save();
