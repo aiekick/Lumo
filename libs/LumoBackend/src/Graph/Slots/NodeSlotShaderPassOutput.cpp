@@ -28,109 +28,89 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(NodeSlotShaderPassOutput vSlot)
-{
-	auto res = std::make_shared<NodeSlotShaderPassOutput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(NodeSlotShaderPassOutput vSlot) {
+    auto res = std::make_shared<NodeSlotShaderPassOutput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName)
-{
-	auto res = std::make_shared<NodeSlotShaderPassOutput>(vName);
-	res->m_This = res;
-	return res;
+NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName) {
+    auto res = std::make_shared<NodeSlotShaderPassOutput>(vName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotShaderPassOutput>(vName, vHideName);
-	res->m_This = res;
-	return res;
+NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotShaderPassOutput>(vName, vHideName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotShaderPassOutput>(vName, vHideName, vShowWidget);
-	res->m_This = res;
-	return res;
+NodeSlotShaderPassOutputPtr NodeSlotShaderPassOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotShaderPassOutput>(vName, vHideName, vShowWidget);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotShaderPassOutput::NodeSlotShaderPassOutput()
-	: NodeSlotOutput("", "SHADER_PASS")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotShaderPassOutput::NodeSlotShaderPassOutput() : NodeSlotOutput("", "SHADER_PASS") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
-NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName)
-	: NodeSlotOutput(vName, "SHADER_PASS")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName) : NodeSlotOutput(vName, "SHADER_PASS") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName, const bool& vHideName)
-	: NodeSlotOutput(vName, "SHADER_PASS", vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "SHADER_PASS", vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotShaderPassOutput::NodeSlotShaderPassOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, "SHADER_PASS", vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "SHADER_PASS", vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotShaderPassOutput::~NodeSlotShaderPassOutput() = default;
 
-void NodeSlotShaderPassOutput::Init()
-{
-	
+void NodeSlotShaderPassOutput::Init() {
 }
 
-void NodeSlotShaderPassOutput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotShaderPassOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotShaderPassOutput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotShaderPassOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotShaderPassOutput::SendFrontNotification(const NotifyEvent& vEvent)
-{
-	if (vEvent == ShaderPassUpdateDone)
-	{
-		SendNotification("SHADER_PASS", vEvent);
-	}
+void NodeSlotShaderPassOutput::SendFrontNotification(const NotifyEvent& vEvent) {
+    if (vEvent == ShaderPassUpdateDone) {
+        SendNotification("SHADER_PASS", vEvent);
+    }
 }
 
 void NodeSlotShaderPassOutput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) {
@@ -140,10 +120,9 @@ void NodeSlotShaderPassOutput::MouseDoubleClickedOnSlot(const ImGuiMouseButton& 
     }
 }
 
-void NodeSlotShaderPassOutput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotShaderPassOutput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

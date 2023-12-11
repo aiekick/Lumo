@@ -104,7 +104,8 @@ public:
           paneCategory(vPaneCategory),
           paneDisposal(vPaneDisposal),
           isPaneOpenedDefault(vIsOpenedDefault),
-          isPaneFocusedDefault(vIsFocusedDefault) {}
+          isPaneFocusedDefault(vIsFocusedDefault) {
+    }
 };
 
 class LUMO_BACKEND_API PluginInterface : public conf::ConfigAbstract {
@@ -113,10 +114,8 @@ protected:
     bool iSinAPlugin = false;
 
 protected:
-    LibraryEntry AddLibraryEntry(const std::string& vCategoryPath,
-        const std::string& vNodeLabel,
-        const std::string& vNodeType,
-        const ct::fvec4& vColor = 0.0f) const;
+    LibraryEntry AddLibraryEntry(
+        const std::string& vCategoryPath, const std::string& vNodeLabel, const std::string& vNodeType, const ct::fvec4& vColor = 0.0f) const;
 
 public:
     PluginInterface() = default;

@@ -38,57 +38,56 @@ limitations under the License.
 class BaseNode;
 class NodeSlot;
 
-struct LUMO_BACKEND_API ColumnContainerStruct
-{
-	std::map<int, BaseNodeWeak> nodes;
-	ImVec2 size;
-	ImVec2 offset;
+struct LUMO_BACKEND_API ColumnContainerStruct {
+    std::map<int, BaseNodeWeak> nodes;
+    ImVec2 size;
+    ImVec2 offset;
 
-	void AddNode(BaseNodeWeak vNode);
-	void Clear();
+    void AddNode(BaseNodeWeak vNode);
+    void Clear();
 };
 
-class LUMO_BACKEND_API GraphLayout
-{
+class LUMO_BACKEND_API GraphLayout {
 public:
-	static ImVec2 s_NodeSpacing;
-	static float s_NodeCentering;
+    static ImVec2 s_NodeSpacing;
+    static float s_NodeCentering;
 
 private:
-	std::unordered_map<uint32_t, BaseNodePtr> *m_Nodes = nullptr;
-	std::map<int, ColumnContainerStruct> m_Columns;
-	
+    std::unordered_map<uint32_t, BaseNodePtr> *m_Nodes = nullptr;
+    std::map<int, ColumnContainerStruct> m_Columns;
+
 public:
-	void ApplyLayout(BaseNodeWeak vGraphNode);
-	void Clear();
-	static bool DrawSettings();
+    void ApplyLayout(BaseNodeWeak vGraphNode);
+    void Clear();
+    static bool DrawSettings();
 
-private: 
-	void CalcLayout(BaseNodeWeak vGraphNode);
-	void ResetNodeStates();
-	void ClassifyNodes(std::string vRootFunction);
-	void SetColumnOfNodesRecurs(BaseNodeWeak vNode, ct::ivec2 vNodeCell);
-	void AddNodesInCells();
-	void AddNodeInCell(BaseNodeWeak vNode);
-	void DefinePositionsOfNodes();
+private:
+    void CalcLayout(BaseNodeWeak vGraphNode);
+    void ResetNodeStates();
+    void ClassifyNodes(std::string vRootFunction);
+    void SetColumnOfNodesRecurs(BaseNodeWeak vNode, ct::ivec2 vNodeCell);
+    void AddNodesInCells();
+    void AddNodeInCell(BaseNodeWeak vNode);
+    void DefinePositionsOfNodes();
 
-private: // security
-	std::map<uintptr_t, int> m_InfLoopNodeDetector;
-	bool IsThereAnInfiniteLoopForNode(BaseNodeWeak vNode); // recursive func SetColumnOfNodesRecurs
+private:  // security
+    std::map<uintptr_t, int> m_InfLoopNodeDetector;
+    bool IsThereAnInfiniteLoopForNode(BaseNodeWeak vNode);  // recursive func SetColumnOfNodesRecurs
 
-private: // final
-	void ApplyPositionsInGraph();
-	
-public: // singleton
-	static GraphLayout *Instance()
-	{
-		static GraphLayout _instance;
-		return &_instance;
-	}
+private:  // final
+    void ApplyPositionsInGraph();
+
+public:  // singleton
+    static GraphLayout *Instance() {
+        static GraphLayout _instance;
+        return &_instance;
+    }
 
 protected:
-	GraphLayout() = default; // Prevent construction
-	GraphLayout(const GraphLayout&) = default; // Prevent construction by copying
-	GraphLayout& operator =(const GraphLayout&) { return *this; }; // Prevent assignment
-	~GraphLayout() = default; // Prevent unwanted destruction
+    GraphLayout() = default;                     // Prevent construction
+    GraphLayout(const GraphLayout &) = default;  // Prevent construction by copying
+    GraphLayout &operator=(const GraphLayout &) {
+        return *this;
+    };                         // Prevent assignment
+    ~GraphLayout() = default;  // Prevent unwanted destruction
 };

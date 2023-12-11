@@ -22,8 +22,7 @@ limitations under the License.
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 #include <glslang/MachineIndependent/localintermediate.h>
 
-class LUMO_BACKEND_API NodeUtils
-{
+class LUMO_BACKEND_API NodeUtils {
 public:
-	static std::string GetStringFromTOperatorEnum(const glslang::TOperator& vTOperator);
+    static std::string GetStringFromTOperatorEnum(const glslang::TOperator& vTOperator);
 };

@@ -21,70 +21,65 @@ limitations under the License.
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
 struct BaseNodeState;
-class LUMO_BACKEND_API TaskInterface
-{
+class LUMO_BACKEND_API TaskInterface {
 protected:
-	// to compare to current frame
-	// to know is the execution was already done
-	uint32_t m_LastExecutedFrame = 0U;
-	bool m_NeedNewExecution = false;
-	bool m_ExecutionWhenNeededOnly = false; // execution when asked, or all time
+    // to compare to current frame
+    // to know is the execution was already done
+    uint32_t m_LastExecutedFrame = 0U;
+    bool m_NeedNewExecution = false;
+    bool m_ExecutionWhenNeededOnly = false;  // execution when asked, or all time
 
 protected:
-	void NeedNewExecution() { m_NeedNewExecution = true; }
-	void SetExecutionWhenNeededOnly(const bool& vEnable) { m_ExecutionWhenNeededOnly = vEnable; }
+    void NeedNewExecution() {
+        m_NeedNewExecution = true;
+    }
+    void SetExecutionWhenNeededOnly(const bool& vEnable) {
+        m_ExecutionWhenNeededOnly = vEnable;
+    }
 
-	// mais on definira que ces fonctions, l'une ou l'autre ou les deux.
-	// en effet, les deux peuvent exister simultanenemt, si besoin d'un traitement different en time to time et all
-	// ex : - un ExecuteWhenNeeded quand il y a une maj d'un input de mesh, pour calcul des smooths normal une fois seulement
-	//      - un ExecuteAllTime pour le traitement a chaque frame du mesh
+    // mais on definira que ces fonctions, l'une ou l'autre ou les deux.
+    // en effet, les deux peuvent exister simultanenemt, si besoin d'un traitement different en time to time et all
+    // ex : - un ExecuteWhenNeeded quand il y a une maj d'un input de mesh, pour calcul des smooths normal une fois seulement
+    //      - un ExecuteAllTime pour le traitement a chaque frame du mesh
 
-	virtual bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr)
-	{
-		UNUSED(vCurrentFrame);
-		UNUSED(vCmd);
-		UNUSED(vBaseNodeState);
+    virtual bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) {
+        UNUSED(vCurrentFrame);
+        UNUSED(vCmd);
+        UNUSED(vBaseNodeState);
 
-		CTOOL_DEBUG_BREAK; // pour eviter d'oublier d'avoir implementé cette fonction alors qu'on l'apelle
+        CTOOL_DEBUG_BREAK;  // pour eviter d'oublier d'avoir implementï¿½ cette fonction alors qu'on l'apelle
 
-		return false;
-	}
+        return false;
+    }
 
-	virtual bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr)
-	{
-		UNUSED(vCurrentFrame);
-		UNUSED(vCmd);
-		UNUSED(vBaseNodeState);
+    virtual bool ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) {
+        UNUSED(vCurrentFrame);
+        UNUSED(vCmd);
+        UNUSED(vBaseNodeState);
 
-		CTOOL_DEBUG_BREAK; // pour eviter d'oublier d'avoir implementé cette fonction alors qu'on l'apelle
+        CTOOL_DEBUG_BREAK;  // pour eviter d'oublier d'avoir implementï¿½ cette fonction alors qu'on l'apelle
 
-		return false;
-	}
+        return false;
+    }
 
 public:
-	// il reviends a chaque classe qui derive de TaskInterface de choisir son mode d'execution
-	// donc on appellera Execute entre classe
-	bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr)
-	{
-		if (m_LastExecutedFrame != vCurrentFrame)
-		{
-			m_LastExecutedFrame = vCurrentFrame;
+    // il reviends a chaque classe qui derive de TaskInterface de choisir son mode d'execution
+    // donc on appellera Execute entre classe
+    bool Execute(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) {
+        if (m_LastExecutedFrame != vCurrentFrame) {
+            m_LastExecutedFrame = vCurrentFrame;
 
-			if (m_ExecutionWhenNeededOnly)
-			{
-				if (m_NeedNewExecution)
-				{
-					m_NeedNewExecution = false;
+            if (m_ExecutionWhenNeededOnly) {
+                if (m_NeedNewExecution) {
+                    m_NeedNewExecution = false;
 
-					return ExecuteWhenNeeded(vCurrentFrame, vCmd, vBaseNodeState);
-				}
-			}
-			else
-			{
-				return ExecuteAllTime(vCurrentFrame, vCmd, vBaseNodeState);
-			}
-		}
+                    return ExecuteWhenNeeded(vCurrentFrame, vCmd, vBaseNodeState);
+                }
+            } else {
+                return ExecuteAllTime(vCurrentFrame, vCmd, vBaseNodeState);
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 };

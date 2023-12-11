@@ -20,77 +20,63 @@ limitations under the License.
 #include <LumoBackend/SceneGraph/SceneModel.h>
 #include <LumoBackend/Systems/CommonSystem.h>
 
-SceneModelPtr SceneModel::Create()
-{
-	auto res = std::make_shared<SceneModel>();
-	res->m_This = res;
-	return res;
+SceneModelPtr SceneModel::Create() {
+    auto res = std::make_shared<SceneModel>();
+    res->m_This = res;
+    return res;
 }
 
-SceneMeshWeak SceneModel::at(const size_t& vIdx) const
-{
-	if (vIdx < m_Meshs.size())
-	{
-		return m_Meshs[vIdx];
-	}
+SceneMeshWeak SceneModel::at(const size_t& vIdx) const {
+    if (vIdx < m_Meshs.size()) {
+        return m_Meshs[vIdx];
+    }
 
-	return SceneMeshWeak();
+    return SceneMeshWeak();
 }
 
-std::vector<SceneMeshPtr>::iterator SceneModel::begin()
-{
-	return m_Meshs.begin();
+std::vector<SceneMeshPtr>::iterator SceneModel::begin() {
+    return m_Meshs.begin();
 }
 
-std::vector<SceneMeshPtr>::iterator SceneModel::end()
-{
-	return m_Meshs.end();
+std::vector<SceneMeshPtr>::iterator SceneModel::end() {
+    return m_Meshs.end();
 }
 
-size_t SceneModel::size()
-{
-	return m_Meshs.size();
+size_t SceneModel::size() {
+    return m_Meshs.size();
 }
 
-void SceneModel::clear()
-{
-	m_Meshs.clear();
-	m_AABBCC.lowerBound = 1e7;
-	m_AABBCC.upperBound = -1e7;
+void SceneModel::clear() {
+    m_Meshs.clear();
+    m_AABBCC.lowerBound = 1e7;
+    m_AABBCC.upperBound = -1e7;
 }
 
-bool SceneModel::empty()
-{
-	return m_Meshs.empty();
+bool SceneModel::empty() {
+    return m_Meshs.empty();
 }
 
-void SceneModel::Add(const SceneMeshPtr& vMesh)
-{
-	m_Meshs.push_back(vMesh);
+void SceneModel::Add(const SceneMeshPtr& vMesh) {
+    m_Meshs.push_back(vMesh);
 }
 
-SceneMeshWeak SceneModel::Get(const size_t& vIndex)
-{
-	if (m_Meshs.size() > (size_t)vIndex)
-	{
-		return m_Meshs[(size_t)vIndex];
-	}
+SceneMeshWeak SceneModel::Get(const size_t& vIndex) {
+    if (m_Meshs.size() > (size_t)vIndex) {
+        return m_Meshs[(size_t)vIndex];
+    }
 
-	return SceneMeshWeak();
+    return SceneMeshWeak();
 }
 
-void SceneModel::CombinePointInBoundingBox(const ct::fvec3& vPoint)
-{
-	m_AABBCC.Combine(vPoint);
+void SceneModel::CombinePointInBoundingBox(const ct::fvec3& vPoint) {
+    m_AABBCC.Combine(vPoint);
 }
 
-void SceneModel::CenterCameraToModel()
-{
-	auto centerPos = m_AABBCC.GetCenter();
-	CommonSystem::Instance()->SetTargetXYZ(-centerPos, true);
+void SceneModel::CenterCameraToModel() {
+    auto centerPos = m_AABBCC.GetCenter();
+    CommonSystem::Instance()->SetTargetXYZ(-centerPos, true);
 }
 
-ct::fvec3 SceneModel::GetCenter()
-{
-	return m_AABBCC.GetCenter();
+ct::fvec3 SceneModel::GetCenter() {
+    return m_AABBCC.GetCenter();
 }

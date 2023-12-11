@@ -21,25 +21,24 @@ limitations under the License.
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-class LUMO_BACKEND_API NodeSlotInput : public NodeSlot
-{
+class LUMO_BACKEND_API NodeSlotInput : public NodeSlot {
 public:
-	static NodeSlotInputPtr Create();
-	static NodeSlotInputPtr Create(const std::string& vName);
-	static NodeSlotInputPtr Create(const std::string& vName, const std::string& vType);
-	static NodeSlotInputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
-	static NodeSlotInputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotInputPtr Create();
+    static NodeSlotInputPtr Create(const std::string& vName);
+    static NodeSlotInputPtr Create(const std::string& vName, const std::string& vType);
+    static NodeSlotInputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
+    static NodeSlotInputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotInput();
-	explicit NodeSlotInput(const std::string& vName);
-	explicit NodeSlotInput(const std::string& vName, const std::string& vType);
-	explicit NodeSlotInput(const std::string& vName, const std::string& vType, const bool& vHideName);
-	explicit NodeSlotInput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotInput();
+    explicit NodeSlotInput();
+    explicit NodeSlotInput(const std::string& vName);
+    explicit NodeSlotInput(const std::string& vName, const std::string& vType);
+    explicit NodeSlotInput(const std::string& vName, const std::string& vType, const bool& vHideName);
+    explicit NodeSlotInput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

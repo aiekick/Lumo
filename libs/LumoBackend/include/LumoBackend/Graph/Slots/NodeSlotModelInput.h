@@ -24,32 +24,28 @@ class NodeSlotModelInput;
 typedef std::weak_ptr<NodeSlotModelInput> NodeSlotModelInputWeak;
 typedef std::shared_ptr<NodeSlotModelInput> NodeSlotModelInputPtr;
 
-class LUMO_BACKEND_API NodeSlotModelInput : 
-	public NodeSlotInput
-{
+class LUMO_BACKEND_API NodeSlotModelInput : public NodeSlotInput {
 public:
-	static NodeSlotModelInputPtr Create(NodeSlotModelInput vSlot);
-	static NodeSlotModelInputPtr Create(const std::string& vName);
-	static NodeSlotModelInputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotModelInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotModelInputPtr Create(NodeSlotModelInput vSlot);
+    static NodeSlotModelInputPtr Create(const std::string& vName);
+    static NodeSlotModelInputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotModelInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotModelInput();
-	explicit NodeSlotModelInput(const std::string& vName);
-	explicit NodeSlotModelInput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotModelInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotModelInput();
+    explicit NodeSlotModelInput();
+    explicit NodeSlotModelInput(const std::string& vName);
+    explicit NodeSlotModelInput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotModelInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotModelInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		const NotifyEvent& vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

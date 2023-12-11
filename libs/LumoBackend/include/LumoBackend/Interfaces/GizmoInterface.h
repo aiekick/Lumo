@@ -24,9 +24,9 @@ limitations under the License.
 
 class LUMO_BACKEND_API GizmoInterface {
 public:
-	std::string gizmo_name = "";
-	ImVec4 gizmo_pressed_color = ImVec4(1.0f, 1.f, 0.2f, 1.0f);
-	ImVec4 gizmo_hovered_color = ImVec4(0.2f, 1.0f, 1.0f, 1.0f);
+    std::string gizmo_name = "";
+    ImVec4 gizmo_pressed_color = ImVec4(1.0f, 1.f, 0.2f, 1.0f);
+    ImVec4 gizmo_hovered_color = ImVec4(0.2f, 1.0f, 1.0f, 1.0f);
     ImVec4 gizmo_idle_color = ImVec4(0.2f, 0.2f, 1.0f, 1.0f);
     bool gizmo_show_icon = true;
     bool gizmo_show_text = true;

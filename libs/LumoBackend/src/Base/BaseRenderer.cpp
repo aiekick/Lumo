@@ -386,7 +386,8 @@ bool BaseRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRe
     return change;
 }
 
-bool BaseRenderer::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool BaseRenderer::DrawDialogsAndPopups(
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -456,7 +457,7 @@ void BaseRenderer::Render(const char* vSectionLabel, vk::CommandBuffer* /*vCmdBu
 }
 
 void BaseRenderer::UpdateDescriptorsBeforeCommandBuffer() {
-    vkProfScopedPtrNoCmd(this, m_SectionLabel, "%s : Descriptors", m_SectionLabel);    
+    vkProfScopedPtrNoCmd(this, m_SectionLabel, "%s : Descriptors", m_SectionLabel);
     for (auto pass : m_ShaderPasses) {
         auto pass_ptr = pass.lock();
         if (pass_ptr) {
@@ -614,7 +615,7 @@ void BaseRenderer::BeginCommandBuffer(const char* vSectionLabel) {
 #ifdef PROFILER_INCLUDE
     {
         TracyVkZoneTransient(m_TracyContext, ___tracy_gpu_zone, *cmd, vSectionLabel, true);
-        //TracyVkZone(m_TracyContext, *cmd, vSectionLabel); 
+        // TracyVkZone(m_TracyContext, *cmd, vSectionLabel);
     }
 #endif
 }
@@ -650,7 +651,11 @@ void BaseRenderer::SubmitPixel() {
 
     vk::SubmitInfo submitInfo;
     vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
-    submitInfo.setPWaitDstStageMask(&waitDstStageMask).setCommandBufferCount(1).setPCommandBuffers(&m_CommandBuffers[m_CurrentFrame]).setSignalSemaphoreCount(1).setPSignalSemaphores(&m_RenderCompleteSemaphores[0]);
+    submitInfo.setPWaitDstStageMask(&waitDstStageMask)
+        .setCommandBufferCount(1)
+        .setPCommandBuffers(&m_CommandBuffers[m_CurrentFrame])
+        .setSignalSemaphoreCount(1)
+        .setPSignalSemaphores(&m_RenderCompleteSemaphores[0]);
 
     if (!m_FirstRender) {
         submitInfo.setWaitSemaphoreCount(1).setPWaitSemaphores(&m_RenderCompleteSemaphores[0]);
@@ -671,7 +676,11 @@ void BaseRenderer::SubmitCompute() {
 
     vk::SubmitInfo submitInfo;
     vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eComputeShader;
-    submitInfo.setPWaitDstStageMask(&waitDstStageMask).setCommandBufferCount(1).setPCommandBuffers(&m_CommandBuffers[m_CurrentFrame]).setSignalSemaphoreCount(1).setPSignalSemaphores(&m_RenderCompleteSemaphores[0]);
+    submitInfo.setPWaitDstStageMask(&waitDstStageMask)
+        .setCommandBufferCount(1)
+        .setPCommandBuffers(&m_CommandBuffers[m_CurrentFrame])
+        .setSignalSemaphoreCount(1)
+        .setPSignalSemaphores(&m_RenderCompleteSemaphores[0]);
 
     if (!m_FirstRender) {
         submitInfo.setWaitSemaphoreCount(1).setPWaitSemaphores(&m_RenderCompleteSemaphores[0]);

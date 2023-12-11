@@ -24,26 +24,24 @@ class NodeSlotTaskOutput;
 typedef std::weak_ptr<NodeSlotTaskOutput> NodeSlotTaskOutputWeak;
 typedef std::shared_ptr<NodeSlotTaskOutput> NodeSlotTaskOutputPtr;
 
-class LUMO_BACKEND_API NodeSlotTaskOutput : 
-	public NodeSlotOutput
-{
+class LUMO_BACKEND_API NodeSlotTaskOutput : public NodeSlotOutput {
 public:
-	static NodeSlotTaskOutputPtr Create(NodeSlotTaskOutput vSlot);
-	static NodeSlotTaskOutputPtr Create(const std::string& vName);
-	static NodeSlotTaskOutputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotTaskOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotTaskOutputPtr Create(NodeSlotTaskOutput vSlot);
+    static NodeSlotTaskOutputPtr Create(const std::string& vName);
+    static NodeSlotTaskOutputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotTaskOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotTaskOutput();
-	explicit NodeSlotTaskOutput(const std::string& vName);
-	explicit NodeSlotTaskOutput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotTaskOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotTaskOutput();
+    explicit NodeSlotTaskOutput();
+    explicit NodeSlotTaskOutput(const std::string& vName);
+    explicit NodeSlotTaskOutput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotTaskOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotTaskOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

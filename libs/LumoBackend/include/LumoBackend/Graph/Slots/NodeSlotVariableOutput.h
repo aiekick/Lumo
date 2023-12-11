@@ -24,26 +24,27 @@ class NodeSlotVariableOutput;
 typedef std::weak_ptr<NodeSlotVariableOutput> NodeSlotVariableOutputWeak;
 typedef std::shared_ptr<NodeSlotVariableOutput> NodeSlotVariableOutputPtr;
 
-class LUMO_BACKEND_API NodeSlotVariableOutput : 
-	public NodeSlotOutput
-{
+class LUMO_BACKEND_API NodeSlotVariableOutput : public NodeSlotOutput {
 public:
-	static NodeSlotVariableOutputPtr Create(NodeSlotVariableOutput vSlot);
-	static NodeSlotVariableOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
-	static NodeSlotVariableOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
-	static NodeSlotVariableOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotVariableOutputPtr Create(NodeSlotVariableOutput vSlot);
+    static NodeSlotVariableOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
+    static NodeSlotVariableOutputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
+    static NodeSlotVariableOutputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotVariableOutput();
-	explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
-	explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
-	explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotVariableOutput();
+    explicit NodeSlotVariableOutput();
+    explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
+    explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
+    explicit NodeSlotVariableOutput(
+        const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotVariableOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

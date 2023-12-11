@@ -737,7 +737,7 @@ void ShaderPass::EndDrawPass(vk::CommandBuffer* vCmdBufferPtr) {
 
 void ShaderPass::DrawPass(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) {
     ZoneScoped;
-    vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : DrawPass", m_RenderDocDebugName);       
+    vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : DrawPass", m_RenderDocDebugName);
     if (StartDrawPass(vCmdBufferPtr)) {
         if (IsPixelRenderer()) {
             vkProfScopedPtr(*vCmdBufferPtr, this, m_RenderDocDebugName, "%s : DrawPixel", m_RenderDocDebugName);
@@ -1394,12 +1394,12 @@ bool ShaderPass::CompilPixel() {
             } else if (m_IsShaderCompiled) {
                 m_Device.waitIdle();
                 DestroyPipeline();
-                //DestroyRessourceDescriptor();
-                //DestroyUBO();
-                //DestroySBO();
-                //CreateSBO();
-                //CreateUBO();
-                //CreateRessourceDescriptor();
+                // DestroyRessourceDescriptor();
+                // DestroyUBO();
+                // DestroySBO();
+                // CreateSBO();
+                // CreateUBO();
+                // CreateRessourceDescriptor();
                 CreatePixelPipeline();
                 res = true;
             }
@@ -1440,12 +1440,12 @@ bool ShaderPass::CompilCompute() {
             } else if (m_IsShaderCompiled) {
                 m_Device.waitIdle();
                 DestroyPipeline();
-                //DestroyRessourceDescriptor();
-                //DestroyUBO();
-                //DestroySBO();
-                //CreateSBO();
-                //CreateUBO();
-                //CreateRessourceDescriptor();
+                // DestroyRessourceDescriptor();
+                // DestroyUBO();
+                // DestroySBO();
+                // CreateSBO();
+                // CreateUBO();
+                // CreateRessourceDescriptor();
                 CreateComputePipeline();
                 res = true;
             }
@@ -2010,12 +2010,10 @@ void ShaderPass::UpdateRessourceDescriptor() {
     m_Device.waitIdle();
 
     vkProfScopedPtrNoCmd(this, m_RenderDocDebugName, "%s", "UpdateRessourceDescriptor");
-    
+
     EachFramesDescriptorUpdate();
 
-    {
-        UpdateModel(m_Loaded);
-    }
+    { UpdateModel(m_Loaded); }
 
     if (m_NeedNewUBOUpload) {
         UploadUBO();

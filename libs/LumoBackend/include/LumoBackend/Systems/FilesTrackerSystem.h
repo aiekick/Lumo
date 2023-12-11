@@ -25,35 +25,36 @@ limitations under the License.
 #include <string>
 #include <memory>
 
-class LUMO_BACKEND_API FilesTrackerSystem : public efsw::FileWatchListener
-{
+class LUMO_BACKEND_API FilesTrackerSystem : public efsw::FileWatchListener {
 public:
-	bool Changes = false;
-	std::set<std::string> files;
+    bool Changes = false;
+    std::set<std::string> files;
 
 private:
-	std::unique_ptr<efsw::FileWatcher> m_FilesTracker = nullptr;
-	std::set<efsw::WatchID> m_WatchIDs;
+    std::unique_ptr<efsw::FileWatcher> m_FilesTracker = nullptr;
+    std::set<efsw::WatchID> m_WatchIDs;
 
 public:
     bool init();
     void unit();
 
-	static FilesTrackerSystem* Instance()
-	{
-		static FilesTrackerSystem _instance;
-		return &_instance;
-	}
+    static FilesTrackerSystem* Instance() {
+        static FilesTrackerSystem _instance;
+        return &_instance;
+    }
 
 protected:
-	void handleFileAction(efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "") override;
+    void handleFileAction(
+        efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "") override;
 
-	FilesTrackerSystem() = default;                                                                                // Prevent construction
-	FilesTrackerSystem(const FilesTrackerSystem&) = default; // Prevent construction by copying
-	FilesTrackerSystem& operator =(const FilesTrackerSystem&) { return *this; }; // Prevent assignment
+    FilesTrackerSystem() = default;                           // Prevent construction
+    FilesTrackerSystem(const FilesTrackerSystem&) = default;  // Prevent construction by copying
+    FilesTrackerSystem& operator=(const FilesTrackerSystem&) {
+        return *this;
+    };                                // Prevent assignment
     ~FilesTrackerSystem() = default;  // Prevent unwanted destruction
 
 public:
-	void addWatch(std::string& vPath);
-	void update();
+    void addWatch(std::string& vPath);
+    void update();
 };

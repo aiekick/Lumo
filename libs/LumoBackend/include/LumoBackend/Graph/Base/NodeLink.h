@@ -31,16 +31,15 @@ namespace nd = ax::NodeEditor;
 
 class BaseNode;
 class NodeSlot;
-class LUMO_BACKEND_API NodeLink
-{
+class LUMO_BACKEND_API NodeLink {
 public:
-	NodeSlotWeak in;
-	NodeSlotWeak out;
-	uint32_t linkId = 0;
-	ImColor color = ImColor(255, 255, 0, 255);
-	float thick = 2.0f;
+    NodeSlotWeak in;
+    NodeSlotWeak out;
+    uint32_t linkId = 0;
+    ImColor color = ImColor(255, 255, 0, 255);
+    float thick = 2.0f;
 
 public:
-	NodeLink();
-	~NodeLink();
+    NodeLink();
+    ~NodeLink();
 };

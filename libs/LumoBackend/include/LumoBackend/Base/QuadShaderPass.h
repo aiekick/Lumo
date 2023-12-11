@@ -20,16 +20,17 @@ limitations under the License.
 #include <LumoBackend/Base/MeshShaderPass.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-class LUMO_BACKEND_API QuadShaderPass : public MeshShaderPass<VertexStruct::P2_T2>
-{
+class LUMO_BACKEND_API QuadShaderPass : public MeshShaderPass<VertexStruct::P2_T2> {
 public:
-	QuadShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const MeshShaderPassType& vMeshShaderPassType);
-	QuadShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const MeshShaderPassType& vMeshShaderPassType,
-		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+    QuadShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const MeshShaderPassType& vMeshShaderPassType);
+    QuadShaderPass(GaiApi::VulkanCoreWeak vVulkanCore,
+        const MeshShaderPassType& vMeshShaderPassType,
+        vk::CommandPool* vCommandPool,
+        vk::DescriptorPool* vDescriptorPool);
 
-	bool BuildModel() override;
-	void DestroyModel(const bool& vReleaseDatas = false) override;
+    bool BuildModel() override;
+    void DestroyModel(const bool& vReleaseDatas = false) override;
 
-	std::string GetVertexShaderCode(std::string& vOutShaderName) override;
-	std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
+    std::string GetVertexShaderCode(std::string& vOutShaderName) override;
+    std::string GetFragmentShaderCode(std::string& vOutShaderName) override;
 };

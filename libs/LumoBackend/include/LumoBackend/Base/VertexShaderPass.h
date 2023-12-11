@@ -20,13 +20,11 @@ limitations under the License.
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 #include <LumoBackend/Base/ShaderPass.h>
 
-class LUMO_BACKEND_API VertexShaderPass : public ShaderPass
-{
+class LUMO_BACKEND_API VertexShaderPass : public ShaderPass {
 public:
-	VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore);
-	VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore,
-		vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+    VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore);
+    VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
 
-	void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
-	void SetInputStateBeforePipelineCreation() override;
+    void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
+    void SetInputStateBeforePipelineCreation() override;
 };

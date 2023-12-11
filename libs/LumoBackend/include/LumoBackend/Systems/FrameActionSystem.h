@@ -29,24 +29,23 @@ limitations under the License.
 */
 
 class ProjectFile;
-class LUMO_BACKEND_API FrameActionSystem
-{
+class LUMO_BACKEND_API FrameActionSystem {
 private:
-	typedef std::function<bool()> ActionStamp;
-	std::list<ActionStamp> puActions;
+    typedef std::function<bool()> ActionStamp;
+    std::list<ActionStamp> puActions;
 
 public:
-	// insert an action at first, cause :
-	// this action will be executed first at the next frame
-	void Insert(ActionStamp vAction);
-	// add an action at end
-	// this action will be executed at least after all others
-	void Add(ActionStamp vAction);
-	// clear all actions
-	void Clear();
-	// apply first action each frame until true is returned
-	// if return true, erase action
-	// let the next frame call the next action
-	// il false, action executed until true
-	void RunActions();
+    // insert an action at first, cause :
+    // this action will be executed first at the next frame
+    void Insert(ActionStamp vAction);
+    // add an action at end
+    // this action will be executed at least after all others
+    void Add(ActionStamp vAction);
+    // clear all actions
+    void Clear();
+    // apply first action each frame until true is returned
+    // if return true, erase action
+    // let the next frame call the next action
+    // il false, action executed until true
+    void RunActions();
 };

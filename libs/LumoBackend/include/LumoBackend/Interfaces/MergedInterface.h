@@ -22,12 +22,10 @@ limitations under the License.
 #include <Gaia/gaia.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-class LUMO_BACKEND_API MergedInterface
-{
+class LUMO_BACKEND_API MergedInterface {
 public:
-	virtual bool Init(
-		const ct::uvec2& vScreenSize,
-		const uint32_t& vExternalCountColorBuffer,
-		vk::RenderPass* vRenderPass,
-		const vk::SampleCountFlagBits& vSampleCount) = 0;
+    virtual bool Init(const ct::uvec2& vScreenSize,
+        const uint32_t& vExternalCountColorBuffer,
+        vk::RenderPass* vRenderPass,
+        const vk::SampleCountFlagBits& vSampleCount) = 0;
 };

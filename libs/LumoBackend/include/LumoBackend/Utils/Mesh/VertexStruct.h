@@ -22,149 +22,137 @@ limitations under the License.
 #include <Gaia/gaia.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-namespace VertexStruct
-{
-	class LUMO_BACKEND_API PipelineVertexInputState
-	{
-	public:
-		vk::PipelineVertexInputStateCreateInfo state = {};
-		vk::VertexInputBindingDescription binding = {};
-		std::vector<vk::VertexInputAttributeDescription> attributes;
-	};
+namespace VertexStruct {
+class LUMO_BACKEND_API PipelineVertexInputState {
+public:
+    vk::PipelineVertexInputStateCreateInfo state = {};
+    vk::VertexInputBindingDescription binding = {};
+    std::vector<vk::VertexInputAttributeDescription> attributes;
+};
 
-	// ne pas utiliser size_t e, X64 il utilise des int64 ald des int32 en x86
-	// win64 => typedef unsigned __int64 size_t;
-	// win32 => typedef unsigned int     size_t;
-	// glBufferData supporte les uint mais pas les uint64
-	// vulkan, il semeble que uint64 verole les indes dans le gpu, est ce uniquement du au binaire x86 ?
-	// a tester sur x64. vk::DeviceSize est un uint64_t curieusement, mais peut etre que un indexBuffer ne peut supporter ce format
-	typedef uint32_t I1;
+// ne pas utiliser size_t e, X64 il utilise des int64 ald des int32 en x86
+// win64 => typedef unsigned __int64 size_t;
+// win32 => typedef unsigned int     size_t;
+// glBufferData supporte les uint mais pas les uint64
+// vulkan, il semeble que uint64 verole les indes dans le gpu, est ce uniquement du au binaire x86 ?
+// a tester sur x64. vk::DeviceSize est un uint64_t curieusement, mais peut etre que un indexBuffer ne peut supporter ce format
+typedef uint32_t I1;
 
-	class LUMO_BACKEND_API P3_C4
-	{
-	public:
-		static void GetInputState(PipelineVertexInputState& vInputState);
+class LUMO_BACKEND_API P3_C4 {
+public:
+    static void GetInputState(PipelineVertexInputState& vInputState);
 
-	public:
-		ct::fvec3 p;// pos
-		ct::fvec4 c;// color
+public:
+    ct::fvec3 p;  // pos
+    ct::fvec4 c;  // color
 
-	public:
-		P3_C4();
-		P3_C4(ct::fvec3 vp);
-		P3_C4(ct::fvec3 vp, ct::fvec4 vc);
-	};
+public:
+    P3_C4();
+    P3_C4(ct::fvec3 vp);
+    P3_C4(ct::fvec3 vp, ct::fvec4 vc);
+};
 
-	class LUMO_BACKEND_API P3_N3_C4
-	{
-	public:
-		static void GetInputState(PipelineVertexInputState& vInputState);
+class LUMO_BACKEND_API P3_N3_C4 {
+public:
+    static void GetInputState(PipelineVertexInputState& vInputState);
 
-	public:
-		ct::fvec3 p;// pos
-		ct::fvec3 n;// normal
-		ct::fvec4 c;// color
+public:
+    ct::fvec3 p;  // pos
+    ct::fvec3 n;  // normal
+    ct::fvec4 c;  // color
 
-	public:
-		P3_N3_C4();
-		P3_N3_C4(ct::fvec3 vp);
-		P3_N3_C4(ct::fvec3 vp, ct::fvec3 vn);
-		P3_N3_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec4 vc);
-	};
+public:
+    P3_N3_C4();
+    P3_N3_C4(ct::fvec3 vp);
+    P3_N3_C4(ct::fvec3 vp, ct::fvec3 vn);
+    P3_N3_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec4 vc);
+};
 
-	class LUMO_BACKEND_API P3_N3_C4_D1
-	{
-	public:
-		static void GetInputState(PipelineVertexInputState& vInputState);
+class LUMO_BACKEND_API P3_N3_C4_D1 {
+public:
+    static void GetInputState(PipelineVertexInputState& vInputState);
 
-	public:
-		ct::fvec3 p;// pos
-		ct::fvec3 n;// normal
-		ct::fvec4 c;// color
-		float d = 0.0f; // distance field
+public:
+    ct::fvec3 p;     // pos
+    ct::fvec3 n;     // normal
+    ct::fvec4 c;     // color
+    float d = 0.0f;  // distance field
 
-	public:
-		P3_N3_C4_D1();
-		P3_N3_C4_D1(ct::fvec3 vp);
-		P3_N3_C4_D1(ct::fvec3 vp, ct::fvec3 vn);
-		P3_N3_C4_D1(ct::fvec3 vp, ct::fvec3 vn, ct::fvec4 vc);
-		P3_N3_C4_D1(ct::fvec3 vp, ct::fvec3 vn, ct::fvec4 vc, float vd);
-	};
+public:
+    P3_N3_C4_D1();
+    P3_N3_C4_D1(ct::fvec3 vp);
+    P3_N3_C4_D1(ct::fvec3 vp, ct::fvec3 vn);
+    P3_N3_C4_D1(ct::fvec3 vp, ct::fvec3 vn, ct::fvec4 vc);
+    P3_N3_C4_D1(ct::fvec3 vp, ct::fvec3 vn, ct::fvec4 vc, float vd);
+};
 
-	class LUMO_BACKEND_API P2_T2
-	{
-	public:
-		static void GetInputState(PipelineVertexInputState& vInputState);
+class LUMO_BACKEND_API P2_T2 {
+public:
+    static void GetInputState(PipelineVertexInputState& vInputState);
 
-	public:
-		ct::fvec2 p;// pos
-		ct::fvec2 t;// tex coord
+public:
+    ct::fvec2 p;  // pos
+    ct::fvec2 t;  // tex coord
 
-	public:
-		P2_T2();
-		P2_T2(ct::fvec2 vp);
-		P2_T2(ct::fvec2 vp, ct::fvec2 vt);
-	};
+public:
+    P2_T2();
+    P2_T2(ct::fvec2 vp);
+    P2_T2(ct::fvec2 vp, ct::fvec2 vt);
+};
 
-	class LUMO_BACKEND_API P3_N3_T2
-	{
-	public:
-		static void GetInputState(PipelineVertexInputState& vInputState);
+class LUMO_BACKEND_API P3_N3_T2 {
+public:
+    static void GetInputState(PipelineVertexInputState& vInputState);
 
-	public:
-		ct::fvec3 p;// pos
-		ct::fvec3 n;// normal
-		ct::fvec2 t;// tex coord
+public:
+    ct::fvec3 p;  // pos
+    ct::fvec3 n;  // normal
+    ct::fvec2 t;  // tex coord
 
+public:
+    P3_N3_T2();
+    P3_N3_T2(ct::fvec3 vp);
+    P3_N3_T2(ct::fvec3 vp, ct::fvec3 vn);
+    P3_N3_T2(ct::fvec3 vp, ct::fvec3 vn, ct::fvec2 vt);
+};
 
-	public:
-		P3_N3_T2();
-		P3_N3_T2(ct::fvec3 vp);
-		P3_N3_T2(ct::fvec3 vp, ct::fvec3 vn);
-		P3_N3_T2(ct::fvec3 vp, ct::fvec3 vn, ct::fvec2 vt);
-	};
+class LUMO_BACKEND_API P3_N3_T2_C4 {
+public:
+    static void GetInputState(PipelineVertexInputState& vInputState);
 
-	class LUMO_BACKEND_API P3_N3_T2_C4
-	{
-	public:
-		static void GetInputState(PipelineVertexInputState& vInputState);
+public:
+    ct::fvec3 p;  // pos
+    ct::fvec3 n;  // normal
+    ct::fvec2 t;  // tex coord
+    ct::fvec4 c;  // color
 
-	public:
-		ct::fvec3 p;// pos
-		ct::fvec3 n;// normal
-		ct::fvec2 t;// tex coord
-		ct::fvec4 c;// color
+public:
+    P3_N3_T2_C4();
+    P3_N3_T2_C4(ct::fvec3 vp);
+    P3_N3_T2_C4(ct::fvec3 vp, ct::fvec3 vn);
+    P3_N3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec2 vt);
+    P3_N3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec2 vt, ct::fvec4 vc);
+};
 
+class LUMO_BACKEND_API P3_N3_TA3_BTA3_T2_C4 {
+public:
+    static void GetInputState(PipelineVertexInputState& vInputState);
 
-	public:
-		P3_N3_T2_C4();
-		P3_N3_T2_C4(ct::fvec3 vp);
-		P3_N3_T2_C4(ct::fvec3 vp, ct::fvec3 vn);
-		P3_N3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec2 vt);
-		P3_N3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec2 vt, ct::fvec4 vc);
-	};
+public:
+    ct::fvec3 p;     // pos
+    ct::fvec3 n;     // normal
+    ct::fvec3 tan;   // tangent
+    ct::fvec3 btan;  // bitangent
+    ct::fvec2 t;     // tex coord
+    ct::fvec4 c;     // color
 
-	class LUMO_BACKEND_API P3_N3_TA3_BTA3_T2_C4
-	{
-	public:
-		static void GetInputState(PipelineVertexInputState& vInputState);
-
-	public:
-		ct::fvec3 p;// pos
-		ct::fvec3 n;// normal
-		ct::fvec3 tan;// tangent
-		ct::fvec3 btan;// bitangent
-		ct::fvec2 t;// tex coord
-		ct::fvec4 c;// color
-
-
-	public:
-		P3_N3_TA3_BTA3_T2_C4();
-		P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp);
-		P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn);
-		P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec3 vtan);
-		P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec3 vtan, ct::fvec3 vbtan);
-		P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec3 vtan, ct::fvec3 vbtan, ct::fvec2 vt);
-		P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec3 vtan, ct::fvec3 vbtan, ct::fvec2 vt, ct::fvec4 vc);
-	};
-}
+public:
+    P3_N3_TA3_BTA3_T2_C4();
+    P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp);
+    P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn);
+    P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec3 vtan);
+    P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec3 vtan, ct::fvec3 vbtan);
+    P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec3 vtan, ct::fvec3 vbtan, ct::fvec2 vt);
+    P3_N3_TA3_BTA3_T2_C4(ct::fvec3 vp, ct::fvec3 vn, ct::fvec3 vtan, ct::fvec3 vbtan, ct::fvec2 vt, ct::fvec4 vc);
+};
+}  // namespace VertexStruct

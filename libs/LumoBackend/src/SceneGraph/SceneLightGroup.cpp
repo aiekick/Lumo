@@ -23,242 +23,210 @@ limitations under the License.
 //// STATIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneLightGroupPtr SceneLightGroup::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	auto res = std::make_shared<SceneLightGroup>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
-	return res;
+SceneLightGroupPtr SceneLightGroup::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<SceneLightGroup>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
+    return res;
 }
 
 ///////////////////////////////////////////////////////
 //// STATIC : SBO//////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-std::string SceneLightGroup::GetBufferObjectStructureHeader(const uint32_t& vBindingPoint)
-{
-	return ct::toStr(u8R"(%s
+std::string SceneLightGroup::GetBufferObjectStructureHeader(const uint32_t& vBindingPoint) {
+    return ct::toStr(
+        u8R"(%s
 
 layout(std430, binding = %u) readonly buffer SBO_LightGroup
 {
 	uint lightsCount;
 	LightDatas lightDatas[];
 };
-)", SceneLight::GetStructureHeader().c_str(), vBindingPoint);
+)",
+        SceneLight::GetStructureHeader().c_str(), vBindingPoint);
 }
 
 // will create a empty sbo for default sbo when no slot are connected
-VulkanBufferObjectPtr SceneLightGroup::CreateEmptyBuffer(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+VulkanBufferObjectPtr SceneLightGroup::CreateEmptyBuffer(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-		auto size_in_bytes = sizeof(uint32_t) + sizeof(SceneLight::lightDatas);
-		//gpu only since no udpate will be done
-		return GaiApi::VulkanRessource::createStorageBufferObject(vVulkanCore, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY, "SceneLightGroup");
-
+    auto size_in_bytes = sizeof(uint32_t) + sizeof(SceneLight::lightDatas);
+    // gpu only since no udpate will be done
+    return GaiApi::VulkanRessource::createStorageBufferObject(
+        vVulkanCore, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY, "SceneLightGroup");
 }
 
 ///////////////////////////////////////////////////////
 //// PUBLIC : CTOR / DTOR /////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneLightGroup::SceneLightGroup()
-{
-	
+SceneLightGroup::SceneLightGroup() {
 }
 
-SceneLightGroup::~SceneLightGroup()
-{
-	Unit();
+SceneLightGroup::~SceneLightGroup() {
+    Unit();
 }
 
 ///////////////////////////////////////////////////////
 //// PUBLIC : INIT / UNIT /////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool SceneLightGroup::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	m_VulkanCore = vVulkanCore;
+bool SceneLightGroup::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    m_VulkanCore = vVulkanCore;
 
+    m_SBO430.RegisterVar("LightsCount", m_LightsCount);
 
-		m_SBO430.RegisterVar("LightsCount", m_LightsCount);
+    if (empty()) {
+        Add();
+    }
 
-		if (empty())
-		{
-			Add();
-		}
-
-		return CreateBufferObject(m_VulkanCore);
+    return CreateBufferObject(m_VulkanCore);
 }
 
-void SceneLightGroup::Unit()
-{
-	DestroyBufferObject();
+void SceneLightGroup::Unit() {
+    DestroyBufferObject();
 }
 
 ///////////////////////////////////////////////////////
 //// PUBLIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-std::vector<SceneLightPtr>::iterator SceneLightGroup::begin()
-{
-	ZoneScoped;
+std::vector<SceneLightPtr>::iterator SceneLightGroup::begin() {
+    ZoneScoped;
 
-	return m_Lights.begin();
+    return m_Lights.begin();
 }
 
-std::vector<SceneLightPtr>::iterator SceneLightGroup::end()
-{
-	ZoneScoped;
+std::vector<SceneLightPtr>::iterator SceneLightGroup::end() {
+    ZoneScoped;
 
-	return m_Lights.end();
+    return m_Lights.end();
 }
 
-size_t SceneLightGroup::size()
-{
-	ZoneScoped;
+size_t SceneLightGroup::size() {
+    ZoneScoped;
 
-	return m_Lights.size();
+    return m_Lights.size();
 }
 
-void SceneLightGroup::clear()
-{
-	ZoneScoped;
+void SceneLightGroup::clear() {
+    ZoneScoped;
 
-	m_Lights.clear();
+    m_Lights.clear();
 }
 
-bool SceneLightGroup::empty()
-{
-	ZoneScoped;
+bool SceneLightGroup::empty() {
+    ZoneScoped;
 
-	return m_Lights.empty();
+    return m_Lights.empty();
 }
 
-SceneLightWeak SceneLightGroup::Add()
-{
-	ZoneScoped;
+SceneLightWeak SceneLightGroup::Add() {
+    ZoneScoped;
 
-	uint32_t idx = (uint32_t)m_Lights.size();
+    uint32_t idx = (uint32_t)m_Lights.size();
 
-	if (idx <= sMaxLightCount)
-	{
-		auto lightPtr = SceneLight::Create();
-		if (lightPtr)
-		{
-			lightPtr->gizmo_name = ct::toStr("Light %u", idx);
+    if (idx <= sMaxLightCount) {
+        auto lightPtr = SceneLight::Create();
+        if (lightPtr) {
+            lightPtr->gizmo_name = ct::toStr("Light %u", idx);
 
-			m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
+            m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
 
-			m_Lights.push_back(lightPtr);
+            m_Lights.push_back(lightPtr);
 
-			m_LightsCount = (uint32_t)m_Lights.size();
-			m_SBO430.SetVar("LightsCount", m_LightsCount);
+            m_LightsCount = (uint32_t)m_Lights.size();
+            m_SBO430.SetVar("LightsCount", m_LightsCount);
 
-			return Get(idx);
-		}
-	}
+            return Get(idx);
+        }
+    }
 
-	return SceneLightWeak();
+    return SceneLightWeak();
 }
 
-void SceneLightGroup::erase(uint32_t vIndex)
-{
-	ZoneScoped;
+void SceneLightGroup::erase(uint32_t vIndex) {
+    ZoneScoped;
 
-	if ((size_t)vIndex < m_Lights.size())
-	{
-		m_Lights.erase(m_Lights.begin() + vIndex);
+    if ((size_t)vIndex < m_Lights.size()) {
+        m_Lights.erase(m_Lights.begin() + vIndex);
 
-		m_SBO430.Clear();
+        m_SBO430.Clear();
 
-		m_LightsCount = 0U;
-		m_SBO430.RegisterVar("LightsCount", m_LightsCount);
+        m_LightsCount = 0U;
+        m_SBO430.RegisterVar("LightsCount", m_LightsCount);
 
-		uint32_t idx = 0U;
-		for (auto lightPtr : m_Lights)
-		{
-			if (lightPtr)
-			{
-				m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx++), lightPtr->lightDatas);
-			}
-		}
+        uint32_t idx = 0U;
+        for (auto lightPtr : m_Lights) {
+            if (lightPtr) {
+                m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx++), lightPtr->lightDatas);
+            }
+        }
 
-		m_LightsCount = (uint32_t)m_Lights.size();
-		m_SBO430.SetVar("LightsCount", m_LightsCount);
-	}
+        m_LightsCount = (uint32_t)m_Lights.size();
+        m_SBO430.SetVar("LightsCount", m_LightsCount);
+    }
 }
 
-SceneLightWeak SceneLightGroup::Get(const size_t& vIndex)
-{
-	ZoneScoped;
+SceneLightWeak SceneLightGroup::Get(const size_t& vIndex) {
+    ZoneScoped;
 
-	if (m_Lights.size() > (size_t)vIndex)
-	{
-		return m_Lights[(size_t)vIndex];
-	}
+    if (m_Lights.size() > (size_t)vIndex) {
+        return m_Lights[(size_t)vIndex];
+    }
 
-	return SceneLightWeak();
+    return SceneLightWeak();
 }
 
-bool SceneLightGroup::CanAddLight() const
-{
-	return (m_Lights.size() <= sMaxLightCount);
+bool SceneLightGroup::CanAddLight() const {
+    return (m_Lights.size() <= sMaxLightCount);
 }
 
-bool SceneLightGroup::CanRemoveLight() const
-{
-	return (m_Lights.size() > 1U);
+bool SceneLightGroup::CanRemoveLight() const {
+    return (m_Lights.size() > 1U);
 }
 
 ///////////////////////////////////////////////////////
 //// SBO //////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool SceneLightGroup::IsOk()
-{
-	return false;
+bool SceneLightGroup::IsOk() {
+    return false;
 }
 
-void SceneLightGroup::UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+void SceneLightGroup::UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	m_SBO430.Upload(vVulkanCore, true);
+    m_SBO430.Upload(vVulkanCore, true);
 }
 
-bool SceneLightGroup::CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+bool SceneLightGroup::CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	if (!m_Lights.empty()) {
+    if (!m_Lights.empty()) {
         auto corePtr = vVulkanCore.lock();
         assert(corePtr != nullptr);
 
-		corePtr->getDevice().waitIdle();
+        corePtr->getDevice().waitIdle();
 
-		return m_SBO430.CreateSBO(vVulkanCore, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
-	}
+        return m_SBO430.CreateSBO(vVulkanCore, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
+    }
 
-	return false;
+    return false;
 }
 
-void SceneLightGroup::DestroyBufferObject()
-{
-	ZoneScoped;
+void SceneLightGroup::DestroyBufferObject() {
+    ZoneScoped;
 
-	m_SBO430.DestroySBO();
+    m_SBO430.DestroySBO();
 }
 
-vk::DescriptorBufferInfo* SceneLightGroup::GetBufferInfo()
-{
-	if (m_SBO430.IsOk())
-	{
-		return &m_SBO430.descriptorBufferInfo;
-	}
-	return nullptr;
+vk::DescriptorBufferInfo* SceneLightGroup::GetBufferInfo() {
+    if (m_SBO430.IsOk()) {
+        return &m_SBO430.descriptorBufferInfo;
+    }
+    return nullptr;
 }
-

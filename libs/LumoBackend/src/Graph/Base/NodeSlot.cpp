@@ -664,7 +664,7 @@ void NodeSlot::m_DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, ImU32 vColo
             } else {
                 vDrawList->AddNgonFilled(vCenter, vRadius, vColor, 24);
             }
-        }    
+        }
     }
 }
 

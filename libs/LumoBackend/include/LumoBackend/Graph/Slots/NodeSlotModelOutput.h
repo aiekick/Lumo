@@ -24,26 +24,24 @@ class NodeSlotModelOutput;
 typedef std::weak_ptr<NodeSlotModelOutput> NodeSlotModelOutputWeak;
 typedef std::shared_ptr<NodeSlotModelOutput> NodeSlotModelOutputPtr;
 
-class LUMO_BACKEND_API NodeSlotModelOutput : 
-	public NodeSlotOutput
-{
+class LUMO_BACKEND_API NodeSlotModelOutput : public NodeSlotOutput {
 public:
-	static NodeSlotModelOutputPtr Create(NodeSlotModelOutput vSlot);
-	static NodeSlotModelOutputPtr Create(const std::string& vName);
-	static NodeSlotModelOutputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotModelOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotModelOutputPtr Create(NodeSlotModelOutput vSlot);
+    static NodeSlotModelOutputPtr Create(const std::string& vName);
+    static NodeSlotModelOutputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotModelOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotModelOutput();
-	explicit NodeSlotModelOutput(const std::string& vName);
-	explicit NodeSlotModelOutput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotModelOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotModelOutput();
+    explicit NodeSlotModelOutput();
+    explicit NodeSlotModelOutput(const std::string& vName);
+    explicit NodeSlotModelOutput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotModelOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotModelOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

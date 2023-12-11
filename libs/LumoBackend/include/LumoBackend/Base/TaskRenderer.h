@@ -24,14 +24,11 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-class LUMO_BACKEND_API TaskRenderer :
-	public BaseRenderer,
-	public TaskInterface
-{
+class LUMO_BACKEND_API TaskRenderer : public BaseRenderer, public TaskInterface {
 public:
-	TaskRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
-	TaskRenderer(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
-	virtual ~TaskRenderer() = default;
+    TaskRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
+    TaskRenderer(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+    virtual ~TaskRenderer() = default;
 
-	bool IsTheGoodFrame(const uint32_t& vFrame);
+    bool IsTheGoodFrame(const uint32_t& vFrame);
 };

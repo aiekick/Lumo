@@ -30,205 +30,165 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotVariableInputPtr NodeSlotVariableInput::Create(NodeSlotVariableInput vSlot)
-{
-	auto res = std::make_shared<NodeSlotVariableInput>(vSlot);
-	res->m_This = res;
-	if (!SceneVariable::IsAllowedType(res->slotType))
-	{
-		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
-		res.reset();
-	}
-	return res;
+NodeSlotVariableInputPtr NodeSlotVariableInput::Create(NodeSlotVariableInput vSlot) {
+    auto res = std::make_shared<NodeSlotVariableInput>(vSlot);
+    res->m_This = res;
+    if (!SceneVariable::IsAllowedType(res->slotType)) {
+        LogVarError("Variable Type %s is not supported", res->slotType.c_str());
+        res.reset();
+    }
+    return res;
 }
 
-NodeSlotVariableInputPtr NodeSlotVariableInput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex)
-{
-	auto res = std::make_shared<NodeSlotVariableInput>(vName, vType, vVariableIndex);
-	res->m_This = res;
-	if (!SceneVariable::IsAllowedType(res->slotType))
-	{
-		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
-		res.reset();
-	}
-	return res;
+NodeSlotVariableInputPtr NodeSlotVariableInput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex) {
+    auto res = std::make_shared<NodeSlotVariableInput>(vName, vType, vVariableIndex);
+    res->m_This = res;
+    if (!SceneVariable::IsAllowedType(res->slotType)) {
+        LogVarError("Variable Type %s is not supported", res->slotType.c_str());
+        res.reset();
+    }
+    return res;
 }
 
-NodeSlotVariableInputPtr NodeSlotVariableInput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotVariableInput>(vName, vType, vVariableIndex, vHideName);
-	res->m_This = res;
-	if (!SceneVariable::IsAllowedType(res->slotType))
-	{
-		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
-		res.reset();
-	}
-	return res;
+NodeSlotVariableInputPtr NodeSlotVariableInput::Create(
+    const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotVariableInput>(vName, vType, vVariableIndex, vHideName);
+    res->m_This = res;
+    if (!SceneVariable::IsAllowedType(res->slotType)) {
+        LogVarError("Variable Type %s is not supported", res->slotType.c_str());
+        res.reset();
+    }
+    return res;
 }
 
-NodeSlotVariableInputPtr NodeSlotVariableInput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotVariableInput>(vName, vType, vVariableIndex, vHideName, vShowWidget);
-	res->m_This = res;
-	if (!SceneVariable::IsAllowedType(res->slotType))
-	{
-		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
-		res.reset();
-	}
-	return res;
+NodeSlotVariableInputPtr NodeSlotVariableInput::Create(
+    const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotVariableInput>(vName, vType, vVariableIndex, vHideName, vShowWidget);
+    res->m_This = res;
+    if (!SceneVariable::IsAllowedType(res->slotType)) {
+        LogVarError("Variable Type %s is not supported", res->slotType.c_str());
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotVariableInput::NodeSlotVariableInput()
-	: NodeSlotInput("", "")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotVariableInput::NodeSlotVariableInput() : NodeSlotInput("", "") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotVariableInput::NodeSlotVariableInput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex)
-	: NodeSlotInput(vName, vType)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true; 
-	variableIndex = vVariableIndex;
+    : NodeSlotInput(vName, vType) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    variableIndex = vVariableIndex;
 }
 
-NodeSlotVariableInput::NodeSlotVariableInput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName)
-	: NodeSlotInput(vName, vType, vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	variableIndex = vVariableIndex;
+NodeSlotVariableInput::NodeSlotVariableInput(
+    const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName)
+    : NodeSlotInput(vName, vType, vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    variableIndex = vVariableIndex;
 }
 
-NodeSlotVariableInput::NodeSlotVariableInput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotInput(vName, vType, vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	variableIndex = vVariableIndex;
+NodeSlotVariableInput::NodeSlotVariableInput(
+    const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget)
+    : NodeSlotInput(vName, vType, vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    variableIndex = vVariableIndex;
 }
 
 NodeSlotVariableInput::~NodeSlotVariableInput() = default;
 
-void NodeSlotVariableInput::Init()
-{
-	
+void NodeSlotVariableInput::Init() {
 }
 
-void NodeSlotVariableInput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotVariableInput peut etre isntancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotVariableInput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotVariableInput peut etre isntancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotVariableInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
-{
-	auto endSlotPtr = vOtherSlot.lock();
-	if (endSlotPtr)
-	{
-		if (SceneVariable::IsAllowedType(endSlotPtr->slotType))
-		{
-			auto parentNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNode.lock());
-			if (parentNodePtr)
-			{
-				auto otherVariableNodePtr = dynamic_pointer_cast<VariableOutputInterface>(endSlotPtr->parentNode.lock());
-				if (otherVariableNodePtr)
-				{
-					parentNodePtr->SetVariable(variableIndex,
-						otherVariableNodePtr->GetVariable(endSlotPtr->variableIndex));
-				}
-			}
-		}
-	}
+void NodeSlotVariableInput::OnConnectEvent(NodeSlotWeak vOtherSlot) {
+    auto endSlotPtr = vOtherSlot.lock();
+    if (endSlotPtr) {
+        if (SceneVariable::IsAllowedType(endSlotPtr->slotType)) {
+            auto parentNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNode.lock());
+            if (parentNodePtr) {
+                auto otherVariableNodePtr = dynamic_pointer_cast<VariableOutputInterface>(endSlotPtr->parentNode.lock());
+                if (otherVariableNodePtr) {
+                    parentNodePtr->SetVariable(variableIndex, otherVariableNodePtr->GetVariable(endSlotPtr->variableIndex));
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotVariableInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
-{
-	auto endSlotPtr = vOtherSlot.lock();
-	if (endSlotPtr)
-	{
-		if (SceneVariable::IsAllowedType(endSlotPtr->slotType))
-		{
-			auto parentNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNode.lock());
-			if (parentNodePtr)
-			{
-				parentNodePtr->SetVariable(variableIndex, SceneVariableWeak());
-			}
-		}
-	}
+void NodeSlotVariableInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot) {
+    auto endSlotPtr = vOtherSlot.lock();
+    if (endSlotPtr) {
+        if (SceneVariable::IsAllowedType(endSlotPtr->slotType)) {
+            auto parentNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNode.lock());
+            if (parentNodePtr) {
+                parentNodePtr->SetVariable(variableIndex, SceneVariableWeak());
+            }
+        }
+    }
 }
 
-void NodeSlotVariableInput::TreatNotification(
-	const NotifyEvent& vEvent,
-	const NodeSlotWeak& vEmitterSlot,
-	const NodeSlotWeak& vReceiverSlot)
-{
-	if (vEvent == VariableUpdateDone)
-	{
-		auto emiterSlotPtr = vEmitterSlot.lock();
-		if (emiterSlotPtr)
-		{
-			if (SceneVariable::IsAllowedType(emiterSlotPtr->slotType))
-			{
-				if (emiterSlotPtr->IsAnOutput())
-				{
-					auto parentNodePtr = parentNode.lock();
-					if (parentNodePtr)
-					{
-						auto parentVariableInputNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNodePtr);
-						if (parentVariableInputNodePtr)
-						{
-							auto otherVariableNodePtr = dynamic_pointer_cast<VariableOutputInterface>(emiterSlotPtr->parentNode.lock());
-							if (otherVariableNodePtr)
-							{
-								auto receiverSlotPtr = vReceiverSlot.lock();
-								if (receiverSlotPtr)
-								{
-									parentVariableInputNodePtr->SetVariable(receiverSlotPtr->variableIndex,
-										otherVariableNodePtr->GetVariable(emiterSlotPtr->variableIndex));
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+void NodeSlotVariableInput::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot) {
+    if (vEvent == VariableUpdateDone) {
+        auto emiterSlotPtr = vEmitterSlot.lock();
+        if (emiterSlotPtr) {
+            if (SceneVariable::IsAllowedType(emiterSlotPtr->slotType)) {
+                if (emiterSlotPtr->IsAnOutput()) {
+                    auto parentNodePtr = parentNode.lock();
+                    if (parentNodePtr) {
+                        auto parentVariableInputNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNodePtr);
+                        if (parentVariableInputNodePtr) {
+                            auto otherVariableNodePtr = dynamic_pointer_cast<VariableOutputInterface>(emiterSlotPtr->parentNode.lock());
+                            if (otherVariableNodePtr) {
+                                auto receiverSlotPtr = vReceiverSlot.lock();
+                                if (receiverSlotPtr) {
+                                    parentVariableInputNodePtr->SetVariable(
+                                        receiverSlotPtr->variableIndex, otherVariableNodePtr->GetVariable(emiterSlotPtr->variableIndex));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotVariableInput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotVariableInput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

@@ -24,34 +24,33 @@ class NodeSlotTexelBufferInput;
 typedef std::weak_ptr<NodeSlotTexelBufferInput> NodeSlotTexelBufferInputWeak;
 typedef std::shared_ptr<NodeSlotTexelBufferInput> NodeSlotTexelBufferInputPtr;
 
-class LUMO_BACKEND_API NodeSlotTexelBufferInput : 
-	public NodeSlotInput
-{
+class LUMO_BACKEND_API NodeSlotTexelBufferInput : public NodeSlotInput {
 public:
-	static NodeSlotTexelBufferInputPtr Create(NodeSlotTexelBufferInput vSlot);
-	static NodeSlotTexelBufferInputPtr Create(const std::string& vName, const std::string& vType);
-	static NodeSlotTexelBufferInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
-	static NodeSlotTexelBufferInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
-	static NodeSlotTexelBufferInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotTexelBufferInputPtr Create(NodeSlotTexelBufferInput vSlot);
+    static NodeSlotTexelBufferInputPtr Create(const std::string& vName, const std::string& vType);
+    static NodeSlotTexelBufferInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
+    static NodeSlotTexelBufferInputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
+    static NodeSlotTexelBufferInputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotTexelBufferInput();
-	explicit NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType);
-	explicit NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
-	explicit NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
-	explicit NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotTexelBufferInput();
+    explicit NodeSlotTexelBufferInput();
+    explicit NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType);
+    explicit NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
+    explicit NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
+    explicit NodeSlotTexelBufferInput(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotTexelBufferInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		const NotifyEvent& vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

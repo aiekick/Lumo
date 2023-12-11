@@ -29,204 +29,168 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(NodeSlotTexelBufferInput vSlot)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferInput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(NodeSlotTexelBufferInput vSlot) {
+    auto res = std::make_shared<NodeSlotTexelBufferInput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(const std::string& vName, const std::string& vType)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferInput>(vName, vType);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(const std::string& vName, const std::string& vType) {
+    auto res = std::make_shared<NodeSlotTexelBufferInput>(vName, vType);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferInput>(vName, vType, vBindingPoint);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint) {
+    auto res = std::make_shared<NodeSlotTexelBufferInput>(vName, vType, vBindingPoint);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferInput>(vName, vType, vBindingPoint, vHideName);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(
+    const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotTexelBufferInput>(vName, vType, vBindingPoint, vHideName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferInput>(vName, vType, vBindingPoint, vHideName, vShowWidget);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferInputPtr NodeSlotTexelBufferInput::Create(
+    const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotTexelBufferInput>(vName, vType, vBindingPoint, vHideName, vShowWidget);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTexelBufferInput::NodeSlotTexelBufferInput()
-	: NodeSlotInput("", "")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotTexelBufferInput::NodeSlotTexelBufferInput() : NodeSlotInput("", "") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
-NodeSlotTexelBufferInput::NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType)
-	: NodeSlotInput(vName, vType)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotTexelBufferInput::NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType) : NodeSlotInput(vName, vType) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotTexelBufferInput::NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint)
-	: NodeSlotInput(vName, vType)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true; 
-	descriptorBinding = vBindingPoint;
+    : NodeSlotInput(vName, vType) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    descriptorBinding = vBindingPoint;
 }
 
-NodeSlotTexelBufferInput::NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName)
-	: NodeSlotInput(vName, vType, vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
+NodeSlotTexelBufferInput::NodeSlotTexelBufferInput(
+    const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName)
+    : NodeSlotInput(vName, vType, vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    descriptorBinding = vBindingPoint;
 }
 
-NodeSlotTexelBufferInput::NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotInput(vName, vType, vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
+NodeSlotTexelBufferInput::NodeSlotTexelBufferInput(
+    const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
+    : NodeSlotInput(vName, vType, vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    descriptorBinding = vBindingPoint;
 }
 
 NodeSlotTexelBufferInput::~NodeSlotTexelBufferInput() = default;
 
-void NodeSlotTexelBufferInput::Init()
-{
-	
+void NodeSlotTexelBufferInput::Init() {
 }
 
-void NodeSlotTexelBufferInput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotTexelBufferInput peut etre isntancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotTexelBufferInput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotTexelBufferInput peut etre isntancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotTexelBufferInput::OnConnectEvent(NodeSlotWeak vOtherSlot)
-{
-	auto endSlotPtr = vOtherSlot.lock();
-	if (endSlotPtr)
-	{
-		if (endSlotPtr->slotType == slotType)
-		{
-			auto parentNodePtr = dynamic_pointer_cast<TexelBufferInputInterface<0u>>(parentNode.lock());
-			if (parentNodePtr)
-			{
-				auto otherTexelBufferNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(endSlotPtr->parentNode.lock());
-				if (otherTexelBufferNodePtr)
-				{
-					ct::uvec2 texelBufferSize;
-					auto bufferPtr = otherTexelBufferNodePtr->GetTexelBuffer(endSlotPtr->descriptorBinding, &texelBufferSize);
-					parentNodePtr->SetTexelBuffer(descriptorBinding, bufferPtr, &texelBufferSize);
-					auto bufferViewPtr = otherTexelBufferNodePtr->GetTexelBufferView(endSlotPtr->descriptorBinding, &texelBufferSize);
-					parentNodePtr->SetTexelBufferView(descriptorBinding, bufferViewPtr, &texelBufferSize);
-				}
-			}
-		}
-	}
+void NodeSlotTexelBufferInput::OnConnectEvent(NodeSlotWeak vOtherSlot) {
+    auto endSlotPtr = vOtherSlot.lock();
+    if (endSlotPtr) {
+        if (endSlotPtr->slotType == slotType) {
+            auto parentNodePtr = dynamic_pointer_cast<TexelBufferInputInterface<0u>>(parentNode.lock());
+            if (parentNodePtr) {
+                auto otherTexelBufferNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(endSlotPtr->parentNode.lock());
+                if (otherTexelBufferNodePtr) {
+                    ct::uvec2 texelBufferSize;
+                    auto bufferPtr = otherTexelBufferNodePtr->GetTexelBuffer(endSlotPtr->descriptorBinding, &texelBufferSize);
+                    parentNodePtr->SetTexelBuffer(descriptorBinding, bufferPtr, &texelBufferSize);
+                    auto bufferViewPtr = otherTexelBufferNodePtr->GetTexelBufferView(endSlotPtr->descriptorBinding, &texelBufferSize);
+                    parentNodePtr->SetTexelBufferView(descriptorBinding, bufferViewPtr, &texelBufferSize);
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotTexelBufferInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot)
-{
-	auto endSlotPtr = vOtherSlot.lock();
-	if (endSlotPtr)
-	{
-		if (endSlotPtr->slotType == slotType)
-		{
-			auto parentNodePtr = dynamic_pointer_cast<TexelBufferInputInterface<0u>>(parentNode.lock());
-			if (parentNodePtr)
-			{
-				parentNodePtr->SetTexelBuffer(descriptorBinding, nullptr, nullptr);
-				parentNodePtr->SetTexelBufferView(descriptorBinding, nullptr, nullptr);
-			}
-		}
-	}
+void NodeSlotTexelBufferInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot) {
+    auto endSlotPtr = vOtherSlot.lock();
+    if (endSlotPtr) {
+        if (endSlotPtr->slotType == slotType) {
+            auto parentNodePtr = dynamic_pointer_cast<TexelBufferInputInterface<0u>>(parentNode.lock());
+            if (parentNodePtr) {
+                parentNodePtr->SetTexelBuffer(descriptorBinding, nullptr, nullptr);
+                parentNodePtr->SetTexelBufferView(descriptorBinding, nullptr, nullptr);
+            }
+        }
+    }
 }
 
-void NodeSlotTexelBufferInput::TreatNotification(
-	const NotifyEvent& vEvent,
-	const NodeSlotWeak& vEmitterSlot,
-	const NodeSlotWeak& vReceiverSlot)
-{
-	if (vEvent == TexelBufferUpdateDone)
-	{
-		auto emiterSlotPtr = vEmitterSlot.lock();
-		if (emiterSlotPtr)
-		{
-			if (emiterSlotPtr->IsAnOutput())
-			{
-				auto parentNodePtr = parentNode.lock();
-				if (parentNodePtr)
-				{
-					auto parentTexelBufferInputNodePtr = dynamic_pointer_cast<TexelBufferInputInterface<0u>>(parentNodePtr);
-					if (parentTexelBufferInputNodePtr)
-					{
-						auto otherNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(emiterSlotPtr->parentNode.lock());
-						if (otherNodePtr)
-						{
-							auto receiverSlotPtr = vReceiverSlot.lock();
-							if (receiverSlotPtr)
-							{
-								ct::uvec2 texelBufferSize;
-								auto bufferPtr = otherNodePtr->GetTexelBuffer(emiterSlotPtr->descriptorBinding, &texelBufferSize);
-								parentTexelBufferInputNodePtr->SetTexelBuffer(receiverSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
-								auto bufferViewPtr = otherNodePtr->GetTexelBufferView(emiterSlotPtr->descriptorBinding, &texelBufferSize);
-								parentTexelBufferInputNodePtr->SetTexelBufferView(receiverSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+void NodeSlotTexelBufferInput::TreatNotification(const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot) {
+    if (vEvent == TexelBufferUpdateDone) {
+        auto emiterSlotPtr = vEmitterSlot.lock();
+        if (emiterSlotPtr) {
+            if (emiterSlotPtr->IsAnOutput()) {
+                auto parentNodePtr = parentNode.lock();
+                if (parentNodePtr) {
+                    auto parentTexelBufferInputNodePtr = dynamic_pointer_cast<TexelBufferInputInterface<0u>>(parentNodePtr);
+                    if (parentTexelBufferInputNodePtr) {
+                        auto otherNodePtr = dynamic_pointer_cast<TexelBufferOutputInterface>(emiterSlotPtr->parentNode.lock());
+                        if (otherNodePtr) {
+                            auto receiverSlotPtr = vReceiverSlot.lock();
+                            if (receiverSlotPtr) {
+                                ct::uvec2 texelBufferSize;
+                                auto bufferPtr = otherNodePtr->GetTexelBuffer(emiterSlotPtr->descriptorBinding, &texelBufferSize);
+                                parentTexelBufferInputNodePtr->SetTexelBuffer(receiverSlotPtr->descriptorBinding, bufferPtr, &texelBufferSize);
+                                auto bufferViewPtr = otherNodePtr->GetTexelBufferView(emiterSlotPtr->descriptorBinding, &texelBufferSize);
+                                parentTexelBufferInputNodePtr->SetTexelBufferView(
+                                    receiverSlotPtr->descriptorBinding, bufferViewPtr, &texelBufferSize);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotTexelBufferInput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotTexelBufferInput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

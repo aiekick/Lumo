@@ -53,12 +53,7 @@ limitations under the License.
 
 typedef std::string NotifyEvent;
 
-class LUMO_BACKEND_API NotifyInterface
-{
+class LUMO_BACKEND_API NotifyInterface {
 public:
-	virtual void Notify(
-		NotifyEvent vEvent, 
-		const NodeSlotWeak& vEmitterSlot, 
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) = 0;
+    virtual void Notify(NotifyEvent vEvent, const NodeSlotWeak& vEmitterSlot, const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) = 0;
 };
-	

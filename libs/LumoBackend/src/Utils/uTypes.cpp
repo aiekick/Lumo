@@ -288,8 +288,7 @@ LUMO_BACKEND_API uTypeEnum GetGlslTypeFromString(const std::string& vType, bool 
     return uTypeEnum::U_VOID;
 }
 
-LUMO_BACKEND_API uTypeEnum GetBaseGlslTypeFromString(
-    const std::string& vType, bool vIsArray, uint32_t* vCountChannels) {
+LUMO_BACKEND_API uTypeEnum GetBaseGlslTypeFromString(const std::string& vType, bool vIsArray, uint32_t* vCountChannels) {
     auto type = GetGlslTypeFromString(vType, vIsArray);
     return GetBaseGlslTypeFromType(type, vCountChannels);
 }

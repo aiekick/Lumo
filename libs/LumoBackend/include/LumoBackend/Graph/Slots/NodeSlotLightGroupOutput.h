@@ -24,26 +24,24 @@ class NodeSlotLightGroupOutput;
 typedef std::weak_ptr<NodeSlotLightGroupOutput> NodeSlotLightGroupOutputWeak;
 typedef std::shared_ptr<NodeSlotLightGroupOutput> NodeSlotLightGroupOutputPtr;
 
-class LUMO_BACKEND_API NodeSlotLightGroupOutput : 
-	public NodeSlotOutput
-{
+class LUMO_BACKEND_API NodeSlotLightGroupOutput : public NodeSlotOutput {
 public:
-	static NodeSlotLightGroupOutputPtr Create(NodeSlotLightGroupOutput vSlot);
-	static NodeSlotLightGroupOutputPtr Create(const std::string& vName);
-	static NodeSlotLightGroupOutputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotLightGroupOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotLightGroupOutputPtr Create(NodeSlotLightGroupOutput vSlot);
+    static NodeSlotLightGroupOutputPtr Create(const std::string& vName);
+    static NodeSlotLightGroupOutputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotLightGroupOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotLightGroupOutput();
-	explicit NodeSlotLightGroupOutput(const std::string& vName);
-	explicit NodeSlotLightGroupOutput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotLightGroupOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotLightGroupOutput();
+    explicit NodeSlotLightGroupOutput();
+    explicit NodeSlotLightGroupOutput(const std::string& vName);
+    explicit NodeSlotLightGroupOutput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotLightGroupOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotLightGroupOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

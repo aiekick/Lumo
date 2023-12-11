@@ -24,28 +24,29 @@ class NodeSlotTexelBufferOutput;
 typedef std::weak_ptr<NodeSlotTexelBufferOutput> NodeSlotTexelBufferOutputWeak;
 typedef std::shared_ptr<NodeSlotTexelBufferOutput> NodeSlotTexelBufferOutputPtr;
 
-class LUMO_BACKEND_API NodeSlotTexelBufferOutput : 
-	public NodeSlotOutput
-{
+class LUMO_BACKEND_API NodeSlotTexelBufferOutput : public NodeSlotOutput {
 public:
-	static NodeSlotTexelBufferOutputPtr Create(NodeSlotTexelBufferOutput vSlot);
-	static NodeSlotTexelBufferOutputPtr Create(const std::string& vName, const std::string& vType);
-	static NodeSlotTexelBufferOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
-	static NodeSlotTexelBufferOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
-	static NodeSlotTexelBufferOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotTexelBufferOutputPtr Create(NodeSlotTexelBufferOutput vSlot);
+    static NodeSlotTexelBufferOutputPtr Create(const std::string& vName, const std::string& vType);
+    static NodeSlotTexelBufferOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
+    static NodeSlotTexelBufferOutputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
+    static NodeSlotTexelBufferOutputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotTexelBufferOutput();
-	explicit NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType);
-	explicit NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
-	explicit NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
-	explicit NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotTexelBufferOutput();
+    explicit NodeSlotTexelBufferOutput();
+    explicit NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType);
+    explicit NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
+    explicit NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
+    explicit NodeSlotTexelBufferOutput(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotTexelBufferOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

@@ -19,12 +19,8 @@ limitations under the License.
 
 #include <LumoBackend/SceneGraph/SceneGraph.h>
 
-SceneGraph::SceneGraph()
-{
-
+SceneGraph::SceneGraph() {
 }
 
-SceneGraph::~SceneGraph()
-{
-
+SceneGraph::~SceneGraph() {
 }

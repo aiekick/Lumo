@@ -29,136 +29,116 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(NodeSlotVariableOutput vSlot)
-{
-	auto res = std::make_shared<NodeSlotVariableOutput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(NodeSlotVariableOutput vSlot) {
+    auto res = std::make_shared<NodeSlotVariableOutput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex)
-{
-	auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType, vVariableIndex);
-	res->m_This = res;
-	if (!SceneVariable::IsAllowedType(res->slotType))
-	{
-		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
-		res.reset();
-	}
-	return res;
+NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex) {
+    auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType, vVariableIndex);
+    res->m_This = res;
+    if (!SceneVariable::IsAllowedType(res->slotType)) {
+        LogVarError("Variable Type %s is not supported", res->slotType.c_str());
+        res.reset();
+    }
+    return res;
 }
 
-NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType, vVariableIndex, vHideName);
-	res->m_This = res;
-	if (!SceneVariable::IsAllowedType(res->slotType))
-	{
-		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
-		res.reset();
-	}
-	return res;
+NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(
+    const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType, vVariableIndex, vHideName);
+    res->m_This = res;
+    if (!SceneVariable::IsAllowedType(res->slotType)) {
+        LogVarError("Variable Type %s is not supported", res->slotType.c_str());
+        res.reset();
+    }
+    return res;
 }
 
-NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType, vVariableIndex, vHideName, vShowWidget);
-	res->m_This = res;
-	if (!SceneVariable::IsAllowedType(res->slotType))
-	{
-		LogVarError("Variable Type %s is not supported", res->slotType.c_str());
-		res.reset();
-	}
-	return res;
+NodeSlotVariableOutputPtr NodeSlotVariableOutput::Create(
+    const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotVariableOutput>(vName, vType, vVariableIndex, vHideName, vShowWidget);
+    res->m_This = res;
+    if (!SceneVariable::IsAllowedType(res->slotType)) {
+        LogVarError("Variable Type %s is not supported", res->slotType.c_str());
+        res.reset();
+    }
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotVariableOutput::NodeSlotVariableOutput()
-	: NodeSlotOutput("", "")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotVariableOutput::NodeSlotVariableOutput() : NodeSlotOutput("", "") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotVariableOutput::NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex)
-	: NodeSlotOutput(vName, vType)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	variableIndex = vVariableIndex;
+    : NodeSlotOutput(vName, vType) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    variableIndex = vVariableIndex;
 }
 
-NodeSlotVariableOutput::NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName)
-	: NodeSlotOutput(vName, vType, vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	variableIndex = vVariableIndex;
+NodeSlotVariableOutput::NodeSlotVariableOutput(
+    const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName)
+    : NodeSlotOutput(vName, vType, vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    variableIndex = vVariableIndex;
 }
 
-NodeSlotVariableOutput::NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, vType, vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	variableIndex = vVariableIndex;
+NodeSlotVariableOutput::NodeSlotVariableOutput(
+    const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget)
+    : NodeSlotOutput(vName, vType, vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    variableIndex = vVariableIndex;
 }
 
 NodeSlotVariableOutput::~NodeSlotVariableOutput() = default;
 
-void NodeSlotVariableOutput::Init()
-{
-	
+void NodeSlotVariableOutput::Init() {
 }
 
-void NodeSlotVariableOutput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotVariableOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotVariableOutput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotVariableOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotVariableOutput::SendFrontNotification(const NotifyEvent& vEvent)
-{
-	if (vEvent == VariableUpdateDone)
-	{
-		if (SceneVariable::IsAllowedType(slotType))
-		{
-			SendNotification(slotType, vEvent);
-		}
-	}
+void NodeSlotVariableOutput::SendFrontNotification(const NotifyEvent& vEvent) {
+    if (vEvent == VariableUpdateDone) {
+        if (SceneVariable::IsAllowedType(slotType)) {
+            SendNotification(slotType, vEvent);
+        }
+    }
 }
 
-void NodeSlotVariableOutput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotVariableOutput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

@@ -20,59 +20,48 @@ limitations under the License.
 #include <LumoBackend/SceneGraph/SceneShaderPass.h>
 #include <LumoBackend/Systems/CommonSystem.h>
 
-SceneShaderPassPtr SceneShaderPass::Create()
-{
-	auto res = std::make_shared<SceneShaderPass>();
-	res->m_This = res;
-	return res;
+SceneShaderPassPtr SceneShaderPass::Create() {
+    auto res = std::make_shared<SceneShaderPass>();
+    res->m_This = res;
+    return res;
 }
 
-ShaderPassWeak SceneShaderPass::at(const size_t& vIdx) const
-{
-	if (vIdx < m_ShaderPasses.size())
-	{
-		return m_ShaderPasses.at(vIdx);
-	}
+ShaderPassWeak SceneShaderPass::at(const size_t& vIdx) const {
+    if (vIdx < m_ShaderPasses.size()) {
+        return m_ShaderPasses.at(vIdx);
+    }
 
-	return ShaderPassWeak();
+    return ShaderPassWeak();
 }
 
-std::vector<ShaderPassWeak>::iterator SceneShaderPass::begin()
-{
-	return m_ShaderPasses.begin();
+std::vector<ShaderPassWeak>::iterator SceneShaderPass::begin() {
+    return m_ShaderPasses.begin();
 }
 
-std::vector<ShaderPassWeak>::iterator SceneShaderPass::end()
-{
-	return m_ShaderPasses.end();
+std::vector<ShaderPassWeak>::iterator SceneShaderPass::end() {
+    return m_ShaderPasses.end();
 }
 
-size_t SceneShaderPass::size()
-{
-	return m_ShaderPasses.size();
+size_t SceneShaderPass::size() {
+    return m_ShaderPasses.size();
 }
 
-void SceneShaderPass::clear()
-{
-	m_ShaderPasses.clear();
+void SceneShaderPass::clear() {
+    m_ShaderPasses.clear();
 }
 
-bool SceneShaderPass::empty()
-{
-	return m_ShaderPasses.empty();
+bool SceneShaderPass::empty() {
+    return m_ShaderPasses.empty();
 }
 
-void SceneShaderPass::Add(const ShaderPassWeak& vMesh)
-{
-	m_ShaderPasses.push_back(vMesh);
+void SceneShaderPass::Add(const ShaderPassWeak& vMesh) {
+    m_ShaderPasses.push_back(vMesh);
 }
 
-ShaderPassWeak SceneShaderPass::Get(const size_t& vIndex)
-{
-	if (m_ShaderPasses.size() > vIndex)
-	{
-		return m_ShaderPasses.at(vIndex);
-	}
+ShaderPassWeak SceneShaderPass::Get(const size_t& vIndex) {
+    if (m_ShaderPasses.size() > vIndex) {
+        return m_ShaderPasses.at(vIndex);
+    }
 
-	return ShaderPassWeak();
+    return ShaderPassWeak();
 }

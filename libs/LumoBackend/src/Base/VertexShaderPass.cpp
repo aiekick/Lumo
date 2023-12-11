@@ -29,37 +29,34 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-VertexShaderPass::VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore)
-	: ShaderPass(vVulkanCore, GenericType::PIXEL) {
+VertexShaderPass::VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore, GenericType::PIXEL) {
     ZoneScoped;
 }
 
-VertexShaderPass::VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore,	
-	vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
-	: ShaderPass(vVulkanCore, GenericType::PIXEL, vCommandPool, vDescriptorPool) {
+VertexShaderPass::VertexShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool)
+    : ShaderPass(vVulkanCore, GenericType::PIXEL, vCommandPool, vDescriptorPool) {
     ZoneScoped;
 }
 
 void VertexShaderPass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& /*vIterationNumber*/) {
     ZoneScoped;
-	if (!m_Loaded) return;
+    if (!m_Loaded)
+        return;
 
-	if (vCmdBufferPtr)
-	{
-		vCmdBufferPtr->setLineWidth(m_LineWidth.w);
-		//vCmdBufferPtr->setPrimitiveTopologyEXT(m_BasePrimitiveTopology);
-		vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
-		vCmdBufferPtr->bindDescriptorSets(vk::PipelineBindPoint::eGraphics, 
-			m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
-		vCmdBufferPtr->draw(m_CountVertexs.w, m_CountInstances.w, 0, 0);
-	}
+    if (vCmdBufferPtr) {
+        vCmdBufferPtr->setLineWidth(m_LineWidth.w);
+        // vCmdBufferPtr->setPrimitiveTopologyEXT(m_BasePrimitiveTopology);
+        vCmdBufferPtr->bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_Pipeline);
+        vCmdBufferPtr->bindDescriptorSets(
+            vk::PipelineBindPoint::eGraphics, m_Pipelines[0].m_PipelineLayout, 0, m_DescriptorSets[0].m_DescriptorSet, nullptr);
+        vCmdBufferPtr->draw(m_CountVertexs.w, m_CountInstances.w, 0, 0);
+    }
 }
 
 void VertexShaderPass::SetInputStateBeforePipelineCreation() {
     ZoneScoped;
-	m_InputState.state = vk::PipelineVertexInputStateCreateInfo(
-		vk::PipelineVertexInputStateCreateFlags(), // flags
-		0, nullptr, // vertexBindingDescriptionCount
-		0, nullptr // vertexAttributeDescriptions
-	);
+    m_InputState.state = vk::PipelineVertexInputStateCreateInfo(vk::PipelineVertexInputStateCreateFlags(),  // flags
+        0, nullptr,                                                                                         // vertexBindingDescriptionCount
+        0, nullptr                                                                                          // vertexAttributeDescriptions
+    );
 }

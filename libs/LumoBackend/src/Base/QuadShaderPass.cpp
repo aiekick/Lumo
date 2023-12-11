@@ -30,79 +30,64 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-QuadShaderPass::QuadShaderPass(
-	GaiApi::VulkanCoreWeak vVulkanCore,
-	const MeshShaderPassType& vMeshShaderPassType)
-	: MeshShaderPass<VertexStruct::P2_T2>(
-		vVulkanCore,
-		vMeshShaderPassType) {
+QuadShaderPass::QuadShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const MeshShaderPassType& vMeshShaderPassType)
+    : MeshShaderPass<VertexStruct::P2_T2>(vVulkanCore, vMeshShaderPassType) {
+    ZoneScoped;
+}
+
+QuadShaderPass::QuadShaderPass(GaiApi::VulkanCoreWeak vVulkanCore,
+    const MeshShaderPassType& vMeshShaderPassType,
+    vk::CommandPool* vCommandPool,
+    vk::DescriptorPool* vDescriptorPool)
+    : MeshShaderPass<VertexStruct::P2_T2>(vVulkanCore, vMeshShaderPassType, vCommandPool, vDescriptorPool) {
+    ZoneScoped;
+}
+
+bool QuadShaderPass::BuildModel() {
     ZoneScoped;
 
+    m_Vertices.m_Array = {
+        VertexStruct::P2_T2(ct::fvec2(-1.0f, -1.0f), ct::fvec2(0.0f, 0.0f)),
+        VertexStruct::P2_T2(ct::fvec2(1.0f, -1.0f), ct::fvec2(1.0f, 0.0f)),
+        VertexStruct::P2_T2(ct::fvec2(1.0f, 1.0f), ct::fvec2(1.0f, 1.0f)),
+        VertexStruct::P2_T2(ct::fvec2(-1.0f, 1.0f), ct::fvec2(0.0f, 1.0f)),
+    };
+    m_Indices.m_Array = {0U, 1U, 2U, 0U, 2U, 3U};
+
+    m_Vertices.m_Buffer = GaiApi::VulkanRessource::createVertexBufferObject(m_VulkanCore, m_Vertices.m_Array, false, false, false, "QuadShaderPass");
+    m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
+    m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
+    m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
+    m_Vertices.m_BufferInfo.offset = 0;
+
+    m_Indices.m_Buffer = GaiApi::VulkanRessource::createIndexBufferObject(m_VulkanCore, m_Indices.m_Array, false, false, false, "QuadShaderPass");
+    m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
+    m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
+    m_Indices.m_BufferInfo.range = m_Indices.m_Count * sizeof(uint32_t);
+    m_Indices.m_BufferInfo.offset = 0;
+
+    return true;
 }
 
-QuadShaderPass::QuadShaderPass(
-	GaiApi::VulkanCoreWeak vVulkanCore,
-	const MeshShaderPassType& vMeshShaderPassType,
-	vk::CommandPool* vCommandPool,
-	vk::DescriptorPool* vDescriptorPool)
-	: MeshShaderPass<VertexStruct::P2_T2>(
-		vVulkanCore,
-		vMeshShaderPassType,
-		vCommandPool,
-		vDescriptorPool) {
-    ZoneScoped;
-
-}
-
-bool QuadShaderPass::BuildModel()
-{
-	ZoneScoped;
-
-	m_Vertices.m_Array = {
-		VertexStruct::P2_T2(ct::fvec2(-1.0f, -1.0f), ct::fvec2(0.0f, 0.0f)),
-		VertexStruct::P2_T2(ct::fvec2(1.0f, -1.0f), ct::fvec2(1.0f, 0.0f)),
-		VertexStruct::P2_T2(ct::fvec2(1.0f, 1.0f), ct::fvec2(1.0f, 1.0f)),
-		VertexStruct::P2_T2(ct::fvec2(-1.0f, 1.0f), ct::fvec2(0.0f, 1.0f)),
-	};
-	m_Indices.m_Array = {
-		0U, 1U, 2U, 0U, 2U, 3U
-	};
-
-	m_Vertices.m_Buffer = GaiApi::VulkanRessource::createVertexBufferObject(m_VulkanCore, m_Vertices.m_Array, false, false, false, "QuadShaderPass");
-	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
-	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
-	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * sizeof(VertexStruct::P3_N3_TA3_BTA3_T2_C4);
-	m_Vertices.m_BufferInfo.offset = 0;
-
-	m_Indices.m_Buffer = GaiApi::VulkanRessource::createIndexBufferObject(m_VulkanCore, m_Indices.m_Array,false, false, false, "QuadShaderPass");
-	m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
-	m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
-	m_Indices.m_BufferInfo.range = m_Indices.m_Count * sizeof(uint32_t);
-	m_Indices.m_BufferInfo.offset = 0;
-
-	return true;
-}
-
-void QuadShaderPass::DestroyModel(const bool& /*vReleaseDatas*/)
-{
+void QuadShaderPass::DestroyModel(const bool& /*vReleaseDatas*/) {
     ZoneScoped;
     auto corePtr = m_VulkanCore.lock();
     assert(corePtr != nullptr);
 
-	corePtr->getDevice().waitIdle();
+    corePtr->getDevice().waitIdle();
 
-	m_Vertices.m_Buffer.reset();
-	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo{};
+    m_Vertices.m_Buffer.reset();
+    m_Indices.m_BufferInfo = vk::DescriptorBufferInfo{};
 
-	m_Indices.m_Buffer.reset();
-	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo{};
+    m_Indices.m_Buffer.reset();
+    m_Indices.m_BufferInfo = vk::DescriptorBufferInfo{};
 }
 
 std::string QuadShaderPass::GetVertexShaderCode(std::string& vOutShaderName) {
     ZoneScoped;
-	vOutShaderName = "QuadShaderPass_Vertex";
+    vOutShaderName = "QuadShaderPass_Vertex";
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
@@ -121,9 +106,9 @@ void main()
 
 std::string QuadShaderPass::GetFragmentShaderCode(std::string& vOutShaderName) {
     ZoneScoped;
-	vOutShaderName = "QuadShaderPass_Fragment";
+    vOutShaderName = "QuadShaderPass_Fragment";
 
-	return u8R"(
+    return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 

@@ -22,8 +22,9 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include <ctools/FileHelper.h>
 
-bool FilesTrackerSystem::init() {// Create the file system watcher instance
-	// efsw::FileWatcher allow a first boolean parameter that indicates if it should start with the generic file watcher instead of the platform specific backend
+bool FilesTrackerSystem::init() {  // Create the file system watcher instance
+    // efsw::FileWatcher allow a first boolean parameter that indicates if it should start with the generic file watcher instead of the platform
+    // specific backend
     m_FilesTracker = std::make_unique<efsw::FileWatcher>();
     return true;
 }
@@ -32,42 +33,36 @@ void FilesTrackerSystem::unit() {
     for (auto wid : m_WatchIDs)
         m_FilesTracker->removeWatch(wid);
     m_FilesTracker.reset();
-
 }
 
 void FilesTrackerSystem::addWatch(std::string& vPath) {
-	// Add a folder to watch, and get the efsw::WatchID
-	// It will watch the /tmp folder recursively ( the third parameter indicates that is recursive )
-	// Reporting the files and directories changes to the instance of the listener
-	m_WatchIDs.emplace(m_FilesTracker->addWatch(vPath, this, false));
+    // Add a folder to watch, and get the efsw::WatchID
+    // It will watch the /tmp folder recursively ( the third parameter indicates that is recursive )
+    // Reporting the files and directories changes to the instance of the listener
+    m_WatchIDs.emplace(m_FilesTracker->addWatch(vPath, this, false));
 }
 
-void FilesTrackerSystem::update()
-{
-	m_FilesTracker->watch();
+void FilesTrackerSystem::update() {
+    m_FilesTracker->watch();
 }
 
-void FilesTrackerSystem::handleFileAction(efsw::WatchID vWatchid, const std::string& vDir, const std::string& vFileName, efsw::Action vAction, std::string vOldFilename)
-{
-	UNUSED(vWatchid);
+void FilesTrackerSystem::handleFileAction(
+    efsw::WatchID vWatchid, const std::string& vDir, const std::string& vFileName, efsw::Action vAction, std::string vOldFilename) {
+    UNUSED(vWatchid);
 
-	switch (vAction)
-	{
-	case efsw::Actions::Modified:
-	{
-		//LogVarDebugError("Debug : DIR (%s) FILE (%s) has been Modified", vDir.c_str(), vFileName.c_str());
-		auto ps = FileHelper::Instance()->ParsePathFileName(vDir + vFileName);
-		if (ps.isOk)
-		{
-			files.emplace(ps.GetFPNE());
-			Changes = true;
-		}
-		break;
-	}
-	case efsw::Actions::Add:
-	case efsw::Actions::Delete:
-	case efsw::Actions::Moved:
-	default:
-		break;
-	}
+    switch (vAction) {
+        case efsw::Actions::Modified: {
+            // LogVarDebugError("Debug : DIR (%s) FILE (%s) has been Modified", vDir.c_str(), vFileName.c_str());
+            auto ps = FileHelper::Instance()->ParsePathFileName(vDir + vFileName);
+            if (ps.isOk) {
+                files.emplace(ps.GetFPNE());
+                Changes = true;
+            }
+            break;
+        }
+        case efsw::Actions::Add:
+        case efsw::Actions::Delete:
+        case efsw::Actions::Moved:
+        default: break;
+    }
 }

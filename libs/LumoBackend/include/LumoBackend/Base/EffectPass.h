@@ -21,21 +21,18 @@ limitations under the License.
 #include <Gaia/gaia.h>
 #include <LumoBackend/Base/ShaderPass.h>
 #include <LumoBackend/Interfaces/EffectInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 /*
 An effect have at least one texture as input and one texture as output
 */
 
 template <size_t size_of_array>
-class EffectPass : 
-    public ShaderPass, 
-    public EffectInterface, 
-    public TextureInputInterface<size_of_array>, 
-    public TextureOutputInterface {
+class EffectPass : public ShaderPass, public EffectInterface, public Texture2DInputInterface<size_of_array>, public Texture2DOutputInterface {
 public:
-    EffectPass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {}
+    EffectPass(GaiApi::VulkanCoreWeak vVulkanCore) : ShaderPass(vVulkanCore) {
+    }
     virtual ~EffectPass() = default;
 
 protected:

@@ -107,10 +107,10 @@ protected:
     bool m_DontUseShaderFilesOnDisk = false;
 
     GaiApi::VulkanCoreWeak m_VulkanCore;  // vulkan core
-    GaiApi::VulkanQueue m_Queue;                      // queue
-    vk::CommandPool m_CommandPool;                    // command pool
-    vk::DescriptorPool m_DescriptorPool;              // descriptor pool
-    vk::Device m_Device;                              // device copy
+    GaiApi::VulkanQueue m_Queue;          // queue
+    vk::CommandPool m_CommandPool;        // command pool
+    vk::DescriptorPool m_DescriptorPool;  // descriptor pool
+    vk::Device m_Device;                  // device copy
 
     vk::SampleCountFlagBits m_SampleCount = vk::SampleCountFlagBits::e1;
 
@@ -197,10 +197,8 @@ public:
     ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore);
     ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, const GenericType& vRendererTypeEnum);
     ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
-    ShaderPass(GaiApi::VulkanCoreWeak vVulkanCore,
-        const GenericType& vRendererTypeEnum,
-        vk::CommandPool* vCommandPool,
-        vk::DescriptorPool* vDescriptorPool);
+    ShaderPass(
+        GaiApi::VulkanCoreWeak vVulkanCore, const GenericType& vRendererTypeEnum, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
     virtual ~ShaderPass();
 
     // during init

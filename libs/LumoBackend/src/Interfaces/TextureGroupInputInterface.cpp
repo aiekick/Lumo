@@ -27,26 +27,25 @@ limitations under the License.
 #include <Gaia/Core/VulkanCore.h>
 #include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>
 
-void TextureGroupInputFunctions::UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs)
-{
-	for (const auto& input : vInputs) {
-		if (input.second && input.second->slotType == "TEXTURE_2D_GROUP") {
-			for (auto slot : input.second->linkedSlots) {
-				auto otherSLotPtr = slot.lock();
-				if (otherSLotPtr) {
-					if (otherSLotPtr->slotType == "TEXTURE_2D_GROUP") {
-						auto otherParentPtr = otherSLotPtr->parentNode.lock();
-						if (otherParentPtr) {
-							auto otherNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(otherParentPtr);
-							if (otherNodePtr) {
-								fvec2Vector arr; // tofix : je sens les emmerdes a ce transfert de pointeurs dans un scope court 
-								auto descsPtr = otherNodePtr->GetDescriptorImageInfos(otherSLotPtr->descriptorBinding, &arr);
-								SetTextures(input.second->descriptorBinding, descsPtr, &arr);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+void TextureGroupInputFunctions::UpdateTextureGroupInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs) {
+    for (const auto& input : vInputs) {
+        if (input.second && input.second->slotType == "TEXTURE_2D_GROUP") {
+            for (auto slot : input.second->linkedSlots) {
+                auto otherSLotPtr = slot.lock();
+                if (otherSLotPtr) {
+                    if (otherSLotPtr->slotType == "TEXTURE_2D_GROUP") {
+                        auto otherParentPtr = otherSLotPtr->parentNode.lock();
+                        if (otherParentPtr) {
+                            auto otherNodePtr = dynamic_pointer_cast<TextureGroupOutputInterface>(otherParentPtr);
+                            if (otherNodePtr) {
+                                fvec2Vector arr;  // tofix : je sens les emmerdes a ce transfert de pointeurs dans un scope court
+                                auto descsPtr = otherNodePtr->GetDescriptorImageInfos(otherSLotPtr->descriptorBinding, &arr);
+                                SetTextures(input.second->descriptorBinding, descsPtr, &arr);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

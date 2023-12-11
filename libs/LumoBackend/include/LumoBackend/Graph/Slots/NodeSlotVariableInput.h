@@ -24,32 +24,30 @@ class NodeSlotVariableInput;
 typedef std::weak_ptr<NodeSlotVariableInput> NodeSlotVariableInputWeak;
 typedef std::shared_ptr<NodeSlotVariableInput> NodeSlotVariableInputPtr;
 
-class LUMO_BACKEND_API NodeSlotVariableInput : 
-	public NodeSlotInput
-{
+class LUMO_BACKEND_API NodeSlotVariableInput : public NodeSlotInput {
 public:
-	static NodeSlotVariableInputPtr Create(NodeSlotVariableInput vSlot);
-	static NodeSlotVariableInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
-	static NodeSlotVariableInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
-	static NodeSlotVariableInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotVariableInputPtr Create(NodeSlotVariableInput vSlot);
+    static NodeSlotVariableInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
+    static NodeSlotVariableInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
+    static NodeSlotVariableInputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotVariableInput();
-	explicit NodeSlotVariableInput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
-	explicit NodeSlotVariableInput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
-	explicit NodeSlotVariableInput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotVariableInput();
+    explicit NodeSlotVariableInput();
+    explicit NodeSlotVariableInput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex);
+    explicit NodeSlotVariableInput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
+    explicit NodeSlotVariableInput(
+        const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotVariableInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		const NotifyEvent& vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

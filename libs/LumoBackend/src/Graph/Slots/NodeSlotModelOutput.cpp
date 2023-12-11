@@ -28,115 +28,93 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotModelOutputPtr NodeSlotModelOutput::Create(NodeSlotModelOutput vSlot)
-{
-	auto res = std::make_shared<NodeSlotModelOutput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotModelOutputPtr NodeSlotModelOutput::Create(NodeSlotModelOutput vSlot) {
+    auto res = std::make_shared<NodeSlotModelOutput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotModelOutputPtr NodeSlotModelOutput::Create(const std::string& vName)
-{
-	auto res = std::make_shared<NodeSlotModelOutput>(vName);
-	res->m_This = res;
-	return res;
+NodeSlotModelOutputPtr NodeSlotModelOutput::Create(const std::string& vName) {
+    auto res = std::make_shared<NodeSlotModelOutput>(vName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotModelOutputPtr NodeSlotModelOutput::Create(const std::string& vName, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotModelOutput>(vName, vHideName);
-	res->m_This = res;
-	return res;
+NodeSlotModelOutputPtr NodeSlotModelOutput::Create(const std::string& vName, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotModelOutput>(vName, vHideName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotModelOutputPtr NodeSlotModelOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotModelOutput>(vName, vHideName, vShowWidget);
-	res->m_This = res;
-	return res;
+NodeSlotModelOutputPtr NodeSlotModelOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotModelOutput>(vName, vHideName, vShowWidget);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotModelOutput::NodeSlotModelOutput()
-	: NodeSlotOutput("", "MESH")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotModelOutput::NodeSlotModelOutput() : NodeSlotOutput("", "MESH") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
-NodeSlotModelOutput::NodeSlotModelOutput(const std::string& vName)
-	: NodeSlotOutput(vName, "MESH")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotModelOutput::NodeSlotModelOutput(const std::string& vName) : NodeSlotOutput(vName, "MESH") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
-NodeSlotModelOutput::NodeSlotModelOutput(const std::string& vName, const bool& vHideName)
-	: NodeSlotOutput(vName, "MESH", vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotModelOutput::NodeSlotModelOutput(const std::string& vName, const bool& vHideName) : NodeSlotOutput(vName, "MESH", vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotModelOutput::NodeSlotModelOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, "MESH", vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "MESH", vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotModelOutput::~NodeSlotModelOutput() = default;
 
-void NodeSlotModelOutput::Init()
-{
-	
+void NodeSlotModelOutput::Init() {
 }
 
-void NodeSlotModelOutput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotModelOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotModelOutput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotModelOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotModelOutput::SendFrontNotification(const NotifyEvent& vEvent)
-{
-	if (vEvent == ModelUpdateDone)
-	{
-		SendNotification("MESH", vEvent);
-	}
+void NodeSlotModelOutput::SendFrontNotification(const NotifyEvent& vEvent) {
+    if (vEvent == ModelUpdateDone) {
+        SendNotification("MESH", vEvent);
+    }
 }
 
-void NodeSlotModelOutput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotModelOutput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

@@ -20,9 +20,9 @@ limitations under the License.
 
 class MouseInterface {
 public:
-	bool canUpdateMouse = false;
-	bool buttonDown[3] = {false, false, false};
-	bool buttonDownLastFrame[3] = { false, false, false };
-	float px = 0.0f;
-	float py = 0.0f;
+    bool canUpdateMouse = false;
+    bool buttonDown[3] = {false, false, false};
+    bool buttonDownLastFrame[3] = {false, false, false};
+    float px = 0.0f;
+    float py = 0.0f;
 };

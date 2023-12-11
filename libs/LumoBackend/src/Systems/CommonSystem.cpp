@@ -818,7 +818,8 @@ std::string CommonSystem::GetBufferObjectStructureHeader(const int32_t& vBinding
     std::string res;
 
     if (vBindingPoint > -1) {
-        res = ct::toStr(u8R"(
+        res = ct::toStr(
+            u8R"(
 layout(std140, binding = %i) uniform UBO_CommonSystem {
 	mat4 cam;			// the MVP matrix
 	mat4 model;			// the model matrix
@@ -832,7 +833,8 @@ layout(std140, binding = %i) uniform UBO_CommonSystem {
 	vec2 viewportSize;	// the viewportSize
 	float cam_near;		// the cam near
 	float cam_far;		// the cam far
-};)", vBindingPoint);
+};)",
+            vBindingPoint);
     }
 
     res +=

@@ -28,115 +28,94 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTaskOutputPtr NodeSlotTaskOutput::Create(NodeSlotTaskOutput vSlot)
-{
-	auto res = std::make_shared<NodeSlotTaskOutput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotTaskOutputPtr NodeSlotTaskOutput::Create(NodeSlotTaskOutput vSlot) {
+    auto res = std::make_shared<NodeSlotTaskOutput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTaskOutputPtr NodeSlotTaskOutput::Create(const std::string& vName)
-{
-	auto res = std::make_shared<NodeSlotTaskOutput>(vName);
-	res->m_This = res;
-	return res;
+NodeSlotTaskOutputPtr NodeSlotTaskOutput::Create(const std::string& vName) {
+    auto res = std::make_shared<NodeSlotTaskOutput>(vName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTaskOutputPtr NodeSlotTaskOutput::Create(const std::string& vName, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotTaskOutput>(vName, vHideName);
-	res->m_This = res;
-	return res;
+NodeSlotTaskOutputPtr NodeSlotTaskOutput::Create(const std::string& vName, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotTaskOutput>(vName, vHideName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTaskOutputPtr NodeSlotTaskOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotTaskOutput>(vName, vHideName, vShowWidget);
-	res->m_This = res;
-	return res;
+NodeSlotTaskOutputPtr NodeSlotTaskOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotTaskOutput>(vName, vHideName, vShowWidget);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTaskOutput::NodeSlotTaskOutput()
-	: NodeSlotOutput("", "TASK")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-}
-
-NodeSlotTaskOutput::NodeSlotTaskOutput(const std::string& vName)
-	: NodeSlotOutput(vName, "TASK")
-{
-	pinID = sGetNewSlotId();
+NodeSlotTaskOutput::NodeSlotTaskOutput() : NodeSlotOutput("", "TASK") {
+    pinID = sGetNewSlotId();
     color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    colorIsSet = true;
 }
 
-NodeSlotTaskOutput::NodeSlotTaskOutput(const std::string& vName, const bool& vHideName)
-	: NodeSlotOutput(vName, "TASK", vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotTaskOutput::NodeSlotTaskOutput(const std::string& vName) : NodeSlotOutput(vName, "TASK") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+}
+
+NodeSlotTaskOutput::NodeSlotTaskOutput(const std::string& vName, const bool& vHideName) : NodeSlotOutput(vName, "TASK", vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotTaskOutput::NodeSlotTaskOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, "TASK", vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "TASK", vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotTaskOutput::~NodeSlotTaskOutput() = default;
 
-void NodeSlotTaskOutput::Init()
-{
-	
+void NodeSlotTaskOutput::Init() {
 }
 
-void NodeSlotTaskOutput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotTaskOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotTaskOutput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotTaskOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotTaskOutput::SendFrontNotification(const NotifyEvent& vEvent)
-{
+void NodeSlotTaskOutput::SendFrontNotification(const NotifyEvent& vEvent) {
     /*if (vEvent == TaskUpdateDone)
-	{
-		SendNotification("TASK", vEvent);
-	}*/
+    {
+        SendNotification("TASK", vEvent);
+    }*/
 }
 
-void NodeSlotTaskOutput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotTaskOutput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

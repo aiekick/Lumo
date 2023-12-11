@@ -24,26 +24,25 @@ class NodeSlotTextureCubeOutput;
 typedef std::weak_ptr<NodeSlotTextureCubeOutput> NodeSlotTextureCubeOutputWeak;
 typedef std::shared_ptr<NodeSlotTextureCubeOutput> NodeSlotTextureCubeOutputPtr;
 
-class LUMO_BACKEND_API NodeSlotTextureCubeOutput : 
-	public NodeSlotOutput
-{
+class LUMO_BACKEND_API NodeSlotTextureCubeOutput : public NodeSlotOutput {
 public:
-	static NodeSlotTextureCubeOutputPtr Create(NodeSlotTextureCubeOutput vSlot);
-	static NodeSlotTextureCubeOutputPtr Create(const std::string& vName, const uint32_t& vBindingPoint);
-	static NodeSlotTextureCubeOutputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
-	static NodeSlotTextureCubeOutputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotTextureCubeOutputPtr Create(NodeSlotTextureCubeOutput vSlot);
+    static NodeSlotTextureCubeOutputPtr Create(const std::string& vName, const uint32_t& vBindingPoint);
+    static NodeSlotTextureCubeOutputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
+    static NodeSlotTextureCubeOutputPtr Create(
+        const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotTextureCubeOutput();
-	explicit NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint);
-	explicit NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
-	explicit NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotTextureCubeOutput();
+    explicit NodeSlotTextureCubeOutput();
+    explicit NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint);
+    explicit NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
+    explicit NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotTextureCubeOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

@@ -24,32 +24,29 @@ class NodeSlotTextureCubeInput;
 typedef std::weak_ptr<NodeSlotTextureCubeInput> NodeSlotTextureCubeInputWeak;
 typedef std::shared_ptr<NodeSlotTextureCubeInput> NodeSlotTextureCubeInputPtr;
 
-class LUMO_BACKEND_API NodeSlotTextureCubeInput : 
-	public NodeSlotInput
-{
+class LUMO_BACKEND_API NodeSlotTextureCubeInput : public NodeSlotInput {
 public:
-	static NodeSlotTextureCubeInputPtr Create(NodeSlotTextureCubeInput vSlot);
-	static NodeSlotTextureCubeInputPtr Create(const std::string& vName, const uint32_t& vBindingPoint);
-	static NodeSlotTextureCubeInputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
-	static NodeSlotTextureCubeInputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotTextureCubeInputPtr Create(NodeSlotTextureCubeInput vSlot);
+    static NodeSlotTextureCubeInputPtr Create(const std::string& vName, const uint32_t& vBindingPoint);
+    static NodeSlotTextureCubeInputPtr Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
+    static NodeSlotTextureCubeInputPtr Create(
+        const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotTextureCubeInput();
-	explicit NodeSlotTextureCubeInput(const std::string& vName, const uint32_t& vBindingPoint);
-	explicit NodeSlotTextureCubeInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
-	explicit NodeSlotTextureCubeInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotTextureCubeInput();
+    explicit NodeSlotTextureCubeInput();
+    explicit NodeSlotTextureCubeInput(const std::string& vName, const uint32_t& vBindingPoint);
+    explicit NodeSlotTextureCubeInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
+    explicit NodeSlotTextureCubeInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotTextureCubeInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		const NotifyEvent& vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

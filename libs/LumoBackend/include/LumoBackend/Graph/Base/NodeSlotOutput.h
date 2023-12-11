@@ -21,25 +21,24 @@ limitations under the License.
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-class LUMO_BACKEND_API NodeSlotOutput : public NodeSlot
-{
+class LUMO_BACKEND_API NodeSlotOutput : public NodeSlot {
 public:
-	static NodeSlotOutputPtr Create();
-	static NodeSlotOutputPtr Create(const std::string& vName);
-	static NodeSlotOutputPtr Create(const std::string& vName, const std::string& vType);
-	static NodeSlotOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
-	static NodeSlotOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotOutputPtr Create();
+    static NodeSlotOutputPtr Create(const std::string& vName);
+    static NodeSlotOutputPtr Create(const std::string& vName, const std::string& vType);
+    static NodeSlotOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName);
+    static NodeSlotOutputPtr Create(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotOutput();
-	explicit NodeSlotOutput(const std::string& vName);
-	explicit NodeSlotOutput(const std::string& vName, const std::string& vType);
-	explicit NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName);
-	explicit NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotOutput();
+    explicit NodeSlotOutput();
+    explicit NodeSlotOutput(const std::string& vName);
+    explicit NodeSlotOutput(const std::string& vName, const std::string& vType);
+    explicit NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName);
+    explicit NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

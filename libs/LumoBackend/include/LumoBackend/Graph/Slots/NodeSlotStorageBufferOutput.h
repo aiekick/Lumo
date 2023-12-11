@@ -24,28 +24,29 @@ class NodeSlotStorageBufferOutput;
 typedef std::weak_ptr<NodeSlotStorageBufferOutput> NodeSlotStorageBufferOutputWeak;
 typedef std::shared_ptr<NodeSlotStorageBufferOutput> NodeSlotStorageBufferOutputPtr;
 
-class LUMO_BACKEND_API NodeSlotStorageBufferOutput : 
-	public NodeSlotOutput
-{
+class LUMO_BACKEND_API NodeSlotStorageBufferOutput : public NodeSlotOutput {
 public:
-	static NodeSlotStorageBufferOutputPtr Create(NodeSlotStorageBufferOutput vSlot);
-	static NodeSlotStorageBufferOutputPtr Create(const std::string& vName, const std::string& vType);
-	static NodeSlotStorageBufferOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
-	static NodeSlotStorageBufferOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
-	static NodeSlotStorageBufferOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotStorageBufferOutputPtr Create(NodeSlotStorageBufferOutput vSlot);
+    static NodeSlotStorageBufferOutputPtr Create(const std::string& vName, const std::string& vType);
+    static NodeSlotStorageBufferOutputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
+    static NodeSlotStorageBufferOutputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
+    static NodeSlotStorageBufferOutputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotStorageBufferOutput();
-	explicit NodeSlotStorageBufferOutput(const std::string& vName, const std::string& vType);
-	explicit NodeSlotStorageBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
-	explicit NodeSlotStorageBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
-	explicit NodeSlotStorageBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotStorageBufferOutput();
+    explicit NodeSlotStorageBufferOutput();
+    explicit NodeSlotStorageBufferOutput(const std::string& vName, const std::string& vType);
+    explicit NodeSlotStorageBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
+    explicit NodeSlotStorageBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
+    explicit NodeSlotStorageBufferOutput(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotStorageBufferOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

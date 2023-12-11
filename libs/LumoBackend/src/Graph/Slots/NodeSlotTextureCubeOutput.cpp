@@ -28,118 +28,100 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTextureCubeOutputPtr NodeSlotTextureCubeOutput::Create(NodeSlotTextureCubeOutput vSlot)
-{
-	auto res = std::make_shared<NodeSlotTextureCubeOutput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotTextureCubeOutputPtr NodeSlotTextureCubeOutput::Create(NodeSlotTextureCubeOutput vSlot) {
+    auto res = std::make_shared<NodeSlotTextureCubeOutput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTextureCubeOutputPtr NodeSlotTextureCubeOutput::Create(const std::string& vName, const uint32_t& vBindingPoint)
-{
-	auto res = std::make_shared<NodeSlotTextureCubeOutput>(vName, vBindingPoint);
-	res->m_This = res;
-	return res;
+NodeSlotTextureCubeOutputPtr NodeSlotTextureCubeOutput::Create(const std::string& vName, const uint32_t& vBindingPoint) {
+    auto res = std::make_shared<NodeSlotTextureCubeOutput>(vName, vBindingPoint);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTextureCubeOutputPtr NodeSlotTextureCubeOutput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotTextureCubeOutput>(vName, vBindingPoint, vHideName);
-	res->m_This = res;
-	return res;
+NodeSlotTextureCubeOutputPtr NodeSlotTextureCubeOutput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotTextureCubeOutput>(vName, vBindingPoint, vHideName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTextureCubeOutputPtr NodeSlotTextureCubeOutput::Create(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotTextureCubeOutput>(vName, vBindingPoint, vHideName, vShowWidget);
-	res->m_This = res;
-	return res;
+NodeSlotTextureCubeOutputPtr NodeSlotTextureCubeOutput::Create(
+    const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotTextureCubeOutput>(vName, vBindingPoint, vHideName, vShowWidget);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTextureCubeOutput::NodeSlotTextureCubeOutput()
-	: NodeSlotOutput("", "TEXTURE_CUBE")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotTextureCubeOutput::NodeSlotTextureCubeOutput() : NodeSlotOutput("", "TEXTURE_CUBE") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotTextureCubeOutput::NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint)
-	: NodeSlotOutput(vName, "TEXTURE_CUBE")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
+    : NodeSlotOutput(vName, "TEXTURE_CUBE") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    descriptorBinding = vBindingPoint;
 }
 
 NodeSlotTextureCubeOutput::NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName)
-	: NodeSlotOutput(vName, "TEXTURE_CUBE", vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
+    : NodeSlotOutput(vName, "TEXTURE_CUBE", vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    descriptorBinding = vBindingPoint;
 }
 
-NodeSlotTextureCubeOutput::NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, "TEXTURE_CUBE", vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
+NodeSlotTextureCubeOutput::NodeSlotTextureCubeOutput(
+    const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
+    : NodeSlotOutput(vName, "TEXTURE_CUBE", vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    descriptorBinding = vBindingPoint;
 }
 
 NodeSlotTextureCubeOutput::~NodeSlotTextureCubeOutput() = default;
 
-void NodeSlotTextureCubeOutput::Init()
-{
-	
+void NodeSlotTextureCubeOutput::Init() {
 }
 
-void NodeSlotTextureCubeOutput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotTextureCubeOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotTextureCubeOutput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotTextureCubeOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotTextureCubeOutput::SendFrontNotification(const NotifyEvent& vEvent)
-{
-	if (vEvent == TextureUpdateDone)
-	{
-		SendNotification("TEXTURE_CUBE", vEvent);
-	}
+void NodeSlotTextureCubeOutput::SendFrontNotification(const NotifyEvent& vEvent) {
+    if (vEvent == TextureUpdateDone) {
+        SendNotification("TEXTURE_CUBE", vEvent);
+    }
 }
 
-void NodeSlotTextureCubeOutput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotTextureCubeOutput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

@@ -30,58 +30,55 @@ limitations under the License.
 
 // shader type, shader filepathname
 
-class LUMO_BACKEND_API LibraryItem
-{
+class LUMO_BACKEND_API LibraryItem {
 public:
-	enum class LibraryItemTypeEnum : uint8_t
-	{
-		LIBRARY_ITEM_TYPE_SHADER = 0,
-		LIBRARY_ITEM_TYPE_BLUEPRINT,
-		LIBRARY_ITEM_TYPE_INTERNAL,
-		LIBRARY_ITEM_TYPE_PLUGIN,
-		LIBRARY_ITEM_TYPE_Count
-	} type = LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_SHADER;
+    enum class LibraryItemTypeEnum : uint8_t {
+        LIBRARY_ITEM_TYPE_SHADER = 0,
+        LIBRARY_ITEM_TYPE_BLUEPRINT,
+        LIBRARY_ITEM_TYPE_INTERNAL,
+        LIBRARY_ITEM_TYPE_PLUGIN,
+        LIBRARY_ITEM_TYPE_Count
+    } type = LibraryItemTypeEnum::LIBRARY_ITEM_TYPE_SHADER;
 
 public:
-	// SHADER
-	std::string shaderpath;
+    // SHADER
+    std::string shaderpath;
 
-	// INTERNAL
-	std::string nodeLabel;
-	std::string nodeType;
+    // INTERNAL
+    std::string nodeLabel;
+    std::string nodeType;
 
-	ct::fvec4 color;
-	std::string categoryPath;
+    ct::fvec4 color;
+    std::string categoryPath;
 
-	// func from slot
-	NodeSlot nodeSlot;
+    // func from slot
+    NodeSlot nodeSlot;
 };
 
 typedef std::pair<std::string, LibraryItem> LibraryEntry;
 
 class BaseNode;
 struct BaseNodeState;
-class LUMO_BACKEND_API LibraryCategory
-{
+class LUMO_BACKEND_API LibraryCategory {
 public:
-	std::string m_CategoryName;
+    std::string m_CategoryName;
 
 private:
-	// shader name, ShaderEntry
-	std::map<std::string, LibraryEntry> m_LibraryItems;
-	// category name, sub category
-	std::map<std::string, LibraryCategory> m_SubCategories;
+    // shader name, ShaderEntry
+    std::map<std::string, LibraryEntry> m_LibraryItems;
+    // category name, sub category
+    std::map<std::string, LibraryCategory> m_SubCategories;
 
 private:
-	LibraryEntry ShowMenu(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState, int vLevel);
+    LibraryEntry ShowMenu(BaseNodeWeak vNodeGraph, BaseNodeState* vBaseNodeState, int vLevel);
 
 public:
-	LibraryCategory();
-	~LibraryCategory();
-	void Clear();
-	LibraryCategory* AddCategory(const std::string& vCategoryName);
-	void AddShader(const std::string& vShaderName, const std::string& vShaderPath);
-	void AddCustom(const std::string& vCategoryPath, const std::string& vNodeLabel, const std::string& vNodeType, const ct::fvec4& vColor = 0.0f);
-	void AddLibraryEntry(const LibraryEntry& vLibraryEntry);
-	LibraryEntry ShowContent(BaseNodeWeak vNodeGraph, BaseNodeState *vBaseNodeState, int vLevel);
+    LibraryCategory();
+    ~LibraryCategory();
+    void Clear();
+    LibraryCategory* AddCategory(const std::string& vCategoryName);
+    void AddShader(const std::string& vShaderName, const std::string& vShaderPath);
+    void AddCustom(const std::string& vCategoryPath, const std::string& vNodeLabel, const std::string& vNodeType, const ct::fvec4& vColor = 0.0f);
+    void AddLibraryEntry(const LibraryEntry& vLibraryEntry);
+    LibraryEntry ShowContent(BaseNodeWeak vNodeGraph, BaseNodeState* vBaseNodeState, int vLevel);
 };

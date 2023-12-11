@@ -28,115 +28,94 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotLightGroupOutputPtr NodeSlotLightGroupOutput::Create(NodeSlotLightGroupOutput vSlot)
-{
-	auto res = std::make_shared<NodeSlotLightGroupOutput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotLightGroupOutputPtr NodeSlotLightGroupOutput::Create(NodeSlotLightGroupOutput vSlot) {
+    auto res = std::make_shared<NodeSlotLightGroupOutput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotLightGroupOutputPtr NodeSlotLightGroupOutput::Create(const std::string& vName)
-{
-	auto res = std::make_shared<NodeSlotLightGroupOutput>(vName);
-	res->m_This = res;
-	return res;
+NodeSlotLightGroupOutputPtr NodeSlotLightGroupOutput::Create(const std::string& vName) {
+    auto res = std::make_shared<NodeSlotLightGroupOutput>(vName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotLightGroupOutputPtr NodeSlotLightGroupOutput::Create(const std::string& vName, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotLightGroupOutput>(vName, vHideName);
-	res->m_This = res;
-	return res;
+NodeSlotLightGroupOutputPtr NodeSlotLightGroupOutput::Create(const std::string& vName, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotLightGroupOutput>(vName, vHideName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotLightGroupOutputPtr NodeSlotLightGroupOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotLightGroupOutput>(vName, vHideName, vShowWidget);
-	res->m_This = res;
-	return res;
+NodeSlotLightGroupOutputPtr NodeSlotLightGroupOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotLightGroupOutput>(vName, vHideName, vShowWidget);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotLightGroupOutput::NodeSlotLightGroupOutput()
-	: NodeSlotOutput("", "LIGHT_GROUP")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotLightGroupOutput::NodeSlotLightGroupOutput() : NodeSlotOutput("", "LIGHT_GROUP") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
-NodeSlotLightGroupOutput::NodeSlotLightGroupOutput(const std::string& vName)
-	: NodeSlotOutput(vName, "LIGHT_GROUP")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotLightGroupOutput::NodeSlotLightGroupOutput(const std::string& vName) : NodeSlotOutput(vName, "LIGHT_GROUP") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotLightGroupOutput::NodeSlotLightGroupOutput(const std::string& vName, const bool& vHideName)
-	: NodeSlotOutput(vName, "LIGHT_GROUP", vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "LIGHT_GROUP", vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotLightGroupOutput::NodeSlotLightGroupOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, "LIGHT_GROUP", vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "LIGHT_GROUP", vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotLightGroupOutput::~NodeSlotLightGroupOutput() = default;
 
-void NodeSlotLightGroupOutput::Init()
-{
-	
+void NodeSlotLightGroupOutput::Init() {
 }
 
-void NodeSlotLightGroupOutput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotLightGroupOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotLightGroupOutput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotLightGroupOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotLightGroupOutput::SendFrontNotification(const NotifyEvent& vEvent)
-{
-	if (vEvent == LightGroupUpdateDone)
-	{
-		SendNotification("LIGHT_GROUP", vEvent);
-	}
+void NodeSlotLightGroupOutput::SendFrontNotification(const NotifyEvent& vEvent) {
+    if (vEvent == LightGroupUpdateDone) {
+        SendNotification("LIGHT_GROUP", vEvent);
+    }
 }
 
-void NodeSlotLightGroupOutput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotLightGroupOutput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

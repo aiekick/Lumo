@@ -28,115 +28,94 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTextureGroupOutputPtr NodeSlotTextureGroupOutput::Create(NodeSlotTextureGroupOutput vSlot)
-{
-	auto res = std::make_shared<NodeSlotTextureGroupOutput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotTextureGroupOutputPtr NodeSlotTextureGroupOutput::Create(NodeSlotTextureGroupOutput vSlot) {
+    auto res = std::make_shared<NodeSlotTextureGroupOutput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTextureGroupOutputPtr NodeSlotTextureGroupOutput::Create(const std::string& vName)
-{
-	auto res = std::make_shared<NodeSlotTextureGroupOutput>(vName);
-	res->m_This = res;
-	return res;
+NodeSlotTextureGroupOutputPtr NodeSlotTextureGroupOutput::Create(const std::string& vName) {
+    auto res = std::make_shared<NodeSlotTextureGroupOutput>(vName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTextureGroupOutputPtr NodeSlotTextureGroupOutput::Create(const std::string& vName, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotTextureGroupOutput>(vName, vHideName);
-	res->m_This = res;
-	return res;
+NodeSlotTextureGroupOutputPtr NodeSlotTextureGroupOutput::Create(const std::string& vName, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotTextureGroupOutput>(vName, vHideName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTextureGroupOutputPtr NodeSlotTextureGroupOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotTextureGroupOutput>(vName, vHideName, vShowWidget);
-	res->m_This = res;
-	return res;
+NodeSlotTextureGroupOutputPtr NodeSlotTextureGroupOutput::Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotTextureGroupOutput>(vName, vHideName, vShowWidget);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTextureGroupOutput::NodeSlotTextureGroupOutput()
-	: NodeSlotOutput("", "TEXTURE_2D_GROUP")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotTextureGroupOutput::NodeSlotTextureGroupOutput() : NodeSlotOutput("", "TEXTURE_2D_GROUP") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
-NodeSlotTextureGroupOutput::NodeSlotTextureGroupOutput(const std::string& vName)
-	: NodeSlotOutput(vName, "TEXTURE_2D_GROUP")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotTextureGroupOutput::NodeSlotTextureGroupOutput(const std::string& vName) : NodeSlotOutput(vName, "TEXTURE_2D_GROUP") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotTextureGroupOutput::NodeSlotTextureGroupOutput(const std::string& vName, const bool& vHideName)
-	: NodeSlotOutput(vName, "TEXTURE_2D_GROUP", vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "TEXTURE_2D_GROUP", vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotTextureGroupOutput::NodeSlotTextureGroupOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, "TEXTURE_2D_GROUP", vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+    : NodeSlotOutput(vName, "TEXTURE_2D_GROUP", vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotTextureGroupOutput::~NodeSlotTextureGroupOutput() = default;
 
-void NodeSlotTextureGroupOutput::Init()
-{
-	
+void NodeSlotTextureGroupOutput::Init() {
 }
 
-void NodeSlotTextureGroupOutput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotTextureGroupOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotTextureGroupOutput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotTextureGroupOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotTextureGroupOutput::SendFrontNotification(const NotifyEvent& vEvent)
-{
-	if (vEvent == TextureGroupUpdateDone)
-	{
-		SendNotification("TEXTURE_2D_GROUP", vEvent);
-	}
+void NodeSlotTextureGroupOutput::SendFrontNotification(const NotifyEvent& vEvent) {
+    if (vEvent == TextureGroupUpdateDone) {
+        SendNotification("TEXTURE_2D_GROUP", vEvent);
+    }
 }
 
-void NodeSlotTextureGroupOutput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotTextureGroupOutput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

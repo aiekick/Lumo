@@ -23,35 +23,35 @@ limitations under the License.
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
 class CommonSystem;
-class LUMO_BACKEND_API GizmoSystem
-{
+class LUMO_BACKEND_API GizmoSystem {
 public:
-	bool puActivated = false;
-	ImGuizmo::OPERATION puCurrentGizmoOperation = ImGuizmo::OPERATION::UNIVERSAL;
-	ImGuizmo::MODE puCurrentGizmoMode = ImGuizmo::MODE::LOCAL;
-	bool puNeedOneUniformUpdate = false;
+    bool puActivated = false;
+    ImGuizmo::OPERATION puCurrentGizmoOperation = ImGuizmo::OPERATION::UNIVERSAL;
+    ImGuizmo::MODE puCurrentGizmoMode = ImGuizmo::MODE::LOCAL;
+    bool puNeedOneUniformUpdate = false;
 
 private:
-	ct::ActionTime puActionTime;
-	float* m_CurrentGizmo = nullptr;
-
-public:	
-	bool Init();
-	void Unit();
-	bool Use();
-	bool DrawTooltips(GizmoInterfaceWeak vGizmo, ct::frect vRect);
-	bool DrawGizmoTransformDialog(GizmoInterfaceWeak vGizmo);
+    ct::ActionTime puActionTime;
+    float* m_CurrentGizmo = nullptr;
 
 public:
-	static GizmoSystem* Instance()
-	{
-		static GizmoSystem _instance;
-		return &_instance;
-	}
+    bool Init();
+    void Unit();
+    bool Use();
+    bool DrawTooltips(GizmoInterfaceWeak vGizmo, ct::frect vRect);
+    bool DrawGizmoTransformDialog(GizmoInterfaceWeak vGizmo);
+
+public:
+    static GizmoSystem* Instance() {
+        static GizmoSystem _instance;
+        return &_instance;
+    }
 
 protected:
-	GizmoSystem(); // Prevent construction
-	GizmoSystem(const GizmoSystem&) {}; // Prevent construction by copying
-	GizmoSystem& operator =(const GizmoSystem&) { return *this; }; // Prevent assignment
-	~GizmoSystem(); // Prevent unwanted destruction
+    GizmoSystem();                      // Prevent construction
+    GizmoSystem(const GizmoSystem&){};  // Prevent construction by copying
+    GizmoSystem& operator=(const GizmoSystem&) {
+        return *this;
+    };               // Prevent assignment
+    ~GizmoSystem();  // Prevent unwanted destruction
 };

@@ -27,26 +27,25 @@ limitations under the License.
 #include <Gaia/Core/VulkanCore.h>
 #include <LumoBackend/Interfaces/TextureCubeOutputInterface.h>
 
-void TextureCubeInputFunctions::UpdateTextureCubeInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs)
-{
-	ct::fvec2 texSize;
-	for (const auto& input : vInputs) {
-		if (input.second && input.second->slotType == "TEXTURE_CUBE") {
-			for (auto slot : input.second->linkedSlots) {
-				auto otherSLotPtr = slot.lock();
-				if (otherSLotPtr) {
-					if (otherSLotPtr->slotType == "TEXTURE_CUBE") {
-						auto otherParentPtr = otherSLotPtr->parentNode.lock();
-						if (otherParentPtr) {
-							auto otherNodePtr = dynamic_pointer_cast<TextureCubeOutputInterface>(otherParentPtr);
-							if (otherNodePtr) {
-								auto descPtr = otherNodePtr->GetTextureCube(otherSLotPtr->descriptorBinding, &texSize);
-								SetTextureCube(input.second->descriptorBinding, descPtr, &texSize);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+void TextureCubeInputFunctions::UpdateTextureCubeInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs) {
+    ct::fvec2 texSize;
+    for (const auto& input : vInputs) {
+        if (input.second && input.second->slotType == "TEXTURE_CUBE") {
+            for (auto slot : input.second->linkedSlots) {
+                auto otherSLotPtr = slot.lock();
+                if (otherSLotPtr) {
+                    if (otherSLotPtr->slotType == "TEXTURE_CUBE") {
+                        auto otherParentPtr = otherSLotPtr->parentNode.lock();
+                        if (otherParentPtr) {
+                            auto otherNodePtr = dynamic_pointer_cast<TextureCubeOutputInterface>(otherParentPtr);
+                            if (otherNodePtr) {
+                                auto descPtr = otherNodePtr->GetTextureCube(otherSLotPtr->descriptorBinding, &texSize);
+                                SetTextureCube(input.second->descriptorBinding, descPtr, &texSize);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

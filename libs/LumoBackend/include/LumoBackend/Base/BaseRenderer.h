@@ -49,14 +49,10 @@ limitations under the License.
 // il pourra etre derivé et certaine focntionnalité dependant en temps normal du shader
 // pouront etre bloqué en code pour specialisation
 
-class LUMO_BACKEND_API BaseRenderer :
-	public conf::ConfigAbstract,
-	public GuiInterface,
-	public ShaderUpdateInterface,
-	public ResizerInterface {
+class LUMO_BACKEND_API BaseRenderer : public conf::ConfigAbstract, public GuiInterface, public ShaderUpdateInterface, public ResizerInterface {
 private:
-	bool m_NeedNewUBOUpload = true;			// true for first render
-	bool m_NeedNewSBOUpload = true;			// true for first render
+    bool m_NeedNewUBOUpload = true;  // true for first render
+    bool m_NeedNewSBOUpload = true;  // true for first render
 
 protected:
     BaseRendererWeak m_This;  // pointer to this for affected in other op
@@ -65,134 +61,136 @@ protected:
     std::string m_FilePathName;           // file path name when loaded from it for GENERIC_BEHAVIOR_FILE
     uint32_t m_BufferIdToResize = 0U;     // buffer id to resize (mostly used in compute, because in pixel, all attachments must have same size)
     bool m_IsRenderPassExternal = false;  // true if the renderpass is not created here, but come from external (inportant for not destroy him)
-	
-	uint32_t m_CurrentFrame = 0U;			// current frame of double buffering
-	uint32_t m_LastFrame = 0U;				// last frame of double buffering
 
-	std::set<std::string> m_UniformSectionToShow;	// uniform shader stage to show
+    uint32_t m_CurrentFrame = 0U;  // current frame of double buffering
+    uint32_t m_LastFrame = 0U;     // last frame of double buffering
 
-	std::string m_RendererName;				// will use it as main name for display widget
+    std::set<std::string> m_UniformSectionToShow;  // uniform shader stage to show
 
-	bool m_NeedResize = false;				// will be resized if true
-	bool m_Loaded = false;					// if shader operationnel
-	bool m_CanWeRender = true;				// rendering is permited of paused
-	bool m_JustReseted = false;				// when shader was reseted
-	bool m_FirstRender = true;				// 1er rendu
-    bool m_MergedRendering = false;         // rendering in merged mode, so pass fbo will not been used
+    std::string m_RendererName;  // will use it as main name for display widget
 
-	vk::DebugUtilsLabelEXT markerInfo;		// marker info for vkCmdBeginDebugUtilsLabelEXT
-	bool m_DebugLabelWasUsed = false;		// used for say than a vkCmdBeginDebugUtilsLabelEXT was used for name a section in renderdoc
+    bool m_NeedResize = false;       // will be resized if true
+    bool m_Loaded = false;           // if shader operationnel
+    bool m_CanWeRender = true;       // rendering is permited of paused
+    bool m_JustReseted = false;      // when shader was reseted
+    bool m_FirstRender = true;       // 1er rendu
+    bool m_MergedRendering = false;  // rendering in merged mode, so pass fbo will not been used
 
-	const char* m_SectionLabel = nullptr;
+    vk::DebugUtilsLabelEXT markerInfo;  // marker info for vkCmdBeginDebugUtilsLabelEXT
+    bool m_DebugLabelWasUsed = false;   // used for say than a vkCmdBeginDebugUtilsLabelEXT was used for name a section in renderdoc
 
-	int64_t m_FirstTimeMark = 0LL;			// first mark time for deltatime Calculation
-	int64_t m_SecondTimeMark = 0LL;			// last mark time for deltatime Calculation
-	float m_DeltaTime = 0.0f;				// last frame render time
-	uint32_t m_Frame = 0U;					// frame count
-	uint32_t m_CountBuffers = 0U;			// FRAGMENT count framebuffer color attachment from 0 to 7
+    const char* m_SectionLabel = nullptr;
 
-	// vulkan creation
-	GaiApi::VulkanCoreWeak m_VulkanCore;	// vulkan core
-	GaiApi::VulkanQueue m_Queue;					// queue
-	vk::CommandPool m_CommandPool;				// command pool
-	vk::DescriptorPool m_DescriptorPool;		// descriptor pool
-	vk::Device m_Device;						// device copy
+    int64_t m_FirstTimeMark = 0LL;   // first mark time for deltatime Calculation
+    int64_t m_SecondTimeMark = 0LL;  // last mark time for deltatime Calculation
+    float m_DeltaTime = 0.0f;        // last frame render time
+    uint32_t m_Frame = 0U;           // frame count
+    uint32_t m_CountBuffers = 0U;    // FRAGMENT count framebuffer color attachment from 0 to 7
 
-	// Submition
-	std::vector<vk::Semaphore> m_RenderCompleteSemaphores;
-	std::vector<vk::Fence> m_WaitFences;
-	std::vector<vk::CommandBuffer> m_CommandBuffers;
+    // vulkan creation
+    GaiApi::VulkanCoreWeak m_VulkanCore;  // vulkan core
+    GaiApi::VulkanQueue m_Queue;          // queue
+    vk::CommandPool m_CommandPool;        // command pool
+    vk::DescriptorPool m_DescriptorPool;  // descriptor pool
+    vk::Device m_Device;                  // device copy
 
-	// dynamic state
-	vk::Rect2D m_RenderArea = {};
-	vk::Viewport m_Viewport = {};
-	ct::uvec3 m_OutputSize;							// output size for compute stage
-	float m_OutputRatio = 1.0f;
+    // Submition
+    std::vector<vk::Semaphore> m_RenderCompleteSemaphores;
+    std::vector<vk::Fence> m_WaitFences;
+    std::vector<vk::CommandBuffer> m_CommandBuffers;
 
-	// clear Color
-	std::vector<vk::ClearValue> m_ClearColorValues;
+    // dynamic state
+    vk::Rect2D m_RenderArea = {};
+    vk::Viewport m_Viewport = {};
+    ct::uvec3 m_OutputSize;  // output size for compute stage
+    float m_OutputRatio = 1.0f;
 
-	std::vector<ShaderPassWeak> m_ShaderPasses;
+    // clear Color
+    std::vector<vk::ClearValue> m_ClearColorValues;
 
-public: // contructor
-	BaseRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
-	BaseRenderer(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
-	virtual ~BaseRenderer();
+    std::vector<ShaderPassWeak> m_ShaderPasses;
 
-	// Generic Renderer Pass
-	bool AddGenericPass(ShaderPassWeak vPass);
-	ShaderPassWeak GetGenericPass(const uint32_t& vIdx);
-	void ClearGenericPasses();
+public:  // contructor
+    BaseRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
+    BaseRenderer(GaiApi::VulkanCoreWeak vVulkanCore, vk::CommandPool* vCommandPool, vk::DescriptorPool* vDescriptorPool);
+    virtual ~BaseRenderer();
 
-	// during init
-	virtual void ActionBeforeInit();
-	virtual void ActionAfterInitSucceed();
-	virtual void ActionAfterInitFail();
+    // Generic Renderer Pass
+    bool AddGenericPass(ShaderPassWeak vPass);
+    ShaderPassWeak GetGenericPass(const uint32_t& vIdx);
+    void ClearGenericPasses();
 
-	// init/unit
-	bool InitPixel(const ct::uvec2& vSize);
-	bool InitCompute1D(const uint32_t& vSize);
-	bool InitCompute2D(const ct::uvec2& vSize);
-	bool InitCompute3D(const ct::uvec3& vSize);
-	bool InitRtx(const ct::uvec2& vSize);
-	void Unit();
+    // during init
+    virtual void ActionBeforeInit();
+    virtual void ActionAfterInitSucceed();
+    virtual void ActionAfterInitFail();
 
-	// resize
-	void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override; // to call at any moment
-	void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override; // to call at any moment
-	virtual bool ResizeIfNeeded();
+    // init/unit
+    bool InitPixel(const ct::uvec2& vSize);
+    bool InitCompute1D(const uint32_t& vSize);
+    bool InitCompute2D(const ct::uvec2& vSize);
+    bool InitCompute3D(const ct::uvec3& vSize);
+    bool InitRtx(const ct::uvec2& vSize);
+    void Unit();
 
-	// Base : one render for one FBO
-	bool BeginRender(const char* vSectionLabel);
+    // resize
+    void NeedResizeByHand(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;         // to call at any moment
+    void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers = nullptr) override;  // to call at any moment
+    virtual bool ResizeIfNeeded();
+
+    // Base : one render for one FBO
+    bool BeginRender(const char* vSectionLabel);
     void EndRender();
 
-	// rendering of pass in swapchain, set all passes with this flag
+    // rendering of pass in swapchain, set all passes with this flag
     void SetMergedRendering(const bool& vMergedRendering);
 
-	// render
-	virtual void RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr);
+    // render
+    virtual void RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr);
     void Render(const char* vSectionLabel = nullptr, vk::CommandBuffer* vCmdBufferPtr = nullptr);
 
-	virtual void UpdateDescriptorsBeforeCommandBuffer();
+    virtual void UpdateDescriptorsBeforeCommandBuffer();
 
-	// Get
-	vk::Viewport GetViewport() const;
-	vk::Rect2D GetRenderArea() const;
-	ct::fvec2 GetOutputSize() const;
-	float GetOutputRatio() const;
+    // Get
+    vk::Viewport GetViewport() const;
+    vk::Rect2D GetRenderArea() const;
+    ct::fvec2 GetOutputSize() const;
+    float GetOutputRatio() const;
 
-	// Rendering
-	bool ResetFence();
-	vk::CommandBuffer* GetCommandBuffer();
-	void BeginProfilerFrame(const char* vFrameName);
-	void ResetCommandBuffer();
-	void BeginCommandBuffer(const char* vSectionLabel);
-	void EndCommandBuffer();
-	void SubmitPixel();
-	void SubmitCompute();
-	bool WaitFence();
+    // Rendering
+    bool ResetFence();
+    vk::CommandBuffer* GetCommandBuffer();
+    void BeginProfilerFrame(const char* vFrameName);
+    void ResetCommandBuffer();
+    void BeginCommandBuffer(const char* vSectionLabel);
+    void EndCommandBuffer();
+    void SubmitPixel();
+    void SubmitCompute();
+    bool WaitFence();
     void Swap();
 
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-    bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawOverlays(
+        const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+    bool DrawDialogsAndPopups(
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
 
-	virtual void ResetFrame();
+    virtual void ResetFrame();
 
-	void UpdateShaders(const std::set<std::string>& vFiles);
+    void UpdateShaders(const std::set<std::string>& vFiles);
 
-	std::string getXml(const std::string& vOffset, const std::string& vUserDatas);
-	// return true for continue xml parsing of childs in this node or false for interupt the child exploration
-	bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas);
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas);
+    // return true for continue xml parsing of childs in this node or false for interupt the child exploration
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas);
 
 protected:
-	virtual void DoBeforeEndCommandBuffer(vk::CommandBuffer* vCmdBufferPtr);
+    virtual void DoBeforeEndCommandBuffer(vk::CommandBuffer* vCmdBufferPtr);
 
-	// CommandBuffer
-	bool CreateCommanBuffer();
-	void DestroyCommanBuffer();
+    // CommandBuffer
+    bool CreateCommanBuffer();
+    void DestroyCommanBuffer();
 
-	// Sync / Semaphore / Fence
-	bool CreateSyncObjects();
-	void DestroySyncObjects();
+    // Sync / Semaphore / Fence
+    bool CreateSyncObjects();
+    void DestroySyncObjects();
 };

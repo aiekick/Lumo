@@ -24,34 +24,33 @@ class NodeSlotStorageBufferInput;
 typedef std::weak_ptr<NodeSlotStorageBufferInput> NodeSlotStorageBufferInputWeak;
 typedef std::shared_ptr<NodeSlotStorageBufferInput> NodeSlotStorageBufferInputPtr;
 
-class LUMO_BACKEND_API NodeSlotStorageBufferInput : 
-	public NodeSlotInput
-{
+class LUMO_BACKEND_API NodeSlotStorageBufferInput : public NodeSlotInput {
 public:
-	static NodeSlotStorageBufferInputPtr Create(NodeSlotStorageBufferInput vSlot);
-	static NodeSlotStorageBufferInputPtr Create(const std::string& vName, const std::string& vType);
-	static NodeSlotStorageBufferInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
-	static NodeSlotStorageBufferInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
-	static NodeSlotStorageBufferInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotStorageBufferInputPtr Create(NodeSlotStorageBufferInput vSlot);
+    static NodeSlotStorageBufferInputPtr Create(const std::string& vName, const std::string& vType);
+    static NodeSlotStorageBufferInputPtr Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
+    static NodeSlotStorageBufferInputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
+    static NodeSlotStorageBufferInputPtr Create(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotStorageBufferInput();
-	explicit NodeSlotStorageBufferInput(const std::string& vName, const std::string& vType);
-	explicit NodeSlotStorageBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
-	explicit NodeSlotStorageBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
-	explicit NodeSlotStorageBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotStorageBufferInput();
+    explicit NodeSlotStorageBufferInput();
+    explicit NodeSlotStorageBufferInput(const std::string& vName, const std::string& vType);
+    explicit NodeSlotStorageBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint);
+    explicit NodeSlotStorageBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
+    explicit NodeSlotStorageBufferInput(
+        const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotStorageBufferInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		const NotifyEvent& vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

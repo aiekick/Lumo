@@ -24,34 +24,30 @@ class NodeSlotShaderPassInput;
 typedef std::weak_ptr<NodeSlotShaderPassInput> NodeSlotShaderPassInputWeak;
 typedef std::shared_ptr<NodeSlotShaderPassInput> NodeSlotShaderPassInputPtr;
 
-class LUMO_BACKEND_API NodeSlotShaderPassInput : 
-	public NodeSlotInput
-{
+class LUMO_BACKEND_API NodeSlotShaderPassInput : public NodeSlotInput {
 public:
-	static NodeSlotShaderPassInputPtr Create(NodeSlotShaderPassInput vSlot);
-	static NodeSlotShaderPassInputPtr Create(const std::string& vName);
-	static NodeSlotShaderPassInputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotShaderPassInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotShaderPassInputPtr Create(NodeSlotShaderPassInput vSlot);
+    static NodeSlotShaderPassInputPtr Create(const std::string& vName);
+    static NodeSlotShaderPassInputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotShaderPassInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotShaderPassInput();
-	explicit NodeSlotShaderPassInput(const std::string& vName);
-	explicit NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotShaderPassInput();
+    explicit NodeSlotShaderPassInput();
+    explicit NodeSlotShaderPassInput(const std::string& vName);
+    explicit NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotShaderPassInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		const NotifyEvent& vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) override;
+    void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

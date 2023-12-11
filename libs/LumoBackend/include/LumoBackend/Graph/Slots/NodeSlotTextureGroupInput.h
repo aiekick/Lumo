@@ -24,32 +24,28 @@ class NodeSlotTextureGroupInput;
 typedef std::weak_ptr<NodeSlotTextureGroupInput> NodeSlotTextureGroupInputWeak;
 typedef std::shared_ptr<NodeSlotTextureGroupInput> NodeSlotTextureGroupInputPtr;
 
-class LUMO_BACKEND_API NodeSlotTextureGroupInput : 
-	public NodeSlotInput
-{
+class LUMO_BACKEND_API NodeSlotTextureGroupInput : public NodeSlotInput {
 public:
-	static NodeSlotTextureGroupInputPtr Create(NodeSlotTextureGroupInput vSlot);
-	static NodeSlotTextureGroupInputPtr Create(const std::string& vName);
-	static NodeSlotTextureGroupInputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotTextureGroupInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotTextureGroupInputPtr Create(NodeSlotTextureGroupInput vSlot);
+    static NodeSlotTextureGroupInputPtr Create(const std::string& vName);
+    static NodeSlotTextureGroupInputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotTextureGroupInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotTextureGroupInput();
-	explicit NodeSlotTextureGroupInput(const std::string& vName);
-	explicit NodeSlotTextureGroupInput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotTextureGroupInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotTextureGroupInput();
+    explicit NodeSlotTextureGroupInput();
+    explicit NodeSlotTextureGroupInput(const std::string& vName);
+    explicit NodeSlotTextureGroupInput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotTextureGroupInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotTextureGroupInput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
-	void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnConnectEvent(NodeSlotWeak vOtherSlot) override;
+    void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
-	void TreatNotification(
-		const NotifyEvent& vEvent,
-		const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(),
-		const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+    void TreatNotification(
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

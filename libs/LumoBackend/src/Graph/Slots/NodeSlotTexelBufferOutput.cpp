@@ -28,133 +28,114 @@ static const float slotIconSize = 15.0f;
 //// STATIC //////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(NodeSlotTexelBufferOutput vSlot)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferOutput>(vSlot);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(NodeSlotTexelBufferOutput vSlot) {
+    auto res = std::make_shared<NodeSlotTexelBufferOutput>(vSlot);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(const std::string& vName, const std::string& vType)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferOutput>(vName, vType);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(const std::string& vName, const std::string& vType) {
+    auto res = std::make_shared<NodeSlotTexelBufferOutput>(vName, vType);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferOutput>(vName, vType, vBindingPoint);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint) {
+    auto res = std::make_shared<NodeSlotTexelBufferOutput>(vName, vType, vBindingPoint);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferOutput>(vName, vType, vBindingPoint, vHideName);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(
+    const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName) {
+    auto res = std::make_shared<NodeSlotTexelBufferOutput>(vName, vType, vBindingPoint, vHideName);
+    res->m_This = res;
+    return res;
 }
 
-NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
-{
-	auto res = std::make_shared<NodeSlotTexelBufferOutput>(vName, vType, vBindingPoint, vHideName, vShowWidget);
-	res->m_This = res;
-	return res;
+NodeSlotTexelBufferOutputPtr NodeSlotTexelBufferOutput::Create(
+    const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget) {
+    auto res = std::make_shared<NodeSlotTexelBufferOutput>(vName, vType, vBindingPoint, vHideName, vShowWidget);
+    res->m_This = res;
+    return res;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 //// NODESLOT CLASS //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-NodeSlotTexelBufferOutput::NodeSlotTexelBufferOutput()
-	: NodeSlotOutput("", "")
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotTexelBufferOutput::NodeSlotTexelBufferOutput() : NodeSlotOutput("", "") {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
-NodeSlotTexelBufferOutput::NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType)
-	: NodeSlotOutput(vName, vType)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
+NodeSlotTexelBufferOutput::NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType) : NodeSlotOutput(vName, vType) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
 }
 
 NodeSlotTexelBufferOutput::NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint)
-	: NodeSlotOutput(vName, vType)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
+    : NodeSlotOutput(vName, vType) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    descriptorBinding = vBindingPoint;
 }
 
-NodeSlotTexelBufferOutput::NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName)
-	: NodeSlotOutput(vName, vType, vHideName)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
+NodeSlotTexelBufferOutput::NodeSlotTexelBufferOutput(
+    const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName)
+    : NodeSlotOutput(vName, vType, vHideName) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    descriptorBinding = vBindingPoint;
 }
 
-NodeSlotTexelBufferOutput::NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
-	: NodeSlotOutput(vName, vType, vHideName, vShowWidget)
-{
-	pinID = sGetNewSlotId();
-	color = sGetSlotColors()->GetSlotColor(slotType);
-	colorIsSet = true;
-	descriptorBinding = vBindingPoint;
+NodeSlotTexelBufferOutput::NodeSlotTexelBufferOutput(
+    const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget)
+    : NodeSlotOutput(vName, vType, vHideName, vShowWidget) {
+    pinID = sGetNewSlotId();
+    color = sGetSlotColors()->GetSlotColor(slotType);
+    colorIsSet = true;
+    descriptorBinding = vBindingPoint;
 }
 
 NodeSlotTexelBufferOutput::~NodeSlotTexelBufferOutput() = default;
 
-void NodeSlotTexelBufferOutput::Init()
-{
-	
+void NodeSlotTexelBufferOutput::Init() {
 }
 
-void NodeSlotTexelBufferOutput::Unit()
-{
-	// ici pas besoin du assert sur le m_This 
-	// car NodeSlotTexelBufferOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
-	// donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
-	if (!m_This.expired())
-	{
-		if (!parentNode.expired())
-		{
-			auto parentNodePtr = parentNode.lock();
-			if (parentNodePtr)
-			{
-				auto graph = parentNodePtr->GetParentNode();
-				if (!graph.expired())
-				{
-					auto graphPtr = graph.lock();
-					if (graphPtr)
-					{
-						graphPtr->BreakAllLinksConnectedToSlot(m_This);
-					}
-				}
-			}
-		}
-	}
+void NodeSlotTexelBufferOutput::Unit() {
+    // ici pas besoin du assert sur le m_This
+    // car NodeSlotTexelBufferOutput peut etre instancié à l'ancienne en copie local donc sans shared_ptr
+    // donc pour gagner du temps on va checker le this, si expiré on va pas plus loins
+    if (!m_This.expired()) {
+        if (!parentNode.expired()) {
+            auto parentNodePtr = parentNode.lock();
+            if (parentNodePtr) {
+                auto graph = parentNodePtr->GetParentNode();
+                if (!graph.expired()) {
+                    auto graphPtr = graph.lock();
+                    if (graphPtr) {
+                        graphPtr->BreakAllLinksConnectedToSlot(m_This);
+                    }
+                }
+            }
+        }
+    }
 }
 
-void NodeSlotTexelBufferOutput::SendFrontNotification(const NotifyEvent& vEvent)
-{
-	if (vEvent == TexelBufferUpdateDone)
-	{
-		SendNotification(slotType, vEvent);
-	}
+void NodeSlotTexelBufferOutput::SendFrontNotification(const NotifyEvent& vEvent) {
+    if (vEvent == TexelBufferUpdateDone) {
+        SendNotification(slotType, vEvent);
+    }
 }
 
-void NodeSlotTexelBufferOutput::DrawDebugInfos()
-{
-	ImGui::Text("--------------------");
-	ImGui::Text("Slot %s", name.c_str());
-	ImGui::Text(IsAnInput() ? "Input" : "Output");
-	ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
+void NodeSlotTexelBufferOutput::DrawDebugInfos() {
+    ImGui::Text("--------------------");
+    ImGui::Text("Slot %s", name.c_str());
+    ImGui::Text(IsAnInput() ? "Input" : "Output");
+    ImGui::Text("Count connections : %u", (uint32_t)linkedSlots.size());
 }

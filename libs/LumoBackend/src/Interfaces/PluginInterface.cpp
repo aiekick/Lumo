@@ -12,7 +12,9 @@
 #include <Gaia/Gui/VulkanWindow.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 
-PluginInterface::~PluginInterface() { Unit(); }
+PluginInterface::~PluginInterface() {
+    Unit();
+}
 
 bool PluginInterface::Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
     m_VulkanCoreWeak = vVulkanCoreWeak;
@@ -37,16 +39,18 @@ void PluginInterface::Unit() {
     }
 }
 
-bool PluginInterface::AuthorizeLoading() { return true; }
+bool PluginInterface::AuthorizeLoading() {
+    return true;
+}
 
-void PluginInterface::ActionBeforeInit() {}
+void PluginInterface::ActionBeforeInit() {
+}
 
-void PluginInterface::ActionAfterInit() {}
+void PluginInterface::ActionAfterInit() {
+}
 
-LibraryEntry PluginInterface::AddLibraryEntry(const std::string& vCategoryPath,
-    const std::string& vNodeLabel,
-    const std::string& vNodeType,
-    const ct::fvec4& vColor) const {
+LibraryEntry PluginInterface::AddLibraryEntry(
+    const std::string& vCategoryPath, const std::string& vNodeLabel, const std::string& vNodeType, const ct::fvec4& vColor) const {
     LibraryEntry entry;
 
     assert(!vCategoryPath.empty());

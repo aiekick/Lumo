@@ -23,214 +23,185 @@ limitations under the License.
 //// STATIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneTextureGroupPtr SceneTextureGroup::Create(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	auto res = std::make_shared<SceneTextureGroup>();
-	res->m_This = res;
-	if (!res->Init(vVulkanCore))
-	{
-		res.reset();
-	}
-	return res;
+SceneTextureGroupPtr SceneTextureGroup::Create(GaiApi::VulkanCoreWeak vVulkanCore) {
+    auto res = std::make_shared<SceneTextureGroup>();
+    res->m_This = res;
+    if (!res->Init(vVulkanCore)) {
+        res.reset();
+    }
+    return res;
 }
 
 ///////////////////////////////////////////////////////
 //// STATIC : SBO//////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-std::string SceneTextureGroup::GetBufferObjectStructureHeader(const uint32_t& vBindingPoint, const char *vTextureName, const uint32_t& vCount)
-{
-	return ct::toStr("layout(binding = %u) uniform sampler2D %s[%u];\n", vBindingPoint, vTextureName, vCount);
+std::string SceneTextureGroup::GetBufferObjectStructureHeader(const uint32_t& vBindingPoint, const char* vTextureName, const uint32_t& vCount) {
+    return ct::toStr("layout(binding = %u) uniform sampler2D %s[%u];\n", vBindingPoint, vTextureName, vCount);
 }
 
 // will create a empty sbo for default sbo when no slot are connected
-VulkanBufferObjectPtr SceneTextureGroup::CreateEmptyBuffer(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+VulkanBufferObjectPtr SceneTextureGroup::CreateEmptyBuffer(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	/*if (vVulkanCore)
-	{
-		auto size_in_bytes = sizeof(SceneTexture::lightDatas);
-		//gpu only since no udpate will be done
-		return GaiApi::VulkanRessource::createStorageBufferObject(
-			vVulkanCore, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
-	}*/
+    /*if (vVulkanCore)
+    {
+        auto size_in_bytes = sizeof(SceneTexture::lightDatas);
+        //gpu only since no udpate will be done
+        return GaiApi::VulkanRessource::createStorageBufferObject(
+            vVulkanCore, size_in_bytes, VmaMemoryUsage::VMA_MEMORY_USAGE_GPU_ONLY);
+    }*/
 
-	return nullptr;
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////
 //// PUBLIC : CTOR / DTOR /////////////////////////////
 ///////////////////////////////////////////////////////
 
-SceneTextureGroup::SceneTextureGroup()
-{
-	
+SceneTextureGroup::SceneTextureGroup() {
 }
 
-SceneTextureGroup::~SceneTextureGroup()
-{
-	Unit();
+SceneTextureGroup::~SceneTextureGroup() {
+    Unit();
 }
 
 ///////////////////////////////////////////////////////
 //// PUBLIC : INIT / UNIT /////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool SceneTextureGroup::Init(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	m_VulkanCore = vVulkanCore;
+bool SceneTextureGroup::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
+    m_VulkanCore = vVulkanCore;
 
+    if (empty()) {
+        Add();
+    }
 
-		if (empty())
-		{
-			Add();
-		}
-
-		return CreateBufferObject(m_VulkanCore);
+    return CreateBufferObject(m_VulkanCore);
 }
 
-void SceneTextureGroup::Unit()
-{
-	DestroyBufferObject();
+void SceneTextureGroup::Unit() {
+    DestroyBufferObject();
 }
 
 ///////////////////////////////////////////////////////
 //// PUBLIC ///////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-DescriptorImageInfoVector::iterator SceneTextureGroup::begin()
-{
-	ZoneScoped;
+DescriptorImageInfoVector::iterator SceneTextureGroup::begin() {
+    ZoneScoped;
 
-	return m_Textures.begin();
+    return m_Textures.begin();
 }
 
-DescriptorImageInfoVector::iterator SceneTextureGroup::end()
-{
-	ZoneScoped;
+DescriptorImageInfoVector::iterator SceneTextureGroup::end() {
+    ZoneScoped;
 
-	return m_Textures.end();
+    return m_Textures.end();
 }
 
-size_t SceneTextureGroup::size()
-{
-	ZoneScoped;
+size_t SceneTextureGroup::size() {
+    ZoneScoped;
 
-	return m_Textures.size();
+    return m_Textures.size();
 }
 
-void SceneTextureGroup::clear()
-{
-	ZoneScoped;
+void SceneTextureGroup::clear() {
+    ZoneScoped;
 
-	m_Textures.clear();
+    m_Textures.clear();
 }
 
-bool SceneTextureGroup::empty()
-{
-	ZoneScoped;
+bool SceneTextureGroup::empty() {
+    ZoneScoped;
 
-	return m_Textures.empty();
+    return m_Textures.empty();
 }
 
-vk::DescriptorImageInfo* SceneTextureGroup::Add()
-{
-	ZoneScoped;
+vk::DescriptorImageInfo* SceneTextureGroup::Add() {
+    ZoneScoped;
 
-	/*uint32_t idx = (uint32_t)m_Textures.size();
+    /*uint32_t idx = (uint32_t)m_Textures.size();
 
-	if (idx <= sMaxTextureCount)
-	{
-		auto lightPtr = SceneTexture::Create();
-		if (lightPtr)
-		{
-			m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
+    if (idx <= sMaxTextureCount)
+    {
+        auto lightPtr = SceneTexture::Create();
+        if (lightPtr)
+        {
+            m_SBO430.RegisterVar(ct::toStr("lightDatas_%u", idx), lightPtr->lightDatas);
 
-			m_Textures.push_back(lightPtr);
+            m_Textures.push_back(lightPtr);
 
-			return Get(idx);
-		}
-	}*/
+            return Get(idx);
+        }
+    }*/
 
-	return nullptr;
+    return nullptr;
 }
 
-void SceneTextureGroup::erase(uint32_t vIndex)
-{
-	ZoneScoped;
+void SceneTextureGroup::erase(uint32_t vIndex) {
+    ZoneScoped;
 
-	if ((size_t)vIndex < m_Textures.size())
-	{
-		m_Textures.erase(m_Textures.begin() + vIndex);
-	}
+    if ((size_t)vIndex < m_Textures.size()) {
+        m_Textures.erase(m_Textures.begin() + vIndex);
+    }
 }
 
-vk::DescriptorImageInfo* SceneTextureGroup::Get(const size_t& vIndex)
-{
-	ZoneScoped;
+vk::DescriptorImageInfo* SceneTextureGroup::Get(const size_t& vIndex) {
+    ZoneScoped;
 
-	if (m_Textures.size() > (size_t)vIndex)
-	{
-		return &m_Textures.at((size_t)vIndex);
-	}
+    if (m_Textures.size() > (size_t)vIndex) {
+        return &m_Textures.at((size_t)vIndex);
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
-bool SceneTextureGroup::CanAddTexture() const
-{
-	return (m_Textures.size() <= sMaxTextureCount);
+bool SceneTextureGroup::CanAddTexture() const {
+    return (m_Textures.size() <= sMaxTextureCount);
 }
 
-bool SceneTextureGroup::CanRemoveTexture() const
-{
-	return (m_Textures.size() > 1U);
+bool SceneTextureGroup::CanRemoveTexture() const {
+    return (m_Textures.size() > 1U);
 }
 
 ///////////////////////////////////////////////////////
 //// SBO //////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 
-bool SceneTextureGroup::IsOk()
-{
-	return false;
+bool SceneTextureGroup::IsOk() {
+    return false;
 }
 
-void SceneTextureGroup::UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+void SceneTextureGroup::UploadBufferObjectIfDirty(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	//m_SBO430.Upload(vVulkanCore, true);
+    // m_SBO430.Upload(vVulkanCore, true);
 }
 
-bool SceneTextureGroup::CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore)
-{
-	ZoneScoped;
+bool SceneTextureGroup::CreateBufferObject(GaiApi::VulkanCoreWeak vVulkanCore) {
+    ZoneScoped;
 
-	/*if (vVulkanCore && !m_Textures.empty())
-	{
-		corePtr->getDevice().waitIdle();
+    /*if (vVulkanCore && !m_Textures.empty())
+    {
+        corePtr->getDevice().waitIdle();
 
-		return m_SBO430.CreateSBO(vVulkanCore, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
-	}*/
+        return m_SBO430.CreateSBO(vVulkanCore, VmaMemoryUsage::VMA_MEMORY_USAGE_CPU_TO_GPU);
+    }*/
 
-	return false;
+    return false;
 }
 
-void SceneTextureGroup::DestroyBufferObject()
-{
-	ZoneScoped;
+void SceneTextureGroup::DestroyBufferObject() {
+    ZoneScoped;
 
-	//m_SBO430.DestroySBO();
+    // m_SBO430.DestroySBO();
 }
 
-vk::DescriptorBufferInfo* SceneTextureGroup::GetBufferInfo()
-{
-	/*if (m_SBO430.IsOk())
-	{
-		return &m_SBO430.descriptorBufferInfo;
-	}*/
-	return nullptr;
+vk::DescriptorBufferInfo* SceneTextureGroup::GetBufferInfo() {
+    /*if (m_SBO430.IsOk())
+    {
+        return &m_SBO430.descriptorBufferInfo;
+    }*/
+    return nullptr;
 }
-

@@ -24,26 +24,24 @@ class NodeSlotTextureGroupOutput;
 typedef std::weak_ptr<NodeSlotTextureGroupOutput> NodeSlotTextureGroupOutputWeak;
 typedef std::shared_ptr<NodeSlotTextureGroupOutput> NodeSlotTextureGroupOutputPtr;
 
-class LUMO_BACKEND_API NodeSlotTextureGroupOutput : 
-	public NodeSlotOutput
-{
+class LUMO_BACKEND_API NodeSlotTextureGroupOutput : public NodeSlotOutput {
 public:
-	static NodeSlotTextureGroupOutputPtr Create(NodeSlotTextureGroupOutput vSlot);
-	static NodeSlotTextureGroupOutputPtr Create(const std::string& vName);
-	static NodeSlotTextureGroupOutputPtr Create(const std::string& vName, const bool& vHideName);
-	static NodeSlotTextureGroupOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotTextureGroupOutputPtr Create(NodeSlotTextureGroupOutput vSlot);
+    static NodeSlotTextureGroupOutputPtr Create(const std::string& vName);
+    static NodeSlotTextureGroupOutputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotTextureGroupOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-	explicit NodeSlotTextureGroupOutput();
-	explicit NodeSlotTextureGroupOutput(const std::string& vName);
-	explicit NodeSlotTextureGroupOutput(const std::string& vName, const bool& vHideName);
-	explicit NodeSlotTextureGroupOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-	~NodeSlotTextureGroupOutput();
+    explicit NodeSlotTextureGroupOutput();
+    explicit NodeSlotTextureGroupOutput(const std::string& vName);
+    explicit NodeSlotTextureGroupOutput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotTextureGroupOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotTextureGroupOutput();
 
-	void Init();
-	void Unit();
+    void Init();
+    void Unit();
 
-	void SendFrontNotification(const NotifyEvent& vEvent) override;
+    void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-	void DrawDebugInfos();
+    void DrawDebugInfos();
 };

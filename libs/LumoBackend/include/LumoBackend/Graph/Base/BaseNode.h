@@ -50,7 +50,6 @@ limitations under the License.
 #include <LumoBackend/Graph/Slots/NodeSlotTaskInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
 
-
 #define MAGIC_NUMBER 4577
 
 /*

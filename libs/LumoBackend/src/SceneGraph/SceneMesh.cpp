@@ -28,33 +28,34 @@ using namespace GaiApi;
 template<typename T_VertexType>
 std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCoreWeak vVulkanCore)
 {
-	if (!vVulkanCore) return nullptr;
-	auto res = std::make_shared<SceneMesh<T_VertexType>>(vVulkanCore);
-	res->m_This = res;
-	return res;
+    if (!vVulkanCore) return nullptr;
+    auto res = std::make_shared<SceneMesh<T_VertexType>>(vVulkanCore);
+    res->m_This = res;
+    return res;
 }
 
 template<typename T_VertexType>
-std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCoreWeak vVulkanCore, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
+std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Create(GaiApi::VulkanCoreWeak vVulkanCore, std::vector<T_VertexType> vVerticeArray,
+IndiceArray vIndiceArray)
 {
-	auto res = std::make_shared<SceneMesh>(vVulkanCore, vVerticeArray, vIndiceArray);
-	res->m_This = res;
-	if (!res->Init())
-		res.reset();
-	return res;
+    auto res = std::make_shared<SceneMesh>(vVulkanCore, vVerticeArray, vIndiceArray);
+    res->m_This = res;
+    if (!res->Init())
+        res.reset();
+    return res;
 }
 
 template<typename T_VertexType>
 std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Copy(const std::weak_ptr<SceneMesh<T_VertexType>>& vSceneMeshToCopy)
 {
-	auto fromPtr = vSceneMeshToCopy.lock();
-	if (fromPtr)
-	{
-		auto res = std::make_shared<SceneMesh>(*fromPtr);
-		res->m_This = res;
-		return res;
-	}
-	return nullptr;
+    auto fromPtr = vSceneMeshToCopy.lock();
+    if (fromPtr)
+    {
+        auto res = std::make_shared<SceneMesh>(*fromPtr);
+        res->m_This = res;
+        return res;
+    }
+    return nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,24 +63,24 @@ std::shared_ptr<SceneMesh<T_VertexType>> SceneMesh<T_VertexType>::Copy(const std
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename T_VertexType>
-SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCoreWeak vVulkanCore) 
-	: m_VulkanCorePtr(vVulkanCore)
+SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCoreWeak vVulkanCore)
+    : m_VulkanCorePtr(vVulkanCore)
 {
 
 }
 
 template<typename T_VertexType>
 SceneMesh<T_VertexType>::SceneMesh(GaiApi::VulkanCoreWeak vVulkanCore, std::vector<T_VertexType> vVerticeArray, IndiceArray vIndiceArray)
-	: m_VulkanCorePtr(vVulkanCore)
+    : m_VulkanCorePtr(vVulkanCore)
 {
-	m_Vertices.m_Array = vVerticeArray;
-	m_Indices.m_Array = vIndiceArray;
+    m_Vertices.m_Array = vVerticeArray;
+    m_Indices.m_Array = vIndiceArray;
 }
 
 template<typename T_VertexType>
 SceneMesh<T_VertexType>::~SceneMesh()
 {
-	Unit();
+    Unit();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,13 +90,13 @@ SceneMesh<T_VertexType>::~SceneMesh()
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::Init()
 {
-	return Build(true);
+    return Build(true);
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::Unit()
 {
-	Destroy();
+    Destroy();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -105,7 +106,7 @@ void SceneMesh<T_VertexType>::Unit()
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::empty()
 {
-	return m_Vertices.m_Array.empty() || m_Indices.m_Array.empty();
+    return m_Vertices.m_Array.empty() || m_Indices.m_Array.empty();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,180 +116,180 @@ bool SceneMesh<T_VertexType>::empty()
 template<typename T_VertexType>
 vk::Buffer SceneMesh<T_VertexType>::GetVerticesBuffer()
 {
-	return m_Vertices.m_Buffer->buffer;
+    return m_Vertices.m_Buffer->buffer;
 }
 
 template<typename T_VertexType>
 vk::DescriptorBufferInfo* SceneMesh<T_VertexType>::GetVerticesBufferInfo()
 {
-	return &m_Vertices.m_BufferInfo;
+    return &m_Vertices.m_BufferInfo;
 }
 
 template<typename T_VertexType>
 uint64_t SceneMesh<T_VertexType>::GetVerticesDeviceAddress()
 {
-	return m_Vertices.m_Buffer->device_address;
+    return m_Vertices.m_Buffer->device_address;
 }
 
 template<typename T_VertexType>
 std::vector<T_VertexType>* SceneMesh<T_VertexType>::GetVertices()
 {
-	return &m_Vertices.m_Array;
+    return &m_Vertices.m_Array;
 }
 
 template<typename T_VertexType>
 uint32_t SceneMesh<T_VertexType>::GetVerticesCount()
 {
-	return (uint32_t)m_Vertices.m_Array.size();
+    return (uint32_t)m_Vertices.m_Array.size();
 }
 
 template<typename T_VertexType>
 vk::Buffer SceneMesh<T_VertexType>::GetIndicesBuffer()
 {
-	return m_Indices.m_Buffer->buffer;
+    return m_Indices.m_Buffer->buffer;
 }
 
 template<typename T_VertexType>
 vk::DescriptorBufferInfo* SceneMesh<T_VertexType>::GetIndicesBufferInfo()
 {
-	return &m_Indices.m_BufferInfo;
+    return &m_Indices.m_BufferInfo;
 }
 
 template<typename T_VertexType>
 uint64_t SceneMesh<T_VertexType>::GetIndiceDeviceAddress()
 {
-	return m_Indices.m_Buffer->device_address;
+    return m_Indices.m_Buffer->device_address;
 }
 
 template<typename T_VertexType>
 IndiceArray* SceneMesh<T_VertexType>::GetIndices()
 {
-	return &m_Indices.m_Array;
+    return &m_Indices.m_Array;
 }
 
 template<typename T_VertexType>
 uint32_t SceneMesh<T_VertexType>::GetIndicesCount()
 {
-	return (uint32_t)m_Indices.m_Array.size();
+    return (uint32_t)m_Indices.m_Array.size();
 }
 
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::HasNormals()
 {
-	return m_HaveNormals;
+    return m_HaveNormals;
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::HaveNormals()
 {
-	m_HaveNormals = true;
+    m_HaveNormals = true;
 }
 
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::HasTangeants()
 {
-	return m_HaveTangeants;
+    return m_HaveTangeants;
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::HaveTangeants()
 {
-	m_HaveTangeants = true;
+    m_HaveTangeants = true;
 }
 
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::HasBiTangeants()
 {
-	return m_HaveBiTangeants;
+    return m_HaveBiTangeants;
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::HaveBiTangeants()
 {
-	m_HaveBiTangeants = true;
+    m_HaveBiTangeants = true;
 }
 
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::HasTextureCoords()
 {
-	return m_HaveTextureCoords;
+    return m_HaveTextureCoords;
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::HaveTextureCoords()
 {
-	m_HaveTextureCoords = true;
+    m_HaveTextureCoords = true;
 }
 
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::HasVertexColors()
 {
-	return m_HaveVertexColors;
+    return m_HaveVertexColors;
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::HaveVertexColors()
 {
-	m_HaveVertexColors = true;
+    m_HaveVertexColors = true;
 }
 
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::HasIndices()
 {
-	return m_HaveIndices;
+    return m_HaveIndices;
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::HaveIndices()
 {
-	m_HaveIndices = true;
+    m_HaveIndices = true;
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::SetPrimitiveType(const SceneModelPrimitiveType& vType)
 {
-	m_PrimitiveType = vType;
+    m_PrimitiveType = vType;
 }
 
 template<typename T_VertexType>
 const SceneModelPrimitiveType& SceneMesh<T_VertexType>::GetPrimitiveType() const
 {
-	return m_PrimitiveType;
+    return m_PrimitiveType;
 }
 
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::Build(bool vUseSBO)
 {
-	if (!BuildVBO(vUseSBO))
-	{
-		return false;
-	}
-	else
-	{
-		BuildIBO(vUseSBO);
-	}
+    if (!BuildVBO(vUseSBO))
+    {
+        return false;
+    }
+    else
+    {
+        BuildIBO(vUseSBO);
+    }
 
-	return true;
+    return true;
 }
 
 template<typename T_VertexType>
 std::vector<T_VertexType> SceneMesh<T_VertexType>::GetVerticesFromGPU()
 {
-	std::vector<T_VertexType> res;
+    std::vector<T_VertexType> res;
 
-	CTOOL_DEBUG_BREAK;
+    CTOOL_DEBUG_BREAK;
 
-	return res;
+    return res;
 }
 
 template<typename T_VertexType>
 std::vector<VertexStruct::I1> SceneMesh<T_VertexType>::GetIndicesFromGPU()
 {
-	std::vector<VertexStruct::I1> res;
+    std::vector<VertexStruct::I1> res;
 
-	CTOOL_DEBUG_BREAK;
+    CTOOL_DEBUG_BREAK;
 
-	return res;
+    return res;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,62 +299,62 @@ std::vector<VertexStruct::I1> SceneMesh<T_VertexType>::GetIndicesFromGPU()
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::Destroy()
 {
-	DestroyVBO();
-	DestroyIBO();
+    DestroyVBO();
+    DestroyIBO();
 }
 
 template<typename T_VertexType>
 bool SceneMesh<T_VertexType>::BuildVBO(bool vUseSBO)
 {
-	DestroyVBO();
+    DestroyVBO();
 
-	m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCore, m_Vertices.m_Array, vUseSBO, false, corePtr->GetSupportedFeatures().is_RTX_Supported);
-	m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
+    m_Vertices.m_Buffer = VulkanRessource::createVertexBufferObject(m_VulkanCore, m_Vertices.m_Array, vUseSBO, false,
+corePtr->GetSupportedFeatures().is_RTX_Supported); m_Vertices.m_Count = (uint32_t)m_Vertices.m_Array.size();
 
-	m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
-	m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * (uint32_t)sizeof(T_VertexType);
-	m_Vertices.m_BufferInfo.offset = 0;
+    m_Vertices.m_BufferInfo.buffer = m_Vertices.m_Buffer->buffer;
+    m_Vertices.m_BufferInfo.range = m_Vertices.m_Count * (uint32_t)sizeof(T_VertexType);
+    m_Vertices.m_BufferInfo.offset = 0;
 
-	m_SceneMeshBuffers.vertices_address = m_Vertices.m_Buffer->device_address;
+    m_SceneMeshBuffers.vertices_address = m_Vertices.m_Buffer->device_address;
 
-	return true;
+    return true;
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::DestroyVBO()
 {
-	corePtr->getDevice().waitIdle();
+    corePtr->getDevice().waitIdle();
 
-	m_Vertices.m_Buffer.reset();
-	m_Vertices.m_BufferInfo = vk::DescriptorBufferInfo();
+    m_Vertices.m_Buffer.reset();
+    m_Vertices.m_BufferInfo = vk::DescriptorBufferInfo();
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::BuildIBO(bool vUseSBO)
 {
-	DestroyIBO();
+    DestroyIBO();
 
-	auto devicePtr = corePtr->getFrameworkDevice().lock();
-	if (devicePtr)
-	{
-		m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCore, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse()); // the last true is for RTX
-		m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
+    auto devicePtr = corePtr->getFrameworkDevice().lock();
+    if (devicePtr)
+    {
+        m_Indices.m_Buffer = VulkanRessource::createIndexBufferObject(m_VulkanCore, m_Indices.m_Array, vUseSBO, false, devicePtr->GetRTXUse()); // the
+last true is for RTX m_Indices.m_Count = (uint32_t)m_Indices.m_Array.size();
 
-		m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
-		m_Indices.m_BufferInfo.range = m_Indices.m_Count * (uint32_t)sizeof(uint32_t);
-		m_Indices.m_BufferInfo.offset = 0;
+        m_Indices.m_BufferInfo.buffer = m_Indices.m_Buffer->buffer;
+        m_Indices.m_BufferInfo.range = m_Indices.m_Count * (uint32_t)sizeof(uint32_t);
+        m_Indices.m_BufferInfo.offset = 0;
 
-		m_SceneMeshBuffers.vertices_address = m_Indices.m_Buffer->device_address;
-	}
+        m_SceneMeshBuffers.vertices_address = m_Indices.m_Buffer->device_address;
+    }
 }
 
 template<typename T_VertexType>
 void SceneMesh<T_VertexType>::DestroyIBO()
 {
-	corePtr->getDevice().waitIdle();
+    corePtr->getDevice().waitIdle();
 
-	m_Indices.m_Buffer.reset();
-	m_Indices.m_BufferInfo = vk::DescriptorBufferInfo();
+    m_Indices.m_Buffer.reset();
+    m_Indices.m_BufferInfo = vk::DescriptorBufferInfo();
 }
 
 */

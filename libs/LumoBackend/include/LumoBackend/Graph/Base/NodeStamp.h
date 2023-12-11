@@ -22,16 +22,15 @@ limitations under the License.
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 #include <string>
 
-class LUMO_BACKEND_API NodeStamp
-{
+class LUMO_BACKEND_API NodeStamp {
 public:
-	std::string typeStamp; // float(vec3)
-	std::string nameStamp; // float map(vec3)
-	std::string fullStamp; // float map(vec3 a)
-	
-public:
-	NodeStamp();
-	~NodeStamp();
+    std::string typeStamp;  // float(vec3)
+    std::string nameStamp;  // float map(vec3)
+    std::string fullStamp;  // float map(vec3 a)
 
-	void DrawImGui();
+public:
+    NodeStamp();
+    ~NodeStamp();
+
+    void DrawImGui();
 };

@@ -22,33 +22,31 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-class LUMO_BACKEND_API NodeInterface
-{
+class LUMO_BACKEND_API NodeInterface {
 protected:
-	BaseNodeWeak m_ParentNode; // node parent dans le cas d'un ndoe enfant d'un graph
+    BaseNodeWeak m_ParentNode;  // node parent dans le cas d'un ndoe enfant d'un graph
 
 public:
-	void SetParentNode(BaseNodeWeak vBaseNodeWeak = BaseNodeWeak())
-	{
-		m_ParentNode = vBaseNodeWeak;
-	}
-	
-	BaseNodeWeak GetParentNode() 
-	{
-		return m_ParentNode;
-	}
+    void SetParentNode(BaseNodeWeak vBaseNodeWeak = BaseNodeWeak()) {
+        m_ParentNode = vBaseNodeWeak;
+    }
 
-	// draw the widget of the node (so not related to input or output widgets)
-	virtual bool DrawNodeWidget(const uint32_t& /*vCurrentFrame*/, ImGuiContext* vContextPtr)
-	{
-		assert(vContextPtr);
-		ImGui::SetCurrentContext(vContextPtr);
-		return false; 
-	}
+    BaseNodeWeak GetParentNode() {
+        return m_ParentNode;
+    }
 
-	// when XML loading of the node will began
-	virtual void BeforeNodeXmlLoading() {}
+    // draw the widget of the node (so not related to input or output widgets)
+    virtual bool DrawNodeWidget(const uint32_t& /*vCurrentFrame*/, ImGuiContext* vContextPtr) {
+        assert(vContextPtr);
+        ImGui::SetCurrentContext(vContextPtr);
+        return false;
+    }
 
-	// when XML loading of the node is finished
-	virtual void AfterNodeXmlLoading() {}
+    // when XML loading of the node will began
+    virtual void BeforeNodeXmlLoading() {
+    }
+
+    // when XML loading of the node is finished
+    virtual void AfterNodeXmlLoading() {
+    }
 };
