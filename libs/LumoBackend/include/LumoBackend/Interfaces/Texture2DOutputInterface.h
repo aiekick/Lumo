@@ -23,7 +23,7 @@ limitations under the License.
 
 //todo : split the interface in one input interface and one output interface
 // can clarify some code who jsut need output and not input 
-class LUMO_BACKEND_API TextureOutputInterface
+class LUMO_BACKEND_API Texture2DOutputInterface
 {
 public:
 	virtual vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) = 0;

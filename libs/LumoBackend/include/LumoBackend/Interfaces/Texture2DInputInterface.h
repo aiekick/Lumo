@@ -28,16 +28,16 @@ limitations under the License.
 #include <Gaia/gaia.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
 
-class LUMO_BACKEND_API TextureInputFunctions {
+class LUMO_BACKEND_API Texture2DInputFunctions {
 protected:
-    void UpdateTextureInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs);
+    void UpdateTexture2DInputDescriptorImageInfos(const std::map<uint32_t, NodeSlotInputPtr>& vInputs);
 
 public:
     virtual void SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) = 0;
 };
 
 template <size_t size_of_array>
-class TextureInputInterface : public TextureInputFunctions {
+class Texture2DInputInterface : public Texture2DInputFunctions {
 protected:
     std::array<vk::DescriptorImageInfo, size_of_array> m_ImageInfos;
     std::array<ct::fvec2, size_of_array> m_ImageInfosSize;
@@ -48,7 +48,7 @@ protected:  // internal use
 };
 
 template <size_t size_of_array>
-void TextureInputInterface<size_of_array>::DrawInputTexture(
+void Texture2DInputInterface<size_of_array>::DrawInputTexture(
     GaiApi::VulkanCoreWeak vVKCore, const char* vLabel, const uint32_t& vIdx, const float& vRatio) {
     if (!vVKCore.expired() && vLabel && vIdx <= (uint32_t)size_of_array) {
         auto corePtr = vVKCore.lock();
