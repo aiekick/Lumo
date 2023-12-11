@@ -21,8 +21,8 @@ limitations under the License.
 #include <Modules/Renderers/RtxPbrRendererModule.h>
 #include <Slots/NodeSlotAccelStructureInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -73,10 +73,10 @@ bool RtxPbrRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     AddInput(NodeSlotAccelStructureInput::Create("BVH"), false, false);
     AddInput(NodeSlotLightGroupInput::Create("Lights"), false, false);
-    AddInput(NodeSlotTextureInput::Create("Albedo", 0U), false, false);
-    AddInput(NodeSlotTextureInput::Create("AO", 1U), false, false);
-    AddInput(NodeSlotTextureInput::Create("LongLat", 2U), false, false);
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddInput(NodeSlotTexture2DInput::Create("Albedo", 0U), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("AO", 1U), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("LongLat", 2U), false, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_RtxPbrRendererModulePtr = RtxPbrRendererModule::Create(vVulkanCore, m_This);
     if (m_RtxPbrRendererModulePtr) {
@@ -96,7 +96,7 @@ bool RtxPbrRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_RtxPbrRendererModulePtr) {
         return m_RtxPbrRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "SharpnessNode.h"
 #include <Modules/PostPro/Effects/SharpnessModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include PROFILER_INCLUDE
@@ -68,9 +68,9 @@ bool SharpnessNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Sharpness";
 
-    AddInput(NodeSlotTextureInput::Create("", 0), false, true);
+    AddInput(NodeSlotTexture2DInput::Create("", 0), false, true);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_SharpnessModulePtr = SharpnessModule::Create(vVulkanCore, m_This);
     if (m_SharpnessModulePtr) {
@@ -92,7 +92,7 @@ bool SharpnessNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_SharpnessModulePtr) {
         res = m_SharpnessModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

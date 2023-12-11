@@ -43,11 +43,11 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class CurlModule_Comp_2D_Pass;
-class CurlModule : public NodeInterface, public BaseRenderer, public TaskInterface, public TextureInputInterface<0U>, public TextureOutputInterface {
+class CurlModule : public NodeInterface, public BaseRenderer, public TaskInterface, public Texture2DInputInterface<0U>, public Texture2DOutputInterface {
 public:
     static std::shared_ptr<CurlModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 

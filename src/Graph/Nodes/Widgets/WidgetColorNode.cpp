@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "WidgetColorNode.h"
 #include <Graph/Modules/Widgets/WidgetColorModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -46,7 +46,7 @@ WidgetColorNode::~WidgetColorNode() {
 bool WidgetColorNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Widget Color";
 
-    auto slotPtr = NodeSlotTextureOutput::Create("Color", 0U);
+    auto slotPtr = NodeSlotTexture2DOutput::Create("Color", 0U);
     if (slotPtr) {
         slotPtr->showWidget = true;
         AddOutput(slotPtr, true, true);

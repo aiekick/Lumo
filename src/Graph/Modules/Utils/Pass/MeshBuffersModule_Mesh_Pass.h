@@ -34,15 +34,15 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/CameraInterface.h>
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 class MeshBuffersModule_Mesh_Pass : public ShaderPass,
 
                                     public ModelInputInterface,
-                                    public TextureInputInterface<1U>,
-                                    public TextureOutputInterface {
+                                    public Texture2DInputInterface<1U>,
+                                    public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
     vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;

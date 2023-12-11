@@ -38,14 +38,14 @@ limitations under the License.
 #include <Gaia/Resources/VulkanFrameBuffer.h>
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
 class Layering2DModule_Comp_Pass : public ShaderPass,
 
-                                   public TextureInputInterface<2U>,
-                                   public TextureOutputInterface {
+                                   public Texture2DInputInterface<2U>,
+                                   public Texture2DOutputInterface {
 private:
     std::vector<std::string> m_MethodNames = {"r", "g", "b", "a", "length(rg)", "length(rgb)", "length(rga)", "median(rgb)"};
 

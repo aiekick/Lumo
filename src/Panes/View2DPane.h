@@ -28,7 +28,7 @@ limitations under the License.
 class ProjectFile;
 class View2DPane : public AbstractPane {
 private:
-    NodeSlotWeak m_TextureOutputSlot;
+    NodeSlotWeak m_Texture2DOutputSlot;
     ImGuiTexture m_ImGuiTexture;
     ct::irect m_PreviewRect;
     VulkanImGuiRendererWeak m_VulkanImGuiRenderer;
@@ -57,7 +57,7 @@ public:
         const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
     void Select(BaseNodeWeak vObjet);
 
-    ct::fvec2 SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot);
+    ct::fvec2 SetOrUpdateOutput(NodeSlotWeak vTexture2DOutputSlot);
     void SetVulkanImGuiRenderer(VulkanImGuiRendererWeak vVulkanImGuiRenderer);
 
 private:

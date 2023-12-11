@@ -18,10 +18,10 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class Texture2DModule;
-class Texture2DNode : public BaseNode, public TextureOutputInterface {
+class Texture2DNode : public BaseNode, public Texture2DOutputInterface {
 public:
     static std::shared_ptr<Texture2DNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

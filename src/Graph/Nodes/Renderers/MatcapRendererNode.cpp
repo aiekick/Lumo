@@ -18,8 +18,8 @@ limitations under the License.
 #include <Graph/Modules/Renderers/MatcapRenderer.h>
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
 #ifdef PROFILER_INCLUDE
@@ -51,8 +51,8 @@ bool MatcapRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Matcap";
 
     AddInput(NodeSlotModelInput::Create("Model"), true, false);
-    AddInput(NodeSlotTextureInput::Create("Matcap", 0U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Matcap", 0U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
     AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
     bool res = false;
@@ -73,7 +73,7 @@ bool MatcapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_MatcapRenderer) {
         return m_MatcapRenderer->Execute(vCurrentFrame, vCmd, vBaseNodeState);

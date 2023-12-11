@@ -41,8 +41,8 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 #include <LumoBackend/Interfaces/SerializationInterface.h>
@@ -51,8 +51,8 @@ class PosToDepthModule_Quad_Pass;
 class PosToDepthModule : public BaseRenderer,
 
                          public TaskInterface,
-                         public TextureInputInterface<0U>,
-                         public TextureOutputInterface {
+                         public Texture2DInputInterface<0U>,
+                         public Texture2DOutputInterface {
 public:
     static std::shared_ptr<PosToDepthModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

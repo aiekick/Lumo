@@ -18,8 +18,8 @@ limitations under the License.
 #include <Modules/Lighting/SpecularModule.h>
 #include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -50,9 +50,9 @@ bool SpecularNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Specular";
 
     AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
-    AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Position", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Normal", 1U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
 
     m_SpecularModulePtr = SpecularModule::Create(vVulkanCore);
     if (m_SpecularModulePtr) {
@@ -66,7 +66,7 @@ bool SpecularNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_SpecularModulePtr) {
         return m_SpecularModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

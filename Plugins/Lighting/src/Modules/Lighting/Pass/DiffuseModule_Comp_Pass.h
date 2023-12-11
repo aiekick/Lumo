@@ -39,16 +39,16 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
 class DiffuseModule_Comp_Pass : public ShaderPass,
 
                                 public NodeInterface,
                                 public LightGroupInputInterface,
-                                public TextureInputInterface<3U>,
-                                public TextureOutputInterface {
+                                public Texture2DInputInterface<3U>,
+                                public Texture2DOutputInterface {
 private:
     struct UBO_Comp {
         alignas(4) float u_use_pos_map = 0.0f;

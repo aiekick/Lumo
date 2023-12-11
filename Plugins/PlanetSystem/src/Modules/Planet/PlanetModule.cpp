@@ -267,7 +267,7 @@ void PlanetModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImage
     ZoneScoped;
 
     for (auto pass : m_ShaderPasses) {
-        auto texture_input_ptr = std::dynamic_pointer_cast<TextureInputInterface<3>>(pass.lock());
+        auto texture_input_ptr = std::dynamic_pointer_cast<Texture2DInputInterface<3>>(pass.lock());
         if (texture_input_ptr) {
             texture_input_ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
         }

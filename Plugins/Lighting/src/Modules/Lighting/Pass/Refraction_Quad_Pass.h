@@ -37,14 +37,14 @@ limitations under the License.
 #include <Gaia/Resources/VulkanFrameBuffer.h>
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 #include <LumoBackend/Interfaces/TextureCubeInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class Refraction_Quad_Pass : public QuadShaderPass,
-                             public TextureInputInterface<2>,
+                             public Texture2DInputInterface<2>,
                              public TextureCubeInputInterface<1>,
-                             public TextureOutputInterface {
+                             public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
     vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = {VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};

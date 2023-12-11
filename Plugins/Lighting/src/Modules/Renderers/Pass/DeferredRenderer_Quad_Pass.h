@@ -42,16 +42,16 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/ShaderInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class ShadowMapModule;
 
 class DeferredRenderer_Quad_Pass : public QuadShaderPass,
 
-                                   public TextureInputInterface<9U>,
-                                   public TextureOutputInterface {
+                                   public Texture2DInputInterface<9U>,
+                                   public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
     vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;

@@ -19,9 +19,9 @@ limitations under the License.
 
 #include "ReflectionNode.h"
 #include <Modules/Lighting/ReflectionModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureCubeInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -69,11 +69,11 @@ bool ReflectionNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Reflection";
 
-    AddInput(NodeSlotTextureInput::Create("Normal", 0), false, false);
-    m_LongLatInputSlot = AddInput(NodeSlotTextureInput::Create("LongLat", 1), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Normal", 0), false, false);
+    m_LongLatInputSlot = AddInput(NodeSlotTexture2DInput::Create("LongLat", 1), false, false);
     m_CubeMapInputSlot = AddInput(NodeSlotTextureCubeInput::Create("CubeMap", 0), false, false);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_ReflectionModulePtr = ReflectionModule::Create(vVulkanCore, m_This);
     if (m_ReflectionModulePtr) {
@@ -95,7 +95,7 @@ bool ReflectionNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     UpdateTextureCubeInputDescriptorImageInfos(m_Inputs);
 
     if (m_ReflectionModulePtr) {

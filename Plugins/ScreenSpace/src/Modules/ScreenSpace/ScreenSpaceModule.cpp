@@ -116,13 +116,13 @@ void ScreenSpaceModule::UpdateDescriptorsBeforeCommandBuffer() {
     // will connect active effects is there is at least two active effects
     m_FirstPassPtr = nullptr;
     m_LastPassPtr = nullptr;
-    std::shared_ptr<TextureOutputInterface> _lastActivePassPtr = nullptr;
+    std::shared_ptr<Texture2DOutputInterface> _lastActivePassPtr = nullptr;
     for (auto pass : m_ShaderPasses) {
         auto pass_ptr = pass.lock();
         if (pass_ptr != nullptr) {
             auto effect_ptr = std::dynamic_pointer_cast<EffectInterface>(pass_ptr);
             if (effect_ptr != nullptr && effect_ptr->IsEffectEnabled() != nullptr && *effect_ptr->IsEffectEnabled()) {
-                auto texture_input_ptr = std::dynamic_pointer_cast<TextureInputFunctions>(pass_ptr);
+                auto texture_input_ptr = std::dynamic_pointer_cast<Texture2DInputFunctions>(pass_ptr);
                 if (texture_input_ptr != nullptr) {
                     if (_lastActivePassPtr != nullptr) {
                         ct::fvec2 outSize;  // must be empty if not will create a resize on the ouput of the next pass
@@ -130,7 +130,7 @@ void ScreenSpaceModule::UpdateDescriptorsBeforeCommandBuffer() {
                         texture_input_ptr->SetTexture(0U, outputTexture, &outSize);
                     }
                 }
-                _lastActivePassPtr = std::dynamic_pointer_cast<TextureOutputInterface>(pass_ptr);
+                _lastActivePassPtr = std::dynamic_pointer_cast<Texture2DOutputInterface>(pass_ptr);
                 if (m_FirstPassPtr == nullptr) {
                     m_FirstPassPtr = texture_input_ptr;
                 }

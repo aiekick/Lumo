@@ -8,8 +8,11 @@
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
+
+#include <LumoBackend/Graph/Slots/NodeSlotTexture3DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture3DOutput.h>
 
 #include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>
@@ -166,8 +169,12 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(
                 }
                 vChange |= ImGui::CheckBoxBoolDefault("Hide Name", &slotPtr->hideName, false);
                 vChange |= ImGui::CheckBoxBoolDefault("Show widget", &slotPtr->showWidget, false);
-                if (m_SelectedType == "StorageBuffer" || m_SelectedType == "TexelBuffer" || m_SelectedType == "Texture" ||
-                    m_SelectedType == "TextureCube" || m_SelectedType == "TextureGroup") {
+                if (m_SelectedType == "StorageBuffer" ||  //
+                    m_SelectedType == "TexelBuffer" ||    //
+                    m_SelectedType == "Texture2D" ||      //
+                    m_SelectedType == "Texture3D" ||      //
+                    m_SelectedType == "TextureCube" ||    //
+                    m_SelectedType == "TextureGroup") {
                     vChange |= ImGui::InputUIntDefault(0.0f, "Descriptor Binding", &slotPtr->descriptorBinding, 1U, 2U, 0U);
                 } else if (m_SelectedType == "Variable") {
                     vChange |= ImGui::InputUIntDefault(0.0f, "Variable Index", &slotPtr->variableIndex, 1U, 2U, 0U);
@@ -204,8 +211,10 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(
                     if (slotPtr->slotType.empty())
                         slotPtr->slotType = "NONE";
                     resPtr = NodeSlotTexelBufferInput::Create(slotPtr->name, slotPtr->slotType);
-                } else if (vType == "Texture") {
-                    resPtr = NodeSlotTextureInput::Create(slotPtr->name, slotPtr->descriptorBinding);
+                } else if (vType == "Texture2D") {
+                    resPtr = NodeSlotTexture2DInput::Create(slotPtr->name, slotPtr->descriptorBinding);
+                } else if (vType == "Texture3D") {
+                    resPtr = NodeSlotTexture3DInput::Create(slotPtr->name, slotPtr->descriptorBinding);
                 } else if (vType == "TextureCube") {
                     resPtr = NodeSlotTextureCubeInput::Create(slotPtr->name, slotPtr->descriptorBinding);
                 } else if (vType == "TextureGroup") {
@@ -261,8 +270,10 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(
                     if (slotPtr->slotType.empty())
                         slotPtr->slotType = "NONE";
                     resPtr = NodeSlotTexelBufferOutput::Create(slotPtr->name, slotPtr->slotType);
-                } else if (vType == "Texture") {
-                    resPtr = NodeSlotTextureOutput::Create(slotPtr->name, slotPtr->descriptorBinding);
+                } else if (vType == "Texture2D") {
+                    resPtr = NodeSlotTexture2DOutput::Create(slotPtr->name, slotPtr->descriptorBinding);
+                } else if (vType == "Texture3D") {
+                    resPtr = NodeSlotTexture3DOutput::Create(slotPtr->name, slotPtr->descriptorBinding);
                 } else if (vType == "TextureCube") {
                     resPtr = NodeSlotTextureCubeOutput::Create(slotPtr->name, slotPtr->descriptorBinding);
                 } else if (vType == "TextureGroup") {

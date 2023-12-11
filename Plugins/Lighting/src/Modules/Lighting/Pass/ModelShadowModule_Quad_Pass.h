@@ -40,16 +40,16 @@ limitations under the License.
 #include <Gaia/Gui/ImGuiTexture.h>
 #include <LumoBackend/SceneGraph/SceneMesh.hpp>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
 class ModelShadowModule_Quad_Pass : public QuadShaderPass,
 
-                                    public TextureInputInterface<2U>,
+                                    public Texture2DInputInterface<2U>,
                                     public TextureGroupInputInterface<8U>,
-                                    public TextureOutputInterface,
+                                    public Texture2DOutputInterface,
                                     public LightGroupInputInterface {
 protected:
     VulkanBufferObjectPtr m_UBOFragPtr = nullptr;

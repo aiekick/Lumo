@@ -43,10 +43,10 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class AlienRockModule_Mesh_Pass;
-class AlienRockModule : public NodeInterface, public BaseRenderer, public TaskInterface, public TextureOutputInterface {
+class AlienRockModule : public NodeInterface, public BaseRenderer, public TaskInterface, public Texture2DOutputInterface {
 public:
     static std::shared_ptr<AlienRockModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 

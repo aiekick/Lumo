@@ -43,14 +43,14 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 #include <LumoBackend/Interfaces/TextureCubeInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class CubeMapPreview_Quad_Pass;
 class CubeMapPreviewModule : public NodeInterface,
                              public BaseRenderer,
                              public TaskInterface,
                              public TextureCubeInputInterface<0U>,
-                             public TextureOutputInterface {
+                             public Texture2DOutputInterface {
 public:
     static std::shared_ptr<CubeMapPreviewModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 

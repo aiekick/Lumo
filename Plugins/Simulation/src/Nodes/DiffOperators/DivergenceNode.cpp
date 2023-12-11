@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "DivergenceNode.h"
 #include <Modules/DiffOperators/DivergenceModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -68,9 +68,9 @@ bool DivergenceNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     bool res = false;
 
     name = "Divergence";
-    AddInput(NodeSlotTextureInput::Create("", 0), false, true);
+    AddInput(NodeSlotTexture2DInput::Create("", 0), false, true);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_DivergenceModulePtr = DivergenceModule::Create(vVulkanCore, m_This);
     if (m_DivergenceModulePtr) {
@@ -92,7 +92,7 @@ bool DivergenceNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_DivergenceModulePtr) {
         res = m_DivergenceModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

@@ -19,10 +19,10 @@ limitations under the License.
 #include <LumoBackend/Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class WidgetColorModule;
-class WidgetColorNode : public BaseNode, public TextureOutputInterface {
+class WidgetColorNode : public BaseNode, public Texture2DOutputInterface {
 public:
     static std::shared_ptr<WidgetColorNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

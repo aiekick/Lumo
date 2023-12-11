@@ -41,9 +41,9 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <Interfaces/SceneAudiArtInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
-class AudioTextureModule_Comp_2D_Pass : public ShaderPass, public SceneAudiArtInputInterface, public TextureOutputInterface, public NodeInterface {
+class AudioTextureModule_Comp_2D_Pass : public ShaderPass, public SceneAudiArtInputInterface, public Texture2DOutputInterface, public NodeInterface {
 private:
 public:
     AudioTextureModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);

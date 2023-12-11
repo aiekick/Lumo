@@ -21,8 +21,8 @@ limitations under the License.
 #include <ctools/cTools.h>
 
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
@@ -30,8 +30,8 @@ limitations under the License.
 
 class PBRRenderer;
 class PBRRendererNode : public BaseNode,
-                        public TextureInputInterface<0U>,
-                        public TextureOutputInterface,
+                        public Texture2DInputInterface<0U>,
+                        public Texture2DOutputInterface,
                         public TextureGroupInputInterface<0U>,
                         public LightGroupInputInterface,
                         public ShaderUpdateInterface,

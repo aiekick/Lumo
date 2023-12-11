@@ -18,17 +18,17 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class ModelShadowModule;
 class ModelShadowNode : public BaseNode,
-                        public TextureInputInterface<0U>,
+                        public Texture2DInputInterface<0U>,
                         public TextureGroupInputInterface<0U>,
-                        public TextureOutputInterface,
+                        public Texture2DOutputInterface,
                         public LightGroupInputInterface,
                         public ShaderUpdateInterface {
 public:

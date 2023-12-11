@@ -13,8 +13,10 @@
 #include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture3DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture3DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
@@ -251,11 +253,16 @@ bool NODE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 )";
 
-        if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]) {
+        if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture2D]) {
             cpp_node_file_code +=
                 u8R"(
 	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);)";
+	UpdateTexture2DInputDescriptorImageInfos(m_Inputs);)";
+        } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture3D]) {
+            cpp_node_file_code +=
+                u8R"(
+	// for update input texture buffer infos => avoid vk crash
+	UpdateTexture3DInputDescriptorImageInfos(m_Inputs);)";
         }
         /*else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube])
         {
@@ -1798,8 +1805,8 @@ SlotDico GeneratorNode::GetSlotDico() {
                     case BaseTypeEnum::BASE_TYPE_TexelBuffer:  // TexelBuffer
                         res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTexelBufferInput(inputSlot.second));
                         break;
-                    case BaseTypeEnum::BASE_TYPE_Texture:  // Texture
-                        res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureInput(inputSlot.second));
+                    case BaseTypeEnum::BASE_TYPE_Texture2D:  // Texture
+                        res[BASE_TYPE_Texture2D][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTexture2DInput(inputSlot.second));
                         break;
                     case BaseTypeEnum::BASE_TYPE_TextureCube:  // TextureCube
                         res[BASE_TYPE_TextureCube][NodeSlot::PlaceEnum::INPUT].push_back(GetSlotTextureCubeInput(inputSlot.second));
@@ -1859,8 +1866,8 @@ SlotDico GeneratorNode::GetSlotDico() {
                     case BaseTypeEnum::BASE_TYPE_TexelBuffer:  // TexelBuffer
                         res[BASE_TYPE_TexelBuffer][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTexelBufferOutput(outputSlot.second));
                         break;
-                    case BaseTypeEnum::BASE_TYPE_Texture:  // Texture
-                        res[BASE_TYPE_Texture][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureOutput(outputSlot.second));
+                    case BaseTypeEnum::BASE_TYPE_Texture2D:  // Texture
+                        res[BASE_TYPE_Texture2D][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTexture2DOutput(outputSlot.second));
                         break;
                     case BaseTypeEnum::BASE_TYPE_TextureCube:  // TextureCube
                         res[BASE_TYPE_TextureCube][NodeSlot::PlaceEnum::OUTPUT].push_back(GetSlotTextureCubeOutput(outputSlot.second));
@@ -3327,7 +3334,7 @@ vk::BufferView* PASS_CLASS_NAME::GetTexelBufferView(const uint32_t& vBindingPoin
     return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTextureInput(NodeSlotInputPtr vSlot) {
+SlotStringStruct GeneratorNode::GetSlotTexture2DInput(NodeSlotInputPtr vSlot) {
     SlotStringStruct res;
 
     ////////////////////////////////////////////////////
@@ -3428,36 +3435,36 @@ void PASS_CLASS_NAME::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 
     res.node_module_include_interface =
         u8R"(
-#include <LumoBackend/Interfaces/TextureInputInterface.h>)";
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>)";
 
     res.include_slot =
         u8R"(
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>)";
 
     res.node_module_public_interface =
         u8R"(
-	public TextureInputInterface<0U>,)";
+	public Texture2DInputInterface<0U>,)";
 
     if (!m_IsAnEffect) {
         res.pass_include_interface =
             u8R"(
-#include <LumoBackend/Interfaces/TextureInputInterface.h>)";
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>)";
 
         res.pass_public_interface = ct::toStr(
             u8R"(
-	public TextureInputInterface<%u>,)",
-            m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
+	public Texture2DInputInterface<%u>,)",
+            m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture2D]);
     }
 
     res.node_slot_func += ct::toStr(
         u8R"(
-	AddInput(NodeSlotTextureInput::Create("%s", %u), false, %s);)",
+	AddInput(NodeSlotTexture2DInput::Create("%s", %u), false, %s);)",
         vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
     return res;
 }
 
-SlotStringStruct GeneratorNode::GetSlotTextureOutput(NodeSlotOutputPtr vSlot) {
+SlotStringStruct GeneratorNode::GetSlotTexture2DOutput(NodeSlotOutputPtr vSlot) {
     SlotStringStruct res;
 
     ////////////////////////////////////////////////////
@@ -3554,7 +3561,7 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 
     res.node_module_include_interface =
         u8R"(
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>)";
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>)";
 
     res.h_node_module_func = res.h_pass_func =
         u8R"(
@@ -3562,25 +3569,25 @@ vk::DescriptorImageInfo* PASS_CLASS_NAME::GetDescriptorImageInfo(const uint32_t&
 
     res.include_slot =
         u8R"(
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>)";
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>)";
 
     res.node_module_public_interface =
         u8R"(
-	public TextureOutputInterface,)";
+	public Texture2DOutputInterface,)";
 
     if (!m_IsAnEffect) {
         res.pass_include_interface =
             u8R"(
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>)";
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>)";
 
         res.pass_public_interface =
             u8R"(
-	public TextureOutputInterface,)";
+	public Texture2DOutputInterface,)";
     }
 
     res.node_slot_func += ct::toStr(
         u8R"(
-	AddOutput(NodeSlotTextureOutput::Create("%s", %u), false, %s);)",
+	AddOutput(NodeSlotTexture2DOutput::Create("%s", %u), false, %s);)",
         vSlot->hideName ? "" : vSlot->name.c_str(), vSlot->descriptorBinding, vSlot->hideName ? "true" : "false");
 
     return res;

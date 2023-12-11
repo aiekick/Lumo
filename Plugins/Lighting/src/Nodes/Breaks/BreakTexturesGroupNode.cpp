@@ -17,8 +17,8 @@ limitations under the License.
 #include "BreakTexturesGroupNode.h"
 #include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>
 
 /*
@@ -172,7 +172,7 @@ NodeSlotWeak BreakTexturesGroupNode::AddPreDefinedOutput(const NodeSlot& vNodeSl
     CTOOL_DEBUG_BREAK;
 
     if (vNodeSlot.slotType == "TEXTURE_2D") {
-        auto slot_ptr = NodeSlotTextureOutput::Create(ct::toStr("Output %u", vNodeSlot.index), vNodeSlot.index);
+        auto slot_ptr = NodeSlotTexture2DOutput::Create(ct::toStr("Output %u", vNodeSlot.index), vNodeSlot.index);
         if (slot_ptr) {
             slot_ptr->parentNode = m_This;
             slot_ptr->slotPlace = NodeSlot::PlaceEnum::OUTPUT;
@@ -201,7 +201,7 @@ void BreakTexturesGroupNode::ReorganizeSlots() {
         m_Outputs.clear();
 
         for (uint32_t idx = 0U; idx < (uint32_t)m_Textures.size(); ++idx) {
-            AddOutput(NodeSlotTextureOutput::Create(ct::toStr("Output %u", idx), idx), true, true);
+            AddOutput(NodeSlotTexture2DOutput::Create(ct::toStr("Output %u", idx), idx), true, true);
         }
     }
 }

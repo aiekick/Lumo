@@ -19,7 +19,7 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupOutput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureGroupOutput.h>

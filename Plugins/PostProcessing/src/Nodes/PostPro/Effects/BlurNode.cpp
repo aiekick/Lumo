@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "BlurNode.h"
 #include <Modules/PostPro/Effects/BlurModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -47,8 +47,8 @@ BlurNode::~BlurNode() {
 bool BlurNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Blur";
 
-    AddInput(NodeSlotTextureInput::Create("Input", 0U), true, true);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Input", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
 
     bool res = false;
 
@@ -64,7 +64,7 @@ bool BlurNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_BlurModulePtr) {
         return m_BlurModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

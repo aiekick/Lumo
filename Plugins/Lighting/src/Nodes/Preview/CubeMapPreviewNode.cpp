@@ -20,7 +20,7 @@ limitations under the License.
 #include "CubeMapPreviewNode.h"
 #include <Modules/Preview/CubeMapPreviewModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureCubeInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -69,7 +69,7 @@ bool CubeMapPreviewNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "CubeMap Preview";
 
     AddInput(NodeSlotTextureCubeInput::Create("CubeMap", 0), false, false);
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_CubeMapPreviewModulePtr = CubeMapPreviewModule::Create(vVulkanCore, m_This);
     if (m_CubeMapPreviewModulePtr) {

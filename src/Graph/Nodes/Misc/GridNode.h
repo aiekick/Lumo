@@ -18,12 +18,12 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderPassOutputInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 
 class GridModule;
-class GridNode : public BaseNode, public TextureOutputInterface, public ShaderPassOutputInterface {
+class GridNode : public BaseNode, public Texture2DOutputInterface, public ShaderPassOutputInterface {
 public:
     static std::shared_ptr<GridNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

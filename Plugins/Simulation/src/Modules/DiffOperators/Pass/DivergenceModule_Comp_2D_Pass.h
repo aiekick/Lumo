@@ -39,12 +39,12 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class DivergenceModule_Comp_2D_Pass : public ShaderPass,
-                                      public TextureInputInterface<1>,
-                                      public TextureOutputInterface,
+                                      public Texture2DInputInterface<1>,
+                                      public Texture2DOutputInterface,
 
                                       public NodeInterface {
 private:

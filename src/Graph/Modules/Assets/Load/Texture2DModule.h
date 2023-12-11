@@ -26,9 +26,9 @@ limitations under the License.
 #include <Gaia/Gui/ImGuiTexture.h>
 #include <LumoBackend/Interfaces/CameraInterface.h>
 #include <LumoBackend/Interfaces/GuiInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
-class Texture2DModule : public conf::ConfigAbstract, public GuiInterface, public NodeInterface, public TextureOutputInterface {
+class Texture2DModule : public conf::ConfigAbstract, public GuiInterface, public NodeInterface, public Texture2DOutputInterface {
 public:
     static std::shared_ptr<Texture2DModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 

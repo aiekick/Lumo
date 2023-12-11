@@ -16,11 +16,11 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class AlienRockModule;
-class AlienRockNode : public TextureOutputInterface, public ShaderUpdateInterface, public BaseNode {
+class AlienRockNode : public Texture2DOutputInterface, public ShaderUpdateInterface, public BaseNode {
 public:
     static std::shared_ptr<AlienRockNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

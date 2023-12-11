@@ -37,11 +37,11 @@ limitations under the License.
 #include <Gaia/Resources/VulkanRessource.h>
 #include <Gaia/Resources/VulkanFrameBuffer.h>
 
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/GuiInterface.h>
 
-class WidgetColorModule_Pass : public ShaderPass, public NodeInterface, public TextureOutputInterface {
+class WidgetColorModule_Pass : public ShaderPass, public NodeInterface, public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
     vk::DescriptorBufferInfo m_UBOComp_BufferInfo = vk::DescriptorBufferInfo{VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};

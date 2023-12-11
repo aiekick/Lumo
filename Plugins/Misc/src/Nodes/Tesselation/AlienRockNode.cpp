@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "AlienRockNode.h"
 #include <Modules/Tesselation/AlienRockModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -68,7 +68,7 @@ bool AlienRockNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Alien Rock";
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_AlienRockModulePtr = AlienRockModule::Create(vVulkanCore, m_This);
     if (m_AlienRockModulePtr) {

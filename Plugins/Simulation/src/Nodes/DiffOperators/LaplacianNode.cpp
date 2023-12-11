@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "LaplacianNode.h"
 #include <Modules/DiffOperators/LaplacianModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -68,8 +68,8 @@ bool LaplacianNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     bool res = false;
 
     name = "Laplacian";
-    AddInput(NodeSlotTextureInput::Create("", 0), false, true);
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddInput(NodeSlotTexture2DInput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_LaplacianModulePtr = LaplacianModule::Create(vVulkanCore, m_This);
     if (m_LaplacianModulePtr) {
@@ -91,7 +91,7 @@ bool LaplacianNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_LaplacianModulePtr) {
         res = m_LaplacianModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

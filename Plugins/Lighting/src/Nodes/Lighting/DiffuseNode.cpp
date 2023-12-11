@@ -18,8 +18,8 @@ limitations under the License.
 #include <Modules/Lighting/DiffuseModule.h>
 #include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -50,10 +50,10 @@ bool DiffuseNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Diffuse";
 
     AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
-    AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Tint", 2U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Position", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Normal", 1U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Tint", 2U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
 
     bool res = false;
 
@@ -69,7 +69,7 @@ bool DiffuseNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_DiffuseModulePtr) {
         return m_DiffuseModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

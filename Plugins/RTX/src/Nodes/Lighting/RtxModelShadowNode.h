@@ -22,8 +22,8 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Base/BaseNode.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
 #include <Interfaces/AccelStructureInputInterface.h>
@@ -31,7 +31,7 @@ limitations under the License.
 class RtxModelShadowModule;
 class RtxModelShadowNode : public BaseNode,
                            public ShaderUpdateInterface,
-                           public TextureOutputInterface,
+                           public Texture2DOutputInterface,
                            public LightGroupInputInterface,
                            public AccelStructureInputInterface {
 public:

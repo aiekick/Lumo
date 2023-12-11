@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "VisuHexGridNode.h"
 #include <Modules/Viewer/VisuHexGridModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -69,9 +69,9 @@ bool VisuHexGridNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Visu Hex Grid";
 
-    AddInput(NodeSlotTextureInput::Create("Histo", 0), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Histo", 0), false, false);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_VisuHexGridModulePtr = VisuHexGridModule::Create(vVulkanCore, m_This);
     if (m_VisuHexGridModulePtr) {
@@ -93,7 +93,7 @@ bool VisuHexGridNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_VisuHexGridModulePtr) {
         res = m_VisuHexGridModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

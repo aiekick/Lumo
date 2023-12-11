@@ -18,12 +18,12 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class BreakTexturesGroupModule;
-class BreakTexturesGroupNode : public BaseNode, public TextureGroupInputInterface<0U>, public TextureOutputInterface {
+class BreakTexturesGroupNode : public BaseNode, public TextureGroupInputInterface<0U>, public Texture2DOutputInterface {
 private:
     DescriptorImageInfoVector m_Textures;
 

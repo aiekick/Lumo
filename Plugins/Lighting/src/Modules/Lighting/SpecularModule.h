@@ -39,8 +39,8 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
@@ -48,8 +48,8 @@ class SpecularModule_Comp_Pass;
 class SpecularModule : public BaseRenderer,
 
                        public TaskInterface,
-                       public TextureInputInterface<2U>,
-                       public TextureOutputInterface,
+                       public Texture2DInputInterface<2U>,
+                       public Texture2DOutputInterface,
                        public LightGroupInputInterface {
 public:
     static std::shared_ptr<SpecularModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);

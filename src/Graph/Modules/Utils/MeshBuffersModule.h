@@ -33,8 +33,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/CameraInterface.h>
 #include <LumoBackend/Interfaces/MergedInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
@@ -44,8 +44,8 @@ class MeshBuffersModule : public BaseRenderer,
                           public NodeInterface,
 
                           public ModelInputInterface,
-                          public TextureInputInterface<0U>,
-                          public TextureOutputInterface,
+                          public Texture2DInputInterface<0U>,
+                          public Texture2DOutputInterface,
                           public TaskInterface {
 public:
     static std::shared_ptr<MeshBuffersModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);

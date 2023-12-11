@@ -39,14 +39,14 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class SdfTextureModule_Comp_Pass : public ShaderPass,
                                    public NodeInterface,
 
-                                   public TextureInputInterface<1U>,
-                                   public TextureOutputInterface {
+                                   public Texture2DInputInterface<1U>,
+                                   public Texture2DOutputInterface {
 protected:
     struct PushConstants {
         int32_t iteration_count = 0;

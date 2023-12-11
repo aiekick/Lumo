@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "Layering2DNode.h"
 #include <Modules/Misc/Layering2DModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -47,9 +47,9 @@ Layering2DNode::~Layering2DNode() {
 bool Layering2DNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "2D Layering";
 
-    AddInput(NodeSlotTextureInput::Create("Input", 0U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Color", 1U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Input", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Color", 1U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
 
     bool res = false;
 
@@ -67,7 +67,7 @@ bool Layering2DNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_Layering2DModulePtr) {
         res = m_Layering2DModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

@@ -45,8 +45,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class BlurModule_Comp_2D_Pass;
 class BloomModule_Comp_2D_Pass;
@@ -59,8 +59,8 @@ class VignetteModule_Comp_2D_Pass;
 class PostProcessingModule : public NodeInterface,
                              public BaseRenderer,
                              public TaskInterface,
-                             public TextureInputInterface<1U>,  // when no effect is enabled
-                             public TextureOutputInterface {
+                             public Texture2DInputInterface<1U>,  // when no effect is enabled
+                             public Texture2DOutputInterface {
 public:
     static std::shared_ptr<PostProcessingModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 
@@ -76,8 +76,8 @@ private:
     std::shared_ptr<ToneMapModule_Comp_2D_Pass> m_ToneMapModule_Comp_2D_Pass_Ptr = nullptr;
     std::shared_ptr<VignetteModule_Comp_2D_Pass> m_VignetteModule_Comp_2D_Pass_Ptr = nullptr;
 
-    std::shared_ptr<TextureInputFunctions> m_FirstPassPtr = nullptr;
-    std::shared_ptr<TextureOutputInterface> m_LastPassPtr = nullptr;
+    std::shared_ptr<Texture2DInputFunctions> m_FirstPassPtr = nullptr;
+    std::shared_ptr<Texture2DOutputInterface> m_LastPassPtr = nullptr;
 
 public:
     PostProcessingModule(GaiApi::VulkanCoreWeak vVulkanCore);

@@ -46,8 +46,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderPassOutputInterface.h>
 
 class ModelRendererModule_Mesh_Pass;
@@ -55,8 +55,8 @@ class ModelRendererModule :
 	public BaseRenderer,
 	public TaskInterface,
 	public ModelInputInterface,
-	public TextureInputInterface<0U>,
-	public TextureOutputInterface,
+	public Texture2DInputInterface<0U>,
+	public Texture2DOutputInterface,
 	public ShaderPassOutputInterface,
 	public NodeInterface
 {

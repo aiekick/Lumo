@@ -7,13 +7,15 @@
 #include <vector>
 class UBOItem : public conf::ConfigAbstract {
 private:
-    std::vector<std::string> m_WidgetsArray = {//
-        "Input",                               // 0
-        "Slider",                              // 1
-        "Combo Box",                           // 2
-        "Check Box",                           // 3
-        "Color RGB",                           // 4
-        "Color RGBA"};                         // 5
+    std::vector<std::string> m_WidgetsArray = {
+        "Input",       // 0
+        "Slider",      // 1
+        "Combo Box",   // 2
+        "Check Box",   // 3
+        "Color RGB",   // 4
+        "Color RGBA",  // 5
+        "Gizmo"        // 6
+    }; 
     int m_WidgetIndex = 0U;
     std::vector<std::string> m_TypeArray = {//
         "float", "vec2", "vec3", "vec4",    //

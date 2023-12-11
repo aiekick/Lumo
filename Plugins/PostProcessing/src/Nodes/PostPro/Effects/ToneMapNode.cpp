@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "ToneMapNode.h"
 #include <Modules/PostPro/Effects/ToneMapModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -49,8 +49,8 @@ bool ToneMapNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     NodeSlot slot;
 
-    AddInput(NodeSlotTextureInput::Create("Input", 0U), true, true);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Input", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
 
     bool res = false;
 
@@ -66,7 +66,7 @@ bool ToneMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_ToneMapModulePtr) {
         return m_ToneMapModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

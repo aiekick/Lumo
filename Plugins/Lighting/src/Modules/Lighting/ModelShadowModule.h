@@ -39,9 +39,9 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
@@ -49,9 +49,9 @@ class ModelShadowModule_Quad_Pass;
 class ModelShadowModule : public BaseRenderer,
 
                           public TaskInterface,
-                          public TextureInputInterface<0U>,       // 0, because no need of items here, just need funcs
+                          public Texture2DInputInterface<0U>,       // 0, because no need of items here, just need funcs
                           public TextureGroupInputInterface<0U>,  // 0, because no need of items here, just need funcs
-                          public TextureOutputInterface,
+                          public Texture2DOutputInterface,
                           public LightGroupInputInterface {
 public:
     static std::shared_ptr<ModelShadowModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);

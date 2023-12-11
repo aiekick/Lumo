@@ -41,13 +41,13 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
-class DepthConvModule_Quad_Pass : public QuadShaderPass, public TextureInputInterface<1U>, public TextureOutputInterface {
+class DepthConvModule_Quad_Pass : public QuadShaderPass, public Texture2DInputInterface<1U>, public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
     vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;

@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "SSAONode.h"
 #include <Modules/ScreenSpace/Effects/SSAOModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -47,11 +47,11 @@ SSAONode::~SSAONode() {
 bool SSAONode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "SS_AO";
 
-    AddInput(NodeSlotTextureInput::Create("Color", 0U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Position", 1U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Normal", 2U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Noise", 3U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Color", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Position", 1U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Normal", 2U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Noise", 3U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
 
     bool res = false;
 
@@ -67,7 +67,7 @@ bool SSAONode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_SSAOModulePtr) {
         return m_SSAOModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

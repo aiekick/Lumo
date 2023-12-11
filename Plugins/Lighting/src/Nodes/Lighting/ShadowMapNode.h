@@ -20,7 +20,7 @@ limitations under the License.
 #include <LumoBackend/Graph/Base/BaseNode.h>
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>

@@ -18,15 +18,15 @@ limitations under the License.
 #include <LumoBackend/Graph/Base/BaseNode.h>
 #include <Interfaces/AccelStructureInputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class RtxPbrRendererModule;
 class RtxPbrRendererNode : public AccelStructureInputInterface,
                            public LightGroupInputInterface,
-                           public TextureInputInterface<0u>,
-                           public TextureOutputInterface,
+                           public Texture2DInputInterface<0u>,
+                           public Texture2DOutputInterface,
                            public ShaderUpdateInterface,
                            public BaseNode {
 public:

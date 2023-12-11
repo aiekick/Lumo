@@ -45,8 +45,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class PlanetModule_Water_Mesh_Pass;
 class PlanetModule_Ground_Mesh_Pass;
@@ -54,8 +54,8 @@ class PlanetModule_Atmosphere_Mesh_Pass;
 class PlanetModule : public NodeInterface,
                      public BaseRenderer,
                      public TaskInterface,
-                     public TextureInputInterface<0U>,
-                     public TextureOutputInterface {
+                     public Texture2DInputInterface<0U>,
+                     public Texture2DOutputInterface {
 public:
     static std::shared_ptr<PlanetModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 

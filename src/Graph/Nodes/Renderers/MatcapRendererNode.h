@@ -23,15 +23,15 @@ limitations under the License.
 #include <LumoBackend/Graph/Base/BaseNode.h>
 
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderPassOutputInterface.h>
 
 class MatcapRenderer;
 class MatcapRendererNode : public BaseNode,
                            public ModelInputInterface,
-                           public TextureInputInterface<0U>,
-                           public TextureOutputInterface,
+                           public Texture2DInputInterface<0U>,
+                           public Texture2DOutputInterface,
                            public ShaderPassOutputInterface {
 public:
     static std::shared_ptr<MatcapRendererNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);

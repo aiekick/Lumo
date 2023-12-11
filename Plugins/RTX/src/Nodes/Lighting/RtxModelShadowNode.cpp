@@ -20,7 +20,7 @@ limitations under the License.
 #include <Interfaces/AccelStructureOutputInterface.h>
 #include <Slots/NodeSlotAccelStructureInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -52,7 +52,7 @@ bool RtxModelShadowNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     AddInput(NodeSlotAccelStructureInput::Create("BVH"), true, false);
     AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0U), true, true);
 
     bool res = false;
 

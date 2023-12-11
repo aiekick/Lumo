@@ -18,8 +18,8 @@ limitations under the License.
 #include <Graph/Modules/Utils/MeshBuffersModule.h>
 #include <LumoBackend/Interfaces/ModelOutputInterface.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -50,14 +50,14 @@ bool MeshBuffersNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Mesh Buffers";
 
     AddInput(NodeSlotModelInput::Create("Model"), true, false);
-    AddInput(NodeSlotTextureInput::Create("Mask", 0U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Position", 0U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Normal", 1U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Tangeant", 2U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("BiTangeant", 3U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("UV", 4U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Color", 5U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Depth", 6U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Mask", 0U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Position", 0U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Normal", 1U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Tangeant", 2U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("BiTangeant", 3U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("UV", 4U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Color", 5U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Depth", 6U), true, false);
 
     bool res = false;
 
@@ -77,7 +77,7 @@ bool MeshBuffersNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_MeshBuffersModulePtr) {
         return m_MeshBuffersModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

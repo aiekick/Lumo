@@ -40,10 +40,10 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
-class VisuHexGridModule_Vertex_Pass : public VertexShaderPass, public TextureInputInterface<1>, public TextureOutputInterface, public NodeInterface {
+class VisuHexGridModule_Vertex_Pass : public VertexShaderPass, public Texture2DInputInterface<1>, public Texture2DOutputInterface, public NodeInterface {
 private:
     struct UBO_Frag {
         alignas(4) float u_Name1 = 0.0f;

@@ -39,9 +39,9 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TextureCubeInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
-class CubeMapPreview_Quad_Pass : public QuadShaderPass, public TextureCubeInputInterface<1>, public TextureOutputInterface {
+class CubeMapPreview_Quad_Pass : public QuadShaderPass, public TextureCubeInputInterface<1>, public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
     vk::DescriptorBufferInfo m_UBO_Frag_BufferInfos = {VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};

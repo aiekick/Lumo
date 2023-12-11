@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "SdfTextureNode.h"
 #include <Modules/Misc/SdfTextureModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -47,8 +47,8 @@ SdfTextureNode::~SdfTextureNode() {
 bool SdfTextureNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "SdfTexture";
 
-    AddInput(NodeSlotTextureInput::Create("Input", 0U), true, true);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Input", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
 
     bool res = false;
 
@@ -64,7 +64,7 @@ bool SdfTextureNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_SdfTextureModulePtr) {
         return m_SdfTextureModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

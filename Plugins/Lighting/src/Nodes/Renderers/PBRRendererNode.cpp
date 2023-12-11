@@ -19,9 +19,9 @@ limitations under the License.
 #include <LumoBackend/Interfaces/LightGroupOutputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupOutputInterface.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTextureGroupInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
 #ifdef PROFILER_INCLUDE
@@ -53,13 +53,13 @@ bool PBRRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "PBR Renderer";
 
     AddInput(NodeSlotLightGroupInput::Create("Lights"), true, false);
-    AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Normal", 0U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Albedo", 0U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Mask", 0U), true, false);
-    AddInput(NodeSlotTextureInput::Create("AO", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Position", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Normal", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Albedo", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Mask", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("AO", 0U), true, false);
     AddInput(NodeSlotTextureGroupInput::Create("Shadow Maps"), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
     AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
     bool res = false;
@@ -80,7 +80,7 @@ bool PBRRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_PBRRendererPtr) {
         return m_PBRRendererPtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

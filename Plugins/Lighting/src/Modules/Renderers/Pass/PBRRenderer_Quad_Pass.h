@@ -42,9 +42,9 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/ShaderInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
@@ -52,10 +52,10 @@ class ShadowMapModule;
 
 class PBRRenderer_Quad_Pass : public QuadShaderPass,
 
-                              public TextureInputInterface<5U>,
+                              public Texture2DInputInterface<5U>,
                               public TextureGroupInputInterface<8U>,
                               public LightGroupInputInterface,
-                              public TextureOutputInterface {
+                              public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
     vk::DescriptorBufferInfo m_DescriptorBufferInfo_Frag;

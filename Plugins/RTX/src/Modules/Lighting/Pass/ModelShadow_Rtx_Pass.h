@@ -44,9 +44,9 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/ShaderInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
@@ -54,7 +54,7 @@ limitations under the License.
 
 class ModelShadow_Rtx_Pass : public RtxShaderPass,
                              public LightGroupInputInterface,
-                             public TextureOutputInterface,
+                             public Texture2DOutputInterface,
                              public AccelStructureInputInterface {
 private:
     const vk::WriteDescriptorSetAccelerationStructureKHR m_EmptyAccelStructureTopDescriptorInfo = {1U, VK_NULL_HANDLE};

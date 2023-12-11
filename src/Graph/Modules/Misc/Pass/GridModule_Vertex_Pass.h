@@ -25,9 +25,9 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
-class GridModule_Vertex_Pass : public VertexShaderPass, public TextureOutputInterface {
+class GridModule_Vertex_Pass : public VertexShaderPass, public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
     vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;

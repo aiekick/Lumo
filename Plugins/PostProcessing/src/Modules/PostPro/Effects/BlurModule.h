@@ -41,12 +41,12 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 class BlurModule_Comp_2D_Pass;
-class BlurModule : public BaseRenderer, public NodeInterface, public TaskInterface, public TextureInputInterface<0U>, public TextureOutputInterface {
+class BlurModule : public BaseRenderer, public NodeInterface, public TaskInterface, public Texture2DInputInterface<0U>, public Texture2DOutputInterface {
 public:
     static std::shared_ptr<BlurModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

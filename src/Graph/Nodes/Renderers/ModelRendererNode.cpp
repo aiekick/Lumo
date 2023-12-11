@@ -20,8 +20,8 @@ limitations under the License.
 #include "ModelRendererNode.h"
 #include <Graph/Modules/Renderers/ModelRendererModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
 #ifdef PROFILER_INCLUDE
@@ -76,9 +76,9 @@ bool ModelRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore)
 	name = "Model Renderer";
 
 	AddInput(NodeSlotModelInput::Create("Model"), false, false);
-	AddInput(NodeSlotTextureInput::Create("Mask", 1), false, false);
+	AddInput(NodeSlotTexture2DInput::Create("Mask", 1), false, false);
 
-	AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+	AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 	AddOutput(NodeSlotShaderPassOutput::Create(""), false, true);
 
 	m_ModelRendererModulePtr = ModelRendererModule::Create(vVulkanCore, m_This);
@@ -103,7 +103,7 @@ bool ModelRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 	BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
 	// for update input texture buffer infos => avoid vk crash
-	UpdateTextureInputDescriptorImageInfos(m_Inputs);
+	UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 	if (m_ModelRendererModulePtr)
 	{
 		res = m_ModelRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

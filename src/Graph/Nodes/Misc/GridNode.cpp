@@ -17,7 +17,7 @@ limitations under the License.
 #include "GridNode.h"
 
 #include <Graph/Modules/Misc/GridModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
 #ifdef PROFILER_INCLUDE
@@ -47,7 +47,7 @@ GridNode::~GridNode() {
 bool GridNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Grid / Axis";
 
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
     AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
     m_GridModulePtr = GridModule::Create(vVulkanCore);

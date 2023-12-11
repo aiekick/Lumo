@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "View2DPane.h"
 
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Systems/CommonSystem.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <Graph/Manager/NodeManager.h>
@@ -60,7 +60,7 @@ bool View2DPane::Init() {
 void View2DPane::Unit() {
     ZoneScoped;
 
-    m_TextureOutputSlot.reset();
+    m_Texture2DOutputSlot.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -83,9 +83,9 @@ bool View2DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
                 flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
 #endif
             if (ProjectFile::Instance()->IsProjectLoaded()) {
-                auto outputSize = SetOrUpdateOutput(m_TextureOutputSlot);
+                auto outputSize = SetOrUpdateOutput(m_Texture2DOutputSlot);
 
-                auto slotPtr = m_TextureOutputSlot.lock();
+                auto slotPtr = m_Texture2DOutputSlot.lock();
                 if (slotPtr) {
                     if (ImGui::BeginMenuBar()) {
                         ImGui::RadioButtonLabeled(0.0f, "Mouse", "Can Use Mouse\nBut not when camera is active", &m_CanWeTuneMouse);
@@ -152,28 +152,28 @@ bool View2DPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
     return false;
 }
 
-ct::fvec2 View2DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot) {
+ct::fvec2 View2DPane::SetOrUpdateOutput(NodeSlotWeak vTexture2DOutputSlot) {
     ZoneScoped;
 
     ct::fvec2 outSize;
 
-    auto slotPtr = vTextureOutputSlot.lock();
+    auto slotPtr = vTexture2DOutputSlot.lock();
     if (slotPtr) {
-        auto otherNodePtr = std::dynamic_pointer_cast<TextureOutputInterface>(slotPtr->parentNode.lock());
+        auto otherNodePtr = std::dynamic_pointer_cast<Texture2DOutputInterface>(slotPtr->parentNode.lock());
         if (otherNodePtr) {
-            NodeSlot::sSlotGraphOutputMouseMiddle = vTextureOutputSlot;
-            m_TextureOutputSlot = vTextureOutputSlot;
+            NodeSlot::sSlotGraphOutputMouseMiddle = vTexture2DOutputSlot;
+            m_Texture2DOutputSlot = vTexture2DOutputSlot;
             NodeManager::Instance()->m_RootNodePtr->m_GraphRoot2DNode = slotPtr->parentNode;
             m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize));
             m_ImGuiTexture.ratio = outSize.ratioXY<float>();
         } else {
             NodeSlot::sSlotGraphOutputMouseMiddle.reset();
-            m_TextureOutputSlot.reset();
+            m_Texture2DOutputSlot.reset();
             m_ImGuiTexture.ClearDescriptor();
         }
     } else {
         NodeSlot::sSlotGraphOutputMouseMiddle.reset();
-        m_TextureOutputSlot.reset();
+        m_Texture2DOutputSlot.reset();
         m_ImGuiTexture.ClearDescriptor();
     }
 

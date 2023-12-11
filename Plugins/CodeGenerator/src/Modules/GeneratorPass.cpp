@@ -13,8 +13,8 @@
 #include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
@@ -250,11 +250,17 @@ void PASS_CLASS_NAME::ActionBeforeInit() {
 	for (auto& info : m_TexelBufferViews) {
 		info = corePtr->getEmptyBufferView();
 	})";
-    } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]) {
+    } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture2D]) {
         cpp_pass_file_code +=
             u8R"(
 	for (auto& info : m_ImageInfos)	{
 		info = *corePtr->getEmptyTexture2DDescriptorImageInfo();
+	})";
+    } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture3D]) {
+        cpp_pass_file_code +=
+            u8R"(
+	for (auto& info : m_ImageInfos)	{
+		info = *corePtr->getEmptyTexture3DDescriptorImageInfo();
 	})";
     } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube]) {
         cpp_pass_file_code +=
@@ -510,7 +516,7 @@ class PASS_CLASS_NAME :)";
         h_pass_file_code += ct::toStr(
             u8R"(
 	public EffectPass<%u>,)",
-            m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture]);
+            m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture2D]);
     } else if (m_RendererType == RENDERER_TYPE_PIXEL_2D) {
         if (m_RendererTypePixel2DSpecializationType == RENDERER_TYPE_PIXEL_2D_SPECIALIZATION_QUAD) {
             h_pass_file_code +=

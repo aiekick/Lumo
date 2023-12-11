@@ -38,14 +38,14 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 #include <LumoBackend/Interfaces/VariableInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class FlatGradientModule_Comp_2D_Pass : public ShaderPass,
-                                        public TextureInputInterface<2U>,
+                                        public Texture2DInputInterface<2U>,
                                         public VariableInputInterface<1U>,
-                                        public TextureOutputInterface,
+                                        public Texture2DOutputInterface,
 
                                         public NodeInterface {
 private:

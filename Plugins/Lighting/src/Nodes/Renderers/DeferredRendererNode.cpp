@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "DeferredRendererNode.h"
 #include <Modules/Renderers/DeferredRenderer.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
 #ifdef PROFILER_INCLUDE
@@ -70,16 +70,16 @@ bool DeferredRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Deferred Renderer";
 
-    AddInput(NodeSlotTextureInput::Create("Position", 0U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Normal", 1U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Albedo", 2U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Diffuse", 3U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Specular", 4U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Attenuation", 5U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Mask", 6U), true, false);
-    AddInput(NodeSlotTextureInput::Create("AO", 7U), true, false);
-    AddInput(NodeSlotTextureInput::Create("Shadow", 8U), true, false);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Position", 0U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Normal", 1U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Albedo", 2U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Diffuse", 3U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Specular", 4U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Attenuation", 5U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Mask", 6U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("AO", 7U), true, false);
+    AddInput(NodeSlotTexture2DInput::Create("Shadow", 8U), true, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
     AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
     m_DeferredRendererPtr = DeferredRenderer::Create(vVulkanCore);
@@ -100,7 +100,7 @@ bool DeferredRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Com
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_DeferredRendererPtr) {
         return m_DeferredRendererPtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

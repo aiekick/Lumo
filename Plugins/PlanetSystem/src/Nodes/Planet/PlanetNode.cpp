@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "PlanetNode.h"
 #include <Modules/Planet/PlanetModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -69,14 +69,14 @@ bool PlanetNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Planet";
 
-    AddInput(NodeSlotTextureInput::Create("Height", 0), false, false);
-    AddInput(NodeSlotTextureInput::Create("Normal", 1), false, false);
-    AddInput(NodeSlotTextureInput::Create("Color", 2), false, false);
-    AddInput(NodeSlotTextureInput::Create("Cloud", 3), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Height", 0), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Normal", 1), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Color", 2), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Cloud", 3), false, false);
 
-    AddOutput(NodeSlotTextureOutput::Create("Position", 0), false, false);
-    AddOutput(NodeSlotTextureOutput::Create("Normal", 1), false, false);
-    AddOutput(NodeSlotTextureOutput::Create("Color", 2), false, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Position", 0), false, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Normal", 1), false, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("Color", 2), false, false);
 
     m_PlanetModulePtr = PlanetModule::Create(vVulkanCore, m_This);
     if (m_PlanetModulePtr) {
@@ -98,7 +98,7 @@ bool PlanetNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_PlanetModulePtr) {
         res = m_PlanetModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

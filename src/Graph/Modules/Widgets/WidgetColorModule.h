@@ -39,7 +39,7 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 
 class WidgetColorModule_Pass;
@@ -47,7 +47,7 @@ class WidgetColorModule : public BaseRenderer,
 
                           public TaskInterface,
                           public NodeInterface,
-                          public TextureOutputInterface {
+                          public Texture2DOutputInterface {
 public:
     static std::shared_ptr<WidgetColorModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

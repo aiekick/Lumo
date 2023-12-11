@@ -20,7 +20,7 @@ limitations under the License.
 #include "SceneMergerNode.h"
 #include <Graph/Modules/Misc/SceneMergerModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -75,7 +75,7 @@ bool SceneMergerNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     AddInput(NodeSlotShaderPassInput::Create(""), false, true);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_SceneMergerModulePtr = SceneMergerModule::Create(vVulkanCore, m_This);
     if (m_SceneMergerModulePtr) {

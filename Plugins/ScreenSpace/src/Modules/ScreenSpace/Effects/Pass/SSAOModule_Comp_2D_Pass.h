@@ -39,8 +39,8 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class SSAOModule_Comp_2D_Pass : public EffectPass<4U>,  // 1:pos, 2:nor, 3:noise, 4:source_color for blending only with pass not with nodes
                                 public NodeInterface {

@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "LongLatPeviewNode.h"
 #include <Modules/Preview/LongLatPeviewModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -68,8 +68,8 @@ bool LongLatPeviewNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "LongLat Peview";
 
-    AddInput(NodeSlotTextureInput::Create("LongLat", 0), false, false);
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddInput(NodeSlotTexture2DInput::Create("LongLat", 0), false, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_LongLatPeviewModulePtr = LongLatPeviewModule::Create(vVulkanCore, m_This);
     if (m_LongLatPeviewModulePtr) {
@@ -91,7 +91,7 @@ bool LongLatPeviewNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_LongLatPeviewModulePtr) {
         res = m_LongLatPeviewModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

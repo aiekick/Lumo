@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "ChromaticAberrationsNode.h"
 #include <Modules/PostPro/Effects/ChromaticAberrationsModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include PROFILER_INCLUDE
@@ -68,9 +68,9 @@ bool ChromaticAberrationsNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Chromatic Aberrations";
 
-    AddInput(NodeSlotTextureInput::Create("", 0), false, true);
+    AddInput(NodeSlotTexture2DInput::Create("", 0), false, true);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_ChromaticAberrationsModulePtr = ChromaticAberrationsModule::Create(vVulkanCore, m_This);
     if (m_ChromaticAberrationsModulePtr) {
@@ -92,7 +92,7 @@ bool ChromaticAberrationsNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk:
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_ChromaticAberrationsModulePtr) {
         res = m_ChromaticAberrationsModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

@@ -19,9 +19,9 @@ limitations under the License.
 
 #include "FlatGradientNode.h"
 #include <Modules/Utils/FlatGradientModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -69,11 +69,11 @@ bool FlatGradientNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     bool res = false;
 
     name = "Flat Gradient";
-    AddInput(NodeSlotTextureInput::Create("Start", 0), false, false);
-    AddInput(NodeSlotTextureInput::Create("End", 1), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Start", 0), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("End", 1), false, false);
     // AddInput(NodeSlotVariableInput::Create("Count", "WIDGET_UINT", 0), false, false);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_FlatGradientModulePtr = FlatGradientModule::Create(vVulkanCore, m_This);
     if (m_FlatGradientModulePtr) {
@@ -95,7 +95,7 @@ bool FlatGradientNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_FlatGradientModulePtr) {
         res = m_FlatGradientModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

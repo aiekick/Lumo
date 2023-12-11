@@ -24,11 +24,11 @@ limitations under the License.
 #include <Gaia/Core/VulkanDevice.h>
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderPassOutputInterface.h>
 
 class GridModule_Vertex_Pass;
-class GridModule : public TaskRenderer, public TextureOutputInterface, public ShaderPassOutputInterface {
+class GridModule : public TaskRenderer, public Texture2DOutputInterface, public ShaderPassOutputInterface {
 public:
     static std::shared_ptr<GridModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

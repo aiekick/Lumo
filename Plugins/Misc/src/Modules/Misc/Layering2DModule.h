@@ -39,16 +39,16 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 class Layering2DModule_Comp_Pass;
 class Layering2DModule : public BaseRenderer,
 
                          public TaskInterface,
-                         public TextureInputInterface<2U>,
-                         public TextureOutputInterface {
+                         public Texture2DInputInterface<2U>,
+                         public Texture2DOutputInterface {
 public:
     static std::shared_ptr<Layering2DModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

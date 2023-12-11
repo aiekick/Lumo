@@ -46,14 +46,14 @@ limitations under the License.
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 #include <Interfaces/SceneAudiArtInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 class AudioTextureModule_Comp_2D_Pass;
 class AudioTextureModule : public NodeInterface,
                            public BaseRenderer,
                            public TaskInterface,
                            public SceneAudiArtInputInterface,
-                           public TextureOutputInterface {
+                           public Texture2DOutputInterface {
 public:
     static std::shared_ptr<AudioTextureModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 

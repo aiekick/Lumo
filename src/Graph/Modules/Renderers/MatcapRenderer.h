@@ -28,8 +28,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/CameraInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 #include <LumoBackend/Interfaces/MergedInterface.h>
 #include <Gaia/Gui/ImGuiTexture.h>
@@ -39,8 +39,8 @@ class MatcapRenderer_Mesh_Pass;
 class MatcapRenderer : public TaskRenderer,
                        public NodeInterface,
                        public ModelInputInterface,
-                       public TextureInputInterface<0U>,
-                       public TextureOutputInterface,
+                       public Texture2DInputInterface<0U>,
+                       public Texture2DOutputInterface,
                        public ShaderPassOutputInterface {
 public:
     static std::shared_ptr<MatcapRenderer> Create(GaiApi::VulkanCoreWeak vVulkanCore);

@@ -20,7 +20,7 @@ limitations under the License.
 #include "AudioTextureNode.h"
 #include <Modules/Operations/AudioTextureModule.h>
 #include <Slots/NodeSlotSceneAudiArtInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -71,7 +71,7 @@ bool AudioTextureNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     AddInput(NodeSlotSceneAudiArtInput::Create(""), false, true);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_AudioTextureModulePtr = AudioTextureModule::Create(vVulkanCore, m_This);
     if (m_AudioTextureModulePtr) {

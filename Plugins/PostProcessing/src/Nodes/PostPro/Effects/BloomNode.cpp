@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "BloomNode.h"
 #include <Modules/PostPro/Effects/BloomModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -67,8 +67,8 @@ bool BloomNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     bool res = false;
 
     name = "Bloom";
-    AddInput(NodeSlotTextureInput::Create("", 0), false, true);
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddInput(NodeSlotTexture2DInput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_BloomModulePtr = BloomModule::Create(vVulkanCore, m_This);
     if (m_BloomModulePtr) {
@@ -90,7 +90,7 @@ bool BloomNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer*
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_BloomModulePtr) {
         res = m_BloomModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

@@ -43,9 +43,9 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 
-class TextureExporterModule : public NodeInterface, public conf::ConfigAbstract, public TextureInputInterface<0U>, public GuiInterface {
+class TextureExporterModule : public NodeInterface, public conf::ConfigAbstract, public Texture2DInputInterface<0U>, public GuiInterface {
 public:
     static std::shared_ptr<TextureExporterModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 

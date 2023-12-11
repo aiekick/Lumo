@@ -39,16 +39,16 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 
 class MathModule_Quad_Pass;
 class MathModule : public BaseRenderer,
 
                    public TaskInterface,
-                   public TextureInputInterface<0U>,
-                   public TextureOutputInterface,
+                   public Texture2DInputInterface<0U>,
+                   public Texture2DOutputInterface,
                    public NodeInterface {
 public:
     static std::shared_ptr<MathModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);

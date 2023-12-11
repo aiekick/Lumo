@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "View3DPane.h"
 
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Systems/CommonSystem.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
 #include <Graph/Manager/NodeManager.h>
@@ -60,7 +60,7 @@ bool View3DPane::Init() {
 void View3DPane::Unit() {
     ZoneScoped;
 
-    m_TextureOutputSlot.reset();
+    m_Texture2DOutputSlot.reset();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -83,9 +83,9 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
                 flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
 #endif
             if (ProjectFile::Instance()->IsProjectLoaded()) {
-                SetOrUpdateOutput(m_TextureOutputSlot);
+                SetOrUpdateOutput(m_Texture2DOutputSlot);
 
-                auto slotPtr = m_TextureOutputSlot.lock();
+                auto slotPtr = m_Texture2DOutputSlot.lock();
                 if (slotPtr) {
                     if (ImGui::BeginMenuBar()) {
                         // SceneManager::Instance()->DrawBackgroundColorMenu();
@@ -199,17 +199,17 @@ void View3DPane::Select(BaseNodeWeak vObjet) {
 ///////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot) {
+ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTexture2DOutputSlot) {
     ZoneScoped;
 
     ct::fvec2 outSize = ct::fvec2((float)m_PaneSize.x, (float)m_PaneSize.y);
 
-    auto slotPtr = vTextureOutputSlot.lock();
+    auto slotPtr = vTexture2DOutputSlot.lock();
     if (slotPtr) {
-        auto otherNodePtr = std::dynamic_pointer_cast<TextureOutputInterface>(slotPtr->parentNode.lock());
+        auto otherNodePtr = std::dynamic_pointer_cast<Texture2DOutputInterface>(slotPtr->parentNode.lock());
         if (otherNodePtr) {
-            NodeSlot::sSlotGraphOutputMouseLeft = vTextureOutputSlot;
-            m_TextureOutputSlot = vTextureOutputSlot;
+            NodeSlot::sSlotGraphOutputMouseLeft = vTexture2DOutputSlot;
+            m_Texture2DOutputSlot = vTexture2DOutputSlot;
             NodeManager::Instance()->m_RootNodePtr->m_GraphRoot3DNode = slotPtr->parentNode;
             m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize));
             if (m_DisplayPictureByRatio) {
@@ -219,14 +219,14 @@ ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTextureOutputSlot) {
             }
         } else {
             NodeSlot::sSlotGraphOutputMouseLeft.reset();
-            m_TextureOutputSlot.reset();
+            m_Texture2DOutputSlot.reset();
             m_ImGuiTexture.ClearDescriptor();
 
             LogVarError("Invalid Output Preview Slot");
         }
     } else {
         NodeSlot::sSlotGraphOutputMouseLeft.reset();
-        m_TextureOutputSlot.reset();
+        m_Texture2DOutputSlot.reset();
         m_ImGuiTexture.ClearDescriptor();
     }
 

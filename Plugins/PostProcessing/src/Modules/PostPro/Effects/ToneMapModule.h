@@ -40,8 +40,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
 class ToneMapModule_Comp_2D_Pass;
@@ -49,8 +49,8 @@ class BlurModule_Comp_2D_Pass;
 class ToneMapModule : public BaseRenderer,
                       public NodeInterface,
                       public TaskInterface,
-                      public TextureInputInterface<0U>,
-                      public TextureOutputInterface {
+                      public Texture2DInputInterface<0U>,
+                      public Texture2DOutputInterface {
 public:
     static std::shared_ptr<ToneMapModule> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

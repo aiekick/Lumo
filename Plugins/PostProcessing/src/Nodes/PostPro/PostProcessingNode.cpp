@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "PostProcessingNode.h"
 #include <Modules/PostPro/PostProcessingModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include PROFILER_INCLUDE
@@ -68,8 +68,8 @@ bool PostProcessingNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Post Processing";
 
-    AddInput(NodeSlotTextureInput::Create("Color", 0), false, false);
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddInput(NodeSlotTexture2DInput::Create("Color", 0), false, false);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_PostProcessingModulePtr = PostProcessingModule::Create(vVulkanCore, m_This);
     if (m_PostProcessingModulePtr) {
@@ -91,7 +91,7 @@ bool PostProcessingNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_PostProcessingModulePtr) {
         res = m_PostProcessingModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

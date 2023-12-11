@@ -20,8 +20,8 @@ limitations under the License.
 #include "BillBoardRendererNode.h"
 #include <Modules/Renderers/BillBoardRendererModule.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotShaderPassOutput.h>
 
 #ifdef PROFILER_INCLUDE
@@ -71,9 +71,9 @@ bool BillBoardRendererNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "BillBoard Renderer";
     AddInput(NodeSlotModelInput::Create("Mesh"), false, false);
-    AddInput(NodeSlotTextureInput::Create("Texture", 0), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Texture", 0), false, false);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
     AddOutput(NodeSlotShaderPassOutput::Create("Output", 1U), true, true);
 
     m_BillBoardRendererModulePtr = BillBoardRendererModule::Create(vVulkanCore, m_This);
@@ -96,7 +96,7 @@ bool BillBoardRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Co
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_BillBoardRendererModulePtr) {
         res = m_BillBoardRendererModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

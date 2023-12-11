@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "DepthConvNode.h"
 #include <Modules/Utils/DepthConvModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -47,9 +47,9 @@ DepthConvNode::~DepthConvNode() {
 bool DepthConvNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Depth To Pos";
 
-    AddInput(NodeSlotTextureInput::Create("Depth", 0U), true, true);
-    AddOutput(NodeSlotTextureOutput::Create("Pos", 0U), true, true);
-    AddOutput(NodeSlotTextureOutput::Create("Nor", 1U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Depth", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("Pos", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("Nor", 1U), true, true);
 
     bool res = false;
 
@@ -65,7 +65,7 @@ bool DepthConvNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_DepthConvModulePtr) {
         return m_DepthConvModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

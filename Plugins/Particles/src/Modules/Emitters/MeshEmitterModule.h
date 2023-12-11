@@ -43,7 +43,7 @@ limitations under the License.
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ModelInputInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
 #include <Interfaces/ParticlesOutputInterface.h>
 
 class MeshEmitterModule_Comp_Pass;

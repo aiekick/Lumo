@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "GrayScottNode.h"
 #include <Modules/Simulation/GrayScottModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -48,8 +48,8 @@ bool GrayScottNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "GrayScott";
 
     // on desctive pour le moment, le shader le gere, mais on s'en sert pas pour le moment
-    // AddInput(NodeSlotTextureInput::Create("Input", 0U), true, true);
-    AddOutput(NodeSlotTextureOutput::Create("Output", 0U), true, true);
+    // AddInput(NodeSlotTexture2DInput::Create("Input", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("Output", 0U), true, true);
 
     bool res = false;
 
@@ -67,7 +67,7 @@ bool GrayScottNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuf
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_GrayScottModulePtr) {
         res = m_GrayScottModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

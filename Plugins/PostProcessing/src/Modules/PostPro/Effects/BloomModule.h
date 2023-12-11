@@ -43,8 +43,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
 // for a bloom effect
 // we need 4 op
@@ -54,7 +54,7 @@ limitations under the License.
 // 4) add first input to the alst result and apply tone mapping and gamma correction
 
 class BloomModule_Comp_2D_Pass;
-class BloomModule : public BaseRenderer, public NodeInterface, public TaskInterface, public TextureInputInterface<0U>, public TextureOutputInterface {
+class BloomModule : public BaseRenderer, public NodeInterface, public TaskInterface, public Texture2DInputInterface<0U>, public Texture2DOutputInterface {
 public:
     static std::shared_ptr<BloomModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
 

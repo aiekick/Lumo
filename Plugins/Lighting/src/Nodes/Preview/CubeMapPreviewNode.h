@@ -17,11 +17,11 @@ limitations under the License.
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
 #include <LumoBackend/Interfaces/TextureCubeInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class CubeMapPreviewModule;
-class CubeMapPreviewNode : public TextureCubeInputInterface<0U>, public TextureOutputInterface, public ShaderUpdateInterface, public BaseNode {
+class CubeMapPreviewNode : public TextureCubeInputInterface<0U>, public Texture2DOutputInterface, public ShaderUpdateInterface, public BaseNode {
 public:
     static std::shared_ptr<CubeMapPreviewNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 

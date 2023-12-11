@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "PosToDepthNode.h"
 #include <Modules/Utils/PosToDepthModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -47,8 +47,8 @@ PosToDepthNode::~PosToDepthNode() {
 bool PosToDepthNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Pos To Depth";
 
-    AddInput(NodeSlotTextureInput::Create("Pos", 0U), true, true);
-    AddOutput(NodeSlotTextureOutput::Create("Depth", 0U), true, true);
+    AddInput(NodeSlotTexture2DInput::Create("Pos", 0U), true, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("Depth", 0U), true, true);
 
     bool res = false;
 
@@ -64,7 +64,7 @@ bool PosToDepthNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     if (m_PosToDepthModulePtr) {
         return m_PosToDepthModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);

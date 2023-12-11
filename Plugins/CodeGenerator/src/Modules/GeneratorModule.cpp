@@ -13,8 +13,8 @@
 #include <LumoBackend/Graph/Slots/NodeSlotTaskOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>

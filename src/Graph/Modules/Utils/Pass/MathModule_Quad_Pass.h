@@ -38,14 +38,14 @@ limitations under the License.
 #include <Gaia/Resources/VulkanFrameBuffer.h>
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
 
 class MathModule_Quad_Pass : public QuadShaderPass,
 
-                             public TextureInputInterface<3U>,
-                             public TextureOutputInterface,
+                             public Texture2DInputInterface<3U>,
+                             public Texture2DOutputInterface,
                              public NodeInterface {
 private:
     VulkanBufferObjectPtr m_UBOFragPtr = nullptr;

@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "DilationNode.h"
 #include <Modules/PostPro/Effects/DilationModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include PROFILER_INCLUDE
@@ -68,9 +68,9 @@ bool DilationNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Dilation";
 
-    AddInput(NodeSlotTextureInput::Create("color", 0), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("color", 0), false, false);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_DilationModulePtr = DilationModule::Create(vVulkanCore, m_This);
     if (m_DilationModulePtr) {
@@ -92,7 +92,7 @@ bool DilationNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_DilationModulePtr) {
         res = m_DilationModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

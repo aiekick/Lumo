@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "TextureExporterNode.h"
 #include <Graph/Modules/Assets/Save/TextureExporterModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -67,7 +67,7 @@ bool TextureExporterNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     bool res = false;
 
     name = "Texture Exporter";
-    AddInput(NodeSlotTextureInput::Create("Texture", 0), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Texture", 0), false, false);
 
     m_TextureExporterModulePtr = TextureExporterModule::Create(vVulkanCore, m_This);
     if (m_TextureExporterModulePtr) {

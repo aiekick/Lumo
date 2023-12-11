@@ -44,8 +44,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/ShaderInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 #include <LumoBackend/Interfaces/SerializationInterface.h>
 #include <LumoBackend/Interfaces/TextureGroupInputInterface.h>
@@ -56,7 +56,7 @@ limitations under the License.
 class ModelShadow_Rtx_Pass;
 class RtxModelShadowModule : public BaseRenderer,
                              public TaskInterface,
-                             public TextureOutputInterface,
+                             public Texture2DOutputInterface,
                              public LightGroupInputInterface,
                              public AccelStructureInputInterface {
 public:

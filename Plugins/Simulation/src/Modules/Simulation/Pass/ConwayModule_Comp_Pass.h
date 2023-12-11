@@ -38,11 +38,11 @@ limitations under the License.
 #include <Gaia/Resources/VulkanFrameBuffer.h>
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/LightGroupInputInterface.h>
 
-class ConwayModule_Comp_Pass : public ShaderPass, public TextureInputInterface<1U>, public TextureOutputInterface {
+class ConwayModule_Comp_Pass : public ShaderPass, public Texture2DInputInterface<1U>, public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOCompPtr = nullptr;
     vk::DescriptorBufferInfo m_UBOComp_BufferInfos = {VK_NULL_HANDLE, 0, VK_WHOLE_SIZE};

@@ -16,8 +16,8 @@ limitations under the License.
 
 #include "MathNode.h"
 #include <Graph/Modules/Utils/MathModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -48,14 +48,14 @@ bool MathNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Math";
 
     for (uint32_t i = 0U; i < 3U; ++i) {
-        auto slotPtr = NodeSlotTextureInput::Create("", i);
+        auto slotPtr = NodeSlotTexture2DInput::Create("", i);
         if (slotPtr) {
             slotPtr->hidden = true;
             AddInput(slotPtr, true, false);
         }
     }
 
-    auto slotPtr = NodeSlotTextureOutput::Create("Output", 0U);
+    auto slotPtr = NodeSlotTexture2DOutput::Create("Output", 0U);
     if (slotPtr) {
         slotPtr->showWidget = true;
         AddOutput(slotPtr, true, true);
@@ -77,7 +77,7 @@ bool MathNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* 
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
 
     bool res = false;
 

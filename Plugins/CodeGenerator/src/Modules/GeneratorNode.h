@@ -9,7 +9,8 @@ enum BaseTypeEnum : uint32_t {
     BASE_TYPE_Task,
     BASE_TYPE_Model,
     BASE_TYPE_Custom,
-    BASE_TYPE_Texture,
+    BASE_TYPE_Texture2D,
+    BASE_TYPE_Texture3D,
     BASE_TYPE_Variable,
     BASE_TYPE_LightGroup,
     BASE_TYPE_ShaderPass,
@@ -27,7 +28,8 @@ public:
         "Task",
         "Model",
         "Custom",
-        "Texture",
+        "Texture2D",
+        "Texture3D",
         "Variable",
         "LightGroup",
         "ShaderPass",
@@ -182,7 +184,7 @@ private:
     SlotStringStruct GetSlotNoneInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotModelInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotCustomInput(NodeSlotInputPtr vSlot);
-    SlotStringStruct GetSlotTextureInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotTexture2DInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotVariableInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotShaderPassInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotLightGroupInput(NodeSlotInputPtr vSlot);
@@ -196,7 +198,7 @@ private:
     SlotStringStruct GetSlotNoneOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotModelOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotCustomOutput(NodeSlotOutputPtr vSlot);
-    SlotStringStruct GetSlotTextureOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotTexture2DOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotVariableOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotShaderPassOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotLightGroupOutput(NodeSlotOutputPtr vSlot);

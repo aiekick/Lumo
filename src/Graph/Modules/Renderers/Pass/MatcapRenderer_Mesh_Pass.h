@@ -28,8 +28,8 @@ limitations under the License.
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/TaskInterface.h>
 #include <LumoBackend/Interfaces/CameraInterface.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 #include <LumoBackend/Interfaces/MergedInterface.h>
 #include <Gaia/Gui/ImGuiTexture.h>
@@ -37,8 +37,8 @@ limitations under the License.
 class MatcapRenderer_Mesh_Pass : public ShaderPass,
 
                                  public ModelInputInterface,
-                                 public TextureInputInterface<2U>,
-                                 public TextureOutputInterface {
+                                 public Texture2DInputInterface<2U>,
+                                 public Texture2DOutputInterface {
 private:
     VulkanBufferObjectPtr m_UBOVertPtr = nullptr;
     vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;

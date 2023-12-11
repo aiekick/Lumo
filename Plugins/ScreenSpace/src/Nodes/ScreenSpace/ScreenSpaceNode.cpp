@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "ScreenSpaceNode.h"
 #include <Modules/ScreenSpace/ScreenSpaceModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureInput.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include PROFILER_INCLUDE
@@ -68,11 +68,11 @@ bool ScreenSpaceNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Screen Space";
 
-    AddInput(NodeSlotTextureInput::Create("Color", 0), false, false);
-    AddInput(NodeSlotTextureInput::Create("Position", 1), false, false);
-    AddInput(NodeSlotTextureInput::Create("Normal", 2), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Color", 0), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Position", 1), false, false);
+    AddInput(NodeSlotTexture2DInput::Create("Normal", 2), false, false);
 
-    AddOutput(NodeSlotTextureOutput::Create("", 0), false, true);
+    AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
     m_ScreenSpaceModulePtr = ScreenSpaceModule::Create(vVulkanCore, m_This);
     if (m_ScreenSpaceModulePtr) {
@@ -94,7 +94,7 @@ bool ScreenSpaceNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
     BaseNode::ExecuteInputTasks(vCurrentFrame, vCmd, vBaseNodeState);
 
     // for update input texture buffer infos => avoid vk crash
-    UpdateTextureInputDescriptorImageInfos(m_Inputs);
+    UpdateTexture2DInputDescriptorImageInfos(m_Inputs);
     if (m_ScreenSpaceModulePtr) {
         res = m_ScreenSpaceModulePtr->Execute(vCurrentFrame, vCmd, vBaseNodeState);
     }

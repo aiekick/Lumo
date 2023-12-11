@@ -16,7 +16,7 @@ limitations under the License.
 
 #include "Texture2DNode.h"
 #include <Graph/Modules/Assets/Load/Texture2DModule.h>
-#include <LumoBackend/Graph/Slots/NodeSlotTextureOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -45,7 +45,7 @@ Texture2DNode::~Texture2DNode() {
 bool Texture2DNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
     name = "Texture 2D";
 
-    auto texPtr = NodeSlotTextureOutput::Create("Output", 0U);
+    auto texPtr = NodeSlotTexture2DOutput::Create("Output", 0U);
     if (texPtr) {
         texPtr->showWidget = true;
         AddOutput(texPtr, true, true);

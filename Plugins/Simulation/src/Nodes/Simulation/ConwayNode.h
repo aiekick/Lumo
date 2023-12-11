@@ -16,12 +16,12 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <LumoBackend/Interfaces/TextureInputInterface.h>
-#include <LumoBackend/Interfaces/TextureOutputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DInputInterface.h>
+#include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class ConwayModule;
-class ConwayNode : public BaseNode, public TextureInputInterface<0U>, public TextureOutputInterface, public ShaderUpdateInterface {
+class ConwayNode : public BaseNode, public Texture2DInputInterface<0U>, public Texture2DOutputInterface, public ShaderUpdateInterface {
 public:
     static std::shared_ptr<ConwayNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
