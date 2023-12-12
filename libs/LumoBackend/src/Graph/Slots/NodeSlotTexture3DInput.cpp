@@ -121,9 +121,9 @@ void NodeSlotTexture3DInput::OnConnectEvent(NodeSlotWeak vOtherSlot) {
             if (parentNodePtr) {
                 auto otherTextureNodePtr = dynamic_pointer_cast<Texture3DOutputInterface>(endSlotPtr->parentNode.lock());
                 if (otherTextureNodePtr) {
-                    ct::fvec2 textureSize;
-                    auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-                    parentNodePtr->SetTexture(descriptorBinding, descPtr, &textureSize);
+                    ct::fvec3 textureSize;
+                    auto descPtr = otherTextureNodePtr->GetDescriptorImage3DInfo(endSlotPtr->descriptorBinding, &textureSize);
+                    parentNodePtr->SetTexture3D(descriptorBinding, descPtr, &textureSize);
                 } else {
                     CTOOL_DEBUG_BREAK;
                 }
@@ -140,7 +140,7 @@ void NodeSlotTexture3DInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot) {
         if (endSlotPtr) {
             auto parentNodePtr = dynamic_pointer_cast<Texture3DInputInterface<0u>>(parentNode.lock());
             if (parentNodePtr) {
-                parentNodePtr->SetTexture(descriptorBinding, nullptr, nullptr);
+                parentNodePtr->SetTexture3D(descriptorBinding, nullptr, nullptr);
             } else {
                 CTOOL_DEBUG_BREAK;
             }
@@ -161,9 +161,9 @@ void NodeSlotTexture3DInput::TreatNotification(const NotifyEvent& vEvent, const 
                         if (otherNodePtr) {
                             auto receiverSlotPtr = vReceiverSlot.lock();
                             if (receiverSlotPtr) {
-                                ct::fvec2 textureSize;
-                                auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-                                parentTexture3DInputNodePtr->SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
+                                ct::fvec3 textureSize;
+                                auto descPtr = otherNodePtr->GetDescriptorImage3DInfo(emiterSlotPtr->descriptorBinding, &textureSize);
+                                parentTexture3DInputNodePtr->SetTexture3D(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
                             }
                         } else {
                             CTOOL_DEBUG_BREAK;

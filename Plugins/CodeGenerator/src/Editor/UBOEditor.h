@@ -39,7 +39,7 @@ public:
     std::string Get_Cpp_Item_Header();
     std::string Get_Cpp_GetXML(const std::string& vStage, const int32_t& vUboIndex);
     std::string Get_Cpp_SetXML(const std::string& vStage, const int32_t& vUboIndex, const bool& vIsFirst);
-    std::string Get_Cpp_Item_Widget(const std::string& vStage, const int32_t& vUboIndex);
+    std::string Get_Cpp_Item_Widget(const std::string& vStage, const int32_t& vUboIndex, const std::string& vOffset);
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 };
@@ -59,7 +59,7 @@ public:
     bool DrawStageSelection(const std::string& vRendererType);
     bool DrawPane(const std::string& vRendererType);
 
-    std::string Get_Widgets_Header(const std::string& vRendererType, const int32_t& vUboIndex);
+    std::string Get_Widgets_Header(const std::string& vRendererType, const int32_t& vUboIndex, const std::string& vOffset);
     std::string Get_Glsl_Header(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex, const bool& vIsAnEffect);
     std::string Get_Cpp_Header(const std::string& vRendererType, const int32_t& vUboIndex, const bool& vIsAnEffect);
     std::string Get_Cpp_WriteDescriptors(const std::string& vRendererType, const int32_t& vUboBindingIndex, const int32_t& vUboIndex);
@@ -97,7 +97,7 @@ public:
     std::string Get_Cpp_GetXML(const bool& vIsAnEffect);
     std::string Get_Cpp_SetXML(const bool& vIsAnEffect);
     std::string Get_Cpp_Header(const bool& vIsAnEffect);
-    std::string Get_Widgets_Header();
+    std::string Get_Widgets_Header(const std::string& vOffset);
     std::string Get_Glsl_Header(const std::string& vStage, const bool& vIsAnEffect, uint32_t& vBindingStartIndex);
 
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

@@ -11,6 +11,8 @@
 #include <Gaia/Shader/VulkanShader.h>
 #include <Gaia/Gui/VulkanWindow.h>
 #include <LumoBackend/Graph/Base/NodeSlot.h>
+#include <Nodes/Rendering/VolumeRenderingNode.h>
+#include <Nodes/Shape/ShapeNode.h>
 
 // needed for plugin creating / destroying
 extern "C"  // needed for avoid renaming of funcs by the compiler
@@ -86,15 +88,21 @@ std::vector<std::string> Smoke::GetNodes() const {
 
 std::vector<LibraryEntry> Smoke::GetLibrary() const {
     std::vector<LibraryEntry> res;
-	
+
+    res.push_back(AddLibraryEntry("Smoke/Rendering", "Volume Renderer", "VOLUME_RENDERING"));
+    res.push_back(AddLibraryEntry("Smoke/Shapes", "Shape", "SHAPE"));
+
     return res;
 }
 
 BaseNodePtr Smoke::CreatePluginNode(const std::string& vPluginNodeName) {
     auto vkCorePtr = m_VulkanCoreWeak.lock();
 
-    //if (vPluginNodeName == "BREAK_TEXTURE_2D_GROUP")
-    //    return BreakTexturesGroupNode::Create(vkCorePtr);
+    if (vPluginNodeName == "VOLUME_RENDERING") {
+        return VolumeRenderingNode::Create(vkCorePtr);
+    } else if (vPluginNodeName == "SHAPE") {
+        return ShapeNode::Create(vkCorePtr);
+    }
 
     return nullptr;
 }

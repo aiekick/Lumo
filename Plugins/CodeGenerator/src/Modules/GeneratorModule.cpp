@@ -15,6 +15,8 @@
 #include <LumoBackend/Graph/Slots/NodeSlotModelOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTexture2DInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture3DInput.h>
+#include <LumoBackend/Graph/Slots/NodeSlotTexture3DOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotVariableOutput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotLightGroupInput.h>
@@ -228,7 +230,7 @@ bool MODULE_CLASS_NAME::Init()
         } else if (m_RendererType == RENDERER_TYPE_COMPUTE_3D) {
             cpp_module_file_code +=
                 u8R"(
-	ct::uvec3 map_size = 512;
+	ct::uvec3 map_size = 8;
 	if (BaseRenderer::InitCompute3D(map_size)) {
 		//SetExecutionWhenNeededOnly(true);
 		m_PASS_CLASS_NAME_Ptr = PASS_CLASS_NAME::Create(map_size, m_VulkanCore);
@@ -327,51 +329,52 @@ bool MODULE_CLASS_NAME::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Com
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool MODULE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
-
 	assert(vContextPtr); 
-	ImGui::SetCurrentContext(vContextPtr);
-)";
+	ImGui::SetCurrentContext(vContextPtr);)";
     if (m_IsATask) {
         cpp_module_file_code +=
             u8R"(
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{)";
+	if (m_LastExecutedFrame == vCurrentFrame) {)";
     }
 
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
-        cpp_module_file_code +=
-            u8R"(
+        if (m_IsAnEffect) {
+            cpp_module_file_code +=
+                u8R"(
 		if (m_PASS_CLASS_NAME_Ptr) {
 			return m_PASS_CLASS_NAME_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
-		}
-		)";
+		})";
+        } else {
+            cpp_module_file_code +=
+                u8R"(
+		if (m_PASS_CLASS_NAME_Ptr) {
+	        if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##PASS_CLASS_NAME", -1.0f, false, true, &m_CanWeRender)) {
+			    return m_PASS_CLASS_NAME_Ptr->DrawWidgets(vCurrentFrame, vContextPtr, vUserDatas);
+            }
+		})";
+        }
     }
 
     if (m_IsATask) {
         cpp_module_file_code +=
             u8R"(
-	}
-)";
+	})";
     }
     cpp_module_file_code +=
         u8R"(
 	return false;
 }
 
-bool MODULE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool MODULE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
-
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);)";
     if (m_IsATask) {
         cpp_module_file_code +=
             u8R"(
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{)";
+	if (m_LastExecutedFrame == vCurrentFrame) {)";
     }
 
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
@@ -385,25 +388,21 @@ bool MODULE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
     if (m_IsATask) {
         cpp_module_file_code +=
             u8R"(
-	}
-)";
+	})";
     }
     cpp_module_file_code +=
         u8R"(
 	return false;
 }
 
-bool MODULE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
-{
+bool MODULE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
 	ZoneScoped;
-
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);)";
     if (m_IsATask) {
         cpp_module_file_code +=
             u8R"(
-	if (m_LastExecutedFrame == vCurrentFrame)
-	{)";
+	if (m_LastExecutedFrame == vCurrentFrame) {)";
     }
 
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
@@ -417,8 +416,7 @@ bool MODULE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, cons
     if (m_IsATask) {
         cpp_module_file_code +=
             u8R"(
-	}
-)";
+	})";
     }
     cpp_module_file_code +=
         u8R"(
@@ -429,12 +427,9 @@ bool MODULE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, cons
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
         cpp_module_file_code +=
             u8R"(
-void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers)
-{
+void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) {
 	ZoneScoped;
-
 	// do some code
-	
 	BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 )";
@@ -448,8 +443,7 @@ void MODULE_CLASS_NAME::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint3
 //// CONFIGURATION /////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas)
-{
+std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::string& vUserDatas) {
 	ZoneScoped;
 	std::string str;
 	str += vOffset + "<MODULE_XML_NAME>\n";)";
@@ -473,8 +467,7 @@ std::string MODULE_CLASS_NAME::getXml(const std::string& vOffset, const std::str
 	return str;
 }
 
-bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas)
-{
+bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) {
 	ZoneScoped;
 
 	// The value of this child identifies the name of this element
@@ -483,10 +476,12 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 	std::string strParentName;
 
 	strName = vElem->Value();
-	if (vElem->GetText())
+	if (vElem->GetText()) {
 		strValue = vElem->GetText();
-	if (vParent != nullptr)
+    }
+	if (vParent != nullptr) {
 		strParentName = vParent->Value();
+    }
 
 	if (strParentName == "MODULE_XML_NAME")	{)";
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
@@ -515,8 +510,7 @@ bool MODULE_CLASS_NAME::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEle
 	return true;
 }
 
-void MODULE_CLASS_NAME::AfterNodeXmlLoading()
-{
+void MODULE_CLASS_NAME::AfterNodeXmlLoading() {
 	ZoneScoped;)";
     if (m_GenerateAPass) {
         cpp_module_file_code +=
@@ -536,7 +530,6 @@ void MODULE_CLASS_NAME::AfterNodeXmlLoading()
     /////////////////////////////////////////////////////////////////
     h_module_file_code +=
         u8R"(
-
 #pragma once
 
 #include <set>
@@ -554,6 +547,7 @@ void MODULE_CLASS_NAME::AfterNodeXmlLoading()
 
 #include <Gaia/gaia.h>
 #include <Gaia/Resources/Texture2D.h>
+#include <Gaia/Resources/Texture3D.h>
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Core/VulkanDevice.h>
 #include <Gaia/Shader/VulkanShader.h>

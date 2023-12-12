@@ -185,6 +185,7 @@ private:
     SlotStringStruct GetSlotModelInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotCustomInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotTexture2DInput(NodeSlotInputPtr vSlot);
+    SlotStringStruct GetSlotTexture3DInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotVariableInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotShaderPassInput(NodeSlotInputPtr vSlot);
     SlotStringStruct GetSlotLightGroupInput(NodeSlotInputPtr vSlot);
@@ -199,6 +200,7 @@ private:
     SlotStringStruct GetSlotModelOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotCustomOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotTexture2DOutput(NodeSlotOutputPtr vSlot);
+    SlotStringStruct GetSlotTexture3DOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotVariableOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotShaderPassOutput(NodeSlotOutputPtr vSlot);
     SlotStringStruct GetSlotLightGroupOutput(NodeSlotOutputPtr vSlot);

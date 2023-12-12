@@ -38,9 +38,9 @@ void Texture3DInputFunctions::UpdateTexture3DInputDescriptorImageInfos(const std
                         if (otherParentPtr) {
                             auto otherNodePtr = dynamic_pointer_cast<Texture3DOutputInterface>(otherParentPtr);
                             if (otherNodePtr) {
-                                ct::fvec2 texSize;
-                                auto descPtr = otherNodePtr->GetDescriptorImageInfo(otherSLotPtr->descriptorBinding, &texSize);
-                                SetTexture(input.second->descriptorBinding, descPtr, &texSize);
+                                ct::fvec3 texSize;
+                                auto descPtr = otherNodePtr->GetDescriptorImage3DInfo(otherSLotPtr->descriptorBinding, &texSize);
+                                SetTexture3D(input.second->descriptorBinding, descPtr, &texSize);
                             }
                         }
                     }

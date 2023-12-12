@@ -1,0 +1,135 @@
+<config>
+	<project>
+		<CommonSystem>
+			<TargetXYZ>0;0;0</TargetXYZ>
+			<TargetXYZLock>1;1;0</TargetXYZLock>
+			<TransXY>0;0</TransXY>
+			<TransXYLock>1;1</TransXYLock>
+			<TransFactor>5</TransFactor>
+			<RotXYZ>0.106152;0.169936;0</RotXYZ>
+			<RotXYZLock>0;0;1</RotXYZLock>
+			<RotXYZFactor>1</RotXYZFactor>
+			<Zoom>29.1541</Zoom>
+			<ZoomLock>0</ZoomLock>
+			<ZoomFactor>5</ZoomFactor>
+			<PerspectiveAngle>45</PerspectiveAngle>
+			<CamFar>1000</CamFar>
+			<CameraType>0</CameraType>
+			<CameraType>0</CameraType>
+			<CameraMode>0</CameraMode>
+		</CommonSystem>
+		<scene>
+		</scene>
+		<plugins>
+			<AudiArt>
+			</AudiArt>
+			<BluePrints>
+			</BluePrints>
+			<CodeGenerator>
+				<custom_types>
+				</custom_types>
+				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\Smoke\src</root_path>
+				<scene>
+					<graph>
+						<canvas>
+							<offset>0;0</offset>
+							<scale>1</scale>
+						</canvas>
+						<nodes>
+							<node name="Volume Rendering" type="NONE" pos="0;-25" id="149886">
+								<slot index="0" name="Density" type="TEXTURE_3D" place="INPUT" id="149889" hideName="false" typeIndex="5" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="149892" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>VolumeRendering</class_name>
+									<category_name>Rendering</category_name>
+									<node_creation_name>VOLUME_RENDERING</node_creation_name>
+									<node_display_name>Volume Rendering</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 2D</renderer_type>
+									<module_display_name>Volume Rendering</module_display_name>
+									<module_xml_name>volume_rendering_module</module_xml_name>
+									<module_xml_simple_name>volume_rendering_pass</module_xml_simple_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<node_is_an_effect>false</node_is_an_effect>
+									<vertex_struct_type>0</vertex_struct_type>
+									<use_common_system_ubo>true</use_common_system_ubo>
+								</generation>
+								<UBOS renderer="Compute 2D">
+									<UBO stage="0">
+										<UBOItem name="Name" widgetIndex="0" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+									</UBO>
+								</UBOS>
+							</node>
+							<node name="Shape" type="NONE" pos="-132;-25" id="149905">
+								<slot index="0" name="New Slot" type="TEXTURE_3D" place="OUTPUT" id="149908" hideName="true" typeIndex="5" subTypeIndex="0" bindingIndex="4294967295" showWidget="false"/>
+								<generation>
+									<class_name>Shape</class_name>
+									<category_name>Shape</category_name>
+									<node_creation_name>SHAPE</node_creation_name>
+									<node_display_name>Shape</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 3D</renderer_type>
+									<module_display_name>Shape</module_display_name>
+									<module_xml_name>shape_module</module_xml_name>
+									<module_xml_simple_name>shape_pass</module_xml_simple_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<node_is_an_effect>false</node_is_an_effect>
+									<vertex_struct_type>0</vertex_struct_type>
+									<use_common_system_ubo>false</use_common_system_ubo>
+								</generation>
+								<UBOS renderer="Compute 3D">
+									<UBO stage="0">
+										<UBOItem name="type" widgetIndex="2" typeIndex="4" vx="cube, sphere, torus" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="size" widgetIndex="0" typeIndex="0" vx="1" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="thick" widgetIndex="0" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="color" widgetIndex="5" typeIndex="3" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="1;1;1;0"/>
+										<UBOItem name="Transform" widgetIndex="6" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+									</UBO>
+								</UBOS>
+							</node>
+						</nodes>
+						<links>
+							<link in="149905:149908" out="149886:149889"/>
+						</links>
+						<outputs>
+						</outputs>
+					</graph>
+				</scene>
+			</CodeGenerator>
+			<Landscape>
+			</Landscape>
+			<Lighting>
+			</Lighting>
+			<MeshGen>
+			</MeshGen>
+			<MeshSim>
+			</MeshSim>
+			<Misc>
+			</Misc>
+			<Particles>
+			</Particles>
+			<PlanetSystem>
+			</PlanetSystem>
+			<PostProcessing>
+			</PostProcessing>
+			<RTX>
+			</RTX>
+			<ScreenSpace>
+			</ScreenSpace>
+			<SdfMesher>
+			</SdfMesher>
+			<Simulation>
+			</Simulation>
+			<Smoke>
+			</Smoke>
+		</plugins>
+	</project>
+</config>

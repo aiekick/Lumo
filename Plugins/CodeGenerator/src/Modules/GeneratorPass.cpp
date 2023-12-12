@@ -259,7 +259,7 @@ void PASS_CLASS_NAME::ActionBeforeInit() {
     } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_Texture3D]) {
         cpp_pass_file_code +=
             u8R"(
-	for (auto& info : m_ImageInfos)	{
+	for (auto& info : m_Image3DInfos)	{
 		info = *corePtr->getEmptyTexture3DDescriptorImageInfo();
 	})";
     } else if (m_InputSlotCounter[BaseTypeEnum::BASE_TYPE_TextureCube]) {
@@ -287,32 +287,24 @@ bool PASS_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
-	bool change = false;)";
-    if (m_IsAnEffect) {
-        cpp_pass_file_code +=
-            u8R"(
-	//change |= DrawResizeWidget();)";
-    } else {
-        cpp_pass_file_code +=
-            u8R"(
-	change |= DrawResizeWidget();)";
-    }
+	bool change = false;
+	//change |= DrawResizeWidget();
+)";
 
     if (m_IsAnEffect) {
         cpp_pass_file_code +=
             u8R"(
 	if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##PASS_CLASS_NAME", -1.0f, false, true, IsEffectEnabled())) {)";
-    } else {
+        cpp_pass_file_code += m_UBOEditors.Get_Widgets_Header("\t\t");
         cpp_pass_file_code +=
             u8R"(
-	if (ImGui::CollapsingHeader_CheckBox("MODULE_DISPLAY_NAME##PASS_CLASS_NAME", -1.0f, true, true, &m_CanWeRender)) {)";
+	})";
+    } else {
+        cpp_pass_file_code += m_UBOEditors.Get_Widgets_Header("\t");
     }
-
-    cpp_pass_file_code += m_UBOEditors.Get_Widgets_Header();
 
     cpp_pass_file_code +=
         u8R"(
-	}
 	return change;
 }
 

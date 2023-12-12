@@ -26,5 +26,5 @@ limitations under the License.
 class LUMO_BACKEND_API Texture3DOutputInterface
 {
 public:
-	virtual vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) = 0;
+    virtual vk::DescriptorImageInfo* GetDescriptorImage3DInfo(const uint32_t& vBindingPoint, ct::fvec3* vOutSize = nullptr) = 0;
 };
