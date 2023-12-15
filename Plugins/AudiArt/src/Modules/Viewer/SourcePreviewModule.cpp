@@ -107,7 +107,7 @@ bool SourcePreviewModule::ExecuteWhenNeeded(const uint32_t& /*vCurrentFrame*/, v
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SourcePreviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool SourcePreviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -116,7 +116,7 @@ bool SourcePreviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
     return false;
 }
 
-bool SourcePreviewModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool SourcePreviewModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -126,7 +126,7 @@ bool SourcePreviewModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRe
 }
 
 bool SourcePreviewModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);

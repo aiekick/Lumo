@@ -129,7 +129,7 @@ bool LongLatPeviewModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::C
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool LongLatPeviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool LongLatPeviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -150,7 +150,7 @@ bool LongLatPeviewModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
     return false;
 }
 
-bool LongLatPeviewModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool LongLatPeviewModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -163,7 +163,7 @@ bool LongLatPeviewModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRe
 }
 
 bool LongLatPeviewModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);

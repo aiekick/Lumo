@@ -87,12 +87,8 @@ public:
 
 public:
     NodeSlotWeak m_This;
-
-public:
     std::string slotType = "NONE";
     NodeSlot::PlaceEnum slotPlace = NodeSlot::PlaceEnum::INPUT;
-
-public:
     nd::PinId pinID = 0;
     std::string name;
     std::string userDatas;
@@ -215,7 +211,7 @@ public:
     /// <returns>true if removed something</returns>
     bool RemoveConnectedSlot(NodeSlotWeak vOtherSlot);
 
-    void DrawDebugInfos();
+    virtual void DrawDebugInfos();
 
 private:
     void m_DrawSlot(BaseNodeState* vBaseNodeState,                                    //
@@ -223,10 +219,10 @@ private:
         ImVec2 vSlotOffset = ImVec2());
     void m_DrawInputWidget(BaseNodeState* vBaseNodeState);
     void m_DrawOutputWidget(BaseNodeState* vBaseNodeState);
-    void m_DrawSlotText(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
     void m_DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
-    void m_DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, ImU32 vColor, float vRadius, float vThickness = 1.0f);
 
 protected:
+    virtual void m_DrawSlotText(ImDrawList* vDrawList, ImVec2 vCenter, BaseNodeState* vBaseNodeState, bool vConnected, ImU32 vColor, ImU32 vInnerColor);
+    virtual void m_DrawNodeSlot(ImDrawList* vDrawList, ImVec2 vCenter, ImU32 vColor, float vRadius, float vThickness = 1.0f);
     BaseNodePtr m_GetRootNode();
 };

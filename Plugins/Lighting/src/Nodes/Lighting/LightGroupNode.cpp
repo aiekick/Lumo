@@ -64,7 +64,7 @@ bool LightGroupNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBu
     return false;
 }
 
-bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -75,7 +75,7 @@ bool LightGroupNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
     return false;
 }
 
-bool LightGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool LightGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -86,7 +86,7 @@ bool LightGroupNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& v
 }
 
 bool LightGroupNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);

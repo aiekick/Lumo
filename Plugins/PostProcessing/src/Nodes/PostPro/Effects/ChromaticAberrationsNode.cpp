@@ -103,7 +103,7 @@ bool ChromaticAberrationsNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk:
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ChromaticAberrationsNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ChromaticAberrationsNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     bool res = false;
     assert(vContextPtr);
@@ -115,7 +115,7 @@ bool ChromaticAberrationsNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 }
 
 bool ChromaticAberrationsNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -127,7 +127,7 @@ bool ChromaticAberrationsNode::DrawOverlays(
 }
 
 bool ChromaticAberrationsNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);

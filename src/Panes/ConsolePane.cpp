@@ -34,7 +34,7 @@ void ConsolePane::Unit() {
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool ConsolePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ConsolePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     ImGui::SetCurrentContext(vContextPtr);
@@ -69,7 +69,7 @@ bool ConsolePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPane
     return change;
 }
 
-bool ConsolePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ConsolePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vRect);
@@ -79,7 +79,7 @@ bool ConsolePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRec
 }
 
 bool ConsolePane::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vMaxSize);
@@ -88,7 +88,7 @@ bool ConsolePane::DrawDialogsAndPopups(
     return false;
 }
 
-bool ConsolePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ConsolePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     ImGui::SetCurrentContext(vContextPtr);

@@ -141,7 +141,7 @@ void SceneMergerModule::RenderShaderPasses(vk::CommandBuffer* vCmdBufferPtr) {
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SceneMergerModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool SceneMergerModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -158,7 +158,7 @@ bool SceneMergerModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
     return false;
 }
 
-bool SceneMergerModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool SceneMergerModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -170,7 +170,7 @@ bool SceneMergerModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
 }
 
 bool SceneMergerModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);

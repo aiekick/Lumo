@@ -50,7 +50,7 @@ void ScenePane::Unit() {
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool ScenePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ScenePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     if (vInOutPaneShown & paneFlag) {
@@ -75,7 +75,7 @@ bool ScenePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneSh
 }
 
 bool ScenePane::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     if (ProjectFile::Instance()->IsProjectLoaded()) {
@@ -101,11 +101,11 @@ bool ScenePane::DrawDialogsAndPopups(
     return false;
 }
 
-bool ScenePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ScenePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     return false;
 }
 
-bool ScenePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ScenePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vRect);

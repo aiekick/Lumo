@@ -109,7 +109,7 @@ void MatcapRenderer::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t
     TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -124,7 +124,7 @@ bool MatcapRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vC
     return false;
 }
 
-bool MatcapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MatcapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -134,7 +134,7 @@ bool MatcapRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& v
 }
 
 bool MatcapRenderer::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

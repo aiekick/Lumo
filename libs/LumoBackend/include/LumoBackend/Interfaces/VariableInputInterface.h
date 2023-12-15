@@ -29,5 +29,5 @@ protected:
 
 public:
 	// set a variable
-	virtual void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) = 0;
+	virtual void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) = 0;
 };

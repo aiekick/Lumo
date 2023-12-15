@@ -76,7 +76,7 @@ bool VariableNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
     return false;
 }
 
-bool VariableNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool VariableNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -87,7 +87,7 @@ bool VariableNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
     return false;
 }
 
-bool VariableNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool VariableNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -95,7 +95,7 @@ bool VariableNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRe
 }
 
 bool VariableNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -182,9 +182,9 @@ void VariableNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak 
     }
 }
 
-SceneVariableWeak VariableNode::GetVariable(const uint32_t& vVariableIndex) {
+SceneVariableWeak VariableNode::GetVariable(const uint32_t& vVariableIndex, void* vUserDatas) {
     if (m_VariableModulePtr) {
-        return m_VariableModulePtr->GetVariable(vVariableIndex);
+        return m_VariableModulePtr->GetVariable(vVariableIndex, nullptr);
     }
 
     return SceneVariableWeak();

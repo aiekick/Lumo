@@ -27,8 +27,7 @@
 			</BluePrints>
 			<CodeGenerator>
 				<custom_types>
-					<custom_type_name>SceneCode</custom_type_name>
-					<custom_type_name>Transform</custom_type_name>
+					<custom_type_name>SlotCode</custom_type_name>
 				</custom_types>
 				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\FunparadigmPlugins\SdfMesher\src</root_path>
 				<scene>
@@ -38,13 +37,13 @@
 							<scale>1</scale>
 						</canvas>
 						<nodes>
-							<node name="Sdf Slicer" type="NONE" pos="-191;-85" id="35119">
-								<slot index="0" name="Code" type="SceneCode" place="INPUT" id="35122" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="1" name="Transform" type="Transform" place="INPUT" id="35255" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="2" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="35129" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+							<node name="Sdf Slicer" type="NONE" pos="-192;-74" id="35119">
+								<slot index="0" name="Code" type="SlotCode" place="INPUT" id="35122" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="Transform" type="WIDGET_MAT4" place="INPUT" id="35255" hideName="false" typeIndex="6" subTypeIndex="4" bindingIndex="2" showWidget="false"/>
+								<slot index="0" name="Texture" type="TEXTURE_2D" place="OUTPUT" id="35129" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
 									<class_name>SdfSlicer</class_name>
-									<category_name>Slicer</category_name>
+									<category_name>Slicers</category_name>
 									<node_creation_name>SDF_SLICER</node_creation_name>
 									<node_display_name>Sdf Slicer</node_display_name>
 									<generate_module>true</generate_module>
@@ -69,12 +68,12 @@
 								</UBOS>
 							</node>
 							<node name="Slice Mesher" type="NONE" pos="0;-34" id="35159">
-								<slot index="0" name="Map" type="TEXTURE_2D" place="INPUT" id="35162" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="1" name="Transform" type="Transform" place="INPUT" id="35240" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="2" showWidget="false"/>
+								<slot index="0" name="Image" type="TEXTURE_2D" place="INPUT" id="35162" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="Transform" type="WIDGET_MAT4" place="INPUT" id="35294" hideName="false" typeIndex="6" subTypeIndex="4" bindingIndex="1" showWidget="false"/>
 								<slot index="0" name="Model" type="MESH" place="OUTPUT" id="35165" hideName="true" typeIndex="2" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
 									<class_name>SliceMesher</class_name>
-									<category_name>Mesher</category_name>
+									<category_name>Meshers</category_name>
 									<node_creation_name>SLICE_MESHER</node_creation_name>
 									<node_display_name>Slice Mesher</node_display_name>
 									<generate_module>true</generate_module>
@@ -97,20 +96,20 @@
 									</UBO>
 								</UBOS>
 							</node>
-							<node name="Path" type="NONE" pos="-354;-25" id="35140">
-								<slot index="0" name="Code" type="SceneCode" place="INPUT" id="35143" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="Transform" place="OUTPUT" id="35247" hideName="true" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+							<node name="Code Path" type="NONE" pos="-159;13" id="35140">
+								<slot index="0" name="Code" type="SlotCode" place="INPUT" id="35143" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="Transform" type="WIDGET_MAT4" place="OUTPUT" id="35247" hideName="true" typeIndex="6" subTypeIndex="4" bindingIndex="0" showWidget="false"/>
 								<generation>
-									<class_name>Path</class_name>
-									<category_name>Path</category_name>
-									<node_creation_name>PATH</node_creation_name>
-									<node_display_name>Path</node_display_name>
+									<class_name>CodePath</class_name>
+									<category_name>Paths</category_name>
+									<node_creation_name>CODE_PATH</node_creation_name>
+									<node_display_name>Code Path</node_display_name>
 									<generate_module>true</generate_module>
 									<generate_pass>true</generate_pass>
 									<renderer_type>Compute 1D</renderer_type>
-									<module_display_name>Path</module_display_name>
-									<module_xml_name>path_module</module_xml_name>
-									<module_xml_simple_name>path_pass</module_xml_simple_name>
+									<module_display_name>Code Path</module_display_name>
+									<module_xml_name>code_path_module</module_xml_name>
+									<module_xml_simple_name>code_path_pass</module_xml_simple_name>
 									<pass_specialization_type>Quad</pass_specialization_type>
 									<pass_use_ubo>true</pass_use_ubo>
 									<pass_use_sbo>false</pass_use_sbo>
@@ -124,16 +123,46 @@
 										<UBOItem name="Show Axis" widgetIndex="3" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
 										<UBOItem name="Show Curve" widgetIndex="3" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
 										<UBOItem name="Show Points" widgetIndex="3" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="Points Count" widgetIndex="0" typeIndex="8" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+									</UBO>
+								</UBOS>
+							</node>
+							<node name="Base  Paths" type="NONE" pos="-365;-25" id="35232">
+								<slot index="0" name="Transform" type="WIDGET_MAT4" place="OUTPUT" id="35235" hideName="false" typeIndex="6" subTypeIndex="4" bindingIndex="2147483647" showWidget="false"/>
+								<generation>
+									<class_name>BasePaths</class_name>
+									<category_name>Paths</category_name>
+									<node_creation_name>BASE__PATHS</node_creation_name>
+									<node_display_name>Base  Paths</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 1D</renderer_type>
+									<module_display_name>Base  Paths</module_display_name>
+									<module_xml_name>base__paths_module</module_xml_name>
+									<module_xml_simple_name>base__paths_pass</module_xml_simple_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<node_is_an_effect>false</node_is_an_effect>
+									<vertex_struct_type>0</vertex_struct_type>
+									<use_common_system_ubo>true</use_common_system_ubo>
+								</generation>
+								<UBOS renderer="Compute 1D">
+									<UBO stage="0">
+										<UBOItem name="Points Count" widgetIndex="0" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
 									</UBO>
 								</UBOS>
 							</node>
 						</nodes>
 						<links>
-							<link in="35140:35247" out="35159:35240"/>
-							<link in="35140:35247" out="35119:35255"/>
 							<link in="35119:35129" out="35159:35162"/>
+							<link in="35232:35235" out="35119:35255"/>
+							<link in="35140:35247" out="35159:35294"/>
 						</links>
 						<outputs>
+							<output type="middle" ids="35119:35122"/>
+							<output type="right" ids="35119:35122"/>
 						</outputs>
 					</graph>
 				</scene>

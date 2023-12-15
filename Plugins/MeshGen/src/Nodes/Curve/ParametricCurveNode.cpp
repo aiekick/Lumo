@@ -76,7 +76,7 @@ bool ParametricCurveNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ParametricCurveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -87,7 +87,7 @@ bool ParametricCurveNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
     return false;
 }
 
-bool ParametricCurveNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ParametricCurveNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -95,7 +95,7 @@ bool ParametricCurveNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRe
 }
 
 bool ParametricCurveNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -141,11 +141,11 @@ void ParametricCurveNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeSta
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricCurveNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+void ParametricCurveNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ParametricCurveModulePtr) {
-        m_ParametricCurveModulePtr->SetVariable(vVarIndex, vSceneVariable);
+        m_ParametricCurveModulePtr->SetVariable(vVarIndex, vSceneVariable, nullptr);
     }
 }
 

@@ -28,11 +28,11 @@ SceneVariablePtr SceneVariable::Create(const std::string& vType) {
 }
 
 bool SceneVariable::IsAllowedType(const std::string& vType) {
-    if (vType == "WIDGET_BOOLEAN" || vType == "WIDGET_FLOAT" || vType == "WIDGET_INT" || vType == "WIDGET_UINT") {
-        return true;
-    }
-
-    return false;
+    return (vType == "WIDGET_BOOLEAN" ||  //
+            vType == "WIDGET_FLOAT" ||    //
+            vType == "WIDGET_INT" ||      //
+            vType == "WIDGET_UINT" ||     //
+            vType == "WIDGET_MAT4");
 }
 
 SceneVariable::SceneVariable(const std::string& vType) {
@@ -46,6 +46,8 @@ SceneVariable::SceneVariable(const std::string& vType) {
         datas.m_Int32 = 0;
     } else if (type == "WIDGET_UINT") {
         datas.m_Uint32 = 0U;
+    } else if (type == "WIDGET_MAT4") {
+        datas.m_Mat4 = glm::mat4(1.0f);
     }
 }
 

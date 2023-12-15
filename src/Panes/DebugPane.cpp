@@ -54,7 +54,7 @@ void DebugPane::Unit() {
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool DebugPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool DebugPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     ImGui::SetCurrentContext(vContextPtr);
@@ -85,7 +85,7 @@ bool DebugPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneSh
 }
 
 bool DebugPane::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     if (ProjectFile::Instance()->IsProjectLoaded()) {
         /*ImVec2 maxSize = MainFrame::Instance()->m_DisplaySize;
         ImVec2 minSize = maxSize * 0.5f;
@@ -105,11 +105,11 @@ bool DebugPane::DrawDialogsAndPopups(
     return false;
 }
 
-bool DebugPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool DebugPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     return false;
 }
 
-bool DebugPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool DebugPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vRect);

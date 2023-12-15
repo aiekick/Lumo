@@ -163,7 +163,7 @@ bool ShadowMapModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
     return true;
 }
 
-bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -185,7 +185,7 @@ bool ShadowMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
     return false;
 }
 
-bool ShadowMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ShadowMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -195,7 +195,7 @@ bool ShadowMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& 
 }
 
 bool ShadowMapModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

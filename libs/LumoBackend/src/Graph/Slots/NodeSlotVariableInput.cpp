@@ -141,7 +141,7 @@ void NodeSlotVariableInput::OnConnectEvent(NodeSlotWeak vOtherSlot) {
             if (parentNodePtr) {
                 auto otherVariableNodePtr = dynamic_pointer_cast<VariableOutputInterface>(endSlotPtr->parentNode.lock());
                 if (otherVariableNodePtr) {
-                    parentNodePtr->SetVariable(variableIndex, otherVariableNodePtr->GetVariable(endSlotPtr->variableIndex));
+                    parentNodePtr->SetVariable(variableIndex, otherVariableNodePtr->GetVariable(endSlotPtr->variableIndex, nullptr), nullptr);
                 }
             }
         }
@@ -154,7 +154,7 @@ void NodeSlotVariableInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot) {
         if (SceneVariable::IsAllowedType(endSlotPtr->slotType)) {
             auto parentNodePtr = dynamic_pointer_cast<VariableInputInterface<0u>>(parentNode.lock());
             if (parentNodePtr) {
-                parentNodePtr->SetVariable(variableIndex, SceneVariableWeak());
+                parentNodePtr->SetVariable(variableIndex, SceneVariableWeak(), nullptr);
             }
         }
     }
@@ -175,7 +175,8 @@ void NodeSlotVariableInput::TreatNotification(const NotifyEvent& vEvent, const N
                                 auto receiverSlotPtr = vReceiverSlot.lock();
                                 if (receiverSlotPtr) {
                                     parentVariableInputNodePtr->SetVariable(
-                                        receiverSlotPtr->variableIndex, otherVariableNodePtr->GetVariable(emiterSlotPtr->variableIndex));
+                                        receiverSlotPtr->variableIndex,
+                                        otherVariableNodePtr->GetVariable(emiterSlotPtr->variableIndex, nullptr), nullptr);
                                 }
                             }
                         }

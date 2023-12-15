@@ -120,7 +120,7 @@ bool ModelExporterModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::C
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ModelExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -143,9 +143,9 @@ bool ModelExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
             change |= ImGui::Checkbox("auto save enabled", &m_AutoSaverEnabled);
         }
         if (m_AutoSaverEnabled || m_AutoSaverPreviewEnabled) {
-            change |= ImGui::InputUIntDefault(200.0f, "frames to export", &m_FramesCountToExport, 1, 10, 1);
-            change |= ImGui::InputUIntDefault(200.0f, "frames to jump", &m_FramesCountToJump, 1, 10, 1);
-            if (ImGui::InputUIntDefault(200.0f, "frames per sec", &m_FramesCountPerSec, 1, 10, 1)) {
+            change |= ImGui::InputUIntDefault(200.0f, "frames to export", &m_FramesCountToExport, 1, 1, 10);
+            change |= ImGui::InputUIntDefault(200.0f, "frames to jump", &m_FramesCountToJump, 1, 1, 10);
+            if (ImGui::InputUIntDefault(200.0f, "frames per sec", &m_FramesCountPerSec, 1, 1, 10)) {
                 m_FramesCountPerSec = ct::maxi(m_FramesCountPerSec, 1U);
                 change = true;
             }
@@ -181,7 +181,7 @@ bool ModelExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
     return change;
 }
 
-bool ModelExporterModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ModelExporterModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -189,7 +189,7 @@ bool ModelExporterModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRe
 }
 
 bool ModelExporterModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -225,7 +225,7 @@ void ModelExporterModule::SetModel(SceneModelWeak vSceneModel) {
 //// VARIABLE INPUT //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelExporterModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+void ModelExporterModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {
     ZoneScoped;
     if (vVarIndex < m_SceneVariables.size()) {
         m_SceneVariables[vVarIndex] = vSceneVariable;

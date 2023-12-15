@@ -492,7 +492,7 @@ void ShaderPass::Unit() {
 //// PUBLIC / GUI //////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ShaderPass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ShaderPass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     assert(vContextPtr);
@@ -501,7 +501,7 @@ bool ShaderPass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
     return false;
 }
 
-bool ShaderPass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ShaderPass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vRect);
@@ -512,7 +512,7 @@ bool ShaderPass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
 }
 
 bool ShaderPass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vMaxSize);

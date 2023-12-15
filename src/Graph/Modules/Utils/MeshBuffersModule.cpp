@@ -104,7 +104,7 @@ bool MeshBuffersModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
     return true;
 }
 
-bool MeshBuffersModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MeshBuffersModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -119,7 +119,7 @@ bool MeshBuffersModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
     return false;
 }
 
-bool MeshBuffersModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MeshBuffersModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -129,7 +129,7 @@ bool MeshBuffersModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
 }
 
 bool MeshBuffersModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

@@ -68,7 +68,7 @@ bool SmoothNormalNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
     return false;
 }
 
-bool SmoothNormalNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool SmoothNormalNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -79,7 +79,7 @@ bool SmoothNormalNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
     return false;
 }
 
-bool SmoothNormalNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool SmoothNormalNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -87,7 +87,7 @@ bool SmoothNormalNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect&
 }
 
 bool SmoothNormalNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

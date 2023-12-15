@@ -102,7 +102,7 @@ bool PostProcessingNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool PostProcessingNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool PostProcessingNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     bool res = false;
     assert(vContextPtr);
@@ -113,7 +113,7 @@ bool PostProcessingNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
     return res;
 }
 
-bool PostProcessingNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool PostProcessingNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -125,7 +125,7 @@ bool PostProcessingNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRec
 }
 
 bool PostProcessingNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);

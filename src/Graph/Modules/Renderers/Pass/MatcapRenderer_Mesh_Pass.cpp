@@ -89,7 +89,7 @@ void MatcapRenderer_Mesh_Pass::DrawModel(vk::CommandBuffer* vCmdBufferPtr, const
     }
 }
 
-bool MatcapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MatcapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -107,7 +107,7 @@ bool MatcapRenderer_Mesh_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiC
 }
 
 bool MatcapRenderer_Mesh_Pass::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -115,7 +115,7 @@ bool MatcapRenderer_Mesh_Pass::DrawOverlays(
 }
 
 bool MatcapRenderer_Mesh_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);

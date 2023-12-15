@@ -34,10 +34,10 @@ public:
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
 
     // Draw Widgets
-    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
-    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+    bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) override;
+    bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) override;
     bool DrawDialogsAndPopups(
-        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) override;
+        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) override;
     void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
     // Interfaces Setters
     void SetModel(SceneModelWeak vSceneModel) override;

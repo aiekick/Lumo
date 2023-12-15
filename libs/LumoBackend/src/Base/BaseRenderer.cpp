@@ -358,7 +358,7 @@ void BaseRenderer::Unit() {
 //// PUBLIC / GUI //////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool BaseRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool BaseRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -372,7 +372,7 @@ bool BaseRenderer::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
     return change;
 }
 
-bool BaseRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool BaseRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -387,7 +387,7 @@ bool BaseRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRe
 }
 
 bool BaseRenderer::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -753,7 +753,7 @@ void BaseRenderer::UpdateShaders(const std::set<std::string>& vFiles) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string BaseRenderer::getXml(const std::string& /*vOffset*/, const std::string& /*vUserDatas*/) {
+std::string BaseRenderer::getXml(const std::string& vOffset, const std::string& /*vUserDatas*/) {
     std::string str;
 
     // str += m_UniformWidgets.getXml(vOffset, vUserDatas);

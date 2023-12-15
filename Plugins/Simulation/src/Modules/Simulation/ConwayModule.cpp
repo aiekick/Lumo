@@ -106,7 +106,7 @@ bool ConwayModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuff
     return true;
 }
 
-bool ConwayModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ConwayModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -125,7 +125,7 @@ bool ConwayModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCon
     return false;
 }
 
-bool ConwayModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ConwayModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -135,7 +135,7 @@ bool ConwayModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRe
 }
 
 bool ConwayModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

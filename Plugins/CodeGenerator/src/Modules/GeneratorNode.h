@@ -39,7 +39,7 @@ public:
         "StorageBuffer",
         "AccelStructure",
     };
-    std::vector<std::string> m_VariableTypeArray = {"WIDGET_BOOLEAN", "WIDGET_FLOAT", "WIDGET_INT", "WIDGET_UINT"};
+    std::vector<std::string> m_VariableTypeArray = {"WIDGET_BOOLEAN", "WIDGET_FLOAT", "WIDGET_INT", "WIDGET_UINT", "WIDGET_MAT4"};
     std::vector<std::string> m_VertexStructTypes = {
         "P3_N3_TA3_BTA3_T2_C4",  // LEGACY MESH
         "P3_N3_T2_C4",

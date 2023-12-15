@@ -89,7 +89,7 @@ void ParametricSurfaceUVModule::Unit() {
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricSurfaceUVModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ParametricSurfaceUVModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -98,7 +98,7 @@ bool ParametricSurfaceUVModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 }
 
 bool ParametricSurfaceUVModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -106,7 +106,7 @@ bool ParametricSurfaceUVModule::DrawOverlays(
 }
 
 bool ParametricSurfaceUVModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -117,7 +117,7 @@ bool ParametricSurfaceUVModule::DrawDialogsAndPopups(
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricSurfaceUVModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+void ParametricSurfaceUVModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {
     ZoneScoped;
 }
 

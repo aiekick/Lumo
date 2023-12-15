@@ -22,6 +22,7 @@ limitations under the License.
 #include <ctools/cTools.h>
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
+#include <glm/glm.hpp>
 
 class SceneVariable;
 typedef std::shared_ptr<SceneVariable> SceneVariablePtr;
@@ -40,6 +41,7 @@ public:
 		uint32_t m_Uint32;
 		int32_t m_Int32;
 		float m_Float;
+        glm::mat4 m_Mat4;
 	};
 
 private:

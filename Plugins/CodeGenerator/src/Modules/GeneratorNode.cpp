@@ -293,7 +293,7 @@ bool NODE_CLASS_NAME::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool NODE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool NODE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	bool res = false;
@@ -311,7 +311,7 @@ bool NODE_CLASS_NAME::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
 	return res;
 }
 
-bool NODE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool NODE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -329,7 +329,7 @@ bool NODE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& 
 	return false;
 }
 
-bool NODE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool NODE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
@@ -604,9 +604,9 @@ public:
     h_node_file_code +=
         u8R"(
 	// Draw Widgets
-	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, const std::string& vUserDatas = {}) override;
+	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
+	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;)";
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
         h_node_file_code +=
@@ -4546,17 +4546,15 @@ SlotStringStruct GeneratorNode::GetSlotVariableInput(NodeSlotInputPtr vSlot) {
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
-{	
+void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {	
 	ZoneScoped;)";
 
     if (m_GenerateAModule) {
         res.cpp_node_func +=
             u8R"(
 
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
-		m_MODULE_CLASS_NAMEPtr->SetVariable(vVarIndex, vSceneVariable);
+	if (m_MODULE_CLASS_NAMEPtr)	{
+		m_MODULE_CLASS_NAMEPtr->SetVariable(vVarIndex, vSceneVariable, vUserDatas);
 	})";
     } else {
         res.cpp_node_func +=
@@ -4579,17 +4577,15 @@ void NODE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void MODULE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
-{	
+void MODULE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {	
 	ZoneScoped;)";
 
     if (m_GenerateAPass) {
         res.cpp_module_func +=
             u8R"(
 
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
-		m_PASS_CLASS_NAME_Ptr->SetVariable(vVarIndex, vSceneVariable);
+	if (m_PASS_CLASS_NAME_Ptr) {
+		m_PASS_CLASS_NAME_Ptr->SetVariable(vVarIndex, vSceneVariable, vUserDatas);
 	})";
     } else {
         res.cpp_module_func +=
@@ -4612,12 +4608,9 @@ void MODULE_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PASS_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable)
-{	
+void PASS_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* /*vUserDatas*/) {	
 	ZoneScoped;
-
-	if (vVarIndex < m_SceneVariables.size())
-	{
+	if (vVarIndex < m_SceneVariables.size()) {
 		m_SceneVariables[vVarIndex] = vSceneVariable;
 	}
 }
@@ -4625,7 +4618,7 @@ void PASS_CLASS_NAME::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak v
 
     res.h_node_module_func = res.h_pass_func =
         u8R"(
-	void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = SceneVariableWeak()) override;)";
+	void SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable = {}, void* vUserDatas = nullptr) override;)";
 
     res.node_module_include_interface = res.pass_include_interface =
         u8R"(
@@ -4665,24 +4658,21 @@ SlotStringStruct GeneratorNode::GetSlotVariableOutput(NodeSlotOutputPtr vSlot) {
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
-{	
+SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex, void* vUserDatas) {	
 	ZoneScoped;)";
 
     if (m_GenerateAModule) {
         res.cpp_node_func +=
             u8R"(
-
-	if (m_MODULE_CLASS_NAMEPtr)
-	{
-		return m_MODULE_CLASS_NAMEPtr->GetVariable(vVarIndex);
+	if (m_MODULE_CLASS_NAMEPtr)	{
+		return m_MODULE_CLASS_NAMEPtr->GetVariable(vVarIndex, vUserDatas);
 	}
 )";
     }
 
     res.cpp_node_func +=
         u8R"(
-	return SceneVariableWeak();
+	return {};
 }
 )";
 
@@ -4696,24 +4686,21 @@ SceneVariableWeak NODE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
-{	
+SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex, void* vUserDatas) {	
 	ZoneScoped;)";
 
     if (m_GenerateAPass) {
         res.cpp_module_func +=
             u8R"(
-
-	if (m_PASS_CLASS_NAME_Ptr)
-	{
-		return m_PASS_CLASS_NAME_Ptr->GetVariable(vVarIndex);
+	if (m_PASS_CLASS_NAME_Ptr) {
+		return m_PASS_CLASS_NAME_Ptr->GetVariable(vVarIndex, vUserDatas);
 	}
 )";
     }
 
     res.cpp_module_func +=
         u8R"(
-	return SceneVariableWeak();
+	return {};
 }
 )";
 
@@ -4727,22 +4714,18 @@ SceneVariableWeak MODULE_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
 //// VARIABLE SLOT OUTPUT ////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneVariableWeak PASS_CLASS_NAME::GetVariable(const uint32_t& vVarIndex)
-{	
+SceneVariableWeak PASS_CLASS_NAME::GetVariable(const uint32_t& vVarIndex, void* /*vUserDatas*/) {	
 	ZoneScoped;
-
-	if (vVarIndex < m_SceneVariables.size())
-	{
+	if (vVarIndex < m_SceneVariables.size()) {
 		return m_SceneVariables[vVarIndex];
 	}
-
 	return SceneVariableWeak();
 }
 )";
 
     res.h_node_module_func = res.h_pass_func =
         u8R"(
-	SceneVariableWeak GetVariable(const uint32_t& vVarIndex) override;)";
+	SceneVariableWeak GetVariable(const uint32_t& vVarIndex, void* vUserDatas = nullptr) override;)";
 
     res.node_module_include_interface = res.pass_include_interface =
         u8R"(
@@ -6204,9 +6187,11 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
                 else if (attName == "showWidget")
                     slot.showWidget = ct::ivariant(attValue).GetB();
                 else if (attName == "typeIndex")
-                    slotDatas.editorSlotTypeIndex = ct::ivariant(attValue).GetU();
+                    slotDatas.editorSlotTypeIndex = ct::ivariant(attValue).GetI();
+                else if (attName == "subTypeIndex")
+                    slotDatas.editorSlotSubTypeIndex = ct::ivariant(attValue).GetI();
                 else if (attName == "bindingIndex")
-                    slot.descriptorBinding = ct::ivariant(attValue).GetU();
+                    slot.descriptorBinding = ct::ivariant(attValue).GetI();
             }
 
             if (slot.slotPlace == NodeSlot::PlaceEnum::INPUT) {
@@ -6218,6 +6203,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
                 slot_input_ptr->pinID = slot.pinID;
                 slot_input_ptr->showWidget = slot.showWidget;
                 slot_input_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
+                slot_input_ptr->editorSlotSubTypeIndex = slotDatas.editorSlotSubTypeIndex;
                 slot_input_ptr->descriptorBinding = slot.descriptorBinding;
 
                 bool wasSet = false;
@@ -6246,6 +6232,7 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
                 slot_output_ptr->pinID = slot.pinID;
                 slot_output_ptr->showWidget = slot.showWidget;
                 slot_output_ptr->editorSlotTypeIndex = slotDatas.editorSlotTypeIndex;
+                slot_output_ptr->editorSlotSubTypeIndex = slotDatas.editorSlotSubTypeIndex;
                 slot_output_ptr->descriptorBinding = slot.descriptorBinding;
 
                 bool wasSet = false;

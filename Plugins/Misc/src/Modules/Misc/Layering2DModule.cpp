@@ -106,7 +106,7 @@ bool Layering2DModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Command
     return true;
 }
 
-bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -125,7 +125,7 @@ bool Layering2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* 
     return false;
 }
 
-bool Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -135,7 +135,7 @@ bool Layering2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect&
 }
 
 bool Layering2DModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

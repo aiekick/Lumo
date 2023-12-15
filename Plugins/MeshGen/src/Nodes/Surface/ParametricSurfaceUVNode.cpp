@@ -76,7 +76,7 @@ bool ParametricSurfaceUVNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricSurfaceUVNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ParametricSurfaceUVNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -87,7 +87,7 @@ bool ParametricSurfaceUVNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiCo
 }
 
 bool ParametricSurfaceUVNode::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -95,7 +95,7 @@ bool ParametricSurfaceUVNode::DrawOverlays(
 }
 
 bool ParametricSurfaceUVNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -141,11 +141,11 @@ void ParametricSurfaceUVNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNod
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricSurfaceUVNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+void ParametricSurfaceUVNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ParametricSurfaceUVModulePtr) {
-        m_ParametricSurfaceUVModulePtr->SetVariable(vVarIndex, vSceneVariable);
+        m_ParametricSurfaceUVModulePtr->SetVariable(vVarIndex, vSceneVariable, nullptr);
     }
 }
 

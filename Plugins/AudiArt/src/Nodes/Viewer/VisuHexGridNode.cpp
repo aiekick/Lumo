@@ -104,7 +104,7 @@ bool VisuHexGridNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VisuHexGridNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool VisuHexGridNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     bool res = false;
@@ -119,7 +119,7 @@ bool VisuHexGridNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
     return res;
 }
 
-bool VisuHexGridNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool VisuHexGridNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -133,7 +133,7 @@ bool VisuHexGridNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& 
 }
 
 bool VisuHexGridNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);

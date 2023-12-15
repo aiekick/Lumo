@@ -107,7 +107,7 @@ bool ShapeNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer*
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ShapeNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool ShapeNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	bool res = false;
@@ -119,7 +119,7 @@ bool ShapeNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContex
 	return res;
 }
 
-bool ShapeNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool ShapeNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -131,7 +131,7 @@ bool ShapeNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect,
 	return false;
 }
 
-bool ShapeNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool ShapeNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 

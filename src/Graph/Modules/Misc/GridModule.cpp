@@ -100,7 +100,7 @@ void GridModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vC
     TaskRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -117,7 +117,7 @@ bool GridModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
     return false;
 }
 
-bool GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -127,7 +127,7 @@ bool GridModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
 }
 
 bool GridModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

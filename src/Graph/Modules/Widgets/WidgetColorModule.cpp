@@ -105,7 +105,7 @@ bool WidgetColorModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
     return true;
 }
 
-bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -125,7 +125,7 @@ bool WidgetColorModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
     return false;
 }
 
-bool WidgetColorModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool WidgetColorModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -135,7 +135,7 @@ bool WidgetColorModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
 }
 
 bool WidgetColorModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

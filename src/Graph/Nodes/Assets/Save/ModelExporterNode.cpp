@@ -107,7 +107,7 @@ bool ModelExporterNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comman
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ModelExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ModelExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     bool res = false;
@@ -122,7 +122,7 @@ bool ModelExporterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
     return res;
 }
 
-bool ModelExporterNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ModelExporterNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -130,7 +130,7 @@ bool ModelExporterNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
 }
 
 bool ModelExporterNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -175,10 +175,10 @@ void ModelExporterNode::SetModel(SceneModelWeak vSceneModel) {
 //// VARIABLE INPUT //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelExporterNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+void ModelExporterNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {
     ZoneScoped;
     if (m_ModelExporterModulePtr) {
-        m_ModelExporterModulePtr->SetVariable(vVarIndex, vSceneVariable);
+        m_ModelExporterModulePtr->SetVariable(vVarIndex, vSceneVariable, nullptr);
     }
 }
 

@@ -111,7 +111,7 @@ bool VolumeRenderingNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comm
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool VolumeRenderingNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool VolumeRenderingNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	bool res = false;
@@ -123,7 +123,7 @@ bool VolumeRenderingNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
 	return res;
 }
 
-bool VolumeRenderingNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool VolumeRenderingNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -135,7 +135,7 @@ bool VolumeRenderingNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRe
 	return false;
 }
 
-bool VolumeRenderingNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool VolumeRenderingNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 

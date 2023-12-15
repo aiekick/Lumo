@@ -23,5 +23,5 @@ limitations under the License.
 class LUMO_BACKEND_API VariableOutputInterface {
 public:
     // return a Variable
-    virtual SceneVariableWeak GetVariable(const uint32_t& vVariableIndex) = 0;
+    virtual SceneVariableWeak GetVariable(const uint32_t& vVariableIndex, void* vUserDatas) = 0;
 };

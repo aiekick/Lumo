@@ -111,7 +111,7 @@ bool HeatMapNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffe
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HeatMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool HeatMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	bool res = false;
@@ -123,7 +123,7 @@ bool HeatMapNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCont
 	return res;
 }
 
-bool HeatMapNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool HeatMapNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -135,7 +135,7 @@ bool HeatMapNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRec
 	return false;
 }
 
-bool HeatMapNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool HeatMapNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 

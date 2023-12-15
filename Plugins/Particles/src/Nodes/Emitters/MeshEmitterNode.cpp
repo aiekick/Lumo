@@ -67,7 +67,7 @@ bool MeshEmitterNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandB
     return false;
 }
 
-bool MeshEmitterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MeshEmitterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -80,7 +80,7 @@ bool MeshEmitterNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
     return false;
 }
 
-bool MeshEmitterNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MeshEmitterNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -93,7 +93,7 @@ bool MeshEmitterNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& 
 }
 
 bool MeshEmitterNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);

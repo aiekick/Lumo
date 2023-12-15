@@ -12,7 +12,7 @@ private:
     int m_InputType = 0U;
     int m_InputSubType = 0U;
     std::string m_SelectedSubType = "";
-    int m_SelectedSubTypeIndex = -1;
+    //int m_SelectedSubTypeIndex = -1;
     ImWidgets::InputText m_SlotDisplayNameInputText;
 
 public:

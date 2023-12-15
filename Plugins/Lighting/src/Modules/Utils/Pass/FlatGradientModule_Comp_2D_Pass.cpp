@@ -72,7 +72,7 @@ void FlatGradientModule_Comp_2D_Pass::ActionBeforeInit() {
     }
 }
 
-bool FlatGradientModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool FlatGradientModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -92,7 +92,7 @@ bool FlatGradientModule_Comp_2D_Pass::DrawWidgets(const uint32_t& vCurrentFrame,
 }
 
 bool FlatGradientModule_Comp_2D_Pass::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -100,7 +100,7 @@ bool FlatGradientModule_Comp_2D_Pass::DrawOverlays(
 }
 
 bool FlatGradientModule_Comp_2D_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -138,7 +138,7 @@ void FlatGradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, 
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientModule_Comp_2D_Pass::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+void FlatGradientModule_Comp_2D_Pass::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {
     ZoneScoped;
 
     if (vVarIndex < m_SceneVariables.size()) {

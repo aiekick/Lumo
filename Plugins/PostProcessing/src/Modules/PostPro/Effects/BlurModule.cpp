@@ -100,7 +100,7 @@ bool BlurModule::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer
     return true;
 }
 
-bool BlurModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool BlurModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -111,7 +111,7 @@ bool BlurModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
     return false;
 }
 
-bool BlurModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool BlurModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -121,7 +121,7 @@ bool BlurModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
 }
 
 bool BlurModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

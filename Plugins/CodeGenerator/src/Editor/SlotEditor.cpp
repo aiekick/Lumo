@@ -117,8 +117,8 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(
                     m_SelectedType = m_BaseTypes.m_TypeArray[slotDatasPtr->editorSlotTypeIndex];
                     if (m_InputType == BASE_TYPE_Custom) {
                         auto arr = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
-                        if (m_SelectedSubTypeIndex > -1 && m_SelectedSubTypeIndex < (int)arr.size()) {
-                            m_SelectedSubType = arr.at(m_SelectedSubTypeIndex).GetText();
+                        if (slotDatasPtr->editorSlotSubTypeIndex > -1 && slotDatasPtr->editorSlotSubTypeIndex < (int)arr.size()) {
+                            m_SelectedSubType = arr.at(slotDatasPtr->editorSlotSubTypeIndex).GetText();
                         }
                     }
                     _typeChanged = true;
@@ -136,21 +136,22 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(
                     }
                 } else if (m_InputType == BASE_TYPE_Custom) {
                     auto arr = CodeGeneratorPane::Instance()->GetCustomTypeInputTexts();
+
                     ImGui::PushID(ImGui::IncPUSHID());
                     bool change = ImGui::ContrastedButton(ICON_SDFM_TRASH_CAN_OUTLINE);
                     if (change) {
-                        m_SelectedSubTypeIndex = 0;
+                        slotDatasPtr->editorSlotSubTypeIndex = 0;
                     }
                     ImGui::SameLine();
                     change |= ImGui::ContrastedCombo(
-                        0.0f, "##Custom Types", &m_SelectedSubTypeIndex,
+                        0.0f, "##Custom Types", &slotDatasPtr->editorSlotSubTypeIndex,
                         [](void* data, int idx, const char** out_text) {
                             *out_text = ((const std::vector<ImWidgets::InputText>*)data)->at(idx).GetConstCharPtrText();
                             return true;
                         },
                         (void*)&arr, (int)arr.size(), -1);
                     if (change) {
-                        m_SelectedSubType = arr.at(m_SelectedSubTypeIndex).GetText();
+                        m_SelectedSubType = arr.at(slotDatasPtr->editorSlotSubTypeIndex).GetText();
                         _typeChanged = true;
                     }
                     vChange |= change;
@@ -175,9 +176,9 @@ NodeSlotWeak SlotEditor::DrawSlotCreationPane(
                     m_SelectedType == "Texture3D" ||      //
                     m_SelectedType == "TextureCube" ||    //
                     m_SelectedType == "TextureGroup") {
-                    vChange |= ImGui::InputUIntDefault(0.0f, "Descriptor Binding", &slotPtr->descriptorBinding, 1U, 2U, 0U);
+                    vChange |= ImGui::InputUIntDefault(0.0f, "Descriptor Binding", &slotPtr->descriptorBinding, 0U, 1U, 2U);
                 } else if (m_SelectedType == "Variable") {
-                    vChange |= ImGui::InputUIntDefault(0.0f, "Variable Index", &slotPtr->variableIndex, 1U, 2U, 0U);
+                    vChange |= ImGui::InputUIntDefault(0.0f, "Variable Index", &slotPtr->variableIndex, 0U, 1U, 2U);
                 }
             }
         }
@@ -204,12 +205,14 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(
                 } else if (vType == "Model") {
                     resPtr = NodeSlotModelInput::Create(slotPtr->name);
                 } else if (vType == "StorageBuffer") {
-                    if (slotPtr->slotType.empty())
+                    if (slotPtr->slotType.empty()) {
                         slotPtr->slotType = "NONE";
+                    }
                     resPtr = NodeSlotStorageBufferInput::Create(slotPtr->name, slotPtr->slotType);
                 } else if (vType == "TexelBuffer") {
-                    if (slotPtr->slotType.empty())
+                    if (slotPtr->slotType.empty()) {
                         slotPtr->slotType = "NONE";
+                    }
                     resPtr = NodeSlotTexelBufferInput::Create(slotPtr->name, slotPtr->slotType);
                 } else if (vType == "Texture2D") {
                     resPtr = NodeSlotTexture2DInput::Create(slotPtr->name, slotPtr->descriptorBinding);
@@ -224,8 +227,9 @@ NodeSlotWeak SlotEditor::ChangeInputSlotType(
                 } else if (vType == "Task") {
                     resPtr = NodeSlotTaskInput::Create(slotPtr->name);
                 } else if (vType == "Variable") {
-                    if (slotPtr->slotType.empty())
+                    if (slotPtr->slotType.empty()) {
                         slotPtr->slotType = "NONE";
+                    }
                     resPtr = NodeSlotVariableInput::Create(slotPtr->name, slotPtr->slotType, slotPtr->variableIndex);
                 }
                 if (resPtr) {
@@ -263,12 +267,14 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(
                 } else if (vType == "Model") {
                     resPtr = NodeSlotModelOutput::Create(slotPtr->name);
                 } else if (vType == "StorageBuffer") {
-                    if (slotPtr->slotType.empty())
+                    if (slotPtr->slotType.empty()) {
                         slotPtr->slotType = "NONE";
+                    }
                     resPtr = NodeSlotStorageBufferOutput::Create(slotPtr->name, slotPtr->slotType);
                 } else if (vType == "TexelBuffer") {
-                    if (slotPtr->slotType.empty())
+                    if (slotPtr->slotType.empty()) {
                         slotPtr->slotType = "NONE";
+                    }
                     resPtr = NodeSlotTexelBufferOutput::Create(slotPtr->name, slotPtr->slotType);
                 } else if (vType == "Texture2D") {
                     resPtr = NodeSlotTexture2DOutput::Create(slotPtr->name, slotPtr->descriptorBinding);
@@ -283,8 +289,9 @@ NodeSlotWeak SlotEditor::ChangeOutputSlotType(
                 } else if (vType == "Task") {
                     resPtr = NodeSlotTaskOutput::Create(slotPtr->name);
                 } else if (vType == "Variable") {
-                    if (slotPtr->slotType.empty())
+                    if (slotPtr->slotType.empty()) {
                         slotPtr->slotType = "NONE";
+                    }
                     resPtr = NodeSlotVariableOutput::Create(slotPtr->name, slotPtr->slotType, slotPtr->descriptorBinding);
                 }
                 if (resPtr) {

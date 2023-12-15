@@ -127,7 +127,7 @@ bool HeatMapModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Command
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool HeatMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool HeatMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -145,7 +145,7 @@ bool HeatMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
 	return false;
 }
 
-bool HeatMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool HeatMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -161,7 +161,7 @@ bool HeatMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vR
 	return false;
 }
 
-bool HeatMapModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas)
+bool HeatMapModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 

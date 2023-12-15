@@ -130,7 +130,7 @@ bool FlatGradientModule::ExecuteWhenNeeded(const uint32_t& vCurrentFrame, vk::Co
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool FlatGradientModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool FlatGradientModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -163,7 +163,7 @@ bool FlatGradientModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
     return false;
 }
 
-bool FlatGradientModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool FlatGradientModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -175,7 +175,7 @@ bool FlatGradientModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRec
 }
 
 bool FlatGradientModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -210,11 +210,11 @@ void FlatGradientModule::SetTexture(const uint32_t& vBindingPoint, vk::Descripto
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+void FlatGradientModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {
     ZoneScoped;
 
     if (m_FlatGradientModule_Comp_2D_Pass_Ptr) {
-        m_FlatGradientModule_Comp_2D_Pass_Ptr->SetVariable(vVarIndex, vSceneVariable);
+        m_FlatGradientModule_Comp_2D_Pass_Ptr->SetVariable(vVarIndex, vSceneVariable, nullptr);
     }
 }
 

@@ -76,7 +76,7 @@ void VisuHexGridModule_Vertex_Pass::ActionBeforeInit() {
     }
 }
 
-bool VisuHexGridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool VisuHexGridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -97,7 +97,7 @@ bool VisuHexGridModule_Vertex_Pass::DrawWidgets(const uint32_t& vCurrentFrame, I
 }
 
 bool VisuHexGridModule_Vertex_Pass::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
@@ -107,7 +107,7 @@ bool VisuHexGridModule_Vertex_Pass::DrawOverlays(
 }
 
 bool VisuHexGridModule_Vertex_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);

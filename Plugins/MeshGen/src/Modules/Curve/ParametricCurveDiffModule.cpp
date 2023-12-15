@@ -91,7 +91,7 @@ void ParametricCurveDiffModule::Unit() {
 //// DRAW WIDGETS ////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-bool ParametricCurveDiffModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool ParametricCurveDiffModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -100,7 +100,7 @@ bool ParametricCurveDiffModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGui
 }
 
 bool ParametricCurveDiffModule::DrawOverlays(
-    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -108,7 +108,7 @@ bool ParametricCurveDiffModule::DrawOverlays(
 }
 
 bool ParametricCurveDiffModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -119,7 +119,7 @@ bool ParametricCurveDiffModule::DrawDialogsAndPopups(
 //// VARIABLE SLOT INPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ParametricCurveDiffModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable) {
+void ParametricCurveDiffModule::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak vSceneVariable, void* vUserDatas) {
     ZoneScoped;
 }
 
@@ -327,7 +327,7 @@ void ParametricCurveDiffModule::prDrawWidgets() {
         change |= ImGui::InputDoubleDefault(0.0f, "Start Location x", &m_StartLocation.x, 0.001, "%f");
         change |= ImGui::InputDoubleDefault(0.0f, "Start Location Y", &m_StartLocation.y, 0.001, "%f");
         change |= ImGui::InputDoubleDefault(0.0f, "Start Location z", &m_StartLocation.z, 0.001, "%f");
-        change |= ImGui::InputUIntDefault(0.0f, "Step Count", &m_StepCount, 1, 10, 10000U);
+        change |= ImGui::InputUIntDefault(0.0f, "Step Count", &m_StepCount, 10000U, 1, 10);
         change |= ImGui::InputDoubleDefault(0.0f, "Step Size", &m_StepSize, 0.01, "%f");
 
         ImGui::Separator();

@@ -309,37 +309,54 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
             array_string += "\"" + item + "\"";
         }
         array_string += " }";
-        res += vOffset + ct::toStr(u8R"(change |= ImGui::ContrastedComboVectorDefault(0.0f, "%s", &m_@UBO_NAME@.u_%s, %s, 0);)",
+        res += vOffset + ct::toStr(
+                             u8R"(change |= ImGui::ContrastedComboVectorDefault(0.0f, "%s", &m_@UBO_NAME@.u_%s, %s, 0);)"
+                             "\n",
             uniform_name.c_str(), uniform_name.c_str(), array_string.c_str());
     } else if (m_WidgetIndex == 3) {  // check box
-        res += vOffset + ct::toStr(u8R"(change |= ImGui::CheckBoxFloatDefault("%s", &m_@UBO_NAME@.u_%s, false);)",
+        res += vOffset + ct::toStr(
+                             u8R"(change |= ImGui::CheckBoxFloatDefault("%s", &m_@UBO_NAME@.u_%s, false);)"
+                             "\n",
             uniform_name.c_str(), uniform_name.c_str());
     } else if (m_WidgetIndex == 4) {  // color RGB
         res += vOffset + u8R"(static ct::fvec3 _default_value = 1.0f;
 )";
-        res += vOffset + ct::toStr(u8R"(change |= ImGui::ColorEdit3Default(0.0f, "%s", &m_@UBO_NAME@.u_%s.x, &_default_value.x);)",
+        res += vOffset + ct::toStr(
+                             u8R"(change |= ImGui::ColorEdit3Default(0.0f, "%s", &m_@UBO_NAME@.u_%s.x, &_default_value.x);)"
+                             "\n",
             uniform_name.c_str(), uniform_name.c_str());
     } else if (m_WidgetIndex == 5) {  // color RGBA
         res += vOffset + u8R"(static ct::fvec4 _default_value = 1.0f;
 )";
-        res += vOffset + ct::toStr(u8R"(change |= ImGui::ColorEdit4Default(0.0f, "%s", &m_@UBO_NAME@.u_%s.x, &_default_value.x);)",
+        res += vOffset + ct::toStr(
+                             u8R"(change |= ImGui::ColorEdit4Default(0.0f, "%s", &m_@UBO_NAME@.u_%s.x, &_default_value.x);)"
+                             "\n",
             uniform_name.c_str(), uniform_name.c_str());
     } else if (m_WidgetIndex < 2) {  // 0:input, 1:slider
         if (type == "float") {
             float fv = ct::fvariant(value).GetF();
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::SliderFloatDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %.3ff, %.3ff, %.3ff, 0.0f, "%%.3f");)",
+            res +=
+                vOffset + ct::toStr(
+                              u8R"(change |= ImGui::SliderFloatDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %.3ff, %.3ff, %.3ff, 0.0f, "%%.3f");)"
+                              "\n",
                 uniform_name.c_str(), uniform_name.c_str(), 0.0f, fv * 2.0f, fv);
         } else if (type == "uint") {
             uint32_t uv = ct::uvariant(value).GetU();
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::SliderUIntDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %uU, %uU, %uU);)",
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::SliderUIntDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %uU, %uU, %uU);)"
+                                 "\n",
                 uniform_name.c_str(), uniform_name.c_str(), 0U, uv * 2U, uv);
         } else if (type == "int") {
             int32_t iv = ct::uvariant(value).GetI();
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::SliderIntDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %i, %i, %i);)",
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::SliderIntDefaultCompact(0.0f, "%s", &m_@UBO_NAME@.u_%s, %i, %i, %i);)"
+                                 "\n",
                 uniform_name.c_str(), uniform_name.c_str(), 0, iv * 2, iv);
         } else if (type == "bool") {
             bool bv = ct::ivariant(value).GetB();
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::CheckBoxBoolDefault("%s", &m_@UBO_NAME@.u_%s, %s);)",
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::CheckBoxBoolDefault("%s", &m_@UBO_NAME@.u_%s, %s);)"
+                                 "\n",
                 uniform_name.c_str(), uniform_name.c_str(), bv ? "true" : "false");
         } else if (inputIdx == 1) {  // for help, but not functionnal
             std::string widget;
@@ -351,9 +368,15 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
                 widget = "InputUIntDefault";
 
             type = "ct::" + type;
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);)", widget.c_str(), uniform_name.c_str(),
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);)"
+                                 "\n",
+                                 widget.c_str(), uniform_name.c_str(),
                                  uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str());
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);)", widget.c_str(), uniform_name.c_str(),
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);)"
+                                 "\n",
+                                 widget.c_str(), uniform_name.c_str(),
                                  uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str());
         } else if (inputIdx == 2) {  // for help, but not functionnal
             std::string widget;
@@ -365,11 +388,20 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
                 widget = "InputUIntDefault";
 
             type = "ct::" + type;
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);)", widget.c_str(), uniform_name.c_str(),
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);)"
+                                 "\n",
+                                 widget.c_str(), uniform_name.c_str(),
                                  uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str());
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);)", widget.c_str(), uniform_name.c_str(),
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);)"
+                                 "\n",
+                                 widget.c_str(), uniform_name.c_str(),
                                  uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str());
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::%s(0.0f, "%s z", &m_@UBO_NAME@.u_%s.z, %s);)", widget.c_str(), uniform_name.c_str(),
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::%s(0.0f, "%s z", &m_@UBO_NAME@.u_%s.z, %s);)"
+                                 "\n",
+                                 widget.c_str(), uniform_name.c_str(),
                                  uniform_name.c_str(), m_InputValue_z.GetText(baseType).c_str());
         } else if (inputIdx == 3) {  // for help, but not functionnal
             std::string widget;
@@ -381,13 +413,25 @@ std::string UBOItem::Get_Cpp_Item_Widget(const std::string& vStage, const int32_
                 widget = "InputUIntDefault";
 
             type = "ct::" + type;
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);)", widget.c_str(), uniform_name.c_str(),
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::%s(0.0f, "%s x", &m_@UBO_NAME@.u_%s.x, %s);)"
+                                 "\n",
+                                 widget.c_str(), uniform_name.c_str(),
                                  uniform_name.c_str(), m_InputValue_x.GetText(baseType).c_str());
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);)", widget.c_str(), uniform_name.c_str(),
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::%s(0.0f, "%s y", &m_@UBO_NAME@.u_%s.y, %s);)"
+                                 "\n",
+                                 widget.c_str(), uniform_name.c_str(),
                                  uniform_name.c_str(), m_InputValue_y.GetText(baseType).c_str());
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::%s(0.0f, "%s z", &m_@UBO_NAME@.u_%s.z, %s);)", widget.c_str(), uniform_name.c_str(),
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::%s(0.0f, "%s z", &m_@UBO_NAME@.u_%s.z, %s);)"
+                                 "\n",
+                                 widget.c_str(), uniform_name.c_str(),
                                  uniform_name.c_str(), m_InputValue_z.GetText(baseType).c_str());
-            res += vOffset + ct::toStr(u8R"(change |= ImGui::%s(0.0f, "%s w", &m_@UBO_NAME@.u_%s.w, %s);)", widget.c_str(), uniform_name.c_str(),
+            res += vOffset + ct::toStr(
+                                 u8R"(change |= ImGui::%s(0.0f, "%s w", &m_@UBO_NAME@.u_%s.w, %s);)"
+                                 "\n",
+                                 widget.c_str(), uniform_name.c_str(),
                                  uniform_name.c_str(), m_InputValue_w.GetText(baseType).c_str());
         }
     }

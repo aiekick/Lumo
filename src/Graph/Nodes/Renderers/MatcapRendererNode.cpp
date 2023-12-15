@@ -81,7 +81,7 @@ bool MatcapRendererNode::ExecuteAllTime(const uint32_t& vCurrentFrame, vk::Comma
     return false;
 }
 
-bool MatcapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MatcapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -92,7 +92,7 @@ bool MatcapRendererNode::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext
     return false;
 }
 
-bool MatcapRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool MatcapRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
@@ -100,7 +100,7 @@ bool MatcapRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRec
 }
 
 bool MatcapRendererNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

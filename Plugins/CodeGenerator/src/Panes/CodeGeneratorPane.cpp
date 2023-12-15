@@ -64,7 +64,7 @@ void CodeGeneratorPane::setVulkanCore(GaiApi::VulkanCoreWeak vVulkanCoreWeak) {
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool CodeGeneratorPane::DrawPanes(
-    const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     bool change = false;
@@ -114,7 +114,7 @@ bool CodeGeneratorPane::DrawPanes(
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool CodeGeneratorPane::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     if (ImGuiFileDialog::Instance()->Display("GenerateToPath")) {
         if (ImGuiFileDialog::Instance()->IsOk()) {
@@ -128,7 +128,7 @@ bool CodeGeneratorPane::DrawDialogsAndPopups(
     return false;
 }
 
-bool CodeGeneratorPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool CodeGeneratorPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     bool change = false;
 
     change |= CommonSystem::Instance()->DrawImGui();
@@ -141,7 +141,7 @@ bool CodeGeneratorPane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext*
     return change;
 }
 
-bool CodeGeneratorPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, const std::string& vUserDatas) {
+bool CodeGeneratorPane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vRect);
