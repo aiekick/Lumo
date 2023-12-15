@@ -169,19 +169,19 @@ void SdfTextureModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32
     BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void SdfTextureModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void SdfTextureModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_SdfTextureModule_Comp_Pass_Ptr) {
-        m_SdfTextureModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_SdfTextureModule_Comp_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* SdfTextureModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* SdfTextureModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_SdfTextureModule_Comp_Pass_Ptr) {
-        return m_SdfTextureModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_SdfTextureModule_Comp_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

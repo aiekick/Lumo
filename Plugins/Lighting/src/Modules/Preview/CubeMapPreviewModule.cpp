@@ -201,11 +201,11 @@ void CubeMapPreviewModule::SetTextureCube(const uint32_t& vBindingPoint, vk::Des
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* CubeMapPreviewModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* CubeMapPreviewModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_CubeMapPreview_Quad_Pass_Ptr) {
-        return m_CubeMapPreview_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_CubeMapPreview_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

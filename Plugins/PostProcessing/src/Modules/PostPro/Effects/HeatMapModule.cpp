@@ -190,11 +190,11 @@ void HeatMapModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t*
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void HeatMapModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {	
+void HeatMapModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {	
 	ZoneScoped;
 
 	if (m_HeatMapModule_Comp_2D_Pass_Ptr) {
-		m_HeatMapModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+		m_HeatMapModule_Comp_2D_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
 	}
 }
 
@@ -202,11 +202,11 @@ void HeatMapModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImag
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* HeatMapModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
+vk::DescriptorImageInfo* HeatMapModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {	
 	ZoneScoped;
 
 	if (m_HeatMapModule_Comp_2D_Pass_Ptr) {
-		return m_HeatMapModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_HeatMapModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
 	}
 
 	return nullptr;

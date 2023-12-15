@@ -98,7 +98,7 @@ bool GridModule_Vertex_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-vk::DescriptorImageInfo* GridModule_Vertex_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* GridModule_Vertex_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_FrameBufferPtr) {

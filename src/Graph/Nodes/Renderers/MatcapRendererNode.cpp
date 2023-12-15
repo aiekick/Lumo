@@ -138,15 +138,15 @@ void MatcapRendererNode::SetModel(SceneModelWeak vSceneModel) {
     }
 }
 
-void MatcapRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void MatcapRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_MatcapRenderer) {
-        m_MatcapRenderer->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_MatcapRenderer->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* MatcapRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* MatcapRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_MatcapRenderer) {
-        return m_MatcapRenderer->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_MatcapRenderer->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

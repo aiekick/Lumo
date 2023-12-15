@@ -103,7 +103,7 @@ bool GradientModule_Comp_2D_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void GradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void GradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -126,7 +126,7 @@ void GradientModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::
     }
 }
 
-vk::DescriptorImageInfo* GradientModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* GradientModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ComputeBufferPtr) {
         if (vOutSize) {
             *vOutSize = m_ComputeBufferPtr->GetOutputSize();

@@ -263,13 +263,13 @@ bool PlanetModule::DrawDialogsAndPopups(
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PlanetModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void PlanetModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     for (auto pass : m_ShaderPasses) {
         auto texture_input_ptr = std::dynamic_pointer_cast<Texture2DInputInterface<3>>(pass.lock());
         if (texture_input_ptr) {
-            texture_input_ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+            texture_input_ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
         }
     }
 }
@@ -278,7 +278,7 @@ void PlanetModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImage
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* PlanetModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* PlanetModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_FrameBufferPtr) {

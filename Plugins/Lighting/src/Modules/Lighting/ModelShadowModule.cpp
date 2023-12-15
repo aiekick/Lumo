@@ -156,11 +156,11 @@ void ModelShadowModule::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
     }
 }
 
-void ModelShadowModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void ModelShadowModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ModelShadowModule_Quad_Pass_Ptr) {
-        return m_ModelShadowModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        return m_ModelShadowModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -170,11 +170,11 @@ void ModelShadowModule::SetTextures(const uint32_t& vBindingPoint, DescriptorIma
     }
 }
 
-vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* ModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ModelShadowModule_Quad_Pass_Ptr) {
-        return m_ModelShadowModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_ModelShadowModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

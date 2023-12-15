@@ -179,11 +179,11 @@ void FlatGradientNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void FlatGradientNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void FlatGradientNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_FlatGradientModulePtr) {
-        m_FlatGradientModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_FlatGradientModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -203,11 +203,11 @@ void FlatGradientNode::SetVariable(const uint32_t& vVarIndex, SceneVariableWeak 
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* FlatGradientNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* FlatGradientNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_FlatGradientModulePtr) {
-        return m_FlatGradientModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_FlatGradientModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

@@ -164,7 +164,7 @@ ct::fvec2 View2DPane::SetOrUpdateOutput(NodeSlotWeak vTexture2DOutputSlot) {
             NodeSlot::sSlotGraphOutputMouseMiddle = vTexture2DOutputSlot;
             m_Texture2DOutputSlot = vTexture2DOutputSlot;
             NodeManager::Instance()->m_RootNodePtr->m_GraphRoot2DNode = slotPtr->parentNode;
-            m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize));
+            m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize, nullptr));
             m_ImGuiTexture.ratio = outSize.ratioXY<float>();
         } else {
             NodeSlot::sSlotGraphOutputMouseMiddle.reset();

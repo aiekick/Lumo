@@ -201,11 +201,11 @@ void VolumeRenderingModule::SetTexture3D(const uint32_t& vBindingPoint, vk::Desc
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* VolumeRenderingModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
+vk::DescriptorImageInfo* VolumeRenderingModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {	
 	ZoneScoped;
 
 	if (m_VolumeRenderingModule_Comp_2D_Pass_Ptr) {
-		return m_VolumeRenderingModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_VolumeRenderingModule_Comp_2D_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
 	}
 
 	return nullptr;

@@ -115,7 +115,7 @@ void BreakTexturesGroupNode::SetTextures(const uint32_t& vBindingPoint, Descript
     ReorganizeSlots();
 }
 
-vk::DescriptorImageInfo* BreakTexturesGroupNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* BreakTexturesGroupNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (vBindingPoint < (uint32_t)m_Textures.size()) {
         return &m_Textures[vBindingPoint];
     }

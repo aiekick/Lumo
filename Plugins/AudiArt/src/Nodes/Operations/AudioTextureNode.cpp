@@ -193,11 +193,11 @@ void AudioTextureNode::SetSceneAudiArt(const std::string& vName, SceneAudiArtWea
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* AudioTextureNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* AudioTextureNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_AudioTextureModulePtr) {
-        return m_AudioTextureModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_AudioTextureModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

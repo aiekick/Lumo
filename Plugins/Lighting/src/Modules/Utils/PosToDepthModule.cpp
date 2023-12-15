@@ -138,19 +138,19 @@ void PosToDepthModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32
     BaseRenderer::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void PosToDepthModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void PosToDepthModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_PosToDepthModule_Quad_Pass_Ptr) {
-        m_PosToDepthModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_PosToDepthModule_Quad_Pass_Ptr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* PosToDepthModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* PosToDepthModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_PosToDepthModule_Quad_Pass_Ptr) {
-        return m_PosToDepthModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_PosToDepthModule_Quad_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

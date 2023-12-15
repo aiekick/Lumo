@@ -176,7 +176,8 @@ void ModelRendererModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel)
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelRendererModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {	
+void ModelRendererModule_Mesh_Pass::SetTexture(
+    const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
 	ZoneScoped;
 	if (m_Loaded) {
 		if (vBindingPoint < m_ImageInfos.size()) {
@@ -201,7 +202,7 @@ void ModelRendererModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ModelRendererModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
+vk::DescriptorImageInfo* ModelRendererModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
 	ZoneScoped;
 	if (m_FrameBufferPtr) {
         AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);

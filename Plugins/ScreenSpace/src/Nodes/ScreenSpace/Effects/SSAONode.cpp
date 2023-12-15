@@ -125,15 +125,15 @@ void SSAONode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCou
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void SSAONode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void SSAONode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_SSAOModulePtr) {
-        m_SSAOModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_SSAOModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* SSAONode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* SSAONode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_SSAOModulePtr) {
-        return m_SSAOModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_SSAOModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

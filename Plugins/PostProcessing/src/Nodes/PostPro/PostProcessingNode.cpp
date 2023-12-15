@@ -172,11 +172,11 @@ void PostProcessingNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PostProcessingNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void PostProcessingNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_PostProcessingModulePtr) {
-        m_PostProcessingModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_PostProcessingModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -184,11 +184,11 @@ void PostProcessingNode::SetTexture(const uint32_t& vBindingPoint, vk::Descripto
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* PostProcessingNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* PostProcessingNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_PostProcessingModulePtr) {
-        return m_PostProcessingModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_PostProcessingModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

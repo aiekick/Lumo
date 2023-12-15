@@ -108,7 +108,7 @@ bool SSAOModule_Comp_2D_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void SSAOModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void SSAOModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -140,7 +140,7 @@ void SSAOModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Desc
     }
 }
 
-vk::DescriptorImageInfo* SSAOModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* SSAOModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ComputeBufferPtr) {
         AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
         return m_ComputeBufferPtr->GetFrontDescriptorImageInfo(vBindingPoint);

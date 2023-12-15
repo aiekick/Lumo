@@ -174,10 +174,10 @@ void BloomNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCo
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BloomNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void BloomNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
     if (m_BloomModulePtr) {
-        m_BloomModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_BloomModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -185,10 +185,10 @@ void BloomNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInf
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* BloomNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* BloomNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
     if (m_BloomModulePtr) {
-        return m_BloomModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_BloomModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

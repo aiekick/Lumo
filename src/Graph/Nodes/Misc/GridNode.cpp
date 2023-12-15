@@ -116,9 +116,9 @@ void GridNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCou
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-vk::DescriptorImageInfo* GridNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* GridNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_GridModulePtr) {
-        return m_GridModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_GridModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

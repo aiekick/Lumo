@@ -162,8 +162,8 @@ void PostProcessingModule::UpdateDescriptorsBeforeCommandBuffer() {
                 if (texture_input_ptr != nullptr) {
                     if (_lastActivePassPtr != nullptr) {
                         ct::fvec2 outSize;  // must be empty if not will create a resize on the ouput of the next pass
-                        auto outputTexture = _lastActivePassPtr->GetDescriptorImageInfo(0U, &outSize);
-                        texture_input_ptr->SetTexture(0U, outputTexture, &outSize);
+                        auto outputTexture = _lastActivePassPtr->GetDescriptorImageInfo(0U, &outSize, nullptr);
+                        texture_input_ptr->SetTexture(0U, outputTexture, &outSize, nullptr);
                     }
                 }
                 _lastActivePassPtr = std::dynamic_pointer_cast<Texture2DOutputInterface>(pass_ptr);
@@ -312,12 +312,12 @@ void PostProcessingModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const ui
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PostProcessingModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void PostProcessingModule::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
     if (vBindingPoint == 0U) {  // color
         // will set the color to the input of the first active effect
         if (m_FirstPassPtr != nullptr) {
-            m_FirstPassPtr->SetTexture(0U, vImageInfo, vTextureSize);
+            m_FirstPassPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
         }
         // in case there is no enabled effects
         if (vBindingPoint == 0 && vImageInfo != nullptr) {
@@ -330,12 +330,12 @@ void PostProcessingModule::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* PostProcessingModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* PostProcessingModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     // will get the output of the last active effect
     if (m_LastPassPtr != nullptr) {
-        return m_LastPassPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_LastPassPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     } else if (vBindingPoint == 0) {  // no enabled effect, this module is passing
         return &m_ImageInfos[0];
     }

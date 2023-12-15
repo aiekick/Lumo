@@ -205,11 +205,11 @@ void ModelRendererNode::SetModel(SceneModelWeak vSceneModel)
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ModelRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {	
+void ModelRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
 	ZoneScoped;
 
 	if (m_ModelRendererModulePtr)	{
-		m_ModelRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_ModelRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
 	}
 }
 
@@ -217,11 +217,11 @@ void ModelRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::Descriptor
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ModelRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {	
+vk::DescriptorImageInfo* ModelRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
 	ZoneScoped;
 
 	if (m_ModelRendererModulePtr)	{
-		return m_ModelRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+		return m_ModelRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
 	}
 
 	return nullptr;

@@ -192,11 +192,11 @@ void BillBoardRendererNode::SetModel(SceneModelWeak vSceneModel) {
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BillBoardRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void BillBoardRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_BillBoardRendererModulePtr) {
-        m_BillBoardRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_BillBoardRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -204,11 +204,11 @@ void BillBoardRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::Descri
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* BillBoardRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* BillBoardRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_BillBoardRendererModulePtr) {
-        return m_BillBoardRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_BillBoardRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

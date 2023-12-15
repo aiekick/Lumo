@@ -64,7 +64,7 @@ public:
     void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
 
     // Interfaces Getters
-    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
+    vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr, void* vUserDatas = nullptr) override;
 
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;

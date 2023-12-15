@@ -85,7 +85,7 @@ bool DiffuseModule_Comp_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void DiffuseModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void DiffuseModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -117,7 +117,7 @@ void DiffuseModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Desc
     }
 }
 
-vk::DescriptorImageInfo* DiffuseModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* DiffuseModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ComputeBufferPtr) {
         AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);
 

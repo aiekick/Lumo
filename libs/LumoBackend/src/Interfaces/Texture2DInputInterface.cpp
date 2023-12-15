@@ -39,8 +39,9 @@ void Texture2DInputFunctions::UpdateTexture2DInputDescriptorImageInfos(const std
                             auto otherNodePtr = dynamic_pointer_cast<Texture2DOutputInterface>(otherParentPtr);
                             if (otherNodePtr) {
                                 ct::fvec2 texSize;
-                                auto descPtr = otherNodePtr->GetDescriptorImageInfo(otherSLotPtr->descriptorBinding, &texSize);
-                                SetTexture(input.second->descriptorBinding, descPtr, &texSize);
+                                void* userDatasPtr = nullptr;
+                                auto descPtr = otherNodePtr->GetDescriptorImageInfo(otherSLotPtr->descriptorBinding, &texSize, userDatasPtr);
+                                SetTexture(input.second->descriptorBinding, descPtr, &texSize, userDatasPtr);
                             }
                         }
                     }

@@ -94,9 +94,9 @@ void Texture2DNode::DrawOutputWidget(BaseNodeState* vBaseNodeState, NodeSlotWeak
     }
 }
 
-vk::DescriptorImageInfo* Texture2DNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* Texture2DNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_Texture2DModule) {
-        return m_Texture2DModule->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_Texture2DModule->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

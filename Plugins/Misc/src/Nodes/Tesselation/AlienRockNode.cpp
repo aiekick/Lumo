@@ -168,11 +168,11 @@ void AlienRockNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t*
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* AlienRockNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* AlienRockNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_AlienRockModulePtr) {
-        return m_AlienRockModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_AlienRockModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

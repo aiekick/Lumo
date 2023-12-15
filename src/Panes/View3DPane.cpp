@@ -211,7 +211,7 @@ ct::fvec2 View3DPane::SetOrUpdateOutput(NodeSlotWeak vTexture2DOutputSlot) {
             NodeSlot::sSlotGraphOutputMouseLeft = vTexture2DOutputSlot;
             m_Texture2DOutputSlot = vTexture2DOutputSlot;
             NodeManager::Instance()->m_RootNodePtr->m_GraphRoot3DNode = slotPtr->parentNode;
-            m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize));
+            m_ImGuiTexture.SetDescriptor(m_VulkanImGuiRenderer, otherNodePtr->GetDescriptorImageInfo(slotPtr->descriptorBinding, &outSize, nullptr));
             if (m_DisplayPictureByRatio) {
                 m_ImGuiTexture.ratio = outSize.ratioXY<float>();
             } else {

@@ -122,15 +122,15 @@ void BlurNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCou
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void BlurNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void BlurNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_BlurModulePtr) {
-        m_BlurModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_BlurModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* BlurNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* BlurNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_BlurModulePtr) {
-        return m_BlurModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_BlurModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

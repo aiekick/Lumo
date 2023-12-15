@@ -118,9 +118,9 @@ void WidgetColorNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) 
     }
 }
 
-vk::DescriptorImageInfo* WidgetColorNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* WidgetColorNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_WidgetColorModule) {
-        return m_WidgetColorModule->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_WidgetColorModule->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

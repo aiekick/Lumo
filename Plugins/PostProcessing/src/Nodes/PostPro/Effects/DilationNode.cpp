@@ -173,11 +173,11 @@ void DilationNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* 
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void DilationNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void DilationNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_DilationModulePtr) {
-        m_DilationModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_DilationModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -185,11 +185,11 @@ void DilationNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImage
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* DilationNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* DilationNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_DilationModulePtr) {
-        return m_DilationModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_DilationModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

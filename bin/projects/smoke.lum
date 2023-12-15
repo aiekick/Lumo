@@ -27,8 +27,10 @@
 			</BluePrints>
 			<CodeGenerator>
 				<custom_types>
+					<custom_type_name>SceneCode</custom_type_name>
+					<custom_type_name>Transform</custom_type_name>
 				</custom_types>
-				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\Smoke\src</root_path>
+				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\FunparadigmPlugins\SdfMesher\src</root_path>
 				<scene>
 					<graph>
 						<canvas>
@@ -36,20 +38,21 @@
 							<scale>1</scale>
 						</canvas>
 						<nodes>
-							<node name="Volume Rendering" type="NONE" pos="0;-25" id="149886">
-								<slot index="0" name="Density" type="TEXTURE_3D" place="INPUT" id="149889" hideName="false" typeIndex="5" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="149892" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+							<node name="Sdf Slicer" type="NONE" pos="-191;-85" id="35119">
+								<slot index="0" name="Code" type="SceneCode" place="INPUT" id="35122" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="Transform" type="Transform" place="INPUT" id="35255" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="2" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="35129" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
-									<class_name>VolumeRendering</class_name>
-									<category_name>Rendering</category_name>
-									<node_creation_name>VOLUME_RENDERING</node_creation_name>
-									<node_display_name>Volume Rendering</node_display_name>
+									<class_name>SdfSlicer</class_name>
+									<category_name>Slicer</category_name>
+									<node_creation_name>SDF_SLICER</node_creation_name>
+									<node_display_name>Sdf Slicer</node_display_name>
 									<generate_module>true</generate_module>
 									<generate_pass>true</generate_pass>
 									<renderer_type>Compute 2D</renderer_type>
-									<module_display_name>Volume Rendering</module_display_name>
-									<module_xml_name>volume_rendering_module</module_xml_name>
-									<module_xml_simple_name>volume_rendering_pass</module_xml_simple_name>
+									<module_display_name>Sdf Slicer</module_display_name>
+									<module_xml_name>sdf_slicer_module</module_xml_name>
+									<module_xml_simple_name>sdf_slicer_pass</module_xml_simple_name>
 									<pass_specialization_type>Quad</pass_specialization_type>
 									<pass_use_ubo>true</pass_use_ubo>
 									<pass_use_sbo>false</pass_use_sbo>
@@ -60,44 +63,75 @@
 								</generation>
 								<UBOS renderer="Compute 2D">
 									<UBO stage="0">
-										<UBOItem name="Name" widgetIndex="0" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="Mesh Size" widgetIndex="0" typeIndex="9" vx="10" vy="10" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="Buffer Size" widgetIndex="0" typeIndex="9" vx="10" vy="10" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
 									</UBO>
 								</UBOS>
 							</node>
-							<node name="Shape" type="NONE" pos="-132;-25" id="149905">
-								<slot index="0" name="New Slot" type="TEXTURE_3D" place="OUTPUT" id="149908" hideName="true" typeIndex="5" subTypeIndex="0" bindingIndex="4294967295" showWidget="false"/>
+							<node name="Slice Mesher" type="NONE" pos="0;-34" id="35159">
+								<slot index="0" name="Map" type="TEXTURE_2D" place="INPUT" id="35162" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="Transform" type="Transform" place="INPUT" id="35240" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="2" showWidget="false"/>
+								<slot index="0" name="Model" type="MESH" place="OUTPUT" id="35165" hideName="true" typeIndex="2" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
-									<class_name>Shape</class_name>
-									<category_name>Shape</category_name>
-									<node_creation_name>SHAPE</node_creation_name>
-									<node_display_name>Shape</node_display_name>
+									<class_name>SliceMesher</class_name>
+									<category_name>Mesher</category_name>
+									<node_creation_name>SLICE_MESHER</node_creation_name>
+									<node_display_name>Slice Mesher</node_display_name>
 									<generate_module>true</generate_module>
 									<generate_pass>true</generate_pass>
-									<renderer_type>Compute 3D</renderer_type>
-									<module_display_name>Shape</module_display_name>
-									<module_xml_name>shape_module</module_xml_name>
-									<module_xml_simple_name>shape_pass</module_xml_simple_name>
+									<renderer_type>Compute 1D</renderer_type>
+									<module_display_name>Slice Mesher</module_display_name>
+									<module_xml_name>slice_mesher_module</module_xml_name>
+									<module_xml_simple_name>slice_mesher_pass</module_xml_simple_name>
 									<pass_specialization_type>Quad</pass_specialization_type>
 									<pass_use_ubo>true</pass_use_ubo>
 									<pass_use_sbo>false</pass_use_sbo>
 									<node_is_a_task>true</node_is_a_task>
 									<node_is_an_effect>false</node_is_an_effect>
 									<vertex_struct_type>0</vertex_struct_type>
-									<use_common_system_ubo>false</use_common_system_ubo>
+									<use_common_system_ubo>true</use_common_system_ubo>
 								</generation>
-								<UBOS renderer="Compute 3D">
+								<UBOS renderer="Compute 1D">
 									<UBO stage="0">
-										<UBOItem name="type" widgetIndex="2" typeIndex="4" vx="cube, sphere, torus" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
-										<UBOItem name="size" widgetIndex="0" typeIndex="0" vx="1" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
-										<UBOItem name="thick" widgetIndex="0" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
-										<UBOItem name="color" widgetIndex="5" typeIndex="3" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="1;1;1;0"/>
-										<UBOItem name="Transform" widgetIndex="6" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="Points Count" widgetIndex="0" typeIndex="8" vx="10" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+									</UBO>
+								</UBOS>
+							</node>
+							<node name="Path" type="NONE" pos="-354;-25" id="35140">
+								<slot index="0" name="Code" type="SceneCode" place="INPUT" id="35143" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="Transform" place="OUTPUT" id="35247" hideName="true" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>Path</class_name>
+									<category_name>Path</category_name>
+									<node_creation_name>PATH</node_creation_name>
+									<node_display_name>Path</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Compute 1D</renderer_type>
+									<module_display_name>Path</module_display_name>
+									<module_xml_name>path_module</module_xml_name>
+									<module_xml_simple_name>path_pass</module_xml_simple_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>true</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<node_is_an_effect>false</node_is_an_effect>
+									<vertex_struct_type>0</vertex_struct_type>
+									<use_common_system_ubo>true</use_common_system_ubo>
+								</generation>
+								<UBOS renderer="Compute 1D">
+									<UBO stage="0">
+										<UBOItem name="Show Axis" widgetIndex="3" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="Show Curve" widgetIndex="3" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
+										<UBOItem name="Show Points" widgetIndex="3" typeIndex="0" vx="0" vy="" vz="" vw="" CheckBoxDefault="false" ColorRGBDefault="0;0;0" ColorRGBADefault="0;0;0;0"/>
 									</UBO>
 								</UBOS>
 							</node>
 						</nodes>
 						<links>
-							<link in="149905:149908" out="149886:149889"/>
+							<link in="35140:35247" out="35159:35240"/>
+							<link in="35140:35247" out="35119:35255"/>
+							<link in="35119:35129" out="35159:35162"/>
 						</links>
 						<outputs>
 						</outputs>

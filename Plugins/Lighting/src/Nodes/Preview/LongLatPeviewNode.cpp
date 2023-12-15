@@ -175,11 +175,11 @@ void LongLatPeviewNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint3
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void LongLatPeviewNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void LongLatPeviewNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_LongLatPeviewModulePtr) {
-        m_LongLatPeviewModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_LongLatPeviewModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -187,11 +187,11 @@ void LongLatPeviewNode::SetTexture(const uint32_t& vBindingPoint, vk::Descriptor
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* LongLatPeviewNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* LongLatPeviewNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_LongLatPeviewModulePtr) {
-        return m_LongLatPeviewModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_LongLatPeviewModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

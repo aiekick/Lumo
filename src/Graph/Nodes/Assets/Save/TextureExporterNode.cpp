@@ -137,11 +137,11 @@ void TextureExporterNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeSta
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void TextureExporterNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void TextureExporterNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_TextureExporterModulePtr) {
-        m_TextureExporterModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_TextureExporterModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 

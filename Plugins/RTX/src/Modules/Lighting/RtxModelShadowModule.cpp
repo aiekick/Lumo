@@ -137,9 +137,9 @@ void RtxModelShadowModule::SetAccelStructure(SceneAccelStructureWeak vSceneAccel
     }
 }
 
-vk::DescriptorImageInfo* RtxModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* RtxModelShadowModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ModelShadow_Rtx_Pass_Ptr) {
-        return m_ModelShadow_Rtx_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_ModelShadow_Rtx_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

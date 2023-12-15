@@ -182,11 +182,11 @@ void VisuHexGridNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void VisuHexGridNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void VisuHexGridNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_VisuHexGridModulePtr) {
-        m_VisuHexGridModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_VisuHexGridModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -194,11 +194,11 @@ void VisuHexGridNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* VisuHexGridNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* VisuHexGridNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_VisuHexGridModulePtr) {
-        return m_VisuHexGridModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_VisuHexGridModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

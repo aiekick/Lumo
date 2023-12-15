@@ -129,15 +129,15 @@ void Layering2DNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void Layering2DNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void Layering2DNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_Layering2DModulePtr) {
-        m_Layering2DModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_Layering2DModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* Layering2DNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* Layering2DNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_Layering2DModulePtr) {
-        return m_Layering2DModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_Layering2DModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

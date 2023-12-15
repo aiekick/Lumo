@@ -185,11 +185,11 @@ void DeferredRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const ui
 //// MODEL INPUT /////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void DeferredRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void DeferredRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_DeferredRendererPtr) {
-        m_DeferredRendererPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_DeferredRendererPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -197,11 +197,11 @@ void DeferredRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* DeferredRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* DeferredRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_DeferredRendererPtr) {
-        return m_DeferredRendererPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_DeferredRendererPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

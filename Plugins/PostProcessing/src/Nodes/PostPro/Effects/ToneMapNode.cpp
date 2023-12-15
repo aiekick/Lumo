@@ -125,15 +125,15 @@ void ToneMapNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* v
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void ToneMapNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void ToneMapNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_ToneMapModulePtr) {
-        m_ToneMapModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_ToneMapModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* ToneMapNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* ToneMapNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ToneMapModulePtr) {
-        return m_ToneMapModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_ToneMapModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

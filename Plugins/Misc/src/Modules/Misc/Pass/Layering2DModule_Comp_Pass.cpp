@@ -98,7 +98,7 @@ bool Layering2DModule_Comp_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void Layering2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void Layering2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -131,7 +131,7 @@ void Layering2DModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::D
     }
 }
 
-vk::DescriptorImageInfo* Layering2DModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* Layering2DModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ComputeBufferPtr) {
         if (vOutSize) {
             *vOutSize = m_ComputeBufferPtr->GetOutputSize();

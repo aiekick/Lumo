@@ -143,15 +143,15 @@ void MeshBuffersNode::SetModel(SceneModelWeak vSceneModel) {
     }
 }
 
-void MeshBuffersNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void MeshBuffersNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_MeshBuffersModulePtr) {
-        m_MeshBuffersModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_MeshBuffersModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* MeshBuffersNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* MeshBuffersNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_MeshBuffersModulePtr) {
-        return m_MeshBuffersModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_MeshBuffersModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

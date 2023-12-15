@@ -123,15 +123,15 @@ void SdfTextureNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void SdfTextureNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void SdfTextureNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_SdfTextureModulePtr) {
-        m_SdfTextureModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_SdfTextureModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* SdfTextureNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* SdfTextureNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_SdfTextureModulePtr) {
-        return m_SdfTextureModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_SdfTextureModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

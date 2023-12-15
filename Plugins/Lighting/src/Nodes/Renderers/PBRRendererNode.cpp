@@ -141,15 +141,15 @@ void PBRRendererNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void PBRRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void PBRRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_PBRRendererPtr) {
-        m_PBRRendererPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_PBRRendererPtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* PBRRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* PBRRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_PBRRendererPtr) {
-        return m_PBRRendererPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_PBRRendererPtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

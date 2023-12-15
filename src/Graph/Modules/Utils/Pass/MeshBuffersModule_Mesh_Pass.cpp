@@ -91,7 +91,8 @@ void MeshBuffersModule_Mesh_Pass::SetModel(SceneModelWeak vSceneModel) {
     m_SceneModel = vSceneModel;
 }
 
-void MeshBuffersModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void MeshBuffersModule_Mesh_Pass::SetTexture(
+    const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -117,7 +118,7 @@ void MeshBuffersModule_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::
     }
 }
 
-vk::DescriptorImageInfo* MeshBuffersModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* MeshBuffersModule_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_FrameBufferPtr) {
         if (vOutSize) {
             *vOutSize = m_FrameBufferPtr->GetOutputSize();

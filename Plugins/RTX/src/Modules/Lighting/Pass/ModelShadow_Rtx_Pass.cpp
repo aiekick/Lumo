@@ -109,7 +109,7 @@ bool ModelShadow_Rtx_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-vk::DescriptorImageInfo* ModelShadow_Rtx_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* ModelShadow_Rtx_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ComputeBufferPtr) {

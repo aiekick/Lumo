@@ -173,10 +173,10 @@ void VignetteNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* 
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void VignetteNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void VignetteNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
     if (m_VignetteModulePtr) {
-        m_VignetteModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_VignetteModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -184,10 +184,10 @@ void VignetteNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImage
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* VignetteNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* VignetteNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
     if (m_VignetteModulePtr) {
-        return m_VignetteModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_VignetteModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

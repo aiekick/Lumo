@@ -174,11 +174,11 @@ void ChromaticAberrationsNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, cons
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ChromaticAberrationsNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void ChromaticAberrationsNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ChromaticAberrationsModulePtr) {
-        m_ChromaticAberrationsModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_ChromaticAberrationsModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -186,11 +186,11 @@ void ChromaticAberrationsNode::SetTexture(const uint32_t& vBindingPoint, vk::Des
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ChromaticAberrationsNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* ChromaticAberrationsNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ChromaticAberrationsModulePtr) {
-        return m_ChromaticAberrationsModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_ChromaticAberrationsModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

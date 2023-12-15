@@ -128,7 +128,8 @@ void MatcapRenderer_Mesh_Pass::SetModel(SceneModelWeak vSceneModel) {
     m_SceneModel = vSceneModel;
 }
 
-void MatcapRenderer_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void MatcapRenderer_Mesh_Pass::SetTexture(
+    const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -144,7 +145,7 @@ void MatcapRenderer_Mesh_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Des
     }
 }
 
-vk::DescriptorImageInfo* MatcapRenderer_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* MatcapRenderer_Mesh_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_FrameBufferPtr) {
         AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_FrameBufferPtr).get(), vOutSize);
 

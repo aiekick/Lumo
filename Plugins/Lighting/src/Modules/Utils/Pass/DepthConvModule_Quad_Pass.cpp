@@ -82,7 +82,7 @@ bool DepthConvModule_Quad_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void DepthConvModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void DepthConvModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -109,7 +109,7 @@ void DepthConvModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::De
     }
 }
 
-vk::DescriptorImageInfo* DepthConvModule_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* DepthConvModule_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_FrameBufferPtr) {

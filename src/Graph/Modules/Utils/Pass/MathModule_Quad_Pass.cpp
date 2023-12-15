@@ -160,7 +160,7 @@ bool MathModule_Quad_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void MathModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void MathModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -200,7 +200,7 @@ void MathModule_Quad_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descrip
     }
 }
 
-vk::DescriptorImageInfo* MathModule_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* MathModule_Quad_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_FrameBufferPtr) {
         if (vOutSize) {
             *vOutSize = m_FrameBufferPtr->GetOutputSize();
@@ -490,15 +490,15 @@ bool MathModule_Quad_Pass::DrawCombo(const float vWidth) {
     if (change) {
         auto newCount = GetComponentCount();
         if (newCount == 2U) {
-            SetTexture(2U, nullptr, nullptr);
+            SetTexture(2U, nullptr, nullptr, nullptr);
         } else if (newCount == 1U) {
-            SetTexture(1U, nullptr, nullptr);
-            SetTexture(2U, nullptr, nullptr);
+            SetTexture(1U, nullptr, nullptr, nullptr);
+            SetTexture(2U, nullptr, nullptr, nullptr);
         } else if (newCount == 0U) {
             CTOOL_DEBUG_BREAK;  // on ne devrait jamais arriver la maus ua cas ou
-            SetTexture(0U, nullptr, nullptr);
-            SetTexture(1U, nullptr, nullptr);
-            SetTexture(2U, nullptr, nullptr);
+            SetTexture(0U, nullptr, nullptr, nullptr);
+            SetTexture(1U, nullptr, nullptr, nullptr);
+            SetTexture(2U, nullptr, nullptr, nullptr);
         }
         NeedNewUBOUpload();
     }

@@ -175,11 +175,11 @@ void ScreenSpaceNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ScreenSpaceNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void ScreenSpaceNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ScreenSpaceModulePtr) {
-        m_ScreenSpaceModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_ScreenSpaceModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -187,11 +187,11 @@ void ScreenSpaceNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIm
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ScreenSpaceNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* ScreenSpaceNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ScreenSpaceModulePtr) {
-        return m_ScreenSpaceModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_ScreenSpaceModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

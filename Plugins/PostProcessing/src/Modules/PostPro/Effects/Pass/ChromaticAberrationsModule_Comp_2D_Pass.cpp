@@ -120,7 +120,7 @@ bool ChromaticAberrationsModule_Comp_2D_Pass::DrawDialogsAndPopups(
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 void ChromaticAberrationsModule_Comp_2D_Pass::SetTexture(
-    const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+    const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
     if (m_Loaded) {
         if (vBindingPoint < m_ImageInfos.size()) {
@@ -144,7 +144,7 @@ void ChromaticAberrationsModule_Comp_2D_Pass::SetTexture(
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ChromaticAberrationsModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* ChromaticAberrationsModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
     if (m_ComputeBufferPtr) {
         AutoResizeBuffer(std::dynamic_pointer_cast<OutputSizeInterface>(m_ComputeBufferPtr).get(), vOutSize);

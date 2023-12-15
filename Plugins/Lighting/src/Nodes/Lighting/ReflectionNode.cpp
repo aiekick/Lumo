@@ -180,11 +180,11 @@ void ReflectionNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void ReflectionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void ReflectionNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ReflectionModulePtr) {
-        m_ReflectionModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_ReflectionModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
 
         if (vBindingPoint == 1U)  // connect/disconnet to longlat
         {
@@ -222,11 +222,11 @@ void ReflectionNode::SetTextureCube(const uint32_t& vBindingPoint, vk::Descripto
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* ReflectionNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* ReflectionNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ReflectionModulePtr) {
-        return m_ReflectionModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_ReflectionModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

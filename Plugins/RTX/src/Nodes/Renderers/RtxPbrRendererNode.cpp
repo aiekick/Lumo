@@ -209,11 +209,11 @@ void RtxPbrRendererNode::SetLightGroup(SceneLightGroupWeak vSceneLightGroup) {
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void RtxPbrRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void RtxPbrRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_RtxPbrRendererModulePtr) {
-        m_RtxPbrRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_RtxPbrRendererModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -221,11 +221,11 @@ void RtxPbrRendererNode::SetTexture(const uint32_t& vBindingPoint, vk::Descripto
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* RtxPbrRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* RtxPbrRendererNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_RtxPbrRendererModulePtr) {
-        return m_RtxPbrRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_RtxPbrRendererModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

@@ -159,11 +159,11 @@ bool WidgetColorModule::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiConte
     return change;
 }
 
-vk::DescriptorImageInfo* WidgetColorModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* WidgetColorModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_WidgetColorModule_Pass_Ptr) {
-        return m_WidgetColorModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_WidgetColorModule_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

@@ -163,7 +163,7 @@ bool GrayScottModule_Comp_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void GrayScottModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void GrayScottModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -184,7 +184,7 @@ void GrayScottModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::De
     }
 }
 
-vk::DescriptorImageInfo* GrayScottModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* GrayScottModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ComputeBufferPtr) {
         if (vOutSize) {
             *vOutSize = m_ComputeBufferPtr->GetOutputSize();

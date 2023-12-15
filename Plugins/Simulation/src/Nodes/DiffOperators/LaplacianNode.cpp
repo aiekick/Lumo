@@ -174,11 +174,11 @@ void LaplacianNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t*
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void LaplacianNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void LaplacianNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_LaplacianModulePtr) {
-        m_LaplacianModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_LaplacianModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -186,11 +186,11 @@ void LaplacianNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImag
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* LaplacianNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* LaplacianNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_LaplacianModulePtr) {
-        return m_LaplacianModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_LaplacianModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

@@ -122,8 +122,9 @@ void NodeSlotTexture2DInput::OnConnectEvent(NodeSlotWeak vOtherSlot) {
                 auto otherTextureNodePtr = dynamic_pointer_cast<Texture2DOutputInterface>(endSlotPtr->parentNode.lock());
                 if (otherTextureNodePtr) {
                     ct::fvec2 textureSize;
-                    auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize);
-                    parentNodePtr->SetTexture(descriptorBinding, descPtr, &textureSize);
+                    void* userDatasPtr = nullptr;
+                    auto descPtr = otherTextureNodePtr->GetDescriptorImageInfo(endSlotPtr->descriptorBinding, &textureSize, userDatasPtr);
+                    parentNodePtr->SetTexture(descriptorBinding, descPtr, &textureSize, userDatasPtr);
                 } else {
                     CTOOL_DEBUG_BREAK;
                 }
@@ -140,7 +141,7 @@ void NodeSlotTexture2DInput::OnDisConnectEvent(NodeSlotWeak vOtherSlot) {
         if (endSlotPtr) {
             auto parentNodePtr = dynamic_pointer_cast<Texture2DInputInterface<0u>>(parentNode.lock());
             if (parentNodePtr) {
-                parentNodePtr->SetTexture(descriptorBinding, nullptr, nullptr);
+                parentNodePtr->SetTexture(descriptorBinding, nullptr, nullptr, nullptr);
             } else {
                 CTOOL_DEBUG_BREAK;
             }
@@ -162,8 +163,9 @@ void NodeSlotTexture2DInput::TreatNotification(const NotifyEvent& vEvent, const 
                             auto receiverSlotPtr = vReceiverSlot.lock();
                             if (receiverSlotPtr) {
                                 ct::fvec2 textureSize;
-                                auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize);
-                                parentTexture2DInputNodePtr->SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize);
+                                void* userDatasPtr = nullptr;
+                                auto descPtr = otherNodePtr->GetDescriptorImageInfo(emiterSlotPtr->descriptorBinding, &textureSize, userDatasPtr);
+                                parentTexture2DInputNodePtr->SetTexture(receiverSlotPtr->descriptorBinding, descPtr, &textureSize, userDatasPtr);
                             }
                         } else {
                             CTOOL_DEBUG_BREAK;

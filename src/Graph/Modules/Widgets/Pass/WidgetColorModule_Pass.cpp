@@ -95,7 +95,7 @@ bool WidgetColorModule_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGui
     return false;
 }
 
-vk::DescriptorImageInfo* WidgetColorModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* WidgetColorModule_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ComputeBufferPtr) {
         if (vOutSize) {
             *vOutSize = m_ComputeBufferPtr->GetOutputSize();

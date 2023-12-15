@@ -174,11 +174,11 @@ void PlanetNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vC
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void PlanetNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void PlanetNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_PlanetModulePtr) {
-        m_PlanetModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_PlanetModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -186,11 +186,11 @@ void PlanetNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageIn
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* PlanetNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* PlanetNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_PlanetModulePtr) {
-        return m_PlanetModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_PlanetModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

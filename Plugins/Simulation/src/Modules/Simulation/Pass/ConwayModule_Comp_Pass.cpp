@@ -119,7 +119,7 @@ bool ConwayModule_Comp_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void ConwayModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void ConwayModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -144,7 +144,7 @@ void ConwayModule_Comp_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Descr
     }
 }
 
-vk::DescriptorImageInfo* ConwayModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* ConwayModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ComputeBufferPtr) {
         if (vOutSize) {
             *vOutSize = m_ComputeBufferPtr->GetOutputSize();

@@ -136,9 +136,9 @@ bool GridModule::DrawDialogsAndPopups(
     return false;
 }
 
-vk::DescriptorImageInfo* GridModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* GridModule::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_GridModule_Vertex_Pass_Ptr) {
-        return m_GridModule_Vertex_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_GridModule_Vertex_Pass_Ptr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

@@ -134,9 +134,9 @@ void RtxModelShadowNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-vk::DescriptorImageInfo* RtxModelShadowNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* RtxModelShadowNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_RtxModelShadowModulePtr) {
-        return m_RtxModelShadowModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_RtxModelShadowModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

@@ -170,7 +170,7 @@ bool BlurModule_Comp_2D_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void BlurModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void BlurModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -191,7 +191,7 @@ void BlurModule_Comp_2D_Pass::SetTexture(const uint32_t& vBindingPoint, vk::Desc
     }
 }
 
-vk::DescriptorImageInfo* BlurModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* BlurModule_Comp_2D_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ComputeBufferPtr) {

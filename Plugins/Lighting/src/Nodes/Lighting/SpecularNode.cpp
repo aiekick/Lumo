@@ -125,15 +125,15 @@ void SpecularNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* 
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void SpecularNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void SpecularNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_SpecularModulePtr) {
-        m_SpecularModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_SpecularModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* SpecularNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* SpecularNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_SpecularModulePtr) {
-        return m_SpecularModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_SpecularModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

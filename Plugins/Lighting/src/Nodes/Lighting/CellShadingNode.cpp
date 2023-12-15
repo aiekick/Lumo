@@ -129,15 +129,15 @@ void CellShadingNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void CellShadingNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void CellShadingNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_CellShadingModulePtr) {
-        m_CellShadingModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_CellShadingModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* CellShadingNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* CellShadingNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_CellShadingModulePtr) {
-        return m_CellShadingModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_CellShadingModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

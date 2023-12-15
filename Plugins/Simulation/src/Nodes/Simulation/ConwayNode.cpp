@@ -129,15 +129,15 @@ void ConwayNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vC
     BaseNode::NeedResizeByResizeEvent(vNewSize, vCountColorBuffers);
 }
 
-void ConwayNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void ConwayNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     if (m_ConwayModulePtr) {
-        m_ConwayModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_ConwayModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
-vk::DescriptorImageInfo* ConwayNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* ConwayNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     if (m_ConwayModulePtr) {
-        return m_ConwayModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_ConwayModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

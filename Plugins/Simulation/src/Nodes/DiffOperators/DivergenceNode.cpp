@@ -175,11 +175,11 @@ void DivergenceNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void DivergenceNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void DivergenceNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_DivergenceModulePtr) {
-        m_DivergenceModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_DivergenceModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -187,11 +187,11 @@ void DivergenceNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorIma
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* DivergenceNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* DivergenceNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_DivergenceModulePtr) {
-        return m_DivergenceModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_DivergenceModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;

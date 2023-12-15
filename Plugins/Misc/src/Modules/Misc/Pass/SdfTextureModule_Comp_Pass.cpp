@@ -107,7 +107,7 @@ bool SdfTextureModule_Comp_Pass::DrawDialogsAndPopups(
     return false;
 }
 
-void SdfTextureModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void SdfTextureModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_Loaded) {
@@ -134,7 +134,7 @@ void SdfTextureModule_Comp_Pass::SetTexture(const uint32_t& vBinding, vk::Descri
     }
 }
 
-vk::DescriptorImageInfo* SdfTextureModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* SdfTextureModule_Comp_Pass::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_ComputeBufferPtr) {

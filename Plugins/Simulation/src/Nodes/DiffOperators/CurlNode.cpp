@@ -174,11 +174,11 @@ void CurlNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCou
 //// TEXTURE SLOT INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void CurlNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize) {
+void CurlNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo* vImageInfo, ct::fvec2* vTextureSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_CurlModulePtr) {
-        m_CurlModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize);
+        m_CurlModulePtr->SetTexture(vBindingPoint, vImageInfo, vTextureSize, vUserDatas);
     }
 }
 
@@ -186,11 +186,11 @@ void CurlNode::SetTexture(const uint32_t& vBindingPoint, vk::DescriptorImageInfo
 //// TEXTURE SLOT OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-vk::DescriptorImageInfo* CurlNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize) {
+vk::DescriptorImageInfo* CurlNode::GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize, void* vUserDatas) {
     ZoneScoped;
 
     if (m_CurlModulePtr) {
-        return m_CurlModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize);
+        return m_CurlModulePtr->GetDescriptorImageInfo(vBindingPoint, vOutSize, vUserDatas);
     }
 
     return nullptr;
