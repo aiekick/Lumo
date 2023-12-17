@@ -24,27 +24,27 @@ limitations under the License.
 #include <Res/sdfmFont.h>
 #include <Res/sdfmToolbarFont.cpp>
 
-#include <imgui_internal.h>
-#include <ImGuiFileDialog.h>
+#include <ImGuiPack.h>
+
+#include <Graph/Manager/NodeManager.h>
+#include <Scene/Manager/SceneManager.h>
 
 #include <Backend/MainBackend.h>
-#include <Graph/Manager/NodeManager.h>
-#include <Plugins/PluginManager.h>
 #include <Project/ProjectFile.h>
+#include <Plugins/PluginManager.h>
 
 #include <Gaia/gaia.h>
 
 #include <Panes/DebugPane.h>
+#include <Panes/GraphPane.h>
 #include <Panes/View2DPane.h>
 #include <Panes/View3DPane.h>
-#include <Panes/ScenePane.h>
 #include <Panes/TuningPane.h>
-#include <Panes/GraphPane.h>
 #include <Panes/ConsolePane.h>
 #include <Panes/AnimatePane.h>
 #include <Panes/ProfilerPane.h>
-
-#include <ImWidgets.h>
+#include <Panes/SceneTreePane.h>
+#include <Panes/SceneViewPane.h>
 
 // panes
 #define DEBUG_PANE_ICON ICON_SDFM_BUG
@@ -95,7 +95,8 @@ bool MainFrontend::init() {
     LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::BOTTOM, 300.0f);
 
     LayoutManager::Instance()->AddPane(DebugPane::Instance(), "Debug Pane", "", PaneDisposal::CENTRAL, false, false);
-    LayoutManager::Instance()->AddPane(ScenePane::Instance(), "Scene Pane", "", PaneDisposal::RIGHT, false, false);
+    LayoutManager::Instance()->AddPane(SceneTreePane::Instance(), "Scene Tree Pane", "", PaneDisposal::RIGHT, false, false);
+    LayoutManager::Instance()->AddPane(SceneViewPane::Instance(), "Scene View Pane", "", PaneDisposal::LEFT, true, true);
     LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph Pane", "", PaneDisposal::CENTRAL, true, false);
     LayoutManager::Instance()->AddPane(TuningPane::Instance(), "Tuning Pane", "", PaneDisposal::RIGHT, true, false);
     LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D Pane", "", PaneDisposal::LEFT, true, true);

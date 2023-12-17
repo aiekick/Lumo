@@ -25,7 +25,7 @@ limitations under the License.
 #include <map>
 
 class ProjectFile;
-class ScenePane : public AbstractPane {
+class SceneTreePane : public AbstractPane {
 public:
     bool Init() override;
     void Unit() override;
@@ -38,16 +38,16 @@ public:
         const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 
 public:  // singleton
-    static std::shared_ptr<ScenePane> Instance() {
-        static auto _instance = std::make_shared<ScenePane>();
+    static std::shared_ptr<SceneTreePane> Instance() {
+        static auto _instance = std::make_shared<SceneTreePane>();
         return _instance;
     }
 
 public:
-    ScenePane();                            // Prevent construction
-    ScenePane(const ScenePane&) = default;  // Prevent construction by copying
-    ScenePane& operator=(const ScenePane&) {
+    SceneTreePane();                            // Prevent construction
+    SceneTreePane(const SceneTreePane&) = default;  // Prevent construction by copying
+    SceneTreePane& operator=(const SceneTreePane&) {
         return *this;
     };                     // Prevent assignment
-    virtual ~ScenePane();  // Prevent unwanted destruction};
+    virtual ~SceneTreePane();  // Prevent unwanted destruction};
 };

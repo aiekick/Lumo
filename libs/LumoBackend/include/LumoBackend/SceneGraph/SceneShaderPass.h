@@ -31,7 +31,7 @@ typedef std::unordered_map<uint32_t, SceneShaderPassWeak> SceneShaderPassContain
 // class qui va contenir un enesemble de shaderpass
 // cat un merger peut etre connecté a d'autre merger, 
 // et donc un ensemble de pluieurs passes peut etre mit sur un slot input
-// au lieu de jsute 1, donc cet un objet simple qui cotient des passes en provenance d'autre nodes
+// au lieu de juste 1, donc c'est un objet simple qui contient des passes en provenance d'autres nodes
 
 class LUMO_BACKEND_API SceneShaderPass
 {

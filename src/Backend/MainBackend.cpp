@@ -15,12 +15,10 @@
 #include <Plugins/PluginManager.h>
 #include <Graph/Manager/NodeManager.h>
 #include <Graph/Library/UserNodeLibrary.h>
+#include <Scene/Manager/SceneManager.h>
 #include <LayoutManager.h>
 
 #include <ImGuiPack.h>
-
-#include <Panes/View2DPane.h>
-#include <Panes/View3DPane.h>
 
 #include <Headers/Globals.h>
 #include <Headers/LumoBuild.h>
@@ -36,17 +34,20 @@
 #include <Gaia/Gui/VulkanImGuiRenderer.h>
 #include <Gaia/Gui/VulkanProfiler.h>
 
+#include <LumoBackend/Systems/SceneMerger.h>
 #include <LumoBackend/Systems/CommonSystem.h>
 #include <LumoBackend/Systems/FilesTrackerSystem.h>
 #include <LumoBackend/Helpers/RenderDocController.h>
 
-#include <Panes/ConsolePane.h>
-
 #include <Headers/LumoBuild.h>
 
-#include <Panes/TuningPane.h>
 #include <Panes/DebugPane.h>
 #include <Panes/GraphPane.h>
+#include <Panes/TuningPane.h>
+#include <Panes/View2DPane.h>
+#include <Panes/View3DPane.h>
+#include <Panes/ConsolePane.h>
+#include <Panes/SceneViewPane.h>
 
 #include <Project/ProjectFile.h>
 
@@ -104,6 +105,7 @@ bool MainBackend::init() {
             if (m_CreateVulkanCore()) {
                 if (m_CreateImGuiOverlay()) {
                     m_InitPlugins();
+                    m_InitScenes();
                     m_InitNodes();
                     m_Resize();
                     m_InitSystems();
@@ -130,6 +132,7 @@ void MainBackend::unit() {
     m_DestroyRenderers();
     m_DestroyImGuiOverlay();
     m_UnitNodes();
+    m_UnitScenes();
     m_UnitPlugins();
     m_DestroyVulkanCore();
     m_UnitFilesTracker();
@@ -430,6 +433,7 @@ void MainBackend::m_Update() {
 
     // evaluation of the graph
     NodeManager::Instance()->Execute(m_CurrentFrame);
+    SceneManager::Instance()->Execute(m_CurrentFrame);
 
     m_RenderOffScreen();  // frame rendering
 }
@@ -447,16 +451,13 @@ void MainBackend::m_Resize() {
     }
 }
 
-#define SHADER_PATH 0
-
 void MainBackend::m_AddPathToTrack(std::string vPathToTrack, bool vCreateDirectoryIfNotExist) {
     ZoneScoped;
     if (!vPathToTrack.empty()) {
         if (vCreateDirectoryIfNotExist) {
             FileHelper::Instance()->CreateDirectoryIfNotExist(vPathToTrack);
         }
-        if (m_PathsToTrack.find(vPathToTrack) == m_PathsToTrack.end())  // non trouv�
-        {
+        if (m_PathsToTrack.find(vPathToTrack) == m_PathsToTrack.end()) {  // non trouve
             m_PathsToTrack.emplace(vPathToTrack);
             FileHelper::Instance()->puSearchPaths.push_back(vPathToTrack);
             FilesTrackerSystem::Instance()->addWatch(vPathToTrack);
@@ -626,6 +627,7 @@ void MainBackend::m_UpdateCamera(const bool& vForce) {
         CommonSystem::Instance()->NeedCamChange();
     }
     View3DPane::Instance()->UpdateCameraIfNeeded();
+    SceneViewPane::Instance()->UpdateCameraIfNeeded();
 }
 
 void MainBackend::m_UpdateSound() {
@@ -721,6 +723,14 @@ bool MainBackend::m_CreateVulkanCore() {
     return false;
 }
 
+void MainBackend::m_InitScenes() {
+    SceneManager::Instance()->Init(m_VulkanCorePtr);
+}
+
+void MainBackend::m_UnitScenes() {
+    SceneManager::Instance()->Unit();
+}
+
 void MainBackend::m_InitNodes() {
     NodeManager::Instance()->Init(m_VulkanCorePtr);
     UserNodeLibrary::Instance()->AnalyseRootDirectory();
@@ -777,6 +787,7 @@ bool MainBackend::m_CreateImGuiOverlay() {
     m_ImGuiOverlayPtr = ImGuiOverlay::Create(m_VulkanCorePtr, MainBackend::Instance()->getWindow());  // needed for alloc ImGui Textures
     View3DPane::Instance()->SetVulkanImGuiRenderer(m_ImGuiOverlayPtr->GetImGuiRenderer());
     View2DPane::Instance()->SetVulkanImGuiRenderer(m_ImGuiOverlayPtr->GetImGuiRenderer());
+    SceneViewPane::Instance()->SetVulkanImGuiRenderer(m_ImGuiOverlayPtr->GetImGuiRenderer());
     if (m_ImGuiOverlayPtr != nullptr) {
 #ifdef USE_THUMBNAILS
         ImGuiFileDialog::Instance()->SetCreateThumbnailCallback([this](IGFD_Thumbnail_Info* vThumbnail_Info) {

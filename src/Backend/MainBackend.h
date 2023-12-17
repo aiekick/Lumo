@@ -161,6 +161,7 @@ private:
     bool m_CreateVulkanWindow();
     void m_InitFilesTracker();
     bool m_CreateVulkanCore();
+    void m_InitScenes();
     void m_InitNodes();
     void m_InitPlugins();
     void m_InitSystems();
@@ -170,6 +171,7 @@ private:
 
     void m_DestroyRenderers();
     void m_DestroyImGuiOverlay();
+    void m_UnitScenes();
     void m_UnitNodes();
     void m_UnitPlugins();
     void m_UnitSystems();

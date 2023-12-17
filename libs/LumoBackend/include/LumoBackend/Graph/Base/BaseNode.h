@@ -185,8 +185,8 @@ public:
 
 public:
     BaseNodeWeak m_This;
-    BaseNodeWeak m_GraphRoot3DNode;
-    BaseNodeWeak m_GraphRoot2DNode;
+    BaseNodeWeak m_GraphRoot3DNode; // root node for 3d with 3d interactions
+    BaseNodeWeak m_GraphRoot2DNode; // root node for 2d without interactions
     BaseNodeWeak m_RootNode;
 
 public:                                                            // links

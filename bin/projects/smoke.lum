@@ -6,10 +6,10 @@
 			<TransXY>0;0</TransXY>
 			<TransXYLock>1;1</TransXYLock>
 			<TransFactor>5</TransFactor>
-			<RotXYZ>0.106152;0.169936;0</RotXYZ>
+			<RotXYZ>-0.941371;0.756365;0</RotXYZ>
 			<RotXYZLock>0;0;1</RotXYZLock>
 			<RotXYZFactor>1</RotXYZFactor>
-			<Zoom>29.1541</Zoom>
+			<Zoom>13.3333</Zoom>
 			<ZoomLock>0</ZoomLock>
 			<ZoomFactor>5</ZoomFactor>
 			<PerspectiveAngle>45</PerspectiveAngle>
@@ -19,6 +19,32 @@
 			<CameraMode>0</CameraMode>
 		</CommonSystem>
 		<scene>
+			<graph>
+				<canvas>
+					<offset>0;0</offset>
+					<scale>1</scale>
+				</canvas>
+				<nodes>
+					<node name="Grid / Axis" type="GRID_AXIS" pos="0;-34" id="63626">
+						<slot place="OUTPUT" index="0" name="Output" type="TEXTURE_2D" id="63630"/>
+						<slot place="OUTPUT" index="1" name="Output" type="SHADER_PASS" id="63634"/>
+						<grid_module>
+							<can_we_render>true</can_we_render>
+							<line_thickness>1</line_thickness>
+							<show_grid>true</show_grid>
+							<grid_size>7.5</grid_size>
+							<grid_count>20</grid_count>
+							<show_axis>true</show_axis>
+							<both_sides>false</both_sides>
+							<axis_size>5</axis_size>
+						</grid_module>
+					</node>
+				</nodes>
+				<links>
+				</links>
+				<outputs>
+				</outputs>
+			</graph>
 		</scene>
 		<plugins>
 			<AudiArt>
@@ -28,6 +54,7 @@
 			<CodeGenerator>
 				<custom_types>
 					<custom_type_name>SlotCode</custom_type_name>
+					<custom_type_name>Path</custom_type_name>
 				</custom_types>
 				<root_path>C:\Gamedev\gitlab\Lumo\Plugins\FunparadigmPlugins\SdfMesher\src</root_path>
 				<scene>
@@ -37,10 +64,11 @@
 							<scale>1</scale>
 						</canvas>
 						<nodes>
-							<node name="Sdf Slicer" type="NONE" pos="-192;-74" id="35119">
+							<node name="Sdf Slicer" type="NONE" pos="0;0" id="35119">
 								<slot index="0" name="Code" type="SlotCode" place="INPUT" id="35122" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="1" name="Transform" type="WIDGET_MAT4" place="INPUT" id="35255" hideName="false" typeIndex="6" subTypeIndex="4" bindingIndex="2" showWidget="false"/>
+								<slot index="1" name="Path" type="Path" place="INPUT" id="35255" hideName="false" typeIndex="3" subTypeIndex="1" bindingIndex="2" showWidget="false"/>
 								<slot index="0" name="Texture" type="TEXTURE_2D" place="OUTPUT" id="35129" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="New Slot" type="SHADER_PASS" place="OUTPUT" id="53179" hideName="true" typeIndex="8" subTypeIndex="0" bindingIndex="1" showWidget="false"/>
 								<generation>
 									<class_name>SdfSlicer</class_name>
 									<category_name>Slicers</category_name>
@@ -67,9 +95,9 @@
 									</UBO>
 								</UBOS>
 							</node>
-							<node name="Slice Mesher" type="NONE" pos="0;-34" id="35159">
+							<node name="Slice Mesher" type="NONE" pos="0;0" id="35159">
 								<slot index="0" name="Image" type="TEXTURE_2D" place="INPUT" id="35162" hideName="false" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="1" name="Transform" type="WIDGET_MAT4" place="INPUT" id="35294" hideName="false" typeIndex="6" subTypeIndex="4" bindingIndex="1" showWidget="false"/>
+								<slot index="1" name="Path" type="Path" place="INPUT" id="35294" hideName="false" typeIndex="3" subTypeIndex="1" bindingIndex="1" showWidget="false"/>
 								<slot index="0" name="Model" type="MESH" place="OUTPUT" id="35165" hideName="true" typeIndex="2" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
 								<generation>
 									<class_name>SliceMesher</class_name>
@@ -96,9 +124,35 @@
 									</UBO>
 								</UBOS>
 							</node>
-							<node name="Code Path" type="NONE" pos="-159;13" id="35140">
+							<node name="Path Preview" type="NONE" pos="0;0" id="53157">
+								<slot index="0" name="Path" type="Path" place="INPUT" id="53160" hideName="false" typeIndex="3" subTypeIndex="1" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="New Slot" type="TEXTURE_2D" place="OUTPUT" id="53167" hideName="true" typeIndex="4" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<slot index="1" name="New Slot" type="SHADER_PASS" place="OUTPUT" id="53173" hideName="true" typeIndex="8" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
+								<generation>
+									<class_name>PathPreview</class_name>
+									<category_name>None</category_name>
+									<node_creation_name>PATH_PREVIEW</node_creation_name>
+									<node_display_name>Path Preview</node_display_name>
+									<generate_module>true</generate_module>
+									<generate_pass>true</generate_pass>
+									<renderer_type>Comp</renderer_type>
+									<module_display_name>Path Preview</module_display_name>
+									<module_xml_name>path_preview_module</module_xml_name>
+									<module_xml_simple_name>path_preview_pass</module_xml_simple_name>
+									<pass_specialization_type>Quad</pass_specialization_type>
+									<pass_use_ubo>false</pass_use_ubo>
+									<pass_use_sbo>false</pass_use_sbo>
+									<node_is_a_task>true</node_is_a_task>
+									<node_is_an_effect>false</node_is_an_effect>
+									<vertex_struct_type>0</vertex_struct_type>
+									<use_common_system_ubo>false</use_common_system_ubo>
+								</generation>
+								<UBOS renderer="Comp">
+								</UBOS>
+							</node>
+							<node name="Code Path" type="NONE" pos="0;0" id="35140">
 								<slot index="0" name="Code" type="SlotCode" place="INPUT" id="35143" hideName="false" typeIndex="3" subTypeIndex="0" bindingIndex="0" showWidget="false"/>
-								<slot index="0" name="Transform" type="WIDGET_MAT4" place="OUTPUT" id="35247" hideName="true" typeIndex="6" subTypeIndex="4" bindingIndex="0" showWidget="false"/>
+								<slot index="0" name="Path" type="Path" place="OUTPUT" id="35247" hideName="true" typeIndex="3" subTypeIndex="1" bindingIndex="0" showWidget="false"/>
 								<generation>
 									<class_name>CodePath</class_name>
 									<category_name>Paths</category_name>
@@ -127,8 +181,8 @@
 									</UBO>
 								</UBOS>
 							</node>
-							<node name="Base  Paths" type="NONE" pos="-365;-25" id="35232">
-								<slot index="0" name="Transform" type="WIDGET_MAT4" place="OUTPUT" id="35235" hideName="false" typeIndex="6" subTypeIndex="4" bindingIndex="2147483647" showWidget="false"/>
+							<node name="Base  Paths" type="NONE" pos="0;0" id="35232">
+								<slot index="0" name="Path" type="Path" place="OUTPUT" id="35235" hideName="false" typeIndex="3" subTypeIndex="1" bindingIndex="2147483647" showWidget="false"/>
 								<generation>
 									<class_name>BasePaths</class_name>
 									<category_name>Paths</category_name>
@@ -158,11 +212,10 @@
 						<links>
 							<link in="35119:35129" out="35159:35162"/>
 							<link in="35232:35235" out="35119:35255"/>
+							<link in="35140:35247" out="53157:53160"/>
 							<link in="35140:35247" out="35159:35294"/>
 						</links>
 						<outputs>
-							<output type="middle" ids="35119:35122"/>
-							<output type="right" ids="35119:35122"/>
 						</outputs>
 					</graph>
 				</scene>

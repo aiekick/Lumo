@@ -21,6 +21,8 @@ limitations under the License.
 #include <Gaia/Core/VulkanCore.h>
 #include <Gaia/Shader/VulkanShader.h>
 #include <Graph/Modules/Misc/Pass/GridModule_Vertex_Pass.h>
+#include <LumoBackend/Systems/SceneMerger.h>
+
 using namespace GaiApi;
 
 #ifdef PROFILER_INCLUDE
@@ -75,6 +77,7 @@ bool GridModule::Init() {
             if (m_GridModule_Vertex_Pass_Ptr->InitPixel(
                     map_size, 1U, true, true, 0.0f, false, false, vk::Format::eR32G32B32A32Sfloat, vk::SampleCountFlagBits::e2)) {
                 AddGenericPass(m_GridModule_Vertex_Pass_Ptr);
+                SceneMerger::Instance()->AddGenericPass(m_GridModule_Vertex_Pass_Ptr);
                 m_SceneShaderPassPtr->Add(m_GridModule_Vertex_Pass_Ptr);
                 m_Loaded = true;
             }

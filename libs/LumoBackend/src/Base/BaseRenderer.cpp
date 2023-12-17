@@ -338,20 +338,24 @@ bool BaseRenderer::InitRtx(const ct::uvec2& vSize) {
 void BaseRenderer::Unit() {
     ZoneScoped;
 
-    m_Device.waitIdle();
+    if (!m_VulkanCore.expired()) {
+        m_Device.waitIdle();
 
-    if (m_Loaded) {
-        if (m_TracyContext) {
+        if (m_Loaded) {
+            if (m_TracyContext) {
 #ifdef PROFILER_INCLUDE
-            TracyVkDestroy(m_TracyContext);
-            m_TracyContext = nullptr;
+                TracyVkDestroy(m_TracyContext);
+                m_TracyContext = nullptr;
 #endif
+            }
         }
-    }
 
-    m_ShaderPasses.clear();
-    DestroySyncObjects();
-    DestroyCommanBuffer();
+        m_ShaderPasses.clear();
+        DestroySyncObjects();
+        DestroyCommanBuffer();
+        m_Device = nullptr;
+        m_VulkanCore.reset();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

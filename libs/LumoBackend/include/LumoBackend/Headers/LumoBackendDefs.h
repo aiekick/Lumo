@@ -118,6 +118,10 @@ class GizmoInterface;
 typedef std::shared_ptr<GizmoInterface> GizmoInterfacePtr;
 typedef std::weak_ptr<GizmoInterface> GizmoInterfaceWeak;
 
+class SceneMerger;
+typedef std::shared_ptr<SceneMerger> SceneMergerPtr;
+typedef std::weak_ptr<SceneMerger> SceneMergerWeak;
+
 // colors for RenderDoc
 #define QUAD_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.6f, 0.8f, 0.9f, 0.5f)
 #define MESH_SHADER_PASS_DEBUG_COLOR ct::fvec4(0.7f, 0.9f, 0.6f, 0.5f)

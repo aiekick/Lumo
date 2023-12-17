@@ -17,7 +17,7 @@ limitations under the License.
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "ScenePane.h"
+#include "SceneTreePane.h"
 #include <ImWidgets.h>
 #include <ctools/cTools.h>
 #include <ctools/FileHelper.h>
@@ -33,16 +33,16 @@ limitations under the License.
 #define ZoneScoped
 #endif
 
-ScenePane::ScenePane() = default;
-ScenePane::~ScenePane() = default;
+SceneTreePane::SceneTreePane() = default;
+SceneTreePane::~SceneTreePane() = default;
 
-bool ScenePane::Init() {
+bool SceneTreePane::Init() {
     ZoneScoped;
 
     return true;
 }
 
-void ScenePane::Unit() {
+void SceneTreePane::Unit() {
     ZoneScoped;
 }
 
@@ -50,7 +50,7 @@ void ScenePane::Unit() {
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool ScenePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool SceneTreePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     if (vInOutPaneShown & paneFlag) {
@@ -74,7 +74,7 @@ bool ScenePane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneSh
     return false;
 }
 
-bool ScenePane::DrawDialogsAndPopups(
+bool SceneTreePane::DrawDialogsAndPopups(
     const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
@@ -101,11 +101,11 @@ bool ScenePane::DrawDialogsAndPopups(
     return false;
 }
 
-bool ScenePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool SceneTreePane::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) {
     return false;
 }
 
-bool ScenePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool SceneTreePane::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
     UNUSED(vRect);
