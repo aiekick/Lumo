@@ -440,6 +440,11 @@ void BaseNode::NavigateToSelection() const {
 ////// CANVAS QUERY //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+ImVec2 BaseNode::GetMousePos() const {
+    return ImGui::GetMousePosOnOpeningCurrentPopup();
+    return ImGui::GetMousePos();
+}
+
 ImVec2 BaseNode::GetCanvasOffset() const {
     if (m_BaseNodeState.m_NodeGraphContext) {
         ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
@@ -1339,20 +1344,24 @@ void BaseNode::DoShorcutsOnNode(BaseNodeState* vBaseNodeState) {
 }
 
 void BaseNode::DoPopups(BaseNodeState* vBaseNodeState) {
-    m_OpenPopupPosition = ImGui::GetMousePos();
 
     ax::NodeEditor::Suspend();
 
     if (vBaseNodeState->m_CustomContextMenuRequested && !vBaseNodeState->m_CustomContextMenuNode.expired()) {
+        m_OpenPopupPosition = GetMousePos();
         ImGui::OpenPopup("CustomNodePopup");
         vBaseNodeState->m_CustomContextMenuRequested = false;
     } else if (ax::NodeEditor::ShowNodeContextMenu(&m_ContextMenuNodeId)) {
+        m_OpenPopupPosition = GetMousePos();
         ImGui::OpenPopup("NodeContextMenu");
     } else if (ax::NodeEditor::ShowPinContextMenu(&m_ContextMenuSlotId)) {
+        m_OpenPopupPosition = GetMousePos();
         ImGui::OpenPopup("SlotContextMenu");
     } else if (ax::NodeEditor::ShowLinkContextMenu(&m_ContextMenuLinkId)) {
+        m_OpenPopupPosition = GetMousePos();
         ImGui::OpenPopup("LinkContextMenu");
     } else if (ax::NodeEditor::ShowBackgroundContextMenu()) {
+        m_OpenPopupPosition = GetMousePos();
         vBaseNodeState->linkFromSlot.reset();
         ImGui::OpenPopup("CreateNewNode");
     }

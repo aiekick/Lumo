@@ -438,6 +438,8 @@ public:
     void ZoomToSelection() const;
     void NavigateToSelection() const;
 
+    [[nodiscard]] ImVec2 GetMousePos() const;
+
     [[nodiscard]] ImVec2 GetCanvasOffset() const;
     [[nodiscard]] float GetCanvasScale() const;
 
