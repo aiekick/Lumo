@@ -111,7 +111,6 @@ bool %s::IsOk() const
 
     scene_graph_h_file_code +=
         u8R"(
-
 #pragma once
 
 #include <vector>
@@ -121,7 +120,7 @@ class %s;
 typedef std::shared_ptr<%s> %sPtr;
 typedef std::weak_ptr<%s> %sWeak;
 
-// NotifyEvent : need to update the accel structure
+// NotifyEvent : need to update the %s structure
 #define %sUpdateDone "%sUpdateDone"
 
 class %s

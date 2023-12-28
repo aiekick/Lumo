@@ -1382,7 +1382,6 @@ void BaseNode::DoCheckNodePopup(BaseNodeState* vBaseNodeState) {
                 nodePtr->DrawCustomContextMenuForNode(vBaseNodeState);
             }
         }
-
         ImGui::EndPopup();
     } else {
         vBaseNodeState->m_CustomContextMenuNode.reset();

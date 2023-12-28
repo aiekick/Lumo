@@ -44,7 +44,7 @@ private:
     vk::DescriptorBufferInfo m_DescriptorBufferInfo_Vert;
 
     struct UBOVert {
-        alignas(16) glm::mat4x4 transform = glm::mat4x4(1.0f);
+        alignas(16) glm::mat4x4 transform = glm::mat4x4(1.0f); // tofix : to remove, because unused
     } m_UBOVert;
 
     VulkanBufferObjectPtr m_UBOFragPtr = nullptr;
