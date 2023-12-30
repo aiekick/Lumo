@@ -441,7 +441,7 @@ void BaseNode::NavigateToSelection() const {
 //////////////////////////////////////////////////////////////////////////////
 
 ImVec2 BaseNode::GetMousePos() const {
-    return ImGui::GetMousePosOnOpeningCurrentPopup();
+    //return ImGui::GetMousePosOnOpeningCurrentPopup();
     return ImGui::GetMousePos();
 }
 
@@ -1344,24 +1344,25 @@ void BaseNode::DoShorcutsOnNode(BaseNodeState* vBaseNodeState) {
 }
 
 void BaseNode::DoPopups(BaseNodeState* vBaseNodeState) {
+    const auto& mouse_pos = GetMousePos();
 
     ax::NodeEditor::Suspend();
 
     if (vBaseNodeState->m_CustomContextMenuRequested && !vBaseNodeState->m_CustomContextMenuNode.expired()) {
-        m_OpenPopupPosition = GetMousePos();
+        m_OpenPopupPosition = mouse_pos;
         ImGui::OpenPopup("CustomNodePopup");
         vBaseNodeState->m_CustomContextMenuRequested = false;
     } else if (ax::NodeEditor::ShowNodeContextMenu(&m_ContextMenuNodeId)) {
-        m_OpenPopupPosition = GetMousePos();
+        m_OpenPopupPosition = mouse_pos;
         ImGui::OpenPopup("NodeContextMenu");
     } else if (ax::NodeEditor::ShowPinContextMenu(&m_ContextMenuSlotId)) {
-        m_OpenPopupPosition = GetMousePos();
+        m_OpenPopupPosition = mouse_pos;
         ImGui::OpenPopup("SlotContextMenu");
     } else if (ax::NodeEditor::ShowLinkContextMenu(&m_ContextMenuLinkId)) {
-        m_OpenPopupPosition = GetMousePos();
+        m_OpenPopupPosition = mouse_pos;
         ImGui::OpenPopup("LinkContextMenu");
     } else if (ax::NodeEditor::ShowBackgroundContextMenu()) {
-        m_OpenPopupPosition = GetMousePos();
+        m_OpenPopupPosition = mouse_pos;
         vBaseNodeState->linkFromSlot.reset();
         ImGui::OpenPopup("CreateNewNode");
     }
