@@ -49,7 +49,7 @@ public:
 
 public:
     SceneMerger(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~SceneMerger() = default;
+    virtual ~SceneMerger() = default;
 
     bool Init();
     void Unit();

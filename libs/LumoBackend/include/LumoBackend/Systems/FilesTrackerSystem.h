@@ -48,11 +48,11 @@ protected:
         efsw::WatchID watchid, const std::string& dir, const std::string& filename, efsw::Action action, std::string oldFilename = "") override;
 
     FilesTrackerSystem() = default;                           // Prevent construction
-    FilesTrackerSystem(const FilesTrackerSystem&) = default;  // Prevent construction by copying
+    FilesTrackerSystem(const FilesTrackerSystem&) = delete;  // Prevent construction by copying
     FilesTrackerSystem& operator=(const FilesTrackerSystem&) {
         return *this;
     };                                // Prevent assignment
-    ~FilesTrackerSystem() = default;  // Prevent unwanted destruction
+    virtual ~FilesTrackerSystem() = default;  // Prevent unwanted destruction
 
 public:
     void addWatch(std::string& vPath);

@@ -28,7 +28,6 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX src FILES ${PROJECT_SRC
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
 add_definitions(-DIMGUI_DEFINE_MATH_OPERATORS)
 add_definitions(${GLFW_DEFINITIONS})
-add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
 add_definitions(-DUSE_VULKAN)
 add_definitions(-DVULKAN)

@@ -74,7 +74,7 @@ private:
 
 public:
     LibraryCategory();
-    ~LibraryCategory();
+    virtual ~LibraryCategory();
     void Clear();
     LibraryCategory* AddCategory(const std::string& vCategoryName);
     void AddShader(const std::string& vShaderName, const std::string& vShaderPath);

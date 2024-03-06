@@ -37,12 +37,12 @@ public:
     explicit NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint);
     explicit NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
     explicit NodeSlotTextureCubeOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotTextureCubeOutput();
+    virtual ~NodeSlotTextureCubeOutput();
 
     void Init();
     void Unit();
 
     void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

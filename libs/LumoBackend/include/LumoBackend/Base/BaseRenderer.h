@@ -50,10 +50,6 @@ limitations under the License.
 // pouront etre bloqué en code pour specialisation
 
 class LUMO_BACKEND_API BaseRenderer : public conf::ConfigAbstract, public GuiInterface, public ShaderUpdateInterface, public ResizerInterface {
-private:
-    bool m_NeedNewUBOUpload = true;  // true for first render
-    bool m_NeedNewSBOUpload = true;  // true for first render
-
 protected:
     BaseRendererWeak m_This;  // pointer to this for affected in other op
 
@@ -177,11 +173,11 @@ public:  // contructor
 
     virtual void ResetFrame();
 
-    void UpdateShaders(const std::set<std::string>& vFiles);
+    void UpdateShaders(const std::set<std::string>& vFiles) override;
 
-    std::string getXml(const std::string& vOffset, const std::string& vUserDatas);
+    std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;
     // return true for continue xml parsing of childs in this node or false for interupt the child exploration
-    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas);
+    bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas) override;
 
 protected:
     virtual void DoBeforeEndCommandBuffer(vk::CommandBuffer* vCmdBufferPtr);

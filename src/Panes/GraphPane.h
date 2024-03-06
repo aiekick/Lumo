@@ -44,7 +44,7 @@ public:
     bool DrawDialogsAndPopups(
         const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
     void DrawProperties();
 
     void Clear();

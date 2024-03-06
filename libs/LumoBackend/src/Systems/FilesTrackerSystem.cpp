@@ -47,7 +47,7 @@ void FilesTrackerSystem::update() {
 }
 
 void FilesTrackerSystem::handleFileAction(
-    efsw::WatchID vWatchid, const std::string& vDir, const std::string& vFileName, efsw::Action vAction, std::string vOldFilename) {
+    efsw::WatchID vWatchid, const std::string& vDir, const std::string& vFileName, efsw::Action vAction, std::string /*vOldFilename*/) {
     UNUSED(vWatchid);
 
     switch (vAction) {

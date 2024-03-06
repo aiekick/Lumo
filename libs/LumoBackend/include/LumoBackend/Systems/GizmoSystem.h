@@ -53,5 +53,5 @@ protected:
     GizmoSystem& operator=(const GizmoSystem&) {
         return *this;
     };               // Prevent assignment
-    ~GizmoSystem();  // Prevent unwanted destruction
+    virtual ~GizmoSystem();  // Prevent unwanted destruction
 };

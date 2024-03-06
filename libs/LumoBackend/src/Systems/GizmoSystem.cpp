@@ -23,7 +23,7 @@ limitations under the License.
 #include <ctools/Logger.h>
 #include <glm/gtc/type_ptr.hpp>
 
-static bool useGizmoCulling = false;
+//static bool useGizmoCulling = false;
 
 GizmoSystem::GizmoSystem() {
     Init();
@@ -93,7 +93,7 @@ bool GizmoSystem::DrawGizmoTransformDialog(GizmoInterfaceWeak vGizmo) {
 
     auto gizmoPtr = vGizmo.lock();
     if (gizmoPtr) {
-        float matrixTranslation[3], matrixRotation[3], matrixScale[3], matrixRotationEmpty[3] = {0.0f, 0.0f, 0.0f};
+        float matrixTranslation[3], matrixRotation[3], matrixScale[3];//, matrixRotationEmpty[3] = {0.0f, 0.0f, 0.0f};
         ImGuizmo::DecomposeMatrixToComponents(gizmoPtr->GetGizmoFloatPtr(), matrixTranslation, matrixRotation, matrixScale);
 
         ImGui::BeginGroup();

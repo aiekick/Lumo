@@ -41,5 +41,5 @@ public:
 
 public:
     NodeLink();
-    ~NodeLink();
+    virtual ~NodeLink();
 };

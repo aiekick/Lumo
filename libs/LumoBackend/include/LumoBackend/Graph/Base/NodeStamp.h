@@ -30,7 +30,7 @@ public:
 
 public:
     NodeStamp();
-    ~NodeStamp();
+    virtual ~NodeStamp();
 
     void DrawImGui();
 };

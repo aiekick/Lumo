@@ -83,6 +83,9 @@ private:
 	SceneLightWeak m_This; 
 
 public:
+    SceneLight() = default;
+    virtual ~SceneLight() = default;
+
 	// std430
 	struct LightDatasStruct {
 		glm::mat4x4 lightGizmo = glm::mat4x4(1.0f);

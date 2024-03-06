@@ -55,7 +55,7 @@ bool SceneLight::NeedUpdateCamera() {
     ZoneScoped;
 
     if (gizmo_was_changed) {
-        const glm::mat4 bias(0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f);
+        //const glm::mat4 bias(0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f, 0.5f, 0.5f, 1.0f);
 
         switch ((LightTypeEnum)lightDatas.lightType) {
             case LightTypeEnum::POINT: {
@@ -82,6 +82,8 @@ bool SceneLight::NeedUpdateCamera() {
             case LightTypeEnum::AREA: {
                 break;
             }
+            case LightTypeEnum::NONE: 
+            case LightTypeEnum::Count: break;
         }
 
         gizmo_was_changed = false;

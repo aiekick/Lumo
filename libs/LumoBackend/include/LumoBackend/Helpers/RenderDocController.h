@@ -40,5 +40,5 @@ protected:
     RenderDocController& operator=(const RenderDocController&) {
         return *this;
     };                                 // Prevent assignment
-    ~RenderDocController() = default;  // Prevent unwanted destruction
+    virtual ~RenderDocController() = default;  // Prevent unwanted destruction
 };

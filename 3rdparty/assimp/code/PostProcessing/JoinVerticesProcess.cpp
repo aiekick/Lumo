@@ -53,7 +53,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include <unordered_set>
 #include <unordered_map>
-#include <memory>
 
 using namespace Assimp;
 
@@ -146,7 +145,7 @@ bool areVerticesEqual(
 }
 
 template<class XMesh>
-void updateXMeshVertices(XMesh *pMesh, std::vector<int> &uniqueVertices) {
+void updateXMeshVertices(XMesh *pMesh, std::vector<Vertex> &uniqueVertices) {
     // replace vertex data with the unique data sets
     pMesh->mNumVertices = (unsigned int)uniqueVertices.size();
 
@@ -157,47 +156,53 @@ void updateXMeshVertices(XMesh *pMesh, std::vector<int> &uniqueVertices) {
     // ----------------------------------------------------------------------------
 
     // Position, if present (check made for aiAnimMesh)
-    if (pMesh->mVertices) {  
-        std::unique_ptr<aiVector3D[]> oldVertices(pMesh->mVertices);
+    if (pMesh->mVertices) {
+        delete [] pMesh->mVertices;
         pMesh->mVertices = new aiVector3D[pMesh->mNumVertices];
-        for (unsigned int a = 0; a < pMesh->mNumVertices; a++)
-            pMesh->mVertices[a] = oldVertices[uniqueVertices[a]];
+        for (unsigned int a = 0; a < pMesh->mNumVertices; a++) {
+            pMesh->mVertices[a] = uniqueVertices[a].position;
+        }
     }
 
     // Normals, if present
     if (pMesh->mNormals) {
-        std::unique_ptr<aiVector3D[]> oldNormals(pMesh->mNormals);
+        delete [] pMesh->mNormals;
         pMesh->mNormals = new aiVector3D[pMesh->mNumVertices];
-        for (unsigned int a = 0; a < pMesh->mNumVertices; a++)
-            pMesh->mNormals[a] = oldNormals[uniqueVertices[a]];
+        for( unsigned int a = 0; a < pMesh->mNumVertices; a++) {
+            pMesh->mNormals[a] = uniqueVertices[a].normal;
+        }
     }
     // Tangents, if present
     if (pMesh->mTangents) {
-        std::unique_ptr<aiVector3D[]> oldTangents(pMesh->mTangents);
+        delete [] pMesh->mTangents;
         pMesh->mTangents = new aiVector3D[pMesh->mNumVertices];
-        for (unsigned int a = 0; a < pMesh->mNumVertices; a++)
-            pMesh->mTangents[a] = oldTangents[uniqueVertices[a]];
+        for (unsigned int a = 0; a < pMesh->mNumVertices; a++) {
+            pMesh->mTangents[a] = uniqueVertices[a].tangent;
+        }
     }
     // Bitangents as well
     if (pMesh->mBitangents) {
-        std::unique_ptr<aiVector3D[]> oldBitangents(pMesh->mBitangents);
+        delete [] pMesh->mBitangents;
         pMesh->mBitangents = new aiVector3D[pMesh->mNumVertices];
-        for (unsigned int a = 0; a < pMesh->mNumVertices; a++)
-            pMesh->mBitangents[a] = oldBitangents[uniqueVertices[a]];
+        for (unsigned int a = 0; a < pMesh->mNumVertices; a++) {
+            pMesh->mBitangents[a] = uniqueVertices[a].bitangent;
+        }
     }
     // Vertex colors
     for (unsigned int a = 0; pMesh->HasVertexColors(a); a++) {
-        std::unique_ptr<aiColor4D[]> oldColors(pMesh->mColors[a]);
+        delete [] pMesh->mColors[a];
         pMesh->mColors[a] = new aiColor4D[pMesh->mNumVertices];
-        for (unsigned int b = 0; b < pMesh->mNumVertices; b++)
-            pMesh->mColors[a][b] = oldColors[uniqueVertices[b]];
+        for( unsigned int b = 0; b < pMesh->mNumVertices; b++) {
+            pMesh->mColors[a][b] = uniqueVertices[b].colors[a];
+        }
     }
     // Texture coords
     for (unsigned int a = 0; pMesh->HasTextureCoords(a); a++) {
-        std::unique_ptr<aiVector3D[]> oldTextureCoords(pMesh->mTextureCoords[a]);
+        delete [] pMesh->mTextureCoords[a];
         pMesh->mTextureCoords[a] = new aiVector3D[pMesh->mNumVertices];
-        for (unsigned int b = 0; b < pMesh->mNumVertices; b++)
-            pMesh->mTextureCoords[a][b] = oldTextureCoords[uniqueVertices[b]];
+        for (unsigned int b = 0; b < pMesh->mNumVertices; b++) {
+            pMesh->mTextureCoords[a][b] = uniqueVertices[b].texcoords[a];
+        }
     }
 }
 
@@ -265,7 +270,7 @@ int JoinVerticesProcess::ProcessMesh( aiMesh* pMesh, unsigned int meshIndex) {
     }
 
     // We'll never have more vertices afterwards.
-    std::vector<int> uniqueVertices;
+    std::vector<Vertex> uniqueVertices;
     uniqueVertices.reserve( pMesh->mNumVertices);
 
     // For each vertex the index of the vertex it was replaced by.
@@ -306,7 +311,7 @@ int JoinVerticesProcess::ProcessMesh( aiMesh* pMesh, unsigned int meshIndex) {
     const bool hasAnimMeshes = pMesh->mNumAnimMeshes > 0;
 
     // We'll never have more vertices afterwards.
-    std::vector<std::vector<int>> uniqueAnimatedVertices;
+    std::vector<std::vector<Vertex>> uniqueAnimatedVertices;
     if (hasAnimMeshes) {
         uniqueAnimatedVertices.resize(pMesh->mNumAnimMeshes);
         for (unsigned int animMeshIndex = 0; animMeshIndex < pMesh->mNumAnimMeshes; animMeshIndex++) {
@@ -340,10 +345,10 @@ int JoinVerticesProcess::ProcessMesh( aiMesh* pMesh, unsigned int meshIndex) {
             //keep track of its index and increment 1
             replaceIndex[a] = newIndex++;
             // add the vertex to the unique vertices
-            uniqueVertices.push_back(a);
+            uniqueVertices.push_back(v);
             if (hasAnimMeshes) {
                 for (unsigned int animMeshIndex = 0; animMeshIndex < pMesh->mNumAnimMeshes; animMeshIndex++) {
-                    uniqueAnimatedVertices[animMeshIndex].emplace_back(a);
+                    uniqueAnimatedVertices[animMeshIndex].emplace_back(pMesh->mAnimMeshes[animMeshIndex], a);
                 }
             }
         } else{

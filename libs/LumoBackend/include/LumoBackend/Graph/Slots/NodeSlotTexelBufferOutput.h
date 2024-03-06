@@ -41,12 +41,12 @@ public:
     explicit NodeSlotTexelBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
     explicit NodeSlotTexelBufferOutput(
         const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotTexelBufferOutput();
+    virtual ~NodeSlotTexelBufferOutput();
 
     void Init();
     void Unit();
 
     void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

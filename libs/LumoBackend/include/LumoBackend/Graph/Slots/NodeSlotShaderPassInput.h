@@ -36,7 +36,7 @@ public:
     explicit NodeSlotShaderPassInput(const std::string& vName);
     explicit NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName);
     explicit NodeSlotShaderPassInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotShaderPassInput();
+    virtual ~NodeSlotShaderPassInput();
 
     void Init();
     void Unit();
@@ -45,9 +45,9 @@ public:
     void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
     void TreatNotification(
-        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak())override;
 
     void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

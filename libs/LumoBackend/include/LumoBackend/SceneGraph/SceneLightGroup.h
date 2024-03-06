@@ -55,8 +55,8 @@ private:
 	vk::DescriptorBufferInfo m_EmptyBufferInfo = { VK_NULL_HANDLE, 0, VK_WHOLE_SIZE };
 
 public:
-	SceneLightGroup();
-	~SceneLightGroup();
+    SceneLightGroup();
+    virtual ~SceneLightGroup();
 
 	bool Init(GaiApi::VulkanCoreWeak vVulkanCore);
 	void Unit();

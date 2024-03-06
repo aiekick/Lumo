@@ -36,7 +36,7 @@ public:
     explicit NodeSlotTexture3DOutput(const std::string& vName, const uint32_t& vBindingPoint);
     explicit NodeSlotTexture3DOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
     explicit NodeSlotTexture3DOutput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotTexture3DOutput();
+    virtual ~NodeSlotTexture3DOutput();
 
     void Init();
     void Unit();
@@ -45,5 +45,5 @@ public:
 
     void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

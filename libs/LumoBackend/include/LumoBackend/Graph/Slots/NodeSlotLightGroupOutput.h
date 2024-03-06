@@ -36,12 +36,12 @@ public:
     explicit NodeSlotLightGroupOutput(const std::string& vName);
     explicit NodeSlotLightGroupOutput(const std::string& vName, const bool& vHideName);
     explicit NodeSlotLightGroupOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotLightGroupOutput();
+    virtual ~NodeSlotLightGroupOutput();
 
     void Init();
     void Unit();
 
     void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

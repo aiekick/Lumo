@@ -39,12 +39,12 @@ public:
     explicit NodeSlotVariableOutput(const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName);
     explicit NodeSlotVariableOutput(
         const std::string& vName, const std::string& vType, const uint32_t& vVariableIndex, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotVariableOutput();
+    virtual ~NodeSlotVariableOutput();
 
     void Init();
     void Unit();
 
     void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

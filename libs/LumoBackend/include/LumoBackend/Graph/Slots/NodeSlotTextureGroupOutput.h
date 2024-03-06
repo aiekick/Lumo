@@ -36,12 +36,12 @@ public:
     explicit NodeSlotTextureGroupOutput(const std::string& vName);
     explicit NodeSlotTextureGroupOutput(const std::string& vName, const bool& vHideName);
     explicit NodeSlotTextureGroupOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotTextureGroupOutput();
+    virtual ~NodeSlotTextureGroupOutput();
 
     void Init();
     void Unit();
 
     void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

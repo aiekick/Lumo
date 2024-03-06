@@ -52,7 +52,7 @@ private:
 
 public:
 	SceneTextureGroup();
-	~SceneTextureGroup();
+	virtual ~SceneTextureGroup();
 
 	bool Init(GaiApi::VulkanCoreWeak vVulkanCore);
 	void Unit();

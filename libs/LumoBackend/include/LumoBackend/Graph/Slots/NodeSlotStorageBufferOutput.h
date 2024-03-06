@@ -41,12 +41,12 @@ public:
     explicit NodeSlotStorageBufferOutput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
     explicit NodeSlotStorageBufferOutput(
         const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotStorageBufferOutput();
+    virtual ~NodeSlotStorageBufferOutput();
 
     void Init();
     void Unit();
 
     void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

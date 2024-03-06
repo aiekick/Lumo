@@ -36,7 +36,7 @@ public:
     explicit NodeSlotShaderPassOutput(const std::string& vName);
     explicit NodeSlotShaderPassOutput(const std::string& vName, const bool& vHideName);
     explicit NodeSlotShaderPassOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotShaderPassOutput();
+    virtual ~NodeSlotShaderPassOutput();
 
     void Init();
     void Unit();
@@ -45,5 +45,5 @@ public:
 
     void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

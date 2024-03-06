@@ -134,7 +134,7 @@ protected:
     CommonSystem& operator=(const CommonSystem&) {
         return *this;
     };                          // Prevent assignment
-    ~CommonSystem() = default;  // Prevent unwanted destruction
+    virtual ~CommonSystem() = default;  // Prevent unwanted destruction
 
 public:
     void SetCameraMode(const CAMERA_MODE_Enum& vCameraMode);

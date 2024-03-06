@@ -128,7 +128,7 @@ public:
     bool virtualUniform = false;  // virtual si l'uniform n'est pas utilisé
 
 private:
-    bool m_Selected = false;  // will select visually the slot, signify he is the output of the graph
+    //bool m_Selected = false;  // will select visually the slot, signify he is the output of the graph
 
 public:
     explicit NodeSlot();
@@ -136,7 +136,7 @@ public:
     explicit NodeSlot(std::string vName, std::string vType);
     explicit NodeSlot(std::string vName, std::string vType, bool vHideName);
     explicit NodeSlot(std::string vName, std::string vType, bool vHideName, bool vShowWidget);
-    ~NodeSlot();
+    virtual ~NodeSlot();
 
     void Init();
     void Unit();

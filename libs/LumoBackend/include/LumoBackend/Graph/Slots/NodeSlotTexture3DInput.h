@@ -36,7 +36,7 @@ public:
     explicit NodeSlotTexture3DInput(const std::string& vName, const uint32_t& vBindingPoint);
     explicit NodeSlotTexture3DInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
     explicit NodeSlotTexture3DInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotTexture3DInput();
+    virtual ~NodeSlotTexture3DInput();
 
     void Init();
     void Unit();
@@ -45,9 +45,9 @@ public:
     void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
     void TreatNotification(
-        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 
     void MouseDoubleClickedOnSlot(const ImGuiMouseButton& vMouseButton) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

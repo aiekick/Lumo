@@ -44,11 +44,6 @@ private:
     ProjectInterface* m_ProjectInstancePtr = nullptr;
 
 public:
-    virtual bool Init() = 0;
-    virtual void Unit() = 0;
-    virtual bool DrawPanes(
-        const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) = 0;
-
     void SetProjectInstancePtr(ProjectInterface* vProjectInstancePtr) {
         m_ProjectInstancePtr = vProjectInstancePtr;
     }

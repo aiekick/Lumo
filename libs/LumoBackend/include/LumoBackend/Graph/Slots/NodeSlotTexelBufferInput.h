@@ -41,7 +41,7 @@ public:
     explicit NodeSlotTexelBufferInput(const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName);
     explicit NodeSlotTexelBufferInput(
         const std::string& vName, const std::string& vType, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotTexelBufferInput();
+    virtual ~NodeSlotTexelBufferInput();
 
     void Init();
     void Unit();
@@ -50,7 +50,7 @@ public:
     void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
     void TreatNotification(
-        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

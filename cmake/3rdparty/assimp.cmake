@@ -33,6 +33,10 @@ set(ASSIMP_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdparty/assimp/include)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/assimp EXCLUDE_FROM_ALL)
 
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	target_compile_options(${ASSIMP_LIBRARIES} PRIVATE -Wno-unsafe-buffer-usage -Wno-unreachable-code-break)
+endif()
+
 set_target_properties(${ASSIMP_LIBRARIES} PROPERTIES FOLDER 3rdparty)
 set_target_properties(${ASSIMP_LIBRARIES} PROPERTIES RUNTIME_OUTPUT_NAME_DEBUG "assimpd")
 

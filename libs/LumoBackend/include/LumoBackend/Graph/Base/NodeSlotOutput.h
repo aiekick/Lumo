@@ -35,10 +35,10 @@ public:
     explicit NodeSlotOutput(const std::string& vName, const std::string& vType);
     explicit NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName);
     explicit NodeSlotOutput(const std::string& vName, const std::string& vType, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotOutput();
+    virtual ~NodeSlotOutput();
 
     void Init();
     void Unit();
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

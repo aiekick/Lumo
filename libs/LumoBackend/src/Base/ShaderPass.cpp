@@ -859,10 +859,8 @@ vk::PrimitiveTopology ShaderPass::GetPrimitiveTopologyFamily(const vk::Primitive
         case vk::PrimitiveTopology::eTriangleStrip:
         case vk::PrimitiveTopology::eTriangleFan:
         case vk::PrimitiveTopology::eTriangleListWithAdjacency:
-        case vk::PrimitiveTopology::eTriangleStripWithAdjacency:
-            return vk::PrimitiveTopology::eTriangleList;
-            // case vk::PrimitiveTopology::ePatchList:
-            //	return vk::PrimitiveTopology::ePatchList;
+        case vk::PrimitiveTopology::eTriangleStripWithAdjacency: return vk::PrimitiveTopology::eTriangleList;
+        case vk::PrimitiveTopology::ePatchList: return vk::PrimitiveTopology::ePatchList;
     }
 
     return vk::PrimitiveTopology::ePatchList;

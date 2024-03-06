@@ -89,5 +89,5 @@ protected:
     GraphLayout &operator=(const GraphLayout &) {
         return *this;
     };                         // Prevent assignment
-    ~GraphLayout() = default;  // Prevent unwanted destruction
+    virtual ~GraphLayout() = default;  // Prevent unwanted destruction
 };

@@ -37,7 +37,7 @@ public:
     explicit NodeSlotTextureCubeInput(const std::string& vName, const uint32_t& vBindingPoint);
     explicit NodeSlotTextureCubeInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName);
     explicit NodeSlotTextureCubeInput(const std::string& vName, const uint32_t& vBindingPoint, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotTextureCubeInput();
+    virtual ~NodeSlotTextureCubeInput();
 
     void Init();
     void Unit();
@@ -46,7 +46,7 @@ public:
     void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
     void TreatNotification(
-        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

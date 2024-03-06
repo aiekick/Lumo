@@ -36,7 +36,7 @@ public:
     explicit NodeSlotTextureGroupInput(const std::string& vName);
     explicit NodeSlotTextureGroupInput(const std::string& vName, const bool& vHideName);
     explicit NodeSlotTextureGroupInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotTextureGroupInput();
+    virtual ~NodeSlotTextureGroupInput();
 
     void Init();
     void Unit();
@@ -45,7 +45,7 @@ public:
     void OnDisConnectEvent(NodeSlotWeak vOtherSlot) override;
 
     void TreatNotification(
-        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak());
+        const NotifyEvent& vEvent, const NodeSlotWeak& vEmitterSlot = NodeSlotWeak(), const NodeSlotWeak& vReceiverSlot = NodeSlotWeak()) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };

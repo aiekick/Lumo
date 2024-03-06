@@ -36,12 +36,12 @@ public:
     explicit NodeSlotTaskOutput(const std::string& vName);
     explicit NodeSlotTaskOutput(const std::string& vName, const bool& vHideName);
     explicit NodeSlotTaskOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotTaskOutput();
+    virtual ~NodeSlotTaskOutput();
 
     void Init();
     void Unit();
 
     void SendFrontNotification(const NotifyEvent& vEvent) override;
 
-    void DrawDebugInfos();
+    void DrawDebugInfos() override;
 };
